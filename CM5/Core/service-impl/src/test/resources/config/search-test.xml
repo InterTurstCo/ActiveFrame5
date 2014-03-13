@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="https://cm5.intertrust.ru/config ../../../main/resources/config/configuration.xsd ">
+    <domain-object-type name="Attachment" template="true">
+        <fields>
+            <string name="Name" length="128" />
+            <string name="Path" length="128" />
+            <string name="MimeType" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <!-- Доменные объекты -->
+    <domain-object-type name="Type_A">
+        <fields>
+            <string name="String_A" length="15"/>
+            <long name="Long_A"/>
+            <decimal name="Decimal_A"/>
+            <date-time name="DateTime_A"/>
+            <dateTimeWithTimeZone name="DateTimeZone_A"/>
+            <timelessDate name="Date_A"/>
+        </fields>
+        <attachment-types>
+            <attachment-type name="Attach_A"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <domain-object-type name="Type_B">
+        <fields>
+            <string name="String_B" length="20"/>
+            <long name="Long_B"/>
+            <decimal name="Decimal_B"/>
+            <date-time name="DateTime_B"/>
+            <dateTimeWithTimeZone name="DateTimeZone_B"/>
+            <timelessDate name="Date_B"/>
+            <reference name="Reference_B_A" type="Type_A"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Type_C">
+        <fields>
+            <string name="String_C" length="25"/>
+            <long name="Long_C"/>
+            <date-time name="DateTime_C"/>
+        </fields>
+        <attachment-types>
+            <attachment-type name="Attach_C"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <domain-object-type name="Type_Ca" extends="Type_C">
+        <fields>
+            <string name="String_Ca" length="30"/>
+            <long name="Long_Ca"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Type_D">
+        <fields>
+            <string name="String_D" length="30"/>
+            <long name="Long_D"/>
+            <date-time name="DateTime_D"/>
+            <reference name="Reference_D_A" type="Type_A"/>
+            <reference name="Reference_D_C" type="Type_C"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Type_Da" extends="Type_D">
+        <attachment-types>
+            <attachment-type name="Attach_Da"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <!-- Глобальные настройки -->
+    <global-settings>
+        <audit-log enable="false"/>
+        <sql-trace resolveParameters="true" enable="false"/>
+        <search-languages>
+            <language id="ru"/>
+            <language id="en"/>
+        </search-languages>
+    </global-settings>
+
+    <!-- Области поиска -->
+    <search-area name="Area_A">
+        <target-domain-object type="Type_A">
+            <indexed-field name="String_A"/>
+            <indexed-field name="Long_A"/>
+            <indexed-field name="Decimal_A"/>
+            <indexed-field name="DateTime_A"/>
+            <indexed-field name="DateTimeZone_A"/>
+            <indexed-field name="Date_A"/>
+            <indexed-content type="Attach_A"/>
+            <linked-domain-object type="Type_B">
+                <indexed-field name="String_B"/>
+                <indexed-field name="Long_B"/>
+                <indexed-field name="Decimal_B"/>
+                <indexed-field name="DateTime_B"/>
+                <indexed-field name="DateTimeZone_B"/>
+                <indexed-field name="Date_B"/>
+                <parent-link>
+                    <doel>Reference_B_A</doel>
+                </parent-link>
+            </linked-domain-object>
+            <linked-domain-object type="Type_D">
+                <indexed-field name="String_D" language="ru"/>
+                <indexed-field name="Long_D"/>
+                <indexed-field name="DateTime_D"/>
+                <parent-link>
+                    <doel>Reference_D_A</doel>
+                </parent-link>
+            </linked-domain-object>
+        </target-domain-object>
+        <target-domain-object type="Type_D">
+            <indexed-field name="String_D" language="ru"/>
+            <indexed-field name="Long_D"/>
+            <indexed-field name="DateTime_D"/>
+            <linked-domain-object type="Type_C">
+                <indexed-field name="String_C" language=""/>
+                <indexed-field name="Long_C"/>
+                <indexed-field name="DateTime_C"/>
+                <indexed-content type="Attach_C"/>
+                <parent-link>
+                    <doel>Type_D^Reference_D_C</doel>
+                </parent-link>
+            </linked-domain-object>
+        </target-domain-object>
+    </search-area>
+
+    <search-area name="Area_B">
+        <target-domain-object type="Type_B">
+            <indexed-field name="String_B"/>
+            <indexed-field name="String_A">
+                <doel>Reference_B_A.String_A</doel>
+            </indexed-field>
+            <indexed-field name="Long_B"/>
+            <indexed-field name="Long_A">
+                <doel>Reference_B_A.Long_A</doel>
+            </indexed-field>
+            <indexed-field name="Decimal_B"/>
+            <indexed-field name="Decimal_A">
+                <doel>Reference_B_A.Decimal_A</doel>
+            </indexed-field>
+            <indexed-field name="DateTime_B"/>
+            <indexed-field name="DateTime_A">
+                <doel>Reference_B_A.DateTime_A</doel>
+            </indexed-field>
+            <indexed-field name="DateTimeZone_B"/>
+            <indexed-field name="DateTimeZone_A">
+                <doel>Reference_B_A.DateTimeZone_A</doel>
+            </indexed-field>
+            <indexed-field name="Date_B"/>
+            <indexed-field name="Date_A">
+                <doel>Reference_B_A.Date_A</doel>
+            </indexed-field>
+            <indexed-field name="Reference_B_A"/>
+        </target-domain-object>
+    </search-area>
+</configuration>
