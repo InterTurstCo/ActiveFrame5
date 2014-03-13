@@ -121,10 +121,12 @@
 
     <bean id="statusDao" class="ru.intertrust.cm.core.dao.impl.StatusDaoImpl"/>
 
-    <bean id="attachmentContentDao"
-        class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
-        init-method="init" />
-
     <bean id="domainObjectFinderService" class="ru.intertrust.cm.core.dao.impl.DomainObjectFinderServiceImpl" />
+
+    <beans profile="default">
+        <bean id="attachmentContentDao"
+            class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
+            init-method="init"/>
+    </beans>
 
 </beans>
