@@ -38,5 +38,6 @@
         <import-file>importdata/set-department-boss.csv</import-file>
         <import-file rewrite="false">importdata/import-union.csv</import-file>
         <import-file rewrite="false">importdata/import-country.csv</import-file>
+        <import-file>importdata/import-group-members.csv</import-file>
     </import-files>
 </module>
