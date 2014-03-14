@@ -98,9 +98,13 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
 
     @Override
     public FormState getFormState() {
+        return getFormState(null);
+    }
+
+    public FormState getFormState(IWidgetStateFilter widgetStateFilter) {
         FormState initialFormState = this.<FormPluginData>getInitialData().getFormDisplayData().getFormState();
         FormPluginView view = (FormPluginView) getView();
-        Map<String, WidgetState> widgetsState = view.getWidgetsState();
+        Map<String, WidgetState> widgetsState = view.getWidgetsState(widgetStateFilter);
 
         return new FormState(initialFormState.getName(), widgetsState, initialFormState.getObjects(),
                 initialFormState.getMessages());
@@ -132,7 +136,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
 
     @Override
     public void updateSizes() {
-      getView().onPluginPanelResize();
+        getView().onPluginPanelResize();
 
     }
 }

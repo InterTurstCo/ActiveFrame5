@@ -6,10 +6,7 @@ import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
 
@@ -87,11 +84,19 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         idsToDelete.add(id);
     }
 
-    public ArrayList<Id> getIdsToDelete() {
-        return idsToDelete;
-    }
-
     public LinkedHashMap<String, FormState> getNewFormStates() {
+        for (Map.Entry<String, FormState> stringFormStateEntry : newFormStates.entrySet()) {
+            FormState formStateEntry = stringFormStateEntry.getValue();
+            HashMap<String, WidgetState> filtereWidgetStateMap = new HashMap<String, WidgetState>();
+            Map<String, WidgetState> fullWidgetsState = formStateEntry.getFullWidgetsState();
+            for (Map.Entry<String, WidgetState> widgetState : fullWidgetsState.entrySet()) {
+                WidgetState value = widgetState.getValue();
+                if (!(value instanceof LabelState)) {
+                    filtereWidgetStateMap.put(widgetState.getKey(), value);
+                }
+            }
+            formStateEntry.setWidgetStateMap(filtereWidgetStateMap);
+        }
         return newFormStates;
     }
 

@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.IWidgetStateFilter;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -46,11 +47,13 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         }
         List<RowItem> rowItems = this.currentState.getRowItems();
         selectedIds.clear();
+        model = new ListDataProvider<RowItem>();
+
         for (RowItem rowItem : rowItems) {
             selectedIds.add(rowItem.getObjectId());
+            model.getList().add(rowItem);
         }
         this.currentState.setIds(selectedIds);
-        model = new ListDataProvider<RowItem>(rowItems);
         model.addDataDisplay(table);
 
     }
@@ -66,17 +69,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             };
             table.addColumn(column, summaryTableColumnConfig.getHeader());
         }
-        if (currentState.isEditable()) {
+        if (isEditable()) {
             table.addColumn(buildEditButtonColumn(), "");
             table.addColumn(buildDeleteButtonColumn(), "");
         }
     }
-
-   /* @Override
-    public WidgetState getCurrentState() {
-
-        return this.currentState;
-    }*/
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
@@ -106,6 +103,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                 return "Редактировать";
             }
         };
+
         FieldUpdater<RowItem, String> editButtonClickHandler = new FieldUpdater<RowItem, String>() {
             @Override
             public void update(final int index, final RowItem object, String value) {
@@ -113,7 +111,12 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                     @Override
                     public void execute(FormPlugin formPlugin) {
                         String stateKey = object.getParameter(STATE_KEY);
-                        FormState formState = formPlugin.getFormState();
+                        FormState formState = formPlugin.getFormState(new IWidgetStateFilter() {
+                            @Override
+                            public boolean exclude(BaseWidget widget) {
+                                return false;
+                            }
+                        });
                         convertFormStateAndFillRowItem(formState, object);
                         if (stateKey != null) {
                             currentState.replaceObjectState(stateKey, formState);
@@ -183,11 +186,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                 } else {
                     // объекта нет в пуле, значит помечаем его для физического удаления
                     if (object.getObjectId() != null) {
-                        currentState.addIdForDeletion(object.getObjectId());
-                        model.getList().remove(index);
+                        model.getList().remove(object);
                         selectedIds.remove(object.getObjectId());
                     }
                 }
+                table.redraw();
             }
         });
         return deleteButtonColumn;
@@ -207,7 +210,12 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                 DialogBoxAction saveAction = new DialogBoxAction() {
                     @Override
                     public void execute(FormPlugin formPlugin) {
-                        FormState formState = formPlugin.getFormState();
+                        FormState formState = formPlugin.getFormState(new IWidgetStateFilter() {
+                            @Override
+                            public boolean exclude(BaseWidget widget) {
+                                return false;
+                            }
+                        });
                         String stateKey = currentState.addObjectState(formState);
                         RowItem rowItem = new RowItem();
                         convertFormStateAndFillRowItem(formState, rowItem);

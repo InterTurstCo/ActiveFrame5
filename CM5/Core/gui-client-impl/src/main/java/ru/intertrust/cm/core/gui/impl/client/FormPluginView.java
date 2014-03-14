@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class FormPluginView extends PluginView {
 
-    private FormPanel  formPanel;
+    private FormPanel formPanel;
     // локальная шина событий
     protected EventBus eventBus;
 
@@ -38,14 +38,14 @@ public class FormPluginView extends PluginView {
         return eventBus;
     }
 
+    private static IWidgetStateFilter defaultWidgetStateFilter = new DefaultWidgetStateFilter();
+
     protected FormPluginView(FormPlugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
         // установка локальной шины событий
         this.eventBus = plugin.getLocalEventBus();
-        int formWidth = plugin.getOwner().asWidget().getElement().getClientWidth();
         int formHeight = plugin.getOwner().asWidget().getElement().getClientHeight();
         final FormPluginState pluginState = plugin.getFormPluginState();
-        //formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), formWidth, formHeight, eventBus);
         formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), Window.getClientWidth() - (130 + 11), formHeight, eventBus);
         formPanel.setClassForPluginPanel("tab-content");
         // добавляем обработчики
@@ -72,11 +72,15 @@ public class FormPluginView extends PluginView {
 //
 //    }
 
-    public Map<String, WidgetState> getWidgetsState() {
+    public Map<String, WidgetState> getWidgetsState(IWidgetStateFilter widgetStateFilter) {
         List<BaseWidget> widgets = formPanel.getWidgets();
         HashMap<String, WidgetState> result = new HashMap<String, WidgetState>(widgets.size());
+        IWidgetStateFilter filter = defaultWidgetStateFilter;
+        if (widgetStateFilter != null) {
+            filter = widgetStateFilter;
+        }
         for (BaseWidget widget : widgets) {
-            if (widget instanceof LabelWidget || widget instanceof LinkedDomainObjectHyperlinkWidget) {
+            if (filter.exclude(widget)) {
                 continue;
             }
             String id = widget.getDisplayConfig().getId();
@@ -90,6 +94,7 @@ public class FormPluginView extends PluginView {
                 }
             }
         }
+
         return result;
     }
 
@@ -98,11 +103,17 @@ public class FormPluginView extends PluginView {
     }
 
     @Override
-    public  void onPluginPanelResize(){
-        int formWidth = ((FormPlugin)plugin).getTemporaryWidth();
-        int formHeight = ((FormPlugin)plugin).getTemporaryHeight();
+    public void onPluginPanelResize() {
+        int formWidth = ((FormPlugin) plugin).getTemporaryWidth();
+        int formHeight = ((FormPlugin) plugin).getTemporaryHeight();
         formPanel.updateSizes(formWidth, formHeight);
     }
 
 
+    private static class DefaultWidgetStateFilter implements IWidgetStateFilter {
+        @Override
+        public boolean exclude(BaseWidget widget) {
+            return widget instanceof LabelWidget || widget instanceof LinkedDomainObjectHyperlinkWidget;
+        }
+    }
 }
