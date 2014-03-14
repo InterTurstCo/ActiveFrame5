@@ -95,7 +95,7 @@
                     <execution>
                         <configuration>
                             <modules>
-                                <module>ru.intertrust.cm.core.gui.impl.BusinessUniverse</module>
+                                <module>ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint</module>
                                 <module>ru.intertrust.cm.core.gui.impl.LoginPage</module>
                             </modules>
                         </configuration>
