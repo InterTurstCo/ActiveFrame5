@@ -18,6 +18,5 @@
     <import-files>
         <import-file>importdata/status.csv</import-file>
         <import-file>importdata/import-authinfo.csv</import-file>
-        <!--<import-file>importdata/import-group-members.csv</import-file>-->
     </import-files>
 </module>

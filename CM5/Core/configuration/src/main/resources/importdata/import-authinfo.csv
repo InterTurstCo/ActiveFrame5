@@ -1,4 +1,4 @@
 TYPE_NAME=Authentication_Info;KEYS=User_Uid;
-User_Uid;Password;
+User_Uid;Password
 person1;21232f297a57a5a743894a0e4a801fc3
-person2;21232f297a57a5a743894a0e4a801fc3;
+person2;21232f297a57a5a743894a0e4a801fc3
