@@ -18,6 +18,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
@@ -45,7 +46,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     private final Element tableElement;
     private HeaderHelper current;
     protected final CollectionColumn column;
-
+    private Element input;
     private HeaderWidget widget;
     private static final int RESIZE_HANDLE_WIDTH = 34;
     private String searchAreaId;
@@ -68,20 +69,27 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public String getFilterValue() {
+        if (widget.getSearchFilterName() !=  null) {
         return inputFilter.getValue();
+        } else {
+            return null;
+        }
     }
 
     public void resetFilterValue() {
+        if (widget.getSearchFilterName() !=  null) {
         inputFilter.setValue(EMPTY_VALUE);
+        }
 
     }
 
     public void setFocus() {
         if (focused) {
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+
+            Scheduler.get().scheduleFinally(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
-                    Element input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+                    input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
                     input.focus();
                     inputFilter = InputElement.as(input);
                     inputFilter.setValue(widget.getFilterValue());
@@ -105,6 +113,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public void setSearchAreaVisibility(boolean visibility) {
+        if (widget.getSearchFilterName() == null) {
+            return;
+        }
         widget.setShowFilter(visibility);
 
         if (visibility) {
@@ -125,7 +136,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         initElements();
         }
         String eventType = event.getType();
-        if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown")) {
+        if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown") && widget.getSearchFilterName() != null) {
             widget.setFilterValue(inputFilter.getValue());
             focused = true;
             eventBus.fireEvent(new FilterEvent(false));
@@ -135,7 +146,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
             return;
         }
-        if (event.getKeyCode() == KeyCodes.KEY_ESCAPE && eventType.equalsIgnoreCase("keydown")) {
+        if (event.getKeyCode() == KeyCodes.KEY_ESCAPE && eventType.equalsIgnoreCase("keydown") && widget.getSearchFilterName() != null) {
             widget.setFilterValue(EMPTY_VALUE);
             eventBus.fireEvent(new FilterEvent(true));
             focused = false;
@@ -264,7 +275,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                     natEvent.stopPropagation();
                     natEvent.preventDefault();
                     return;
-                } else {
+                } else if(widget.getSearchFilterName() != null){
                     widget.setFilterValue(inputFilter.getValue());
                 }
 

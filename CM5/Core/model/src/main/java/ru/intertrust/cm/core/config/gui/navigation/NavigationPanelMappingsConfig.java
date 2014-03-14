@@ -39,20 +39,25 @@ public class NavigationPanelMappingsConfig implements Dto, TopLevelConfig {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof NavigationPanelMappingsConfig)) return false;
 
         NavigationPanelMappingsConfig that = (NavigationPanelMappingsConfig) o;
 
-        if (!navigationPanelMappingConfigs.equals(that.navigationPanelMappingConfigs)) return false;
-        if (!name.equals(that.name)) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (navigationPanelMappingConfigs != null ? !navigationPanelMappingConfigs.equals(that.navigationPanelMappingConfigs) : that.
+                navigationPanelMappingConfigs != null)  {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + navigationPanelMappingConfigs.hashCode();
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (navigationPanelMappingConfigs != null ? navigationPanelMappingConfigs.hashCode() : 0);
         return result;
     }
 }

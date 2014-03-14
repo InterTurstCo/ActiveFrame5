@@ -14,6 +14,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -616,10 +617,11 @@ public class CollectionPluginView extends PluginView {
                 List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
                 int tempScrollPosition = tableBody.getScrollPanel().getVerticalScrollPosition();
                 insertMoreRows(collectionRowItems);
+
                 for (CollectionColumnHeader header : headers) {
                     header.setFocus();
                 }
-            if(collectionRowItems.size() >= 0  )   {
+            if(collectionRowItems.size() <= 1 )   {
                 tableBody.getScrollPanel().setVerticalScrollPosition(tempScrollPosition);
             }
 
@@ -679,6 +681,7 @@ public class CollectionPluginView extends PluginView {
                     // добавление нового элемента
                     if (!inserted) {
                         items.add(item);
+                        selectionModel.clear();
                         selectionModel.setSelected(item, true);
                     }
                 }

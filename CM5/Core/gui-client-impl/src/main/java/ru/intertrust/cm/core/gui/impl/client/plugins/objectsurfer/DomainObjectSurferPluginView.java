@@ -195,8 +195,9 @@ public class DomainObjectSurferPluginView extends PluginView {
                     formPluginPanel.open(formPlugin);
 
                     //noname div
-                    formPluginPanel.setSize("100%", "100%");
-                    formPluginPanel.asWidget().getElement().getFirstChildElement().addClassName("form-plaugin-table");
+
+                    formPluginPanel.asWidget().addStyleName("form-container");
+
                     splitterFirstWidget.add(this.asWidget());
 
                     formFlowPanel.add(formPluginPanel.asWidget());
