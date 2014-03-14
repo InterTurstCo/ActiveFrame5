@@ -162,6 +162,7 @@ h1 {
 
 .collection-plugin-view-container table tr th{
     display: table-cell;
+    vertical-align: top;
 }
 
 /*оформление поиска коллекшен плагин вю начало*/
@@ -2677,3 +2678,9 @@ td.datePickerMonth {
     margin-top: 3px;
     display: inline-block;
 }
+
+/*
+.header-label {
+    position: absolute;
+    top:5px;
+}*/

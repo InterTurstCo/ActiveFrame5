@@ -42,12 +42,19 @@ public class HeaderWidget {
     public void init() {
         String styleDisplayingFilter = showFilter ? "" : " style=\"display:none\" ";
          String minWidthStyle = "" /*"style = \"width:" + minWidth +"px\" "*/;
-        String start = "<div  "+ minWidthStyle +" class=\"header-label\"><p>" + title
+
+        html = "<div  "+ minWidthStyle +" class=\"header-label\"><p>" + title
                 + "</p><p style=\"display:none\">" + title + ASCEND_ARROW
                 + "</p><p style=\"display:none\">" + title + DESCEND_ARROW
-                + " </p></div> <div class=\"search-container\"" + styleDisplayingFilter + "id = ";
+                + " </p></div>";
+        if (searchFilterName == null) {
+            return;
+        }
+        String filterAreaStart = " <div class=\"search-container\"" + styleDisplayingFilter + "id = ";
+
         if (DATE_TIME_TYPE.equalsIgnoreCase(fieldType)) {
-            html = start + id + "><input type=\"text\" class=\"gwt-DateBox search-data-box\" id= " + id + "input"
+
+            html = html + filterAreaStart + id + ">" + "<input type=\"text\" class=\"gwt-DateBox search-data-box\" id= " + id + "input"
                     + "><button type=\"button\" id= " + id + HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART
                     + " class=\"date-select\" ></button><button type=\"button\" class=\"search-box-clear-button-off\" id= "
                     + id + HEADER_CLEAR_BUTTON_ID_PART + "></button></div>";
@@ -57,7 +64,7 @@ public class HeaderWidget {
             dateBox = new DateBox(picker, null, format);
             initHandlers();
         } else {
-            html = start + id + "><input type=\"text\" class=\"search-box\" maxlength=\"20\" id= " + id + "input"
+            html = html + filterAreaStart + id + ">" + "<input type=\"text\" class=\"search-box\" maxlength=\"20\" id= " + id + "input"
                     + "><button type=\"button\" + \" id= "
                     + id + HEADER_CLEAR_BUTTON_ID_PART + " class=\"search-box-clear-button-off\"></button></div>";
         }
