@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -25,8 +26,11 @@ public class CloseInCentralPanelAction extends Action {
         }
         if (parent instanceof DomainObjectSurferPlugin) {
             IsDomainObjectEditor parentEditor = (IsDomainObjectEditor) parent;
-            Id parentId = parentEditor.getRootDomainObject().getId();
+            DomainObject domainObject = parentEditor.getRootDomainObject( );
+            if (domainObject != null) {
+            Id parentId = domainObject.getId();
             plugin.getLocalEventBus().fireEvent(new CollectionRowSelectedEvent(parentId));
+            }
         }
         plugin.getOwner().closeCurrentPlugin();
     }
