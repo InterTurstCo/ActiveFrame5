@@ -251,6 +251,24 @@
             <group name="Administrators_Read_Only"/>
         </groups>
     </context-role>
+
+    <context-role name="Read_Only_Country_Union">
+        <context>
+            <domain-object type="country_union" />
+        </context>
+        <groups>
+            <group name="Administrators_Read_Only"/>
+        </groups>
+    </context-role>
+
+    <context-role name="Admins_Country_Union">
+        <context>
+            <domain-object type="country_union" />
+        </context>
+        <groups>
+            <group name="Administrators"/>
+        </groups>
+    </context-role>
     
     <context-role name="AuthorBosses">
         <context>
@@ -378,6 +396,24 @@
         </status>
     </access-matrix>
     
+    <access-matrix type="country_union">
+        <status name="Active">
+            <read>
+                <permit-role name="Admins_Country_Union" />                
+                <permit-role name="Read_Only_Country_Union" />
+            </read>
+            <write>
+                <permit-role name="Admins_Country_Union" />
+            </write>
+            <delete>
+                <permit-role name="Admins_Country_Union" />
+            </delete>
+            <execute-action name="action1">
+                <permit-role name="Admins_Country_Union" />
+            </execute-action>
+        </status>
+    </access-matrix>
+
     <access-matrix type="city">
         <status name="*">
             <read permit-everybody="true">
