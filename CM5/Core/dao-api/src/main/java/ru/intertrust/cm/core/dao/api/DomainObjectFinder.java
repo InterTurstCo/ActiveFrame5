@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  * @author larin
  *
  */
-public interface FindObjects {
+public interface DomainObjectFinder {
     /**
      * Метод получения списка идентификатолв доменных объектов относительно контекстного доменного объекта
      * @param contextDomainObjectId

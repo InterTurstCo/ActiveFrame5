@@ -20,7 +20,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
-import ru.intertrust.cm.core.dao.api.FindObjects;
+import ru.intertrust.cm.core.dao.api.DomainObjectFinder;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 import ru.intertrust.cm.core.model.SearchException;
 
@@ -55,8 +55,8 @@ public class DomainObjectFinderServiceImpl implements DomainObjectFinderService 
             if (findObjectsConfig.getFindObjectType() instanceof FindObjectsClassConfig) {
                 //Поиск с помощью класса
                 FindObjectsClassConfig config = (FindObjectsClassConfig) findObjectsConfig.getFindObjectType();
-                Class<FindObjects> finderClass = (Class<FindObjects>) Class.forName(config.getData());
-                FindObjects findObjects = finderClass.newInstance();
+                Class<DomainObjectFinder> finderClass = (Class<DomainObjectFinder>) Class.forName(config.getData());
+                DomainObjectFinder findObjects = finderClass.newInstance();
                 result = findObjects.findObjects(contextDomainObjectId);
             } else if (findObjectsConfig.getFindObjectType() instanceof FindObjectsQueryConfig) {
                 //Поиск с помощью запроса
