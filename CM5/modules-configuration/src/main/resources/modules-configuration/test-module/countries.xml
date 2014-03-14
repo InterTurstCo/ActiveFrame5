@@ -166,7 +166,7 @@
                                     </td>
                                     <!-- label (Известный город) -->
                                     <td colspan="3" h-align="left">
-                                        <widget id="8a"/>
+                                        <widget id="city_table"/>
                                     </td>
                                     <!-- suggest-box (Известный город) -->
                                 </tr>
@@ -262,9 +262,7 @@
                         <tab-group>
                             <table>
                                 <tr>
-                                    <td>
-                                        <widget id="15" width="600px"/>
-                                    </td>
+                                    <td><widget id = "15" width = "600px"/></td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -276,7 +274,7 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <widget id="17a"/>
+                                        <widget id="17a" width="600px"/>
                                     </td>
                                 </tr>
                             </table>
@@ -331,30 +329,30 @@
             <label id="7a">
                 <text>Известный город:</text>
             </label>
-            <suggest-box id="8a">
+           <!-- <suggest-box id="8a">
                 <field-path value="country_most_famous_city^country.city"/>
-                <!-- <field-path value="most_famous_city"/>-->
-                <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
+               &lt;!&ndash; <field-path value="most_famous_city"/>&ndash;&gt;
+                &lt;!&ndash; а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;
                 <collection-ref name="Cities"/>
 
-                <!-- паттерн отображения значений выпадающего списка -->
+                &lt;!&ndash; паттерн отображения значений выпадающего списка &ndash;&gt;
                 <drop-down-pattern value="{name} {population}"/>
 
-                <!-- паттерн отображения уже выбранных значений -->
+                &lt;!&ndash; паттерн отображения уже выбранных значений &ndash;&gt;
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
-                <!-- название фильтра по тексту, введённому пользователем -->
+                &lt;!&ndash; название фильтра по тексту, введённому пользователем &ndash;&gt;
                 <input-text-filter name="byText"/>
 
-                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                &lt;!&ndash; количество элементов, показываемых на одной странице выпадающего списка &ndash;&gt;
                 <page-size>30</page-size>
 
-                <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
-                    Если тэг отсутствует, то используется "inline"-вариант. -->
+                &lt;!&ndash;name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
+                    Если тэг отсутствует, то используется "inline"-вариант. &ndash;&gt;
                 <selection-style name="inline"/>
                 <clear-all-button  text="Очистить"/>
                 <display-values-as-links value="true"/>
-            </suggest-box>
+            </suggest-box>-->
             <suggest-box id="suggest_capital">
                 <field-path value="capital"/>
 
@@ -457,12 +455,12 @@
             <label id="13">
                 <text>Города:</text>
             </label>
-            <list-box id="14"> <!-- в поле City.country надо сохранить Id текущей страны??? -->
+           <!-- <list-box id="14"> &lt;!&ndash; в поле City.country надо сохранить Id текущей страны??? &ndash;&gt;
                 <field-path value="city^country"/>
-                <!-- редактирует названи-->
+                &lt;!&ndash; редактирует названи&ndash;&gt;
                 <pattern value="{name} ({population} чел.)"/>
                <single-choice value="true"/>
-            </list-box>
+            </list-box>-->
             <attachment-box id="15">
                 <field-path value="country_attachment^country"/>
 
@@ -497,7 +495,31 @@
                 <default-sort-criteria column-field="name" order="desc"/>
                 <display-values-as-links value="true"/>
             </table-browser>
-
+            <linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">
+                <field-path value="city^country"/>
+                <linked-form name="city_form" inline="true"/>
+                <summary-table>
+                    <summary-table-column header="Название" widget-id="2">
+                        <pattern value="{name}"/>
+                        <!-- пути задаются относительно базового field-path (correspondent) -->
+                        <formatting>
+                            <number-format pattern="###.####">
+                                <field-paths> <!-- описание путей к полям, к которым применяется форматирование -->
+                                    <field-path value="age"/>
+                                </field-paths>
+                            </number-format>
+                            <date-format pattern="dd-mm-yyyy" style="short">
+                                <field-paths>
+                                    <field-path value="date_of_birth"/>
+                                </field-paths>
+                            </date-format>
+                        </formatting>
+                    </summary-table-column>
+                    <summary-table-column header="Население" widget-id="4">
+                        <pattern value="{population}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
         </widget-config>
     </form>
     <form name="city_form" domain-object-type="city" is-default="true">
@@ -712,8 +734,7 @@
             <column field="country_union_name" name="Состоит" type="string" editable="false" sortable="false"/>
             <column field="description" name="Описание" type="string" editable="false" sortable="true"
                     search-filter="byDescription"/>
-            <column field="square" name="Площадь" type="string" editable="false" sortable="true"
-                    search-filter="bySquare"/>
+            <column field="square" name="Площадь" type="string" editable="false" sortable="true" search-filter="bySquare"/>
         </display>
     </collection-view>
 

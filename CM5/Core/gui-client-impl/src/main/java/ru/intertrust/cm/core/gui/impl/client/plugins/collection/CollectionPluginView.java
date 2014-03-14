@@ -188,7 +188,7 @@ public class CollectionPluginView extends PluginView {
                 String dataStoreName = column.getDataStoreName();
                 boolean ascending = event.isSortAscending();
                 String field = column.getFieldName();
-                sortCollectionState = new SortCollectionState(0, FETCHED_ROW_COUNT, dataStoreName, ascending, true, field);
+                sortCollectionState = new SortCollectionState(0, FETCHED_ROW_COUNT, dataStoreName, ascending, false, field);
                 clearAllTableData();
 
             }
@@ -506,6 +506,7 @@ public class CollectionPluginView extends PluginView {
             tableWidthAvailable -= columnWidth;
             numberOfColumns -= 1;
             String searchFilterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
             String searchAreaId = column.hashCode() + column.getDataStoreName();
             HeaderWidget headerWidget = new HeaderWidget(column.getDataStoreName(), fieldType, searchFilterName, searchAreaId.replaceAll(" ", ""), String.valueOf(column.getMinWidth()));

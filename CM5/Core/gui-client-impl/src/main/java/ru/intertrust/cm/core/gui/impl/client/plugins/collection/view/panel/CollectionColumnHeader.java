@@ -121,7 +121,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     @Override
     public void onBrowserEvent(Context context, Element target, NativeEvent event) {
+        if (widget.getSearchFilterName() != null) {
         initElements();
+        }
         String eventType = event.getType();
         if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown")) {
             widget.setFilterValue(inputFilter.getValue());
@@ -185,6 +187,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     private Element getClickedChild(NativeEvent event, String id) {
+        if (widget.getSearchFilterName() == null) {
+            return null;
+        }
         Element target = Element.as(event.getEventTarget());
         NodeList<Element> buttons = Document.get().getElementById(id).getElementsByTagName("button");
         for (int i = 0; i < buttons.getLength(); i++) {
@@ -308,6 +313,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         }
 
         private void onHeaderElementClick(Element clickedElement) {
+
             if ((searchAreaId + HEADER_INPUT_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
                 if (inputFilter.getValue().length() > 0) {
                     clearButton.setClassName("search-box-clear-button-on");

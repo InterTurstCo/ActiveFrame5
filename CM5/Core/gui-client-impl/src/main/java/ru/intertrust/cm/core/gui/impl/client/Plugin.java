@@ -228,7 +228,7 @@ public abstract class Plugin extends BaseComponent {
         return owner;
     }
 
-        public boolean displayActionToolBar() {
+    public boolean displayActionToolBar() {
         return displayActionToolBar;
     }
 

@@ -1190,6 +1190,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:sequence>
                 <xs:attribute type="xs:string" name="id" use="required"/>
+                <xs:attribute type="xs:string" name="modal-width"/>
+                <xs:attribute type="xs:string" name="modal-height"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -1200,6 +1202,7 @@
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="form-name"/>
+        <xs:attribute type="xs:string" name="widget-id" use="optional"/>
     </xs:complexType>
 
     <xs:element type="con:textBoxType" name="text-box" substitutionGroup="con:widget"/>
@@ -1797,6 +1800,7 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="header" use="optional"/>
+        <xs:attribute type="xs:string" name="widget-id" use="optional"/>
     </xs:complexType>
     <xs:complexType name="formTableColumnType">
         <xs:simpleContent>

@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 
+
 import java.util.ArrayList;
 
 /**

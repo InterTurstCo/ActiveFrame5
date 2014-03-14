@@ -162,6 +162,7 @@ h1 {
 
 .collection-plugin-view-container table tr th{
     display: table-cell;
+    vertical-align: top;
 }
 
 /*оформление поиска коллекшен плагин вю начало*/
@@ -2665,3 +2666,21 @@ td.datePickerMonth {
 .search-box-clear-button:active {
     background: url("css/icons1.png") no-repeat -16px 0;
 }
+.radio-button-widget {
+    padding: 3px 0 3px 8px;
+    border: 1px solid #bbb;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+    min-height: 24px;
+}
+
+.radio-button-widget .gwt-RadioButton {
+    margin-top: 3px;
+    display: inline-block;
+}
+
+/*
+.header-label {
+    position: absolute;
+    top:5px;
+}*/
