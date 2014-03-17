@@ -14,12 +14,15 @@ public class NotificationTypeConfig implements Dto {
 
     @Attribute(name = "name", required = true)
     private String name;
-
+    
+    @Attribute(name = "priority", required = true)
+    private String priority;
+ 
     @Element(name = "addressee", required = false)
     private NotificationAddresseConfig notificationAddresseConfig;
     
-    @Element(name = "triggers", required = false)
-    private NotificationTriggersConfig notificationTriggersConfig;
+    @Element(name = "triggers", required = true)
+    private NotificationTriggersConfig notificationTriggersConfig = new NotificationTriggersConfig();
 
     public String getName() {
         return name;
@@ -43,6 +46,14 @@ public class NotificationTypeConfig implements Dto {
 
     public void setNotificationTriggersConfig(NotificationTriggersConfig notificationTriggersConfig) {
         this.notificationTriggersConfig = notificationTriggersConfig;
+    }
+    
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 
     @Override

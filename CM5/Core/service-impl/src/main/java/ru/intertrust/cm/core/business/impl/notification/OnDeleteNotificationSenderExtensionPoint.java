@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.business.impl.notification;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.impl.EventTriggerImpl.EventType;
-import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusExtentionHandler;
+import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 
 /**
@@ -11,15 +11,16 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
  *
  */
 @ExtensionPoint
-public class OnChangeStatusNotificationSenderExtensionPoint extends NotificationSenderExtensionPointBase implements AfterChangeStatusExtentionHandler {
+public class OnDeleteNotificationSenderExtensionPoint extends NotificationSenderExtensionPointBase implements AfterDeleteExtensionHandler {
 
     @Override
-    public void onAfterChangeStatus(DomainObject domainObject) {
+    public void onAfterDelete(DomainObject domainObject) {
         sendNotifications(domainObject, null);
+        
     }
 
+    @Override
     protected EventType getEventType() {
-        return EventType.CHANGE_STATUS;
+        return EventType.DELETE;
     }
-
 }

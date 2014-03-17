@@ -101,6 +101,14 @@
             <xs:enumeration value="DELETE"/>
         </xs:restriction>
     </xs:simpleType>
+    
+    <xs:simpleType name="notificationPriority">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HIGH"/>
+            <xs:enumeration value="NORMAL"/>
+            <xs:enumeration value="LOW"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="triggerFieldsType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -136,7 +144,7 @@
             <xs:element name="notification-type" minOccurs="0" maxOccurs="1" type="con:notificationTypeType">
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="name" use="required" type="con:notificationNameType"/>
+        <xs:attribute name="name" use="required" type="con:notificationNameType"/>                
     </xs:complexType>
 
     <xs:complexType name="notificationTypeType">
@@ -145,6 +153,7 @@
             <xs:element name="triggers" minOccurs="0" maxOccurs="1" type="con:notificationTriggersType"/>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
+        <xs:attribute name="priority" use="required" type="con:notificationPriority" />
     </xs:complexType>
 
     <xs:complexType name="notificationAddresseType">

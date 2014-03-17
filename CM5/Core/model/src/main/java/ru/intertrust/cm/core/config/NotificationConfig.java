@@ -17,7 +17,7 @@ public class NotificationConfig implements Dto {
 
   
     @Element(name = "notification-type", required = true)
-    private NotificationTypeConfig notificationTypeConfig;
+    private NotificationTypeConfig notificationTypeConfig = new NotificationTypeConfig();
 
     public String getName() {
         return name;

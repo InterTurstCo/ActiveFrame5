@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.NamedTriggerConfig;
+import ru.intertrust.cm.core.config.TriggerConfig;
 import ru.intertrust.cm.core.config.TriggerConfigConfig;
 import ru.intertrust.cm.core.config.TriggerFieldConfig;
 import ru.intertrust.cm.core.config.TriggerStatusConfig;
@@ -77,74 +78,82 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
             List<FieldModification> changedFields) {
 
         Collection<NamedTriggerConfig> namedTriggerConfigs = configurationExplorer.getConfigs(NamedTriggerConfig.class);
-        String domainObjectType = domainObjectTypeIdCache.getName(domainObject.getId());
         for(NamedTriggerConfig namedTriggerConfig : namedTriggerConfigs) {
             if(namedTriggerConfig.getName().equals(triggerName)) {
-                if (namedTriggerConfig.getTrigger().getEvent().equals(eventType)
-                        && namedTriggerConfig.getTrigger().getDomainObjectType().equals(domainObjectType)) {
-                    
-                    
-                    TriggerConfigConfig triggerConfig = namedTriggerConfig.getTrigger().getTriggerConfig();
-                    if(triggerConfig != null ) {
-                        if (EventType.CHANGE_STATUS.toString().equals(eventType)) {
-                            // если статусы не указаны в конфигурации, событие срабатывает на все статусы
-                            if (triggerConfig.getTriggerStatusesConfig() == null) {
-                                return true;
-                            }
-                            for (TriggerStatusConfig triggerStatusConfig : triggerConfig.getTriggerStatusesConfig()
-                                    .getStatuses()) {
-                                String domainObjectStatusName = statusDao.getStatusNameById(domainObject.getStatus());
-                                if (triggerStatusConfig.getData().equalsIgnoreCase(domainObjectStatusName)) {
-                                    return true;
-                                }
-                            }
+                if (isTriggered(namedTriggerConfig.getTrigger(), eventType, domainObject, changedFields)) {
+                    return true;
+                }                
+            }
+        }
+        return false;
+    }
 
-                        } else if (EventType.CHANGE.toString().equals(eventType)) {
-                            if (triggerConfig.getTriggerFieldsConfig() == null) {
-                                return true;
-                            }
-
-                            // если список измененных полей пустой, изменение любого поля вызывает это событие
-                            if (changedFields == null || changedFields.size() == 0) {
-                                return true;
-                            }
-
-                            for (TriggerFieldConfig triggerFieldConfig : namedTriggerConfig.getTrigger()
-                                    .getTriggerConfig().getTriggerFieldsConfig().getFields()) {
-                                for (FieldModification fieldModification : changedFields) {
-                                    if (fieldModification.getName().equalsIgnoreCase(triggerFieldConfig.getData())) {
-                                        return true;
-                                    }
-                                }
-                            }
-                        } else if (EventType.CREATE.toString().equals(eventType) || EventType.DELETE.toString().equals(eventType)) {
+    @Override
+    public boolean isTriggered(TriggerConfig triggerConfig, String eventType, DomainObject domainObject,
+            List<FieldModification> changedFields) {
+        String domainObjectType = domainObjectTypeIdCache.getName(domainObject.getId());
+        if (triggerConfig.getEvent().equals(eventType)
+                && triggerConfig.getDomainObjectType().equals(domainObjectType)) {
+            
+            
+            TriggerConfigConfig triggerConfigConfig = triggerConfig.getTriggerConfig();
+            if(triggerConfigConfig != null ) {
+                if (EventType.CHANGE_STATUS.toString().equals(eventType)) {
+                    // если статусы не указаны в конфигурации, событие срабатывает на все статусы
+                    if (triggerConfigConfig.getTriggerStatusesConfig() == null) {
+                        return true;
+                    }
+                    for (TriggerStatusConfig triggerStatusConfig : triggerConfigConfig.getTriggerStatusesConfig()
+                            .getStatuses()) {
+                        String domainObjectStatusName = statusDao.getStatusNameById(domainObject.getStatus());
+                        if (triggerStatusConfig.getData().equalsIgnoreCase(domainObjectStatusName)) {
                             return true;
                         }
-                        
-                    } else if (namedTriggerConfig.getTrigger().getTriggerClassNameConfig() != null
-                            && namedTriggerConfig.getTrigger().getTriggerClassNameConfig().getData() != null) {                        
-                        
-                        return executeJavaClass(eventType, domainObject, changedFields, namedTriggerConfig);
-                        
-                    } else if (namedTriggerConfig.getTrigger().getTriggerConditionsScriptConfig() != null) {
-                        return executeScript(eventType, domainObject, changedFields, namedTriggerConfig);
                     }
+
+                } else if (EventType.CHANGE.toString().equals(eventType)) {
+                    if (triggerConfigConfig.getTriggerFieldsConfig() == null) {
+                        return true;
+                    }
+
+                    // если список измененных полей пустой, изменение любого поля вызывает это событие
+                    if (changedFields == null || changedFields.size() == 0) {
+                        return true;
+                    }
+
+                    for (TriggerFieldConfig triggerFieldConfig : triggerConfigConfig.
+                            getTriggerFieldsConfig().getFields()) {
+                        for (FieldModification fieldModification : changedFields) {
+                            if (fieldModification.getName().equalsIgnoreCase(triggerFieldConfig.getData())) {
+                                return true;
+                            }
+                        }
+                    }
+                } else if (EventType.CREATE.toString().equals(eventType) || EventType.DELETE.toString().equals(eventType)) {
+                    return true;
                 }
                 
+            } else if (triggerConfig.getTriggerClassNameConfig() != null
+                    && triggerConfig.getTriggerClassNameConfig().getData() != null) {                        
+                
+                return executeJavaClass(eventType, domainObject, changedFields, triggerConfig);
+                
+            } else if (triggerConfig.getTriggerConditionsScriptConfig() != null) {
+                return executeScript(eventType, domainObject, changedFields, triggerConfig);
             }
         }
         return false;
     }
 
     private boolean executeJavaClass(String eventType, DomainObject domainObject,
-            List<FieldModification> changedFields, NamedTriggerConfig namedTriggerConfig) {
+            List<FieldModification> changedFields, TriggerConfig triggerConfig) {
         Class<?> triggerClassNameClass = null;
         try {
             triggerClassNameClass =
-                    Class.forName(namedTriggerConfig.getTrigger().getTriggerClassNameConfig().getData());
+                    Class.forName(triggerConfig.getTriggerClassNameConfig().getData());
         } catch (ClassNotFoundException e) {
             throw new EventTriggerException("Error on initializing class "
-                    + namedTriggerConfig.getTrigger().getTriggerClassNameConfig().getData()
+                    + triggerConfig.getTriggerClassNameConfig().getData()
                     + "Class not found");
         }
 
@@ -156,8 +165,8 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
     }
 
     private boolean executeScript(String eventType, DomainObject domainObject, List<FieldModification> changedFields,
-            NamedTriggerConfig namedTriggerConfig) {
-        String script = namedTriggerConfig.getTrigger().getTriggerConditionsScriptConfig().getData();
+            TriggerConfig triggerConfig) {
+        String script = triggerConfig.getTriggerConditionsScriptConfig().getData();
         ScriptDomainObjectAccessor context = new ScriptDomainObjectAccessor(domainObject, eventType, changedFields);
         return (Boolean) scriptService.eval(script, context);
     }
