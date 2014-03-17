@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
@@ -13,8 +12,10 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
     private LinkedDomainObjectsTableConfig linkedDomainObjectsTableConfig;
     private List<RowItem> rowItems;
     private String objectTypeName;
-    private FormConfig linkedFormConfig;
-    private ArrayList<Id> selectedIds = new ArrayList<Id>();
+    private ArrayList<Id> selectedIds = new ArrayList<>();
+
+    private LinkedHashMap<String, FormState> newFormStates = new LinkedHashMap<>();
+    private LinkedHashMap<String, FormState> editedFormStates = new LinkedHashMap<>();
 
     @Override
     public ArrayList<Id> getIds() {
@@ -49,59 +50,58 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         return objectTypeName;
     }
 
-    public FormConfig getLinkedFormConfig() {
-        return linkedFormConfig;
+    public void setLinkedFormConfig() {
     }
 
-    public void setLinkedFormConfig(FormConfig linkedFormConfig) {
-        this.linkedFormConfig = linkedFormConfig;
-    }
-
-
-    LinkedHashMap<String, FormState> newFormStates = new LinkedHashMap<String, FormState>(); // <random-String,FormState>, map of object states are edited in widget
-    LinkedHashMap<String, FormState> editedFormStates = new LinkedHashMap<String, FormState>();
-    ArrayList<Id> idsToDelete = new ArrayList<Id>();
-
-    public String addObjectState(FormState formState) {
+    public String addNewFormState(FormState formState) {
         String key = Long.toHexString(new Random().nextLong());
         newFormStates.put(key, formState);
         return key;
     }
 
-    public void removeObjectState(String key) {
+    public void removeNewObjectState(String key) {
         newFormStates.remove(key);
     }
 
-    public void replaceObjectState(String id, FormState formState) {
-        newFormStates.put(id, formState);
+    public void removeEditedObjectState(String key) {
+        editedFormStates.remove(key);
     }
 
-    public FormState getFormState(String id) {
+    public void putEditedFormState(String id, FormState formState) {
+        editedFormStates.put(id, formState);
+    }
+
+    public FormState getFromNewStates(String id) {
         return newFormStates.get(id);
     }
 
-    public void addIdForDeletion(Id id) {
-        idsToDelete.add(id);
+    public FormState getFromEditedStates(String id) {
+        return editedFormStates.get(id);
     }
 
     public LinkedHashMap<String, FormState> getNewFormStates() {
-        for (Map.Entry<String, FormState> stringFormStateEntry : newFormStates.entrySet()) {
-            FormState formStateEntry = stringFormStateEntry.getValue();
-            HashMap<String, WidgetState> filtereWidgetStateMap = new HashMap<String, WidgetState>();
-            Map<String, WidgetState> fullWidgetsState = formStateEntry.getFullWidgetsState();
-            for (Map.Entry<String, WidgetState> widgetState : fullWidgetsState.entrySet()) {
-                WidgetState value = widgetState.getValue();
-                if (!(value instanceof LabelState)) {
-                    filtereWidgetStateMap.put(widgetState.getKey(), value);
-                }
-            }
-            formStateEntry.setWidgetStateMap(filtereWidgetStateMap);
-        }
+        filterLabelStates(newFormStates);
         return newFormStates;
     }
 
     public LinkedHashMap<String, FormState> getEditedFormStates() {
+        filterLabelStates(editedFormStates);
         return editedFormStates;
+    }
+
+    private void filterLabelStates(LinkedHashMap<String, FormState> newFormStates) {
+        for (Map.Entry<String, FormState> stringFormStateEntry : newFormStates.entrySet()) {
+            FormState formStateEntry = stringFormStateEntry.getValue();
+            HashMap<String, WidgetState> filteredWidgetStateMap = new HashMap<>();
+            Map<String, WidgetState> fullWidgetsState = formStateEntry.getFullWidgetsState();
+            for (Map.Entry<String, WidgetState> widgetState : fullWidgetsState.entrySet()) {
+                WidgetState value = widgetState.getValue();
+                if (!(value instanceof LabelState)) {
+                    filteredWidgetStateMap.put(widgetState.getKey(), value);
+                }
+            }
+            formStateEntry.setWidgetStateMap(filteredWidgetStateMap);
+        }
     }
 
 

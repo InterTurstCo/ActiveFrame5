@@ -71,7 +71,7 @@ public class FormSaver {
             if (widgetState instanceof LinkedDomainObjectsTableState) {
                 //process nested form states
                 LinkedDomainObjectsTableState linkedDomainObjectsTableState = (LinkedDomainObjectsTableState) widgetState;
-                LinkedHashMap<String, FormState> nestedFormStates = linkedDomainObjectsTableState.getNewFormStates();
+                LinkedHashMap<String, FormState> nestedFormStates = linkedDomainObjectsTableState.getEditedFormStates();
                 Set<Map.Entry<String, FormState>> entries = nestedFormStates.entrySet();
                 for (Map.Entry<String, FormState> entry : entries) {
                     FormState nestedFormState = entry.getValue();

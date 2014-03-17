@@ -31,9 +31,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
 
     public static final String STATE_KEY = "stateKey";
     LinkedDomainObjectsTableState currentState;
-    ArrayList<Id> selectedIds = new ArrayList<Id>();
+    ArrayList<Id> selectedIds = new ArrayList<>();
 
-    private CellTable<RowItem> table = new CellTable<RowItem>();
+    private CellTable<RowItem> table = new CellTable<>();
     private ListDataProvider<RowItem> model;
     private boolean tableConfigured = false;
 
@@ -47,7 +47,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         }
         List<RowItem> rowItems = this.currentState.getRowItems();
         selectedIds.clear();
-        model = new ListDataProvider<RowItem>();
+        model = new ListDataProvider<>();
 
         for (RowItem rowItem : rowItems) {
             selectedIds.add(rowItem.getObjectId());
@@ -78,7 +78,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         VerticalPanel hp = new VerticalPanel();
-        hp.getElement().setAttribute("border", "1");
         Button addButton = createAddButton();
         addButton.removeStyleName("gwt-Button");
         addButton.addStyleName("dialog-box-button");
@@ -90,7 +89,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
         VerticalPanel hp = new VerticalPanel();
-        hp.getElement().setAttribute("border", "1");
         hp.add(table);
         return hp;
     }
@@ -119,10 +117,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                         });
                         convertFormStateAndFillRowItem(formState, object);
                         if (stateKey != null) {
-                            currentState.replaceObjectState(stateKey, formState);
+                            currentState.putEditedFormState(stateKey, formState);
                             object.setParameter(STATE_KEY, stateKey);
                         } else {
-                            currentState.replaceObjectState(object.getObjectId().toStringRepresentation(), formState);
+                            currentState.putEditedFormState(object.getObjectId().toStringRepresentation(), formState);
                             object.setParameter(STATE_KEY, object.getObjectId().toStringRepresentation());
                         }
                         model.getList().set(index, object);
@@ -134,16 +132,20 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                         // no op
                     }
                 };
-                // check if form plugin ever was in pool
                 String pooledFormStateKey = object.getParameter(STATE_KEY);
                 DialogBox db;
                 if (pooledFormStateKey != null) {
-                    FormState pooledFormState = currentState.getFormState(pooledFormStateKey);
+                    FormState pooledEditedFormState = currentState.getFromEditedStates(pooledFormStateKey);
+                    if (pooledEditedFormState == null) {
+                        pooledEditedFormState = currentState.getFromNewStates(pooledFormStateKey);
+                        currentState.putEditedFormState(pooledFormStateKey, pooledEditedFormState);
+                        currentState.removeNewObjectState(pooledFormStateKey);
+                    }
                     db = new LinkedFormDialogBoxBuilder()
                             .setSaveAction(saveAction)
                             .setCancelAction(cancelAction)
                             .withObjectType(currentState.getObjectTypeName())
-                            .withFormState(pooledFormState).
+                            .withFormState(pooledEditedFormState).
                                     withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
                             .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
                             .buildDialogBox();
@@ -178,19 +180,16 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             public void update(int index, RowItem object, String value) {
                 String stateKey = object.getParameter(STATE_KEY);
                 if (stateKey != null) {
-                    currentState.removeObjectState(stateKey);
+                    currentState.removeNewObjectState(stateKey);
+                    currentState.removeEditedObjectState(stateKey);
                     model.getList().remove(index);
-                    if (object.getObjectId() != null) {
-                        currentState.addIdForDeletion(object.getObjectId());
-                    }
                 } else {
                     // объекта нет в пуле, значит помечаем его для физического удаления
                     if (object.getObjectId() != null) {
-                        model.getList().remove(object);
                         selectedIds.remove(object.getObjectId());
+                        model.getList().remove(object);
                     }
                 }
-                table.redraw();
             }
         });
         return deleteButtonColumn;
@@ -216,7 +215,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                                 return false;
                             }
                         });
-                        String stateKey = currentState.addObjectState(formState);
+                        String stateKey = currentState.addNewFormState(formState);
                         RowItem rowItem = new RowItem();
                         convertFormStateAndFillRowItem(formState, rowItem);
                         rowItem.setParameter(STATE_KEY, stateKey);

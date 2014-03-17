@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
@@ -26,7 +27,6 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     CrudService crudService;
     @Autowired
     ConfigurationExplorer configurationExplorer;
-
     @Autowired
     ApplicationContext applicationContext;
 
@@ -46,7 +46,6 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         String linkedFormName = domainObjectsTableConfig.getLinkedFormConfig().getName();
         if (linkedFormName != null && !linkedFormName.isEmpty()) {
             FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, linkedFormName);
-            state.setLinkedFormConfig(formConfig);
             state.setObjectTypeName(formConfig.getDomainObjectType());
         }
 
@@ -72,16 +71,27 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         Set<Map.Entry<String, FormState>> entries = newFormStates.entrySet();
         LinkedDomainObjectsTableConfig linkedDomainObjectsTableConfig = linkedDomainObjectsTableState.getLinkedDomainObjectsTableConfig();
         FieldPath fieldPath = new FieldPath(linkedDomainObjectsTableConfig.getFieldPathConfig().getValue());
-        String parentLinkFieldName = fieldPath.getLinkToParentName();
 
         for (Map.Entry<String, FormState> entry : entries) {
             FormState formState = entry.getValue();
             FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState);
             DomainObject savedObject = formSaver.saveForm();
-            savedObject.setReference(parentLinkFieldName, rootDomainObject);
-            DomainObject savedDomainObject = crudService.save(savedObject);
-            ((LinkedDomainObjectsTableState) state).getIds().add(savedDomainObject.getId());
+            if (fieldPath.isOneToManyReference()) {
+                savedObject.setReference(fieldPath.getLinkToParentName(), rootDomainObject);
+                crudService.save(savedObject);
+            } else if (fieldPath.isManyToManyReference()) {
+                String referenceType = fieldPath.getReferenceType();
+                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(referenceType, fieldPath.getReferenceName());
+                DomainObject referencedObject = crudService.createDomainObject(referenceType);
+                if (fieldConfig != null) {
+                    referencedObject.setReference(fieldConfig.getName(), savedObject);
+                }
+                fieldConfig = configurationExplorer.getFieldConfig(referenceType, rootDomainObject.getTypeName());
+                if (fieldConfig != null) {
+                    referencedObject.setReference(fieldConfig.getName(), rootDomainObject);
+                }
+                crudService.save(referencedObject);
+            }
         }
-
     }
 }
