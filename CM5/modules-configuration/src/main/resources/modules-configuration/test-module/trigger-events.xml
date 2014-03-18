@@ -3,8 +3,8 @@
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd">
 
-<notification name="NotificationAddresseeQuery">
-        <notification-type name="NotificationType">
+    <notification name="NotificationAddresseeQuery">
+        <notification-type name="NotificationType" priority="HIGH">
             <addressee>
                 <find-person>
                     <find-query>Some SQL query {1}
@@ -12,7 +12,7 @@
                 </find-person>
             </addressee>
             <triggers>
-                <trigger domain-object-type="department_test" event="CHANGE">
+                <trigger domain-object-type="department_test" event="CREATE">
                     <config>
                         <fields>
                             <field>Name</field>
@@ -31,7 +31,7 @@
     </notification>
 
      <notification name="NotificationAddresseeClassName">
-        <notification-type name="NotificationType">
+        <notification-type name="NotificationType" priority="HIGH">
             <addressee>
                 <find-person>
                     <class-name>ClassName
@@ -46,7 +46,7 @@
     </notification>
 
      <notification name="NotificationAddresseeContextRole">
-        <notification-type name="NotificationType">
+        <notification-type name="NotificationType" priority="HIGH">
             <addressee>
                 <by-context-role>ContextRole</by-context-role>
             </addressee>
@@ -58,7 +58,7 @@
     </notification>
 
     <notification name="NotificationAddresseeDynamicGroup">
-        <notification-type name="NotificationType">
+        <notification-type name="NotificationType" priority="HIGH">
             <addressee>
                 <by-dynamic-group>DynamicGroup</by-dynamic-group>
             </addressee>
