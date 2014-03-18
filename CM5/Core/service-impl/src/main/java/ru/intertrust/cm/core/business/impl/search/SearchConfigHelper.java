@@ -245,7 +245,7 @@ public class SearchConfigHelper {
         }
     }
 
-    public Set<FieldDataType> getFieldTypes(String name, Set<String> areas) {
+    public Set<FieldDataType> getFieldTypes(String name, Collection<String> areas) {
         Set<FieldDataType> types = new HashSet<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {

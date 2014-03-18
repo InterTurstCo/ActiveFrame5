@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,9 +16,21 @@ public class OneOfListFilter extends SearchFilterBase {
         super(fieldName);
     }
 
+    public OneOfListFilter(String fieldName, ReferenceValue... values) {
+        super(fieldName);
+        addValues(Arrays.asList(values));
+    }
+
     public OneOfListFilter(String fieldName, Collection<? extends ReferenceValue> values) {
         super(fieldName);
         addValues(values);
+    }
+
+    public OneOfListFilter(String fieldName, Id... ids) {
+        super(fieldName);
+        for (Id id : ids) {
+            addValue(id);
+        }
     }
 
     public List<ReferenceValue> getValues() {

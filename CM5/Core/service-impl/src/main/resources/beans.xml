@@ -122,6 +122,12 @@
                        value="ru.intertrust.cm.core.business.impl.search.NumberRangeFilterAdapter"/>
                 <entry key="ru.intertrust.cm.core.business.api.dto.OneOfListFilter"
                        value="ru.intertrust.cm.core.business.impl.search.OneOfListFilterAdapter"/>
+                <entry key="ru.intertrust.cm.core.business.api.dto.EmptyValueFilter"
+                       value="ru.intertrust.cm.core.business.impl.search.EmptyValueFilterAdapter"/>
+                <entry key="ru.intertrust.cm.core.business.api.dto.NegativeFilter"
+                       value="ru.intertrust.cm.core.business.impl.search.NegativeFilterAdapter"/>
+                <entry key="ru.intertrust.cm.core.business.api.dto.CombiningFilter"
+                       value="ru.intertrust.cm.core.business.impl.search.CombiningFilterAdapter"/>
             </map>
         </property>
     </bean>

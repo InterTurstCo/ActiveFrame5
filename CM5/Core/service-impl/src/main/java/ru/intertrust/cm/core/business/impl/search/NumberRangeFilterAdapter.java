@@ -20,7 +20,7 @@ public class NumberRangeFilterAdapter implements FilterAdapter<NumberRangeFilter
                 .append(SolrFields.FIELD_PREFIX)
                 .append(SearchFieldType.LONG.getInfix())
                 .append(filter.getFieldName().toLowerCase())
-                .append("[")
+                .append(":[")
                 .append(numberToString(filter.getMin()))
                 .append(" TO ")
                 .append(numberToString(filter.getMax()))
