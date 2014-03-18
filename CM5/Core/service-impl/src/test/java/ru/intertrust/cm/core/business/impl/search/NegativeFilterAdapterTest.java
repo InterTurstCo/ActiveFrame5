@@ -24,13 +24,15 @@ public class NegativeFilterAdapterTest {
 
     @Mock private NegativeFilter filter;
     @Mock private SearchQuery query;
+    @Mock private SearchFilter nestedFilter;
     @Mock private FilterAdapter<SearchFilter> nestedAdapter;
 
     @Test
     @SuppressWarnings("unchecked")
     public void testSimpleFilter() {
-        when(searchFilterImplementorFactory.createImplementorFor(filter.getClass())).thenReturn(nestedAdapter);
-        when(nestedAdapter.getFilterString(filter, query)).thenReturn("cm_testfield:(some value)");
+        when(filter.getBaseFilter()).thenReturn(nestedFilter);
+        when(searchFilterImplementorFactory.createImplementorFor(nestedFilter.getClass())).thenReturn(nestedAdapter);
+        when(nestedAdapter.getFilterString(nestedFilter, query)).thenReturn("cm_testfield:(some value)");
         String result = adapter.getFilterString(filter, query);
         assertEquals("-cm_testfield:(some value)", result);
     }
@@ -38,8 +40,9 @@ public class NegativeFilterAdapterTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testParenthesedFilter() {
-        when(searchFilterImplementorFactory.createImplementorFor(filter.getClass())).thenReturn(nestedAdapter);
-        when(nestedAdapter.getFilterString(filter, query)).thenReturn("(cm_fielda:value OR cm_fieldb:12)");
+        when(filter.getBaseFilter()).thenReturn(nestedFilter);
+        when(searchFilterImplementorFactory.createImplementorFor(nestedFilter.getClass())).thenReturn(nestedAdapter);
+        when(nestedAdapter.getFilterString(nestedFilter, query)).thenReturn("(cm_fielda:value OR cm_fieldb:12)");
         String result = adapter.getFilterString(filter, query);
         assertEquals("NOT (cm_fielda:value OR cm_fieldb:12)", result);
     }
@@ -47,8 +50,9 @@ public class NegativeFilterAdapterTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testSimpleNegativeInside() {
-        when(searchFilterImplementorFactory.createImplementorFor(filter.getClass())).thenReturn(nestedAdapter);
-        when(nestedAdapter.getFilterString(filter, query)).thenReturn("-some_field:[20 TO *]");
+        when(filter.getBaseFilter()).thenReturn(nestedFilter);
+        when(searchFilterImplementorFactory.createImplementorFor(nestedFilter.getClass())).thenReturn(nestedAdapter);
+        when(nestedAdapter.getFilterString(nestedFilter, query)).thenReturn("-some_field:[20 TO *]");
         String result = adapter.getFilterString(filter, query);
         assertEquals("some_field:[20 TO *]", result);
     }
@@ -56,8 +60,9 @@ public class NegativeFilterAdapterTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testNegativeInside() {
-        when(searchFilterImplementorFactory.createImplementorFor(filter.getClass())).thenReturn(nestedAdapter);
-        when(nestedAdapter.getFilterString(filter, query)).thenReturn("NOT (some_field:some condition)");
+        when(filter.getBaseFilter()).thenReturn(nestedFilter);
+        when(searchFilterImplementorFactory.createImplementorFor(nestedFilter.getClass())).thenReturn(nestedAdapter);
+        when(nestedAdapter.getFilterString(nestedFilter, query)).thenReturn("NOT (some_field:some condition)");
         String result = adapter.getFilterString(filter, query);
         assertEquals("(some_field:some condition)", result);
     }
