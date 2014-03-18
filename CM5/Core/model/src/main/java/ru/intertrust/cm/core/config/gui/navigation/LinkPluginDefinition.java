@@ -15,7 +15,8 @@ public class LinkPluginDefinition implements Dto {
 
     @ElementUnion({
             @Element(name = "custom", type = CustomPluginConfig.class),
-            @Element(name = "domain-object-surfer", type = DomainObjectSurferConfig.class) })
+            @Element(name = "domain-object-surfer", type = DomainObjectSurferConfig.class),
+            @Element(name = "report-plugin", type = ReportPluginConfig.class)})
     private PluginConfig pluginConfig;
 
     public PluginConfig getPluginConfig() {

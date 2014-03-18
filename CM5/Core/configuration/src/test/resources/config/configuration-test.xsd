@@ -835,6 +835,15 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <xs:element type="con:reportPluginType" name="report-plugin" substitutionGroup="con:pluginConfig"/>
+    <xs:complexType name="reportPluginType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractPluginConfigType">
+                <xs:attribute type="xs:string" name="report-name"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <xs:complexType name="collectionRefType">
         <xs:simpleContent>
             <xs:extension base="xs:string">

@@ -121,10 +121,15 @@
                 </link>
                 <link name="Custom_Plugin" display-text="Пример кастомного плагина">
                     <plugin>
-                <custom name="some.plugin">
-                    <attribute name="label_value" value="Кастомный плагин"/>
+                        <custom name="some.plugin">
+                            <attribute name="label_value" value="Кастомный плагин"/>
 
-                </custom>
+                        </custom>
+                    </plugin>
+                </link>
+                <link name="Report" display-text="Отчет">
+                    <plugin>
+                        <report-plugin report-name="all-employee" />
                     </plugin>
                 </link>
             </child-links>

@@ -53,6 +53,9 @@
     <jee:local-slsb id="notificationService"
                     jndi-name="java:module/NotificationService!ru.intertrust.cm.core.business.api.NotificationService"
                     business-interface="ru.intertrust.cm.core.business.api.NotificationService"/>
+    <jee:local-slsb id="reportService"
+                    jndi-name="java:module/ReportService!ru.intertrust.cm.core.business.api.ReportService"
+                    business-interface="ru.intertrust.cm.core.business.api.ReportService"/>
 
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
