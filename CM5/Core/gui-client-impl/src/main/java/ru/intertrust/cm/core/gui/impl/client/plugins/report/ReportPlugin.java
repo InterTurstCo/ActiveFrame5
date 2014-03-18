@@ -50,9 +50,11 @@ public class ReportPlugin extends Plugin implements IsActive {
 
         ReportPluginData reportPluginData = (ReportPluginData) initialData;
         reportName = reportPluginData.getReportName();
+        setDisplayActionToolBar(true);
     }
 
     public String getReportName() {
         return reportName;
     }
+
 }
