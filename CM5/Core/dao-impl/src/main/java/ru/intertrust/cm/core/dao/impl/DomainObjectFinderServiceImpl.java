@@ -62,7 +62,9 @@ public class DomainObjectFinderServiceImpl implements DomainObjectFinderService 
                 //Поиск с помощью запроса
                 FindObjectsQueryConfig config = (FindObjectsQueryConfig) findObjectsConfig.getFindObjectType();
                 List<Value> params = new ArrayList<Value>();
-                params.add(new ReferenceValue(contextDomainObjectId));
+                if (contextDomainObjectId != null){
+                    params.add(new ReferenceValue(contextDomainObjectId));
+                }
                 IdentifiableObjectCollection collection =
                         collectionService.findCollectionByQuery(config.getData(), params, 0, 1000, accessToken);
                 result = new ArrayList<Id>();
