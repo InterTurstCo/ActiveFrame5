@@ -7,7 +7,9 @@ import java.io.Reader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
@@ -22,6 +24,8 @@ import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
@@ -215,10 +219,18 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         if (value == null) {
             return null;
         }
-        Object result;
+        Object result = null;
         if (value instanceof ReferenceValue) {
             Id id = ((ReferenceValue) value).get();
             result = (id == null) ? null : id.toStringRepresentation();
+        } else if (value instanceof TimelessDateValue) {
+            TimelessDate date = ((TimelessDateValue) value).getValue();
+            if (date != null) {
+                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                cal.clear();
+                cal.set(date.getYear(), date.getMonth(), date.getDayOfMonth());
+                result = cal.getTime();
+            }
         } else {
             result = value.get();
         }

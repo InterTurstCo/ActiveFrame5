@@ -77,4 +77,13 @@ public class TimelessDate implements Dto {
         result = 31 * result + dayOfMonth;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append("TimelessDate{")
+                .append(year).append("-")
+                .append(month + 1).append("-")
+                .append(dayOfMonth).append("}")
+                .toString();
+    }
 }
