@@ -63,6 +63,21 @@
         <url-pattern>/attachment-download/*</url-pattern>
     </servlet-mapping>
 
+    <!-- Generate Report -->
+    <servlet>
+        <servlet-name>generate-report</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/applicationContext.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>generate-report</servlet-name>
+        <url-pattern>/generate-report/*</url-pattern>
+    </servlet-mapping>
+
     <security-constraint>
         <display-name>Constraint</display-name>
         <web-resource-collection>
@@ -73,6 +88,7 @@
             <url-pattern>/*/attachment-download/*</url-pattern>
             <url-pattern>/*/attachment-upload</url-pattern>
             <url-pattern>/*/export-to-csv/*</url-pattern>
+            <url-pattern>/*/generate-report/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <description>
@@ -115,6 +131,10 @@
     <filter-mapping>
         <filter-name>LoginFilter</filter-name>
         <url-pattern>/export-to-csv/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>/generate-report/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>CharacterEncodingFilter</filter-name>

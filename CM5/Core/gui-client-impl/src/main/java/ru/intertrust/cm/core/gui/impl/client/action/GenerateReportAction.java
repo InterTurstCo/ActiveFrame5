@@ -1,10 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import com.google.gwt.user.client.Window;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.event.GenerateReportEvent;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.GenerateReportActionData;
 
 /**
  * @author Lesia Puhova
@@ -13,7 +12,9 @@ import ru.intertrust.cm.core.gui.model.action.GenerateReportActionData;
  */
 
 @ComponentName("generate-report.action")
-public class GenerateReportAction extends SimpleServerAction {
+public class GenerateReportAction extends Action {
+
+    EventBus eventBus;
 
     @Override
     public Component createNew() {
@@ -21,11 +22,8 @@ public class GenerateReportAction extends SimpleServerAction {
     }
 
     @Override
-    protected void onSuccess(ActionData actionData) {
-        GenerateReportActionData reportData = (GenerateReportActionData) actionData;
-
-        //TODO: [report-plugin] show results
-
-        Window.alert("Report has been generated");
+    public void execute() {
+        eventBus = plugin.getLocalEventBus();
+        eventBus.fireEvent(new GenerateReportEvent());
     }
 }

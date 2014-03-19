@@ -73,7 +73,7 @@ public abstract class Plugin extends BaseComponent {
     }
 
     public EventBus getLocalEventBus() {
-        throw new UnsupportedOperationException(getName() + " not support event bus");
+        throw new UnsupportedOperationException(getName() + " does not support event bus");
     }
 
     /**
