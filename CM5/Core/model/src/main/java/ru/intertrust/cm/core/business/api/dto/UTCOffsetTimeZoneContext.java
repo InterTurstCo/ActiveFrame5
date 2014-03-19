@@ -10,7 +10,14 @@ import ru.intertrust.cm.core.business.api.util.ModelUtil;
 public class UTCOffsetTimeZoneContext extends TimeZoneContext {
     private int offset;
 
+    public UTCOffsetTimeZoneContext() {
+    }
+
     public UTCOffsetTimeZoneContext(int offset) {
+        this.offset = offset;
+    }
+
+    public void setOffset(int offset) {
         this.offset = offset;
     }
 

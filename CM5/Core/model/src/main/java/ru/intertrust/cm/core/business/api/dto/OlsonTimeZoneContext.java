@@ -8,7 +8,14 @@ package ru.intertrust.cm.core.business.api.dto;
 public class OlsonTimeZoneContext extends TimeZoneContext {
     private String timeZoneId;
 
+    public OlsonTimeZoneContext() {
+    }
+
     public OlsonTimeZoneContext(String timeZoneId) {
+        this.timeZoneId = timeZoneId;
+    }
+
+    public void setTimeZoneId(String timeZoneId) {
         this.timeZoneId = timeZoneId;
     }
 

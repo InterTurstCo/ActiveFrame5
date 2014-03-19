@@ -24,12 +24,14 @@ public class DateTimeWithTimeZone implements Dto {
     public DateTimeWithTimeZone() {
     }
 
+    @Deprecated
     public DateTimeWithTimeZone(int year, int month, int dayOfMonth) {
         this.year = year;
         this.month = month;
         this.dayOfMonth = dayOfMonth;
     }
 
+    @Deprecated
     public DateTimeWithTimeZone(int year, int month, int dayOfMonth, int hours, int minute, int seconds) {
         this(year, month, dayOfMonth);
         this.hours = hours;
@@ -37,8 +39,39 @@ public class DateTimeWithTimeZone implements Dto {
         this.seconds = seconds;
     }
 
+    @Deprecated
     public DateTimeWithTimeZone(int year, int month, int dayOfMonth, int hours, int minute, int seconds, int milliseconds) {
         this(year, month, dayOfMonth, hours, minute, seconds);
+        this.milliseconds = milliseconds;
+    }
+
+    public DateTimeWithTimeZone(int timeZoneUtcOffset, int year, int month, int dayOfMonth) {
+        this.timeZoneContext = new UTCOffsetTimeZoneContext(timeZoneUtcOffset);
+        this.year = year;
+        this.month = month;
+        this.dayOfMonth = dayOfMonth;
+    }
+
+    public DateTimeWithTimeZone(int timeZoneUtcOffset, int year, int month, int dayOfMonth, int hours, int minutes, int seconds, int milliseconds) {
+        this(timeZoneUtcOffset, year, month, dayOfMonth);
+        this.hours = hours;
+        this.minutes = minutes;
+        this.seconds = seconds;
+        this.milliseconds = milliseconds;
+    }
+
+    public DateTimeWithTimeZone(String timeZoneId, int year, int month, int dayOfMonth) {
+        this.timeZoneContext = new OlsonTimeZoneContext(timeZoneId);
+        this.year = year;
+        this.month = month;
+        this.dayOfMonth = dayOfMonth;
+    }
+
+    public DateTimeWithTimeZone(String timeZoneId, int year, int month, int dayOfMonth, int hours, int minutes, int seconds, int milliseconds) {
+        this(timeZoneId, year, month, dayOfMonth);
+        this.hours = hours;
+        this.minutes = minutes;
+        this.seconds = seconds;
         this.milliseconds = milliseconds;
     }
 
