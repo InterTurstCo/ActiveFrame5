@@ -2,15 +2,17 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
-import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 /**
  * 
  * @author atsvetkov
  *
  */
-public class NotificationConfig implements Dto {
+@Root(name = "notification")
+public class NotificationConfig implements TopLevelConfig {
 
     @Attribute(name = "name", required = true)
     private String name;

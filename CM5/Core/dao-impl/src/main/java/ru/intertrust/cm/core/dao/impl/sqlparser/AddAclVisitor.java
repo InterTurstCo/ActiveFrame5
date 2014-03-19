@@ -165,12 +165,13 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
      * @return
      */
     private SubSelect createAclSubQuery(String domainObjectType) {
+        domainObjectType = DaoUtils.unwrap(domainObjectType);
         SubSelect subSelectWithAcl = new SubSelect();
         StringBuilder aclQuery = new StringBuilder();
         String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
         aclQuery.append("Select * from ").append(DaoUtils.wrap(domainObjectType))
                 .append(" as " + domainObjectType + " where exists (select r.").append(DaoUtils.wrap("object_id"))
-                .append("from ")
+                .append(" from ")
                 .append(DaoUtils.wrap(aclReadTable)).append(" r ");
         aclQuery.append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.")
                 .append(DaoUtils.wrap("group_id") + " = gg.").append(DaoUtils.wrap("parent_group_id"));

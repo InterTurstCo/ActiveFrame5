@@ -10,7 +10,7 @@ public class FindObjectsConfig implements Dto{
     @ElementUnion({
         @Element(name="class-name", type=FindObjectsClassConfig.class),
         @Element(name="doel", type=FindObjectsDoelConfig.class),
-        @Element(name="query", type=FindObjectsQueryConfig.class)
+        @Element(name="find-query", type=FindObjectsQueryConfig.class)
      })
     private FindObjectsType findObjectType;
 

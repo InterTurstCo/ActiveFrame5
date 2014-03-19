@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.EventTrigger;
@@ -34,6 +35,8 @@ import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
  */
 public abstract class NotificationSenderExtensionPointBase {
     
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(NotificationSenderExtensionPointBase.class);
+
     @Autowired
     protected ConfigurationExplorer configurationExplorer;
     
@@ -49,7 +52,7 @@ public abstract class NotificationSenderExtensionPointBase {
     @Autowired        
     protected DomainObjectFinderService domainObjectFinderService;
     
-    public ConfigurationExplorer getConfigurationExplorer() {
+    public ConfigurationExplorer getConfigurationExplorer() {        
         return configurationExplorer;
     }
 
@@ -106,6 +109,7 @@ public abstract class NotificationSenderExtensionPointBase {
 
                 if (isTriggered) {
                     sendNotification(domainObject, notificationConfig);
+                    break;
                 }
             }
 
@@ -123,22 +127,22 @@ public abstract class NotificationSenderExtensionPointBase {
         Id currentUserId = currentUserAccessor.getCurrentUserId();
 
         List<NotificationAddressee> addresseeList = getAddresseeList(domainObject, notificationConfig);
+        logger.info("Sending notification: " + notificationType + ", on event: " + getEventType() +  " for Domain Object: " + domainObject);
         notificationService.sendOnTransactionSuccess(notificationType, currentUserId,
                 addresseeList, priority, notificationContext);
     }
 
     protected List<NotificationAddressee> getAddresseeList(DomainObject domainObject,
             NotificationConfig notificationConfig) {
-        List<NotificationAddressee> addresseeList = new ArrayList<NotificationAddressee>();
+        List<NotificationAddressee> addresseeList = new  ArrayList<NotificationAddressee>();
         FindObjectsConfig findPerson = notificationConfig.getNotificationTypeConfig().getNotificationAddresseConfig().getFindPerson();
         
-        List<NotificationAddressee> addresseList = new  ArrayList<NotificationAddressee>();        
         if(findPerson != null) {
             List<Id> personIds =
                     domainObjectFinderService.findObjects(findPerson, domainObject.getId());
             if (personIds != null) {
                 for (Id personId : personIds) {
-                    addresseList.add(new NotificationAddresseePerson(personId));
+                    addresseeList.add(new NotificationAddresseePerson(personId));
                 }
             }
     
@@ -149,7 +153,7 @@ public abstract class NotificationSenderExtensionPointBase {
                             .getContextRole().getData();
             NotificationAddresseeContextRole addresseeContextRole =
                     new NotificationAddresseeContextRole(contextRoleName, domainObject.getId());
-            addresseList.add(addresseeContextRole);
+            addresseeList.add(addresseeContextRole);
         } else if (notificationConfig.getNotificationTypeConfig().getNotificationAddresseConfig()
                 .getDynamicGroup() != null) {
             String dynamicGroupName =
@@ -157,7 +161,7 @@ public abstract class NotificationSenderExtensionPointBase {
                             .getDynamicGroup().getData();
             NotificationAddresseeDynamicGroup notificationAddresseeDynamicGroup =
                     new NotificationAddresseeDynamicGroup(dynamicGroupName, domainObject.getId());
-            addresseList.add(notificationAddresseeDynamicGroup);
+            addresseeList.add(notificationAddresseeDynamicGroup);
         }
         return addresseeList;
     }

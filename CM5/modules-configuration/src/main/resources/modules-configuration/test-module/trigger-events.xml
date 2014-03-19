@@ -7,12 +7,12 @@
         <notification-type name="NotificationType" priority="HIGH">
             <addressee>
                 <find-person>
-                    <find-query>Some SQL query {1}
+                    <find-query>Select p.id, p.lastname from person p where p.login = 'person1'
                     </find-query>
                 </find-person>
             </addressee>
             <triggers>
-                <trigger domain-object-type="department_test" event="CREATE">
+                <trigger domain-object-type="department_test" event="CHANGE">
                     <config>
                         <fields>
                             <field>Name</field>
@@ -24,13 +24,13 @@
                         </statuses>
                     </config>
                 </trigger>
-                <trigger refName="TriggerChangeStatus" >
+                <trigger refName="TriggerReadConfig" >
                 </trigger>
             </triggers>
         </notification-type>
     </notification>
 
-     <notification name="NotificationAddresseeClassName">
+     <!-- <notification name="NotificationAddresseeClassName">
         <notification-type name="NotificationType" priority="HIGH">
             <addressee>
                 <find-person>
@@ -43,9 +43,9 @@
                 </trigger>
             </triggers>
         </notification-type>
-    </notification>
+    </notification> -->
 
-     <notification name="NotificationAddresseeContextRole">
+     <!-- <notification name="NotificationAddresseeContextRole">
         <notification-type name="NotificationType" priority="HIGH">
             <addressee>
                 <by-context-role>ContextRole</by-context-role>
@@ -55,7 +55,7 @@
                 </trigger>
             </triggers>
         </notification-type>
-    </notification>
+    </notification> -->
 
     <notification name="NotificationAddresseeDynamicGroup">
         <notification-type name="NotificationType" priority="HIGH">

@@ -91,6 +91,9 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
     @Override
     public boolean isTriggered(TriggerConfig triggerConfig, String eventType, DomainObject domainObject,
             List<FieldModification> changedFields) {
+        if (domainObject.getId() == null) {
+            return false;
+        }
         String domainObjectType = domainObjectTypeIdCache.getName(domainObject.getId());
         if (triggerConfig.getEvent().equals(eventType)
                 && triggerConfig.getDomainObjectType().equals(domainObjectType)) {
