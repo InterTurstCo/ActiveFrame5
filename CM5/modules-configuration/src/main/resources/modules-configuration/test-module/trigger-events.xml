@@ -4,7 +4,7 @@
                xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd">
 
     <notification name="NotificationAddresseeQuery">
-        <notification-type name="NotificationType" priority="HIGH">
+        <notification-type name="TestNotificationType" priority="HIGH">
             <addressee>
                 <find-person>
                     <find-query>Select p.id, p.lastname from person p where p.login = 'person1'

@@ -35,6 +35,8 @@ import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
+import ru.intertrust.cm.core.model.NotificationException;
+import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
 @Stateless(name = "NotificationService")
 @Local(NotificationService.class)
@@ -81,13 +83,19 @@ public class NotificationServiceImpl implements NotificationService {
         List<Id> persons = getAddressee(addresseeList);
 
         for (Id personId : persons) {
+            context.addContextObject("addressee", new DomainObjectAccessor(personId));
             //Получаем список каналов для персоны
             List<String> channelNames =
                     notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
             for (String channelName : channelNames) {
-                NotificationChannelHandle notificationChannelHandle =
-                        notificationChannelLoader.getNotificationChannel(channelName);
-                notificationChannelHandle.send(notificationType, sender, personId, priority, context);
+                try {
+                    NotificationChannelHandle notificationChannelHandle =
+                            notificationChannelLoader.getNotificationChannel(channelName);
+                    notificationChannelHandle.send(notificationType, sender, personId, priority, context);
+                } catch (NotificationException ex) {
+                    //skip exception, allow other channels to be executed.
+                    logger.error("Error sending message on " + channelName + ", notificationType " + notificationType +  ", message : " +  ex.getMessage());
+                }
             }
         }
 

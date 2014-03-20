@@ -147,5 +147,9 @@
     <bean id="eventTrigger" class="ru.intertrust.cm.core.business.impl.EventTriggerImpl"/>
 
     <bean id="scriptService" class="ru.intertrust.cm.core.business.impl.JavaScriptServiceImpl"/>
+
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="mail.augmentive.com" />
+    </bean>
     
 </beans>

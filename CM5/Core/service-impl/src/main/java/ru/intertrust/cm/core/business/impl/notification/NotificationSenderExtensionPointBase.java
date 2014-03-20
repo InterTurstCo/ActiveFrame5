@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.config.NotificationConfig;
 import ru.intertrust.cm.core.config.TriggerConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
+import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
 /**
  * 
@@ -121,13 +122,13 @@ public abstract class NotificationSenderExtensionPointBase {
     protected void sendNotification(DomainObject domainObject, NotificationConfig notificationConfig) {
         String notificationType = notificationConfig.getNotificationTypeConfig().getName();
         NotificationContext notificationContext = new NotificationContext();
-        notificationContext.addContextObject("document", domainObject.getId());
+        notificationContext.addContextObject("document", new DomainObjectAccessor(domainObject));
         NotificationPriority priority = NotificationPriority
                 .valueOf(notificationConfig.getNotificationTypeConfig().getPriority());
         Id currentUserId = currentUserAccessor.getCurrentUserId();
 
         List<NotificationAddressee> addresseeList = getAddresseeList(domainObject, notificationConfig);
-        logger.info("Sending notification: " + notificationType + ", on event: " + getEventType() +  " for Domain Object: " + domainObject);
+        logger.info("Sending notification: " + notificationType + " on event: " + getEventType() +  " for Domain Object: " + domainObject);
         notificationService.sendOnTransactionSuccess(notificationType, currentUserId,
                 addresseeList, priority, notificationContext);
     }

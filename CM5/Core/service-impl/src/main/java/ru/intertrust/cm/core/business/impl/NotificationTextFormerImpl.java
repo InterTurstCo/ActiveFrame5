@@ -110,7 +110,13 @@ public class NotificationTextFormerImpl implements NotificationTextFormer{
 
     private void injectBeans(Map<String, Object> model){
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
+        List<String> exceptionBeans = new ArrayList<>();
+        exceptionBeans.add("formSaver");
+        
         for (String beanDefinitionName : beanDefinitionNames) {
+            if (exceptionBeans.contains(beanDefinitionName)) {
+                continue;
+            }
             Object bean = applicationContext.getBean(beanDefinitionName);
             model.put(beanDefinitionName, bean);
         }
