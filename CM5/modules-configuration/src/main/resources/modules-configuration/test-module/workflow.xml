@@ -291,7 +291,50 @@
         </widget-config>
     </form>
 
-    
+    <form type="report" domain-object-type="all-users">
+        <markup>
+            <header>
+                <table width="800px" height="100px">
+                    <tr>
+                        <!-- label (Название) -->
+                        <td width="100px" h-align="right">
+                            <widget id="startLabel" />
+                        </td>
+                        <td>
+                            <widget id="startInput"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <!-- text-box (Название) -->
+                        <td width="100%" h-align="left">
+                            <widget id="endLabel" />
+                        </td>
+                        <td>
+                            <widget id="endInput"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true"></body>
+        </markup>
+        <widget-config>
+            <label id="startLabel">
+                <field-path />
+                <text>Начало:</text>
+            </label>
+            <text-box id="startInput">
+                <field-path value="paramStart"/>
+            </text-box>
+            <label id="endLabel">
+                <field-path />
+                <text>Конец:</text>
+            </label>
+            <text-box id="endInput">
+                <field-path value="paramEnd"/>
+            </text-box>
+        </widget-config>
+    </form>
+
     <action name="start-internal-document-process" component="start.process.action"
         text="Отправить на согласование" image="sign.png">
         <before-execution>

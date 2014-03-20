@@ -981,8 +981,16 @@
         <xs:attribute type="xs:boolean" name="is-default"/>
         <xs:attribute type="xs:boolean" name="debug"/>
         <xs:attribute type="xs:string" name="min-width"/>
-        <xs:attribute type="xs:string" name="type"/>
+        <xs:attribute type="con:formTypeType" name="type"/>
     </xs:complexType>
+
+    <xs:simpleType name="formTypeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="edit"/>
+            <xs:enumeration value="search"/>
+            <xs:enumeration value="report"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="columnFromType" mixed="true">
         <xs:sequence>
@@ -1096,7 +1104,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="display-single-tab"/>
+        <xs:attribute type="xs:string" name="display-single-tab" use="required"/>
     </xs:complexType>
     <xs:complexType name="markupType">
         <xs:sequence>
