@@ -19,6 +19,11 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.MailNotificationException;
 
+/**
+ * 
+ * @author atsvetkov
+ *
+ */
 @NotificationChannel(name = "MailNotificationChannel", description = "Канал отправки по электронной почте")
 public class MailNotificationChannel implements NotificationChannelHandle {
 
@@ -48,6 +53,12 @@ public class MailNotificationChannel implements NotificationChannelHandle {
 
     @Autowired
     private CollectionsService collectionService;
+
+    private SimpleMailMessage mailTemplate;
+
+    public void setMailTemplate(SimpleMailMessage mailTemplate) {
+        this.mailTemplate = mailTemplate;
+    }
 
     public void setMailSender(MailSender mailSender) {
         this.mailSender = mailSender;
@@ -86,9 +97,13 @@ public class MailNotificationChannel implements NotificationChannelHandle {
     private SimpleMailMessage createMailMesssage(String notificationType, Id senderId, Id addresseeId,
             NotificationContext context) {
         AccessToken systemAccessToken = accessControlService.createSystemAccessToken(MAIL_NOTIFICATION_CHANNEL);
-        GenericDomainObject senderDO = (GenericDomainObject) domainObjectDao.find(senderId, systemAccessToken);
-        String senderMail = senderDO.getString(EMAIL_FIELD);
-
+        String senderMail = null;
+        if (senderId != null) {
+            GenericDomainObject senderDO = (GenericDomainObject) domainObjectDao.find(senderId, systemAccessToken);
+            senderMail = senderDO.getString(EMAIL_FIELD);
+        } else {
+            senderMail = mailTemplate.getFrom();
+        }
         GenericDomainObject addresseDO = (GenericDomainObject) domainObjectDao.find(addresseeId, systemAccessToken);
         String addresseMail = addresseDO.getString(EMAIL_FIELD);
 
