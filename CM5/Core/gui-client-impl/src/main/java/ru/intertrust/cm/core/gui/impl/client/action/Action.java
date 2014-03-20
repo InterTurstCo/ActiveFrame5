@@ -63,7 +63,7 @@ public abstract class Action extends BaseComponent {
     public abstract void execute();
 
     public boolean shouldBeValidated() {
-        return initialContext.getActionConfig().isValidate();
+        return initialContext.getActionConfig() != null && initialContext.getActionConfig().isValidate();
     }
 
     public boolean isValid() {

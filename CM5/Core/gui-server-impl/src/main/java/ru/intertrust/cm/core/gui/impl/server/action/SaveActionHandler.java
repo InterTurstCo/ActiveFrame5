@@ -81,19 +81,20 @@ public class SaveActionHandler extends ActionHandler {
             }
         }
         // Custom Server Validation
-        for (ValidatorConfig config : context.getActionConfig().getValidatorConfigs()) {
-            String widgetId = config.getWidgetId();
-            ServerValidator customValidator = CustomValidatorFactory.createInstance(config.getClassName(), widgetId);
-            if (customValidator != null) {
-                WidgetState state = formState.getWidgetState(widgetId);
-                customValidator.init(context);
-                ValidationResult validationResult = customValidator.validate(state);
-                if (validationResult.hasErrors()) {
-                    errorMessages.addAll(getMessages(validationResult, null));
+        if (context.getActionConfig() != null) {
+            for (ValidatorConfig config : context.getActionConfig().getValidatorConfigs()) {
+                String widgetId = config.getWidgetId();
+                ServerValidator customValidator = CustomValidatorFactory.createInstance(config.getClassName(), widgetId);
+                if (customValidator != null) {
+                    WidgetState state = formState.getWidgetState(widgetId);
+                    customValidator.init(context);
+                    ValidationResult validationResult = customValidator.validate(state);
+                    if (validationResult.hasErrors()) {
+                        errorMessages.addAll(getMessages(validationResult, null));
+                    }
                 }
             }
         }
-
         return errorMessages;
     }
 
