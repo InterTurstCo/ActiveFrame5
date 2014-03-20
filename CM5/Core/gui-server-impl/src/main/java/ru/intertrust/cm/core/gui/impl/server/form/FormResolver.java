@@ -32,23 +32,41 @@ public class FormResolver {
 
     private FormsCache editingFormsCache;
     private FormsCache searchFormsCache;
+    private FormsCache reportFormsCache;
 
     public FormResolver() {
     }
 
-    public FormConfig findSearchForm(String domainObjectType, String userUid) {
-        return findFormConfig(domainObjectType, true, userUid);
+    public FormConfig findEditingFormConfig(DomainObject root, String userUid) {
+        return findFormConfig(root.getTypeName(), FormConfig.TYPE_EDIT, userUid);
     }
 
-    public FormConfig findFormConfig(DomainObject root, String userUid) {
-        return findFormConfig(root.getTypeName(), false, userUid);
+    public FormConfig findSearchFormConfig(String domainObjectType, String userUid) {
+        return findFormConfig(domainObjectType, FormConfig.TYPE_SEARCH, userUid);
     }
 
-    public FormConfig findFormConfig(String typeName, boolean searchForm, String userUid) {
+    public FormConfig findReportFormConfig(String reportName, String userUid) {
+        return findFormConfig(reportName, FormConfig.TYPE_REPORT, userUid);
+    }
+
+    public FormConfig findFormConfig(String typeName, String formType, String userUid) {
         // находится форма для данного контекста, учитывая факт того, переопределена ли форма для пользователя/роли,
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
-        final FormsCache cache = searchForm ? searchFormsCache : editingFormsCache;
+        final FormsCache cache;
+        switch(formType) {
+            case FormConfig.TYPE_EDIT:
+                cache = editingFormsCache;
+                break;
+            case FormConfig.TYPE_SEARCH:
+                cache = searchFormsCache;
+                break;
+            case FormConfig.TYPE_REPORT:
+                cache = reportFormsCache;
+                break;
+            default:
+                cache = editingFormsCache;
+        }
         List<FormConfig> userFormConfigs = cache.getUserFormConfigs(userUid, typeName);
         if (userFormConfigs != null && userFormConfigs.size() != 0) {
             if (userFormConfigs.size() > 1) {
@@ -81,8 +99,9 @@ public class FormResolver {
 
     @PostConstruct
     private void initCaches() {
-        editingFormsCache = new FormsCache(false);
-        searchFormsCache = new FormsCache(true);
+        editingFormsCache = new FormsCache(FormConfig.TYPE_EDIT);
+        searchFormsCache = new FormsCache(FormConfig.TYPE_SEARCH);
+        reportFormsCache = new FormsCache(FormConfig.TYPE_REPORT);
     }
 
     private class FormsCache {
@@ -91,7 +110,9 @@ public class FormResolver {
         private HashMap<Pair<String, String>, List<FormConfig>> formsByRoleAndDomainObjectType;
         private HashMap<Pair<String, String>, List<FormConfig>> formsByUserAndDomainObjectType;
 
-        private FormsCache(boolean searchForms) {
+
+        private FormsCache(String formType) {
+
             defaultFormByDomainObjectType = new CaseInsensitiveHashMap<>();
             allFormsByDomainObjectType = new CaseInsensitiveHashMap<>();
             formsByRoleAndDomainObjectType = new HashMap<>();
@@ -102,8 +123,7 @@ public class FormResolver {
                 formConfigs = Collections.EMPTY_LIST;
             }
             for (FormConfig formConfig : formConfigs) {
-                final boolean searchFormConfig = formConfig.getType() != null && formConfig.getType().equals("search");
-                if (!searchForms && searchFormConfig || searchForms && !searchFormConfig) {
+                if (!formType.equals(formConfig.getType())) {
                     continue;
                 }
 
@@ -128,8 +148,8 @@ public class FormResolver {
             for (FormMappingConfig formMapping : formMappingConfigs) {
                 String domainObjectType = formMapping.getDomainObjectType();
                 FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formMapping.getForm());
-                final boolean searchFormConfig = formConfig.getType() != null && formConfig.getType().equals("search");
-                if (!searchForms && searchFormConfig || searchForms && !searchFormConfig) {
+                final boolean searchFormConfig = FormConfig.TYPE_SEARCH.equals(formConfig.getType());
+                if (!formType.equals(formConfig.getType())) {
                     continue;
                 }
                 fillRoleAndDomainObjectTypeFormMappings(formMapping, domainObjectType, formConfig);

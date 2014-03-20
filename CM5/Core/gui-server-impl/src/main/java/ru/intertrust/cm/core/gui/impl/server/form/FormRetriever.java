@@ -68,19 +68,46 @@ public class FormRetriever {
 
     private FormDisplayData buildExtendedSearchForm(String domainObjectType, HashSet<String> formFields) {
         //FormConfig formConfig = formResolver.findFormConfig(root, userUid); was 30.01.2014
-        FormConfig formConfig = formResolver.findSearchForm(domainObjectType, userUid);
+        FormConfig formConfig = formResolver.findSearchFormConfig(domainObjectType, userUid);
         if (formConfig == null) {
             return null; //throw new GuiException("Конфигурация поиска для ДО " + domainObjectType + " не найдена!");
         }
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
 
-        HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
-        HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
-
         FormObjects formObjects = new FormObjects();
         DomainObject root = crudService.createDomainObject(domainObjectType);
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
+
+        HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects);
+        HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
+
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects,
+                MessageResourceProvider.getMessages());
+        return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
+                                                                       formConfig.getMinWidth(), formConfig.getDebug());
+    }
+
+    public FormDisplayData getReportForm(String reportName) {
+        FormConfig formConfig = formResolver.findReportFormConfig(reportName, userUid);
+        if (formConfig == null) {
+            return null;
+        }
+        List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+
+        FormObjects formObjects = new FormObjects(); //TODO: [report-plugin] will it work without full-fledged FormObject?
+        HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects);
+        HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
+
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects,
+                MessageResourceProvider.getMessages());
+        return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
+                formConfig.getMinWidth(), formConfig.getDebug());
+    }
+
+
+    private HashMap<String, WidgetState> buildWidgetStatesMap(List<WidgetConfig> widgetConfigs, FormObjects formObjects) {
+        HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
 
         for (WidgetConfig config : widgetConfigs) {
             try {
@@ -92,14 +119,18 @@ public class FormRetriever {
 
                 initialState.setEditable(true);
                 widgetStateMap.put(widgetId, initialState);
-                widgetComponents.put(widgetId, config.getComponentName());
-            } catch (NullPointerException npe) {continue;}
+            } catch (NullPointerException npe) {continue;} //TODO: NPE is a run-time exception, we should not catch it
         }
+        return widgetStateMap;
+    }
 
-        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects,
-                MessageResourceProvider.getMessages());
-        return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
-                                                                       formConfig.getMinWidth(), formConfig.getDebug());
+    private HashMap<String, String> buildWidgetComponentsMap(List<WidgetConfig> widgetConfigs) {
+        HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
+        for (WidgetConfig config : widgetConfigs) {
+            String widgetId = config.getId();
+            widgetComponents.put(widgetId, config.getComponentName());
+        }
+        return widgetComponents;
     }
 
     private FormDisplayData buildDomainObjectForm(DomainObject root) {
@@ -108,7 +139,7 @@ public class FormRetriever {
         // a.b.c.d - direct links
         // a^b - link defining 1:N relationship (widgets changing attributes can't have such field path)
         // a^b.c - link defining N:M relationship (widgets changing attributes can't have such field path)
-        FormConfig formConfig = formResolver.findFormConfig(root, userUid);
+        FormConfig formConfig = formResolver.findEditingFormConfig(root, userUid);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         HashMap<String, WidgetConfig> widgetConfigsById = buildWidgetConfigsById(widgetConfigs);
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());

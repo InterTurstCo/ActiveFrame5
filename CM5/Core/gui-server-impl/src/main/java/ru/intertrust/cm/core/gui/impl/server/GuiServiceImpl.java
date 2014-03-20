@@ -87,29 +87,26 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     @Override
     public FormDisplayData getForm(final String domainObjectType, final UserInfo userInfo) {
-        final GuiContext guiCtx = GuiContext.get();
-        guiCtx.setUserInfo(userInfo);
-        FormRetriever formRetriever = (FormRetriever)
-                applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
+        FormRetriever formRetriever = getFormRetriever(userInfo);
         return formRetriever.getForm(domainObjectType);
     }
 
     @Override
     public FormDisplayData getForm(final Id domainObjectId, final UserInfo userInfo) {
-        final GuiContext guiCtx = GuiContext.get();
-        guiCtx.setUserInfo(userInfo);
-        FormRetriever formRetriever = (FormRetriever)
-                applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
+        FormRetriever formRetriever = getFormRetriever(userInfo);
         return formRetriever.getForm(domainObjectId);
     }
 
     @Override
     public FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields, final UserInfo userInfo) {
-        final GuiContext guiCtx = GuiContext.get();
-        guiCtx.setUserInfo(userInfo);
-        FormRetriever formRetriever = (FormRetriever)
-                applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
+        FormRetriever formRetriever = getFormRetriever(userInfo);
         return formRetriever.getSearchForm(domainObjectType, formFields);
+    }
+
+    @Override
+    public FormDisplayData getReportForm(String reportName, UserInfo userInfo) {
+        FormRetriever formRetriever = getFormRetriever(userInfo);
+        return formRetriever.getReportForm(reportName);
     }
 
     @Override
@@ -126,9 +123,17 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    public FormConfig getFormConfig(String typeName, boolean isSearchForm) {
+    public FormConfig getFormConfig(String typeName, String formType) {
         FormResolver formResolver = (FormResolver) applicationContext.getBean("formResolver");
-        return formResolver.findFormConfig(typeName, isSearchForm, sessionContext.getCallerPrincipal().getName());
+        return formResolver.findFormConfig(typeName, formType, sessionContext.getCallerPrincipal().getName());
+    }
+
+    private FormRetriever getFormRetriever(UserInfo userInfo) {
+        final GuiContext guiCtx = GuiContext.get();
+        guiCtx.setUserInfo(userInfo);
+        FormRetriever formRetriever = (FormRetriever)
+                applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
+        return formRetriever;
     }
 
 }

@@ -47,10 +47,12 @@ public interface GuiService {
     // получение формы расширенного поиска
     FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields, UserInfo userInfo);
 
+    FormDisplayData getReportForm(String reportName, UserInfo userInfo);
+
     DomainObject saveForm(FormState formState, UserInfo userInfo);
 
     SessionContext getSessionContext();
 
-    FormConfig getFormConfig(String typeName, boolean isSearchForm);
+    FormConfig getFormConfig(String typeName, String searchType);
 
 }

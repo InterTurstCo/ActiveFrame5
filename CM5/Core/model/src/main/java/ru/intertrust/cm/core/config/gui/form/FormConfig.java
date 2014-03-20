@@ -14,6 +14,12 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
  */
 @Root( name = "form", strict = false)
 public class FormConfig implements Dto, TopLevelConfig {
+
+    public static final String TYPE_EDIT = "edit";
+    public static final String TYPE_SEARCH = "search";
+    public static final String TYPE_REPORT = "report";
+
+
     @Attribute(name = "name", required = false)
     private String name;
 
@@ -39,7 +45,7 @@ public class FormConfig implements Dto, TopLevelConfig {
     private WidgetConfigurationConfig widgetConfigurationConfig;
 
     public String getType() {
-        return type;
+        return type != null ? type : TYPE_EDIT;
     }
 
     public void setType(String type) {

@@ -184,7 +184,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     // обработка условий расширенного поиска и формирование результирующих данных
     public  Dto searchFormDataProcessor (Dto dto) {
         ExtendedSearchData extendedSearchData = (ExtendedSearchData) dto;
-        FormConfig formConfig = guiService.getFormConfig(extendedSearchData.getSearchQuery().getTargetObjectType(), true);
+        FormConfig formConfig = guiService.getFormConfig(extendedSearchData.getSearchQuery().getTargetObjectType(), FormConfig.TYPE_SEARCH);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         // данные из полей формы поиска
         Map<String, WidgetState> formWidgetsData = extendedSearchData.getFormWidgetsData();
