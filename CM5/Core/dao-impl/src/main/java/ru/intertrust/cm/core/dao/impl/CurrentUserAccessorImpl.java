@@ -38,7 +38,17 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
     }    
 
     public String getCurrentUser() {
-        return getEjbContext().getCallerPrincipal().getName();
+        String result = null;
+        //В случае если вызов идет изнутри представившись как system то подставляем пользователя admin, 
+        //возможно понадобится иметь иного системного пользователя
+        //TODO разобратся почему не устанавливается роль
+        if (getEjbContext().isCallerInRole("system") || getEjbContext().getCallerPrincipal().getName().equals("anonymous")){
+            //TODO возможно стоит подумать над иным пользователем, например system
+            result = "admin";
+        }else{
+            result = getEjbContext().getCallerPrincipal().getName();
+        }
+        return result;
     }
     
     public Id getCurrentUserId() {

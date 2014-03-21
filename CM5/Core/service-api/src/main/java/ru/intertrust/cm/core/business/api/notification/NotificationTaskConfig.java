@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.api.notification;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationTaskMode;
@@ -12,6 +14,7 @@ import ru.intertrust.cm.core.config.FindObjectsConfig;
  * @author larin
  *
  */
+@Root
 public class NotificationTaskConfig implements ScheduleTaskParameters {
 
     private static final long serialVersionUID = 2618754657538579112L;
@@ -19,13 +22,13 @@ public class NotificationTaskConfig implements ScheduleTaskParameters {
     /**
      * Описание способа получения доменных объектов
      */
-    @Attribute
+    @Element
     private FindObjectsConfig findDomainObjects;
     
     /**
      * Описание способа получения персон
      */
-    @Attribute
+    @Element
     private FindObjectsConfig findPersons;
     
     /**

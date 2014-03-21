@@ -1,6 +1,13 @@
 package ru.intertrust.cm.core.business.impl.notification;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.ejb.SessionContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -15,11 +22,6 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
 import ru.intertrust.cm.core.business.api.schedule.SheduleType;
 import ru.intertrust.cm.core.config.FindObjectsConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
-
-import javax.ejb.SessionContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Периодическое задание формирующее уведомления по расписанию
@@ -98,7 +100,9 @@ public class NotificationScheduleTask implements ScheduleTaskHandle {
 
         List<NotificationAddressee> addresseeList = new ArrayList<>();
         for (Id personId : personIds) {
-            addresseeList.add(new NotificationAddresseePerson(personId));
+            if (personId != null){
+                addresseeList.add(new NotificationAddresseePerson(personId));
+            }
         }
 
         DomainObject domainObject = crudService.find(domainObjectId);
@@ -106,12 +110,14 @@ public class NotificationScheduleTask implements ScheduleTaskHandle {
         NotificationContext notificationContext = new NotificationContext();
         notificationContext.addContextObject("document", domainObject);
 
-        notificationService.sendOnTransactionSuccess(
-                notificationTaskConfig.getNotificationType(),
-                null,
-                addresseeList,
-                notificationTaskConfig.getNotificationPriority(),
-                notificationContext);
+        if (addresseeList.size() > 0){
+            notificationService.sendOnTransactionSuccess(
+                    notificationTaskConfig.getNotificationType(),
+                    null,
+                    addresseeList,
+                    notificationTaskConfig.getNotificationPriority(),
+                    notificationContext);
+        }
     }
 
 }

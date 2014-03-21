@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.Schedule;
@@ -51,6 +52,7 @@ import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 @Stateless(name = "SchedulerBean")
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
+@RunAs("system")
 public class SchedulerBean {
 
     public static final String ADMIN_GROUP = "Administrators";

@@ -6,10 +6,10 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.annotation.PreDestroy;
-
 import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
+import org.simpleframework.xml.strategy.Strategy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -119,7 +119,8 @@ public class SheduleTaskLoader implements ApplicationContextAware {
     private String getDefaultParameters(ScheduleTask configuration) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            Serializer serializer = new Persister();
+            Strategy strategy = new AnnotationStrategy();
+            Serializer serializer = new Persister(strategy);
             String result = null;
             Class<? extends ScheduleTaskDefaultParameters> defaultConfigClass = configuration.configClass();
             if (!defaultConfigClass.equals(ScheduleTaskDefaultParameters.class)) {

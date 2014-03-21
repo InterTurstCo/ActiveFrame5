@@ -6,6 +6,13 @@ public class FindObjectsQueryConfig implements FindObjectsType{
     @Text
     private String data;
 
+    public FindObjectsQueryConfig(){
+    }
+
+    public FindObjectsQueryConfig(String query){
+        this.data = query;
+    }
+    
     @Override
     public String getData() {
         return data;

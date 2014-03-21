@@ -2,9 +2,11 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementUnion;
+import org.simpleframework.xml.Root;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
+@Root
 public class FindObjectsConfig implements Dto{
     
     @ElementUnion({
