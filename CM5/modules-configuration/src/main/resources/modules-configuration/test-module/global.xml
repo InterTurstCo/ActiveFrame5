@@ -10,5 +10,67 @@
     </global-settings>
     <business-universe>
         <logo image="logo.gif"/>
+        <!--<plugin-action-tool-bars>
+            <tool-bar plugin="form.plugin" display-mode="preview"> &lt;!&ndash; Ещё есть режим edit &ndash;&gt;
+                <menu-group name="Основные">
+                &lt;!&ndash; Все "зашитые" (определённые в системе изначально) действия показываются, только если у пользователя есть на них соответствующие права &ndash;&gt;
+                &lt;!&ndash; Если текст опущен, необходимо использовать "хардкодные" значения &ndash;&gt;
+                <menu-entry text="Создать" component="create.new"/>
+
+                <menu-entry text="Редактировать" component="edit.action"/>
+
+                <menu-entry text="Удалить" component="edit.action"/>
+
+                &lt;!&ndash; Пример того, как конкретное действие workflow можно внедрить в произвольное место меню. Если такое имеет место, то эти действия не надо показывать там, где указан какой-то набор действий, например "workflow", а надо исключать
+                 Если же такое действие встречается вне группы ещё раз - показывать. Также группа может быть помечена как "display-all-actions" - в таком случае тоже исключать не надо
+                &ndash;&gt;
+                <menu-entry text="Согласовать" component="start.process.action"/>
+
+                &lt;!&ndash; Под-меню &ndash;&gt;
+                <menu-group name="Уровень 2">
+                </menu-group>
+                <menu-entry text="Экспорт в Excel" component="export.to.xls"/>
+
+                &lt;!&ndash; При помощи этого тэга в меню (в том числе и в группу) встраивается набор действий. Из него нужно исключить те, которые уже были где-то показаны.
+                В случае если display-all-actions="true" исключать их не нужно. По умолчанию display-all-actions="false"
+
+                4 типа наборов:
+                1) "creating" - действия, относящиеся к созданию. Пока только одно - "Создать", но потом будет много (для создания разных типов объектов)
+                2) "editing" - действия, относящиеся к редактированию - Редактировать, Удалить. "Редактировать" нужно показывать только в случае режима формы "preview".
+                "editor"-действия нужно показывать только в том случае, если плагин поддерживает редактиктирование ДО (нужен соответствующий интерфейс)
+                3) "workflow" - действия, предлагаемые workflow-движком
+                4) "custom" - действия, определяемые самим плагином - только их теперь и должен плагин "возвращать" для панели действий по умолчанию
+                5) "copy" - действия, скопированные из другого плагина. Это самое сложное - ни в коем случае нельзя позволить уйти в бесконечную рекурсию.
+
+                Все классы отображения должны наследовать единый MenuEntryCollectionConfig
+                &ndash;&gt;
+                <creating-entries>
+                    <to-create plugin-defined="true"/>
+                    <to-create type="country"/> &lt;!&ndash; plugin-defined при этом игнорируется &ndash;&gt;
+                    <to-create type="city"/>
+                </creating-entries>
+                <editing-entries/>
+                <workflow-entries/>
+
+                <menu-group name="Разное">
+                    <custom-entries/>
+                </menu-group>
+            </tool-bar>
+
+            <tool-bar plugin="form.plugin" display-mode="edit">
+                <menu-entry text="Закрыть"/>
+                <copy-entries from="form.plugin" display-mode="preview"/>
+            </tool-bar>
+
+            <tool-bar plugin="domain.object.surfer.plugin" display-mode="preview">
+                <menu-entry text="Закрыть"/>
+                <copy-entries from="form.plugin" display-mode="preview"/>
+            </tool-bar>
+
+            <tool-bar plugin="domain.object.surfer.plugin" display-mode="edit">
+                <menu-entry text="Закрыть"/>
+                <copy-entries from="form.plugin" display-mode="edit"/>
+            </tool-bar>
+        </plugin-action-tool-bars>-->
     </business-universe>
 </configuration>
