@@ -6,9 +6,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeImages;
 import com.google.gwt.user.client.ui.TreeItem;
-import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
+import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 
 import java.util.*;
 
@@ -19,7 +18,8 @@ class NavigationTreeBuilder {
     private List<LinkConfig> linkConfigs;
     private String groupName;
     private Tree tree;
-    private List<SelectionHandler<TreeItem>> handlers = new ArrayList<SelectionHandler<TreeItem>>();
+    private List<SelectionHandler<TreeItem>> handlers = new ArrayList<>();
+    private List<CounterDecorator> counterDecorators = new ArrayList<>();
 
     public NavigationTreeBuilder(List<LinkConfig> linkConfigs, String groupName) {
         this.linkConfigs = linkConfigs;
@@ -47,6 +47,7 @@ class NavigationTreeBuilder {
     private void buildGroup(LinkConfig linkConfig, TreeItem group) {
         tree.addItem(group);
         TreeItem treeItem = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
+        collectCounterDecorators(linkConfig, treeItem);
         addChildrenTreeItems(treeItem, linkConfig);
         group.addItem(treeItem);
         if (linkConfig.getName().equals(childToOpenName)) {
@@ -54,8 +55,22 @@ class NavigationTreeBuilder {
         }
     }
 
+    private void collectCounterDecorators(LinkConfig linkConfig, TreeItem treeItem) {
+        if (linkConfig.getPluginDefinition() != null) {
+            if (linkConfig.getPluginDefinition().getPluginConfig() instanceof DomainObjectSurferConfig) {
+                TreeItemCounterDecorator treeItemCounterDecorator = new TreeItemCounterDecorator(treeItem);
+                CounterKey counterKey = new CounterKey(linkConfig.getName(), ((DomainObjectSurferConfig) linkConfig.getPluginDefinition()
+                        .getPluginConfig()).getCollectionViewerConfig().getCollectionRefConfig().getName());
+                treeItemCounterDecorator.setCounterKey(counterKey);
+                counterDecorators.add(treeItemCounterDecorator);
+            }
+        }
+    }
+
     private void buildTree(LinkConfig linkConfig) {
-        TreeItem treeItem = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
+        LinkPluginDefinition pluginDefinition = linkConfig.getPluginDefinition();
+        TreeItem treeItem = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), pluginDefinition);
+        collectCounterDecorators(linkConfig, treeItem);
         addChildrenTreeItems(treeItem, linkConfig);
         tree.addItem(treeItem);
         if (linkConfig.getName().equals(childToOpenName)) {
@@ -77,6 +92,7 @@ class NavigationTreeBuilder {
         this.images = images;
         return this;
     }
+
     private TreeItem composeGroupItem(String displayText) {
         Label label = new Label();
         label.getElement().getStyle().setFloat(Style.Float.LEFT);
@@ -110,11 +126,10 @@ class NavigationTreeBuilder {
         label.addStyleName("tree-label");
         TreeItem treeItem = new TreeItem(label);
         label.removeStyleName("gwt-Label");
-        Map<String, Object> treeUserObjects = new HashMap<String, Object>();
+        Map<String, Object> treeUserObjects = new HashMap<>();
         treeUserObjects.put("name", treeItemName);
-        if (pluginDefinition != null) {
-            treeUserObjects.put("pluginConfig", pluginDefinition.getPluginConfig());
-        }
+        treeUserObjects.put("originalText", treeItem.getText());
+        treeUserObjects.put("pluginConfig", pluginDefinition.getPluginConfig());
         treeItem.setUserObject(treeUserObjects);
         return treeItem;
     }
@@ -149,11 +164,14 @@ class NavigationTreeBuilder {
             List<LinkConfig> linkConfigList = childLinksConfig.getLinkConfigList();
             for (LinkConfig linkConfig : linkConfigList) {
                 TreeItem item = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
+                collectCounterDecorators(linkConfig, item);
                 parentTreeItem.addItem(item);
                 addChildrenTreeItems(item, linkConfig);
-
             }
         }
     }
 
+    public List<CounterDecorator> getCounterDecorators() {
+        return counterDecorators;
+    }
 }

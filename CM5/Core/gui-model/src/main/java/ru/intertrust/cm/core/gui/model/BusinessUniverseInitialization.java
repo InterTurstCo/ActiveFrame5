@@ -17,6 +17,7 @@ public class BusinessUniverseInitialization implements Dto {
     private String eMail;
     private String logoImagePath;
     private List<String> timeZoneIds;
+    private Integer collectionCountersUpdatePeriod;
 
     public String getCurrentLogin() {
         return currentLogin;
@@ -80,5 +81,13 @@ public class BusinessUniverseInitialization implements Dto {
 
     public void setLogoImagePath(String logoImagePath) {
         this.logoImagePath = logoImagePath;
+    }
+
+    public Integer getCollectionCountersUpdatePeriod() {
+        return collectionCountersUpdatePeriod;
+    }
+
+    public void setCollectionCountersUpdatePeriod(Integer collectionCountersUpdatePeriod) {
+        this.collectionCountersUpdatePeriod = collectionCountersUpdatePeriod;
     }
 }

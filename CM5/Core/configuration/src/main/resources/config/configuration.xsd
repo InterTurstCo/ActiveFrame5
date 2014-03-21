@@ -377,11 +377,25 @@
     </xs:complexType>
 
     <xs:complexType name="businessUniverseType">
-        <xs:choice>
+        <xs:sequence>
             <xs:element name="logo" type="con:logoType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:choice>
+            <xs:element name="collection-count-refresh"
+                        type="con:collectionCountRefreshType"
+                        maxOccurs="1" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="collection-count-cache-refresh"
+                        type="con:collectionCountCacheRefreshType"
+                        maxOccurs="1" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="collectionCountRefreshType">
+        <xs:attribute name="time" use="required" type="xs:integer"/>
+    </xs:complexType>
+    <xs:complexType name="collectionCountCacheRefreshType">
+        <xs:attribute name="time" use="required" type="xs:integer"/>
     </xs:complexType>
     <xs:complexType name="logoType">
         <xs:attribute name="image" use="required" type="xs:string"/>

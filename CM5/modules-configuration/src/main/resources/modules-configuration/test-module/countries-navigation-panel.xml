@@ -81,10 +81,10 @@
                     </decorations>
                 </link>
 
-                <link name="Organization" display-text="Организация" image="images/inbox.png">
+              <!--  <link name="Organization" display-text="Организация" image="images/inbox.png">
                     <plugin>
-                        <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
-                        <!-- если используется collection-view, то collection нельзя использовать -->
+                        &lt;!&ndash; DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig &ndash;&gt;
+                        &lt;!&ndash; если используется collection-view, то collection нельзя использовать &ndash;&gt;
                         <domain-object-surfer domain-object-type-to-create="Organization">
                             <collection-viewer>
                                 <collection-ref name="Organizations" use-default="true"/>
@@ -95,7 +95,7 @@
                     <decorations>
                         <collection-counter/>
                     </decorations>
-                </link>
+                </link>-->
             </child-links>
         </link>
 
@@ -129,13 +129,13 @@
                 </link>
                 <link name="Report" display-text="Отчет">
                     <plugin>
-                        <report-plugin report-name="all-employee" />
+                        <report-plugin report-name="all-employee"/>
                     </plugin>
                 </link>
             </child-links>
         </link>
 
-        <link name="Inbox" display-text="Входящие" image="images/helpers.png" child-to-open="Tasks">
+       <!-- <link name="Inbox" display-text="Входящие" image="images/helpers.png" child-to-open="Tasks">
             <child-links>
                 <link name="Tasks" display-text="Задачи">
                     <plugin>
@@ -158,21 +158,21 @@
                     </plugin>
                 </link>
             </child-links>
-        </link>
+        </link>-->
         <link name="InboxTest" display-text="Группа" image="images/meetings.png" child-to-open="TasksTest">
             <child-links group-name="Группа">
-                <link name="TasksTest" display-text="Задачи" >
+                <link name="TasksTest" display-text="Задачи">
 
-                        <plugin>
-                            <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
-                            <!-- если используется collection-view, то collection нельзя использовать -->
-                            <domain-object-surfer domain-object-type-to-create="Department">
-                                <collection-viewer>
-                                    <collection-ref name="Departments" use-default="true"/>
-                                    <default-sort-criteria column-field="name" order="desc"/>
-                                </collection-viewer>
-                            </domain-object-surfer>
-                        </plugin>
+                    <plugin>
+                        <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
+                        <!-- если используется collection-view, то collection нельзя использовать -->
+                        <domain-object-surfer domain-object-type-to-create="Department">
+                            <collection-viewer>
+                                <collection-ref name="Departments" use-default="true"/>
+                                <default-sort-criteria column-field="name" order="desc"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
 
                     <child-links>
                         <link name="TasksHigh" display-text="Задачи высокого приоритета">
@@ -323,14 +323,14 @@
     </navigation-panel-mappings>
 
     <navigation-panel-mappings>
-    <navigation-panel-mapping name="panel_1">
-        <users>
-            <user uid="person1"/>
-        </users>
-        <groups>
-            <group-name value="Administrators"/>
-        </groups>
-    </navigation-panel-mapping>
+        <navigation-panel-mapping name="panel_1">
+            <users>
+                <user uid="person1"/>
+            </users>
+            <groups>
+                <group-name value="Administrators"/>
+            </groups>
+        </navigation-panel-mapping>
     </navigation-panel-mappings>
     <navigation-panel-mappings>
         <navigation-panel-mapping name="panel_2">

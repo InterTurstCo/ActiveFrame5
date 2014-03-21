@@ -10,6 +10,7 @@ import java.util.TimeZone;
 import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,10 +60,18 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
         addInformationToInitializationObject(initialization);
         addLogoImagePath(initialization);
+        addCollectionCountersUpdateTimePeriod(initialization);
         return initialization;
     }
 
-    public BusinessUniverseInitialization addInformationToInitializationObject(BusinessUniverseInitialization businessUniverseInitialization){
+    private void addCollectionCountersUpdateTimePeriod(BusinessUniverseInitialization businessUniverseInitialization) {
+        BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
+        if (businessUniverseConfig != null) {
+            businessUniverseInitialization.setCollectionCountersUpdatePeriod(businessUniverseConfig.getCollectionCountRefreshConfig().getTime());
+        }
+    }
+
+    public BusinessUniverseInitialization addInformationToInitializationObject(BusinessUniverseInitialization businessUniverseInitialization) {
         String currentLogin = guiService.getSessionContext().getCallerPrincipal().getName();
         DomainObject person = personService.findPersonByLogin(currentLogin);
         businessUniverseInitialization.setCurrentLogin(currentLogin);
@@ -82,7 +91,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         LogoConfig logoConfig = businessUniverseConfig.getLogoConfig();
         if (logoConfig == null) {
             businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
-            return  businessUniverseInitialization;
+            return businessUniverseInitialization;
         }
         String logoImagePath = logoConfig.getImage();
         businessUniverseInitialization.setLogoImagePath(logoImagePath);

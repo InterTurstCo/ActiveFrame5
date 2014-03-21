@@ -40,12 +40,12 @@ public class SidebarView extends Composite {
     Element arrBottom;
     public VerticalPanel menuItems = new VerticalPanel();
 
-    public int getWidgetIndex(Widget w){
+    public int getWidgetIndex(Widget w) {
         int result = menuItems.getWidgetIndex(w);
         return result;
     }
 
-    public Widget getWidgetMenuItems(int index){
+    public Widget getWidgetMenuItems(int index) {
         return menuItems.getWidget(index);
     }
 
@@ -240,21 +240,6 @@ public class SidebarView extends Composite {
         setArrowImage(arrBottom, "css/icons/icon-sidebar-button-down-unactive.png");
     }
 
-
-    public void sidebarItem(String path, String title, String name, Long value, HTML h) {
-        if (value > 0) {
-            h.setHTML("<li><a><img width=\"60\" height=\"50\" border=\"0\" alt=\"\" src=\"" + path + "\"><span>"
-                    + title + "</span><small>" + value + "</small></a></li>");
-        } else {
-            h.setHTML("<li><a><img width=\"60\" height=\"50\" border=\"0\" alt=\"\" src=\"" + path + "\"><span>"
-                    + title + "</span></a></li>");
-        }
-        if (name != null) {
-            h.setTitle(name);
-        }
-
-        h.getElement().getStyle().setCursor(Cursor.POINTER);
-    }
 
     /**
      * Делает выделенным элемент с названием name

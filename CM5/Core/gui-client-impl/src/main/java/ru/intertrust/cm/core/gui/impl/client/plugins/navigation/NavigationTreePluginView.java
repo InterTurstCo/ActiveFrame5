@@ -5,9 +5,14 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -19,10 +24,16 @@ import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyle;
 import ru.intertrust.cm.core.gui.impl.client.panel.RootNodeButton;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
 import ru.intertrust.cm.core.gui.impl.client.panel.SystemTreeStyles;
+import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
+import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
+import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
+import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class NavigationTreePluginView extends PluginView {
 
@@ -34,9 +45,16 @@ public class NavigationTreePluginView extends PluginView {
     private TreeItem previousSelectedItem;
     private FocusPanel navigationTreesPanel = new FocusPanel();
     private SidebarView sideBarView;
+    private List<CounterDecorator> counterDecorators = new ArrayList<>();
+    private List<CounterDecorator> rootCounterDecorators = new ArrayList<>();
+    private static long lastCountersUpdateTime;
+    private HashMap<CounterKey, Id> counterKeys = new HashMap<>(); //<link-name, navBuLinkCollectionObject
+    private static Timer timer;
+
 
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
+
     }
 
     interface MyTreeImages extends TreeImages {
@@ -99,9 +117,7 @@ public class NavigationTreePluginView extends PluginView {
                     pinButton.addStyleName("icon pin-normal");
                     eventBus.fireEvent(new SideBarResizeEvent(false, START_WIDGET_WIDTH));
                     eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
-
                 }
-
             }
         });
 
@@ -134,8 +150,60 @@ public class NavigationTreePluginView extends PluginView {
             }
         });
         setIndex(0);
-
+        NavigationTreePlugin navigationTreePlugin = (NavigationTreePlugin) plugin;
+        activateCollectionCountersUpdateTimer(navigationTreePlugin.getBusinessUniverseInitialization());
         return navigationTreeContainer;
+    }
+
+    private void activateCollectionCountersUpdateTimer(BusinessUniverseInitialization businessUniverseInitialization) {
+        final Command collectionsCountersCommand = new Command();
+        collectionsCountersCommand.setName("getCounters");
+        collectionsCountersCommand.setComponentName("collection_counters_handler");
+        final CollectionCountersRequest collectionCountersRequest = new CollectionCountersRequest();
+        collectionsCountersCommand.setParameter(collectionCountersRequest);
+        updateCounterKeys();
+        timer = new Timer() {
+            @Override
+            public void run() {
+                collectionCountersRequest.setCounterKeys(counterKeys);
+                collectionCountersRequest.setLastUpdatedTime(lastCountersUpdateTime);
+                BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(collectionsCountersCommand, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onSuccess(Dto result) {
+                        CollectionCountersResponse response = (CollectionCountersResponse) result;
+                        lastCountersUpdateTime = response.getLastUpdatedTime();
+                        Map<CounterKey, Long> countersValues = response.getCounterValues();
+                        for (CounterDecorator counterObject : counterDecorators) {
+                            CounterKey identifier = counterObject.getCounterKey();
+                            counterObject.decorate(countersValues.get(identifier));
+                        }
+                        for (CounterDecorator counterObject : rootCounterDecorators) {
+                            CounterKey identifier = counterObject.getCounterKey();
+                            counterObject.decorate(countersValues.get(identifier));
+                        }
+                        counterKeys.clear();
+                        counterKeys.putAll(response.getCounterServerObjectIds());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        GWT.log("error while getting collection counters info");
+                    }
+                });
+            }
+        };
+        Integer collectionCountersUpdatePeriod = businessUniverseInitialization.getCollectionCountersUpdatePeriod();
+        timer.scheduleRepeating(collectionCountersUpdatePeriod);
+    }
+
+    private void updateCounterKeys() {
+        counterKeys.clear();
+        for (CounterDecorator counterDecorator : counterDecorators) {
+            counterKeys.put(counterDecorator.getCounterKey(), null);
+        }
+        for (CounterDecorator rootCounterDecorator : rootCounterDecorators) {
+            counterKeys.put(rootCounterDecorator.getCounterKey(), null);
+        }
     }
 
     public void repaintNavigationTrees(String rootLinkName) {
@@ -143,9 +211,18 @@ public class NavigationTreePluginView extends PluginView {
         List<LinkConfig> linkConfigList = navigationTreePluginData.getNavigationConfig().getLinkConfigList();
         for (LinkConfig linkConfig : linkConfigList) {
             if (linkConfig.getName().equals(rootLinkName)) {
+                updateCounterTimerContext();
                 drawNavigationTrees(linkConfig);
+                updateCounterKeys();
             }
         }
+    }
+
+    private void updateCounterTimerContext() {
+        counterDecorators.clear();
+        lastCountersUpdateTime = 0;
+
+
     }
 
     private void drawNavigationTrees(LinkConfig firstRootLink) {
@@ -163,6 +240,7 @@ public class NavigationTreePluginView extends PluginView {
                     .setChildToOpenName(firstRootLink.getChildToOpen())
                     .setImages(images);
             Tree tree = navigationTreeBuilder.toTree();
+            counterDecorators.addAll(navigationTreeBuilder.getCounterDecorators());
             verticalPanel.add(tree);
 
         }
@@ -211,14 +289,28 @@ public class NavigationTreePluginView extends PluginView {
     private void buildRootLinks(final List<LinkConfig> linkConfigList,
                                 final String selectedRootLinkName, final SidebarView sideBarView) {
         for (LinkConfig linkConfig : linkConfigList) {
-            final RootNodeButton my = new RootNodeButton();
-            sideBarView.sidebarItem(linkConfig.getImage(), linkConfig.getDisplayText(), linkConfig.getName(), 3587L, my);
+
+            long collectionCount = 0;
+
+            String name = linkConfig.getName();
+            String image = linkConfig.getImage();
+            String displayText = linkConfig.getDisplayText();
+
+            final RootNodeButton my = new RootNodeButton(collectionCount, name, image, displayText);
+            fillRootNodeButton(collectionCount, name, image, displayText);
+
+            if (linkConfig.getChildToOpen() != null) {
+                CounterRootNodeDecorator counterRootNodeDecorator = new CounterRootNodeDecorator(my);
+                String collectionToBeOpened = findCollectionForOpen(linkConfig);
+                CounterKey counterKey = new CounterKey(linkConfig.getName(), collectionToBeOpened);
+                counterRootNodeDecorator.setCounterKey(counterKey);
+                rootCounterDecorators.add(counterRootNodeDecorator);
+            }
             sideBarView.getMenuItems().add(my);
 
             if (linkConfig.getName().equals(selectedRootLinkName)) {
                 my.setStyleName("selected");
             }
-
             my.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -228,7 +320,28 @@ public class NavigationTreePluginView extends PluginView {
                 }
             });
         }
+    }
 
+    private String findCollectionForOpen(LinkConfig linkConfig) {
+        String childToOpen = linkConfig.getChildToOpen();
+        for (ChildLinksConfig childLinksConfig : linkConfig.getChildLinksConfigList()) {
+            for (LinkConfig config : childLinksConfig.getLinkConfigList()) {
+                if (config.getName().equals(childToOpen)) {
+                    if (config.getPluginDefinition() != null) {
+                        if (config.getPluginDefinition().getPluginConfig() instanceof DomainObjectSurferConfig) {
+                            return ((DomainObjectSurferConfig) config.getPluginDefinition().getPluginConfig()).getCollectionViewerConfig().getCollectionRefConfig().getName();
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private RootNodeButton fillRootNodeButton(long collectionCount, String name, String image, String displayText) {
+        RootNodeButton my = new RootNodeButton(collectionCount, name, image, displayText);
+
+        return my;
     }
 
     private void setStyleForAllNAvigationButton(Integer activeMenu, SidebarView navigationPanel) {
@@ -279,4 +392,5 @@ public class NavigationTreePluginView extends PluginView {
     private <T> T first(List<T> linkConfigList) {
         return linkConfigList.iterator().next();
     }
+
 }

@@ -1,14 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
@@ -16,13 +21,22 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
+import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.CounterDecorator;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePluginView;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
+import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -51,6 +65,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private AbsolutePanel root;
     private AbsolutePanel cetralDivPanelTest;
 
+
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
@@ -76,15 +91,12 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 action.setStyleName("action-section");
 
 
-
                 left.setStyleName("left-section-active");
 
-                 left.getElement().setId(ComponentHelper.LEFT_ID);
+                left.getElement().setId(ComponentHelper.LEFT_ID);
 
 
                 centrInner.setStyleName("centr-inner-section");
-
-
 
 
                 center.setStyleName("center-section");
@@ -113,10 +125,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 center.add(left);
 
 
-
-
                 cetralDivPanelTest.setStyleName("central-div-panel-test");
-
 
 
                 center.add(cetralDivPanelTest);
@@ -130,6 +139,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 // данному плагину устанавливается глобальная шина событий
                 navigationTreePlugin.setEventBus(eventBus);
+                navigationTreePlugin.setBusinessUniverseInitialization(result);
 
                 centralPluginPanel = new CentralPluginPanel();
                 //11 - отступ справа
@@ -164,11 +174,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                         //11 - отступ снизу
 
                         left.setStyleName("left-section-active");
-                        if(event.getSideBarWidts() == 130){
+                        if (event.getSideBarWidts() == 130) {
                             cetralDivPanelTest.setStyleName("central-div-panel-test");
 
-                        }
-                        else{
+                        } else {
                             cetralDivPanelTest.setStyleName("central-div-panel-test-active");
 
                         }
@@ -218,6 +227,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
     }
 
+
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
         PluginConfig pluginConfig = event.getPluginConfig();
@@ -262,7 +272,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //int centralPanelHeight = event.getHeight() - 60 - 11;
                 //int centralPanelHeight = event.getHeight() - header.getOffsetHeight() - 11;
                 //centralPluginHeight = centralPanelHeight;
-              int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
+                int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
                 //int centralPanelHeight = event.getHeight() - 120;
                 //60 - header height
                 //51 height action panel + margin
