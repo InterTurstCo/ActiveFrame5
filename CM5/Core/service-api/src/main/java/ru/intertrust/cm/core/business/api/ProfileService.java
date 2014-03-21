@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.api;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.PersonProfile;
+import ru.intertrust.cm.core.business.api.dto.Profile;
 
 /**
  * Сервис профиля системы и пользователей
@@ -9,65 +11,39 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  */
 public interface ProfileService {
     /**
-     * Получение строкового значения профиля
-     * @param key
-     *            ключ профиля
-     * @param personId
-     *            идентификатор персоны или null в случае системного профиля
+     * Получение профиля системы. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
+     * редактирования системных профилей администраторами при его вызове должен создаваться AdminAccessToken
+     * @param name имя профиля
      * @return
      */
-    String getStringValue(String key, Id personId);
+    Profile getProfile(String name);
 
     /**
-     * Получение числового значения профиля
-     * @param key
-     *            ключ профиля
+     * Получения профиля персоны. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
+     * редактирования пользовательских профилей администраторами. При его вызове должен создаваться AdminAccessToken
      * @param personId
-     *            идентификатор персоны или null в случае системного профиля
      * @return
      */
-    long getLongValue(String key, Id personId);
+    Profile getPersonProfile(Id personId);
 
     /**
-     * Получение булевого значения профиля
-     * @param key
-     *            ключ профиля
-     * @param personId
-     *            идентификатор персоны или null в случае системного профиля
+     * Сохранения профиля системы. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
+     * редактирования системных профилей администраторами при его вызове должен создаваться AdminAccessToken
+     */
+    void setProfile(Profile profile);
+    
+    /**
+     * Получение пользовательского профиля. Профиль содержит данные профиля пользователя с учетом иерархии профилей. 
+     * Предназначен для работы под провами простого пользователя 
      * @return
      */
-    boolean getBooleanValue(String key, Id personId);
+    PersonProfile getPersonProfile();
 
     /**
-     * Установка строкового значения профиля
-     * @param key
-     *            ключ профиля
-     * @param personId
-     *            идентификатор пользователя или null для системного профиля
-     * @param value
-     *            значение профиля
+     * Сохранение пользовательского профиля. Профиль содержит данные профиля пользователя с учетом иерархии профилей. 
+     * Предназначен для работы под провами простого пользователя.
+     * При сохранения профиля меняются данные только профиля пользователя. Данные системных профилей остаются не изменными. 
+     * @param profile
      */
-    void setStringValue(String key, Id personId, String value);
-
-    /**
-     * Установка числового значения профиля
-     * @param key
-     *            ключ профиля
-     * @param personId
-     *            идентификатор пользователя или null для системного профиля
-     * @param value
-     *            значение профиля
-     */
-    void setLongValue(String key, Id personId, String value);
-
-    /**
-     * Установка булевого значения профиля
-     * @param key
-     *            ключ профиля
-     * @param personId
-     *            идентификатор пользователя или null для системного профиля
-     * @param value
-     *            значение профиля
-     */
-    void setBooleanValue(String key, Id personId, String value);
+    void setPersonProfile(PersonProfile profile);
 }
