@@ -43,7 +43,7 @@ public class MailNotificationChannel implements NotificationChannelHandle {
     protected DomainObjectDao domainObjectDao;
 
     @Autowired
-    private MailSender mailSender;
+    private MailSenderWrapper mailSenderWrapper;
 
     @Autowired
     private AccessControlService accessControlService;
@@ -54,14 +54,8 @@ public class MailNotificationChannel implements NotificationChannelHandle {
     @Autowired
     private CollectionsService collectionService;
 
-    private SimpleMailMessage mailTemplate;
-
-    public void setMailTemplate(SimpleMailMessage mailTemplate) {
-        this.mailTemplate = mailTemplate;
-    }
-
-    public void setMailSender(MailSender mailSender) {
-        this.mailSender = mailSender;
+    public void setMailSender(MailSenderWrapper mailSenderWrapper) {
+        this.mailSenderWrapper = mailSenderWrapper;
     }
 
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
@@ -86,7 +80,7 @@ public class MailNotificationChannel implements NotificationChannelHandle {
 
         try {
             SimpleMailMessage message = createMailMesssage(notificationType, senderId, addresseeId, context);
-            this.mailSender.send(message);
+            mailSenderWrapper.send(message);
         } catch (Exception ex) {
             throw new MailNotificationException(ex.getMessage());
         }
@@ -102,8 +96,10 @@ public class MailNotificationChannel implements NotificationChannelHandle {
             GenericDomainObject senderDO = (GenericDomainObject) domainObjectDao.find(senderId, systemAccessToken);
             senderMail = senderDO.getString(EMAIL_FIELD);
         } else {
-            senderMail = mailTemplate.getFrom();
+            senderMail = mailSenderWrapper.getDefaultSender();
         }
+        
+        mailSenderWrapper.getHost();
         GenericDomainObject addresseDO = (GenericDomainObject) domainObjectDao.find(addresseeId, systemAccessToken);
         String addresseMail = addresseDO.getString(EMAIL_FIELD);
 

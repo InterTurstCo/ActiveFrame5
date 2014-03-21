@@ -335,17 +335,26 @@
                                 <configuration>
                                     <execute-commands>
                                         <ignoreException>true</ignoreException>                                        
-                                        <commands>
+                                            <commands>
                                             <command>/system-property=server.properties.location:add(value=${server.properties.location})</command>
                                             <command>/system-property=server.properties.location:write-attribute(name=value, value=${server.properties.location})</command>
                                             <command>/system-property=spring.profiles.active:add(value=${spring.profiles.active})</command>
                                             <command>/system-property=spring.profiles.active:write-attribute(name=value, value=${spring.profiles.active})</command>
                                             <command>/system-property=solr.solr.home:add(value=${solr.solr.home})</command>
-                                            <command>/system-property=solr.solr.home:write-attribute(name=value, value=${solr.solr.home})</command>
+                                            <command>/system-property=solr.solr.home:write-attribute(name=value, value=${solr.solr.home})</command>                                       
+                                            <command>/system-property=mail.server.host:add(value=${mail.server.host})</command>
+                                            <command>/system-property=mail.server.host:write-attribute(name=value, value=${mail.server.host})</command>
+                                            <command>/system-property=mail.username:add(value=${mail.username})</command>
+                                            <command>/system-property=mail.username:write-attribute(name=value, value=${mail.username})</command>
+                                            <command>/system-property=mail.password:add(value=${mail.password})</command>
+                                            <command>/system-property=mail.password:write-attribute(name=value, value=${mail.password})</command>
+                                            <command>/system-property=mail.default.sender:add(value=${mail.default.sender})</command>
+                                            <command>/system-property=mail.default.sender:write-attribute(name=value, value=${mail.default.sender})</command>
                                             <command>/system-property=org.apache.catalina.connector.URI_ENCODING:add(value=${org.apache.catalina.connector.URI_ENCODING})</command>
                                             <command>/system-property=org.apache.catalina.connector.URI_ENCODING:write-attribute(name=value, value=UTF-8)</command>
                                             <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:add(value=${org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING})</command>
-                                            <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:write-attribute(name=value, value=true)</command>
+                                            <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:write-attribute(name=value,
+                                                value=true)</command>
                                         </commands>
                                     </execute-commands>                                
                                 </configuration>

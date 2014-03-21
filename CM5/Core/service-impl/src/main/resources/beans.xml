@@ -148,14 +148,7 @@
 
     <bean id="scriptService" class="ru.intertrust.cm.core.business.impl.JavaScriptServiceImpl"/>
 
-    <bean id="mailTemplateMessage" class="org.springframework.mail.SimpleMailMessage">
-        <property name="from" value="${mail.default.sender}" />
-    </bean>
-
-    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="${mail.server.host}" />
-        <property name="username" value="${mail.username}" />
-        <property name="password" value="${mail.password}" />        
+    <bean id="mailSender" class="ru.intertrust.cm.core.business.impl.notification.MailSenderWrapper">
     </bean>
     
 </beans>
