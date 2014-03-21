@@ -291,47 +291,63 @@
         </widget-config>
     </form>
 
-    <form type="report" domain-object-type="all-users">
+    <form name="report" type="report" domain-object-type="all-employee">
         <markup>
             <header>
-                <table width="800px" height="100px">
+                <table width="800px" height="40px">
                     <tr>
-                        <!-- label (Название) -->
-                        <td width="100px" h-align="right">
-                            <widget id="startLabel" />
-                        </td>
-                        <td>
-                            <widget id="startInput"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <!-- text-box (Название) -->
-                        <td width="100%" h-align="left">
-                            <widget id="endLabel" />
-                        </td>
-                        <td>
-                            <widget id="endInput"/>
+                        <td h-align="left">
+                            <widget id="reportNameLabel" />
                         </td>
                     </tr>
                 </table>
             </header>
-            <body display-single-tab="true"></body>
+            <body display-single-tab="true">
+                <tab name="Параметры отчета">
+                    <single-entry-group>
+                        <tab-group>
+                            <table width="800px" height="100px">
+                                <tr  height="45px">
+                                    <td h-align="left">
+                                        <widget id="startLabel" />
+                                    </td>
+                                    <td>
+                                        <widget id="startInput"/>
+                                    </td>
+                                </tr>
+                                <tr height="45px">
+                                    <td h-align="left">
+                                        <widget id="endLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="endInput"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
         </markup>
         <widget-config>
+            <label id="reportNameLabel">
+                <field-path/>
+                <text>Все сотрудники</text>
+            </label>
             <label id="startLabel">
                 <field-path />
                 <text>Начало:</text>
             </label>
-            <text-box id="startInput">
+            <date-box id="startInput">
                 <field-path value="paramStart"/>
-            </text-box>
+            </date-box>
             <label id="endLabel">
                 <field-path />
                 <text>Конец:</text>
             </label>
-            <text-box id="endInput">
+            <date-box id="endInput">
                 <field-path value="paramEnd"/>
-            </text-box>
+            </date-box>
         </widget-config>
     </form>
 

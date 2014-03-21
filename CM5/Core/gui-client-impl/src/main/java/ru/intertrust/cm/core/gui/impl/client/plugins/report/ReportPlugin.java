@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.GenerateReportEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.GenerateReportEventHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginState;
@@ -26,6 +27,8 @@ import ru.intertrust.cm.core.gui.model.plugin.ReportPluginState;
 @ComponentName("report.plugin")
 public class ReportPlugin extends Plugin implements IsActive {
 
+    private FormDisplayData formDisplayData;
+
     public ReportPlugin() {
         eventBus = GWT.create(SimpleEventBus.class);
     }
@@ -36,7 +39,7 @@ public class ReportPlugin extends Plugin implements IsActive {
 
     @Override
     public PluginView createView() {
-        return new ReportPluginView(this);
+        return new ReportPluginView(this, formDisplayData);
     }
 
     @Override
@@ -62,6 +65,7 @@ public class ReportPlugin extends Plugin implements IsActive {
 
         ReportPluginData reportPluginData = (ReportPluginData) initialData;
         reportName = reportPluginData.getReportName();
+        formDisplayData = reportPluginData.getFormDisplayData();
         setDisplayActionToolBar(true);
 
         eventBus.addHandler(GenerateReportEvent.TYPE, new GenerateReportEventHandler(){

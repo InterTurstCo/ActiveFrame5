@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -91,11 +92,17 @@ public class FormRetriever {
     public FormDisplayData getReportForm(String reportName) {
         FormConfig formConfig = formResolver.findReportFormConfig(reportName, userUid);
         if (formConfig == null) {
-            return null;
+            throw new GuiException("Конфигурация формы для отчета " + reportName + " не найдена!");
         }
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
 
-        FormObjects formObjects = new FormObjects(); //TODO: [report-plugin] will it work without full-fledged FormObject?
+        FormObjects formObjects = new FormObjects();
+
+        GenericDomainObject root = new GenericDomainObject();
+        root.setTypeName(reportName); //TODO: [report-plugin] convert report params to DO fields
+        ObjectsNode ROOT_NODE = new SingleObjectNode(root);
+        formObjects.setRootNode(ROOT_NODE);
+
         HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
 
@@ -110,16 +117,20 @@ public class FormRetriever {
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
 
         for (WidgetConfig config : widgetConfigs) {
-            try {
-                String widgetId = config.getId();
+            String widgetId = config.getId();
 
-                WidgetContext widgetContext = new WidgetContext(config, formObjects);
-                WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
-                WidgetState initialState = componentHandler.getInitialState(widgetContext);
+            WidgetContext widgetContext = new WidgetContext(config, formObjects);
+            WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
+            WidgetState initialState = componentHandler.getInitialState(widgetContext);
 
-                initialState.setEditable(true);
-                widgetStateMap.put(widgetId, initialState);
-            } catch (NullPointerException npe) {continue;} //TODO: NPE is a run-time exception, we should not catch it
+            // TODO: [report-plugin] validation...
+            WidgetContext context = new WidgetContext(config, formObjects);
+            List<Constraint> constraints = buildConstraints(context);
+            initialState.setConstraints(constraints);
+            initialState.setWidgetProperties(buildWidgetProps(widgetContext, constraints));
+
+            initialState.setEditable(true);
+            widgetStateMap.put(widgetId, initialState);
         }
         return widgetStateMap;
     }

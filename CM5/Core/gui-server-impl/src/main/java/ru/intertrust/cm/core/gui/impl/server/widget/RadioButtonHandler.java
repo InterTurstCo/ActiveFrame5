@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SingleSelectionWidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.RadioButtonState;
 
 import java.util.LinkedHashMap;
@@ -48,19 +49,20 @@ public class RadioButtonHandler extends ListWidgetHandler {
         SingleSelectionWidgetConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
 
+        LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
+        widgetState.setListValues(idDisplayMapping);
         String field = fieldPath.getFieldName();
         String objectType = context.getFormObjects().getNode(fieldPath.getParentPath()).getType();
         ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationService.getFieldConfig(objectType, field);
         // todo: find LINKED: only cities of that country
         // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getSelectedId(), "city", "country");
-        List<DomainObject> listToDisplay = crudService.findAll(fieldConfig.getType());
-        LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
-        widgetState.setListValues(idDisplayMapping);
-
-        if (listToDisplay != null) {
-            appendDisplayMappings(listToDisplay, widgetConfig.getPatternConfig().getValue(), idDisplayMapping);
-            Id selectedId = context.getFieldPlainValue();
-            widgetState.setSelectedId(selectedId);
+        if (fieldConfig != null) {
+            List<DomainObject> listToDisplay = crudService.findAll(fieldConfig.getType());
+            if (listToDisplay != null) {
+                appendDisplayMappings(listToDisplay, widgetConfig.getPatternConfig().getValue(), idDisplayMapping);
+                Id selectedId = context.getFieldPlainValue();
+                widgetState.setSelectedId(selectedId);
+            }
         }
     }
 }

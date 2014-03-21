@@ -148,7 +148,7 @@ public class FormResolver {
             for (FormMappingConfig formMapping : formMappingConfigs) {
                 String domainObjectType = formMapping.getDomainObjectType();
                 FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formMapping.getForm());
-                final boolean searchFormConfig = FormConfig.TYPE_SEARCH.equals(formConfig.getType());
+
                 if (!formType.equals(formConfig.getType())) {
                     continue;
                 }

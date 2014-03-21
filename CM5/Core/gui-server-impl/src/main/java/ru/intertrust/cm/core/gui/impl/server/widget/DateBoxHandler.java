@@ -1,12 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
@@ -19,14 +12,21 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DateBoxConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
+import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author Denis Mitavskiy
@@ -68,7 +68,11 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
             final String domainObjectName = context.getFormObjects().getDomainObjectType(context.getFieldPaths()[0]);
             final FieldConfig fieldConfig = configurationService.getFieldConfig(
                     domainObjectName, context.getWidgetConfig().getFieldPathConfig().getValue());
-            fieldType = fieldConfig.getFieldType();
+            if (fieldConfig == null) {
+                fieldType = FieldType.DATETIME; //FIXME: [report-plugin] temporary fix, to avoid NPE for in case of report form
+            } else {
+                fieldType = fieldConfig.getFieldType();
+            }
         } else {
             fieldType = value.getFieldType();
         }

@@ -161,4 +161,16 @@ public class FormConfig implements Dto, TopLevelConfig {
         result = 31 * result + (widgetConfigurationConfig != null ? widgetConfigurationConfig.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Form: name=")
+                .append(name)
+                .append(", type=")
+                .append(type)
+                .append(", domain-object-type=")
+                .append(domainObjectType);
+        return sb.toString();
+    }
 }

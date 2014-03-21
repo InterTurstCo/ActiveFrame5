@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+
 /**
  * @author Lesia Puhova
  *         Date: 18.03.14
@@ -8,12 +10,22 @@ package ru.intertrust.cm.core.gui.model.plugin;
 public class ReportPluginData extends ActivePluginData {
 
     private String reportName;
+    private FormDisplayData formDisplayData;
+
+    public ReportPluginData(){} // for serialization support only; normally should not be used.
+
+    public ReportPluginData(String reportName, FormDisplayData formDisplayData) {
+        this.reportName = reportName;
+        this.formDisplayData = formDisplayData;
+    }
 
     public String getReportName() {
         return reportName;
     }
 
-    public void setReportName(String reportName) {
-        this.reportName = reportName;
+    public FormDisplayData getFormDisplayData() {
+        return formDisplayData;
     }
+
+
 }
