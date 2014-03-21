@@ -120,6 +120,9 @@
                     1=1 ::where-clause
                 ]]>
         </prototype>
+        <counting-prototype>
+            select count(*) from Organization o
+        </counting-prototype>
         <filter name="byName">
             <criteria placeholder="where-clause">
                 <![CDATA[

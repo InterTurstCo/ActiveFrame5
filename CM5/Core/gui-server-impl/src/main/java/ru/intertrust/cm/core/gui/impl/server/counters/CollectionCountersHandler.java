@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @ComponentName("collection_counters_handler")
 public class CollectionCountersHandler implements ComponentHandler {
@@ -37,10 +38,11 @@ public class CollectionCountersHandler implements ComponentHandler {
         Map<CounterKey, Id> countersDomainObjects = obtainCountersFromDb(counterKeys);
         BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
         Integer cacheUpdateTime = businessUniverseConfig.getCollectionCountCacheRefreshConfig().getTime();
+        Long cacheUpdateTimeMillis = TimeUnit.SECONDS.toMillis(cacheUpdateTime);
         CollectionCountersResponse countersResponse = new CollectionCountersResponse();
 
         long lastUpdatedTime = request.getLastUpdatedTime();
-        if (updateNeeded(lastUpdatedTime, cacheUpdateTime)) {
+        if (updateNeeded(lastUpdatedTime, cacheUpdateTimeMillis)) {
             recalculateCounters(countersDomainObjects);
             countersResponse.setLastUpdatedTime(System.currentTimeMillis());
 
@@ -130,7 +132,7 @@ public class CollectionCountersHandler implements ComponentHandler {
         }
     }
 
-    private boolean updateNeeded(long lastUpdatedTime, Integer cacheUpdateTime) {
+    private boolean updateNeeded(long lastUpdatedTime, Long cacheUpdateTime) {
         return (lastUpdatedTime + cacheUpdateTime) < System.currentTimeMillis();
     }
 

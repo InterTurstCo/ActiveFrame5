@@ -16,7 +16,9 @@
                     and p.id = {CURRENT_PERSON}
             ]]>
         </prototype>
-
+        <counting-prototype>
+            select count(*) from Person_Task prst ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
     </collection>
     <collection name="Persons" idField="id">
         <prototype>

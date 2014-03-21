@@ -81,10 +81,10 @@
                     </decorations>
                 </link>
 
-              <!--  <link name="Organization" display-text="Организация" image="images/inbox.png">
+                <link name="Organization" display-text="Организация" image="images/inbox.png">
                     <plugin>
-                        &lt;!&ndash; DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig &ndash;&gt;
-                        &lt;!&ndash; если используется collection-view, то collection нельзя использовать &ndash;&gt;
+                        <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
+                        <!-- если используется collection-view, то collection нельзя использовать -->
                         <domain-object-surfer domain-object-type-to-create="Organization">
                             <collection-viewer>
                                 <collection-ref name="Organizations" use-default="true"/>
@@ -95,7 +95,7 @@
                     <decorations>
                         <collection-counter/>
                     </decorations>
-                </link>-->
+                </link>
             </child-links>
         </link>
 
@@ -135,7 +135,7 @@
             </child-links>
         </link>
 
-       <!-- <link name="Inbox" display-text="Входящие" image="images/helpers.png" child-to-open="Tasks">
+        <link name="Inbox" display-text="Входящие" image="images/helpers.png" child-to-open="Tasks">
             <child-links>
                 <link name="Tasks" display-text="Задачи">
                     <plugin>
@@ -158,7 +158,7 @@
                     </plugin>
                 </link>
             </child-links>
-        </link>-->
+        </link>
         <link name="InboxTest" display-text="Группа" image="images/meetings.png" child-to-open="TasksTest">
             <child-links group-name="Группа">
                 <link name="TasksTest" display-text="Задачи">

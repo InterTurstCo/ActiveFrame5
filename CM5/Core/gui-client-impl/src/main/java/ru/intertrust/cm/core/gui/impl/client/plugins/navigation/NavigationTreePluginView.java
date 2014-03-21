@@ -193,7 +193,8 @@ public class NavigationTreePluginView extends PluginView {
             }
         };
         Integer collectionCountersUpdatePeriod = businessUniverseInitialization.getCollectionCountersUpdatePeriod();
-        timer.scheduleRepeating(collectionCountersUpdatePeriod);
+        int collectionCountersUpdatePeriodMillis = collectionCountersUpdatePeriod * 1000;
+        timer.scheduleRepeating(collectionCountersUpdatePeriodMillis);
     }
 
     private void updateCounterKeys() {
