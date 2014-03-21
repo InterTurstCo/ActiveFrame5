@@ -99,7 +99,7 @@ public class FormRetriever {
         FormObjects formObjects = new FormObjects();
 
         GenericDomainObject root = new GenericDomainObject();
-        root.setTypeName(reportName); //TODO: [report-plugin] convert report params to DO fields
+        root.setTypeName(reportName);
         ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
 

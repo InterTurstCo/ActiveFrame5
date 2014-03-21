@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
-import ru.intertrust.cm.core.config.CollectionViewLogicalValidator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

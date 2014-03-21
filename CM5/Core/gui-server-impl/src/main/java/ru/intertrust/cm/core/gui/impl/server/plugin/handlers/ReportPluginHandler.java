@@ -36,7 +36,7 @@ public class ReportPluginHandler extends PluginHandler {
         ReportPluginData pluginData = new ReportPluginData(reportName, formDisplayData);
 
         List<ActionContext> activeContexts = new ArrayList<ActionContext>();
-        activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig(
+        activeContexts.add(new ActionContext(ActionConfigBuilder.createActionConfig(
                 "generate-report.action", "generate-report.action", "Создать Отчет", "icons/favorite-panel-off.png")));
         pluginData.setActionContexts(activeContexts);
 

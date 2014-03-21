@@ -35,8 +35,6 @@ public class ReportPlugin extends Plugin implements IsActive {
 
     private EventBus eventBus;
 
-    private String reportName;
-
     @Override
     public PluginView createView() {
         return new ReportPluginView(this, formDisplayData);
@@ -64,7 +62,7 @@ public class ReportPlugin extends Plugin implements IsActive {
         super.setInitialData(initialData);
 
         ReportPluginData reportPluginData = (ReportPluginData) initialData;
-        reportName = reportPluginData.getReportName();
+        final String reportName = reportPluginData.getReportName();
         formDisplayData = reportPluginData.getFormDisplayData();
         setDisplayActionToolBar(true);
 
@@ -80,10 +78,6 @@ public class ReportPlugin extends Plugin implements IsActive {
     @Override
     public EventBus getLocalEventBus() {
         return eventBus;
-    }
-
-    public String getReportName() {
-        return reportName;
     }
 
 }
