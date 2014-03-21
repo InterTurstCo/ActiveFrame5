@@ -105,12 +105,14 @@ public class NotificationScheduleTask implements ScheduleTaskHandle {
             }
         }
 
-        DomainObject domainObject = crudService.find(domainObjectId);
+        if (addresseeList.size() > 0) {
 
-        NotificationContext notificationContext = new NotificationContext();
-        notificationContext.addContextObject("document", domainObject);
+            DomainObject domainObject = crudService.find(domainObjectId);
 
-        if (addresseeList.size() > 0){
+            NotificationContext notificationContext = new NotificationContext();
+            notificationContext.addContextObject("document", domainObject);
+
+
             notificationService.sendOnTransactionSuccess(
                     notificationTaskConfig.getNotificationType(),
                     null,
