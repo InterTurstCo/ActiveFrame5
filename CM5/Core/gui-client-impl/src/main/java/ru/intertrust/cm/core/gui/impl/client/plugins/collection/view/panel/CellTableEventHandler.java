@@ -17,8 +17,7 @@ public class CellTableEventHandler<T1> implements CellPreviewEvent.Handler<T1> {
     public DataGrid dataGrid;
     protected Plugin plugin;
     private EventBus eventBus;
-
-    public CellTableEventHandler(DataGrid dataGrid, Plugin plugin, EventBus eventBus) {
+    public CellTableEventHandler(DataGrid dataGrid, Plugin plugin,EventBus eventBus) {
         this.dataGrid = dataGrid;
         this.plugin = plugin;
         this.eventBus = eventBus;
@@ -44,6 +43,7 @@ public class CellTableEventHandler<T1> implements CellPreviewEvent.Handler<T1> {
             CollectionPluginData pluginData = plugin.getInitialData();
             eventBus.fireEvent(new CollectionRowSelectedEvent(pluginData.
                     getItems().get(currentRow).getId()));
+
         }
     }
 

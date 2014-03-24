@@ -149,6 +149,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void addHandlers() {
+        tableBody.setAutoHeaderRefreshDisabled(true);
         eventBus.addHandler(CollectionPluginResizeBySplitterEvent.TYPE, new CollectionPluginResizeBySplitterEventHandler() {
             @Override
             public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
@@ -174,7 +175,7 @@ public class CollectionPluginView extends PluginView {
                 delCollectionRow(event.getId());
             }
         });
-
+        final ScrollPanel scroll = tableBody.getScrollPanel();
         tableBody.addColumnSortHandler(new ColumnSortEvent.Handler() {
             @Override
             public void onColumnSort(ColumnSortEvent event) {
@@ -185,10 +186,11 @@ public class CollectionPluginView extends PluginView {
                 String field = column.getFieldName();
                 sortCollectionState = new SortCollectionState(0, FETCHED_ROW_COUNT, dataStoreName, ascending, false, field);
                 clearAllTableData();
+                scroll.scrollToTop();
 
             }
         });
-        final ScrollPanel scroll = tableBody.getScrollPanel();
+
         scroll.addScrollHandler(new ScrollHandler() {
 
             @Override
@@ -331,20 +333,20 @@ public class CollectionPluginView extends PluginView {
                 Value value = null;
                 String fieldType = header.getFieldType();
                 if (TIMELESS_DATE_TYPE.equalsIgnoreCase(fieldType)) {
-                    Date date = header.getDate();
 
-                    if (date != null) {
-                        value = new DateTimeValue(date);
-                    } else {
+
                         try {
                             DateTimeFormat format = header.getDateTimeFormat();
-                            date = format.parse(filterValue);
+                        Date    date = format.parse(filterValue);
+
+                            TimelessDate timelessDate = new TimelessDate(date.getYear() + 1900, date.getMonth(), date.getDay()) ;
+                            value = new TimelessDateValue(timelessDate);
                         } catch (IllegalArgumentException e) {
                             Window.alert("Wrong date!");
                             return;
                         }
                         //   value = new TimelessDateValue(date);
-                    }
+
                 } else {
                     value = new StringValue("%" + filterValue + "%");
                 }
@@ -591,9 +593,9 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
+
                 insertMoreRows(collectionRowItems);
                 headerController.setFocus();
-                headerController.updateFilterValues();
 
             }
         });

@@ -25,8 +25,6 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
 
-import java.util.Date;
-
 import static com.google.gwt.dom.client.Style.Unit.PX;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
@@ -84,6 +82,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     public void resetFilterValue() {
         if (widget.getSearchFilterName() !=  null) {
         inputFilter.setValue(EMPTY_VALUE);
+        widget.setFilterValue(EMPTY_VALUE);
         }
 
     }
@@ -118,7 +117,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
     public void saveFilterValue(){
         if (widget.getSearchFilterName() !=  null) {
-       widget.setFilterValue(inputFilter.getValue());
+            input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+            inputFilter = InputElement.as(input);
+            widget.setFilterValue(inputFilter.getValue());
         }
     }
 
@@ -197,10 +198,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         return widget.getFieldType();
     }
 
-    public Date getDate() {
-        return widget.getDateBox().getValue();
-    }
-
     private static NativeEvent getEventAndPreventPropagation(NativePreviewEvent event) {
         final NativeEvent nativeEvent = event.getNativeEvent();
         nativeEvent.preventDefault();
@@ -232,6 +229,12 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         for (int i = 0; i < inputs.getLength(); i++) {
             if (inputs.getItem(i).isOrHasChild(target)) {
                 return inputs.getItem(i);
+            }
+        }
+        NodeList<Element> divs = Document.get().getElementById(id).getElementsByTagName("div");
+        for (int i = 0; i < divs.getLength(); i++) {
+            if (divs.getItem(i).isOrHasChild(target)) {
+                return divs.getItem(i);
             }
         }
 
@@ -299,7 +302,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                     String filterValue = getFilterValue();
                     widget.setFilterValue(filterValue);
                 }
-
             }
             if (eventType.equalsIgnoreCase("keydown")) {
                 if (clickedElement != null) {
@@ -367,7 +369,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
                 widget.getDateBox().getDatePicker().getElement().getStyle().setPosition(Position.ABSOLUTE);
                 widget.getDateBox().getDatePicker().getElement().getStyle().setLeft(inputFilter.getAbsoluteLeft(), PX);
-                widget.getDateBox().getDatePicker().getElement().getStyle().setTop(inputFilter.getAbsoluteTop(), PX);
+                widget.getDateBox().getDatePicker().getElement().getStyle().setTop(inputFilter.getAbsoluteTop() + 15, PX);
 
                 widget.getDateBox().showDatePicker( );
             }

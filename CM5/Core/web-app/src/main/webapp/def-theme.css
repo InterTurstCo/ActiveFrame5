@@ -170,45 +170,59 @@ h1 {
 
 /*оформление поиска коллекшен плагин вю начало*/
 .search-container {
-    border: 1px solid #8D97A5;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 5px;
     display: inline-block;
-    font-size: 11px;
-    height: 18px;
-    line-height: 18px;
-    margin: 5px 0 0 0;
     overflow: hidden;
-    position: relative;
-    top: 0;
-    vertical-align: top;
+    margin: 5px 0 0 0;
     white-space: nowrap;
-    padding: 0 0 2px 0;
     width: 125px;
 }
 
-/*.search-container .search-data-box:focus {*/
-/*border-color: #5e94ff;*/
-/*border-right: none;*/
-/*-moz-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);*/
-/*-webkit-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);*/
-/*box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7) !important;*/
-/*color: #1f2b5d;*/
-/*outline: 0;*/
-/*}*/
+.search-box:focus,
+.search-data-box:focus {
+    border-color: #5e94ff;
+    border-right: none;
+    -moz-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);
+    -webkit-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);
+    box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7) !important;
+    color: #1f2b5d;
+    outline: 0;
+}
 
 .search-box, .search-data-box {
-    border: 0 none;
+    border: 1px solid #8D97A5;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+    color: #1f2b5d;
+    display: inline-block;
     font-size: 11px;
-    width: 75px;
     outline: medium none;
     margin: 0;
-    color: #1f2b5d;
     padding: 3px;
     vertical-align: middle;
-    background: none;
+    width: 97px;
+}
+
+.search-box-clear-button-off {
+    display: none;
+}
+
+.search-box-clear-button-on {
+    background: url("icons/filter-clear-button.png") no-repeat 0 0;
+    border: 0;
+    cursor: pointer;
     display: inline-block;
-    float: left;
+    float: right;
+    height: 16px;
+    margin: 2px;
+    width: 16px;
+}
+
+.search-box-clear-button-on:hover {
+    background: url("icons/filter-clear-button.png") no-repeat -16px 0;
+}
+
+.search-box-clear-button-on:active {
+    background: url("icons/filter-clear-button.png") no-repeat -32px 0;
 }
 
 .dummy {
@@ -1008,21 +1022,11 @@ td.datePickerMonth {
     white-space: nowrap;
 
 }
-/*Стартовая ширина sideBar*/
+
 .navigation-dynamic-panel {
     left: 15px;
     padding-top: 20px;
     width: 130px;
-
-}
-
-.focusContainer {
-
-/*    width: 108px;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    z-index: 999;*/
 }
 
 .group-tree td {
@@ -1485,15 +1489,11 @@ td.datePickerMonth {
     font-weight: bold;
 }
 
-.selected {
+#sidebar .selected {
     background: transparent url("css/images/sidebar-selected.png") left top no-repeat;
     width: 129px;
     height: 83px;
     z-index: 3;
-}
-
-#sidebar {
-    position: absolute;
 }
 
 #sidebar .non-selected {
@@ -1633,7 +1633,6 @@ td.datePickerMonth {
     width: 129px;
     float: left;
     z-index: 2;
-
 }
 
 #sidebar .gradient {
@@ -2470,10 +2469,10 @@ a:active .icon.back {
     border: 0 none;
     box-shadow: none;
     font-size: 12px;
-    margin: 2px;
+    margin: 2px 2px 2px -22px;
     vertical-align: middle;
     display: inline-block;
-    float: right;
+    /*float: right;*/
     height: 16px;
     left: auto;
     position: relative;
@@ -2649,33 +2648,6 @@ td.datePickerMonth {
 
 .validation-error-box .dialogContent td {
     padding: 6px;
-}
-
-.search-box-clear-button-off {
-    display: none;
-
-}
-
-.search-box-clear-button-on {
-    width: 16px;
-    height: 16px;
-    display: inline-block;
-    float: right;
-    cursor: pointer;
-    background: url("css/icons1.png") no-repeat -32px 0;
-    width: 16px;
-    height: 16px;
-    border: 0;
-    margin: 2px;
-
-}
-
-.search-box-clear-button-on:hover {
-    background: url("css/icons1.png") no-repeat 0 0;
-}
-
-.search-box-clear-button-on:active {
-    background: url("css/icons1.png") no-repeat -16px 0;
 }
 
 .radio-button-widget {

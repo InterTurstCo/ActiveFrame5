@@ -7,7 +7,6 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.datepicker.client.DateBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.CMJDatePicker;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.PopupDatePicker;
 
 import java.util.Date;
 
@@ -46,7 +45,7 @@ public class HeaderWidget {
 
     public void init() {
         String styleDisplayingFilter = showFilter ? "" : " style=\"display:none\" ";
-         String minWidthStyle = "" /*"style = \"width:" + minWidth +"px\" "*/;
+        String minWidthStyle = "" /*"style = \"width:" + minWidth +"px\" "*/;
 
         html = "<div  "+ minWidthStyle +" class=\"header-label\"><p>" + title
                 + "</p><p style=\"display:none\">" + title + ASCEND_ARROW
@@ -56,21 +55,21 @@ public class HeaderWidget {
             return;
         }
         String filterAreaStart = " <div class=\"search-container\"" + styleDisplayingFilter + "id = ";
-        String clearButtonClass = filterValue.isEmpty() ?  " class=\"search-box-clear-button-off\"></button></div>" : " class=\"search-box-clear-button-on\"></button></div>";
+        String clearButtonClass = filterValue.isEmpty() ?  " class=\"search-box-clear-button-off\"></div></div>" : " class=\"search-box-clear-button-on\"></div></div>";
         if (TIMELESS_DATE_TYPE.equalsIgnoreCase(fieldType) || DATE_TIME_TYPE.equalsIgnoreCase(fieldType)) {
 
             html = html + filterAreaStart + id + ">" + "<input type=\"text\" class=\"gwt-DateBox search-data-box\" id= " + id + "input "
                     + "><button type=\"button\" id= " + id + HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART
-                    + " class=\"date-select\" ></button><button type=\"button\" id= "
+                    + " class=\"date-select\" ></button><div type=\"button\" id= "
                     + id + HEADER_CLEAR_BUTTON_ID_PART + clearButtonClass;
             picker = new CMJDatePicker();
             picker.toggle("date-picker-baloon", "!!!");
             DateBox.Format format = new DateBox.DefaultFormat(DATE_TIME_FORMAT);
-            popupDatePicker = new PopupDatePicker(picker,null,format)  ;
+            popupDatePicker = new DateBox(picker,null,format)  ;
             initHandlers();
         } else {
             html = html + filterAreaStart + id + ">" + "<input type=\"text\" class=\"search-box\" maxlength=\"20\" id= " + id + "input "
-                    + "><button type=\"button\" + \" id= "
+                    + "><div type=\"button\" + \" id= "
                     + id + HEADER_CLEAR_BUTTON_ID_PART + clearButtonClass;
         }
     }
@@ -93,6 +92,7 @@ public class HeaderWidget {
                 setFilterValue(dateValue);
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(dateValue);
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).focus();
+                DOM.getElementById(id + HEADER_CLEAR_BUTTON_ID_PART).setClassName("search-box-clear-button-on");
             }
         });
 
