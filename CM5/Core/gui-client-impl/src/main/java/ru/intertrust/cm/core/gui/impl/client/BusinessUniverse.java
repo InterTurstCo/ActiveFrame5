@@ -1,18 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
@@ -20,22 +17,13 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
-import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.CounterDecorator;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
-import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePluginView;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
-import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
-import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -48,7 +36,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     static Logger logger = Logger.getLogger("Business universe");
     // глобальная шина событий - доступна во всем приложении
     public static final int START_SIDEBAR_WIDTH = 130;
-
+    PopupPanel popupGlass = new PopupPanel(false);
     private static EventBus eventBus = Application.getInstance().getEventBus();
     private CentralPluginPanel centralPluginPanel;
     NavigationTreePlugin navigationTreePlugin;
@@ -78,6 +66,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
+                createGlassPopup();
                 header = new AbsolutePanel();
                 action = new AbsolutePanel();
                 left = new AbsolutePanel();
@@ -209,6 +198,20 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                     }
                 });
 
+                eventBus.addHandler(PopupGlassEvent.TYPE, new PopupGlassEventHandler() {
+                    @Override
+                    public void hidePopupGlass(PopupGlassEvent event) {
+                        Timer timer = new Timer() {
+                            @Override
+                            public void run() {
+                                popupGlass.hide();
+                            }
+                        };
+
+                        timer.schedule(500);
+                    }
+                });
+
                 addStickerPanel(root);
                 //cetralDivPanelTest.add(action);
                 cetralDivPanelTest.add(right);
@@ -237,13 +240,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
 
 
-//        PopupPanel popup = new PopupPanel(true);
-////        popup.center();
-//        popup.setGlassEnabled(true);
-//        popup.getElement().getStyle().setWidth(Window.getClientWidth(), Style.Unit.PX);
-//        popup.getElement().getStyle().setHeight(Window.getClientHeight(), Style.Unit.PX);
-//        popup.getElement().getStyle().setOpacity(70);
-//        popup.show();
+        popupGlass.show();
 
         PluginConfig pluginConfig = event.getPluginConfig();
         String pluginName = pluginConfig.getComponentName();
@@ -253,7 +250,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         plugin.setDisplayActionToolBar(true);
 
         centralPluginPanel.open(plugin);
-        //popup.hide();
 
 
 
@@ -310,6 +306,18 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //centrInner.getElement().getStyle().setWidth(event.getWidth() - navigationTreePanel.getVisibleWidth() - 11, Style.Unit.PX);
             }
         });
+    }
+
+    private void createGlassPopup(){
+        popupGlass.setGlassEnabled(true);
+        popupGlass.setGlassStyleName("glass");
+        Image image = new Image();
+        image.setUrl("CMJSpinner.gif");
+        image.addStyleName("loading");
+        popupGlass.getElement().getStyle().setZIndex(1000);
+        popupGlass.getElement().getStyle().setBorderWidth(0, Style.Unit.PX);
+        popupGlass.add(image);
+        popupGlass.center();
     }
 
     private void addStickerPanel(final AbsolutePanel mainLayoutPanel) {

@@ -1,16 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.event.PopupGlassEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
@@ -33,6 +36,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
     //локальная шина событий
     private EventBus eventBus;
+    private EventBus globalEventBus = Application.getInstance().getEventBus();
     private SplitterEx splitterPanel;
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
     //private FlowPanel flowPanel;
@@ -209,6 +213,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             collectionViewerPluginPanel.open(collectionViewerPlugin);
 
         }
+        globalEventBus.fireEvent(new PopupGlassEvent());
         return flowPanel;
     }
 
