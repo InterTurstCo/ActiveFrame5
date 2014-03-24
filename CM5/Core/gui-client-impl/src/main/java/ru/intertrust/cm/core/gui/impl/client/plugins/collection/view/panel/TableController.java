@@ -308,7 +308,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
             setCursor(MOVE_CURSOR);
         } else {
-            setCursor(e);
+            setCursor(DEFAULT_CURSOR);
         }
     }
 

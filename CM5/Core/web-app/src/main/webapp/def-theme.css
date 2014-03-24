@@ -989,11 +989,21 @@ td.datePickerMonth {
     white-space: nowrap;
 
 }
-
+/*Стартовая ширина sideBar*/
 .navigation-dynamic-panel {
     left: 15px;
     padding-top: 20px;
     width: 130px;
+
+}
+
+.focusContainer {
+
+/*    width: 108px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 999;*/
 }
 
 .group-tree td {
@@ -1466,14 +1476,15 @@ td.datePickerMonth {
     font-weight: bold;
 }
 
-#sidebar .selected {
+.selected {
     background: transparent url("css/images/sidebar-selected.png") left top no-repeat;
     width: 129px;
     height: 83px;
-    /*
-    position: fixed;
-*/
     z-index: 3;
+}
+
+#sidebar {
+    position: absolute;
 }
 
 #sidebar .non-selected {
@@ -1613,6 +1624,7 @@ td.datePickerMonth {
     width: 129px;
     float: left;
     z-index: 2;
+
 }
 
 #sidebar .gradient {

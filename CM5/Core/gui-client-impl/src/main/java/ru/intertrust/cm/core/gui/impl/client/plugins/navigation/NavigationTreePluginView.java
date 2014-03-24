@@ -5,6 +5,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -35,16 +36,21 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+
 public class NavigationTreePluginView extends PluginView {
 
     private static EventBus eventBus = Application.getInstance().getEventBus();
     private final int DURATION = 500;
     private int END_WIDGET_WIDTH = 349;
     private int START_WIDGET_WIDTH = 130;
+    private static final int SIDE_BAR_WIDTH = 109;
     private boolean pinButtonClick = false;
     private TreeItem previousSelectedItem;
     private FocusPanel navigationTreesPanel = new FocusPanel();
     private SidebarView sideBarView;
+    private Timer mouseOutTimer;
+    private boolean stopMouseMoveEvent = true;
+    private int currentWidth = START_WIDGET_WIDTH;
     private List<CounterDecorator> counterDecorators = new ArrayList<>();
     private List<CounterDecorator> rootCounterDecorators = new ArrayList<>();
     private static long lastCountersUpdateTime;
@@ -54,7 +60,6 @@ public class NavigationTreePluginView extends PluginView {
 
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
-
     }
 
     interface MyTreeImages extends TreeImages {
@@ -74,7 +79,11 @@ public class NavigationTreePluginView extends PluginView {
         decorateNavigationTreeContainer(navigationTreeContainer);
         VerticalPanel verticalPanel = new VerticalPanel();
         sideBarView = new SidebarView();
-        FocusPanel focusContainer = new FocusPanel();
+        final FocusPanel focusContainer = new FocusPanel();
+        focusContainer.addStyleName("focusContainer");
+
+        //  focusContainer.getElement().getStyle().setBackgroundColor("black");
+        focusContainer.addStyleName("focusContainer");
         SystemTreeStyles.I.styles().ensureInjected();
         VerticalPanel rootLinksPanel = new VerticalPanel();
         decorateRootlinksPanel(rootLinksPanel);
@@ -82,7 +91,7 @@ public class NavigationTreePluginView extends PluginView {
         String selectedRootLinkName = navigationTreePluginData.getRootLinkSelectedName();
         buildRootLinks(linkConfigList, selectedRootLinkName, sideBarView);
         navigationTreeContainer.add(sideBarView);
-        HorizontalPanel navigationTreePanel = new HorizontalPanel();
+        final HorizontalPanel navigationTreePanel = new HorizontalPanel();
         HorizontalPanel horizontalPanel = new HorizontalPanel();
         horizontalPanel.add(sideBarView);
         horizontalPanel.add(verticalPanel);
@@ -90,9 +99,8 @@ public class NavigationTreePluginView extends PluginView {
         verticalPanel.add(navigationTreesPanel);
         navigationTreePanel.getElement().getStyle().setLeft(150, Style.Unit.PX);
         focusContainer.add(horizontalPanel);
-        navigationTreeContainer.add(focusContainer);
         LinkConfig firstRootLink = first(linkConfigList);
-
+        navigationTreeContainer.add(focusContainer);
         drawNavigationTrees(firstRootLink);
 
         pinButton.getElement().getStyle().setZIndex(111);
@@ -121,35 +129,57 @@ public class NavigationTreePluginView extends PluginView {
             }
         });
 
-        focusContainer.addMouseOverHandler(new MouseOverHandler() {
-            @Override
-            public void onMouseOver(MouseOverEvent event) {
-                ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH, navigationTreesPanel);
-                resizeTreeAnimation.run(DURATION);
-                pinButton.getElement().getStyle().setZIndex(10);
-                navigationTreeContainer.getElement().getStyle().setZIndex(9);
-                if (!pinButtonClick) {
-                    eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
-                } else {
-                    eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section-active", ""));
-                }
-            }
-        });
+       focusContainer.addMouseMoveHandler(new MouseMoveHandler() {
+           @Override
+           public void onMouseMove(MouseMoveEvent event) {
+               if (stopMouseMoveEvent){
+               if (event.getX() < SIDE_BAR_WIDTH || currentWidth > START_WIDGET_WIDTH){
+                   if (mouseOutTimer != null) {
+                       mouseOutTimer.cancel();
+                   }
+                   ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH, navigationTreesPanel);
+                   resizeTreeAnimation.run(DURATION);
+                   currentWidth = END_WIDGET_WIDTH;
+                   pinButton.getElement().getStyle().setZIndex(10);
+                   navigationTreeContainer.getElement().getStyle().setZIndex(9);
+
+
+                   if (!pinButtonClick) {
+                       eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
+                   } else {
+                       eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section-active", ""));
+                   }
+                   stopMouseMoveEvent = false;
+
+               }
+               }
+
+           }
+       });
 
         focusContainer.addMouseOutHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {
                 if (!pinButtonClick) {
-                    ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
-                    resizeTreeAnimation.run(DURATION);
-                    pinButton.getElement().getStyle().setZIndex(0);
-                    navigationTreeContainer.getElement().getStyle().setZIndex(0);
-                    eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
+                    mouseOutTimer = new Timer() {
+                        @Override
+                        public void run() {
+                            ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
+                            resizeTreeAnimation.run(DURATION);
+                            currentWidth = START_WIDGET_WIDTH;
+                            pinButton.getElement().getStyle().setZIndex(0);
+                            navigationTreeContainer.getElement().getStyle().setZIndex(0);
+                            eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
 
+                        }
+                    };
+                    mouseOutTimer.schedule(500);
+                    stopMouseMoveEvent = true;
                 }
             }
         });
         setIndex(0);
+
         NavigationTreePlugin navigationTreePlugin = (NavigationTreePlugin) plugin;
         activateCollectionCountersUpdateTimer(navigationTreePlugin.getBusinessUniverseInitialization());
         return navigationTreeContainer;
