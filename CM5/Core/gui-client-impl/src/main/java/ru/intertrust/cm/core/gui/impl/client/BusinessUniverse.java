@@ -74,6 +74,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
     public void onModuleLoad() {
+        CustomThemeBundle.INSTANCE.css().ensureInjected();
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
@@ -248,7 +249,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         String pluginName = pluginConfig.getComponentName();
         Plugin plugin = ComponentRegistry.instance.get(pluginName);
         plugin.setConfig(pluginConfig);
+
         plugin.setDisplayActionToolBar(true);
+
         centralPluginPanel.open(plugin);
         //popup.hide();
 

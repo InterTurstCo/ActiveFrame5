@@ -1,11 +1,18 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.DOM;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.ComponentHelper;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
+import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
@@ -37,6 +44,7 @@ public class ToggleEditOnAction extends ToggleAction {
             state.setInCentralPanel(true);
         }
         Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
+
     }
 
     @Override

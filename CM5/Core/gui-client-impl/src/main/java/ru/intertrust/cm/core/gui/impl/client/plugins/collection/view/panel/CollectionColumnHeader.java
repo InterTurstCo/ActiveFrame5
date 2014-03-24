@@ -13,16 +13,17 @@ import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
-import com.google.gwt.user.client.Timer;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
 
 import java.util.Date;
 
@@ -55,7 +56,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     private Element datePickerOpen;
     private InputElement inputFilter;
     private boolean focused;
-    private boolean fakeSorting;
+
 
     public CollectionColumnHeader(CollectionDataGrid table, CollectionColumn column, HeaderWidget headerWidget, EventBus eventBus) {
         super(new HeaderCell());
@@ -67,12 +68,16 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         searchAreaId = headerWidget.getId();
 
     }
+    public DateTimeFormat getDateTimeFormat() {
+       return widget.getDateTimeFormat();
+    }
 
     public String getFilterValue() {
         if (widget.getSearchFilterName() !=  null) {
         return inputFilter.getValue();
         } else {
-            return null;
+            return EMPTY_VALUE;
+
         }
     }
 
@@ -85,20 +90,35 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     public void setFocus() {
         if (focused) {
-
-            Scheduler.get().scheduleFinally(new Scheduler.ScheduledCommand() {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
                     input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
                     input.focus();
-                    inputFilter = InputElement.as(input);
-                    inputFilter.setValue(widget.getFilterValue());
-
                 }
             });
 
             focused = false;
 
+        }
+    }
+
+    public void updateFilterValue() {
+        if (widget.getSearchFilterName() !=  null) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+                inputFilter = InputElement.as(input);
+                inputFilter.setValue(widget.getFilterValue());
+
+            }
+        });
+        }
+    }
+    public void saveFilterValue(){
+        if (widget.getSearchFilterName() !=  null) {
+       widget.setFilterValue(inputFilter.getValue());
         }
     }
 
@@ -140,7 +160,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             widget.setFilterValue(inputFilter.getValue());
             focused = true;
             eventBus.fireEvent(new FilterEvent(false));
-            fakeSorting = true;
+
             event.stopPropagation();
             event.preventDefault();
 
@@ -276,11 +296,18 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                     natEvent.preventDefault();
                     return;
                 } else if(widget.getSearchFilterName() != null){
-                    widget.setFilterValue(inputFilter.getValue());
+                    String filterValue = getFilterValue();
+                    widget.setFilterValue(filterValue);
                 }
 
             }
             if (eventType.equalsIgnoreCase("keydown")) {
+                if (clickedElement != null) {
+                    onHeaderElementClick(clickedElement);
+                   /* natEvent.stopPropagation();
+                    natEvent.preventDefault();*/
+                }
+
                 return;
             }
             if (!(element == left || element == right)) {
@@ -326,17 +353,23 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         private void onHeaderElementClick(Element clickedElement) {
 
             if ((searchAreaId + HEADER_INPUT_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
-                if (inputFilter.getValue().length() > 0) {
+                String filterValue =  inputFilter.getValue();
+                if (filterValue.length() > 0) {
+
                     clearButton.setClassName("search-box-clear-button-on");
                 }
             } else if ((searchAreaId + HEADER_CLEAR_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
-                inputFilter.setValue("");
+                inputFilter.setValue(EMPTY_VALUE);
                 clearButton.setClassName("search-box-clear-button-off");
+                inputFilter.focus();
             } else if ((searchAreaId + HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
-                widget.getDateBox().showDatePicker();
+
+
                 widget.getDateBox().getDatePicker().getElement().getStyle().setPosition(Position.ABSOLUTE);
                 widget.getDateBox().getDatePicker().getElement().getStyle().setLeft(inputFilter.getAbsoluteLeft(), PX);
-                widget.getDateBox().getDatePicker().getElement().getStyle().setTop(inputFilter.getAbsoluteBottom(), PX);
+                widget.getDateBox().getDatePicker().getElement().getStyle().setTop(inputFilter.getAbsoluteTop(), PX);
+
+                widget.getDateBox().showDatePicker( );
             }
         }
 
@@ -458,13 +491,16 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     protected void changeColumnWidth(int newWidth) {
         table.setColumnWidth(column, newWidth + "px");
-      //  widget.setMinWidth(newWidth + "px");
+
         table.redraw();
     }
 
     protected void columnMoved(int fromIndex, int toIndex) {
+        CollectionColumn toReplace = (CollectionColumn) table.getColumn(fromIndex);
+        if (toReplace instanceof CollectionParameterizedColumn) {
         table.removeColumn(fromIndex);
         table.insertColumn(toIndex, column, this);
+        }
     }
 
 

@@ -1,0 +1,50 @@
+.gwt-TabPanel {
+    position: relative;
+    width: 100%;
+    z-index: 10;
+}
+
+.gwt-TabPanelBottom {
+    background-color: #FFFFFF;
+    border: 0;
+    padding: 0;
+}
+
+.gwt-TabBar {
+    padding-top: 2px;
+    background: #c2e7f0;
+    height: 35px;
+}
+
+.gwt-TabBar .gwt-TabBarItem {
+    background: none;
+    cursor: pointer;
+    margin-right: 10px;
+    padding: 0;
+}
+
+.gwt-TabBarItem {
+    background: none;
+    cursor: pointer;
+}
+
+.gwt-TabBarItem.gwt-TabBarItem-selected {
+    background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0;
+    cursor: default;
+    font-weight: bold;
+    padding-right: 24px;
+}
+
+.gwt-Label {
+    border-radius: 5px 0 0 0;
+    font-size: 100%;
+    padding: 8px;
+}
+
+.gwt-TabBarItem.gwt-TabBarItem-selected .gwt-Label {
+    background: #ffffff;
+    text-decoration: none;
+}
+.gwt-PopupPanel{
+
+}

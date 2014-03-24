@@ -18,7 +18,7 @@ public class ReportPluginView extends PluginView {
 
     protected ReportPluginView(Plugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
-        formPanel = new FormPanel(formDisplayData, true, Application.getInstance().getEventBus());
+        formPanel = new FormPanel(formDisplayData, true, false, Application.getInstance().getEventBus());
     }
 
     @Override

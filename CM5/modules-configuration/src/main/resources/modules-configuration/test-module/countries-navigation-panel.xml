@@ -99,7 +99,7 @@
             </child-links>
         </link>
 
-        <link name="Documents" display-text="Документы" image="images/docs.png" child-to-open="Internal_Document">
+        <link name="Documents" display-text="Документы" image="images/docs.png" child-to-open="Letters">
             <child-links>
                 <link name="Letters" display-text="Письма">
                     <plugin>
@@ -119,14 +119,14 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
-                <link name="Custom_Plugin" display-text="Пример кастомного плагина">
+            <!--    <link name="Custom_Plugin" display-text="Плагин">
                     <plugin>
                         <custom name="some.plugin">
                             <attribute name="label_value" value="Кастомный плагин"/>
 
                         </custom>
                     </plugin>
-                </link>
+                </link>-->
                 <link name="Report" display-text="Отчет">
                     <plugin>
                         <report-plugin report-name="all-employee"/>
