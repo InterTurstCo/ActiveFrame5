@@ -596,7 +596,7 @@ public class CollectionPluginView extends PluginView {
 
                 insertMoreRows(collectionRowItems);
                 headerController.setFocus();
-
+                headerController.updateFilterValues();
             }
         });
     }

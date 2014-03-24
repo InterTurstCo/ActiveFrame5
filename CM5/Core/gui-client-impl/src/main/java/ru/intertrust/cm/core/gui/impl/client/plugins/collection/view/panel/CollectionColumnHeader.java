@@ -500,8 +500,10 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     protected void columnMoved(int fromIndex, int toIndex) {
         CollectionColumn toReplace = (CollectionColumn) table.getColumn(fromIndex);
         if (toReplace instanceof CollectionParameterizedColumn) {
+            saveFilterValue();
         table.removeColumn(fromIndex);
         table.insertColumn(toIndex, column, this);
+        updateFilterValue();
         }
     }
 
