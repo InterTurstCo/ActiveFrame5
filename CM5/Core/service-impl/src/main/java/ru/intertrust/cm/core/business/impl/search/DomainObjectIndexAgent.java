@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
@@ -229,6 +231,14 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
                 Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                 cal.clear();
                 cal.set(date.getYear(), date.getMonth(), date.getDayOfMonth());
+                result = cal.getTime();
+            }
+        } else if (value instanceof DateTimeWithTimeZoneValue) {
+            DateTimeWithTimeZone date = ((DateTimeWithTimeZoneValue) value).get();
+            if (date != null) {
+                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(date.getTimeZoneContext().getTimeZoneId()));
+                cal.set(date.getYear(), date.getMonth(), date.getDayOfMonth(),
+                        date.getHours(), date.getMinutes(), date.getSeconds());
                 result = cal.getTime();
             }
         } else {
