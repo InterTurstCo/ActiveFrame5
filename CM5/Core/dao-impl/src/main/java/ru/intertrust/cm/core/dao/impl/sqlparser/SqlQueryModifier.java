@@ -479,20 +479,23 @@ public class SqlQueryModifier {
 
             for (Object joinObject : joinList) {
                 Join join = (Join) joinObject;
-
-                if (!(join.getRightItem() instanceof Table)) {
-                    continue;
+                
+                if (join.getRightItem() instanceof SubSelect) {
+                    SubSelect subSelect = (SubSelect) join.getRightItem();
+                    PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
+                    return getDOTypeName(plainSubSelect, column, true);
+                }else if(join.getRightItem() instanceof Table){
+                    Table joinTable = (Table) join.getRightItem();
+                    if (column.getTable().getName().equals(joinTable.getAlias().getName()) ||
+                            column.getTable().getName().equals(joinTable.getName())) {
+                        return DaoUtils.unwrap(joinTable.getName());
+                    }
+                    
                 }
 
-                Table joinTable = (Table) join.getRightItem();
-
-                if (column.getTable().getName().equals(joinTable.getAlias().getName()) ||
-                        column.getTable().getName().equals(joinTable.getName())) {
-                    return DaoUtils.unwrap(joinTable.getName());
-                }
             }
         }
-        
+
         throw new CollectionQueryException("Failed to evaluate table name for column '" +
                 column.getColumnName() + "'");
     }
