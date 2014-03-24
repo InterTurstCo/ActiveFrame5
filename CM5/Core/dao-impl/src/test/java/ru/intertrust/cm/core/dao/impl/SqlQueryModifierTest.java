@@ -37,70 +37,70 @@ public class SqlQueryModifierTest {
 
     private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED = "SELECT * FROM (SELECT * " +
     		"FROM \"EMPLOYEE\" " +
-    		"AS EMPLOYEE WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" AS r INNER JOIN \"group_group\" AS gg " +
-    		"ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" AS gm " +
+    		"EMPLOYEE WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg " +
+    		"ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm " +
     		"ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id " +
-    		"AND r.object_id = EMPLOYEE.id)) AS e, " +
-    		"(SELECT * FROM \"Department\" AS Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" AS r " +
-    		"INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
-    		"INNER JOIN \"group_member\" AS gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-    		"WHERE gm.person_id = :user_id AND r.object_id = Department.id)) AS d";
+    		"AND r.object_id = EMPLOYEE.id)) e, " +
+    		"(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
+    		"INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
+    		"INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+    		"WHERE gm.person_id = :user_id AND r.object_id = Department.id)) d";
 
     private static final String PLAIN_SELECT_QUERY_WITH_TYPE = "SELECT * FROM " +
-            "EMPLOYEE AS e, " +
-            "Department AS d WHERE 1 = 1 AND e.id = 1";
+            "EMPLOYEE e, " +
+            "Department d WHERE 1 = 1 AND e.id = 1";
 
-    private static final String PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS = "SELECT * FROM EMPLOYEE AS e, " +
-            "Department AS d WHERE 1 = 1 AND (e.id = :idsIncluded10 AND e." + TYPE_COLUMN +
+    private static final String PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS = "SELECT * FROM EMPLOYEE e, " +
+            "Department d WHERE 1 = 1 AND (e.id = :idsIncluded10 AND e." + TYPE_COLUMN +
             " = :idsIncluded10_type) AND ((e.id = :idsIncluded20 AND e." + TYPE_COLUMN +
             " = :idsIncluded20_type) OR (e.id = :idsIncluded21 AND e." + TYPE_COLUMN + " = :idsIncluded21_type))";
 
-    private static final String PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS = "SELECT * FROM EMPLOYEE AS e, " +
-            "Department AS d WHERE 1 = 1 AND (e.person <> :idsExcluded10 OR e.person_type <> :idsExcluded10_type) " +
+    private static final String PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS = "SELECT * FROM EMPLOYEE e, " +
+            "Department d WHERE 1 = 1 AND (e.person <> :idsExcluded10 OR e.person_type <> :idsExcluded10_type) " +
             "AND ((e.person <> :idsExcluded20 OR e.person_type <> :idsExcluded20_type) AND " +
             "(e.person <> :idsExcluded21 OR e.person_type <> :idsExcluded21_type))";
 
-    private static final String UNION_QUERY_WITH_TYPE = "(SELECT * FROM EMPLOYEE AS e, " +
-            "Department AS d WHERE 1 = 1 AND e.id = 1) " +
-            "UNION (SELECT * FROM EMPLOYEE AS e, Department AS d WHERE 1 = 1 " +
+    private static final String UNION_QUERY_WITH_TYPE = "(SELECT * FROM EMPLOYEE e, " +
+            "Department d WHERE 1 = 1 AND e.id = 1) " +
+            "UNION (SELECT * FROM EMPLOYEE e, Department d WHERE 1 = 1 " +
             "AND e.id = 2)";
 
-    private static final String PLAIN_SELECT_QUERY_WITH_ACL = "SELECT * FROM (SELECT * FROM \"EMPLOYEE\" AS EMPLOYEE WHERE " +
-    		"EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" AS r INNER JOIN \"group_group\" AS gg " +
-    		"ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" AS gm " +
+    private static final String PLAIN_SELECT_QUERY_WITH_ACL = "SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE " +
+    		"EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg " +
+    		"ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm " +
     		"ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id AND r.object_id = EMPLOYEE.id)) " +
-    		"AS e, (SELECT * FROM \"Department\" AS Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" AS r " +
-    		"INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
-    		"AS gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id " +
-    		"AND r.object_id = Department.id)) AS d WHERE 1 = 1 AND e.id = 1";
+    		"e, (SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
+    		"INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
+    		"gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id " +
+    		"AND r.object_id = Department.id)) d WHERE 1 = 1 AND e.id = 1";
 
-    private static final String UNION_QUERY_WITH_ACL = "(SELECT * FROM (SELECT * FROM \"EMPLOYEE\" AS EMPLOYEE WHERE " +
-    		"EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" AS r INNER JOIN \"group_group\" AS gg " +
-    		"ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" AS gm " +
+    private static final String UNION_QUERY_WITH_ACL = "(SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE " +
+    		"EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg " +
+    		"ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm " +
     		"ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id " +
-    		"AND r.object_id = EMPLOYEE.id)) AS e, " +
-    		"(SELECT * FROM \"Department\" AS Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" AS r " +
-    		"INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
-    		"AS gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id AND " +
-    		"r.object_id = Department.id)) AS d WHERE 1 = 1 AND e.id = 1) " +
-    		"UNION (SELECT * FROM (SELECT * FROM \"EMPLOYEE\" AS EMPLOYEE WHERE EXISTS (SELECT r.\"object_id\" FROM " +
-    		"\"employee_read\" AS r INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
-    		"INNER JOIN \"group_member\" AS gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-    		"WHERE gm.person_id = :user_id AND r.object_id = EMPLOYEE.id)) AS e, " +
-    		"(SELECT * FROM \"Department\" AS Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" AS r " +
-    		"INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
-    		"AS gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id AND r.object_id = " +
-    		"Department.id)) AS d WHERE 1 = 1 AND e.id = 2)";
+    		"AND r.object_id = EMPLOYEE.id)) e, " +
+    		"(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
+    		"INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
+    		"gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id AND " +
+    		"r.object_id = Department.id)) d WHERE 1 = 1 AND e.id = 1) " +
+    		"UNION (SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE EXISTS (SELECT r.\"object_id\" FROM " +
+    		"\"employee_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
+    		"INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+    		"WHERE gm.person_id = :user_id AND r.object_id = EMPLOYEE.id)) e, " +
+    		"(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
+    		"INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
+    		"gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id AND r.object_id = " +
+    		"Department.id)) d WHERE 1 = 1 AND e.id = 2)";
 
     private static final String WRAP_AND_LOWERCASE_QUERY = "SELECT module.Id, module.type_id " +
-            "FROM SS_MODULE AS module " +
+            "FROM SS_MODULE module " +
             "JOIN SS_ModuleType AS type ON type.id = module.Type " +
             "JOIN SS_ModuleOrg AS org ON org.Module = module.id " +
             "JOIN SS_ModuleOrg AS org2 ON org2.Organization = org.Organization " +
             "WHERE 1 = 1 AND type.Name = ? AND org2.Module = ? AND type.Name = ? AND org2.Module = ?";
 
     private static final String WRAP_AND_LOWERCASE_CHECK_QUERY = "SELECT module.\"id\", module.\"type_id\" " +
-            "FROM \"ss_module\" AS module " +
+            "FROM \"ss_module\" module " +
             "JOIN \"ss_moduletype\" AS type ON type.\"id\" = module.\"type\" " +
             "JOIN \"ss_moduleorg\" AS org ON org.\"module\" = module.\"id\" " +
             "JOIN \"ss_moduleorg\" AS org2 ON org2.\"organization\" = org.\"organization\" " +
@@ -154,7 +154,6 @@ public class SqlQueryModifierTest {
         String modifiedQuery = collectionQueryModifier.addAclQuery(PLAIN_SELECT_QUERY_WITHOUT_WHERE);
 
         assertEquals(PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED, modifiedQuery);
-
    }
 
     @Test

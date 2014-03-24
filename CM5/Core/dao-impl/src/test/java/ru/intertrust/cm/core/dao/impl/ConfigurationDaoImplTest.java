@@ -23,7 +23,7 @@ public class ConfigurationDaoImplTest {
     @Mock
     private NamedParameterJdbcTemplate jdbcTemplate;
     @Mock
-    private SequenceIdGenerator idGenerator;
+    private BasicSequenceIdGenerator idGenerator;
 
     @Test
     public void testSave() throws Exception {

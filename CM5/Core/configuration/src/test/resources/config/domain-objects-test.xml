@@ -43,7 +43,7 @@
 			<string name="Name" length="64" not-null="true" />
 			<string name="Position" length="64" not-null="true" />
 			<string name="Phone" length="32" />
-			<string name="Certificate" length="4096" />
+			<string name="Certificate" length="4000" />
 			<string name="Fingerprint" length="128" />
 		</fields>
 		<uniqueKey> <!-- This key means automatic key + index creation -->

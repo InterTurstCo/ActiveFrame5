@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+
 import java.util.List;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSequenceName;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
@@ -11,6 +13,10 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
  * @author vmatsukevich Date: 5/20/13 Time: 2:12 PM
  */
 public class PostgreSqlQueryHelper extends BasicQueryHelper {
+
+    protected PostgreSqlQueryHelper(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        super(domainObjectTypeIdCache);
+    }
 
     @Override
     public String generateCountTablesQuery() {
@@ -28,10 +34,10 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     }
 
     @Override
-    protected String generateIndexQuery(String tableName, String indexType, List<String> fieldNames) {
+    protected String generateIndexQuery(DomainObjectTypeConfig config, String indexType, List<String> fieldNames, int index) {
         String indexFieldsPart = createIndexTableFieldsPart(fieldNames);
-        String indexName = createExplicitIndexName(tableName, fieldNames);
-        return "create index " + wrap(indexName) + " on " + wrap(tableName) +
+        String indexName = createExplicitIndexName(config, index, false);
+        return "create index " + wrap(indexName) + " on " + wrap(getSqlName(config)) +
                 " USING " + indexType + " (" + indexFieldsPart + ")";
     }
 }

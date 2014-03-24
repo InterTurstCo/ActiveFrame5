@@ -33,10 +33,11 @@ public interface DataStructureDao {
 
     /**
      * Обновляет структуру таблицы (добавляет колонки и уникальные ключи)
-     * @param domainObjectConfigName название доменного объекта, таблицу которого необходимо обновить
+     * @param config конфигурация доменного объекта, таблицу которого необходимо обновить
      * @param fieldConfigList список колонок для добавления
+     * @param isAl is for activity log
      */
-    void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList);
+    void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isAl);
 
     /**
      * Создает новые индексы для доменного объекта
@@ -55,11 +56,11 @@ public interface DataStructureDao {
 
     /**
      * Создает форен-ки и уникальные констрэйнты
-     * @param domainObjectConfigName название доменного объекта, таблицу которого необходимо обновить
+     * @param domainObjectTypeConfig конфигурация доменного объекта, таблицу которого необходимо обновить
      * @param fieldConfigList список колонок для создания форен-ки констрэйнтов
      * @param uniqueKeyConfigList список уникальных ключей для добавления
      */
-    void createForeignKeyAndUniqueConstraints(String domainObjectConfigName, List<ReferenceFieldConfig> fieldConfigList,
+    void createForeignKeyAndUniqueConstraints(DomainObjectTypeConfig domainObjectTypeConfig, List<ReferenceFieldConfig> fieldConfigList,
                               List<UniqueKeyConfig> uniqueKeyConfigList);
 
     /**

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import java.util.List;
@@ -20,8 +21,8 @@ public class OracleDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     private static final Logger logger = LoggerFactory.getLogger(OracleDataStructureDaoImpl.class);
 
     @Override
-    protected BasicQueryHelper createQueryHelper() {
-        return new OracleQueryHelper();
+    protected BasicQueryHelper createQueryHelper(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        return new OracleQueryHelper(domainObjectTypeIdCache);
     }
 
     @Override
@@ -32,5 +33,27 @@ public class OracleDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     @Override
     protected String generateCountTablesQuery() {
         return "select count(table_name) FROM user_tables";
+    }
+
+    @Override
+    protected String generateSelectTableIndexes() {
+        return "select i.index_name, i.column_name from all_ind_columns i where i.table_name = ?";
+    }
+
+    @Override
+    protected String generateCountTableIndexes() {
+        return "select count(distinct i.index_name) as indexes_count from all_ind_columns i where i.table_name = ?";
+    }
+
+    @Override
+    protected String generateCountTableUniqueKeys() {
+        return "select count(distinct uc.constraint_name) as unique_keys_count from user_constraints uc " +
+                "where uc.constraint_type = 'U' and uc.table_name = ?";
+    }
+
+    @Override
+    protected String generateCountTableForeignKeys() {
+        return "select count(distinct uc.constraint_name) as foreign_keys_count from user_constraints uc " +
+                "where uc.constraint_type = 'R' and uc.table_name = ?";
     }
 }

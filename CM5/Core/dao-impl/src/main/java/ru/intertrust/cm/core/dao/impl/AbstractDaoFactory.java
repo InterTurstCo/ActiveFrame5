@@ -3,9 +3,10 @@ package ru.intertrust.cm.core.dao.impl;
 import ru.intertrust.cm.core.dao.api.*;
 
 /**
- * Created by vmatsukevich on 2/18/14.
+ * Абстрактная имплементация {@link DaoFactory}, содержащая реализации фабрик-методов для неспецифичных ДАО-сервисов
+ * @author vmatsukevich
  */
-public abstract class AbstractDaoFactory implements DaoFactory{
+public abstract class AbstractDaoFactory implements DaoFactory {
     @Override
     public AuditLogServiceDao createAuditLogServiceDao() {
         return new AuditLogServiceDaoImpl();
@@ -29,11 +30,6 @@ public abstract class AbstractDaoFactory implements DaoFactory{
     @Override
     public DomainObjectDao createDomainObjectDao() {
         return new DomainObjectDaoImpl();
-    }
-
-    @Override
-    public AttachmentContentDao createAttachmentContentDao() {
-        return new FileSystemAttachmentContentDaoImpl();
     }
 
     @Override

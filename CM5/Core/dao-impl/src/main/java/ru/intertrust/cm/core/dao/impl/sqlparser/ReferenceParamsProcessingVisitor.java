@@ -3,11 +3,13 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.SignedExpression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
@@ -51,6 +53,11 @@ public class ReferenceParamsProcessingVisitor extends BaseExpressionVisitor {
     }
 
     @Override
+    public void visit(SignedExpression signedExpression) {
+
+    }
+
+    @Override
     public void visit(EqualsTo equalsTo) {
         visitBinaryExpression(equalsTo);        
         processReferenceParameters(equalsTo, true);
@@ -69,6 +76,11 @@ public class ReferenceParamsProcessingVisitor extends BaseExpressionVisitor {
 
     @Override
     public void visit(Column column) {
+    }
+
+    @Override
+    public void visit(RegExpMatchOperator regExpMatchOperator) {
+
     }
 
     @Override

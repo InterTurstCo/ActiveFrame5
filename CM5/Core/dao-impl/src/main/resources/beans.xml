@@ -60,18 +60,26 @@
 
     <bean id="dataStructureDao" factory-bean="daoFactory" factory-method="createDataStructureDao" />
 
-    <bean id="configurationDao" class="ru.intertrust.cm.core.dao.impl.ConfigurationDaoImpl"/>
+    <bean id="configurationDao" factory-bean="daoFactory" factory-method="createConfigurationDao"/>
 
     <bean id="domainObjectTypeIdDao"
           class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdDaoImpl"/>
 
-    <bean id="authenticationDao" class="ru.intertrust.cm.core.dao.impl.AuthenticationDaoImpl"/>
+    <bean id="authenticationDao" factory-bean="daoFactory" factory-method="createAuthenticationDao"/>
 
-    <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator"/>
+    <bean id="sequenceIdGenerator" factory-bean="daoFactory" factory-method="createIdGenerator"/>
 
-    <bean id="domainObjectDao" class="ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl"/>
+    <bean id="domainObjectDao" factory-bean="daoFactory" factory-method="createDomainObjectDao"/>
 
-    <bean id="collectionsDao" class="ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl"/>
+    <bean id="collectionsDao" factory-bean="daoFactory" factory-method="createCollectionsDao"/>
+
+    <bean id="statusDao" factory-bean="daoFactory" factory-method="createStatusDao"/>
+
+    <bean id="personServiceDao" factory-bean="daoFactory" factory-method="createPersonServiceDao"/>
+
+    <bean id="auditServiceDao" factory-bean="daoFactory" factory-method="createAuditLogServiceDao"/>
+
+    <bean id="personManagement" factory-bean="daoFactory" factory-method="createPersonManagementServiceDao"/>
 
     <bean id="databaseAccessAgent"
           class="ru.intertrust.cm.core.dao.impl.access.PostgresDatabaseAccessAgent"
@@ -94,19 +102,10 @@
     <bean id="collectionsCacheService"
           class="ru.intertrust.cm.core.dao.impl.CollectionsCacheServiceImpl" />
 
-    <bean id="personManagement"
-          class="ru.intertrust.cm.core.dao.impl.PersonManagementServiceDaoImpl" />
-
-    <bean id="personServiceDao"
-          class="ru.intertrust.cm.core.dao.impl.PersonServiceDaoImpl" />
-
     <bean id="userGroupGlobalCache"
           class="ru.intertrust.cm.core.dao.impl.access.UserGroupGlobalCacheImpl" />
 
     <bean id="extensionService" class="ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl"/>
-
-    <bean id="auditServiceDao"
-          class="ru.intertrust.cm.core.dao.impl.AuditLogServiceDaoImpl"/>
 
     <bean id="dynamicGroupService" class="ru.intertrust.cm.core.dao.impl.access.DynamicGroupServiceImpl"/>
 
@@ -118,8 +117,6 @@
     <!-- bean id="doelResolver" class="ru.intertrust.cm.core.dao.impl.doel.DoelResolver"
           p:dataSource-ref="dataSource" /-->
     <bean id="doelResolver" class="ru.intertrust.cm.core.dao.impl.doel.DoelResolver"/>
-
-    <bean id="statusDao" class="ru.intertrust.cm.core.dao.impl.StatusDaoImpl"/>
 
     <bean id="domainObjectFinderService" class="ru.intertrust.cm.core.dao.impl.DomainObjectFinderServiceImpl" />
 

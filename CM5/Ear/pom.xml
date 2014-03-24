@@ -299,7 +299,7 @@
                                                             !![
                                                             {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
-                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.password from authentication_info info where info.user_uid = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from authentication_info where user_uid = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.&quot;password&quot; from &quot;authentication_info&quot; info where info.&quot;user_uid&quot; = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from &quot;authentication_info&quot; where &quot;user_uid&quot; = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
                                                             </login-modules>
                                                         </properties>
@@ -399,18 +399,6 @@
 
                         <executions>
                             <execution>
-                                <id>deploy-driver</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>deploy-artifact</goal>
-                                </goals>
-                                <configuration>
-                                    <groupId>com.oracle</groupId>
-                                    <artifactId>ojdbc6</artifactId>
-                                    <name>ojdbc6.jar</name>
-                                </configuration>
-                            </execution>
-                            <execution>
                                 <id>add-datasource</id>
                                 <phase>install</phase>
                                 <goals>
@@ -458,7 +446,7 @@
                                                             !![
                                                             {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
-                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.password from authentication_info info where info.user_uid = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from authentication_info where user_uid = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.&quot;password&quot; from &quot;authentication_info&quot; info where info.&quot;user_uid&quot; = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from &quot;authentication_info&quot; where &quot;user_uid&quot; = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
                                                         </login-modules>
                                                     </properties>

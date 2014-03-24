@@ -24,10 +24,12 @@ import ru.intertrust.cm.core.dao.impl.utils.*;
 
 import java.util.*;
 
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
 import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_FIELD_NAME;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameters;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 
 /**
@@ -664,17 +666,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .getAclReadTableNameFor(domainObjectType);
             query.append("select distinct t.* from " + domainObjectType + " t ");
             query.append(" inner join ").append(aclReadTable).append(" r on t.id = r.object_id ");
-            query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.").append(DaoUtils.wrap("group_id"))
-                    .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-            query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                    .append(DaoUtils.wrap("child_group_id")).append(" = gm." + DaoUtils.wrap("usergroup"));
+            query.append(" inner join ").append(wrap("group_group")).append(" gg on r.").append(wrap("group_id"))
+                    .append(" = gg.").append(wrap("parent_group_id"));
+            query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
+                    .append(wrap("child_group_id")).append(" = gm." + wrap("usergroup"));
             query.append(" where gm.person_id = :user_id and t.id in (:object_ids) ");
 
             aclParameters = getAclParameters(accessToken);             
 
         } else {
-            query.append("select * from ").append(DaoUtils.wrap(getSqlName(domainObjectType)))
-                    .append(" where ").append(DaoUtils.wrap(ID_COLUMN)).append(" in (:object_ids) ");
+            query.append("select * from ").append(wrap(getSqlName(domainObjectType)))
+                    .append(" where ").append(wrap(ID_COLUMN)).append(" in (:object_ids) ");
         }
 
         Map<String, Object> parameters = new HashMap<>();
@@ -843,7 +845,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         appendColumnsQueryPart(query, typeName);
         query.append(" from ");
         appendTableNameQueryPart(query, typeName);
-        query.append(" where ").append(tableAlias).append(".").append(DaoUtils.wrap(ID_COLUMN)).append("=:id ");
+        query.append(" where ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("=:id ");
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
         if (accessToken.isDeferred()) {
@@ -851,10 +853,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String aclReadTable = AccessControlUtility
                     .getAclReadTableName(typeName);
             query.append(" and exists (select a.object_id from ").append(aclReadTable).append(" a ");
-            query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.")
-                    .append(DaoUtils.wrap("group_id")).append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-            query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                    .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
+            query.append(" inner join ").append(wrap("group_group")).append(" gg on a.")
+                    .append(wrap("group_id")).append(" = gg.").append(wrap("parent_group_id"));
+            query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
+                    .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
             query.append(" where gm.person_id = :user_id and a.object_id = :id)");
              
         }
@@ -890,10 +892,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String aclReadTable = AccessControlUtility
                     .getAclReadTableName(typeName);
             query.append(" where exists (select a.object_id from ").append(aclReadTable).append(" a");
-            query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.").append(DaoUtils.wrap("group_id"))
-                    .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-            query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                    .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
+            query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
+                    .append(" = gg.").append(wrap("parent_group_id"));
+            query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
+                    .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
             query.append(" where gm.person_id = :user_id and a.object_id = ")
                     .append(tableAlias).append(".ID)");
         }
@@ -926,21 +928,21 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String fieldsWithparams = DaoUtils
                 .generateCommaSeparatedListWithParams(columnNames);
 
-        query.append("update ").append(DaoUtils.wrap(tableName)).append(" set ");
+        query.append("update ").append(wrap(tableName)).append(" set ");
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(DaoUtils.wrap(UPDATED_DATE_COLUMN)).append("=:current_date, ");
+            query.append(wrap(UPDATED_DATE_COLUMN)).append("=:current_date, ");
             if (isUpdateStatus) {
-                query.append(DaoUtils.wrap(STATUS_FIELD_NAME)).append("=:status, ");
+                query.append(wrap(STATUS_FIELD_NAME)).append("=:status, ");
             }
 
         }
 
         query.append(fieldsWithparams);
-        query.append(" where ").append(DaoUtils.wrap(ID_COLUMN)).append("=:id");
+        query.append(" where ").append(wrap(ID_COLUMN)).append("=:id");
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(" and ").append(DaoUtils.wrap(UPDATED_DATE_COLUMN)).append("=:updated_date");
+            query.append(" and ").append(wrap(UPDATED_DATE_COLUMN)).append("=:updated_date");
         }
 
         return query.toString();
@@ -1003,15 +1005,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .generateCommaSeparatedParameters(columnNames);
 
         StringBuilder query = new StringBuilder();
-        query.append("insert into ").append(DaoUtils.wrap(tableName)).append(" (").append(DaoUtils.wrap(ID_COLUMN)).append(", ");
-        query.append(DaoUtils.wrap(TYPE_COLUMN)).append(", ");
+        query.append("insert into ").append(wrap(tableName)).append(" (").append(wrap(ID_COLUMN)).append(", ");
+        query.append(wrap(TYPE_COLUMN)).append(", ");
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(DaoUtils.wrap(CREATED_DATE_COLUMN)).append(", ")
-                    .append(DaoUtils.wrap(UPDATED_DATE_COLUMN)).append(", ");
+            query.append(wrap(CREATED_DATE_COLUMN)).append(", ")
+                    .append(wrap(UPDATED_DATE_COLUMN)).append(", ");
 
-            query.append(DaoUtils.wrap(STATUS_FIELD_NAME)).append(", ")
-                    .append(DaoUtils.wrap(STATUS_TYPE_COLUMN)).append(", ");
+            query.append(wrap(STATUS_FIELD_NAME)).append(", ")
+                    .append(wrap(STATUS_TYPE_COLUMN)).append(", ");
 
         }
 
@@ -1041,26 +1043,26 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<FieldConfig> fieldConfigs = domainObjectTypeConfig
                 .getFieldConfigs();
 
-        String tableName = getSqlName(domainObjectTypeConfig) + "_log";
+        String tableName = getALTableSqlName(domainObjectTypeConfig.getName());
         List<String> columnNames = DataStructureNamingHelper
                 .getColumnNames(fieldConfigs);
 
-        String commaSeparatedColumns = StringUtils
-                .collectionToCommaDelimitedString(columnNames);
+        String commaSeparatedColumns =
+                new DelimitedListFormatter<String>().formatAsDelimitedList(columnNames, ", ", "\"");
         String commaSeparatedParameters = DaoUtils
                 .generateCommaSeparatedParameters(columnNames);
 
         StringBuilder query = new StringBuilder();
-        query.append("insert into ").append(tableName).append("(");
-        query.append(ID_COLUMN).append(", ");
-        query.append(TYPE_COLUMN).append(", ");
+        query.append("insert into ").append(wrap(tableName)).append("(");
+        query.append(wrap(ID_COLUMN)).append(", ");
+        query.append(wrap(TYPE_COLUMN)).append(", ");
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(OPERATION_COLUMN).append(", ");
-            query.append(UPDATED_DATE_COLUMN).append(", ");
-            query.append(COMPONENT_COLUMN).append(", ");
-            query.append(DOMAIN_OBJECT_ID_COLUMN).append(", ");
-            query.append(INFO_COLUMN).append(", ");
-            query.append(IP_ADDRESS_COLUMN).append(", ");
+            query.append(wrap(OPERATION_COLUMN)).append(", ");
+            query.append(wrap(UPDATED_DATE_COLUMN)).append(", ");
+            query.append(wrap(COMPONENT_COLUMN)).append(", ");
+            query.append(wrap(DOMAIN_OBJECT_ID_COLUMN)).append(", ");
+            query.append(wrap(INFO_COLUMN)).append(", ");
+            query.append(wrap(IP_ADDRESS_COLUMN)).append(", ");
         }
 
         query.append(commaSeparatedColumns);
@@ -1089,7 +1091,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String tableName = getSqlName(domainObjectTypeConfig);
 
         StringBuilder query = new StringBuilder();
-        query.append("delete from ").append(DaoUtils.wrap(tableName)).append(" where ").append(DaoUtils.wrap(ID_COLUMN)).append("=:id");
+        query.append("delete from ").append(wrap(tableName)).append(" where ").append(wrap(ID_COLUMN)).append("=:id");
 
         return query.toString();
 
@@ -1108,7 +1110,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String tableName = getSqlName(domainObjectTypeConfig);
 
         StringBuilder query = new StringBuilder();
-        query.append("delete from ").append(DaoUtils.wrap(tableName));
+        query.append("delete from ").append(wrap(tableName));
 
         return query.toString();
 
@@ -1140,8 +1142,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String tableName = getSqlName(domainObjectName);
 
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(DaoUtils.wrap(ID_COLUMN)).append(" from ").append(DaoUtils.wrap(tableName)).append(" where ").
-                append(DaoUtils.wrap(ID_COLUMN)).append("=:id");
+        query.append("select ").append(wrap(ID_COLUMN)).append(" from ").append(wrap(tableName)).append(" where ").
+                append(wrap(ID_COLUMN)).append("=:id");
 
         return query.toString();
 
@@ -1228,7 +1230,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" from ");
         appendTableNameQueryPart(query, linkedType);
         query.append(" where ").append(tableHavingLinkedFieldAlias).append(".").
-                append(DaoUtils.wrap(getSqlName(linkedField))).append(" = :domain_object_id");
+                append(wrap(getSqlName(linkedField))).append(" = :domain_object_id");
 
         if (accessToken.isDeferred()) {
              appendAccessControlLogicToQuery(query, linkedType);
@@ -1246,9 +1248,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String tableAlias = getSqlAlias(tableName);
 
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(tableAlias).append(".").append(DaoUtils.wrap(ID_COLUMN)).
-                append(" from ").append(DaoUtils.wrap(tableName)).append(" ").append(tableAlias).
-                append(" where ").append(tableAlias).append(".").append(DaoUtils.wrap(getSqlName(linkedField))).
+        query.append("select ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).
+                append(" from ").append(wrap(tableName)).append(" ").append(tableAlias).
+                append(" where ").append(tableAlias).append(".").append(wrap(getSqlName(linkedField))).
                 append(" = :domain_object_id");
 
         if (accessToken.isDeferred()) {
@@ -1304,7 +1306,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (parentDo != null) {
             id = ((RdbmsId) parentDo.getId()).getId();
         } else {
-            id = idGenerator.generatetId(domainObjectTypeConfig);
+            id = idGenerator.generateId(domainObjectTypeIdCache.getId(domainObjectTypeConfig.getName()));
         }
 
         RdbmsId doId = new RdbmsId(type, (Long) id);
@@ -1332,11 +1334,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private DomainObject getStatusByName(String statusName) {
-        String query = "select s.* from " + GenericDomainObject.STATUS_DO + " s where s.name=:name";
+        String query = "select s.* from " + wrap(STATUS_DO) + " s where s." + wrap("name") + "=:name";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("name", statusName);
         DomainObject statusDO = jdbcTemplate.query(query, paramMap,
-                new SingleObjectRowMapper(GenericDomainObject.STATUS_DO, configurationExplorer,
+                new SingleObjectRowMapper(STATUS_DO, configurationExplorer,
                         domainObjectTypeIdCache));
         if (statusDO == null) {
             throw new IllegalArgumentException("Status not found: "
@@ -1397,8 +1399,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         operation);
 
                 if (id == null) {
-                    id = (Long) idGenerator
-                            .generatetLogId(domainObjectTypeConfig);
+                    id = (Long) idGenerator.generatetLogId(domainObjectTypeIdCache.getId(domainObjectTypeConfig.getName()));
                 }
 
                 String query = generateCreateAuditLogQuery(domainObjectTypeConfig);
@@ -1465,7 +1466,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private void appendTableNameQueryPart(StringBuilder query, String typeName) {
         String tableName = getSqlName(typeName);
-        query.append(DaoUtils.wrap(tableName)).append(" ").append(getSqlAlias(tableName));
+        query.append(wrap(tableName)).append(" ").append(getSqlAlias(tableName));
         appendParentTable(query, typeName);
     }
 
@@ -1493,11 +1494,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String parentTableName = getSqlName(config.getExtendsAttribute());
         String parentTableAlias = getSqlAlias(config.getExtendsAttribute());
 
-        query.append(" inner join ").append(DaoUtils.wrap(parentTableName)).append(" ")
+        query.append(" inner join ").append(wrap(parentTableName)).append(" ")
                 .append(parentTableAlias);
-        query.append(" on ").append(tableAlias).append(".").append(DaoUtils.wrap(ID_COLUMN))
+        query.append(" on ").append(tableAlias).append(".").append(wrap(ID_COLUMN))
                 .append(" = ");
-        query.append(parentTableAlias).append(".").append(DaoUtils.wrap(ID_COLUMN));
+        query.append(parentTableAlias).append(".").append(wrap(ID_COLUMN));
 
         appendParentTable(query, config.getExtendsAttribute());
     }
@@ -1530,24 +1531,24 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
 
             query.append(", ").append(tableAlias).append(".")
-                    .append(DaoUtils.wrap(getSqlName(fieldConfig)));
+                    .append(wrap(getSqlName(fieldConfig)));
 
             if (fieldConfig instanceof ReferenceFieldConfig) {
                 query.append(", ").append(tableAlias).append(".")
-                        .append(DaoUtils.wrap(getReferenceTypeColumnName(fieldConfig.getName())));
+                        .append(wrap(getReferenceTypeColumnName(fieldConfig.getName())));
             } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
                 query.append(", ").append(tableAlias).append(".")
-                        .append(DaoUtils.wrap(getTimeZoneIdColumnName(fieldConfig.getName())));
+                        .append(wrap(getTimeZoneIdColumnName(fieldConfig.getName())));
             }
         }
 
         if (parentConfig.getExtendsAttribute() != null) {
             appendParentColumns(query, parentConfig);
         } else {
-            query.append(", ").append(DaoUtils.wrap(CREATED_DATE_COLUMN));
-            query.append(", ").append(DaoUtils.wrap(UPDATED_DATE_COLUMN));
-            query.append(", ").append(DaoUtils.wrap(STATUS_FIELD_NAME));
-            query.append(", ").append(DaoUtils.wrap(STATUS_TYPE_COLUMN));
+            query.append(", ").append(wrap(CREATED_DATE_COLUMN));
+            query.append(", ").append(wrap(UPDATED_DATE_COLUMN));
+            query.append(", ").append(wrap(STATUS_FIELD_NAME));
+            query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
         }
     }
 
@@ -1573,7 +1574,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void applyOffsetAndLimitWithDefaultOrdering(StringBuilder query,
             String tableAlias, int offset, int limit) {
         if (limit != 0) {
-            query.append(" order by ").append(tableAlias).append(".").append(DaoUtils.wrap(ID_COLUMN));
+            query.append(" order by ").append(tableAlias).append(".").append(wrap(ID_COLUMN));
             DaoUtils.applyOffsetAndLimit(query, offset, limit);
         }
     }

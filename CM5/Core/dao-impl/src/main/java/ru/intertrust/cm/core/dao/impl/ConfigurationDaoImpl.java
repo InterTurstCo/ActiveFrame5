@@ -4,12 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.ConfigurationDao}
@@ -20,11 +23,12 @@ import java.util.Map;
 public class ConfigurationDaoImpl implements ConfigurationDao {
 
     protected static final String SAVE_QUERY =
-            "insert into " + CONFIGURATION_TABLE + "(ID, CONTENT, LOADED_DATE) values (:id, :content, :loadedDate)";
+            "insert into " + wrap(CONFIGURATION_TABLE) + "(" + wrap(DomainObjectDao.ID_COLUMN) + ", " +
+                    wrap(CONTENT_COLUMN) + ", " + wrap(LOADED_DATE_COLUMN) + ") values (:id, :content, :loadedDate)";
 
     protected static final String READ_LAST_SAVED_CONFIGURATION_QUERY =
-            "select CONTENT from " + CONFIGURATION_TABLE +
-            " where id = (select max(id) from " + CONFIGURATION_TABLE + ")";
+            "select " + wrap(CONTENT_COLUMN) + " from " + wrap(CONFIGURATION_TABLE) +
+            " where " + wrap("id") + "= (select max(" + wrap("id") + ") from " + wrap(CONFIGURATION_TABLE) + ")";
 
     @Autowired
     private NamedParameterJdbcOperations jdbcTemplate;

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
@@ -86,9 +87,9 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         StringBuilder query = new StringBuilder();
         query.append("delete ");
         query.append(" from ");
-        query.append(DaoUtils.wrap(getSqlName(typeName) + "_log"));
+        query.append(DaoUtils.wrap(getALTableSqlName(typeName)));
         query.append("where ").append(DaoUtils.wrap(ID_COLUMN)).append(" in (select ").append(DaoUtils.wrap(ID_COLUMN)).append(" from ");
-        query.append(DaoUtils.wrap(getSqlName(rootType) + "_log")).append(" ");
+        query.append(DaoUtils.wrap(getALTableSqlName(rootType))).append(" ");
         query.append("where ").append(DaoUtils.wrap("domain_object_id")).append(" = :id)");
 
         return query.toString();
@@ -220,7 +221,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
     private void appendVersionTableNameQueryPart(StringBuilder query, String typeName) {
         String aliasName = getSqlName(typeName);
-        String tableName = getSqlName(typeName) + "_log";
+        String tableName = getALTableSqlName(typeName);
         query.append(DaoUtils.wrap(tableName)).append(" ").append(aliasName);
         appendVersionParentTable(query, typeName);
     }
@@ -235,7 +236,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
         String tableAlias = getSqlAlias(typeName);
 
-        String parentTableName = getSqlName(config.getExtendsAttribute()) + "_log";
+        String parentTableName = getALTableSqlName(config.getExtendsAttribute());
         String parentTableAlias = getSqlAlias(config.getExtendsAttribute());
 
         query.append(" inner join ").append(DaoUtils.wrap(parentTableName)).append(" ").append(parentTableAlias);
@@ -304,7 +305,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         StringBuilder query = new StringBuilder();
         query.append("select max(").append(DaoUtils.wrap(ID_COLUMN)).append(") ");
         query.append("from ");
-        query.append(DaoUtils.wrap(getSqlName(rootType) + "_log")).append(" ");
+        query.append(DaoUtils.wrap(getALTableSqlName(rootType))).append(" ");
         query.append("where ").append(DaoUtils.wrap("domain_object_id")).append(" = :id");
 
         return query.toString();

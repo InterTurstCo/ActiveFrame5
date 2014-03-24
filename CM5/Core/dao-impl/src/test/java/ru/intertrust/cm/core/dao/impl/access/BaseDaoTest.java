@@ -143,7 +143,7 @@ public class BaseDaoTest {
         domainObjectDao = new DomainObjectDaoImpl();
         domainObjectDao.setJdbcTemplate(namedParameterJdbcOperations);
 
-        SequenceIdGenerator idGenerator = new SequenceIdGenerator();
+        BasicSequenceIdGenerator idGenerator = new PostgreSqlSequenceIdGenerator();
         idGenerator.setJdbcTemplate(jdbcOperations);
 
         domainObjectDao.setIdGenerator(idGenerator);

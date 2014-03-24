@@ -14,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+
 /**
  * Реализация {@link DomainObjectTypeIdDao}
  * @author vmatsukevich
@@ -23,16 +25,16 @@ import java.util.List;
 public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
 
     protected static final String INSERT_QUERY =
-            "insert into " + DaoUtils.wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + "(" + DaoUtils.wrap(ID_COLUMN) + ", " +
-                    DaoUtils.wrap(NAME_COLUMN) + ") values (?, ?)";
+            "insert into " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + "(" + wrap(ID_COLUMN) + ", " +
+                    wrap(NAME_COLUMN) + ") values (?, ?)";
 
     protected static final String SELECT_ID_BY_NAME_QUERY =
-            "select " + DaoUtils.wrap(ID_COLUMN) + " from " + DaoUtils.wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
-                    DaoUtils.wrap(NAME_COLUMN) + " = ?";
+            "select " + wrap(ID_COLUMN) + " from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
+                    wrap(NAME_COLUMN) + " = ?";
 
     protected static final String SELECT_NAME_BY_ID_QUERY =
-            "select " + DaoUtils.wrap(NAME_COLUMN) + " from " + DaoUtils.wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
-                    DaoUtils.wrap(ID_COLUMN) + " = ?";
+            "select " + wrap(NAME_COLUMN) + " from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
+                    wrap(ID_COLUMN) + " = ?";
 
     @Autowired
     private JdbcOperations jdbcTemplate;
@@ -49,7 +51,7 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
      */
     @Override
     public List<DomainObjectTypeId> readAll() {
-        String query = "select " + ID_COLUMN + ", " + NAME_COLUMN + " from " + DOMAIN_OBJECT_TYPE_ID_TABLE;
+        String query = "select " + wrap(ID_COLUMN) + ", " + wrap(NAME_COLUMN) + " from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE);
 
         return jdbcTemplate.query(query, new RowMapper<DomainObjectTypeId>() {
             @Override

@@ -5,7 +5,9 @@ import java.util.Map;
 
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.SignedExpression;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SubSelect;
@@ -50,6 +52,11 @@ public class CollectingWhereColumnConfigVisitor extends BaseExpressionVisitor im
         collectWhereColumnConfigurations(column);
     }
 
+    @Override
+    public void visit(RegExpMatchOperator regExpMatchOperator) {
+
+    }
+
     private void collectWhereColumnConfigurations(Column column) {
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(SqlQueryModifier.getDOTypeName(plainSelect, column, false),
                 column.getColumnName());
@@ -66,6 +73,11 @@ public class CollectingWhereColumnConfigVisitor extends BaseExpressionVisitor im
 
     @Override
     public void visit(Function function) {
+    }
+
+    @Override
+    public void visit(SignedExpression signedExpression) {
+
     }
 
 }

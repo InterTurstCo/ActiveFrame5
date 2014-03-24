@@ -153,7 +153,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Override
     public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit,
                                                               AccessToken accessToken) {
-        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
+        CollectionQueryInitializer collectionQueryInitializer = createCollectionQueryInitializer(configurationExplorer);
         String collectionQuery = collectionQueryInitializer.initializeQuery(query, offset, limit, accessToken);
 
         Map<String, Object> parameters = new HashMap<>();
@@ -179,7 +179,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Override
     public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params,
             int offset, int limit, AccessToken accessToken) {
-        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
+        CollectionQueryInitializer collectionQueryInitializer = createCollectionQueryInitializer(configurationExplorer);
 
         String collectionQuery = adjustParameterNamesBeforePreProcessing(query, CollectionsDaoImpl.PARAM_NAME_PREFIX);
         collectionQuery = collectionQueryInitializer.initializeQuery(collectionQuery, offset, limit, accessToken);
@@ -206,20 +206,23 @@ public class CollectionsDaoImpl implements CollectionsDao {
         return collection;
     }
 
-    private void fillParameterMap(List<? extends Value> params, Map<String, Object> parameterMap) {
-        int index = 0;
-        for (Value value : params) {
-            // ссылочные параметры не добавляются в список параметров, т.к. их значения подставляются прямо в запрос
-            if (!(value instanceof ReferenceValue)) {
-                // в исполняемом SQL запросе названия параметров совпадает с их номерами в начальном SQL запросе.
-                String parameterName = index + "";
-                parameterMap.put(parameterName, value.get());
-            }
-            index++;
-        }
+    public static String adjustParameterNames(String subQuery, String parameterPrefix) {
+        String newFilterCriteria = subQuery.replace("{", parameterPrefix);
+        newFilterCriteria = newFilterCriteria.replace("}", "");
+
+        return newFilterCriteria;
     }
-    private void fillAclParameters(AccessToken accessToken, Map<String, Object> parameters) {
-        parameters.put("user_id", ((UserSubject)accessToken.getSubject()).getUserId());
+
+    /**
+     *
+     * @param subQuery
+     * @param parameterPrefix
+     * @return
+     */
+    public static String adjustParameterNamesBeforePreProcessing(String subQuery, String parameterPrefix) {
+        String newFilterCriteria = subQuery.replaceAll("[{]", START_PARAM_SIGN + parameterPrefix);
+        newFilterCriteria = newFilterCriteria.replaceAll("[}]", END_PARAM_SIGN);
+        return newFilterCriteria;
     }
 
     /*
@@ -245,6 +248,64 @@ public class CollectionsDaoImpl implements CollectionsDao {
         return jdbcTemplate.queryForObject(collectionQuery, parameters, Integer.class);
     }
 
+    protected CollectionQueryInitializer createCollectionQueryInitializer(ConfigurationExplorer configurationExplorer) {
+        return new CollectionQueryInitializerImpl(configurationExplorer);
+    }
+
+    /**
+     * Возвращает запрос, который используется в методе поиска коллекции доменных объектов
+     *
+     * @param collectionConfig
+     * @param filterValues
+     * @param sortOrder
+     * @param offset
+     * @param limit
+     * @return
+     */
+    protected String getFindCollectionQuery(CollectionConfig collectionConfig,
+                                            List<? extends Filter> filterValues, SortOrder sortOrder,
+                                            int offset, int limit, AccessToken accessToken) {
+        CollectionQueryInitializer collectionQueryInitializer = createCollectionQueryInitializer(configurationExplorer);
+
+        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig, filterValues,
+                sortOrder, offset, limit, accessToken);
+
+        return collectionQuery;
+    }
+
+    /**
+     * Возвращает запрос, который используется в методе поиска количества объектов в коллекции
+     *
+     * @param collectionConfig
+     * @param filterValues
+     * @return
+     */
+    protected String getFindCollectionCountQuery(CollectionConfig collectionConfig,
+                                                 List<? extends Filter> filterValues, AccessToken accessToken) {
+        CollectionQueryInitializer collectionQueryInitializer = createCollectionQueryInitializer(configurationExplorer);
+
+        String collectionQuery =
+                collectionQueryInitializer.initializeCountQuery(collectionConfig, filterValues, accessToken);
+
+        return collectionQuery;
+    }
+
+    private void fillParameterMap(List<? extends Value> params, Map<String, Object> parameterMap) {
+        int index = 0;
+        for (Value value : params) {
+            // ссылочные параметры не добавляются в список параметров, т.к. их значения подставляются прямо в запрос
+            if (!(value instanceof ReferenceValue)) {
+                // в исполняемом SQL запросе названия параметров совпадает с их номерами в начальном SQL запросе.
+                String parameterName = index + "";
+                parameterMap.put(parameterName, value.get());
+            }
+            index++;
+        }
+    }
+    private void fillAclParameters(AccessToken accessToken, Map<String, Object> parameters) {
+        parameters.put("user_id", ((UserSubject)accessToken.getSubject()).getUserId());
+    }
+
     /**
      * Модифицирует имена параметров в названия совместимые с {@see NamedParameterJdbcTemplate}. Заменяет префикс
      * "_PARAM_NAME_" на ":"
@@ -261,44 +322,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
         collectionQuery = collectionQuery.replaceAll(END_PARAM_SIGN, "");
 
         collectionQuery = adjustParameterNamesForSpring(collectionQuery);
-        return collectionQuery;
-    }
-
-    /**
-     * Возвращает запрос, который используется в методе поиска коллекции доменных объектов
-     *
-     * @param collectionConfig
-     * @param filterValues
-     * @param sortOrder
-     * @param offset
-     * @param limit
-     * @return
-     */
-    protected String getFindCollectionQuery(CollectionConfig collectionConfig,
-                                            List<? extends Filter> filterValues, SortOrder sortOrder,
-                                            int offset, int limit, AccessToken accessToken) {
-        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
-
-        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig, filterValues,
-                        sortOrder, offset, limit, accessToken);
-
-        return collectionQuery;
-    }
-
-    /**
-     * Возвращает запрос, который используется в методе поиска количества объектов в коллекции
-     *
-     * @param collectionConfig
-     * @param filterValues
-     * @return
-     */
-    protected String getFindCollectionCountQuery(CollectionConfig collectionConfig,
-            List<? extends Filter> filterValues, AccessToken accessToken) {
-        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
-
-        String collectionQuery =
-                collectionQueryInitializer.initializeCountQuery(collectionConfig, filterValues, accessToken);
-
         return collectionQuery;
     }
 
@@ -368,23 +391,5 @@ public class CollectionsDaoImpl implements CollectionsDao {
             parametrValue = value.get();
         }
         return parametrValue;
-    }
-
-    public static String adjustParameterNames(String subQuery, String parameterPrefix) {
-        String newFilterCriteria = subQuery.replace("{", parameterPrefix);
-        newFilterCriteria = newFilterCriteria.replace("}", "");
-
-        return newFilterCriteria;
-    }
-    /**
-     * 
-     * @param subQuery
-     * @param parameterPrefix
-     * @return
-     */
-    public static String adjustParameterNamesBeforePreProcessing(String subQuery, String parameterPrefix) {
-        String newFilterCriteria = subQuery.replaceAll("[{]", START_PARAM_SIGN + parameterPrefix);
-        newFilterCriteria = newFilterCriteria.replaceAll("[}]", END_PARAM_SIGN);
-        return newFilterCriteria;
     }
 }

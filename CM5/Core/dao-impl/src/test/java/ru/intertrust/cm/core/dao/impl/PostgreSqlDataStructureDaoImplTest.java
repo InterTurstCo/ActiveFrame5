@@ -29,18 +29,22 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
 public class PostgreSqlDataStructureDaoImplTest {
     @InjectMocks
     private final PostgreSqlDataStructureDaoImpl dataStructureDao = new PostgreSqlDataStructureDaoImpl();
-    private PostgreSqlQueryHelper queryHelper = new PostgreSqlQueryHelper();
+
+    private PostgreSqlQueryHelper queryHelper;
 
     @Mock
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Mock
     private JdbcTemplate jdbcTemplate;
+    @Mock
+    private DomainObjectTypeIdCacheImpl domainObjectTypeIdCache;
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
 
     @Before
     public void setUp() throws Exception {
         initDomainObjectConfig();
+        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdCache);
     }
 
 
@@ -51,16 +55,19 @@ public class PostgreSqlDataStructureDaoImplTest {
         dataStructureDao.createTable(domainObjectTypeConfig);
 
         verify(jdbcTemplate).update(queryHelper.generateCreateTableQuery(domainObjectTypeConfig));
+
+        int index = 0;
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             if (fieldConfig instanceof ReferenceFieldConfig) {
                 verify(jdbcTemplate).update(queryHelper.generateCreateIndexQuery(domainObjectTypeConfig,
-                        (ReferenceFieldConfig) fieldConfig));
+                        (ReferenceFieldConfig) fieldConfig, index));
+                index++;
             }
         }
 
         verify(domainObjectTypeIdDao).insert(domainObjectTypeConfig);
 
-        assertEquals(Long.valueOf(7), domainObjectTypeConfig.getId());
+        assertEquals(Integer.valueOf(7), domainObjectTypeConfig.getId());
     }
 
     @Test
@@ -92,14 +99,16 @@ public class PostgreSqlDataStructureDaoImplTest {
         uniqueKeyFieldConfig.setName("Registration Number");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
 
-        dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newColumns);
+        dataStructureDao.updateTableStructure(domainObjectTypeConfig, newColumns, false);
 
         verify(jdbcTemplate).update(queryHelper.generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns));
 
+        int index = 0;
         for (FieldConfig fieldConfig : newColumns) {
             if (fieldConfig instanceof ReferenceFieldConfig) {
                 verify(jdbcTemplate).update(queryHelper.generateCreateIndexQuery(domainObjectTypeConfig,
-                        (ReferenceFieldConfig) fieldConfig));
+                        (ReferenceFieldConfig) fieldConfig, index));
+                index++;
             }
         }
     }
@@ -141,6 +150,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
     private void initDomainObjectConfig() {
         domainObjectTypeConfig = new DomainObjectTypeConfig();
+        domainObjectTypeConfig.setId(10);
         domainObjectTypeConfig.setName("Outgoing Document");
         domainObjectTypeConfig.setExtendsAttribute("Document");
 

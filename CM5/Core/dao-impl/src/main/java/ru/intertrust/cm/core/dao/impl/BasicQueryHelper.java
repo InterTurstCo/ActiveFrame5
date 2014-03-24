@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +33,20 @@ public abstract class BasicQueryHelper {
     public static final String READ_TABLE_SUFFIX = "_read";
 
     private static final String GROUP_TABLE = "user_group";
+
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    protected BasicQueryHelper(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
+    }
+
+    public DomainObjectTypeIdCache getDomainObjectTypeIdCache() {
+        return domainObjectTypeIdCache;
+    }
+
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
+    }
 
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных
@@ -83,39 +98,39 @@ public abstract class BasicQueryHelper {
                 " (" + wrap(ID_COLUMN) + " " + getIdType() + " not null, " +
                 wrap(USER_UID_COLUMN) + " character varying(64) NOT NULL, " +
                 wrap("password") + " character varying(128), " +
-                "constraint " + wrap("pk_" + AUTHENTICATION_INFO_TABLE + "_" + ID_COLUMN) + " " +
+                "constraint " + wrap("pk_" + AUTHENTICATION_INFO_TABLE) + " " +
                     "primary key (" + wrap(ID_COLUMN) + "), " +
                 "constraint " + wrap("u_" + AUTHENTICATION_INFO_TABLE + "_" + USER_UID_COLUMN) + " " +
                     "unique" + "(" + wrap(USER_UID_COLUMN) + "))";
     }
 
-    private String createAclTableQueryFor(String domainObjectType) {
-        return "create table " + wrap(domainObjectType + "_acl") + " (" +
+    private String createAclTableQueryFor(DomainObjectTypeConfig config) {
+        return "create table " + wrap(getSqlName(config) + "_acl") + " (" +
                 wrap("object_id") + " " + getIdType() + " not null, " +
                 wrap("group_id") + " " + getIdType() + " not null, " +
                 wrap("operation") + " varchar(256) not null, " +
-                "constraint " + wrap("pk_" + domainObjectType.toLowerCase() + "_acl") +
+                "constraint " + wrap("pk_" + getDOTypeConfigId(config) + "_acl") +
                     " primary key (" + wrap("object_id") + ", " + wrap("group_id") + ", " +
                     wrap(OPERATION_COLUMN) + ")";
     }
 
-    private String createAclReadTableQueryFor(String domainObjectType) {
-        return "create table " + wrap(domainObjectType + "_read") + " (" +
+    private String createAclReadTableQueryFor(DomainObjectTypeConfig config) {
+        return "create table " + wrap(getSqlName(config) + "_read") + " (" +
                 wrap("object_id") + " " + getIdType() + " not null, " +
                 wrap("group_id") + " " + getIdType() + " not null, " +
-                "constraint " + wrap("pk_" + domainObjectType + "_read") + " primary key (" + wrap("object_id") +
+                "constraint " + wrap("pk_" + getDOTypeConfigId(config) + "_read") + " primary key (" + wrap("object_id") +
                 ", " + wrap("group_id") + ")";
     }
 
-    private void appendFKConstraintForDO(String sourceDomainObjectType, String targetDomainObjectType, StringBuilder query) {
+    private void appendAclFKConstraintForDO(DomainObjectTypeConfig targetConfig, StringBuilder query, boolean read) {
         query.append(", ").append("CONSTRAINT ").
-                append(wrap("fk_" + sourceDomainObjectType.toLowerCase() + "_" + targetDomainObjectType.toLowerCase())).
+                append(wrap("fk_" +getDOTypeConfigId(targetConfig) + (read ? "_read" : "_acl") + "_0")).
                 append(" FOREIGN KEY (").append(wrap("object_id")).append(") REFERENCES ").
-                append(wrap(targetDomainObjectType)).append(" (").append(wrap(ID_COLUMN)).append(")");
+                append(wrap(getSqlName(targetConfig))).append(" (").append(wrap(ID_COLUMN)).append(")");
 }
 
-    private void appendFKConstraintForGroup(String domainObjectType, StringBuilder query) {
-        query.append(", ").append("CONSTRAINT ").append(wrap("fk_" + domainObjectType + "_" + GROUP_TABLE)).
+    private void appendFKConstraintForGroup(DomainObjectTypeConfig config, StringBuilder query, boolean read) {
+        query.append(", ").append("CONSTRAINT ").append(wrap("fk_" + getDOTypeConfigId(config) + (read ? "_read" : "_acl") + "_1")).
                 append(" FOREIGN KEY (").append(wrap("group_id")).append(") REFERENCES ").append(wrap(GROUP_TABLE)).
                 append(" (").append(wrap(ID_COLUMN)).append(")");
     }
@@ -129,7 +144,7 @@ public abstract class BasicQueryHelper {
      *         доменного объекта
      */
     public String generateSequenceQuery(DomainObjectTypeConfig config) {
-        String sequenceName = getSqlSequenceName(config);
+        String sequenceName = getSqlSequenceName(getDOTypeConfigId(config).toString());
         StringBuilder query = new StringBuilder();
         query.append("create sequence ").append(wrap(sequenceName));
 
@@ -139,13 +154,12 @@ public abstract class BasicQueryHelper {
     /**
      * Генерирует запрос, создающий последовательность(сиквенс) по конфигурации
      * доменного объекта
-     * @param config
-     *            конфигурация доменного объекта
+     * @param config конфигурация доменного объекта
      * @return запрос, создающий последовательность(сиквенс) по конфигурации
      *         доменного объекта
      */
     public String generateAuditSequenceQuery(DomainObjectTypeConfig config) {
-        String sequenceName = getSqlAuditSequenceName(config);
+        String sequenceName = getSqlAuditSequenceName(getDOTypeConfigId(config));
         StringBuilder query = new StringBuilder();
         query.append("create sequence ").append(wrap(sequenceName));
 
@@ -169,12 +183,12 @@ public abstract class BasicQueryHelper {
             appendColumnsQueryPart(query, config.getFieldConfigs(), false);
         }
 
-        appendPKConstraintQueryPart(query, tableName);
+        appendPKConstraintQueryPart(query, tableName, getDOTypeConfigId(config), false);
 
         // Необходимо создать уникальный ключ (ID, TYPE_ID), чтобы обеспечить
         // возможность создания внешнего ключа,
         // ссылающегося на эти колонки
-        appendIdTypeUniqueConstraint(query, tableName);
+        appendIdTypeUniqueConstraint(query, tableName, getDOTypeConfigId(config), false);
 
         appendParentFKConstraintsQueryPart(query, tableName, config);
 
@@ -191,7 +205,7 @@ public abstract class BasicQueryHelper {
      * @return запрос, создающий таблицу по конфигурации доменного объекта
      */
     public String generateCreateAuditTableQuery(DomainObjectTypeConfig config) {
-        String tableName = getSqlName(config) + "_log";
+        String tableName = getALTableSqlName(config.getName());
         StringBuilder query = new StringBuilder("create table ").append(wrap(tableName)).append(" (");
 
         // Системные атрибуты
@@ -212,20 +226,22 @@ public abstract class BasicQueryHelper {
             appendAuditLogColumnsQueryPart(query, config.getFieldConfigs(), false);
         }
 
-        appendPKConstraintQueryPart(query, tableName);
+        appendPKConstraintQueryPart(query, tableName, getDOTypeConfigId(config), true);
 
         // Необходимо создать уникальный ключ (ID, TYPE_ID), чтобы обеспечить
         // возможность создания внешнего ключа,
         // ссылающегося на эти колонки
-        appendIdTypeUniqueConstraint(query, tableName);
+        appendIdTypeUniqueConstraint(query, tableName, getDOTypeConfigId(config), true);
 
         query.append(", ");
+        int index = 0;
         if (config.getExtendsAttribute() != null) {
-            appendFKConstraint(query, tableName, ID_COLUMN, config.getExtendsAttribute() + "_log", ID_COLUMN);
+            appendFKConstraint(query, tableName, getDOTypeConfigId(config), ID_COLUMN, getName(config.getExtendsAttribute(), true), ID_COLUMN, index, true);
+            index ++;
             query.append(", ");
         }
 
-        appendFKConstraint(query, tableName, TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE, ID_COLUMN);
+        appendFKConstraint(query, tableName, getDOTypeConfigId(config), TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE, ID_COLUMN, index, true);
 
         query.append(")");
 
@@ -242,12 +258,10 @@ public abstract class BasicQueryHelper {
      */
     public String generateCreateAclTableQuery(DomainObjectTypeConfig config) {
         String domainObjectType = getSqlName(config);
-        String aclTableName = domainObjectType + ACL_TABLE_SUFFIX;
+        StringBuilder query = new StringBuilder(createAclTableQueryFor(config));
 
-        StringBuilder query = new StringBuilder(createAclTableQueryFor(domainObjectType));
-
-        appendFKConstraintForDO(aclTableName, domainObjectType, query);
-        appendFKConstraintForGroup(domainObjectType, query);
+        appendAclFKConstraintForDO(config, query, false);
+        appendFKConstraintForGroup(config, query, false);
         query.append(")");
 
         return query.toString();
@@ -262,13 +276,10 @@ public abstract class BasicQueryHelper {
      *         объекта
      */
     public String generateCreateAclReadTableQuery(DomainObjectTypeConfig config) {
-        String domainObjectType = getSqlName(config);
-        String aclReadTableName = domainObjectType + READ_TABLE_SUFFIX;
+        StringBuilder query = new StringBuilder(createAclReadTableQueryFor(config));
 
-        StringBuilder query = new StringBuilder(createAclReadTableQueryFor(domainObjectType));
-
-        appendFKConstraintForDO(aclReadTableName, domainObjectType, query);
-        appendFKConstraintForGroup(domainObjectType, query);
+        appendAclFKConstraintForDO(config, query, true);
+        appendFKConstraintForGroup(config, query, true);
         query.append(")");
         return query.toString();
     }
@@ -293,78 +304,66 @@ public abstract class BasicQueryHelper {
     }
 
     /**
-     * Генерирует запрос для создания форен-ки и уникальных констрэйнтов
-     * @param domainObjectConfigName
-     *            название доменного объекта, таблицу которого необходимо
+     * Генерирует запрос для создания форен-ки констрэйнтов
+     * @param config
+     *            конфигурация доменного объекта, таблицу которого необходимо
      *            обновить
-     * @param fieldConfigList
-     *            список колонок для создания форен-ки констрэйнтов
-     * @param uniqueKeyConfigList
-     *            список уникальных ключей
-     * @return запрос для обновления структуры таблицы (добавления форен-ки и
-     *         уникальных констрэйнтов)
+     * @param fieldConfig
+     *            колонка для создания форен-ки констрэйнтов
+     * @return запрос для обновления структуры таблицы (добавления форен-ки констрэйнтов)
      */
-    public String generateCreateForeignKeyAndUniqueConstraintsQuery(String domainObjectConfigName,
-            List<ReferenceFieldConfig> fieldConfigList,
-            List<UniqueKeyConfig> uniqueKeyConfigList) {
-        String tableName = getSqlName(domainObjectConfigName);
+    public String generateCreateForeignKeyConstraintQuery(DomainObjectTypeConfig config,
+            ReferenceFieldConfig fieldConfig, int index) {
+        String tableName = getSqlName(config.getName());
+
+        if (ConfigurationExplorer.REFERENCE_TYPE_ANY.equals(fieldConfig.getType())) {
+            return null;
+        }
+        StringBuilder query = new StringBuilder("alter table ");
+        query.append(wrap(tableName)).append(" add ");
+
+        String columnName = getSqlName(fieldConfig);
+        String typeReferenceColumnName = getReferenceTypeColumnName(fieldConfig.getName());
+        String referencedTableName = getSqlName(fieldConfig.getType());
+        appendFKConstraint(query, tableName, getDOTypeConfigId(config),
+                new String[]{columnName, typeReferenceColumnName},
+                referencedTableName, new String[]{ID_COLUMN, TYPE_COLUMN}, index, false);
+
+        return query.toString();
+    }
+
+    /**
+     * Генерирует запрос для создания уникальных констрэйнтов
+     * @param config
+     *            конфигурация доменного объекта, таблицу которого необходимо
+     *            обновить
+     * @param uniqueKeyConfig
+     *            уникальный ключ
+     * @return запрос для обновления структуры таблицы (добавления уникальных констрэйнтов)
+     */
+    public String generateCreateUniqueConstraintQuery(DomainObjectTypeConfig config,
+                                                              UniqueKeyConfig uniqueKeyConfig, int index) {
+        String tableName = getSqlName(config);
         StringBuilder query = new StringBuilder("alter table ").append(wrap(tableName)).append(" ");
 
-        boolean commaNeeded = false;
-        boolean existsConstraints = false;
-        for (ReferenceFieldConfig fieldConfig : fieldConfigList) {
-            if (ConfigurationExplorer.REFERENCE_TYPE_ANY.equals(fieldConfig.getType())) {
-                continue;
-            }
-
-            if (commaNeeded) {
-                query.append(", ");
-            } else {
-                commaNeeded = true;
-            }
-            query.append("add ");
-
-            String columnName = getSqlName(fieldConfig);
-            String typeReferenceColumnName = getReferenceTypeColumnName(fieldConfig.getName());
-            String referencedTableName = getSqlName(fieldConfig.getType());
-            appendFKConstraint(query, tableName, new String[] { columnName,typeReferenceColumnName },
-                    referencedTableName, new String[] { ID_COLUMN, TYPE_COLUMN });
-            existsConstraints = true;
+        if (uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
+            return null;
         }
 
-        for (UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigList) {
-            if (uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
-                continue;
-            }
+        DelimitedListFormatter<UniqueKeyFieldConfig> listFormatter =
+                new DelimitedListFormatter<UniqueKeyFieldConfig>() {
+                    @Override
+                    protected String format(UniqueKeyFieldConfig item) {
+                        return getSqlName(item.getName());
+                    }
+                };
 
-            DelimitedListFormatter<UniqueKeyFieldConfig> listFormatter =
-                    new DelimitedListFormatter<UniqueKeyFieldConfig>() {
-                        @Override
-                        protected String format(UniqueKeyFieldConfig item) {
-                            return getSqlName(item.getName());
-                        }
-                    };
+        String constraintName = "u_" + getDOTypeConfigId(config) + "_" + index;
+        String fieldsList =
+                listFormatter.formatAsDelimitedList(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ", "\"");
 
-            String constraintName = "u_" + tableName + "_" +
-                    listFormatter.formatAsDelimitedList(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_");
-            String fieldsList =
-                    listFormatter.formatAsDelimitedList(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ", "\"");
-
-            if (commaNeeded) {
-                query.append(", ");
-            } else {
-                commaNeeded = true;
-            }
-
-            query.append("add ");
-            appendUniqueConstraint(query, constraintName, fieldsList);
-            existsConstraints = true;
-        }
-
-        //Если нет констраинтов то возвращаем пустую строку
-        if (!existsConstraints){
-            query = new StringBuilder();
-        }
+        query.append("add ");
+        appendUniqueConstraint(query, constraintName, fieldsList);
 
         return query.toString();
     }
@@ -415,13 +414,10 @@ public abstract class BasicQueryHelper {
         return indexFields.toString();
     }
     
-    public String generateDeleteExplicitIndexesQuery(String domainObjectName,
-            List<IndexConfig> indexConfigs) {
+    public String generateDeleteExplicitIndexesQuery(List<String> indexNames) {
         StringBuilder query = new StringBuilder();
-        String tableName = getSqlName(domainObjectName);
-        for (IndexConfig indexConfig : indexConfigs) {
-            appendDeleteIndexQueryPart(query, tableName, indexConfig);
-
+        for (String indexName : indexNames) {
+            appendDeleteIndexQueryPart(query, indexName);
         }
 
         if (query.length() == 0) {
@@ -431,23 +427,14 @@ public abstract class BasicQueryHelper {
         return query.toString();
     }
     
-    public String generateComplexIndexQuery(String tableName, IndexConfig indexConfig) {
+    public String generateComplexIndexQuery(DomainObjectTypeConfig config, IndexConfig indexConfig, int index) {
         List<String> fieldNames = new ArrayList<String>();
         for(IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()){
             fieldNames.add(getSqlName(indexFieldConfig));
         }
         
         String indexType = getIndexType(indexConfig);
-        return generateIndexQuery(tableName, indexType, fieldNames);
-    }
-
-    private void appendDeleteIndexQueryPart(StringBuilder query, String tableName, IndexConfig indexConfig) {
-        List<String> fieldNames = new ArrayList<String>();
-        for (IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()) {
-            fieldNames.add(getSqlName(indexFieldConfig));
-        }
-
-        appendDeleteIndexQueryPart(query, tableName, fieldNames);
+        return generateIndexQuery(config, indexType, fieldNames, index);
     }
 
     private String getIndexType(IndexConfig indexConfig) {
@@ -459,35 +446,26 @@ public abstract class BasicQueryHelper {
         return indexType;
     }
 
-    public String generateCreateIndexQuery(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig) {
-        return generateCreateIndexQuery(config.getName(), fieldConfig.getName());
+    public String generateCreateIndexQuery(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig, int index) {
+        return generateCreateIndexQuery(config, fieldConfig.getName(), index, false);
     }
 
-    protected abstract String generateIndexQuery(String tableName, String indexType, List<String> fieldNames);
+    protected abstract String generateIndexQuery(DomainObjectTypeConfig config, String indexType, List<String> fieldNames, int index);
 
-    public String generateCreateIndexQuery(String domainObjectTypeName, String fieldName) {
-        String tableName = getSqlName(domainObjectTypeName);
+    public String generateCreateIndexQuery(DomainObjectTypeConfig config, String fieldName, int index, boolean isAl) {
+        String tableName = getSqlName(config.getName(), isAl);
         String columnName = getSqlName(fieldName);
 
-        String indexName = createExplicitIndexName(tableName, Collections.singletonList(columnName));
+        String indexName = createExplicitIndexName(config, index, isAl);
         return "create index " + wrap(indexName) + " on " + wrap(tableName) + " (" + wrap(columnName) + ")";
     }
 
-    private void appendDeleteIndexQueryPart(StringBuilder query, String tableName, List<String> fieldNames) {
-        String indexName = createExplicitIndexName(tableName, fieldNames);
+    private void appendDeleteIndexQueryPart(StringBuilder query, String indexName) {
         query.append("drop index if exists ").append(wrap(indexName)).append(";\n");
     }
 
-    protected String createExplicitIndexName(String tableName, List<String> fieldNames) {
-        return "i_" + tableName + createIndexSuffix(fieldNames);
-    }
-
-    public String createIndexSuffix(List<String> fieldNames) {
-        StringBuilder fieldsSuffix = new StringBuilder();
-        for (String fieldName : fieldNames) {
-            fieldsSuffix.append("_").append(fieldName);
-        }
-        return fieldsSuffix.toString();
+    protected String createExplicitIndexName(DomainObjectTypeConfig config, int index, boolean isAl) {
+        return "i_" + getName(getDOTypeConfigId(config).toString(), isAl) + "_" + index;
     }
 
     protected String createIndexTableFieldsPart(List<String> fieldNames) {
@@ -507,25 +485,28 @@ public abstract class BasicQueryHelper {
     protected void appendParentFKConstraintsQueryPart(StringBuilder query, String tableName,
             DomainObjectTypeConfig config) {
         query.append(", ");
+        int index = 0;
+
         if (config.getExtendsAttribute() != null) {
-            appendFKConstraint(query, tableName, ID_COLUMN, config.getExtendsAttribute(), ID_COLUMN);
+            appendFKConstraint(query, tableName, getDOTypeConfigId(config), ID_COLUMN, config.getExtendsAttribute(), ID_COLUMN, index, false);
+            index ++;
             query.append(", ");
         }
 
-        appendFKConstraint(query, tableName, TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE, ID_COLUMN);
+        appendFKConstraint(query, tableName, getDOTypeConfigId(config), TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE, ID_COLUMN, index, false);
     }
 
-    private void appendFKConstraint(StringBuilder query, String tableName, String columnName,
-            String referencedTable, String referencedFieldName) {
-        appendFKConstraint(query, tableName, new String[] { columnName }, referencedTable,
-                new String[] { referencedFieldName });
+    private void appendFKConstraint(StringBuilder query, String tableName, Integer doTypeId, String columnName,
+            String referencedTable, String referencedFieldName, int index, boolean isAl) {
+        appendFKConstraint(query, tableName, doTypeId, new String[] { columnName }, referencedTable,
+                new String[] { referencedFieldName }, index, isAl);
     }
 
-    private void appendFKConstraint(StringBuilder query, String tableName, String[] columnNames,
-            String referencedTable, String[] referencedFieldNames) {
+    private void appendFKConstraint(StringBuilder query, String tableName, Integer doTypeId, String[] columnNames,
+            String referencedTable, String[] referencedFieldNames, int index, boolean isAl) {
         DelimitedListFormatter<String> listFormatter = new DelimitedListFormatter<>();
 
-        String constraintName = "fk_" + tableName + "_" + listFormatter.formatAsDelimitedList(columnNames, "_");
+        String constraintName = "fk_" + getName(doTypeId != null ? doTypeId.toString() : tableName, isAl) + "_" + index;
 
         query.append("constraint ").append(wrap(constraintName)).append(" foreign key (").
                 append(listFormatter.formatAsDelimitedList(columnNames, ", ", "\"")).append(")").
@@ -533,17 +514,17 @@ public abstract class BasicQueryHelper {
                 append(" (").append(listFormatter.formatAsDelimitedList(referencedFieldNames, ", ", "\"")).append(")");
     }
 
-    private void appendPKConstraintQueryPart(StringBuilder query, String tableName) {
-        String pkName = "pk_" + tableName + "_id";
+    private void appendPKConstraintQueryPart(StringBuilder query, String tableName, Integer doTypeId, boolean isAl) {
+        String pkName = "pk_" + getName(doTypeId != null ? doTypeId.toString() : tableName, isAl);
         query.append(", constraint ").append(wrap(pkName)).append(" primary key (").
                 append(wrap(ID_COLUMN)).append(")");
     }
 
-    private void appendIdTypeUniqueConstraint(StringBuilder query, String tableName) {
+    private void appendIdTypeUniqueConstraint(StringBuilder query, String tableName, Integer doTypeId, boolean isAl) {
         DelimitedListFormatter<String> listFormatter = new DelimitedListFormatter<>();
         String[] keyFields = new String[] { ID_COLUMN, TYPE_COLUMN };
 
-        String constraintName = "u_" + tableName + "_" + listFormatter.formatAsDelimitedList(keyFields, "_");
+        String constraintName = "u_" + getName(doTypeId != null ? doTypeId.toString() : tableName, isAl) + "_" + 0;
         String fieldsList = listFormatter.formatAsDelimitedList(keyFields, ", ", "\"");
 
         query.append(", ");
@@ -641,6 +622,16 @@ public abstract class BasicQueryHelper {
         return "varchar(50)";
     }
 
+    private Integer getDOTypeConfigId(DomainObjectTypeConfig config) {
+        if (config.getId() != null) {
+            return config.getId();
+        } else if (domainObjectTypeIdCache != null) {
+            return domainObjectTypeIdCache.getId(config.getName());
+        } else {
+            return null;
+        }
+    }
+
     private String getSqlType(FieldConfig fieldConfig) {
         if (DateTimeFieldConfig.class.equals(fieldConfig.getClass()) ||
                 DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass()) ||
@@ -683,7 +674,7 @@ public abstract class BasicQueryHelper {
         }
 
         if (BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "smallint check (" + getSqlName(fieldConfig) + " in (0, 1))";
+            return "smallint check (" + wrap(getSqlName(fieldConfig)) + " in (0, 1))";
         }
 
         throw new IllegalArgumentException("Invalid field type");

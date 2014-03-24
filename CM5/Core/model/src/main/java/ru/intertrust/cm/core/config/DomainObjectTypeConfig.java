@@ -18,7 +18,7 @@ import java.util.List;
 @Root(name = "domain-object-type")
 public class DomainObjectTypeConfig implements TopLevelConfig {
 
-    private Long id;
+    private Integer id;
 
     @Attribute(required = true)
     private String name;
@@ -73,11 +73,11 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
 
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

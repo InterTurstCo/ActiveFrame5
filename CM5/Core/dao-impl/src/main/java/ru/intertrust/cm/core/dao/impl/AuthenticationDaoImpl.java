@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.dao.api.AuthenticationDao;
 
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+
 /**
  * Реализация DAO для работы с системным объектом AuthenticationInfo.
  * @author atsvetkov
@@ -46,7 +48,7 @@ public class AuthenticationDaoImpl implements AuthenticationDao {
      */
     @Override
     public boolean existsAuthenticationInfo(String userUid) {
-        String query = "select count(*) from authentication_info ai where ai.user_uid=:user_uid";
+        String query = "select count(*) from " + wrap("authentication_info") + " ai where ai." + wrap("user_uid") + "=:user_uid";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("user_uid", userUid);
         @SuppressWarnings("deprecation")

@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.SignedExpression;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
@@ -21,6 +23,11 @@ public class WrapAndLowerCaseExpressionVisitor extends BaseExpressionVisitor imp
         if (function.getParameters() != null) {
             function.getParameters().accept(new WrapAndLowerCaseItemListVisitor());
         }
+    }
+
+    @Override
+    public void visit(SignedExpression signedExpression) {
+
     }
 
     @Override
@@ -43,6 +50,11 @@ public class WrapAndLowerCaseExpressionVisitor extends BaseExpressionVisitor imp
         if (column.getColumnName() != null) {
             column.setColumnName(DaoUtils.wrap(column.getColumnName().toLowerCase()));
         }
+    }
+
+    @Override
+    public void visit(RegExpMatchOperator regExpMatchOperator) {
+
     }
 
     @Override

@@ -136,7 +136,7 @@
             <string name="Name" length="64" not-null="true" />
             <string name="Position" length="64" not-null="true" />
             <string name="Phone" length="32" />
-            <string name="Certificate" length="4096" />
+            <string name="Certificate" length="4000" />
             <string name="Fingerprint" length="128" />
         </fields>
         <uniqueKey> <!-- This key means automatic key + index creation -->
@@ -150,7 +150,7 @@
             <string name="Name" length="64" not-null="true" />
             <string name="Position" length="64" not-null="true" />
             <string name="Phone" length="32" />
-            <string name="Certificate" length="4096" />
+            <string name="Certificate" length="4000" />
             <string name="Fingerprint" length="128" />
             <boolean name="HasChildren"/>
         </fields>
@@ -285,7 +285,7 @@
             <field name="name" />
         </uniqueKey>
         <attachment-types>
-            <attachment-type name="report_template_attachment"/>
+            <attachment-type name="report_template_attach"/>
         </attachment-types>
         
     </domain-object-type>
@@ -347,7 +347,7 @@
             <string name="notification_part" length="256" not-null="true" />
             <reference name="locale" type="locale" not-null="true"/>
             <string name="channel" length="256" not-null="true" />
-            <string name="notification_text" length="32768" />
+            <string name="notification_text" length="4000" />
         </fields>
     </domain-object-type>
 
