@@ -10102,11 +10102,11 @@ ins:hover {
 }
 
 /* Переключение между разделами */
-#sidebar {
+/*#sidebar {
 	width: 129px;
-	/* 	position: relative; */
+	*//* 	position: relative; *//*
 	float: left;
-	z-index: 2;
+	z-index: 2;*/
 }
 
 #sidebar .gradient {
@@ -10160,15 +10160,15 @@ ins:hover {
 	font-weight: bold;
 }
 
-#sidebar .selected {
+/*#sidebar .selected {
 	background: transparent url("images/sidebar-selected.png") left top
 		no-repeat;
 	width: 129px;
-	/*
+	*//*
 	position: fixed;
-*/
+*//*
 	z-index: 3;
-}
+}*/
 
 #sidebar li a {
 	position: relative;

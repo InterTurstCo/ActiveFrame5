@@ -108,7 +108,7 @@ public class DaoUtils {
     }
 
     public static String wrap(String string) {
-        if (string == null || string.startsWith("\"")) {
+        if (string == null || string.startsWith("\"") || string.equalsIgnoreCase("rownum")) {
             return string;
         } else {
             return "\"" + string + "\"";

@@ -58,11 +58,11 @@ public class DoelResolverTest {
         doelResolver.evaluate(expr, docId);
 
         String correctSql =
-                "select t2.department, t2.department_type " +
-                "from commission as t0 " +
-                "join job as t1 on t0.id = t1.parent " +
-                "join person as t2 on t1.assignee = t2.id " +
-                "where t0.parent = 105";
+                "select t2.\"department\", t2.\"department_type\" " +
+                "from \"commission\" t0 " +
+                "join \"job\" t1 on t0.\"id\" = t1.\"parent\" " +
+                "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" " +
+                "where t0.\"parent\" = 105";
         verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
     }
 
@@ -80,10 +80,10 @@ public class DoelResolverTest {
         doelResolver.evaluate(expr, docId);
 
         String correctSql =
-                "select t1.department, t1.department_type " +
-                "from job as t0 " +
-                "join person as t1 on t0.assignee = t1.id " +
-                "where t0.parent in (11, 12)";
+                "select t1.\"department\", t1.\"department_type\" " +
+                "from \"job\" t0 " +
+                "join \"person\" t1 on t0.\"assignee\" = t1.\"id\" " +
+                "where t0.\"parent\" in (11, 12)";
         verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
     }
 
@@ -95,12 +95,12 @@ public class DoelResolverTest {
         doelResolver.evaluate(expr, docId);
 
         String correctSql =
-                "select t3.name " +
-                "from commission as t0 " +
-                "join job as t1 on t0.id = t1.parent " +
-                "join person as t2 on t1.assignee = t2.id " +
-                "join unit as t3 on t2.department = t3.id " +
-                "where t0.parent = 105";
+                "select t3.\"name\" " +
+                "from \"commission\" t0 " +
+                "join \"job\" t1 on t0.\"id\" = t1.\"parent\" " +
+                "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" " +
+                "join \"unit\" t3 on t2.\"department\" = t3.\"id\" " +
+                "where t0.\"parent\" = 105";
         verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
     }
 

@@ -33,7 +33,7 @@ public class ExtendedSearchFormPluginView extends PluginView {
 
     public ExtendedSearchFormPluginView(ExtendedSearchFormPlugin extendedSearchFormPlugin, FormDisplayData formDisplayData) {
         super(extendedSearchFormPlugin);
-        extendedSearchFormPanel = new FormPanel(formDisplayData, true, Application.getInstance().getEventBus());
+        extendedSearchFormPanel = new FormPanel(formDisplayData, true, false, Application.getInstance().getEventBus());
         extendedSearchFormPanel.setClassForPluginPanel("ext-search-form-style");
     }
 

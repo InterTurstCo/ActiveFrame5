@@ -1,7 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.user.client.DOM;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;

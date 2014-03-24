@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.form;
 
-import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
@@ -9,6 +12,7 @@ import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -23,41 +27,34 @@ import java.util.Map;
  *         Time: 14:53
  */
 public class FormPanel implements IsWidget {
-    private int formWidth;
-    private int formHeight;
-    private TabLayoutPanel bodyTabPanel;
+
+    private TabPanel bodyTabPanel;
+    private AbsolutePanel footer;
     private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
-    private final FlowPanel panel;
+    private FlowPanel  panel;
     private boolean isHeightFromConfig;
     private boolean isWidthFromConfig;
     private List<TabConfig> tabs;
     private final boolean editable;
     private EventBus eventBus;
-
-    public FormPanel(FormDisplayData formDisplayData, final boolean editable, int width, int height, EventBus eventBus) {
-        this(formDisplayData, editable, eventBus);
-        formWidth = width;
-        formHeight = height;
-
-    }
-
+    public static String TOOL_BAR_ID = "action-bar-id";
+    private boolean toggleEdit;
     public void setClassForPluginPanel(String styleName) {
         panel.getElement().addClassName(styleName);
     }
 
-    public FormPanel(FormDisplayData formDisplayData, final boolean editable, EventBus eventBus) {
+    public FormPanel(FormDisplayData formDisplayData, boolean editable, boolean toggleEdit, EventBus eventBus) {
         this.formDisplayData = formDisplayData;
         this.editable = editable;
         this.eventBus = eventBus;
+        this.toggleEdit = toggleEdit;
         panel = new FlowPanel();
-        panel.getElement().addClassName("frm-pnl");
-        widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
 
     }
 
     public void updateSizes(int width, int height) {
-     //   panel.setSize(width + "px", "100%");
+
     }
 
     @Override
@@ -83,25 +80,26 @@ public class FormPanel implements IsWidget {
 
 
     private FlowPanel build() {
+
+
+        if (isExtraStyleRequired(editable, toggleEdit)) {
+            panel.setStyleName("frm-pnl-top");
+        }
+        widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
         MarkupConfig markup = formDisplayData.getMarkup();
         if(markup.getHeader().getTableLayout() != null){
             IsWidget headerTable = buildHeader(markup);
             panel.add(headerTable);
         }
+        footer = new AbsolutePanel();
+
+        footer.getElement().getStyle().clearPosition();
+        footer.getElement().getStyle().clearOverflow();
         buildTabs(markup);
-        if (formWidth > 0) {
-            panel.getElement().getStyle().setWidth(formWidth, Style.Unit.PX);
-        }
 
-        bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
-            @Override
-            public void onSelection(SelectionEvent<Integer> event) {
-                setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
-
-            }
-        });
-        bodyTabPanel.addStyleName("custom-TabLayout");
         panel.add(bodyTabPanel);
+
+        panel.add(footer);
         return panel;
     }
 
@@ -125,53 +123,62 @@ public class FormPanel implements IsWidget {
         tabs = body.getTabs();
 
         if (body.isDisplaySingleTab() == false && tabs.size() == 1) {
-            bodyTabPanel = new TabLayoutPanel(0, Style.Unit.PX);
-            bodyTabPanel.add(buildTabContent(tabs.get(0)));
+            bodyTabPanel = new TabPanel();
+            FlowPanel tabPanel = (FlowPanel) buildTabContent(tabs.get(0));
+
+            bodyTabPanel.add(tabPanel, "");
+            NodeList<Element> el = bodyTabPanel.getTabBar().getElement().getElementsByTagName("div");
+            el.getItem(1).removeClassName("gwt-TabBarItem");
+            el.getItem(2).removeClassName("gwt-Label");
+
         } else{
-            bodyTabPanel = new TabLayoutPanel(35, Style.Unit.PX);
+            bodyTabPanel = new TabPanel();
             for (TabConfig tab : tabs) {
                 bodyTabPanel.add(buildTabContent(tab), tab.getName());
             }
         }
-        if (!tabs.isEmpty()) {
-            bodyTabPanel.selectTab(0);
-            bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
-            bodyTabPanel.getWidget(0).addStyleName("gwt-TabLayoutPanel-No-Padding");
-            bodyTabPanel.getWidget(0).getParent().getElement().getParentElement().addClassName("gwt-TabLayoutPanel-wrapper");
 
-        }
 
         bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
-                setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
 
+                Integer numberOfSelected = event.getSelectedItem();
+                FlowPanel selectedPanel = (FlowPanel) bodyTabPanel.getWidget(numberOfSelected);
+                Widget selectedWidget = selectedPanel.getWidget(0);
+                Object marker = selectedWidget.getLayoutData();
+
+                if(BusinessUniverseConstants.FOOTER_LONG.equals(marker)){
+                    footer.setStyleName("form-footer-long");
+                } else  if(BusinessUniverseConstants.FOOTER_SHORT.equals(marker)){
+                    footer.setStyleName("form-footer-short");
+                }
+                else {
+                    footer.setStyleName("form-footer-blank");
+                }
             }
         });
-
-    }
-
-    private void setStyleForAllTabs(Integer activeTab, TabLayoutPanel bodyTabPanel) {
-        for (int i = 0; i < bodyTabPanel.getWidgetCount(); i++) {
-            if (activeTab == i) {
-                bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "white");
-            }
-            else {
-                bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "#c2e7f0");
-            }
+        if (!tabs.isEmpty()) {
+            bodyTabPanel.selectTab(0);
+            bodyTabPanel.getWidget(0).getParent().getElement().getParentElement().addClassName("gwt-TabLayoutPanel-wrapper");
         }
+
     }
+
 
     private IsWidget buildTabContent(TabConfig tabConfig) {
         FlowPanel panel = new FlowPanel();
 
         TabGroupListConfig groupList = tabConfig.getGroupList();
         if (groupList instanceof SingleEntryGroupListConfig) {
+
             panel.add(buildTable(((SingleEntryGroupListConfig) groupList).getTabGroupConfig().getLayout()));
         }
         if (groupList instanceof BookmarkListConfig) {
 
             final BookmarksHelper bodyTabPanel = new BookmarksHelper();
+            bodyTabPanel.asWidget().setLayoutData(BusinessUniverseConstants.FOOTER_LONG);
+            addStyleHandlersForBookMarks(bodyTabPanel);
             List<TabGroupConfig> bookmarkTabs = ((BookmarkListConfig) groupList).getTabGroupConfigs();
             for (TabGroupConfig tab : bookmarkTabs) {
                 bodyTabPanel.add(tab.getName(), buildBookmarksTabContent(tab));
@@ -194,6 +201,24 @@ public class FormPanel implements IsWidget {
         return panel;
     }
 
+    private void addStyleHandlersForBookMarks(final BookmarksHelper bodyTabPanel){
+        bodyTabPanel.addDivLeftClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                footer.setStyleName("form-footer-short");
+                bodyTabPanel.asWidget().setLayoutData(BusinessUniverseConstants.FOOTER_SHORT);
+
+            }
+        });
+        bodyTabPanel.addDivRightClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                footer.setStyleName("form-footer-long");
+                bodyTabPanel.asWidget().setLayoutData(BusinessUniverseConstants.FOOTER_LONG);
+            }
+        });
+    }
+
     private IsWidget hidingGroupListTabContent(TabGroupConfig tabGroupConfig) {
         FlowPanel panel = new FlowPanel();
         IsWidget table = buildTable(tabGroupConfig.getLayout());
@@ -203,7 +228,6 @@ public class FormPanel implements IsWidget {
 
     private IsWidget buildBookmarksTabContent(TabGroupConfig tabGroupConfig) {
         FlowPanel panel = new FlowPanel();
-
         panel.add(buildTable(tabGroupConfig.getLayout()));
         return panel;
     }
@@ -247,10 +271,9 @@ public class FormPanel implements IsWidget {
                 String cellWidth = cell.getWidth();
                 if (cellWidth != null && !cellWidth.isEmpty()) {
                     cellFormatter.setWidth(rowIndex, colIndex, cellWidth);
-
                     columnFormatter.setWidth(colIndex, cellWidth);
                 }
-                columnFormatter.setWidth(colIndex, cellWidth);
+
                 if (rowHeight != null && !rowHeight.isEmpty()) {
                     cellFormatter.setHeight(rowIndex, colIndex, rowHeight);
                 }
@@ -308,14 +331,8 @@ public class FormPanel implements IsWidget {
         return isWidthFromConfig;
 
     }
-
-    private int getNumberFromSizeString(String sizeString) {
-        if (sizeString == null || sizeString.equalsIgnoreCase("")) {
-            return 0;
-        }
-        int UnitPx = 2;
-        return Integer.parseInt(sizeString.substring(0, sizeString.length() - UnitPx));
+    private boolean isExtraStyleRequired(boolean isEditable, boolean isToggleEdit) {
+        return isEditable && isToggleEdit;
     }
-
 
 }

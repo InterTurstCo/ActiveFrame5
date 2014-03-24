@@ -1,7 +1,8 @@
 package ru.intertrust.cm.core.dao.impl;
 
 /**
- * Created by vmatsukevich on 2/18/14.
+ * Класс, служащий для создания фабрики ДАО-сервисов
+ * @author vmatsukevich
  */
 public class DaoFactoryProducer {
 

@@ -13,7 +13,7 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSeq
  * @author skashanski
  *
  */
-public class SequenceIdGenerator implements IdGenerator {
+public abstract class BasicSequenceIdGenerator implements IdGenerator {
 
     @Autowired
     private JdbcOperations jdbcTemplate;
@@ -23,13 +23,13 @@ public class SequenceIdGenerator implements IdGenerator {
     }
 
     @Override
-    public Object generatetId(DomainObjectTypeConfig domainObjectTypeConfig) {
-        return generateIdFromSequence(DataStructureNamingHelper.getSqlSequenceName(domainObjectTypeConfig));
+    public Object generateId(Integer doTypeId) {
+        return generateIdFromSequence(DataStructureNamingHelper.getSqlSequenceName(doTypeId));
     }
 
     @Override
-    public Object generatetLogId(DomainObjectTypeConfig domainObjectTypeConfig) {
-        return generateIdFromSequence(DataStructureNamingHelper.getSqlAuditSequenceName(domainObjectTypeConfig));
+    public Object generatetLogId(Integer doTypeId) {
+        return generateIdFromSequence(DataStructureNamingHelper.getSqlAuditSequenceName(doTypeId));
     }
 
     @Override
@@ -38,11 +38,9 @@ public class SequenceIdGenerator implements IdGenerator {
     }
 
     public Object generateIdFromSequence(String sequenceName) {
-        StringBuilder query = new StringBuilder();
-        query.append("select nextval ('");
-        query.append(sequenceName);
-        query.append("')");
-        return jdbcTemplate.queryForObject(query.toString(), Long.class);
+        return jdbcTemplate.queryForObject(generateSelectNextValueQuery(sequenceName), Long.class);
     }
+
+    protected abstract String generateSelectNextValueQuery(String sequenceName);
 
 }

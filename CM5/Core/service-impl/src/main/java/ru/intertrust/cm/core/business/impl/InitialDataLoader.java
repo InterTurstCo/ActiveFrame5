@@ -28,6 +28,9 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.USER_GROUP_DOMAIN_OBJECT;
+
 /**
  * Класс, предназначенный для загрузки конфигурации доменных объектов
  * @author vmatsukevich
@@ -100,7 +103,7 @@ public class InitialDataLoader {
     protected Id createUserGroup(String dynamicGroupName) {
         Id userGroupId;
         GenericDomainObject userGroupDO = new GenericDomainObject();
-        userGroupDO.setTypeName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
+        userGroupDO.setTypeName(USER_GROUP_DOMAIN_OBJECT);
         userGroupDO.setString("group_name", dynamicGroupName);
 
         AccessToken accessToken = accessControlService.createSystemAccessToken("InitialDataLoader");
@@ -209,7 +212,7 @@ public class InitialDataLoader {
     }
 
     private boolean existsStatus(String statusName) {
-        String query = "select count(*) from " + GenericDomainObject.STATUS_DO + " s where s.name=:name";
+        String query = "select count(*) from \"" + STATUS_DO + "\" s where s.\"name\"=:name";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("name", statusName);
         @SuppressWarnings("deprecation")
@@ -218,8 +221,7 @@ public class InitialDataLoader {
     }
 
     private boolean existsStaticGroup(String staticGroupName) {
-        String query = "select count(*) from " + GenericDomainObject.USER_GROUP_DOMAIN_OBJECT
-                        + " ug where ug.group_name = :group_name and ug.object_id is null";
+        String query = "select count(*) from \"user_group\" ug where ug.\"group_name\" = :group_name and ug.\"object_id\" is null";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("group_name", staticGroupName);
         int total = jdbcTemplate.queryForObject(query, paramMap, Integer.class);
@@ -228,7 +230,7 @@ public class InitialDataLoader {
 
     private void saveStatus(String statusName) {
         GenericDomainObject statusDO = new GenericDomainObject();
-        statusDO.setTypeName(GenericDomainObject.STATUS_DO);
+        statusDO.setTypeName(STATUS_DO);
         Date currentDate = new Date();
         statusDO.setCreatedDate(currentDate);
         statusDO.setModifiedDate(currentDate);

@@ -2,13 +2,17 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
@@ -20,14 +24,19 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_
  *         Date: 5/29/13
  *         Time: 12:39 PM
  */
+@RunWith(MockitoJUnitRunner.class)
 public class PostgreSqlQueryHelperTest {
+
+    @Mock
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
     private ReferenceFieldConfig referenceFieldConfig;
-    private PostgreSqlQueryHelper queryHelper = new PostgreSqlQueryHelper();
+    private PostgreSqlQueryHelper queryHelper;
 
     @Before
     public void setUp() throws Exception {
+        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdCache);
         initDomainObjectConfig();
     }
 
@@ -62,7 +71,7 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateCreateAuthenticationInfoTableQuery() {
         String query = "CREATE TABLE \"" + AUTHENTICATION_INFO_TABLE + "\" (\"id\" bigint not null, " +
                 "\"user_uid\" character varying(64) NOT NULL, \"password\" character varying(128), " +
-                "constraint \"pk_" + AUTHENTICATION_INFO_TABLE + "_id\" primary key (\"id\"), " +
+                "constraint \"pk_" + AUTHENTICATION_INFO_TABLE + "\" primary key (\"id\"), " +
                 "constraint \"u_" + AUTHENTICATION_INFO_TABLE + "_user_uid\" unique(\"user_uid\"))";
         String testQuery = queryHelper.generateCreateAuthenticationInfoTableQuery();
         assertEquals(query, testQuery);
@@ -70,7 +79,7 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateSequenceQuery() {
-        String query = "create sequence \"outgoing_document_seq\"";
+        String query = "create sequence \"10_sq\"";
         String testQuery = queryHelper.generateSequenceQuery(domainObjectTypeConfig);
         assertEquals(query, testQuery);
     }
@@ -82,10 +91,10 @@ public class PostgreSqlQueryHelperTest {
                 "\" integer, \"registration_number\" varchar(128), " +
                 "\"registration_date\" timestamp, \"author\" bigint, \"author_type\" integer, " +
                 "\"long_field\" bigint, \"decimal_field_1\" decimal(10, 2), \"decimal_field_2\" decimal(10), " +
-                "constraint \"pk_outgoing_document_id\" primary key (\"id\"), " +
-                "constraint \"u_outgoing_document_id_id_type\" unique (\"id\", \"" + TYPE_COLUMN + "\"), " +
-                "constraint \"fk_outgoing_document_id\"" + " foreign key (\"id\") references " +
-                "\"document\" (\"id\"), constraint \"fk_outgoing_document_" + TYPE_COLUMN + "\" " +
+                "constraint \"pk_10\" primary key (\"id\"), " +
+                "constraint \"u_10_0\" unique (\"id\", \"" + TYPE_COLUMN + "\"), " +
+                "constraint \"fk_10_0\"" + " foreign key (\"id\") references " +
+                "\"document\" (\"id\"), constraint \"fk_10_1\" " +
                 "foreign key (\""+ TYPE_COLUMN + "\") references \"domain_object_type_id\" (\"id\"))";
         assertEquals(checkQuery, query);
     }
@@ -98,39 +107,42 @@ public class PostgreSqlQueryHelperTest {
                 "\"registration_number\" varchar(128), \"registration_date\" timestamp, \"author\" bigint, " +
                 "\"author_type\" integer, " +
                 "\"long_field\" bigint, \"decimal_field_1\" decimal(10, 2), \"decimal_field_2\" decimal(10), " +
-                "constraint \"pk_outgoing_document_id\" primary key (\"id\"), " +
-                "constraint \"u_outgoing_document_id_id_type\" unique (\"id\", \"" + TYPE_COLUMN + "\"), " +
-                "constraint \"fk_outgoing_document_" + TYPE_COLUMN + "\" foreign key (\"" + TYPE_COLUMN + "\") " +
+                "constraint \"pk_10\" primary key (\"id\"), " +
+                "constraint \"u_10_0\" unique (\"id\", \"" + TYPE_COLUMN + "\"), " +
+                "constraint \"fk_10_0\" foreign key (\"" + TYPE_COLUMN + "\") " +
                 "references \"domain_object_type_id\" (\"id\"))";
         domainObjectTypeConfig.setExtendsAttribute(null);
+        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
         String query = queryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         assertEquals(checkQuery, query);
     }
 
     @Test
     public void testGenerateCreateAclTableQuery() throws Exception {
+        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
         String query = queryHelper.generateCreateAclTableQuery(domainObjectTypeConfig);
 
         String checkQuery = "create table \"outgoing_document_acl\" (\"object_id\" bigint not null, " +
                 "\"group_id\" bigint not null, \"operation\" varchar(256) not null, " +
-                "constraint \"pk_outgoing_document_acl\" primary key (\"object_id\", \"group_id\", \"operation\"), " +
-                "CONSTRAINT \"fk_outgoing_document_acl_outgoing_document\" FOREIGN KEY (\"object_id\") " +
+                "constraint \"pk_10_acl\" primary key (\"object_id\", \"group_id\", \"operation\"), " +
+                "CONSTRAINT \"fk_10_acl_0\" FOREIGN KEY (\"object_id\") " +
                 "REFERENCES \"outgoing_document\" (\"id\"), " +
-                "CONSTRAINT \"fk_outgoing_document_user_group\" FOREIGN KEY (\"group_id\") REFERENCES " +
+                "CONSTRAINT \"fk_10_acl_1\" FOREIGN KEY (\"group_id\") REFERENCES " +
                 "\"user_group\" (\"id\"))";
         assertEquals(checkQuery, query);
     }
 
     @Test
     public void testGenerateCreateAclReadTableQuery() throws Exception {
+        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
         String query = queryHelper.generateCreateAclReadTableQuery(domainObjectTypeConfig);
 
         String checkQuery = "create table \"outgoing_document_read\" (\"object_id\" bigint not null, " +
-                "\"group_id\" bigint not null, constraint \"pk_outgoing_document_read\" " +
+                "\"group_id\" bigint not null, constraint \"pk_10_read\" " +
                 "primary key (\"object_id\", \"group_id\"), " +
-                "CONSTRAINT \"fk_outgoing_document_read_outgoing_document\" FOREIGN KEY (\"object_id\") " +
+                "CONSTRAINT \"fk_10_read_0\" FOREIGN KEY (\"object_id\") " +
                 "REFERENCES \"outgoing_document\" (\"id\"), " +
-                "CONSTRAINT \"fk_outgoing_document_user_group\" FOREIGN KEY (\"group_id\") " +
+                "CONSTRAINT \"fk_10_read_1\" FOREIGN KEY (\"group_id\") " +
                 "REFERENCES \"user_group\" (\"id\"))";
         assertEquals(checkQuery, query);
     }
@@ -162,20 +174,26 @@ public class PostgreSqlQueryHelperTest {
     }
 
     @Test
-    public void testGenerateCreateForeignKeyAndUniqueConstraintsQuery() {
+    public void testGenerateCreateForeignKeyConstraintsQuery() {
         String expectedQuery = "alter table \"outgoing_document\" " +
-                "add constraint \"fk_outgoing_document_executor_executor_type\" " +
+                "add constraint \"fk_10_0\" " +
                 "foreign key (\"executor\", \"executor_type\") references \"employee\" (\"" + ID_COLUMN + "\", \"" +
-                TYPE_COLUMN + "\"), " +
-                "add constraint \"u_outgoing_document_registration_number\"" + " unique (\"registration_number\")";
+                TYPE_COLUMN + "\")";
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
         executorFieldConfig.setName("Executor");
         executorFieldConfig.setType("Employee");
         executorFieldConfig.setNotNull(true);
 
-        List<ReferenceFieldConfig> newColumns = new ArrayList<>();
-        newColumns.add(executorFieldConfig);
+        String testQuery = queryHelper.generateCreateForeignKeyConstraintQuery(domainObjectTypeConfig, executorFieldConfig, 0);
+        assertEquals(expectedQuery, testQuery);
+    }
+
+    @Test
+    public void testGenerateCreateUniqueConstraintsQuery() {
+        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
+        String expectedQuery = "alter table \"outgoing_document\" " +
+                "add constraint \"u_10_0\"" + " unique (\"registration_number\")";
 
         UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig.setName("Registration_Number");
@@ -183,23 +201,24 @@ public class PostgreSqlQueryHelperTest {
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
 
-        String testQuery = queryHelper.generateCreateForeignKeyAndUniqueConstraintsQuery
-                (domainObjectTypeConfig.getName(), newColumns, Collections.singletonList(uniqueKeyConfig));
-
+        String testQuery = queryHelper.generateCreateUniqueConstraintQuery
+                (domainObjectTypeConfig, uniqueKeyConfig, 0);
         assertEquals(expectedQuery, testQuery);
     }
 
     @Test
     public void testGenerateCreateIndexQuery() throws Exception {
-        String query = queryHelper.generateCreateIndexQuery(domainObjectTypeConfig, referenceFieldConfig);
-        String checkQuery = "create index \"i_outgoing_document_author\" on \"outgoing_document\" (\"author\")";
-        assertEquals(query, checkQuery);
+        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
+        String query = queryHelper.generateCreateIndexQuery(domainObjectTypeConfig, referenceFieldConfig, 0);
+        String checkQuery = "create index \"i_10_0\" on \"outgoing_document\" (\"author\")";
+        assertEquals(checkQuery, query);
     }
 
 
 
     private void initDomainObjectConfig() {
         domainObjectTypeConfig = new DomainObjectTypeConfig();
+        domainObjectTypeConfig.setId(10);
         domainObjectTypeConfig.setName("Outgoing_Document");
         domainObjectTypeConfig.setExtendsAttribute("Document");
 

@@ -12,7 +12,6 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExtractExpression;
 import net.sf.jsqlparser.expression.IntervalExpression;
-import net.sf.jsqlparser.expression.InverseExpression;
 import net.sf.jsqlparser.expression.JdbcNamedParameter;
 import net.sf.jsqlparser.expression.JdbcParameter;
 import net.sf.jsqlparser.expression.LongValue;
@@ -55,13 +54,6 @@ import net.sf.jsqlparser.statement.select.SubSelect;
  *
  */
 public abstract class BaseExpressionVisitor implements ExpressionVisitor {
-
-    @Override
-    public void visit(InverseExpression inverseExpression) {
-        if (inverseExpression.getExpression() != null) {
-            inverseExpression.getExpression().accept(this);
-        }
-    }
 
     @Override
     public void visit(JdbcParameter jdbcParameter) {

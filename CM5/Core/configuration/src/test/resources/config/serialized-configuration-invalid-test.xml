@@ -87,7 +87,7 @@
          <string name="Name" not-null="true" length="64"/>
          <string name="Position" not-null="true" length="64"/>
          <string name="Phone" not-null="false" length="32"/>
-         <string name="Certificate" not-null="false" length="4096"/>
+         <string name="Certificate" not-null="false" length="4000"/>
          <string name="Fingerprint" not-null="false" length="128"/>
       </fields>
       <uniqueKey>

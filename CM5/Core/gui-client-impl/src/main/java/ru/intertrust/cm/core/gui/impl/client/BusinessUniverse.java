@@ -6,7 +6,6 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -48,6 +47,8 @@ import java.util.logging.Logger;
 public class BusinessUniverse extends BaseComponent implements EntryPoint, NavigationTreeItemSelectedEventHandler {
     static Logger logger = Logger.getLogger("Business universe");
     // глобальная шина событий - доступна во всем приложении
+    public static final int START_SIDEBAR_WIDTH = 130;
+
     private static EventBus eventBus = Application.getInstance().getEventBus();
     private CentralPluginPanel centralPluginPanel;
     NavigationTreePlugin navigationTreePlugin;
@@ -66,11 +67,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private AbsolutePanel cetralDivPanelTest;
 
 
+
+
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
 
     public void onModuleLoad() {
+        CustomThemeBundle.INSTANCE.css().ensureInjected();
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
@@ -94,6 +98,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 left.setStyleName("left-section-active");
 
                 left.getElement().setId(ComponentHelper.LEFT_ID);
+               //  left.getElement().setId(ComponentHelper.LEFT_ID);
 
 
                 centrInner.setStyleName("centr-inner-section");
@@ -153,7 +158,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
                 eventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
-                navigationTreePanel.setVisibleWidth(130);
+                navigationTreePanel.setVisibleWidth(START_SIDEBAR_WIDTH);
                 navigationTreePanel.open(navigationTreePlugin);
                 String logoImagePath = result.getLogoImagePath();
                 CurrentUserInfo currentUserInfo = getUserInfo(result);
@@ -174,7 +179,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                         //11 - отступ снизу
 
                         left.setStyleName("left-section-active");
-                        if (event.getSideBarWidts() == 130) {
+                        if(event.getSideBarWidts() == START_SIDEBAR_WIDTH){
                             cetralDivPanelTest.setStyleName("central-div-panel-test");
 
                         } else {
@@ -230,12 +235,27 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
+
+
+//        PopupPanel popup = new PopupPanel(true);
+////        popup.center();
+//        popup.setGlassEnabled(true);
+//        popup.getElement().getStyle().setWidth(Window.getClientWidth(), Style.Unit.PX);
+//        popup.getElement().getStyle().setHeight(Window.getClientHeight(), Style.Unit.PX);
+//        popup.getElement().getStyle().setOpacity(70);
+//        popup.show();
+
         PluginConfig pluginConfig = event.getPluginConfig();
         String pluginName = pluginConfig.getComponentName();
         Plugin plugin = ComponentRegistry.instance.get(pluginName);
         plugin.setConfig(pluginConfig);
+
         plugin.setDisplayActionToolBar(true);
+
         centralPluginPanel.open(plugin);
+        //popup.hide();
+
+
 
     }
 

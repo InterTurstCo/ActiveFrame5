@@ -24,6 +24,7 @@ import java.util.logging.Logger;
  *         Time: 13:57
  */
 public abstract class PluginView implements IsWidget {
+
     protected Plugin plugin;
     protected static Logger log = Logger.getLogger("PluginView console logger");
 

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.user.cellview.client.Column;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 /**
  * @author Denis Mitavskiy
@@ -11,8 +12,8 @@ import com.google.gwt.user.cellview.client.Column;
 public abstract class CollectionColumn <CollectionRowItem, T> extends Column<CollectionRowItem, T> {
     protected String fieldName;
     protected boolean resizable = true;
-    protected int minWidth = 200;
-    protected int maxWidth = 999999;
+    protected int minWidth = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
+    protected int maxWidth = BusinessUniverseConstants.MAX_COLUMN_WIDTH;
     protected boolean moveable = true;
     public CollectionColumn(AbstractCell cell) {
         super(cell);

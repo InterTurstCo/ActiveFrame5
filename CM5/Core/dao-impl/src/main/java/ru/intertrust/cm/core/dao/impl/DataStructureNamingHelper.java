@@ -31,12 +31,12 @@ public class DataStructureNamingHelper {
 
     /**
      * Возвращает имя последовательности(сиквенса) доменного объекта в sql-виде
-     * @param domainObjectTypeConfig конфигурация доменного объекта
+     * @param doTypeId идентификатор конфигурации доменного объекта
      * @return имя последовательности для доменного объекта в sql-виде
      */
-    public static String getSqlSequenceName(DomainObjectTypeConfig domainObjectTypeConfig) {
+    public static String getSqlSequenceName(Integer doTypeId) {
 
-        return getSqlSequenceName(domainObjectTypeConfig.getName());
+        return getSqlSequenceName(doTypeId.toString());
     }
 
     /**
@@ -45,18 +45,16 @@ public class DataStructureNamingHelper {
      * @return имя последовательности в sql-виде
      */
     public static String getSqlSequenceName(String name) {
-
-        return convertToSqlFormat(name) + "_seq";
+        return convertToSqlFormat(name) + "_sq";
     }
 
     /**
      * Возвращает имя последовательности(сиквенса) лога доменного объекта в sql-виде
-     * @param domainObjectTypeConfig конфигурация доменного объекта
+     * @param doTypeId идентификатор конфигурация доменного объекта
      * @return имя последовательности для доменного объекта в sql-виде
      */
-    public static String getSqlAuditSequenceName(DomainObjectTypeConfig domainObjectTypeConfig) {
-
-        return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_log_seq";
+    public static String getSqlAuditSequenceName(Integer doTypeId) {
+        return convertToSqlFormat(getName(doTypeId.toString(), true)) + "_sq";
     }
 
 
@@ -104,7 +102,24 @@ public class DataStructureNamingHelper {
      * @return имя в sql-виде
      */
     public static String getSqlName(String name) {
-        return convertToSqlFormat(name);
+        return getSqlName(name, false);
+    }
+
+    public static String getSqlName(String name, boolean isAl) {
+        return convertToSqlFormat(getName(name, isAl));
+    }
+
+    /**
+     * Возвращает имя audit log таблицы
+     * @param name имя
+     * @return имя audit log таблицы
+     */
+    public static String getALTableSqlName(String name) {
+        return getSqlName(getName(name, true));
+    }
+
+    public static String getName(String name, boolean isAl) {
+        return isAl ? name + "_al" : name;
     }
 
     public static String getReferenceTypeColumnName(String columnName) {

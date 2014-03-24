@@ -59,7 +59,7 @@
     </xs:complexType>
 
     <xs:complexType name="attachmentType">
-        <xs:attribute name="name" use="required" type="xs:string"
+        <xs:attribute name="name" use="required" type="con:domainObjectNameType"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
@@ -201,6 +201,13 @@
             <xs:maxLength value="30"/>
             <xs:pattern value="[a-zA-Z0-9_]*">
             </xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="stringFieldLengthType">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="4000"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -565,7 +572,7 @@
         </xs:sequence>
         <xs:attribute name="name" use="required"
                       type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
-        <xs:attribute name="length" use="required" type="xs:string"/>
+        <xs:attribute name="length" use="required" type="con:stringFieldLengthType"/>
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
         <xs:attribute name="encrypted" use="optional" type="xs:string"/>
     </xs:complexType>

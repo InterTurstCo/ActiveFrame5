@@ -53,7 +53,8 @@
 .left-button {
     position: absolute;
     top: 20px;
-    right: 15px;
+    right: 0;
+    /*right: 15px;*/
     background: url(images/tab-close-block.png) no-repeat #ffffff;
     width: 21px;
     height: 37px;
@@ -107,22 +108,15 @@ ins {
 
 /* Кнопки END */
 .root-div {
+    background: url(images/form/form-footer-bg_long.jpg) repeat-y scroll 0 0;
     height: 100%;
-    border-color: black;
+}
+.root-div-unshadowed {
+    height: 100%;
 }
 
-.left-div {
-    position: absolute !important;
-    width: 190px;
-    top: 0;
-    bottom: 0;
+.left-div-visible {
     background: #dde4ea;
-    padding: 0 20px;
-    border-right: 1px solid #becad6;
-    margin-left: -0px;
-    padding: 10px 20px 0 20px;
-    border-width: 0;
-    background: #fff;
     background: -moz-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
     background: -webkit-gradient(linear, left top, right top, color-stop(0%, #ffffff), color-stop(100%, #d4e1e9));
     background: -webkit-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
@@ -130,22 +124,24 @@ ins {
     background: -ms-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
     filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#ffffff", endColorstr\= "#d4e1e9", GradientType\= 1 \);
     background: linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+    float: left;
+    padding: 10px 5px 0 20px;
+    width: 190px;
+}
+
+.left-div-invisible {
+    display: none;
 }
 
 .right-div,
 .bookmarks-no-margin {
-    /*min-height: 220px;*/
-    min-height: 100%;
-    height: 100%;
-    padding-right: 10px;
-    margin-left: 215px;
-    padding-left: 20px;
+    padding: 17px 10px 0 20px;
     position: relative;
-    background: #fff;
+    background: #ffffff;
     border: none;
-    border-radius: 5px 0 5px 5px;
-    box-shadow: -2px 0 2px #ccc;
-    padding-top: 17px;
+    border-radius: 5px 0 0 0;
+    box-shadow: -2px 0 2px #cccccc;
+    margin-left: 215px;
 }
 
 .bookmarks-no-margin {
@@ -154,11 +150,11 @@ ins {
 }
 
 .decorated-left-div {
-
+    padding: 0 0 10px 0;
 }
 
 .decorated-right-div {
-
+    padding: 0 0 40px 0;
 }
 
 .decorated-right-div .wrap-date{

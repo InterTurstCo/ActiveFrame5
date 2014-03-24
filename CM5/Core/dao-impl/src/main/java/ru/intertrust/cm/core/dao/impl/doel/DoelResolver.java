@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
+import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -30,6 +31,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.sqlparser.WrapAndLowerCaseSelectVisitor;
 import ru.intertrust.cm.core.dao.impl.utils.ValueReader;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.model.DoelException;
@@ -423,7 +425,7 @@ public class DoelResolver implements DoelEvaluator {
                 if (!realTable.equals(currentTable)) {
                     Table from = new Table();
                     from.setName(realTable);
-                    from.setAlias("t" + tableNum);
+                    from.setAlias(new Alias("t" + tableNum, false));
                     if (linkField == null) {
                         select.setFromItem(from);
                         select.setWhere(makeWhere("id", sourceIds));
@@ -447,7 +449,7 @@ public class DoelResolver implements DoelEvaluator {
                 currentTable = getColumnTable(childrenElem.getChildType(), childrenElem.getParentLink());
                 Table from = new Table();
                 from.setName(currentTable);
-                from.setAlias("t" + tableNum);
+                from.setAlias(new Alias("t" + tableNum, false));
                 if (tableNum == 0) {
                     select.setFromItem(from);
                     select.setWhere(makeWhere(childrenElem.getParentLink(), sourceIds));
@@ -492,6 +494,8 @@ public class DoelResolver implements DoelEvaluator {
             fields.add(item);
         }
         select.setSelectItems(fields);
+        select.accept(new WrapAndLowerCaseSelectVisitor());
+
         List<T> values = jdbcTemplate.query(select.toString(), new DoelResolverRowMapper(linkField, fieldConfig));
 
         if (step < expr.getElements().length) {
@@ -568,7 +572,7 @@ public class DoelResolver implements DoelEvaluator {
         Join join = new Join();
         Table table = new Table();
         table.setName(tableName);
-        table.setAlias("t" + num);
+        table.setAlias(new Alias("t" + num));
         join.setRightItem(table);
         EqualsTo link = new EqualsTo();
         link.setLeftExpression(new Column(new Table(null, "t" + (num - 1)), getSqlName(prevField)));

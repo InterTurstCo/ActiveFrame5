@@ -25,19 +25,13 @@ public class BookmarksHelper implements IsWidget {
     private FocusPanel divRightButton;
 
     public BookmarksHelper() {
-
         rootDiv = new AbsolutePanel();
-      //  rootDiv.setSize("100%", "100%");
         divLeft = new AbsolutePanel();
-      divLeft.setHeight("100%");
+        divLeft.setHeight("100%");
         decoratedDivLeft = new AbsolutePanel();
-
         divRight = new AbsolutePanel();
-        //divRight.setWidth("100%");
         decoratedDivRight = new AbsolutePanel();
-
         divLeftButton = new FocusPanel();
-
         divRightButton = new FocusPanel();
         divRightButton.setVisible(false);
 
@@ -96,9 +90,15 @@ public class BookmarksHelper implements IsWidget {
             }
         });
     }
+    public void addDivLeftClickHandler(ClickHandler handler){
+        divLeftButton.addClickHandler(handler);
+    }
+    public void addDivRightClickHandler(ClickHandler handler){
+        divRightButton.addClickHandler(handler);
+    }
 
-   private void init() {
-//        divRightButton.addClickHandler(new ClickHandler() {
+    private void init() {
+
         divLeftButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -107,6 +107,8 @@ public class BookmarksHelper implements IsWidget {
                 divLeftButton.setVisible(false);
                 divRightButton.setVisible(true);
                 divRight.addStyleName("bookmarks-no-margin");
+                divLeft.setStyleName("left-div-invisible");
+                rootDiv.setStyleName("root-div-unshadowed");
             }
         });
 
@@ -116,17 +118,21 @@ public class BookmarksHelper implements IsWidget {
                 decoratedDivLeft.setVisible(true);
                 divLeftButton.setVisible(true);
                 divRightButton.setVisible(false);
+
+                divLeft.setStyleName("left-div-visible");
                 divRight.removeStyleName("bookmarks-no-margin");
+                rootDiv.setStyleName("root-div");
             }
         });
     }
+
 
     private void setStyle() {
         divRightButton.setStyleName("right-button");
         divLeftButton.setStyleName("left-button");
         rootDiv.setStyleName("root-div");
-        divLeft.setStyleName("left-div");
-        divLeft.getElement().setId("bookmark-left-side");
+        divLeft.setStyleName("left-div-visible");
+
         decoratedDivLeft.setStyleName("decorated-left-div");
         divRight.setStyleName("right-div");
         decoratedDivRight.setStyleName("decorated-right-div");

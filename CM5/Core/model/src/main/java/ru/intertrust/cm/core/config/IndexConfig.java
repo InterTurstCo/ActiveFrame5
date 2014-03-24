@@ -70,7 +70,15 @@ public class IndexConfig implements Serializable {
 
         IndexConfig that = (IndexConfig) o;
 
-        if (indexFieldConfigs != null ? !indexFieldConfigs.equals(that.indexFieldConfigs) : that.indexFieldConfigs != null) {
+        if (that.indexFieldConfigs == null) {
+            return indexFieldConfigs == null;
+        }
+
+        if (indexFieldConfigs == null) {
+            return false;
+        }
+
+        if (!(indexFieldConfigs.size() == that.indexFieldConfigs.size() && indexFieldConfigs.containsAll(that.indexFieldConfigs))) {
             return false;
         }
 

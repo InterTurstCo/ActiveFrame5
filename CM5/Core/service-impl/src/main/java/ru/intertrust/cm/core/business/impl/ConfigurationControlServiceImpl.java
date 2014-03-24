@@ -202,7 +202,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             }
 
             if (!newReferenceFieldConfigs.isEmpty() || !newUniqueKeyConfigs.isEmpty()) {
-                dataStructureDao.createForeignKeyAndUniqueConstraints(config.getName(),
+                dataStructureDao.createForeignKeyAndUniqueConstraints(config,
                         newReferenceFieldConfigs, newUniqueKeyConfigs);
             }
         }
@@ -237,10 +237,12 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
         private void updateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig,
                                               DomainObjectTypeConfig oldDomainObjectTypeConfig) {
+            Integer usedId = domainObjectTypeIdDao.findIdByName(domainObjectTypeConfig.getName());
+            domainObjectTypeConfig.setId(usedId);
+
             processDependentConfigs(domainObjectTypeConfig);
 
             if (oldDomainObjectTypeConfig.getDbId() == null && domainObjectTypeConfig.getDbId() != null) {
-                Integer usedId = domainObjectTypeIdDao.findIdByName(domainObjectTypeConfig.getName());
                 if (!domainObjectTypeConfig.getDbId().equals(usedId)) {
                     throw new FatalException("Cannot update domain object type " + domainObjectTypeConfig.getName() +
                     " because db-id different from specified " + domainObjectTypeConfig.getDbId() +
@@ -264,8 +266,8 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             }
 
             if (!newFieldConfigs.isEmpty()) {
-                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs);
-                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName() + "_LOG", newFieldConfigs);
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, false);
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, true);
             }
             
             List<IndexConfig> newIndices = new ArrayList<>();
@@ -378,7 +380,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             }
 
             if (!referenceFieldConfigs.isEmpty() || !config.getUniqueKeyConfigs().isEmpty()) {
-                dataStructureDao.createForeignKeyAndUniqueConstraints(config.getName(), referenceFieldConfigs,
+                dataStructureDao.createForeignKeyAndUniqueConstraints(config, referenceFieldConfigs,
                         config.getUniqueKeyConfigs());
             }
 
@@ -402,7 +404,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
             referenceFieldConfigs.add(referenceStatusField);
 
-            dataStructureDao.createForeignKeyAndUniqueConstraints(config.getName(), referenceFieldConfigs,
+            dataStructureDao.createForeignKeyAndUniqueConstraints(config, referenceFieldConfigs,
                     uniqueKeyConfigs);
         }
 

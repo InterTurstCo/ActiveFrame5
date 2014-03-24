@@ -14,6 +14,9 @@ import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+
 public class PersonServiceDaoImpl implements PersonServiceDao {
 
     @Autowired
@@ -31,7 +34,8 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
     public DomainObject findPersonByLogin(String login) {
 
 
-        String query = "select p.* from " + GenericDomainObject.PERSON_DOMAIN_OBJECT + " p where p.login=:login";
+        String query = "select p.* from " + wrap(getSqlName(GenericDomainObject.PERSON_DOMAIN_OBJECT)) +
+                " p where p." + wrap("login") + "=:login";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("login", login);
         DomainObject person = jdbcTemplate.query(query, paramMap,

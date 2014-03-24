@@ -53,6 +53,10 @@ public class ExportToCsv {
     public void getCollection( HttpServletRequest request,
         HttpServletResponse response) throws IOException {
 
+
+//        request.setCharacterEncoding("ISO-8859-1");
+//        response.setCharacterEncoding("ISO-8859-1");
+
         String collectionName =  request.getParameter("collectionName");
         String simpleSearchQuery =  request.getParameter("simpleSearchQuery");
 
@@ -89,6 +93,7 @@ public class ExportToCsv {
         }
 
         response.setHeader("Content-Disposition", "attachment; filename=" + collectionName+".csv");
+        response.setContentType("application/csv");
 
         OutputStream resOut = response.getOutputStream();
         OutputStream buffer = new BufferedOutputStream(resOut);
@@ -122,6 +127,7 @@ public class ExportToCsv {
 
 
         writer.close();
+
     }
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");

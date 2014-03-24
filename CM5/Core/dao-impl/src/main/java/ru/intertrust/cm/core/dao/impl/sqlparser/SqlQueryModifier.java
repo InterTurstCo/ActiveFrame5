@@ -112,7 +112,6 @@ public class SqlQueryModifier {
      * Заменяет параметризованный фильтр по Reference полю (например, t.id = {0}) на рабочий вариант этого фильтра
      * {например, t.id = 1 and t.id_type = 2 }
      * @param query SQL запрос
-     * @param configurationExplorer {@link ConfigurationExplorer}
      * @param params список переданных параметров
      * @return
      */
@@ -243,16 +242,17 @@ public class SqlQueryModifier {
                     SelectExpressionItem idTypeSelectExpressionItem = new SelectExpressionItem();
                     idTypeSelectExpressionItem.setExpression(idTypeExpression);
                     if (selectExpressionItem.getAlias() != null) {
-                        idTypeSelectExpressionItem.setAlias(getReferenceTypeColumnName(DaoUtils.unwrap(selectExpressionItem.getAlias())));
+                        idTypeSelectExpressionItem.setAlias(
+                                new Alias(getReferenceTypeColumnName(DaoUtils.unwrap(selectExpressionItem.getAlias().getName()))));
                     }
 
                     selectItems.add(idTypeSelectExpressionItem);
                 }
-            } else if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX)) {
-                String alias = selectExpressionItem.getAlias();
+            } else if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName().endsWith(REFERENCE_POSTFIX)) {
+                Alias alias = selectExpressionItem.getAlias();
                 if (selectExpressionItem.getExpression() instanceof NullValue) {
                     SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-                    referenceFieldTypeItem.setAlias(getServiceColumnName(DaoUtils.unwrap(alias), REFERENCE_TYPE_POSTFIX));
+                    referenceFieldTypeItem.setAlias(new Alias(getServiceColumnName(DaoUtils.unwrap(alias.getName()), REFERENCE_TYPE_POSTFIX)));
                     referenceFieldTypeItem.setExpression(new NullValue());
                     selectItems.add(referenceFieldTypeItem);
                 } else if (selectExpressionItem.getExpression() instanceof StringValue) {
@@ -265,7 +265,7 @@ public class SqlQueryModifier {
                     selectItems.set(selectItems.size() - 1, referenceFieldIdItem);
 
                     SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-                    referenceFieldTypeItem.setAlias(getServiceColumnName(DaoUtils.unwrap(alias), REFERENCE_TYPE_POSTFIX));
+                    referenceFieldTypeItem.setAlias(new Alias(getServiceColumnName(DaoUtils.unwrap(alias.getName()), REFERENCE_TYPE_POSTFIX)));
                     referenceFieldTypeItem.setExpression(new LongValue(String.valueOf(id.getTypeId())));
                     selectItems.add(referenceFieldTypeItem);
                 } else {
@@ -321,7 +321,7 @@ public class SqlQueryModifier {
 
                 String fieldName = DaoUtils.unwrap(column.getColumnName().toLowerCase());
                 String columnName = selectExpressionItem.getAlias() != null ?
-                        DaoUtils.unwrap(selectExpressionItem.getAlias().toLowerCase()) : fieldName;
+                        DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase()) : fieldName;
 
                 if (columnToConfigMap.get(columnName) == null) {
                     FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
@@ -334,7 +334,7 @@ public class SqlQueryModifier {
                     addReferenceFieldConfig(selectExpressionItem, columnToConfigMap);
                 }
             } else if (selectExpressionItem.getAlias() != null &&
-                    selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX) &&
+                    selectExpressionItem.getAlias().getName().endsWith(REFERENCE_POSTFIX) &&
                     (selectExpressionItem.getExpression() instanceof NullValue ||
                             selectExpressionItem.getExpression() instanceof LongValue)) {
                 addReferenceFieldConfig(selectExpressionItem, columnToConfigMap);
@@ -343,7 +343,7 @@ public class SqlQueryModifier {
     }
 
     private void addReferenceFieldConfig(SelectExpressionItem selectExpressionItem, Map<String, FieldConfig> columnToConfigMap) {
-        String name = DaoUtils.unwrap(selectExpressionItem.getAlias().toLowerCase());
+        String name = DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase());
         if (columnToConfigMap.get(name) == null) {
             FieldConfig fieldConfig = new ReferenceFieldConfig();
             fieldConfig.setName(name);
@@ -466,7 +466,7 @@ public class SqlQueryModifier {
                 return DaoUtils.unwrap(fromItem.getName());
             }
 
-            if (column.getTable().getName().equals(fromItem.getAlias()) ||
+            if (column.getTable().getName().equals(fromItem.getAlias().getName()) ||
                     column.getTable().getName().equals(fromItem.getName()) ) {
                 return DaoUtils.unwrap(fromItem.getName());
             }
@@ -486,7 +486,7 @@ public class SqlQueryModifier {
 
                 Table joinTable = (Table) join.getRightItem();
 
-                if (column.getTable().getName().equals(joinTable.getAlias()) ||
+                if (column.getTable().getName().equals(joinTable.getAlias().getName()) ||
                         column.getTable().getName().equals(joinTable.getName())) {
                     return DaoUtils.unwrap(joinTable.getName());
                 }
@@ -527,7 +527,7 @@ public class SqlQueryModifier {
 
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
 
-            if (upperLevelColumn.getColumnName().equals(selectExpressionItem.getAlias())) {
+            if (upperLevelColumn.getColumnName().equals(selectExpressionItem.getAlias().getName())) {
                 return getFieldConfig(plainSelect, selectExpressionItem);
             }
 
@@ -545,10 +545,10 @@ public class SqlQueryModifier {
     private static String getTableAlias(PlainSelect plainSelect) {
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
-            return subSelect.getAlias() != null ? subSelect.getAlias() : null;
+            return subSelect.getAlias() != null ? subSelect.getAlias().getName() : null;
         } else if (plainSelect.getFromItem() instanceof Table) {
             Table table = (Table) plainSelect.getFromItem();
-            return table.getAlias() != null ? table.getAlias() : table.getName();
+            return table.getAlias() != null ? table.getAlias().getName() : table.getName();
         }
 
         throw new CollectionQueryException("Unsupported FromItem type.");
@@ -586,7 +586,7 @@ public class SqlQueryModifier {
 
         if (selectExpressionItem.getAlias() != null) {
             referenceColumnExpression.append(" as ")
-                    .append(getServiceColumnName(selectExpressionItem.getAlias(), postfix));
+                    .append(getServiceColumnName(selectExpressionItem.getAlias().getName(), postfix));
         }
 
         SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();

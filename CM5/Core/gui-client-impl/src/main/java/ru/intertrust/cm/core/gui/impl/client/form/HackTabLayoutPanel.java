@@ -11,6 +11,7 @@ import com.google.gwt.layout.client.Layout;
 import com.google.gwt.resources.client.CommonResources;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,8 +24,8 @@ import java.util.Iterator;
  * To change this template use File | Settings | File Templates.
  */
 
-    public class HackTabLayoutPanel extends ResizeComposite implements HasWidgets,
-            ProvidesResize, IndexedPanel.ForIsWidget, AnimatedLayout,
+    public class HackTabLayoutPanel extends Composite implements HasWidgets,
+            ProvidesResize, IndexedPanel.ForIsWidget,
             HasBeforeSelectionHandlers<Integer>, HasSelectionHandlers<Integer> {
 
         private class Tab extends SimplePanel {
@@ -39,7 +40,7 @@ import java.util.Iterator;
                 setStyleName(TAB_STYLE);
                 inner.setClassName(TAB_INNER_STYLE);
 
-                getElement().addClassName(CommonResources.getInlineBlockStyle());
+           //     getElement().addClassName(CommonResources.getInlineBlockStyle());
             }
 
             public HandlerRegistration addClickHandler(ClickHandler handler) {
@@ -77,78 +78,40 @@ import java.util.Iterator;
             }
         }
 
-        private class TabbedDeckLayoutPanel extends DeckLayoutPanel {
-
-            @Override
-            public void add(Widget w) {
-                throw new UnsupportedOperationException(
-                        "Use TabLayoutPanel.add() to alter the DeckLayoutPanel");
-            }
-
-            @Override
-            public void clear() {
-                throw new UnsupportedOperationException(
-                        "Use TabLayoutPanel.clear() to alter the DeckLayoutPanel");
-            }
-
-            @Override
-            public void insert(Widget w, int beforeIndex) {
-                throw new UnsupportedOperationException(
-                        "Use TabLayoutPanel.insert() to alter the DeckLayoutPanel");
-            }
-
-            @Override
-            public boolean remove(Widget w) {
-
-                return HackTabLayoutPanel.this.remove(w);
-            }
-
-            protected void insertProtected(Widget w, int beforeIndex) {
-                super.insert(w, beforeIndex);
-            }
-
-            protected void removeProtected(Widget w) {
-                super.remove(w);
-            }
-        }
-
-        private static final String CONTENT_CONTAINER_STYLE = "gwt-TabLayoutPanelContentContainer";
 
 
-        private static final String CONTENT_STYLE = "gwt-TabLayoutPanelContent";
-        private static final String TAB_STYLE = "gwt-TabLayoutPanelTab";
+        private static final String CONTENT_CONTAINER_STYLE = "/*gwt-TabLayoutPanelContentContainer*/";
 
-        private static final String TAB_INNER_STYLE = "gwt-TabLayoutPanelTabInner";
+
+        private static final String CONTENT_STYLE = "/*gwt-TabLayoutPanelContent*/";
+        private static final String TAB_STYLE = "/*gwt-TabLayoutPanelTab*/";
+
+        private static final String TAB_INNER_STYLE = "/*gwt-TabLayoutPanelTabInner*/";
 
         private static final int BIG_ENOUGH_TO_NOT_WRAP = 16384;
 
-        private final TabbedDeckLayoutPanel deckPanel = new TabbedDeckLayoutPanel();
+        private final TabPanel deckPanel = new TabPanel();
         private final FlowPanel tabBar = new FlowPanel();
         private final ArrayList<Tab> tabs = new ArrayList<Tab>();
         private int selectedIndex = -1;
 
         public HackTabLayoutPanel(double barHeight, Style.Unit barUnit) {
-            LayoutPanel panel = new LayoutPanel();
+            AbsolutePanel panel = new AbsolutePanel();
             initWidget(panel);
-
+        //    BusinessUniverseUtils.clearGwtStyle(panel.getElement().getStyle(), "blue");
             // Add the tab bar to the panel.
             panel.add(tabBar);
-            panel.setWidgetLeftRight(tabBar, 0, Style.Unit.PX, 0, Style.Unit.PX);
-            panel.setWidgetTopHeight(tabBar, 0, Style.Unit.PX, barHeight, barUnit);
-            panel.setWidgetVerticalPosition(tabBar, Layout.Alignment.END);
 
             // Add the deck panel to the panel.
             deckPanel.addStyleName(CONTENT_CONTAINER_STYLE);
+            BusinessUniverseUtils.clearGwtStyle(deckPanel.getElement().getStyle(), "blue");
+
+//            BusinessUniverseUtils.clearGwtStyle(deckPanel.getWidget(1).getElement().getStyle());
             panel.add(deckPanel);
-            panel.setWidgetLeftRight(deckPanel, 0, Style.Unit.PX, 0, Style.Unit.PX);
-            panel.setWidgetTopBottom(deckPanel, barHeight, barUnit, 0, Style.Unit.PX);
 
-            // Make the tab bar extremely wide so that tabs themselves never wrap.
-            // (Its layout container is overflow:hidden)
-            tabBar.getElement().getStyle().setWidth(BIG_ENOUGH_TO_NOT_WRAP, Style.Unit.PX);
-
-            tabBar.setStyleName("gwt-TabLayoutPanelTabs");
             setStyleName("gwt-TabLayoutPanel");
+            BusinessUniverseUtils.clearGwtStyle(tabBar.getElement().getStyle(), "yellow");
+
         }
 
 
@@ -163,7 +126,7 @@ import java.util.Iterator;
 
 
         public void add(IsWidget w, String text) {
-            add(asWidgetOrNull(w), text);
+          deckPanel.add(asWidgetOrNull(w), text);
         }
 
 
@@ -206,12 +169,10 @@ import java.util.Iterator;
         }
 
         public void animate(int duration) {
-            animate(duration, null);
+            animate(duration);
         }
 
-        public void animate(int duration, Layout.AnimationCallback callback) {
-            deckPanel.animate(duration, callback);
-        }
+
 
         public void clear() {
             Iterator<Widget> it = iterator();
@@ -221,14 +182,10 @@ import java.util.Iterator;
             }
         }
 
-        public void forceLayout() {
-            deckPanel.forceLayout();
-        }
 
 
-        public int getAnimationDuration() {
-            return deckPanel.getAnimationDuration();
-        }
+
+
 
 
         public int getSelectedIndex() {
@@ -238,7 +195,7 @@ import java.util.Iterator;
 
         public Widget getTabWidget(int index) {
             checkIndex(index);
-            return tabs.get(index).getWidget();
+            return deckPanel.getWidget(index);
         }
 
 
@@ -280,33 +237,7 @@ import java.util.Iterator;
             return deckPanel.getWidgetIndex(child);
         }
 
-        /**
-         * Convenience overload to allow {@link IsWidget} to be used directly.
-         */
-        public void insert(IsWidget child, int beforeIndex) {
-            insert(asWidgetOrNull(child), beforeIndex);
-        }
 
-        /**
-         * Convenience overload to allow {@link IsWidget} to be used directly.
-         */
-        public void insert(IsWidget child, IsWidget tab, int beforeIndex) {
-            insert(asWidgetOrNull(child), asWidgetOrNull(tab), beforeIndex);
-        }
-
-        /**
-         * Convenience overload to allow {@link IsWidget} to be used directly.
-         */
-        public void insert(IsWidget child, String text, boolean asHtml, int beforeIndex) {
-            insert(asWidgetOrNull(child), text, asHtml, beforeIndex);
-        }
-
-        /**
-         * Convenience overload to allow {@link IsWidget} to be used directly.
-         */
-        public void insert(IsWidget child, String text, int beforeIndex) {
-            insert(asWidgetOrNull(child), text, beforeIndex);
-        }
 
         /**
          * Inserts a widget into the panel. If the Widget is already attached, it will
@@ -319,17 +250,7 @@ import java.util.Iterator;
             insert(child, "", beforeIndex);
         }
 
-        /**
-         * Inserts a widget into the panel. If the Widget is already attached, it will
-         * be moved to the requested index.
-         *
-         * @param child the widget to be added
-         * @param html the html to be shown on its tab
-         * @param beforeIndex the index before which it will be inserted
-         */
-        public void insert(Widget child, SafeHtml html, int beforeIndex) {
-            insert(child, html.asString(), true, beforeIndex);
-        }
+
 
         /**
          * Inserts a widget into the panel. If the Widget is already attached, it will
@@ -380,9 +301,7 @@ import java.util.Iterator;
          *
          * @return true for vertical transitions, false for horizontal
          */
-        public boolean isAnimationVertical() {
-            return deckPanel.isAnimationVertical();
-        }
+
 
         public Iterator<Widget> iterator() {
             return deckPanel.iterator();
@@ -395,7 +314,7 @@ import java.util.Iterator;
 
             Widget child = getWidget(index);
             tabBar.remove(index);
-            deckPanel.removeProtected(child);
+            deckPanel.remove(child);
             child.removeStyleName(CONTENT_STYLE);
 
             Tab tab = tabs.remove(index);
@@ -461,8 +380,8 @@ import java.util.Iterator;
                 tabs.get(selectedIndex).setSelected(false);
             }
 
-            deckPanel.showWidget(index);
-            tabs.get(index).setSelected(true);
+            deckPanel.selectTab(index);
+         //   tabs.get(index).setSelected(true);
             selectedIndex = index;
 
             // Fire the selection event.
@@ -509,18 +428,14 @@ import java.util.Iterator;
          *
          * @param duration the duration in milliseconds.
          */
-        public void setAnimationDuration(int duration) {
-            deckPanel.setAnimationDuration(duration);
-        }
+
 
         /**
          * Set whether or not transitions slide in vertically or horizontally.
          *
          * @param isVertical true for vertical transitions, false for horizontal
          */
-        public void setAnimationVertical(boolean isVertical) {
-            deckPanel.setAnimationVertical(isVertical);
-        }
+
 
         /**
          * Sets a tab's HTML contents.
@@ -580,7 +495,7 @@ import java.util.Iterator;
                 }
             }
 
-            deckPanel.insertProtected(child, beforeIndex);
+            deckPanel.insert(child, "", beforeIndex);
             tabs.add(beforeIndex, tab);
 
             tabBar.insert(tab, beforeIndex);

@@ -44,12 +44,12 @@ public class FormPluginView extends PluginView {
         super(plugin);
         // установка локальной шины событий
         this.eventBus = plugin.getLocalEventBus();
-        int formHeight = plugin.getOwner().asWidget().getElement().getClientHeight();
+     //   int formHeight = plugin.getOwner().asWidget().getElement().getClientHeight();
         final FormPluginState pluginState = plugin.getFormPluginState();
-        formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), Window.getClientWidth() - (130 + 11), formHeight, eventBus);
-        formPanel.setClassForPluginPanel("tab-content");
-        // добавляем обработчики
-//        addHandlers();
+
+        formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), pluginState.isToggleEdit(), eventBus);
+
+
     }
 
     @Override
@@ -57,20 +57,6 @@ public class FormPluginView extends PluginView {
         return formPanel;
     }
 
-//    public void addHandlers() {
-//
-//        eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
-//            @Override
-//            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
-//
-//              //  flowPanel.setHeight(event.getDownPanelHeight() + "px");
-//                //flowPanel.setWidth(flowPanel.getOffsetWidth() + "px");
-//
-//            }
-//        });
-//
-//
-//    }
 
     public Map<String, WidgetState> getWidgetsState(IWidgetStateFilter widgetStateFilter) {
         List<BaseWidget> widgets = formPanel.getWidgets();
