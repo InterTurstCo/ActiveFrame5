@@ -13,7 +13,6 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.PopupGlassEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
@@ -158,7 +157,7 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     @Override
     public IsWidget getViewWidget() {
-
+        Application.getInstance().enableTimer();
         flowPanel = new AbsolutePanel();
         flowPanel.setStyleName("centerTopBottomDividerRoot");
         //final VerticalPanel container = new VerticalPanel();
@@ -213,7 +212,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             collectionViewerPluginPanel.open(collectionViewerPlugin);
 
         }
-        globalEventBus.fireEvent(new PopupGlassEvent());
+        Application.getInstance().disableTimer();
         return flowPanel;
     }
 

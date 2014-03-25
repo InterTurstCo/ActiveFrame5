@@ -46,5 +46,6 @@
     text-decoration: none;
 }
 .gwt-PopupPanel{
-
+    border: none;
+    background: none;
 }

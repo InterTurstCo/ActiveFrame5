@@ -24,6 +24,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.sql.Time;
 import java.util.logging.Logger;
 
 /**
@@ -36,7 +37,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     static Logger logger = Logger.getLogger("Business universe");
     // глобальная шина событий - доступна во всем приложении
     public static final int START_SIDEBAR_WIDTH = 130;
-    PopupPanel popupGlass = new PopupPanel(false);
     private static EventBus eventBus = Application.getInstance().getEventBus();
     private CentralPluginPanel centralPluginPanel;
     NavigationTreePlugin navigationTreePlugin;
@@ -66,7 +66,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                createGlassPopup();
                 header = new AbsolutePanel();
                 action = new AbsolutePanel();
                 left = new AbsolutePanel();
@@ -155,6 +154,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //action.add(centralPluginPanel);
                 left.add(navigationTreePanel);
 
+
+
                 cetralDivPanelTest.getElement().setId(ComponentHelper.DOMAIN_ID);
                 eventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
                     @Override
@@ -198,19 +199,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                     }
                 });
 
-                eventBus.addHandler(PopupGlassEvent.TYPE, new PopupGlassEventHandler() {
-                    @Override
-                    public void hidePopupGlass(PopupGlassEvent event) {
-                        Timer timer = new Timer() {
-                            @Override
-                            public void run() {
-                                popupGlass.hide();
-                            }
-                        };
 
-                        timer.schedule(500);
-                    }
-                });
 
                 addStickerPanel(root);
                 //cetralDivPanelTest.add(action);
@@ -238,10 +227,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
-
-
-        popupGlass.show();
-
         PluginConfig pluginConfig = event.getPluginConfig();
         String pluginName = pluginConfig.getComponentName();
         Plugin plugin = ComponentRegistry.instance.get(pluginName);
@@ -308,17 +293,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         });
     }
 
-    private void createGlassPopup(){
-        popupGlass.setGlassEnabled(true);
-        popupGlass.setGlassStyleName("glass");
-        Image image = new Image();
-        image.setUrl("CMJSpinner.gif");
-        image.addStyleName("loading");
-        popupGlass.getElement().getStyle().setZIndex(1000);
-        popupGlass.getElement().getStyle().setBorderWidth(0, Style.Unit.PX);
-        popupGlass.add(image);
-        popupGlass.center();
-    }
 
     private void addStickerPanel(final AbsolutePanel mainLayoutPanel) {
 

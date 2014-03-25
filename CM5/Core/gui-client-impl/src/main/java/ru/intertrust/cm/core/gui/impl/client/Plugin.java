@@ -222,6 +222,7 @@ public abstract class Plugin extends BaseComponent {
 
         // owner is not implemented as PluginViewCreatedListener as we want it to be notified after all
         owner.onPluginViewCreated(this);
+
     }
 
     public PluginPanel getOwner() {

@@ -6,16 +6,14 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -99,6 +97,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
+        Application.getInstance().enableTimer();
         formPluginPanel = formPlugin.getOwner();
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
         // после обновления формы ей снова "нужно дать" локальную шину событий
@@ -109,6 +108,12 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         newFormPlugin.setConfig(newConfig);
         formPluginPanel.open(newFormPlugin);
         this.formPlugin = newFormPlugin;
+        newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
+            @Override
+            public void onViewCreation(PluginViewCreatedEvent source) {
+                Application.getInstance().disableTimer();
+            }
+        });
     }
 
     @Override
