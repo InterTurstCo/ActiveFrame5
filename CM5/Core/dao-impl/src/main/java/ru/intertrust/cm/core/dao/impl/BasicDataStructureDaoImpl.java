@@ -4,10 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import java.sql.ResultSet;
@@ -30,9 +28,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     @Autowired
     private JdbcOperations jdbcTemplate;
-
-    @Autowired
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private BasicQueryHelper queryHelper;
 
