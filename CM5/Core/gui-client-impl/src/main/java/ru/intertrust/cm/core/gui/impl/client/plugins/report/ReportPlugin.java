@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.report;
 
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -59,6 +60,7 @@ public class ReportPlugin extends Plugin implements IsActive {
         reportName = reportPluginData.getReportName();
         formDisplayData = reportPluginData.getFormDisplayData();
         setDisplayActionToolBar(true);
+        Application.getInstance().hideLoadingIndicator();
     }
 
     public String getReportName() {
