@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -212,7 +211,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             collectionViewerPluginPanel.open(collectionViewerPlugin);
 
         }
-        Application.getInstance().disableTimer();
+        Application.getInstance().hideLoadingIndicator();
         return flowPanel;
     }
 

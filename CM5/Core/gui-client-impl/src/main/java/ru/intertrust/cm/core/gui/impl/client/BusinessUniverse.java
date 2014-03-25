@@ -5,7 +5,6 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -24,7 +23,6 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.sql.Time;
 import java.util.logging.Logger;
 
 /**
@@ -227,7 +225,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
-        Application.getInstance().enableTimer();
+        Application.getInstance().showLoadingIndicator();
         PluginConfig pluginConfig = event.getPluginConfig();
         String pluginName = pluginConfig.getComponentName();
         Plugin plugin = ComponentRegistry.instance.get(pluginName);

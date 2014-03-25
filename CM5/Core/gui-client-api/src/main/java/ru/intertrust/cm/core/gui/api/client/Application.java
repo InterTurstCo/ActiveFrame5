@@ -65,12 +65,12 @@ public class Application {
         this.timeZoneIds = timeZoneIds;
     }
 
-    public void enableTimer(){
+    public void showLoadingIndicator(){
         timer.schedule(1000);
 
     }
 
-    public void disableTimer(){
+    public void hideLoadingIndicator(){
           timer.cancel();
           glassPopupPanel.hide();
 

@@ -97,7 +97,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-        Application.getInstance().enableTimer();
+        Application.getInstance().showLoadingIndicator();
         formPluginPanel = formPlugin.getOwner();
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
         // после обновления формы ей снова "нужно дать" локальную шину событий
@@ -111,7 +111,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
-                Application.getInstance().disableTimer();
+                Application.getInstance().hideLoadingIndicator();
             }
         });
     }
