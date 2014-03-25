@@ -173,7 +173,6 @@ h1 {
     display: inline-block;
     overflow: hidden;
     margin: 5px 0 0 0;
-    white-space: nowrap;
     width: 125px;
 }
 

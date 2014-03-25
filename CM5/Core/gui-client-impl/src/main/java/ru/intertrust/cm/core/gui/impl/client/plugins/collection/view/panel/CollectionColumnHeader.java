@@ -51,7 +51,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     private String searchAreaId;
     private EventBus eventBus;
     private Element clearButton;
-    private Element datePickerOpen;
     private InputElement inputFilter;
     private boolean focused;
 
@@ -81,7 +80,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     public void resetFilterValue() {
         if (widget.getSearchFilterName() !=  null) {
-        inputFilter.setValue(EMPTY_VALUE);
         widget.setFilterValue(EMPTY_VALUE);
         }
 
@@ -115,6 +113,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         });
         }
     }
+
     public void saveFilterValue(){
         if (widget.getSearchFilterName() !=  null) {
             input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
@@ -127,10 +126,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         clearButton = DOM.getElementById(searchAreaId + HEADER_CLEAR_BUTTON_ID_PART);
         Element input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
         inputFilter = InputElement.as(input);
-        if (widget.getDateBox() != null) {
-            datePickerOpen = DOM.getElementById(searchAreaId + HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART);
 
-        }
     }
 
     public void setSearchAreaVisibility(boolean visibility) {
@@ -361,16 +357,13 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                     clearButton.setClassName("search-box-clear-button-on");
                 }
             } else if ((searchAreaId + HEADER_CLEAR_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
-                inputFilter.setValue(EMPTY_VALUE);
                 clearButton.setClassName("search-box-clear-button-off");
+                inputFilter.setValue(EMPTY_VALUE);
                 inputFilter.focus();
             } else if ((searchAreaId + HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
-
-
                 widget.getDateBox().getDatePicker().getElement().getStyle().setPosition(Position.ABSOLUTE);
                 widget.getDateBox().getDatePicker().getElement().getStyle().setLeft(inputFilter.getAbsoluteLeft(), PX);
                 widget.getDateBox().getDatePicker().getElement().getStyle().setTop(inputFilter.getAbsoluteTop() + 15, PX);
-
                 widget.getDateBox().showDatePicker( );
             }
         }
@@ -493,8 +486,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     protected void changeColumnWidth(int newWidth) {
         table.setColumnWidth(column, newWidth + "px");
-
-        table.redraw();
     }
 
     protected void columnMoved(int fromIndex, int toIndex) {

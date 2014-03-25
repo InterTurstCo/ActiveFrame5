@@ -7,6 +7,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.datepicker.client.DateBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.CMJDatePicker;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.PopupDatePicker;
 
 import java.util.Date;
 
@@ -19,7 +20,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 public class HeaderWidget {
     private CMJDatePicker picker;
-    private DateBox popupDatePicker;
+    private PopupDatePicker popupDatePicker;
     private String html;
     private String id;
     private String searchFilterName;
@@ -65,7 +66,7 @@ public class HeaderWidget {
             picker = new CMJDatePicker();
             picker.toggle("date-picker-baloon", "!!!");
             DateBox.Format format = new DateBox.DefaultFormat(DATE_TIME_FORMAT);
-            popupDatePicker = new DateBox(picker,null,format)  ;
+            popupDatePicker = new PopupDatePicker(picker)  ;
             initHandlers();
         } else {
             html = html + filterAreaStart + id + ">" + "<input type=\"text\" class=\"search-box\" maxlength=\"20\" id= " + id + "input "
@@ -88,10 +89,10 @@ public class HeaderWidget {
             @Override
             public void onValueChange(ValueChangeEvent<Date> event) {
                 Date date = popupDatePicker.getDatePicker().getValue();
-                String dateValue =  dateTimeFormat.format(date);
+                String dateValue = dateTimeFormat.format(date);
                 setFilterValue(dateValue);
-                InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(dateValue);
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).focus();
+                InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(dateValue);
                 DOM.getElementById(id + HEADER_CLEAR_BUTTON_ID_PART).setClassName("search-box-clear-button-on");
             }
         });
@@ -102,7 +103,7 @@ public class HeaderWidget {
         this.showFilter = showFilter;
     }
 
-    public DateBox getDateBox() {
+    public PopupDatePicker getDateBox() {
         return popupDatePicker;
     }
 

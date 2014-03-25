@@ -153,6 +153,7 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(CollectionPluginResizeBySplitterEvent.TYPE, new CollectionPluginResizeBySplitterEventHandler() {
             @Override
             public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
+                tableBody.redraw();
                 headerController.setFocus();
                 headerController.updateFilterValues();
 
