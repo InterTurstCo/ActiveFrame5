@@ -157,6 +157,7 @@ h1 {
     display: block;
     width: 100%;
     height: auto !important;
+    background: #ffffff;
 }
 
 .collection-plugin-view-container table {
