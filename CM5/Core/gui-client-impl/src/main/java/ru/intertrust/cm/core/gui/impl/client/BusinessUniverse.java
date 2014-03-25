@@ -227,6 +227,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
+        Application.getInstance().enableTimer();
         PluginConfig pluginConfig = event.getPluginConfig();
         String pluginName = pluginConfig.getComponentName();
         Plugin plugin = ComponentRegistry.instance.get(pluginName);

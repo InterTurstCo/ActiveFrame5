@@ -157,7 +157,7 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     @Override
     public IsWidget getViewWidget() {
-        Application.getInstance().enableTimer();
+
         flowPanel = new AbsolutePanel();
         flowPanel.setStyleName("centerTopBottomDividerRoot");
         //final VerticalPanel container = new VerticalPanel();

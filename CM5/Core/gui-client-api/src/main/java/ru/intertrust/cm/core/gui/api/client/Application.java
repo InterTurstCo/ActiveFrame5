@@ -66,7 +66,8 @@ public class Application {
     }
 
     public void enableTimer(){
-        timer.schedule(100);
+        timer.schedule(1000);
+
     }
 
     public void disableTimer(){
