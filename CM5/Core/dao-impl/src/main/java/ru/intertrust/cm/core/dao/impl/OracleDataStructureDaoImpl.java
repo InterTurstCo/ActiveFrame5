@@ -2,16 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcOperations;
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
-
-import java.util.List;
-
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
@@ -21,8 +12,8 @@ public class OracleDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     private static final Logger logger = LoggerFactory.getLogger(OracleDataStructureDaoImpl.class);
 
     @Override
-    protected BasicQueryHelper createQueryHelper(DomainObjectTypeIdCache domainObjectTypeIdCache) {
-        return new OracleQueryHelper(domainObjectTypeIdCache);
+    protected BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao) {
+        return new OracleQueryHelper(domainObjectTypeIdDao);
     }
 
     @Override

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import java.util.List;
 
@@ -14,8 +15,8 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
  */
 public class OracleQueryHelper extends BasicQueryHelper {
 
-    protected OracleQueryHelper(DomainObjectTypeIdCache domainObjectTypeIdCache) {
-        super(domainObjectTypeIdCache);
+    protected OracleQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao) {
+        super(domainObjectTypeIdDao);
     }
 
     @Override

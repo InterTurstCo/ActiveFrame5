@@ -36,7 +36,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     private BasicQueryHelper queryHelper;
 
-    protected abstract BasicQueryHelper createQueryHelper(DomainObjectTypeIdCache domainObjectTypeIdCache);
+    protected abstract BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao);
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createSequence(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
@@ -208,7 +208,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
-            queryHelper = createQueryHelper(domainObjectTypeIdCache);
+            queryHelper = createQueryHelper(domainObjectTypeIdDao);
         }
 
         return queryHelper;

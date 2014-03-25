@@ -44,7 +44,7 @@ public class PostgreSqlDataStructureDaoImplTest {
     @Before
     public void setUp() throws Exception {
         initDomainObjectConfig();
-        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdCache);
+        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao);
     }
 
 

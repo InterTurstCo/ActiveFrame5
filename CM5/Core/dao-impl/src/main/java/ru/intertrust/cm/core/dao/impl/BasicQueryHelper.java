@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,18 +35,10 @@ public abstract class BasicQueryHelper {
 
     private static final String GROUP_TABLE = "user_group";
 
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+    private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
-    protected BasicQueryHelper(DomainObjectTypeIdCache domainObjectTypeIdCache) {
-        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
-    }
-
-    public DomainObjectTypeIdCache getDomainObjectTypeIdCache() {
-        return domainObjectTypeIdCache;
-    }
-
-    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
-        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
+    protected BasicQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao) {
+        this.domainObjectTypeIdDao = domainObjectTypeIdDao;
     }
 
     /**
@@ -625,10 +618,8 @@ public abstract class BasicQueryHelper {
     private Integer getDOTypeConfigId(DomainObjectTypeConfig config) {
         if (config.getId() != null) {
             return config.getId();
-        } else if (domainObjectTypeIdCache != null) {
-            return domainObjectTypeIdCache.getId(config.getName());
         } else {
-            return null;
+            return domainObjectTypeIdDao.findIdByName(config.getName());
         }
     }
 

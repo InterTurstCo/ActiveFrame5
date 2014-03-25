@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_
 public class PostgreSqlQueryHelperTest {
 
     @Mock
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+    private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
     private ReferenceFieldConfig referenceFieldConfig;
@@ -36,7 +37,7 @@ public class PostgreSqlQueryHelperTest {
 
     @Before
     public void setUp() throws Exception {
-        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdCache);
+        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao);
         initDomainObjectConfig();
     }
 
@@ -112,14 +113,14 @@ public class PostgreSqlQueryHelperTest {
                 "constraint \"fk_10_0\" foreign key (\"" + TYPE_COLUMN + "\") " +
                 "references \"domain_object_type_id\" (\"id\"))";
         domainObjectTypeConfig.setExtendsAttribute(null);
-        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
+        when(domainObjectTypeIdDao.findIdByName("outgoing_document")).thenReturn(10);
         String query = queryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         assertEquals(checkQuery, query);
     }
 
     @Test
     public void testGenerateCreateAclTableQuery() throws Exception {
-        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
+        when(domainObjectTypeIdDao.findIdByName("outgoing_document")).thenReturn(10);
         String query = queryHelper.generateCreateAclTableQuery(domainObjectTypeConfig);
 
         String checkQuery = "create table \"outgoing_document_acl\" (\"object_id\" bigint not null, " +
@@ -134,7 +135,7 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateAclReadTableQuery() throws Exception {
-        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
+        when(domainObjectTypeIdDao.findIdByName("outgoing_document")).thenReturn(10);
         String query = queryHelper.generateCreateAclReadTableQuery(domainObjectTypeConfig);
 
         String checkQuery = "create table \"outgoing_document_read\" (\"object_id\" bigint not null, " +
@@ -191,7 +192,7 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateUniqueConstraintsQuery() {
-        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
+        when(domainObjectTypeIdDao.findIdByName("outgoing_document")).thenReturn(10);
         String expectedQuery = "alter table \"outgoing_document\" " +
                 "add constraint \"u_10_0\"" + " unique (\"registration_number\")";
 
@@ -208,7 +209,7 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateIndexQuery() throws Exception {
-        when(domainObjectTypeIdCache.getId("outgoing_document")).thenReturn(10);
+        when(domainObjectTypeIdDao.findIdByName("outgoing_document")).thenReturn(10);
         String query = queryHelper.generateCreateIndexQuery(domainObjectTypeConfig, referenceFieldConfig, 0);
         String checkQuery = "create index \"i_10_0\" on \"outgoing_document\" (\"author\")";
         assertEquals(checkQuery, query);
