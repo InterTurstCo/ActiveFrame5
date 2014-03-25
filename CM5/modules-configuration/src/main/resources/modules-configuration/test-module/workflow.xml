@@ -337,19 +337,19 @@
                 <text>Все сотрудники</text>
             </label>
             <label id="startLabel">
-                <field-path />
+                <field-path/>
                 <text>Начало:</text>
             </label>
-            <date-box id="startInput">
+            <text-box id="startInput">
                 <field-path value="paramStart"/>
-            </date-box>
+            </text-box>
             <label id="endLabel">
                 <field-path />
                 <text>Конец:</text>
             </label>
-            <date-box id="endInput">
+            <text-box id="endInput">
                 <field-path value="paramEnd"/>
-            </date-box>
+            </text-box>
         </widget-config>
     </form>
 

@@ -1,16 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.report;
 
-import com.google.gwt.core.shared.GWT;
-import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.Window;
-import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.GenerateReportEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.GenerateReportEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginState;
@@ -27,13 +26,8 @@ import ru.intertrust.cm.core.gui.model.plugin.ReportPluginState;
 @ComponentName("report.plugin")
 public class ReportPlugin extends Plugin implements IsActive {
 
+    private String reportName;
     private FormDisplayData formDisplayData;
-
-    public ReportPlugin() {
-        eventBus = GWT.create(SimpleEventBus.class);
-    }
-
-    private EventBus eventBus;
 
     @Override
     public PluginView createView() {
@@ -62,22 +56,29 @@ public class ReportPlugin extends Plugin implements IsActive {
         super.setInitialData(initialData);
 
         ReportPluginData reportPluginData = (ReportPluginData) initialData;
-        final String reportName = reportPluginData.getReportName();
+        reportName = reportPluginData.getReportName();
         formDisplayData = reportPluginData.getFormDisplayData();
         setDisplayActionToolBar(true);
+    }
 
-        eventBus.addHandler(GenerateReportEvent.TYPE, new GenerateReportEventHandler(){
-            @Override
-            public void generateReport() {
-                String query = com.google.gwt.core.client.GWT.getHostPageBaseURL() + "generate-report?report_name=" + reportName;
-                Window.open(query, reportName, "");
+    public String getReportName() {
+        return reportName;
+    }
+
+    public FormState getFormState() {
+        return formDisplayData.getFormState();
+    }
+
+    public void updateFormState() {
+        FormPanel formPanel = (FormPanel)getView().getViewWidget();
+        for (BaseWidget widget : formPanel.getWidgets()) {
+            WidgetState widgetState = widget.getCurrentState();
+
+            if (widget instanceof LabelWidget) {
+                continue;
             }
-        });
+            String widgetId = widget.getDisplayConfig().getId();
+            getFormState().setWidgetState(widgetId, widgetState);
+        }
     }
-
-    @Override
-    public EventBus getLocalEventBus() {
-        return eventBus;
-    }
-
 }

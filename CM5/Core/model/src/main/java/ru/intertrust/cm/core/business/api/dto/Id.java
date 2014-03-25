@@ -20,5 +20,5 @@ public interface Id extends Dto {
      * Возвращает строковое представление идентификатора доменного объекта
      * @return строковое представление идентификатора доменного объекта
      */
-    String toStringRepresentation();
+    public String toStringRepresentation();
 }
