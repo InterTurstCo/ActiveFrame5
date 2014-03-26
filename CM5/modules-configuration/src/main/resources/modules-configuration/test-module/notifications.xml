@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <collection-view name="notification_default_view" collection="Notifications" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="from" name="Отправитель" type="integer" editable="false" sortable="true">
+                <asc-sort-criteria>
+                    <sort-criterion field="from" order="asc"/>
+                </asc-sort-criteria>
+                <desc-sort-criteria>
+                    <sort-criterion field="from" order="desc"/>
+                </desc-sort-criteria>
+            </column>
+            <column field="to" name="Адресат" type="integer" editable="false" sortable="true"/>
+            <column field="subject" name="Заголовок" editable="false" type="string" sortable="true"/>
+            <column field="body" name="Сообщение" type="string" editable="false" sortable="true"/>
+        </display>
+    </collection-view>
+
+    <form name="notification_form" domain-object-type="notification" is-default="true">
+        <markup>
+            <header>
+                <table width="500px" height="200px">
+                    <tr>
+                        <td width="100pxx" h-align="righ">
+                            <widget id="1"/>
+                        </td>
+                        <!-- label (Название) -->
+                        <td width="100%" h-align="left">
+                            <widget id="2"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="3"/>
+                                    </td>
+                                    <!-- label (Население) -->
+                                    <td h-align="left">
+                                        <widget id="4"/>
+                                    </td>
+                                    <!-- integer-box (Население) -->
+
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="5"/>
+                                    </td>
+                                    <!-- label (Год основания) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="6"/>
+                                    </td>
+                                    <!-- date-box (Год основания) -->
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Дополнительно">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="7"/>
+                                    </td>
+                                    <!-- label (Площадь) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="8"/>
+                                    </td>
+                                    <!-- decimal-box (Площадь) -->
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="9"/>
+                                    </td>
+                                    <!-- label (Широта) -->
+                                    <td h-align="left">
+                                        <widget id="10"/>
+                                    </td>
+                                    <!-- decimal-box  (Широта) -->
+
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="11"/>
+                                    </td>
+                                    <!-- label (Долгота) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="12"/>
+                                    </td>
+                                    <!-- decimal-box  (Долгота) -->
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+        <widget-config>           
+            <label id="3">
+                <text>Заголовок:</text>
+            </label>
+            <text-box id="4">
+                <field-path value="subject"/>
+            </text-box>
+
+            <label id="5">
+                <text>Сообщение:</text>
+            </label>
+            <text-box id="6">
+                <field-path value="body"/>
+            </text-box>
+            
+            <label id="7">
+                <text>Отправитель:</text>
+            </label>
+            <text-box id="8">
+                <field-path value="from"/>
+            </text-box>
+
+            <label id="9">
+                <text>Адресат:</text>
+            </label>
+            <text-box id="10">
+                <field-path value="to"/>
+            </text-box>
+        </widget-config>
+    </form>
+
+    <form-mappings name="notification_mappings">
+        <form-mapping domain-object-type="notification" form="notification_form">
+            <users>
+                <user uid="admin" />
+            </users>
+            <roles>
+                <role name="Minister" />
+            </roles>
+        </form-mapping>
+    </form-mappings>
+
+</configuration>

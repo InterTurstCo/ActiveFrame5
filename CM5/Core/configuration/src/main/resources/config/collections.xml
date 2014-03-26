@@ -171,6 +171,47 @@
         </filter>
 
     </collection>
+    
+    <collection name="Notifications" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                 n.id, n.subject, n.body, n.new, n."from", n."to" 
+                from
+                    notification n
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from notification n ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="idsIncluded">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    n.id in ({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="idsExcluded">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    n.id not in ({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="bySubject">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    n.subject like {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+    
     <collection-view name="organizations_default_view" collection="Organizations" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>
@@ -837,6 +878,5 @@
             </criteria>
         </filter>
     </collection>
-
-
+    
 </configuration>

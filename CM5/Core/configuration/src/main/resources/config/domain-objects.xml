@@ -33,21 +33,35 @@
         </indices>
     </domain-object-type>
 
-     <domain-object-type name="Internal_Document" initial-status="Draft"> <!-- Internal_Document table -->
+    <domain-object-type name="notification" initial-status="Active">
+        <fields>
+            <reference name="From" type="Employee" />
+            <reference name="To" type="Employee" />
+            <string name="Subject" length="256" />
+            <string name="Body" length="1024" />
+            <string name="Priority" length="128" />            
+            <boolean name="New" />            
+        </fields>
+        <attachment-types>
+            <attachment-type name="Notification_Content" />
+        </attachment-types>
+    </domain-object-type>
+
+    <domain-object-type name="Internal_Document" initial-status="Draft"> <!-- Internal_Document table -->
         <fields>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
-            <long name="Stage"/>
+            <long name="Stage" />
             <string name="ReturnOnReject" length="3" />
-            <reference name="docAuthor" type="Employee"/>
-            <reference name="Registrant" type="Employee"/>
-            <reference name="Inspector" type="Employee"/>
-            <reference name="Signer" type="Employee"/>            
+            <reference name="docAuthor" type="Employee" />
+            <reference name="Registrant" type="Employee" />
+            <reference name="Inspector" type="Employee" />
+            <reference name="Signer" type="Employee" />
             <string name="RegNum" length="128" />
             <string name="State" length="128" /> <!-- Не удалять строковой статус. Требуется для тестирования -->
         </fields>
         <attachment-types>
-            <attachment-type name="Internal_Document_Content"/>
+            <attachment-type name="Internal_Document_Content" />
         </attachment-types>
     </domain-object-type>
 
