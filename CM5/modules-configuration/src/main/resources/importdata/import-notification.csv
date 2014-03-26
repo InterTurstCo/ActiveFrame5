@@ -1,0 +1,4 @@
+TYPE_NAME=notification;KEYS=from,to,subject
+from;to;subject;body;priority;new
+"login=""person1""";"login=""person2""";Test Subject1;Body 1;HIGH;true
+"login=""person1""";"login=""person2""";Test Subject2;Body 2;HIGH;true
