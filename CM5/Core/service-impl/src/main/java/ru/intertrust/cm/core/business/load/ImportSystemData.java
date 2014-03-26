@@ -42,40 +42,50 @@ public class ImportSystemData {
     private AttachmentContentDao attachmentContentDao;
 
     public void onLoad() {
+        String fileName = null;
+        String moduleName = null;
         try {
-        	//перезаписывать ли данные(по умолчанию false)
-        	Boolean rewriteGroup;
-        	Boolean rewriteFile;
-        	Boolean rewrite = false;
+            //перезаписывать ли данные(по умолчанию false)
+            Boolean rewriteGroup;
+            Boolean rewriteFile;
+            Boolean rewrite = false;
             for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
+                moduleName = moduleConfiguration.getName();
                 ImportFilesConfiguration importFiles = moduleConfiguration.getImportFiles();
-                //Получаем значение перезаписи для группы файлов
-                rewriteGroup = importFiles.getRewrite();
-                for (ImportFileConfiguration importFile : importFiles.getImportFiles()) {
-                	//Получаем значение перезаписи для файла
-                	rewriteFile = importFile.getRewrite();
-                	//Если у файла установлен флаг - используем его
-                	if (rewriteFile != null){
-                		rewrite = rewriteFile;
-                	}
-                	//Если у файла нет флага, а у группы есть - используем его
-                	else if (rewriteGroup != null){
-                		rewrite = rewriteGroup;
-                	}
-                	//Если флаг ни у файла ни у группы не установлен используем false
-                	else{
-                		rewrite = false;
-                	}
-                    ImportData importData = new ImportData(collectionsDao, 
-                            configurationExplorer, domainObjectDao, accessControlService, attachmentContentDao, null);
+                //Проверка на то что у модуля есть что импортировать
+                if (importFiles != null && importFiles.getImportFiles() != null) {
+                    //Получаем значение перезаписи для группы файлов
+                    rewriteGroup = importFiles.getRewrite();
+                    for (ImportFileConfiguration importFile : importFiles.getImportFiles()) {
+                        fileName = importFile.getFileName();
+                        //Получаем значение перезаписи для файла
+                        rewriteFile = importFile.getRewrite();
+                        //Если у файла установлен флаг - используем его
+                        if (rewriteFile != null) {
+                            rewrite = rewriteFile;
+                        }
+                        //Если у файла нет флага, а у группы есть - используем его
+                        else if (rewriteGroup != null) {
+                            rewrite = rewriteGroup;
+                        }
+                        //Если флаг ни у файла ни у группы не установлен используем false
+                        else {
+                            rewrite = false;
+                        }
+                        ImportData importData =
+                                new ImportData(collectionsDao,
+                                        configurationExplorer, domainObjectDao, accessControlService,
+                                        attachmentContentDao, null);
 
-                    importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString() + importFile.getFileName())), importFiles.getCsvEncoding(),rewrite);
-                    logger.info("Import system data from file " + importFile.getFileName());
+                        importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString()
+                                + importFile.getFileName())), importFiles.getCsvEncoding(), rewrite);
+                        logger.info("Import system data from file " + importFile.getFileName());
+                    }
                 }
             }
 
         } catch (Exception ex) {
-            throw new FatalException("Can not load system dictionaries.", ex);
+            throw new FatalException("Can not load system dictionaries module=" + moduleName + "; file=" + fileName, ex);
         }
     }
 
