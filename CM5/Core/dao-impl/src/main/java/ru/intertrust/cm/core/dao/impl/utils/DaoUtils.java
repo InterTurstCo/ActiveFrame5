@@ -85,7 +85,7 @@ public class DaoUtils {
 
     }
 
-    public static void setParameters(String parameterName, Value value, Map<String, Object> parameters) {
+    public static void setParameter(String parameterName, Value value, Map<String, Object> parameters) {
         if (value instanceof ReferenceValue) {
             RdbmsId rdbmsId = (RdbmsId) value.get();
             parameters.put(parameterName, rdbmsId.getId());

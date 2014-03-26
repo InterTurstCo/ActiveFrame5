@@ -31,7 +31,7 @@ import java.util.Map;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameters;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
 
 /**
  * @author vmatsukevich
@@ -297,7 +297,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             if (!(value instanceof ReferenceValue)) {
                 // в исполняемом SQL запросе названия параметров совпадает с их номерами в начальном SQL запросе.
                 String parameterName = index + "";
-                parameterMap.put(parameterName, value.get());
+                setParameter(parameterName, value, parameterMap);
             }
             index++;
         }
@@ -344,7 +344,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
                     }
 
                     if (criterion instanceof Value) {
-                        setParameters(parameterName, (Value) criterion, parameters);
+                        setParameter(parameterName, (Value) criterion, parameters);
                     } else if (criterion instanceof List) {
                         List<Value> valuesList = (List) criterion;
                         List<Object> parameterValues = getParameterValues(valuesList);

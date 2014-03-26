@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.util.StringUtils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.*;
@@ -28,7 +27,7 @@ import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_
 import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_FIELD_NAME;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameters;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 
@@ -1215,7 +1214,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 continue;
             }
 
-            setParameters(parameterName, value, parameters);
+            setParameter(parameterName, value, parameters);
         }
     }
 
