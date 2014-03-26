@@ -199,7 +199,7 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             }
             
             //Получение всех вложений
-            List<DomainObject> attachments = getAttachments("report_template_attachment", reportTemplateDo);
+            List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateDo);
             for (DomainObject attachment : attachments) {
                 byte[] content = getAttachmentContent(attachment);
                 //Запись файла на диск

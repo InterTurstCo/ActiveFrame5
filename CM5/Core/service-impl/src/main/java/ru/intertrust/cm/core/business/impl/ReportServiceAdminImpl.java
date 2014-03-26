@@ -98,7 +98,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 reportTemplateObject.setString("name", reportMetadata.getName());
             } else {
                 //Если существует то удаляем все вложения по нему
-                List<DomainObject> attachments = getAttachments("report_template_attachment", reportTemplateObject);
+                List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject);
                 for (DomainObject attachment : attachments) {
                     attachmentService.deleteAttachment(attachment.getId());
                 }
@@ -111,7 +111,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             for (File file : filelist) {
                 DomainObject attachment =
                         attachmentService.createAttachmentDomainObjectFor(reportTemplateObject.getId(),
-                                "report_template_attachment");
+                                "report_template_attach");
                 attachment.setString("Name", file.getName());
                 ByteArrayInputStream bis = new ByteArrayInputStream(readFile(file));
                 SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
