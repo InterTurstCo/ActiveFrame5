@@ -3,14 +3,19 @@ package ru.intertrust.cm.core.business.api.util;
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.OlsonTimeZoneContext;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimeZoneContext;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
 import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.math.BigDecimal;
@@ -81,27 +86,87 @@ public class ValueUtil {
         }
     }
 
+    private static String format(TimelessDate timelessDate) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(timelessDate.getDayOfMonth()).append("/")
+                .append(timelessDate.getMonth() + 1).append("/")
+                .append(timelessDate.getYear());
+        return sb.toString();
+    }
+
+    private static String format(DateTimeWithTimeZone dateTime) {
+        StringBuilder sb = new StringBuilder();
+        int day = dateTime.getDayOfMonth();
+        int month = dateTime.getMonth() + 1;
+        int year = dateTime.getYear();
+        int hours = dateTime.getHours();
+        int minutes = dateTime.getMinutes();
+        int seconds = dateTime.getSeconds();
+        int milliseconds = dateTime.getMilliseconds();
+
+        TimeZoneContext context = dateTime.getTimeZoneContext();
+        if (context instanceof UTCOffsetTimeZoneContext) {
+            long offset = ((UTCOffsetTimeZoneContext)context).getOffset();
+            sb.append("UTC ")
+                    .append(day).append("/")
+                    .append(month).append("/")
+                    .append(year).append(" ")
+                    .append(hours).append(":")
+                    .append(minutes).append(":")
+                    .append(seconds).append(":")
+                    .append((milliseconds)).append(" ")
+                    .append(offset);
+        } else if (context instanceof OlsonTimeZoneContext) {
+            String timeZoneId = ((OlsonTimeZoneContext)context).getTimeZoneId();
+            sb.append("Olson ")
+                    .append(day).append("/")
+                    .append(month).append("/")
+                    .append(year).append(" ")
+                    .append(hours).append(":")
+                    .append(minutes).append(":")
+                    .append(seconds).append(":")
+                    .append((milliseconds)).append(" ")
+                    .append(timeZoneId);
+        } else {
+            throw new IllegalArgumentException("Unsupported TimeZoneContext: " + context);
+        }
+
+
+        return sb.toString();
+    }
+
     private static Value parseTimelessDate(String string) {
-        //TODO: [report-plugin] parse from string
-        return null;
+        String[] date = string.split("/");
+        int day = Integer.parseInt(date[0]);
+        int month = Integer.parseInt(date[1]) - 1; // month is 0-based in timelessDate
+        int year = Integer.parseInt(date[2]);
+
+        return new TimelessDateValue(new TimelessDate(year, month, day));
     }
 
     private static Value parseDateTimeWithTimezone(String string) {
-        //TODO: [report-plugin] parse from string
-        return null;
-    }
+        DateTimeWithTimeZone dateTimeZone;
+        String[] parts = string.split(" "); // [context type id, date, time, offset or timezone id]
 
-
-    private static String format(TimelessDate timelessDate) {
-        StringBuilder sb = new StringBuilder();
-        //TODO: [report-plugin] convert to string
-        return sb.toString();
-    }
-
-    private static String format(DateTimeWithTimeZone value) {
-        StringBuilder sb = new StringBuilder();
-        //TODO: [report-plugin] convert to string
-        return sb.toString();
+        String[] date = parts[1].split("/");
+        int day = Integer.parseInt(date[0]);
+        int month = Integer.parseInt(date[1]) - 1; // month is 0-based in DateTimeWithTimeZone
+        int year = Integer.parseInt(date[2]);
+        String[] time = parts[2].split(":");
+        int hours = Integer.parseInt(time[0]);
+        int minutes = Integer.parseInt(time[1]);
+        int seconds = Integer.parseInt(time[2]);
+        int milliseconds = Integer.parseInt(time[3]);
+        if ("UTC".equals(parts[0])) {
+            int timeZoneUtcOffset = Integer.parseInt(parts[3]);
+            dateTimeZone = new DateTimeWithTimeZone(timeZoneUtcOffset, year, month, day, hours, minutes, seconds, milliseconds);
+        } else if("Olson".equals(parts[0])) {
+            String timeZoneId = parts[3];
+            dateTimeZone = new DateTimeWithTimeZone(timeZoneId, year, month, day, hours, minutes, seconds, milliseconds);
+        } else {
+            throw new IllegalArgumentException("Cannot parse string: " + string + ". Unsupported TimeZoneContext id: " + parts[0]);
+        }
+        return new DateTimeWithTimeZoneValue(dateTimeZone);
     }
 
 }
