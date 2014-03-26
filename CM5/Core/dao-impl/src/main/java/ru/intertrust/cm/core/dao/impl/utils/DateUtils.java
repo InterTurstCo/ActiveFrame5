@@ -37,7 +37,7 @@ public class DateUtils {
     }
 
     public static Calendar getGMTDate(TimelessDate timelessDate) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calendar.set(Calendar.YEAR, timelessDate.getYear());
         calendar.set(Calendar.MONTH, timelessDate.getMonth());
         calendar.set(Calendar.DAY_OF_MONTH, timelessDate.getDayOfMonth());
@@ -46,9 +46,7 @@ public class DateUtils {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        gmtCalendar.setTime(calendar.getTime());
-        return gmtCalendar;
+        return calendar;
     }
 
     @Deprecated
