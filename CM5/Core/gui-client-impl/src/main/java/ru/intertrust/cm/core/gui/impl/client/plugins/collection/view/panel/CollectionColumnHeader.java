@@ -65,13 +65,14 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         searchAreaId = headerWidget.getId();
 
     }
+
     public DateTimeFormat getDateTimeFormat() {
-       return widget.getDateTimeFormat();
+        return widget.getDateTimeFormat();
     }
 
     public String getFilterValue() {
-        if (widget.getSearchFilterName() !=  null) {
-        return inputFilter.getValue();
+        if (widget.getSearchFilterName() != null) {
+            return inputFilter.getValue();
         } else {
             return EMPTY_VALUE;
 
@@ -79,8 +80,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public void resetFilterValue() {
-        if (widget.getSearchFilterName() !=  null) {
-        widget.setFilterValue(EMPTY_VALUE);
+        if (widget.getSearchFilterName() != null) {
+            widget.setFilterValue(EMPTY_VALUE);
         }
 
     }
@@ -101,21 +102,21 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public void updateFilterValue() {
-        if (widget.getSearchFilterName() !=  null) {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
-                inputFilter = InputElement.as(input);
-                inputFilter.setValue(widget.getFilterValue());
+        if (widget.getSearchFilterName() != null) {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+                    inputFilter = InputElement.as(input);
+                    inputFilter.setValue(widget.getFilterValue());
 
-            }
-        });
+                }
+            });
         }
     }
 
-    public void saveFilterValue(){
-        if (widget.getSearchFilterName() !=  null) {
+    public void saveFilterValue() {
+        if (widget.getSearchFilterName() != null) {
             input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
             inputFilter = InputElement.as(input);
             widget.setFilterValue(inputFilter.getValue());
@@ -150,7 +151,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     @Override
     public void onBrowserEvent(Context context, Element target, NativeEvent event) {
         if (widget.getSearchFilterName() != null) {
-        initElements();
+            initElements();
         }
         String eventType = event.getType();
         if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown") && widget.getSearchFilterName() != null) {
@@ -250,8 +251,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             mover = document.createDivElement();
             final int leftBound = target.getOffsetLeft() + target.getOffsetWidth();
             if (column.isMoveable()) {
-            left = createSpanElement(MOVE, MOVE_tt, MOVE_COLOR, moveCursor, leftBound - 2 * RESIZE_HANDLE_WIDTH);
-            mover.appendChild(left);
+                left = createSpanElement(MOVE, MOVE_tt, MOVE_COLOR, moveCursor, leftBound - 2 * RESIZE_HANDLE_WIDTH);
+                mover.appendChild(left);
             }
             if (column.isResizable()) {
                 right = createSpanElement(RESIZE, RESIZE_tt, null, resizeCursor, leftBound - RESIZE_HANDLE_WIDTH);
@@ -294,7 +295,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                     natEvent.stopPropagation();
                     natEvent.preventDefault();
                     return;
-                } else if(widget.getSearchFilterName() != null){
+                } else if (widget.getSearchFilterName() != null) {
                     String filterValue = getFilterValue();
                     widget.setFilterValue(filterValue);
                 }
@@ -351,7 +352,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         private void onHeaderElementClick(Element clickedElement) {
 
             if ((searchAreaId + HEADER_INPUT_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
-                String filterValue =  inputFilter.getValue();
+                String filterValue = inputFilter.getValue();
                 if (filterValue.length() > 0) {
 
                     clearButton.setClassName("search-box-clear-button-on");
@@ -364,7 +365,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                 widget.getDateBox().getDatePicker().getElement().getStyle().setPosition(Position.ABSOLUTE);
                 widget.getDateBox().getDatePicker().getElement().getStyle().setLeft(inputFilter.getAbsoluteLeft(), PX);
                 widget.getDateBox().getDatePicker().getElement().getStyle().setTop(inputFilter.getAbsoluteTop() + 15, PX);
-                widget.getDateBox().showDatePicker( );
+                widget.getDateBox().showDatePicker();
             }
         }
 
@@ -486,15 +487,17 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     protected void changeColumnWidth(int newWidth) {
         table.setColumnWidth(column, newWidth + "px");
+        table.redraw();
+
     }
 
     protected void columnMoved(int fromIndex, int toIndex) {
         CollectionColumn toReplace = (CollectionColumn) table.getColumn(fromIndex);
         if (toReplace instanceof CollectionParameterizedColumn) {
             saveFilterValue();
-        table.removeColumn(fromIndex);
-        table.insertColumn(toIndex, column, this);
-        updateFilterValue();
+            table.removeColumn(fromIndex);
+            table.insertColumn(toIndex, column, this);
+            updateFilterValue();
         }
     }
 

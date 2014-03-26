@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
@@ -59,7 +60,7 @@ public class CollectionPluginView extends PluginView {
     private boolean singleChoice = true;
     private SortCollectionState sortCollectionState;
     private ToggleButton filterButton = new ToggleButton();
-
+     private  HandlerRegistration scrollHandlerRegistration;
     private ArrayList<Filter> filterList;
 
     private String simpleSearchQuery = "";
@@ -153,6 +154,7 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(CollectionPluginResizeBySplitterEvent.TYPE, new CollectionPluginResizeBySplitterEventHandler() {
             @Override
             public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
+
                 tableBody.redraw();
                 headerController.setFocus();
                 headerController.updateFilterValues();
@@ -192,56 +194,25 @@ public class CollectionPluginView extends PluginView {
             }
         });
 
-        scroll.addScrollHandler(new ScrollHandler() {
+                scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
+                eventBus.addHandler(SimpleSearchEvent.TYPE, new SimpleSearchEventHandler() {
+                    @Override
+                    public void collectionSimpleSearch(SimpleSearchEvent event) {
+                        //To change body of implemented methods use File | Settings | File Templates.
+                        listCount = 0;
+                        items.clear();
+                        if (!event.isTypeButton()) {
+                            filterList.clear();
 
-            @Override
-            public void onScroll(ScrollEvent event) {
+                            simpleSearchQuery = "";
+                        } else {
+                            simpleSearchQuery = event.getText();
 
-                int oldScrollPos = lastScrollPos;
-                lastScrollPos = scroll.getVerticalScrollPosition();
-                if (oldScrollPos == 0) {
+                        }
 
-                    return;
-                }
-                // If scrolling up, ignore the event.
-                if (oldScrollPos == scroll.getMaximumVerticalScrollPosition()) {
-
-
-                }
-                if (oldScrollPos >= lastScrollPos) {
-                    return;
-                }
-                //Height of grid contents (including outside the viewable area) - height of the scroll panel
-                int maxScrollTop = scroll.getWidget().getOffsetHeight() - scroll.getOffsetHeight();
-                if (lastScrollPos >= maxScrollTop) {
-                    if (sortCollectionState != null) {
-                        sortCollectionState.setResetCollection(false);
+                        createCollectionData();
                     }
-
-                    collectionData();
-                }
-            }
-
-
-        });
-        eventBus.addHandler(SimpleSearchEvent.TYPE, new SimpleSearchEventHandler() {
-            @Override
-            public void collectionSimpleSearch(SimpleSearchEvent event) {
-                //To change body of implemented methods use File | Settings | File Templates.
-                listCount = 0;
-                items.clear();
-                if (!event.isTypeButton()) {
-                    filterList.clear();
-
-                    simpleSearchQuery = "";
-                } else {
-                    simpleSearchQuery = event.getText();
-
-                }
-
-                createCollectionData();
-            }
-        });
+                });
         //показать/спрятать панель поиска в таблицы
         filterButton.addClickHandler(new ClickHandler() {
             @Override
@@ -581,7 +552,8 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void collectionRowRequestCommand(CollectionRowsRequest collectionRowsRequest) {
-
+        scrollHandlerRegistration.removeHandler();
+        lastScrollPos = 0;
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -596,6 +568,9 @@ public class CollectionPluginView extends PluginView {
                 List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
 
                 insertMoreRows(collectionRowItems);
+                tableBody.flush();
+                ScrollPanel scroll =   tableBody.getScrollPanel();
+                scrollHandlerRegistration =  scroll.addScrollHandler(new ScrollLazyLoadHandler()) ;
                 headerController.setFocus();
                 headerController.updateFilterValues();
             }
@@ -667,7 +642,44 @@ public class CollectionPluginView extends PluginView {
             }
         });
     }
+   private class ScrollLazyLoadHandler implements ScrollHandler {
+       private ScrollPanel scroll;
 
+       private ScrollLazyLoadHandler() {
+           this.scroll = tableBody.getScrollPanel();
+       }
+
+       @Override
+       public void onScroll(ScrollEvent event) {
+
+           int oldScrollPos = lastScrollPos;
+           lastScrollPos = scroll.getVerticalScrollPosition();
+           if (oldScrollPos == 0) {
+
+               return;
+           }
+           // If scrolling up, ignore the event.
+           if (oldScrollPos == scroll.getMaximumVerticalScrollPosition()) {
+
+
+           }
+           if (oldScrollPos >= lastScrollPos) {
+               return;
+           }
+           //Height of grid contents (including outside the viewable area) - height of the scroll panel
+           int maxScrollTop = scroll.getWidget().getOffsetHeight() - scroll.getOffsetHeight();
+           if (lastScrollPos >= maxScrollTop) {
+               if (sortCollectionState != null) {
+                   sortCollectionState.setResetCollection(false);
+               }
+
+               collectionData();
+           }
+       }
+
+
+
+   }
 
 }
 
