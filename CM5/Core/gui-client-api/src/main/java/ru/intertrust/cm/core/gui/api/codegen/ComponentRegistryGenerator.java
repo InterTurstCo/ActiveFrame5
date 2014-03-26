@@ -117,6 +117,7 @@ public class ComponentRegistryGenerator extends Generator {
         try {
             properties.load(new FileInputStream(new File(url.getFile())));
         } catch (Throwable e) { // если файла нет, это равноценно пустому файлу
+            System.out.println("=========================================== No gui.properties file found =============================");
             return properties;
         }
         return properties;

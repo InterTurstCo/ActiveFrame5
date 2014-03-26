@@ -123,11 +123,20 @@ public class FormResolver {
                 formConfigs = Collections.EMPTY_LIST;
             }
             for (FormConfig formConfig : formConfigs) {
-                if (!formType.equals(formConfig.getType())) {
+                final String currentFormType = formConfig.getType();
+                if (currentFormType == null) {
+                    log.warn("Form type is not defined for: " + formConfig.getName());
+                    continue;
+                }
+                String domainObjectType = formConfig.getDomainObjectType();
+                if (domainObjectType == null) { // todo: for report form domain object type will empty
+                    log.warn("Domain Object Type is not defined for form: " + formConfig.getName());
+                    continue;
+                }
+                if (!formType.equals(currentFormType)) {
                     continue;
                 }
 
-                String domainObjectType = formConfig.getDomainObjectType();
                 String domainObjectTypeInLowerCase = domainObjectType.toLowerCase();
                 if (formConfig.isDefault()) {
                     if (defaultFormByDomainObjectType.containsKey(domainObjectType)) {
