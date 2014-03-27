@@ -183,24 +183,6 @@
         </groups>
     </context-role>
 
-    <context-role name="Admins">
-        <context>
-            <domain-object type="Outgoing_Document" />
-        </context>
-        <groups>
-            <group name="Administrators"/>
-        </groups>
-    </context-role>
-
-    <context-role name="Admins_Internal_Document">
-        <context>
-            <domain-object type="Internal_Document" />
-        </context>
-        <groups>
-            <group name="Administrators"/>
-        </groups>
-    </context-role>
-
     <context-role name="Author">
         <context>
             <domain-object type="Internal_Document" />
@@ -214,62 +196,6 @@
         </groups>
     </context-role>
 
-    <!--Администраторы писем -->
-    <context-role name="Admins_Letter">
-        <context>
-            <domain-object type="letter" />
-        </context>
-        <groups>
-            <group name="Administrators"/>
-        </groups>
-    </context-role>
-
-    <context-role name="Read_Only_Letter">
-        <context>
-            <domain-object type="letter" />
-        </context>
-        <groups>
-            <group name="Administrators_Read_Only"/>
-        </groups>
-    </context-role>
-
-    <!--Администраторы стран -->
-    <context-role name="Admins_Country">
-        <context>
-            <domain-object type="country" />
-        </context>
-        <groups>
-            <group name="Administrators"/>
-        </groups>
-    </context-role>
-
-    <context-role name="Read_Only_Country">
-        <context>
-            <domain-object type="country" />
-        </context>
-        <groups>
-            <group name="Administrators_Read_Only"/>
-        </groups>
-    </context-role>
-
-    <context-role name="Read_Only_Country_Union">
-        <context>
-            <domain-object type="country_union" />
-        </context>
-        <groups>
-            <group name="Administrators_Read_Only"/>
-        </groups>
-    </context-role>
-
-    <context-role name="Admins_Country_Union">
-        <context>
-            <domain-object type="country_union" />
-        </context>
-        <groups>
-            <group name="Administrators"/>
-        </groups>
-    </context-role>
-    
     <context-role name="AuthorBosses">
         <context>
             <domain-object type="Internal_Document" />
@@ -363,17 +289,17 @@
     <access-matrix type="letter">
         <status name="Active">
             <read>
-                <permit-role name="Admins_Letter" />
-                <permit-role name="Read_Only_Letter" />
+                <permit-group name="Administrators" />
+                <permit-group name="Administrators_Read_Only" />
             </read>
             <write>
-                <permit-role name="Admins_Letter" />
+                <permit-group name="Administrators" />
             </write>
             <delete>
-                <permit-role name="Admins_Letter" />
+                <permit-group name="Administrators" />
             </delete>
             <execute-action name="action1">
-                <permit-role name="Admins_Letter" />
+                <permit-group name="Administrators" />
             </execute-action>
         </status>
     </access-matrix>
@@ -381,17 +307,17 @@
     <access-matrix type="country">
         <status name="Active">
             <read>
-                <permit-role name="Admins_Country" />                
-                <permit-role name="Read_Only_Country" />
+                <permit-group name="Administrators" />                 
+                <permit-group name="Administrators_Read_Only" />
             </read>
             <write>
-                <permit-role name="Admins_Country" />
+                <permit-group name="Administrators" /> 
             </write>
             <delete>
-                <permit-role name="Admins_Country" />
+                <permit-group name="Administrators" /> 
             </delete>
             <execute-action name="action1">
-                <permit-role name="Admins_Country" />
+                <permit-group name="Administrators" /> 
             </execute-action>
         </status>
     </access-matrix>
@@ -399,17 +325,17 @@
     <access-matrix type="country_union">
         <status name="Active">
             <read>
-                <permit-role name="Admins_Country_Union" />                
-                <permit-role name="Read_Only_Country_Union" />
+                <permit-group name="Administrators" />                
+                <permit-group name="Administrators_Read_Only" />
             </read>
             <write>
-                <permit-role name="Admins_Country_Union" />
+                <permit-group name="Administrators" />
             </write>
             <delete>
-                <permit-role name="Admins_Country_Union" />
+                <permit-group name="Administrators" />
             </delete>
             <execute-action name="action1">
-                <permit-role name="Admins_Country_Union" />
+                <permit-group name="Administrators" />
             </execute-action>
         </status>
     </access-matrix>
@@ -461,15 +387,15 @@
         <status name="Draft">
             <read>
                 <permit-role name="Author" />
-                <permit-role name="Admins_Internal_Document"/>                
+                <permit-group name="Administrators" />                
             </read>
             <write>
                 <permit-role name="Author" />
-                <permit-role name="Admins_Internal_Document"/>
+                <permit-group name="Administrators" />
             </write>
             <delete>
                 <permit-role name="Author" />
-                <permit-role name="Admins_Internal_Document"/>
+                <permit-group name="Administrators" />
             </delete>
             <execute-action name="StartProcessAction">
                 <permit-role name="Author" />

@@ -86,28 +86,35 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     @Override
     public void notifyDomainObjectDeleted(DomainObject domainObject) {
-        notifyDomainObjectChangedInternal(domainObject, getDeletedModificationList(domainObject));
+        notifyDomainObjectChangedInternal(domainObject, getDeletedModificationList(domainObject), false);
         cleanAclFor(domainObject.getId());
     }
 
     @Override
     public void notifyDomainObjectChanged(DomainObject domainObject, List<FieldModification> modifiedFieldNames) {
-        notifyDomainObjectChangedInternal(domainObject, modifiedFieldNames);
+        notifyDomainObjectChangedInternal(domainObject, modifiedFieldNames, false);
     }
 
     @Override
     public void notifyDomainObjectCreated(DomainObject domainObject) {
-        notifyDomainObjectChangedInternal(domainObject, getNewObjectModificationList(domainObject));
+        notifyDomainObjectChangedInternal(domainObject, getNewObjectModificationList(domainObject), true);
     }
 
     private void
-            notifyDomainObjectChangedInternal(DomainObject domainObject, List<FieldModification> modifiedFieldNames) {
+            notifyDomainObjectChangedInternal(DomainObject domainObject, List<FieldModification> modifiedFieldNames, boolean isCreate) {
         String typeName = domainObject.getTypeName().toLowerCase();
 
         List<ContextRoleRegisterItem> typeCollectors = collectors.get(typeName);
         // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         List<Id> invalidContexts = new ArrayList<Id>();
+        
+        //Для нового объекта всегда добавляем в не валидный контекст сам создаваемый объект, 
+        //чтобы рассчитались права со статичными или без контекстными группами
+        if (isCreate){
+            invalidContexts.add(domainObject.getId());
+        }
+        
         if (typeCollectors != null) {
             for (ContextRoleRegisterItem dynamicGroupCollector : typeCollectors) {
                 // Поучаем невалидные контексты и добавляем их в итоговый массив без дублирования

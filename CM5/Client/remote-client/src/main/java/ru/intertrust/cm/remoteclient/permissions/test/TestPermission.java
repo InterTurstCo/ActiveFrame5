@@ -47,21 +47,22 @@ public class TestPermission extends ClientBase {
             internalDocument.setString("ReturnOnReject", "YES");
             internalDocument.setLong("Stage", 0L);
             internalDocument.setString("RegNum", "InternalDoc111");
-            internalDocument.setReference("docAuthor", getEmployeeId("Employee-1"));
-            internalDocument.setReference("Registrant", getEmployeeId("Employee-4"));
+            internalDocument.setReference("docAuthor", getEmployeeId("Сотрудник 3"));
+            internalDocument.setReference("Registrant", getEmployeeId("Сотрудник 4"));
             internalDocument = crudService.save(internalDocument);
 
             //Создание карточек согласования
             for (int i = 0; i < 2; i++) {
-                createNegotiationCard(internalDocument.getId(), "Employee-" + (i + 2));
+                createNegotiationCard(internalDocument.getId(), "Сотрудник " + (i + 5));
             }
 
             //Проверка прав
             EtalonPermissions etalon = new EtalonPermissions();
-            etalon.addPermission(getEmployeeId("Employee-1"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
             etalon.addPermission(getPersonId("admin"), Permission.Delete);
-            etalon.addActionPermission(getEmployeeId("Employee-1"), "StartProcessAction");
-            etalon.addActionPermission(getEmployeeId("Employee-1"), "ChangeStatusAction");
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
+            etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "StartProcessAction");
+            etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "ChangeStatusAction");
             checkPermissions(internalDocument.getId(), etalon, "Status Draft");
 
             //Смена статуса + проверка прав. Статус сейчас меняется в строковом поле, после в точке расширения отлавливается это изменение 
@@ -70,29 +71,29 @@ public class TestPermission extends ClientBase {
             internalDocument = crudService.save(internalDocument);
             internalDocument = crudService.find(internalDocument.getId());
             etalon = new EtalonPermissions();
-            etalon.addPermission(getEmployeeId("Employee-1"), Permission.Write);
-            etalon.addPermission(getEmployeeId("Employee-2"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Employee-3"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Status Negotiation");
 
             //Добавляем еще согласующего, права должны пересчитаться
-            createNegotiationCard(internalDocument.getId(), "Employee-5");
+            createNegotiationCard(internalDocument.getId(), "Сотрудник 7");
             etalon = new EtalonPermissions();
-            etalon.addPermission(getEmployeeId("Employee-1"), Permission.Write);
-            etalon.addPermission(getEmployeeId("Employee-2"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Employee-3"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Employee-5"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Add new Negotiator");
 
             internalDocument.setString("State", "Registration");
             internalDocument = crudService.save(internalDocument);
             internalDocument = crudService.find(internalDocument.getId());
             etalon = new EtalonPermissions();
-            etalon.addPermission(getEmployeeId("Employee-1"), Permission.Write);
-            etalon.addPermission(getEmployeeId("Employee-4"), Permission.Write);
-            etalon.addPermission(getEmployeeId("Employee-2"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Employee-3"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Employee-5"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Status Registration");
 
             internalDocument.setString("State", "Registred");
@@ -105,16 +106,29 @@ public class TestPermission extends ClientBase {
             internalDocument = crudService.save(internalDocument);
             internalDocument = crudService.find(internalDocument.getId());
             etalon = new EtalonPermissions();
-            etalon.addPermission(getEmployeeId("Employee-1"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
             checkPermissions(internalDocument.getId(), etalon, "Status OnRevision");
 
+            //Создаем письмо
+            DomainObject letter = crudService.createDomainObject("letter");
+            letter.setString("subject", "Тестовое письмо " + System.nanoTime());
+            letter = crudService.save(letter);
+
+            etalon = new EtalonPermissions();
+            etalon.addPermission(getPersonId("admin"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 2"), Permission.Read);
+            etalon.addActionPermission(getEmployeeId("Сотрудник 1"), "action1");
+            etalon.addActionPermission(getPersonId("admin"), "action1");
+            checkPermissions(letter.getId(), etalon, "New letter");
+            
             log("Test complete");
         } finally {
             writeLog();
         }
     }
 
-    private void checkPermissions(Id domainObjectId, EtalonPermissions etalon, String massage) {
+    private void checkPermissions(Id domainObjectId, EtalonPermissions etalon, String massage) throws Exception {
         List<DomainObjectPermission> serverPermission = permissionService.getObjectPermissions(domainObjectId);
         etalon.compare(serverPermission, massage);
     }
@@ -168,7 +182,7 @@ public class TestPermission extends ClientBase {
             actions.add(action);
         }
 
-        public boolean compare(List<DomainObjectPermission> serverPermission, String massage) {
+        public boolean compare(List<DomainObjectPermission> serverPermission, String massage) throws Exception {
             boolean result = true;
 
             if (serverPermission.size() != personPermission.size()){
@@ -213,6 +227,7 @@ public class TestPermission extends ClientBase {
                 log(massage + " Compare ERROR");
             }
             
+            assertTrue(massage, result);
             return result;
         }
     }
