@@ -77,7 +77,7 @@ public class GenerateReportServlet {
                 String paramType = parts[1];
 
                 Value value = ValueUtil.stringValueToObject(paramValue, paramType);
-                reportParams.put(paramName, value);
+                reportParams.put(paramName, value.get());
             }
         }
         return reportParams;
