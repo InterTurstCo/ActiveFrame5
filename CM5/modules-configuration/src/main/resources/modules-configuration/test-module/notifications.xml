@@ -43,23 +43,44 @@
                                     <td h-align="right">
                                         <widget id="3"/>
                                     </td>
-                                    <!-- label (Население) -->
+                                    <!-- label (Заголовок) -->
                                     <td h-align="left">
                                         <widget id="4"/>
                                     </td>
-                                    <!-- integer-box (Население) -->
+                                    <!-- text-box (Заголовок) -->
 
                                 </tr>
                                 <tr>
                                     <td h-align="right">
                                         <widget id="5"/>
                                     </td>
-                                    <!-- label (Год основания) -->
+                                    <!-- label (Сообщение) -->
                                     <td colspan="3" h-align="left">
                                         <widget id="6"/>
                                     </td>
-                                    <!-- date-box (Год основания) -->
+                                    <!-- text-box (Сообщение) -->
                                 </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="7"/>
+                                    </td>
+                                    <!-- label (Отправитель) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="8"/>
+                                    </td>
+                                    <!-- text-box (Отправитель) -->
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="9"/>
+                                    </td>
+                                    <!-- label (Адресат) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="10"/>
+                                    </td>
+                                    <!-- text-box (Адресат) -->
+                                </tr>
+                                
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -70,34 +91,13 @@
                             <table>
                                 <tr>
                                     <td h-align="right">
-                                        <widget id="7"/>
-                                    </td>
-                                    <!-- label (Площадь) -->
-                                    <td colspan="3" h-align="left">
-                                        <widget id="8"/>
-                                    </td>
-                                    <!-- decimal-box (Площадь) -->
-                                </tr>
-                                <tr>
-                                    <td h-align="right">
-                                        <widget id="9"/>
-                                    </td>
-                                    <!-- label (Широта) -->
-                                    <td h-align="left">
-                                        <widget id="10"/>
-                                    </td>
-                                    <!-- decimal-box  (Широта) -->
-
-                                </tr>
-                                <tr>
-                                    <td h-align="right">
                                         <widget id="11"/>
                                     </td>
-                                    <!-- label (Долгота) -->
+                                    <!-- label () -->
                                     <td colspan="3" h-align="left">
                                         <widget id="12"/>
                                     </td>
-                                    <!-- decimal-box  (Долгота) -->
+                                    <!-- decimal-box () -->
                                 </tr>
                             </table>
                         </tab-group>
