@@ -42,6 +42,6 @@
         <import-file>importdata/import-group-members.csv</import-file>
         <import-file rewrite="false">importdata/import-locale.csv</import-file>
         <import-file rewrite="false">importdata/import-notification_text.csv</import-file>
-<!--         <import-file>importdata/import-notification.csv</import-file>
- -->    </import-files>
+        <import-file>importdata/import-notification.csv</import-file>
+    </import-files>
 </module>

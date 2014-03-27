@@ -119,6 +119,19 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="Notifications" display-text="Уведомления">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="notification">
+                            <collection-viewer>
+                                <collection-ref name="Notifications" />
+                                <default-sort-criteria column-field="subject" order="desc" />
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                    <decorations>
+                        <collection-counter />
+                    </decorations>
+                </link>
             <!--    <link name="Custom_Plugin" display-text="Плагин">
                     <plugin>
                         <custom name="some.plugin">

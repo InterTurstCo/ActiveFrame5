@@ -121,20 +121,20 @@
                 <field-path value="body"/>
             </text-box>
             
-            <label id="7">
+<!--             <label id="7">
                 <text>Отправитель:</text>
             </label>
-            <text-box id="8">
+            <decimal-box id="8">
                 <field-path value="from"/>
-            </text-box>
+            </decimal-box>
 
             <label id="9">
                 <text>Адресат:</text>
             </label>
-            <text-box id="10">
+            <decimal-box id="10">
                 <field-path value="to"/>
-            </text-box>
-        </widget-config>
+            </decimal-box>
+ -->        </widget-config>
     </form>
 
     <form-mappings name="notification_mappings">
