@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.config.module;
 
-import java.net.URL;
-import java.util.List;
-
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+
+import java.net.URL;
+import java.util.List;
 
 @Root(name="module")
 public class ModuleConfiguration implements Dto {
@@ -34,6 +34,9 @@ public class ModuleConfiguration implements Dto {
     
     @ElementList(entry="configuration-path", required=false, name="configuration-paths")
     private List<String> configurationPaths;
+
+    @Element(required=false, name="import-reports")
+    private ImportReportsConfiguration importReports;
 
     private URL moduleUrl;
     
@@ -85,6 +88,15 @@ public class ModuleConfiguration implements Dto {
     public void setImportFiles(ImportFilesConfiguration importFiles) {
         this.importFiles = importFiles;
     }
+
+    public ImportReportsConfiguration getImportReports() {
+        return importReports;
+    }
+
+    public void setImportReports(ImportReportsConfiguration importReports) {
+        this.importReports = importReports;
+    }
+
     public URL getModuleUrl() {
         return moduleUrl;
     }

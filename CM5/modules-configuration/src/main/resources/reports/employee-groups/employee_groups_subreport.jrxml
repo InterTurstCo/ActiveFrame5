@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version last-->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="employee_groups_subreport" pageWidth="600" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="a5ce63b9-bb61-48c0-8a45-3a11360fa3d2">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Sochi JDBC on localhost"/>
+	<parameter name="LOGIN" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select g.group_name from Group_Member m
+inner join Person p on (p.id = m.person_id)
+inner join User_Group g on (g.id = m.usergroup)
+where p.login = $P{LOGIN}]]>
+	</queryString>
+	<field name="group_name" class="java.lang.String"/>
+	<detail>
+		<band height="47" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement x="29" y="10" width="230" height="20" uuid="923a6d1b-769c-447e-bf1c-f4dbdcd08aad"/>
+				<textFieldExpression><![CDATA[$F{group_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>
