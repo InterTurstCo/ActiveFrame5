@@ -2,3 +2,5 @@ TYPE_NAME=notification_text;KEYS=notification_type,notification_part,locale,chan
 notification_type;notification_part;locale;channel;notification_text
 TestNotificationType;subject;"name=""EN""";MailNotificationChannel;Test Notification
 TestNotificationType;body;"name=""EN""";MailNotificationChannel;Hello ${addressee.get("lastname")}. Document changed: ${document.get("name")}
+TestNotificationType;subject;"name=""EN""";InboxNotificationChannel;Test Notification
+TestNotificationType;body;"name=""EN""";InboxNotificationChannel;Hello ${addressee.get("lastname")}. Document changed: ${document.get("name")}

@@ -4,7 +4,7 @@
     <collection-view name="notification_default_view" collection="Notifications" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="from" name="Отправитель" type="integer" editable="false" sortable="true">
+            <column field="sender" name="Отправитель" type="string" editable="false" sortable="true">
                 <asc-sort-criteria>
                     <sort-criterion field="from" order="asc"/>
                 </asc-sort-criteria>
@@ -12,7 +12,7 @@
                     <sort-criterion field="from" order="desc"/>
                 </desc-sort-criteria>
             </column>
-            <column field="to" name="Адресат" type="integer" editable="false" sortable="true"/>
+            <column field="addressee" name="Адресат" type="string" editable="false" sortable="true"/>
             <column field="subject" name="Заголовок" editable="false" type="string" sortable="true"/>
             <column field="body" name="Сообщение" type="string" editable="false" sortable="true"/>
         </display>
@@ -121,20 +121,20 @@
                 <field-path value="body"/>
             </text-box>
             
-<!--             <label id="7">
+             <label id="7">
                 <text>Отправитель:</text>
             </label>
-            <decimal-box id="8">
-                <field-path value="from"/>
-            </decimal-box>
+            <text-box id="8">
+                <field-path value="sender"/>
+            </text-box>
 
             <label id="9">
                 <text>Адресат:</text>
             </label>
-            <decimal-box id="10">
-                <field-path value="to"/>
-            </decimal-box>
- -->        </widget-config>
+            <text-box id="10">
+                <field-path value="addressee" />
+            </text-box>
+        </widget-config>
     </form>
 
     <form-mappings name="notification_mappings">

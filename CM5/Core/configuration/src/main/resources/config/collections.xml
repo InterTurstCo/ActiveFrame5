@@ -176,10 +176,14 @@
         <prototype>
             <![CDATA[
                 select
-                 n.id, n.subject, n.body, n.new, n."from", n."to" 
+                    n.id, n.subject, n.body, n.new, n."from", n."to",
+                    sender.firstname as sender, addressee.firstname as addressee
                 from
                     notification n
-                     ::from-clause
+                    left join person sender on sender.id = n."from"
+                    left join person addressee on addressee.id = n."to"
+                    
+                    ::from-clause
                 where
                     1=1 ::where-clause
             ]]>

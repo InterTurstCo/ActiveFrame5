@@ -35,8 +35,8 @@
 
     <domain-object-type name="notification" initial-status="Active">
         <fields>
-            <reference name="From" type="Employee" />
-            <reference name="To" type="Employee" />
+            <reference name="From" type="Person" />
+            <reference name="To" type="Person" />
             <string name="Subject" length="256" />
             <string name="Body" length="1024" />
             <string name="Priority" length="128" />            
