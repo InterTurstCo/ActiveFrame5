@@ -293,7 +293,7 @@
         </widget-config>
     </form>
 
-    <form name="report" type="report" domain-object-type="all-employee">
+    <form name="report" type="report" domain-object-type="all-employee-params">
         <markup>
             <header>
                 <table width="800px" height="40px">
@@ -334,22 +334,22 @@
         <widget-config>
             <label id="reportNameLabel">
                 <field-path/>
-                <text>Все сотрудники</text>
+                <text>Все сотрудники, созданные за указаный период</text>
             </label>
             <label id="startLabel">
                 <field-path/>
                 <text>Начало:</text>
             </label>
-            <text-box id="startInput">
+            <date-box id="startInput">
                 <field-path value="paramStart"/>
-            </text-box>
+            </date-box>
             <label id="endLabel">
                 <field-path />
                 <text>Конец:</text>
             </label>
-            <text-box id="endInput">
+            <date-box id="endInput">
                 <field-path value="paramEnd"/>
-            </text-box>
+            </date-box>
         </widget-config>
     </form>
 

@@ -142,7 +142,7 @@
                 </link>-->
                 <link name="Report" display-text="Отчет">
                     <plugin>
-                        <report-plugin report-name="all-employee"/>
+                        <report-plugin report-name="all-employee-params"/>
                     </plugin>
                 </link>
             </child-links>
