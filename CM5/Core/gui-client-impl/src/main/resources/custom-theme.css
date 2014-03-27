@@ -16,6 +16,18 @@
     height: 35px;
 }
 
+.ext-search-content-wrapper .gwt-TabBar {
+    background: none;
+}
+
+.ext-search-content-wrapper .form-footer-blank {
+    background: none;
+}
+
+.ext-search-content-wrapper .gwt-TabPanelBottom {
+    background: none;
+}
+
 .gwt-TabBar .gwt-TabBarItem {
     background: none;
     cursor: pointer;
