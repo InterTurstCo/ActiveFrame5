@@ -82,6 +82,10 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     public void resetFilterValue() {
         if (widget.getSearchFilterName() != null) {
             widget.setFilterValue(EMPTY_VALUE);
+            input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+            inputFilter = InputElement.as(input);
+            inputFilter.setValue(EMPTY_VALUE);
+
         }
 
     }
@@ -123,11 +127,12 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         }
     }
 
-    public void initElements() {
-        clearButton = DOM.getElementById(searchAreaId + HEADER_CLEAR_BUTTON_ID_PART);
-        Element input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
-        inputFilter = InputElement.as(input);
-
+    private void initElements() {
+        if (widget.getSearchFilterName() == null) {
+            clearButton = DOM.getElementById(searchAreaId + HEADER_CLEAR_BUTTON_ID_PART);
+            input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+            inputFilter = InputElement.as(input);
+        }
     }
 
     public void setSearchAreaVisibility(boolean visibility) {
@@ -142,6 +147,19 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             DOM.getElementById(searchAreaId).getStyle().setDisplay(Style.Display.NONE);
         }
     }
+    public void hideClearButton(){
+        if (widget.getSearchFilterName() != null) {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    clearButton = DOM.getElementById(searchAreaId + HEADER_CLEAR_BUTTON_ID_PART);
+                    clearButton.setClassName("search-box-clear-button-off");
+
+                }
+            });
+
+        }
+    }
 
     @Override
     public HeaderWidget getValue() {
@@ -150,9 +168,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     @Override
     public void onBrowserEvent(Context context, Element target, NativeEvent event) {
-        if (widget.getSearchFilterName() != null) {
-            initElements();
-        }
+
+        initElements();
         String eventType = event.getType();
         if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown") && widget.getSearchFilterName() != null) {
             widget.setFilterValue(inputFilter.getValue());
@@ -303,8 +320,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             if (eventType.equalsIgnoreCase("keydown")) {
                 if (clickedElement != null) {
                     onHeaderElementClick(clickedElement);
-                   /* natEvent.stopPropagation();
-                    natEvent.preventDefault();*/
                 }
 
                 return;

@@ -29,6 +29,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.D
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DataGridResources;
 
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseUtils;
+import ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.client.iview.SystemSizes;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
@@ -305,14 +306,16 @@ public class CollectionPluginView extends PluginView {
                 Value value = null;
                 String fieldType = header.getFieldType();
                 if (TIMELESS_DATE_TYPE.equalsIgnoreCase(fieldType)) {
-
-
                         try {
                             DateTimeFormat format = header.getDateTimeFormat();
-                        Date    date = format.parse(filterValue);
-
-                            TimelessDate timelessDate = new TimelessDate(date.getYear() + 1900, date.getMonth(), date.getDay()) ;
-                            value = new TimelessDateValue(timelessDate);
+                            Date selectedDate = format.parse(filterValue);
+                            TimelessDate timelessDateSelected = new TimelessDate(selectedDate.getYear() + 1900, selectedDate.getMonth(),selectedDate.getDay());
+                            value = new TimelessDateValue(timelessDateSelected );
+                            filter.addCriterion(0, value);
+                            Date currentDate = new Date(System.currentTimeMillis());
+                            TimelessDate currentTimelessDate = new TimelessDate(currentDate.getYear() + 1900, currentDate.getMonth(), currentDate.getDay()) ;
+                            Value currentTimeValue = new TimelessDateValue(currentTimelessDate);
+                            filter.addCriterion(1, currentTimeValue);
                         } catch (IllegalArgumentException e) {
                             Window.alert("Wrong date!");
                             return;
@@ -321,8 +324,9 @@ public class CollectionPluginView extends PluginView {
 
                 } else {
                     value = new StringValue("%" + filterValue + "%");
+                    filter.addCriterion(0, value);
                 }
-                filter.addCriterion(0, value);
+
                 filterList.add(filter);
             }
         }
@@ -333,7 +337,6 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void onKeyEscapePressed() {
-        headerController.resetFiltersValues();
         filterList.clear();
         filterButton.setValue(false);
         headerController.changeFiltersInputsVisibility(false);
@@ -566,7 +569,7 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
-
+                headerController.saveFilterValues();
                 insertMoreRows(collectionRowItems);
                 tableBody.flush();
                 ScrollPanel scroll =   tableBody.getScrollPanel();
@@ -676,8 +679,6 @@ public class CollectionPluginView extends PluginView {
                collectionData();
            }
        }
-
-
 
    }
 

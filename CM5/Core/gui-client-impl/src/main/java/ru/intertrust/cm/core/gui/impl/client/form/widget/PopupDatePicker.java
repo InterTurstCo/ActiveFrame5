@@ -31,6 +31,7 @@ public class PopupDatePicker extends PopupPanel {
                 popupPanel.hide();
             }
         }, MouseOutEvent.getType());
+
     }
     public void showDatePicker(){
 

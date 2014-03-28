@@ -21,6 +21,10 @@ public class CollectionColumnHeaderController {
     public void changeFiltersInputsVisibility(boolean showFilter) {
         for (CollectionColumnHeader header : headers) {
             header.setSearchAreaVisibility(showFilter);
+            if(showFilter){
+                header.hideClearButton();
+                header.resetFilterValue();
+            }
         }
 
     }
@@ -43,9 +47,5 @@ public class CollectionColumnHeaderController {
             header.setFocus();
         }
     }
-    public void resetFiltersValues() {
-        for (CollectionColumnHeader header : headers) {
-            header.resetFilterValue();
-        }
-    }
+
 }
