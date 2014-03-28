@@ -20,6 +20,8 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 @NotificationChannel(name = "InboxNotificationChannel",
         description = "Канал отправки уведомлений в папку \"Входящие уведомления\"")
 public class InboxNotificationChannel extends NotificationChannelBase implements NotificationChannelHandle {
+    private static final String NOTIFICATION_DO = "notification";
+
     private static final Logger logger = Logger.getLogger(InboxNotificationChannel.class);
 
     private static final String INBOX_NOTIFICATION_CHANNEL = "InboxNotificationChannel";
@@ -51,13 +53,7 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
                         INBOX_NOTIFICATION_CHANNEL,
                         context);
 
-        DomainObject notification = crudService.createDomainObject("notification");
-        notification.setString("Subject", subject);
-        notification.setString("Body", body);
-        notification.setReference("From", senderId);
-        notification.setReference("To", addresseeId);
-        notification.setString("Priority", priority.toString());
-        notification.setBoolean("New", true);
+        DomainObject notification = createNotification(senderId, addresseeId, subject, body, priority);
 
         notification = domainObjectDao.save(notification, systemAccessToken);
 
@@ -65,6 +61,18 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
                 + "; senderId="
                 + senderId + "; addresseeId=" + addresseeId + "; priority=" + priority + "; context=" + context);
 
+    }
+
+    private DomainObject createNotification(Id senderId, Id addresseeId, String subject, String body,
+            NotificationPriority priority) {
+        DomainObject notification = crudService.createDomainObject(NOTIFICATION_DO);
+        notification.setString("Subject", subject);
+        notification.setString("Body", body);
+        notification.setReference("From", senderId);
+        notification.setReference("To", addresseeId);
+        notification.setString("Priority", priority.toString());
+        notification.setBoolean("New", true);
+        return notification;
     }
 
 }

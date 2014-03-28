@@ -182,7 +182,6 @@
                     notification n
                     left join person sender on sender.id = n."from"
                     left join person addressee on addressee.id = n."to"
-                    
                     ::from-clause
                 where
                     1=1 ::where-clause

@@ -125,14 +125,14 @@
                 <text>Отправитель:</text>
             </label>
             <text-box id="8">
-                <field-path value="sender"/>
+                <field-path value="from.firstname" />
             </text-box>
 
             <label id="9">
                 <text>Адресат:</text>
             </label>
             <text-box id="10">
-                <field-path value="addressee" />
+                <field-path value="to.firstname"/>
             </text-box>
         </widget-config>
     </form>
