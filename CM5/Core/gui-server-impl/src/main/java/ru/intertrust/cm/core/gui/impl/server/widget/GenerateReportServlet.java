@@ -53,12 +53,13 @@ public class GenerateReportServlet {
             ReportResult reportResult = reportService.generate(reportName, params);
             bufferOut.write(reportResult.getReport());
         } catch (Exception e) {
+            response.setHeader("Content-Disposition", "attachment; filename=REPORT_GENERATION_ERROR_" + reportName);
             bufferOut.write("Ошибка при генерации отчета ".getBytes());
             bufferOut.write(reportName.getBytes());
             bufferOut.write("\r\n".getBytes());
             bufferOut.write(e.getMessage().getBytes());
-            bufferOut.write(Arrays.asList(e.getStackTrace()).toString().getBytes());
-            logger.error("Ошибка при генерации отчета " + reportName, e);
+            bufferOut.write(Arrays.asList(e.getCause().getStackTrace()).toString().getBytes());
+            logger.error("Ошибка при генерации отчета " + reportName, e.getCause());
         }
         bufferOut.flush();
         bufferOut.close();
@@ -75,9 +76,12 @@ public class GenerateReportServlet {
                 String[]parts = requestParamValue.split(SEPARATOR);
                 String paramValue = parts[0];
                 String paramType = parts[1];
-
-                Value value = ValueUtil.stringValueToObject(paramValue, paramType);
-                reportParams.put(paramName, value.get());
+                if (paramValue != null && !"null".equals(paramValue)) {
+                    Value value = ValueUtil.stringValueToObject(paramValue, paramType);
+                    reportParams.put(paramName, value.get());
+                } else {
+                    reportParams.put(paramName, null);
+                }
             }
         }
         return reportParams;
