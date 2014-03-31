@@ -9,7 +9,7 @@ import org.simpleframework.xml.Attribute;
  * войти в группу. Не нужен, если сам отслеживаемый объект представляет эту группу.
  * @author atsvetkov
  */
-public class GetGroupConfig extends DoelAware implements Serializable {
+public class GetGroupConfig extends GetPersonConfig implements Serializable {
 
     @Attribute(name="name")
     private String groupName;

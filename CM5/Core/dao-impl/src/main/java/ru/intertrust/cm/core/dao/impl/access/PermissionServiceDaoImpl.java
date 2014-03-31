@@ -101,20 +101,21 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private void
-            notifyDomainObjectChangedInternal(DomainObject domainObject, List<FieldModification> modifiedFieldNames, boolean isCreate) {
+            notifyDomainObjectChangedInternal(DomainObject domainObject, List<FieldModification> modifiedFieldNames,
+                    boolean isCreate) {
         String typeName = domainObject.getTypeName().toLowerCase();
 
         List<ContextRoleRegisterItem> typeCollectors = collectors.get(typeName);
         // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         List<Id> invalidContexts = new ArrayList<Id>();
-        
+
         //Для нового объекта всегда добавляем в не валидный контекст сам создаваемый объект, 
         //чтобы рассчитались права со статичными или без контекстными группами
-        if (isCreate){
+        if (isCreate) {
             invalidContexts.add(domainObject.getId());
         }
-        
+
         if (typeCollectors != null) {
             for (ContextRoleRegisterItem dynamicGroupCollector : typeCollectors) {
                 // Поучаем невалидные контексты и добавляем их в итоговый массив без дублирования
@@ -205,11 +206,14 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("select 'R' as operation, r.").append(DaoUtils.wrap("group_id")).append(" from ").
-                append(DaoUtils.wrap(tableNameRead)).append(" r ").append("where r.").append(DaoUtils.wrap("object_id")).
+                append(DaoUtils.wrap(tableNameRead)).append(" r ").append("where r.")
+                .append(DaoUtils.wrap("object_id")).
                 append(" = :object_id ");
         query.append("union ");
-        query.append("select a.").append(DaoUtils.wrap("operation")).append(", a.").append(DaoUtils.wrap("group_id")).append(" from ").
-                append(DaoUtils.wrap(tableNameAcl)).append(" a where a.").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
+        query.append("select a.").append(DaoUtils.wrap("operation")).append(", a.").append(DaoUtils.wrap("group_id"))
+                .append(" from ").
+                append(DaoUtils.wrap(tableNameAcl)).append(" a where a.").append(DaoUtils.wrap("object_id"))
+                .append(" = :object_id ");
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("object_id", rdbmsObjectId.getId());
@@ -316,9 +320,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
                     // контекстным объектом является текущий объект (для которого
                     // пересчитываются списки доступа)
-                    Long contextObjectId = ((RdbmsId) invalidContextId).getId();
-                    result.add(processAclForDynamicGroupWithContext(invalidContextId, accessType, dynamicGroupName,
-                            contextObjectId));
+                    result.add(processAclForDynamicGroupWithContext(invalidContextId, accessType, dynamicGroupName, invalidContextId));
 
                 } else {
                     result.add(processAclForDynamicGroupWithoutContext(invalidContextId, accessType, dynamicGroupName));
@@ -329,10 +331,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private AclInfo processAclForDynamicGroupWithContext(Id objectId, AccessType accessType, String dynamicGroupName,
-            Long contextObjectId) {
+            Id contextObjectId) {
         Id dynamicGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, contextObjectId);
         return new AclInfo(accessType, dynamicGroupId);
-        //insertAclRecord(accessType, objectId, dynamicGroupId);
     }
 
     private List<AclInfo> processAclForCollector(Id invalidContextId,
@@ -340,7 +341,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         List<AclInfo> result = new ArrayList<AclInfo>();
         for (Id groupId : collector.getMembers(invalidContextId)) {
             result.add(new AclInfo(accessType, groupId));
-            //insertAclRecord(accessType, invalidContextId, groupId);
         }
         return result;
     }
@@ -406,7 +406,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
-        query.append(DaoUtils.wrap(tableName)).append(" where ").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
+        query.append(DaoUtils.wrap(tableName)).append(" where ").append(DaoUtils.wrap("object_id"))
+                .append(" = :object_id ");
         query.append("and ").append(DaoUtils.wrap("group_id")).append(" = :group_id");
 
         return query.toString();
@@ -418,7 +419,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("insert  into ");
-        query.append(DaoUtils.wrap(tableName)).append(" (").append(DaoUtils.wrap("object_id")).append(", ").append(DaoUtils.wrap("group_id")).
+        query.append(DaoUtils.wrap(tableName)).append(" (").append(DaoUtils.wrap("object_id")).append(", ")
+                .append(DaoUtils.wrap("group_id")).
                 append(") values (:object_id, :group_id)");
 
         return query.toString();
@@ -430,8 +432,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
-        query.append(DaoUtils.wrap(tableName)).append(" where ").append(DaoUtils.wrap("operation")).append("=:operation and ").
-                append(DaoUtils.wrap("object_id")).append("=:object_id and ").append(DaoUtils.wrap("group_id")).append("=:group_id");
+        query.append(DaoUtils.wrap(tableName)).append(" where ").append(DaoUtils.wrap("operation"))
+                .append("=:operation and ").
+                append(DaoUtils.wrap("object_id")).append("=:object_id and ").append(DaoUtils.wrap("group_id"))
+                .append("=:group_id");
 
         return query.toString();
     }
@@ -718,20 +722,29 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("select 'R' as operation, gm.").append(DaoUtils.wrap("person_id")).append(", gm.").
-                append(DaoUtils.wrap("person_id_type")).append(" from ").append(DaoUtils.wrap(tableNameRead)).append(" r ").
-                append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on (r.").append(DaoUtils.wrap("group_id")).
-                append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ").append(DaoUtils.wrap("group_member")).
-                append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup")).
+                append(DaoUtils.wrap("person_id_type")).append(" from ").append(DaoUtils.wrap(tableNameRead))
+                .append(" r ").
+                append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on (r.")
+                .append(DaoUtils.wrap("group_id")).
+                append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ")
+                .append(DaoUtils.wrap("group_member")).
+                append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.")
+                .append(DaoUtils.wrap("usergroup")).
                 append(" where r.").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
         if (personId != null) {
             query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");
         }
         query.append("union ");
-        query.append("select a.").append(DaoUtils.wrap("operation")).append(", gm.").append(DaoUtils.wrap("person_id")).append(", ").
-                append("gm.").append(DaoUtils.wrap("person_id_type")).append(" from ").append(DaoUtils.wrap(tableNameAcl)).append(" a ").
-                append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on (a.").append(DaoUtils.wrap("group_id")).
-                append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ").append(DaoUtils.wrap("group_member")).
-                append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup")).
+        query.append("select a.").append(DaoUtils.wrap("operation")).append(", gm.").append(DaoUtils.wrap("person_id"))
+                .append(", ").
+                append("gm.").append(DaoUtils.wrap("person_id_type")).append(" from ")
+                .append(DaoUtils.wrap(tableNameAcl)).append(" a ").
+                append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on (a.")
+                .append(DaoUtils.wrap("group_id")).
+                append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ")
+                .append(DaoUtils.wrap("group_member")).
+                append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.")
+                .append(DaoUtils.wrap("usergroup")).
                 append(" where a.").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
         if (personId != null) {
             query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");

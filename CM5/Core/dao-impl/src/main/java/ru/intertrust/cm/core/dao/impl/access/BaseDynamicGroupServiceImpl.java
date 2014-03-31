@@ -130,12 +130,13 @@ public class BaseDynamicGroupServiceImpl {
      *            идентификатор контекстного объекта
      * @return идентификатор группы пользователей
      */
-    protected Id getUserGroupByGroupNameAndObjectId(String groupName, Long contextObjectId) {
-        String query = generateGetUserGroupWithContextQuery();
-
-        Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
-        Integer doTypeId = domainObjectTypeIdCache.getId(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
-        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
+    protected Id getUserGroupByGroupNameAndObjectId(String groupName, Id contextObjectId) {
+        Id result = null;
+        DomainObject group = personManagementService.findDynamicGroup(groupName, contextObjectId);
+        if (group != null){
+            result = group.getId(); 
+        }
+        return result;
     }
 
     private Map<String, Object> initializeProcessUserGroupWithContextParameters(String groupName, Long contextObjectId) {

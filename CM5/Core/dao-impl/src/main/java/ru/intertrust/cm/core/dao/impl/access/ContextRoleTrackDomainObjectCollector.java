@@ -35,8 +35,7 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
         //Проверяем указана ли имя динамической группы. Если указана то берем динамическую группу с контекстом доменного объекта и именем из конфигурации
         if (trackDomainObjects.getGetGroup().getGroupName() != null) {
             for (Id id : contextGroupOwner) {
-                result.add(getUserGroupByGroupNameAndObjectId(trackDomainObjects.getGetGroup().getGroupName(),
-                        ((RdbmsId) id).getId()));
+                result.add(getUserGroupByGroupNameAndObjectId(trackDomainObjects.getGetGroup().getGroupName(), id));
             }
         } else {
             //имя не указано, полученные доменные объекты и ест контекстные группы

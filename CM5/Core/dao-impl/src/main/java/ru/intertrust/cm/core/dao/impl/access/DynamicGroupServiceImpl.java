@@ -43,7 +43,7 @@ import ru.intertrust.cm.core.model.PermissionException;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
- *
+ * 
  * @author atsvetkov
  */
 @ExtensionPoint(filter = "Person")
@@ -88,7 +88,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             }
         }
 
-        if (beforeSaveInvalidGroups != null){
+        if (beforeSaveInvalidGroups != null) {
             invalidGroups.addAll(beforeSaveInvalidGroups);
         }
 
@@ -174,7 +174,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Пересчитывает список персон динамической группы.
-     *
+     * 
      * @param dynamicGroupId
      *            идентификатор динамической группы
      * @param personIds
@@ -286,7 +286,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Добавляет группу с данным именем и контекстным объектом, если группы нет в базе данных
-     *
+     * 
      * @param dynamicGroupName
      *            имя динамической группы
      * @param contextObjectId
@@ -294,12 +294,17 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @return обновленную динамическую группу
      */
     private Id refreshUserGroup(String dynamicGroupName, Id contextObjectId) {
-        Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName,
-                ((RdbmsId) contextObjectId).getId());
+        Id userGroupId = null;
+        if (contextObjectId == null) {
+            userGroupId = personManagementService.getGroupId(dynamicGroupName);
+        } else {
+            userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, contextObjectId);
+        }
 
         if (userGroupId == null) {
             userGroupId = createUserGroup(dynamicGroupName, contextObjectId);
         }
+        
         return userGroupId;
     }
 
@@ -345,8 +350,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
 
-        String query = "select t.id from user_group t where object_id = " + ((RdbmsId) domainObjectId).getId() + " and object_id_type = " +
-                ((RdbmsId) domainObjectId).getTypeId();
+        String query =
+                "select t.id from user_group t where object_id = " + ((RdbmsId) domainObjectId).getId()
+                        + " and object_id_type = " +
+                        ((RdbmsId) domainObjectId).getTypeId();
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
             domainObjectDao.delete(identifiableObject.getId(), accessToken);
@@ -423,7 +430,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @param dynamicGroupConfig
      */
     private void registerConfig(String contextType, DynamicGroupConfig dynamicGroupConfig,
-                                Configuration configuration) {
+            Configuration configuration) {
         registerOneTypeConfig(contextType, dynamicGroupConfig);
         List<String> subTypes = getSubTypes(contextType, configuration);
         for (String subtype : subTypes) {
@@ -451,7 +458,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @param dynamicGroupConfig
      */
     private void registerCollector(DynamicGroupCollector collector, DynamicGroupConfig dynamicGroupConfig,
-                                   Configuration configuration) {
+            Configuration configuration) {
         // Получение типов, которые отслеживает коллектор
         List<String> types = collector.getTrackTypeNames();
         // Регистрируем коллектор в реестре, для обработки
@@ -473,7 +480,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Регистрация коллектора в реестре колекторов для дмнамической группы
-     *
+     * 
      * @param type
      * @param collector
      */
@@ -489,7 +496,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Регистрация коллектора в реестре колекторов
-     *
+     * 
      * @param type
      * @param collector
      */
@@ -505,7 +512,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Получение всех дочерних типов переданного типа
-     *
+     * 
      * @param type
      * @return
      */
@@ -532,7 +539,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Установка спринг контекста в экземпляр класса
-     *
+     * 
      * @param applicationContext
      * @throws BeansException
      */
@@ -545,7 +552,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     /**
      * Клаксс для описания элемента реестра динамических групп
      * @author larin
-     *
+     * 
      */
     private class DynamicGroupRegisterItem {
         private DynamicGroupCollector collector;
@@ -720,7 +727,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     public List<Id> getPersons(Id contextId, String groupName) {
         List<DomainObject> persons = null;
         DomainObject group = personManagementService.findDynamicGroup(groupName, contextId);
-        if (group != null){
+        if (group != null) {
             persons = personManagementService.getAllPersonsInGroup(group.getId());
         }
         return getIdListFromDomainObjectList(persons);

@@ -8,11 +8,11 @@ import java.util.Map;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PermissionService;
-import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
@@ -100,6 +100,11 @@ public class TestPermission extends ClientBase {
             internalDocument = crudService.save(internalDocument);
             internalDocument = crudService.find(internalDocument.getId());
             etalon = new EtalonPermissions();
+            //В этом статусе право read имеют все пользователи
+            List<Id> allPersons = getAllPersons();
+            for (Id personId : allPersons) {
+                etalon.addPermission(personId, Permission.Read);
+            }
             checkPermissions(internalDocument.getId(), etalon, "Status Registred");
 
             internalDocument.setString("State", "OnRevision");
@@ -121,11 +126,21 @@ public class TestPermission extends ClientBase {
             etalon.addActionPermission(getEmployeeId("Сотрудник 1"), "action1");
             etalon.addActionPermission(getPersonId("admin"), "action1");
             checkPermissions(letter.getId(), etalon, "New letter");
-            
+
             log("Test complete");
         } finally {
             writeLog();
         }
+    }
+
+    private List<Id> getAllPersons() {
+        List<Id> result = new ArrayList<Id>();
+        IdentifiableObjectCollection collection =
+                collectionService.findCollectionByQuery("select id from person");
+        for (IdentifiableObject identifiableObject : collection) {
+            result.add(identifiableObject.getId());
+        }
+        return result;
     }
 
     private void checkPermissions(Id domainObjectId, EtalonPermissions etalon, String massage) throws Exception {
@@ -154,8 +169,7 @@ public class TestPermission extends ClientBase {
         }
         return result;
     }
-    
-    
+
     private void createNegotiationCard(Id documentId, String employeeName) {
         DomainObject negotiationCard = crudService.createDomainObject("Negotiation_Card");
         negotiationCard.setString("Name", "карточка согласующего");
@@ -185,11 +199,11 @@ public class TestPermission extends ClientBase {
         public boolean compare(List<DomainObjectPermission> serverPermission, String massage) throws Exception {
             boolean result = true;
 
-            if (serverPermission.size() != personPermission.size()){
+            if (serverPermission.size() != personPermission.size()) {
                 log("ACL NOT equals: ACL entry count not equals");
-                result = false;                
+                result = false;
             }
-            
+
             for (DomainObjectPermission domainObjectPermission : serverPermission) {
                 if (!domainObjectPermission.getPermission().equals(
                         personPermission.get(domainObjectPermission.getPersonId()))) {
@@ -215,18 +229,18 @@ public class TestPermission extends ClientBase {
                             log("ACL NOT equals: person id = " + domainObjectPermission.getPersonId() + " contain "
                                     + action + " but in base not contain it");
                             result = false;
-                        }                        
+                        }
                     }
                 }
 
             }
 
-            if (result){
+            if (result) {
                 log(massage + " Compare OK");
-            }else{
+            } else {
                 log(massage + " Compare ERROR");
             }
-            
+
             assertTrue(massage, result);
             return result;
         }

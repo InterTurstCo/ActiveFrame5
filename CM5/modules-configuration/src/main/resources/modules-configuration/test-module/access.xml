@@ -19,4 +19,13 @@
         </members>
     </dynamic-group>
 
+    <context-role name="AllUsers">
+        <context>
+            <domain-object type="Person" />
+        </context>
+        <groups>
+            <collector class-name="ru.intertrust.cm.test.acess.contextrole.AllUsers" />
+        </groups>
+    </context-role>
+
 </configuration>

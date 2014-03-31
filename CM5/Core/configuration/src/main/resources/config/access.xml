@@ -12,11 +12,15 @@
     <!-- Динамические группы пользователей - вычисляются системой -->
     <!-- Безконтекстные группы не поддерживаются. Это статичная группа заполняемая 
         точкой расширения на сохранение объектов -->
-    <!-- <dynamic-group name="AllPersons">
+    <dynamic-group name="AllPersons">
         <members>
-            <track-domain-objects type="Person" status="active" />
+            <track-domain-objects type="Person" status="Active">
+                <get-person>
+                    <query>select id from person</query>
+                </get-person>
+            </track-domain-objects>
         </members>
-    </dynamic-group> -->
+    </dynamic-group>
 
     <dynamic-group name="Person">
         <!-- По одной группе на каждый объект "Person" (пользователь) в системе -->
@@ -407,7 +411,6 @@
         <status name="Negotiation">
             <read>
                 <permit-role name="Negotiator" />
-                <permit-group name="AllPersons" />
             </read>
             <write>
                 <permit-role name="Author" />
@@ -416,7 +419,6 @@
         <status name="Registration">
             <read>
                 <permit-role name="Negotiator" />
-                <permit-group name="AllPersons" />
             </read>
             <write>
                 <permit-role name="Author" />
@@ -429,9 +431,6 @@
             </read>
         </status>
         <status name="OnRevision">
-            <read>
-                <permit-group name="AllPersons" />
-            </read>
             <write>
                 <permit-role name="Author" />
             </write>
