@@ -429,6 +429,9 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         public void insert(final Id itemId, final String itemName) {
             final SelectedItemComposite itemComposite = new SelectedItemComposite(itemId, itemName);
             itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
+            if(displayAsHyperlinks){
+                itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
+            }
             if (singleChoice) {
                 selectedSuggestions.clear();
                 for (Iterator<Widget> it = getChildren().iterator(); it.hasNext(); ) {

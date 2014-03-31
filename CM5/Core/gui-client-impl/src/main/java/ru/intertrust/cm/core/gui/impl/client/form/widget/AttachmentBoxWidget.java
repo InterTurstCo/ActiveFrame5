@@ -58,10 +58,9 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     private void setCurrentStateForNoneEditableWidget(AttachmentBoxState state) {
         List<AttachmentItem> attachments = state.getAttachments();
-        NoneEditablePanel noneEditablePanel = (NoneEditablePanel) impl;
+        AttachmentNoneEditablePanel noneEditablePanel = (AttachmentNoneEditablePanel) impl;
         for (AttachmentItem attachmentItem : attachments) {
-            String representation = attachmentItem.getName();
-            noneEditablePanel.displayItem(representation);
+            noneEditablePanel.displayAttachment(attachmentItem);
         }
 
     }
@@ -93,7 +92,7 @@ public class AttachmentBoxWidget extends BaseWidget {
     protected Widget asNonEditableWidget(WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
-        return new NoneEditablePanel(selectionStyleConfig);
+        return new  AttachmentNoneEditablePanel(selectionStyleConfig);
     }
 
     private AttachmentItem handleFileNameFromServer(String filePath) {
