@@ -72,7 +72,8 @@
     </bean>
 
     <bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData" init-method="onLoad" />
-    
+
+    <bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData" init-method="onLoad" />
     
 
     <!-- Интеграция с Activiti -->
