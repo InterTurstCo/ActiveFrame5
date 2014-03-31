@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.config.converter;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.simpleframework.xml.Root;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -7,12 +10,9 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
+
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.model.FatalException;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Кэш для хранения соответствий тэгов конфигурации верхнего уровня классам, их представляющим
@@ -54,7 +54,7 @@ public class ConfigurationClassesCache {
             if (!resource.isReadable()) {
                 continue;
             }
-            processResource(metadataReaderFactory, resource);
+            processResource(metadataReaderFactory, resource, resourcePatternResolver.getClassLoader());
         }
     }
 
@@ -75,22 +75,20 @@ public class ConfigurationClassesCache {
         }
     }
 
-    private void processResource(MetadataReaderFactory metadataReaderFactory, Resource resource) {
+    private void processResource(MetadataReaderFactory metadataReaderFactory, Resource resource,
+                                 ClassLoader classLoader) {
         try {
             MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
             if (!metadataReader.getAnnotationMetadata().hasAnnotation(Root.class.getName())) {
                 return;
             }
 
-            Class clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
+            Class clazz = classLoader.loadClass(metadataReader.getClassMetadata().getClassName());
             Root rootAnnotation =  (Root) clazz.getAnnotation(Root.class);
             if (rootAnnotation != null && rootAnnotation.name() != null && !rootAnnotation.name().isEmpty()) {
                 tagToClassMap.put(rootAnnotation.name(), clazz);
             }
         } catch (ClassNotFoundException e) {
-            throw new FatalException("Class '" + resource + "' was found by ResourcePatternResolver but was " +
-                    "not resolved by ClassLoader", e);
-        } catch (NoClassDefFoundError e) {
             throw new FatalException("Class '" + resource + "' was found by ResourcePatternResolver but was " +
                     "not resolved by ClassLoader", e);
         } catch (Throwable e) {
