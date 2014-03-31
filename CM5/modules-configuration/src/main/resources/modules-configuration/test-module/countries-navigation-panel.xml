@@ -140,9 +140,31 @@
                         </custom>
                     </plugin>
                 </link>-->
-                <link name="Report" display-text="Отчет">
+            </child-links>
+            <child-links group-name="Отчеты">
+                <link name="Report" display-text="Все сотрудники">
+                    <plugin>
+                        <report-plugin report-name="all-employee"/>
+                    </plugin>
+                </link>
+                <link name="Report" display-text="Все сотрудники за период">
                     <plugin>
                         <report-plugin report-name="all-employee-params"/>
+                    </plugin>
+                </link>
+                <link name="Report" display-text="Все сотрудники (источник данных)">
+                    <plugin>
+                        <report-plugin report-name="all-employee-ds"/>
+                    </plugin>
+                </link>
+                <link name="Report" display-text="Все сотрудники (скриптлет)">
+                    <plugin>
+                        <report-plugin report-name="all-employee-scriptlet"/>
+                    </plugin>
+                </link>
+                <link name="Report" display-text="Группы">
+                    <plugin>
+                        <report-plugin report-name="employee-groups"/>
                     </plugin>
                 </link>
             </child-links>

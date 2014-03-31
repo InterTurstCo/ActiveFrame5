@@ -293,13 +293,35 @@
         </widget-config>
     </form>
 
-    <form name="report" type="report" domain-object-type="all-employee-params">
+    <form name="report-all" type="report" domain-object-type="all-employee">
         <markup>
             <header>
                 <table width="800px" height="40px">
                     <tr>
                         <td h-align="left">
-                            <widget id="reportNameLabel" />
+                            <widget id="reportDescriptionLabel" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+            </body>
+        </markup>
+        <widget-config>
+            <label id="reportDescriptionLabel">
+                <field-path/>
+                <text>Все сотрудники</text>
+            </label>
+        </widget-config>
+    </form>
+
+    <form name="report-params" type="report" domain-object-type="all-employee-params">
+        <markup>
+            <header>
+                <table width="800px" height="40px">
+                    <tr>
+                        <td h-align="left">
+                            <widget id="reportDescriptionLabel" />
                         </td>
                     </tr>
                 </table>
@@ -332,7 +354,7 @@
             </body>
         </markup>
         <widget-config>
-            <label id="reportNameLabel">
+            <label id="reportDescriptionLabel">
                 <field-path/>
                 <text>Все сотрудники, созданные за указаный период</text>
             </label>
@@ -350,6 +372,72 @@
             <date-box id="endInput">
                 <field-path value="paramEnd"/>
             </date-box>
+        </widget-config>
+    </form>
+
+    <form name="report-ds" type="report" domain-object-type="all-employee-ds">
+        <markup>
+            <header>
+                <table width="800px" height="40px">
+                    <tr>
+                        <td h-align="left">
+                            <widget id="reportDescriptionLabel" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+            </body>
+        </markup>
+        <widget-config>
+            <label id="reportDescriptionLabel">
+                <field-path/>
+                <text>Все сотрудники (Класс как источник данных)</text>
+            </label>
+        </widget-config>
+    </form>
+
+    <form name="report-scriptlet" type="report" domain-object-type="all-employee-scriptlet">
+        <markup>
+            <header>
+                <table width="800px" height="40px">
+                    <tr>
+                        <td h-align="left">
+                            <widget id="reportDescriptionLabel" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+            </body>
+        </markup>
+        <widget-config>
+            <label id="reportDescriptionLabel">
+                <field-path/>
+                <text>Все сотрудники (Скриптлет)</text>
+            </label>
+        </widget-config>
+    </form>
+
+    <form name="report-groups" type="report" domain-object-type="employee-groups">
+        <markup>
+            <header>
+                <table width="800px" height="40px">
+                    <tr>
+                        <td h-align="left">
+                            <widget id="reportDescriptionLabel" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+            </body>
+        </markup>
+        <widget-config>
+            <label id="reportDescriptionLabel">
+                <field-path/>
+                <text>Группы пользователей</text>
+            </label>
         </widget-config>
     </form>
 
