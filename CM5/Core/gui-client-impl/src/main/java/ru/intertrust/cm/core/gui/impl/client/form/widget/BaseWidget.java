@@ -7,6 +7,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
+import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
@@ -37,6 +38,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     protected boolean isEditable = true;
     protected EventBus eventBus;
     protected Widget impl;
+    protected IsWidget owner;
 
     private Map<String, String> messages;
 
@@ -114,6 +116,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
      * Значение, введенное пользователем. Метод должен быть переопределен для виджетов,
      * выполняющих клиентскую валидацию, и должен возвращать данные, введенные пользователем, в исходном виде
      * (т.е. до проверок и преобразований).
+     *
      * @return данные введенные пользователем.
      */
     @Override
@@ -156,13 +159,14 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         for (Validator validator : validators) {
             validationResult.append(validator.validate(this, null));
         }
-        return  validationResult;
+        return validationResult;
     }
 
     // todo: setNonEditableState, getNonEditableState
 
     /**
      * Возвращает текущее состояние виджета. Если виджет в режиме "только чтение", возвращает null
+     *
      * @return текущее состояние виджета или null, если виджет в режиме "только чтение"
      */
     public final WidgetState getCurrentState() {
@@ -220,4 +224,11 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         impl.removeStyleName("validation-error");
     }
 
+    public IsWidget getOwner() {
+        return owner;
+    }
+
+    public void setOwner(IsWidget owner) {
+        this.owner = owner;
+    }
 }

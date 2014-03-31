@@ -44,6 +44,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     private AttachmentService attachmentService;
     @Autowired
     private PropertyResolver propertyResolver;
+
     @Override
     public AttachmentBoxState getInitialState(WidgetContext context) {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
@@ -63,12 +64,13 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         }
 
         AttachmentBoxState state = new AttachmentBoxState();
+        state.setActionLinkConfig(widgetConfig.getActionLinkConfig());
         state.setAttachments(savedAttachments);
         SelectionStyleConfig selectionStyleConfig = widgetConfig.getSelectionStyle();
         state.setSelectionStyleConfig(selectionStyleConfig);
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
-        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
+        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
         state.setSingleChoice(singleChoice);
         return state;
     }
@@ -92,7 +94,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             File fileToSave = new File(filePath);
             long contentLength = fileToSave.length();
             try (InputStream fileData = new FileInputStream(fileToSave);
-                    RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
+                 RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
                 DomainObject attachmentDomainObject = attachmentService.
                         createAttachmentDomainObjectFor(domainObject.getId(), attachmentType);
                 attachmentDomainObject.setValue(ATTACHMENT_NAME, new StringValue(attachmentItem.getName()));

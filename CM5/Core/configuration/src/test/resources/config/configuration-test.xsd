@@ -153,7 +153,7 @@
             <xs:element name="triggers" minOccurs="0" maxOccurs="1" type="con:notificationTriggersType"/>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
-        <xs:attribute name="priority" use="required" type="con:notificationPriority" />
+        <xs:attribute name="priority" use="required" type="con:notificationPriority"/>
     </xs:complexType>
 
     <xs:complexType name="notificationAddresseType">
@@ -1878,7 +1878,7 @@
     <xs:complexType name="attachmentBoxType">
         <xs:complexContent>
             <xs:extension base="con:abstractWidgetType">
-                <xs:choice maxOccurs="unbounded" minOccurs="0">
+                <xs:choice minOccurs="0" maxOccurs="2">
                     <xs:element type="con:fieldPathType" name="field-path"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:scannerType" name="scanner"
@@ -1888,6 +1888,8 @@
                     <xs:element type="con:selectionStyleType"
                                 name="selection-style" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:singleChoiceType" name="single-choice"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:actionLinkType" name="action-link"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required"/>
@@ -2319,5 +2321,8 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-
+    <xs:complexType name="actionLinkType">
+        <xs:attribute name="text" type="xs:string"/>
+        <xs:attribute name="action-name" type="xs:string"/>
+    </xs:complexType>
 </xs:schema>

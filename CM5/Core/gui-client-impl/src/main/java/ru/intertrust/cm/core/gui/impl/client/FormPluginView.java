@@ -44,10 +44,11 @@ public class FormPluginView extends PluginView {
         super(plugin);
         // установка локальной шины событий
         this.eventBus = plugin.getLocalEventBus();
-     //   int formHeight = plugin.getOwner().asWidget().getElement().getClientHeight();
+        //   int formHeight = plugin.getOwner().asWidget().getElement().getClientHeight();
         final FormPluginState pluginState = plugin.getFormPluginState();
 
         formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), pluginState.isToggleEdit(), eventBus);
+        formPanel.setOwner(plugin);
 
 
     }

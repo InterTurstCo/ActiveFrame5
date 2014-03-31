@@ -8,8 +8,13 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
+import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.AttachmentBoxWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandler;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
@@ -34,8 +39,12 @@ public class AttachmentUploaderView extends Composite {
     private FormPanel submitForm;
     private boolean singleChoice;
     private List<AttachmentItem> attachments;
+    private ActionLinkConfig actionLinkConfig;
+    private AttachmentBoxWidget owner;
 
-    public AttachmentUploaderView(SelectionStyleConfig selectionStyleConfig) {
+    public AttachmentUploaderView(SelectionStyleConfig selectionStyleConfig, ActionLinkConfig actionLinkConfig, AttachmentBoxWidget owner) {
+        this.actionLinkConfig = actionLinkConfig;
+        this.owner = owner;
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         init();
     }
@@ -88,10 +97,34 @@ public class AttachmentUploaderView extends Composite {
         initFileUpload();
         initUploadButton();
         root.add(addFile);
+        if (actionLinkConfig != null) {
+            Button actionLink = buildActionLink(actionLinkConfig, owner);
+            root.add(actionLink);
+        }
         submitForm.add(fileUpload);
         root.add(submitForm);
         root.add(mainBoxPanel);
         initWidget(root);
+    }
+
+    private Button buildActionLink(ActionLinkConfig actionLinkConfig, final AttachmentBoxWidget owner) {
+        Button actionLinkButton = new Button();
+        actionLinkButton.removeStyleName("gwt-Button");
+        actionLinkButton.addStyleName("dialog-box-button");
+        actionLinkButton.setText(actionLinkConfig.getText());
+        final String actionName = actionLinkConfig.getActionName();
+        actionLinkButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Action action = ComponentRegistry.instance.get(actionName);
+                ru.intertrust.cm.core.gui.impl.client.form.FormPanel formPanel =
+                        (ru.intertrust.cm.core.gui.impl.client.form.FormPanel) owner.getOwner();
+                Plugin panelOwner = (Plugin) formPanel.getOwner();
+                action.setPlugin(panelOwner);
+                action.execute();
+            }
+        });
+        return actionLinkButton;
     }
 
     public void displayAttachmentItem(final AttachmentItem item, AttachmentBoxWidget.CancelUploadAttachmentHandler handler) {
@@ -169,13 +202,13 @@ public class AttachmentUploaderView extends Composite {
         fileUpload.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
-              if (singleChoice && !attachments.isEmpty()) {
-                  showDialogBox();
-              } else {
-                  submitForm.submit();
-                  InputElement inputElement = fileUpload.getElement().cast();
-                  inputElement.setValue("");
-              }
+                if (singleChoice && !attachments.isEmpty()) {
+                    showDialogBox();
+                } else {
+                    submitForm.submit();
+                    InputElement inputElement = fileUpload.getElement().cast();
+                    inputElement.setValue("");
+                }
 
             }
         });
@@ -212,7 +245,7 @@ public class AttachmentUploaderView extends Composite {
     }
 
     private void showDialogBox() {
-       final StyledDialogBox dialogBox = new StyledDialogBox("Текущее прикрпление будет перезаписано. \nПродолжить?");
+        final StyledDialogBox dialogBox = new StyledDialogBox("Текущее прикрепление будет перезаписано. \nПродолжить?");
         dialogBox.addOkButtonClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 mainBoxPanel.clear();

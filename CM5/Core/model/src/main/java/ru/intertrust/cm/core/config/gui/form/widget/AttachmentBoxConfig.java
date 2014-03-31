@@ -9,7 +9,7 @@ import org.simpleframework.xml.Root;
  *         Time: 19:09
  */
 @Root(name = "attachment-box")
-public class AttachmentBoxConfig extends WidgetConfig  {
+public class AttachmentBoxConfig extends WidgetConfig {
 
     @Element(name = "attachment-type-ref")
     private AttachmentTypeRefConfig attachmentType;
@@ -23,6 +23,9 @@ public class AttachmentBoxConfig extends WidgetConfig  {
 
     @Element(name = "single-choice", required = false)
     private SingleChoiceConfig singleChoice;
+
+    @Element(name = "action-link", required = false)
+    private ActionLinkConfig actionLinkConfig;
 
     public AttachmentBoxConfig() {
         singleChoice = new SingleChoiceConfig();
@@ -61,34 +64,29 @@ public class AttachmentBoxConfig extends WidgetConfig  {
         this.singleChoice = singleChoice;
     }
 
+    public ActionLinkConfig getActionLinkConfig() {
+        return actionLinkConfig;
+    }
+
+    public void setActionLinkConfig(ActionLinkConfig actionLinkConfig) {
+        this.actionLinkConfig = actionLinkConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
-
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         AttachmentBoxConfig that = (AttachmentBoxConfig) o;
 
-        if (attachmentType != null ? !attachmentType.equals(that.attachmentType) : that.attachmentType != null)  {
+        if (actionLinkConfig != null ? !actionLinkConfig.equals(that.actionLinkConfig) : that.actionLinkConfig != null) return false;
+        if (attachmentType != null ? !attachmentType.equals(that.attachmentType) : that.attachmentType != null)
             return false;
-        }
-
-        if (scanner != null ? !scanner.equals(that.scanner) : that.scanner != null) {
+        if (scanner != null ? !scanner.equals(that.scanner) : that.scanner != null) return false;
+        if (selectionStyle != null ? !selectionStyle.equals(that.selectionStyle) : that.selectionStyle != null)
             return false;
-        }
-        if (selectionStyle != null ? !selectionStyle.equals(that.selectionStyle) : that.selectionStyle != null) {
-            return false;
-        }
-        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) {
-            return false;
-        }
+        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) return false;
 
         return true;
     }
@@ -100,6 +98,7 @@ public class AttachmentBoxConfig extends WidgetConfig  {
         result = 31 * result + (scanner != null ? scanner.hashCode() : 0);
         result = 31 * result + (selectionStyle != null ? selectionStyle.hashCode() : 0);
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
+        result = 31 * result + (actionLinkConfig != null ? actionLinkConfig.hashCode() : 0);
         return result;
     }
 

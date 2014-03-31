@@ -10,7 +10,9 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -32,7 +34,7 @@ public class FormPanel implements IsWidget {
     private AbsolutePanel footer;
     private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
-    private FlowPanel  panel;
+    private FlowPanel panel;
     private boolean isHeightFromConfig;
     private boolean isWidthFromConfig;
     private List<TabConfig> tabs;
@@ -40,6 +42,8 @@ public class FormPanel implements IsWidget {
     private EventBus eventBus;
     public static String TOOL_BAR_ID = "action-bar-id";
     private boolean toggleEdit;
+    private BaseComponent owner;
+
     public void setClassForPluginPanel(String styleName) {
         panel.getElement().addClassName(styleName);
     }
@@ -87,7 +91,7 @@ public class FormPanel implements IsWidget {
         }
         widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
         MarkupConfig markup = formDisplayData.getMarkup();
-        if(markup.getHeader().getTableLayout() != null){
+        if (markup.getHeader().getTableLayout() != null) {
             IsWidget headerTable = buildHeader(markup);
             panel.add(headerTable);
         }
@@ -131,7 +135,7 @@ public class FormPanel implements IsWidget {
             el.getItem(1).removeClassName("gwt-TabBarItem");
             el.getItem(2).removeClassName("gwt-Label");
 
-        } else{
+        } else {
             bodyTabPanel = new TabPanel();
             for (TabConfig tab : tabs) {
                 bodyTabPanel.add(buildTabContent(tab), tab.getName());
@@ -148,12 +152,11 @@ public class FormPanel implements IsWidget {
                 Widget selectedWidget = selectedPanel.getWidget(0);
                 Object marker = selectedWidget.getLayoutData();
 
-                if(BusinessUniverseConstants.FOOTER_LONG.equals(marker)){
+                if (BusinessUniverseConstants.FOOTER_LONG.equals(marker)) {
                     footer.setStyleName("form-footer-long");
-                } else  if(BusinessUniverseConstants.FOOTER_SHORT.equals(marker)){
+                } else if (BusinessUniverseConstants.FOOTER_SHORT.equals(marker)) {
                     footer.setStyleName("form-footer-short");
-                }
-                else {
+                } else {
                     footer.setStyleName("form-footer-blank");
                 }
             }
@@ -201,7 +204,7 @@ public class FormPanel implements IsWidget {
         return panel;
     }
 
-    private void addStyleHandlersForBookMarks(final BookmarksHelper bodyTabPanel){
+    private void addStyleHandlersForBookMarks(final BookmarksHelper bodyTabPanel) {
         bodyTabPanel.addDivLeftClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -265,6 +268,7 @@ public class FormPanel implements IsWidget {
                 widget.setMessages(messages);
                 widget.setEventBus(eventBus);
                 widget.setState(widgetState);
+                widget.setOwner(this);
                 widgets.add(widget);
                 table.setWidget(rowIndex, colIndex, widget);
 
@@ -331,8 +335,16 @@ public class FormPanel implements IsWidget {
         return isWidthFromConfig;
 
     }
+
     private boolean isExtraStyleRequired(boolean isEditable, boolean isToggleEdit) {
         return isEditable && isToggleEdit;
     }
 
+    public BaseComponent getOwner() {
+        return owner;
+    }
+
+    public void setOwner(BaseComponent owner) {
+        this.owner = owner;
+    }
 }

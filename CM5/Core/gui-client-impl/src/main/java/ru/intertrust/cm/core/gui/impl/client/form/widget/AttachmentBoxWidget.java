@@ -82,7 +82,8 @@ public class AttachmentBoxWidget extends BaseWidget {
     protected Widget asEditableWidget(WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
-        AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView(selectionStyleConfig);
+        AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView(selectionStyleConfig, attachmentBoxState.getActionLinkConfig(), this
+        );
         attachmentUploaderView.addFormSubmitCompleteHandler(new FormSubmitCompleteHandler());
         attachmentUploaderView.addFormSubmitHandler(new FormSubmitHandler());
         return attachmentUploaderView;
