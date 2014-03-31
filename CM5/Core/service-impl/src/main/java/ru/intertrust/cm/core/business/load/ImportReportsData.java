@@ -62,6 +62,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Lesia Puhova
@@ -105,7 +107,7 @@ public class ImportReportsData {
         URL moduleUrl = moduleConfiguration.getModuleUrl();
         if (importReports != null && importReports.getReportTemplateDirs() != null) {
             processDirs(importReports, moduleUrl, moduleName);
-            processFiles(importReports,moduleUrl, moduleName);
+            processFiles(importReports, moduleUrl, moduleName);
         }
     }
 
@@ -113,8 +115,18 @@ public class ImportReportsData {
         List<ReportTemplateDirConfiguration> templatePaths = importReports.getReportTemplateDirs();
         for (ReportTemplateDirConfiguration templatePath : templatePaths) {
             String templateFolderPath = templatePath.getTemplateDirPath();
+            if (!templateFolderPath.endsWith("/")) {
+                templateFolderPath = templateFolderPath + "/";
+            }
             try {
-                deployReportFolder(templateFolderPath, moduleUrl);
+                ZipInputStream zip = new ZipInputStream(new FileInputStream(moduleUrl.getPath()));
+                List<String> filePaths = new ArrayList<String>();
+                for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+                    if(!entry.isDirectory() && entry.getName().startsWith(templateFolderPath)) {
+                        filePaths.add(entry.getName());
+                    }
+                }
+                deployReportFiles(filePaths, moduleUrl);
             } catch (Exception e) {
                 throw new FatalException("Cannot deploy report: module=" + moduleName + "; template path=" + templateFolderPath, e);
             }
@@ -136,26 +148,8 @@ public class ImportReportsData {
         }
     }
 
-    private void deployReportFolder(String templateFolderPath, URL moduleUrl) throws IOException, URISyntaxException {
-        DeployReportData deployData = new DeployReportData();
-        String path = moduleUrl.toString() + templateFolderPath;
-        File templateFolder = new File(path);//new File(new URL(path).toURI()); //FIXME: does not create folder correctly
-        File[] fileList = templateFolder.listFiles();
-        if (fileList != null) {
-            for (File file : fileList) {
-                DeployReportItem item = new DeployReportItem();
-                item.setName(file.getName());
-                URL fileURL = new URL(moduleUrl.toString() + file.getName());
-                item.setBody(readFile(fileURL));
-
-                deployData.getItems().add(item);
-            }
-            deploy(deployData);
-        }
-    }
-
     private void deployReportFiles(List<String> filePaths, URL moduleUrl) throws IOException {
-        if (filePaths != null) {
+        if (filePaths != null && !filePaths.isEmpty()) {
             DeployReportData deployData = new DeployReportData();
             for (String filePath : filePaths) {
                 DeployReportItem item = new DeployReportItem();
