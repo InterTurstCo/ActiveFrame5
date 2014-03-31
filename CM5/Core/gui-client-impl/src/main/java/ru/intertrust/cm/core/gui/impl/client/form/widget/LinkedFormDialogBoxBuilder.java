@@ -143,13 +143,13 @@ public class LinkedFormDialogBoxBuilder {
             });
         }
         FlowPanel buttons = new FlowPanel();
+        buttons.addStyleName("linked-form-buttons-panel");
         buttons.add(saveButton);
         buttons.add(cancelButton);
         ScrollPanel scrollPanel = new ScrollPanel();
-            FlowPanel container = new FlowPanel();
-        container.add(buttons);
+        FlowPanel container = new FlowPanel();
         container.add(linkedFormPluginPanel);
-
+        container.add(buttons);
         scrollPanel.add(container);
         db.setWidget(scrollPanel);
 

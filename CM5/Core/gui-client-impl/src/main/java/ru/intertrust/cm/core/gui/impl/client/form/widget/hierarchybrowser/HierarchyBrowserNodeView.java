@@ -184,9 +184,10 @@ public class HierarchyBrowserNodeView implements IsWidget {
 
     private FocusPanel createAddItemButton(final NodeMetadata nodeMetadata) {
         final FocusPanel addItemPanel = new FocusPanel();
-        addItemPanel.setStyleName("composite-button");
-        HorizontalPanel buttonPanel = new HorizontalPanel();
+        addItemPanel.addStyleName("light-button button-extra-style");
+        AbsolutePanel buttonPanel = new AbsolutePanel();
         Image plus = new Image("images/green-plus.png");
+
         Label text = new Label(nodeMetadata.getDomainObjectType());
         buttonPanel.add(plus);
         buttonPanel.add(text);

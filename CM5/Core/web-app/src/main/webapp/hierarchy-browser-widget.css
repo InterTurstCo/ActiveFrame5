@@ -52,10 +52,9 @@
 .button-refresh {
     margin: 4px 2px 2px 5px;
     color: grey;
-    border-radius: 5px;
+    border-radius: 3px;
     white-space: nowrap;
-    width: 21px;
-    height: 21px;
+    padding: 15px;
     box-shadow: 1px 1px 2px 1px #999;
     background: url(images/refresh.gif) no-repeat #ffffff center center;
 }
@@ -182,8 +181,18 @@
     width: 100%;
 }
 
+.button-extra-style {
+    padding: 0 5px;
+}
+
+.button-extra-style img,
+.button-extra-style div.gwt-Label {
+    display: inline-block;
+}
+
 .node-section-scroll {
     display: block;
+    overflow-x: auto;
 }
 
 .search-bar {

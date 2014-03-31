@@ -1,3 +1,5 @@
+@import url(buttons.css);
+
 h1 {
     font-size: 2em;
     font-weight: bold;
@@ -2726,4 +2728,11 @@ td.datePickerMonth {
     height: 16px;
     border: none;
 
+}
+
+/*---------------- Linked Form DialogBox Panel ----------------*/
+.linked-form-buttons-panel {
+    position: relative;
+    z-index: 15;
+    padding: 15px 10px;
 }

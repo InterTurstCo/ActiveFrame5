@@ -87,7 +87,7 @@ public class HierarchyBrowserMainPopup {
         popupChosenContent.asWidget().addStyleName("popup-chosen-content");
         ScrollPanel scrollPanel = new ScrollPanel();
         scrollPanel.addStyleName("node-section-scroll");
-        scrollPanel.getElement().getStyle().setOverflowX(Style.Overflow.SCROLL);
+//        scrollPanel.getElement().getStyle().setOverflowX(Style.Overflow.SCROLL);
         nodesSection = new HorizontalPanel();
         nodeSectionWidth = 0.80 * popupWidth;
         scrollPanel.setWidth(nodeSectionWidth + "px");
@@ -148,10 +148,10 @@ public class HierarchyBrowserMainPopup {
         buttonsPanel.setStyleName("bottom-popup-buttons-panel");
         okButton = new Button("Готово");
         okButton.removeStyleName("gwt-Button");
-        okButton.addStyleName("bottom-popup-button");
+        okButton.addStyleName("light-button");
         cancelButton = new Button("Отмена");
         cancelButton.removeStyleName("gwt-Button");
-        cancelButton.addStyleName("bottom-popup-button");
+        cancelButton.addStyleName("light-button");
         buttonsPanel.add(okButton);
         buttonsPanel.add(cancelButton);
 
@@ -178,7 +178,6 @@ public class HierarchyBrowserMainPopup {
         }
         HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus, nodeHeight,
                selective);
-        nodeView.asWidget().setWidth("100%");
         nodesSection.add(nodeView);
         nodeView.drawNode(items,nodeMetadata);
         containerMap.put(nodeType, nodeView);
@@ -230,7 +229,7 @@ public class HierarchyBrowserMainPopup {
         if (size >= 3) {
             size = 3;
         }
-        double oneNodeWidthInPercentage = nodeSectionWidth / size;
+        double oneNodeWidthInPercentage = nodeSectionWidth / size - 5;
         for (String key : keys) {
             HierarchyBrowserNodeView nodeView = containerMap.get(key);
             nodeView.asWidget().getElement().getStyle().setWidth(oneNodeWidthInPercentage, Style.Unit.PX);
