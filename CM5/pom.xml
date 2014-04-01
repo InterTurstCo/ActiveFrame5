@@ -35,8 +35,10 @@
         <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
         <sonar.java.source>${maven.compiler.source}</sonar.java.source>
         <sonar.skippedModules>ear</sonar.skippedModules>
-
+        
         <root.basedir>${basedir}</root.basedir>
+        
+        <opencsv.version>2.0</opencsv.version>
 
     </properties>
 
@@ -286,6 +288,12 @@
                 <type>pom</type>
                 <scope>provided</scope>
             </dependency>
+            
+            <dependency>
+                <groupId>net.sf.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>${opencsv.version}</version>
+            </dependency>            
             
         </dependencies>
     </dependencyManagement>

@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.business.load;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -50,6 +49,7 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.FatalException;
+import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Класс импортирования одного файла
@@ -99,11 +99,13 @@ public class ImportData {
      * @param loadFileAsByteArray
      */
     public void importData(byte[] loadFileAsByteArray, String encoding, Boolean rewrite) {
+        CSVReader reader = null;
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(loadFileAsByteArray);
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(input, encoding != null ? encoding : DEFAULT_ENCODING));
-            String readLine = null;
+            reader =
+                    new CSVReader(new InputStreamReader(input, encoding != null ? encoding : DEFAULT_ENCODING), ';',
+                            '"');
+            String[] readLine = null;
             int lineNum = 0;
 
             //имя типа доменного объекта который будет создаваться
@@ -116,15 +118,13 @@ public class ImportData {
             emptyStringSymbol = null;
 
             //итератор по строкам
-            while ((readLine = reader.readLine()) != null) {
-                String line = readLine.replaceAll("\t", "");
+            while ((readLine = reader.readNext()) != null) {
 
                 //Первые две строки это метаданные
                 if (lineNum == 0) {
                     //Метаданные
-                    String[] metaDatas = line.split(";");
-                    for (String metaData : metaDatas) {
-                        String normalMetaData = getNormalizationField(metaData);
+                    for (String metaData : readLine) {
+                        String normalMetaData = metaData.trim();
                         String[] metaItem = normalMetaData.split("=");
                         if (metaItem[0].equalsIgnoreCase(ImportDataService.TYPE_NAME)) {
                             typeName = metaItem[1];
@@ -136,36 +136,28 @@ public class ImportData {
                     }
                 } else if (lineNum == 1) {
                     //Имена полей
-                    fields = line.split(";");
-                    for (int i = 0; i < fields.length; i++) {
-                        fields[i] = getNormalizationField(fields[i]);
+                    List<String> fieldList = new ArrayList<String>();
+                    for (int i = 0; i < readLine.length; i++) {
+                        if (readLine[i].trim().length() > 0){
+                            fieldList.add(readLine[i].trim());
+                        }
+                        fields = fieldList.toArray(new String[fieldList.size()]);
                     }
                 } else {
                     //Импорт одной строки
-                    importLine(line, rewrite);
+                    importLine(readLine, rewrite);
                 }
 
                 lineNum++;
             }
         } catch (Exception ex) {
             throw new FatalException("Error load data", ex);
+        } finally {
+            try {
+                reader.close();
+            } catch (Exception ignoreEx) {
+            }
         }
-    }
-
-    /**
-     * Избавляемся от лишних кавычек
-     * @param value
-     * @return
-     */
-    private String getNormalizationField(String value) {
-        String result = null;
-        if (value.startsWith("\"") && value.endsWith("\"")) {
-            result = value.substring(1, value.length() - 1);
-            result = result.replaceAll("\"\"", "\"");
-        } else {
-            result = value.trim();
-        }
-        return result;
     }
 
     /**
@@ -179,18 +171,19 @@ public class ImportData {
      * @throws IOException
      * @throws NoSuchAlgorithmException
      */
-    private void importLine(String line, Boolean rewrite) throws ParseException, IOException, NoSuchAlgorithmException {
+    private void importLine(String[] line, Boolean rewrite) throws ParseException, IOException,
+            NoSuchAlgorithmException {
         AccessToken accessToken = null;
         //Разделяем строку на значения
-        String[] fieldValues = line.split(";");
+        String[] fieldValues = line;
         List<String> fieldValuesList = new ArrayList<String>();
 
-        //Избавляемся от кавычек и обрабатываем пустые значения в конце строки
+        //тримим и обрабатываем пустые значения в конце строки
         for (int i = 0; i < fields.length; i++) {
             if (fieldValues.length < i + 1) {
                 fieldValuesList.add("");
             } else {
-                fieldValuesList.add(getNormalizationField(fieldValues[i]));
+                fieldValuesList.add(fieldValues[i].trim());
             }
         }
         fieldValues = fieldValuesList.toArray(new String[fieldValuesList.size()]);
@@ -474,6 +467,22 @@ public class ImportData {
         return getReferenceFromSelect(query);
     }
 
+    /**
+     * Избавляемся от лишних кавычек
+     * @param value
+     * @return
+     */
+    private String getNormalizationField(String value) {
+        String result = null;
+        if (value.startsWith("\"") && value.endsWith("\"")) {
+            result = value.substring(1, value.length() - 1);
+            result = result.replaceAll("\"\"", "\"");
+        } else {
+            result = value.trim();
+        }
+        return result;
+    }    
+    
     /**
      * Получение ссылки с помощью запроса
      * @param query
