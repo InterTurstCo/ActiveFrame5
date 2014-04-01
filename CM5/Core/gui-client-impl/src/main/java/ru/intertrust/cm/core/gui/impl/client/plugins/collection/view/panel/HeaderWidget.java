@@ -7,6 +7,8 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.DOM;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.CMJDatePicker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.PopupDatePicker;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
 import java.util.Date;
 
@@ -26,18 +28,19 @@ public class HeaderWidget {
     private String fieldType;
     private String title;
     private boolean showFilter;
-    private String minWidth;
+    private String fieldName;
     private String filterValue = EMPTY_VALUE;
 
    private DateTimeFormat dateTimeFormat;
 
-    public HeaderWidget(String title, String fieldType, String searchFilterName, String id, String minWidth, String datePattern) {
-        this.id = id;
-        this.fieldType = fieldType;
-        this.searchFilterName = searchFilterName;
-        this.title = title;
-        this.minWidth = minWidth;
+    public HeaderWidget(CollectionColumn column, CollectionColumnProperties columnProperties ) {
 
+        title = column.getDataStoreName();
+        searchFilterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+        String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.PATTERN_KEY);
+        fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+        id = (column.hashCode() + title).replaceAll(" ", "");
+        fieldName = (String) columnProperties.getProperty(CollectionColumnProperties.FIELD_NAME);
         if (datePattern != null) {
         dateTimeFormat = DateTimeFormat.getFormat(datePattern);
         }
@@ -126,12 +129,8 @@ public class HeaderWidget {
         return filterValue;
     }
 
-    public String getMinWidth() {
-        return minWidth;
-    }
-
-    public void setMinWidth(String minWidth) {
-        this.minWidth = minWidth;
+    public String getFieldName() {
+        return fieldName;
     }
 
     public DateTimeFormat getDateTimeFormat() {

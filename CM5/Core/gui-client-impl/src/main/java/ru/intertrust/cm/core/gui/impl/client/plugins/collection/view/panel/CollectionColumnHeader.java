@@ -13,7 +13,6 @@ import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Style.Position;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -66,10 +65,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     }
 
-    public DateTimeFormat getDateTimeFormat() {
-        return widget.getDateTimeFormat();
-    }
-
     public String getFilterValue() {
         if (widget.getSearchFilterName() != null) {
             return inputFilter.getValue();
@@ -77,6 +72,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             return EMPTY_VALUE;
 
         }
+    }
+    public String getFieldName() {
+        return  widget.getFieldName();
     }
 
     public void resetFilterValue() {
@@ -202,14 +200,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     interface IDragCallback {
         void dragFinished();
-    }
-
-    public String getFilterName() {
-        return widget.getSearchFilterName();
-    }
-
-    public String getFieldType() {
-        return widget.getFieldType();
     }
 
     private static NativeEvent getEventAndPreventPropagation(NativePreviewEvent event) {

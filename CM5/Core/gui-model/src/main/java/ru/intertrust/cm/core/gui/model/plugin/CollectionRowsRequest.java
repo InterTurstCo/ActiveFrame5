@@ -6,10 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -33,7 +30,7 @@ public class CollectionRowsRequest implements Dto {
     private SortCriteriaConfig sortCriteriaConfig;
     private Set<Id> includedIds;
     private LinkedHashMap<String, CollectionColumnProperties> columnProperties;
-
+    private Map<String, String> filtersMap;
     public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
                                  List<Filter> filterList, String simpleSearchQuery, String searchArea) {
         this.offset = offset;
@@ -166,5 +163,13 @@ public class CollectionRowsRequest implements Dto {
 
     public void setColumnProperties(LinkedHashMap<String, CollectionColumnProperties> columnProperties) {
         this.columnProperties = columnProperties;
+    }
+
+    public Map<String, String> getFiltersMap() {
+        return filtersMap;
+    }
+
+    public void setFiltersMap(Map<String, String> filtersMap) {
+        this.filtersMap = filtersMap;
     }
 }

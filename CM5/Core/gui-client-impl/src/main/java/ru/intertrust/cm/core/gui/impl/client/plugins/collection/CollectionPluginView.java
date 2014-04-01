@@ -59,7 +59,7 @@ public class CollectionPluginView extends PluginView {
     private ToggleButton filterButton = new ToggleButton();
     private  HandlerRegistration scrollHandlerRegistration;
     private ArrayList<Filter> filterList;
-
+    private Map<String, String> filtersMap = new HashMap<String, String>();
     private String simpleSearchQuery = "";
     private String searchArea = "";
 
@@ -82,6 +82,7 @@ public class CollectionPluginView extends PluginView {
         adapter = new DataGridResourceAdapter(DataGridResources.I);
         tableBody = new CollectionDataGrid(15, adapter.getResources());
         tableBody.setHeaderBuilder(new HeaderBuilder<CollectionRowItem>(tableBody, false));
+        tableBody.setAutoHeaderRefreshDisabled(true);
         tableBody.addStyleName("collection-plugin-view collection-plugin-view-container");
         filterList = new ArrayList<Filter>();
         tableWidth = plugin.getOwner().getVisibleWidth();
@@ -147,7 +148,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void addHandlers() {
-        tableBody.setAutoHeaderRefreshDisabled(true);
+
         eventBus.addHandler(CollectionPluginResizeBySplitterEvent.TYPE, new CollectionPluginResizeBySplitterEventHandler() {
             @Override
             public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
@@ -294,42 +295,10 @@ public class CollectionPluginView extends PluginView {
         boolean isRequestRequired = false;
         for (CollectionColumnHeader header : headerController.getHeaders()) {
             String filterValue = header.getFilterValue();
-            String filterName = header.getFilterName();
-            if (filterValue != null && filterName != null && filterValue.length() > 0) {
+            if (filterValue != null && filterValue.length() > 0) {
+                filtersMap.put(header.getFieldName(), filterValue);
                 isRequestRequired = true;
-                Filter filter = new Filter();
-                filter.setFilter(filterName);
-                Value value = null;
-                String fieldType = header.getFieldType();
-                if (TIMELESS_DATE_TYPE.equalsIgnoreCase(fieldType)) {
-                        try {
-                            DateTimeFormat format = header.getDateTimeFormat();
-                            Date selectedDate = format.parse(filterValue);
-                            Date copyOfDate = CalendarUtil.copyDate(selectedDate);
-                            CalendarUtil.setToFirstDayOfMonth(copyOfDate);
-                            int daysBetweenSelectedDate = CalendarUtil.getDaysBetween(selectedDate, copyOfDate) - 1;
-                            TimelessDate timelessDateSelected = new TimelessDate(selectedDate.getYear() + 1900, selectedDate.getMonth(),daysBetweenSelectedDate);
-                            value = new TimelessDateValue(timelessDateSelected );
-                            filter.addCriterion(0, value);
-                            Date currentDate = new Date(System.currentTimeMillis());
-                            copyOfDate = CalendarUtil.copyDate(currentDate);
-                            CalendarUtil.setToFirstDayOfMonth(copyOfDate);
 
-                            int daysBetweenCurrentDate = CalendarUtil.getDaysBetween(currentDate,copyOfDate) - 1;
-                            TimelessDate currentTimelessDate = new TimelessDate(currentDate.getYear() + 1900, currentDate.getMonth(), daysBetweenCurrentDate) ;
-                            Value currentTimeValue = new TimelessDateValue(currentTimelessDate);
-                            filter.addCriterion(1, currentTimeValue);
-                        } catch (IllegalArgumentException e) {
-                            Window.alert("Wrong date!");
-                            return;
-                        }
-
-                } else {
-                    value = new StringValue("%" + filterValue + "%");
-                    filter.addCriterion(0, value);
-                }
-
-                filterList.add(filter);
             }
         }
         if (isRequestRequired) {
@@ -342,6 +311,7 @@ public class CollectionPluginView extends PluginView {
         filterList.clear();
         filterButton.setValue(false);
         headerController.changeFiltersInputsVisibility(false);
+        filtersMap.clear();
         clearAllTableData();
 
     }
@@ -458,13 +428,9 @@ public class CollectionPluginView extends PluginView {
             LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap) {
         List<CollectionColumnHeader> headers = new ArrayList<CollectionColumnHeader>();
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
-            final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
+            CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
-            String searchFilterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
-            String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.PATTERN_KEY);
-            String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
-            String searchAreaId = column.hashCode() + column.getDataStoreName();
-            HeaderWidget headerWidget = new HeaderWidget(column.getDataStoreName(), fieldType, searchFilterName, searchAreaId.replaceAll(" ", ""), String.valueOf(column.getMinWidth()), datePattern);
+            HeaderWidget headerWidget = new HeaderWidget(column, columnProperties);
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             headers.add(collectionColumnHeader);
             tableBody.addColumn(column, collectionColumnHeader);
@@ -520,6 +486,7 @@ public class CollectionPluginView extends PluginView {
     private void createCollectionData() {
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, FETCHED_ROW_COUNT, collectionName,
                 fieldPropertiesMap, filterList, simpleSearchQuery, searchArea);
+        collectionRowsRequest.setFiltersMap(filtersMap);
         collectionRowRequestCommand(collectionRowsRequest);
     }
 
@@ -547,6 +514,7 @@ public class CollectionPluginView extends PluginView {
         SortCriteriaConfig sortCriteriaConfig = ascending ? collectionColumnProperties.getAscSortCriteriaConfig()
                 : collectionColumnProperties.getDescSortCriteriaConfig();
         collectionRowsRequest.setSortCriteriaConfig(sortCriteriaConfig);
+        collectionRowsRequest.setFiltersMap(filtersMap);
         collectionRowRequestCommand(collectionRowsRequest);
 
     }

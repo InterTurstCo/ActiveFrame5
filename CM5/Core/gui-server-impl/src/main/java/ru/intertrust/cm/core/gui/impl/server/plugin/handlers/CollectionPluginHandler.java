@@ -347,7 +347,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
         final int offset = collectionRowsRequest.getOffset();
         final int limit = collectionRowsRequest.getLimit();
-        final List<Filter> filters = transformDateFilters(collectionRowsRequest.getFilterList());
+      //  final List<Filter> filters = transformDateFilters(collectionRowsRequest.getFilterList());
+        Map<String, String> filtersMap = collectionRowsRequest.getFiltersMap();
+        List<Filter> filters = prepareSearchFilters(filtersMap, properties);
         Set<Id> includedIds = collectionRowsRequest.getIncludedIds();
         if (!includedIds.isEmpty()) {
             Filter includedIdsFilter = FilterBuilder.prepareFilter(includedIds, FilterBuilder.INCLUDED_IDS_FILTER);
@@ -371,6 +373,17 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         collectionRowItemList.setCollectionRows(list);
 
         return collectionRowItemList;
+    }
+    private List<Filter> prepareSearchFilters(Map<String, String> filtersMap, LinkedHashMap<String, CollectionColumnProperties> properties) {
+        List<Filter> filters = new ArrayList<Filter>();
+        Set<String> fieldNames = filtersMap.keySet();
+        for(String fieldName : fieldNames){
+            String filterValue = filtersMap.get(fieldName);
+            CollectionColumnProperties columnProperties = properties.get(fieldName);
+            Filter filter = FilterBuilder.prepareSearchFilter(filterValue, columnProperties);
+            filters.add(filter);
+        }
+        return filters;
     }
 
     private ArrayList<Filter> transformDateFilters(List<Filter> filters) {
