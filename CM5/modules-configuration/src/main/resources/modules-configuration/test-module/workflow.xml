@@ -99,7 +99,7 @@
         is-default="true" debug="false">
         <markup>
             <header>
-                <table width="800px" height="100px">
+                <table>
                     <tr>
                         <!-- label (Название) -->
                         <td width="100px" h-align="right">
@@ -237,7 +237,7 @@
         is-default="true" debug="false">
         <markup>
             <header>
-                <table width="800px" height="200px">
+                <table>
                     <tr>
                         <!-- label (Название) -->
                         <td width="100px" h-align="right">
@@ -296,7 +296,7 @@
     <form name="report-all" type="report" domain-object-type="all-employee">
         <markup>
             <header>
-                <table width="800px" height="40px">
+                <table>
                     <tr>
                         <td h-align="left">
                             <widget id="reportDescriptionLabel" />
@@ -318,7 +318,7 @@
     <form name="report-params" type="report" domain-object-type="all-employee-params">
         <markup>
             <header>
-                <table width="800px" height="40px">
+                <table>
                     <tr>
                         <td h-align="left">
                             <widget id="reportDescriptionLabel" />

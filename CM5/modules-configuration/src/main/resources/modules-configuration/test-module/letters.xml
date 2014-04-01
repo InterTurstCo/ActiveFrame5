@@ -56,7 +56,7 @@
     <form name="letter_form" domain-object-type="letter" is-default="true">
         <markup>
             <header>
-                <table width="500px" height="200px">
+                <table>
                     <tr>
                         <td width="100px" h-align="right">
                             <widget id="subject_label"/>
@@ -156,7 +156,7 @@
     <form name="employee_form" domain-object-type="Employee" is-default="true">
         <markup>
             <header>
-                <table width="500px" height="200px">
+                <table>
                     <tr>
                         <td width="100px" h-align="right">
                             <widget id="Name-Label"/>
@@ -246,7 +246,7 @@
     <form name="department_form" domain-object-type="Department" is-default="true">
         <markup>
             <header>
-                <table width="500px" height="200px">
+                <table>
                     <tr>
                         <td width="100px" h-align="right">
                             <widget id="Name-Label"/>
@@ -301,7 +301,7 @@
     <form name="organization_form" domain-object-type="Organization" is-default="true">
         <markup>
             <header>
-                <table width="500px" height="200px">
+                <table>
                     <tr>
                         <td width="100px" h-align="right">
                             <widget id="Name-Label"/>
