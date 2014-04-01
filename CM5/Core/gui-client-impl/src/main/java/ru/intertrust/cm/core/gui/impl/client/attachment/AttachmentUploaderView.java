@@ -10,11 +10,10 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
-import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
-import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.action.AttachmentAction;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.AttachmentBoxWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandler;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
@@ -97,17 +96,13 @@ public class AttachmentUploaderView extends Composite {
         initFileUpload();
         initUploadButton();
         root.add(addFile);
-        if (actionLinkConfig != null) {
-            Button actionLink = buildActionLink(actionLinkConfig, owner);
-            root.add(actionLink);
-        }
         submitForm.add(fileUpload);
         root.add(submitForm);
         root.add(mainBoxPanel);
         initWidget(root);
     }
 
-    private Button buildActionLink(ActionLinkConfig actionLinkConfig, final AttachmentBoxWidget owner) {
+    private Button buildActionLink(ActionLinkConfig actionLinkConfig, final AttachmentBoxWidget owner, final AttachmentItem attachmentItem) {
         Button actionLinkButton = new Button();
         actionLinkButton.removeStyleName("gwt-Button");
         actionLinkButton.addStyleName("dialog-box-button");
@@ -116,11 +111,12 @@ public class AttachmentUploaderView extends Composite {
         actionLinkButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                Action action = ComponentRegistry.instance.get(actionName);
+                AttachmentAction action = ComponentRegistry.instance.get(actionName);
                 ru.intertrust.cm.core.gui.impl.client.form.FormPanel formPanel =
                         (ru.intertrust.cm.core.gui.impl.client.form.FormPanel) owner.getOwner();
                 Plugin panelOwner = (Plugin) formPanel.getOwner();
                 action.setPlugin(panelOwner);
+                action.setAttachmentItem(attachmentItem);
                 action.execute();
             }
         });
@@ -154,6 +150,9 @@ public class AttachmentUploaderView extends Composite {
         element.add(progressbar);
         element.add(percentage);
         element.add(delBtn);
+        if (actionLinkConfig != null) {
+            element.add(buildActionLink(actionLinkConfig, owner, item));
+        }
         mainBoxPanel.add(element);
     }
 
@@ -180,6 +179,9 @@ public class AttachmentUploaderView extends Composite {
         });
         element.add(fileNameAnchor);
         element.add(delBtn);
+        if (actionLinkConfig != null) {
+            element.add(buildActionLink(actionLinkConfig, owner, item));
+        }
         mainBoxPanel.add(element);
     }
 

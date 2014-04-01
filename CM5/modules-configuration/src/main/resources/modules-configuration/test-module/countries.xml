@@ -468,7 +468,7 @@
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
                 <single-choice value="true"/>
-                <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
+                <action-link text="Открыть плагин" action-name="test.action"/>
             </attachment-box>
 
             <table-browser id="17a">
