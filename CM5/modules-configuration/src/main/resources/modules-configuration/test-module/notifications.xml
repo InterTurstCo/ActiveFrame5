@@ -18,6 +18,15 @@
         </display>
     </collection-view>
 
+    <collection-view name="new_notification_view" collection="NewNotifications" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="from" name="Адресат" type="string" />
+            <column field="subject" name="Заголовок" type="string" />
+            <column field="body" name="Сообщение" type="string" />
+        </display>
+    </collection-view>
+
     <form name="notification_form" domain-object-type="notification" is-default="true">
         <markup>
             <header>

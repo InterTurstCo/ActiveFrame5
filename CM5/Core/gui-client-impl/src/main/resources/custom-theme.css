@@ -71,3 +71,43 @@
 .html-face {
     display: none;
 }
+
+.gwt-PopupPanel.header-notification-popup {
+    position: absolute;
+    top: 13px !important;
+    left: 172px !important;
+    z-index: 100;
+    border-radius: 5px !important;
+    border: solid;
+    border-width: 2px;
+    border-color: #FFF1CA #FFEDBE #FFEDBE;
+
+    margin-left: -4px !important;
+    background: none repeat scroll 0 0 #FFFDF0;
+}
+
+.header-notification-style {
+    background: #fffdf0;
+    width: 1000px;
+
+
+
+
+    /*box-shadow: 0 0 10px #ccc;*/
+
+}
+
+.gwt-Label.header-notification{
+    padding-top: 2px !important;
+    margin-top: 10px;
+
+}
+
+.cross-button {
+    background: url(css/icons/icons.png) -32px top no-repeat;
+    margin-right: 10px;
+    margin-top: 6px;
+    cursor: pointer;
+    width: 16px;
+
+}

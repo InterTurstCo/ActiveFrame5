@@ -21,7 +21,7 @@ public class CloseInCentralPanelAction extends Action {
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         final Id objectId = editor.getRootDomainObject().getId();
         Plugin parent = plugin.getOwner().getParentPlugin(plugin);
-        if (objectId != null && parent == null) {
+        if (objectId != null && parent == null  &&  plugin.getLocalEventBus()!= null) {
             plugin.getLocalEventBus().fireEvent(new CollectionRowSelectedEvent(objectId));
         }
         if (parent instanceof DomainObjectSurferPlugin) {
@@ -29,7 +29,9 @@ public class CloseInCentralPanelAction extends Action {
             DomainObject domainObject = parentEditor.getRootDomainObject( );
             if (domainObject != null) {
             Id parentId = domainObject.getId();
+                if (plugin.getLocalEventBus() != null){
             plugin.getLocalEventBus().fireEvent(new CollectionRowSelectedEvent(parentId));
+                }
             }
         }
         plugin.getOwner().closeCurrentPlugin();

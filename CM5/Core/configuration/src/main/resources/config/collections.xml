@@ -214,6 +214,25 @@
             </criteria>
         </filter>
     </collection>
+
+    <collection name="NewNotifications" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                   n.id, n."from", n.subject, n.body
+                from
+                    notification n
+                    ::from-clause
+                where
+                    n.new = 1 ::where-clause
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from notification n ::from-clause WHERE n.new = 1 ::where-clause
+        </counting-prototype>
+
+    </collection>
     
     <collection-view name="organizations_default_view" collection="Organizations" is-default="true">
         <display>

@@ -31,6 +31,7 @@ h1 {
     top: 11px;
 }
 
+/* ------------>>> Header <<<------------ */
 .HeadTable {
     width: 100%;
     background-color: #ffffff;
@@ -40,11 +41,8 @@ h1 {
 }
 
 .H_td_logo {
-    /*  width: 138px;*/
     padding: 0 10px;
-    /*height: 55px;*/
     overflow: hidden;
-    /*  display: block;*/
 }
 
 .H_td_logo img, .H_td_logo a {
@@ -58,9 +56,89 @@ h1 {
     display: block;
 }
 
+/* ------------>>> Header Search Panel <<<------------ */
 .H_td_notes {
     width: 100%;
     padding: 0 10px;
+}
+
+/* ------------>>> Suggest Box <<<------------ */
+.root-suggest-div {
+    width: 100%;
+}
+
+.decorated-suggest-box {
+    width: 100%;
+    height: 15px;
+    position: relative;
+    overflow: hidden;
+    font: 13px/ 15px Arial;
+}
+
+.decorated-list-suggest-box {
+    background: #fffdf0;
+    border: 1px solid;
+    border-color: #fff1ca #ffedbe #ffedbe;
+    border-radius: 5px;
+    height: 33px;
+}
+
+/*.section-suggest-box {*/
+/*position: fixed;*/
+/*z-index: 0;*/
+/*top: 50px;*/
+/*left: 170px;*/
+/*right: 430px;*/
+/*overflow-y: auto;*/
+/*overflow-x: hidden;*/
+/*box-shadow: 4px 6px 10px 0 rgba(128, 128, 128, .2);*/
+/*padding: 9px 25px 9px 35px;*/
+/*background: #fffdf0;*/
+/*border: 1px solid;*/
+/*border-color: #fff1ca #ffedbe #ffedbe;*/
+/*border-radius: 0 0 5px 5px;*/
+
+/*}*/
+
+.header-first-action-button {
+    background: url(images/matugalnik.png) no-repeat scroll 5px 2px;
+    cursor: pointer;
+    display: inline-block;
+    height: 33px;
+    outline: none;
+    vertical-align: top;
+    width: 35px;
+    z-index: 2;
+}
+
+.header-first-action-button-mute {
+    background: url(images/matugalnik_dis.png) no-repeat scroll 4px 4px !important;
+}
+
+.header-second-action-button {
+    width: 28px;
+    height: 35px;
+    position: absolute;
+    right: -1px;
+    top: -1px;
+    z-index: 1;
+    background: url(images/notes_down.png) no-repeat 0 0;
+    cursor: pointer;
+    outline: none;
+}
+
+.section-suggest-box {
+    border-bottom: solid;
+    border-width: 1px;
+    border-color: #FFF1CA #FFEDBE #FFEDBE;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    left: 30px;
+}
+
+.section-suggest-item .gwt-Label {
+    padding: 10px;
 }
 
 .header-logo-container {
@@ -547,7 +625,7 @@ td.datePickerMonth {
     margin-bottom: 25px;
 }
 
-/*простой  поиск конец*/
+/* простой  поиск конец */
 
 .style-button {
     border: solid black 1px;
@@ -585,63 +663,6 @@ td.datePickerMonth {
 
 .action-bar-button-non-active {
 
-}
-
-/* SUGGEST BOX  */
-.root-suggest-div {
-    position: relative;
-    width: 100%;
-}
-
-.decorated-suggest-box {
-    width: 100%;
-    height: 15px;
-    position: relative;
-    overflow: hidden;
-    font: 13px/ 15px Arial;
-}
-
-.decorated-list-suggest-box {
-    height: 15px;
-    padding: 9px 25px 9px 35px;
-    position: relative;
-    background: #fffdf0;
-    border: 1px solid;
-    border-color: #fff1ca #ffedbe #ffedbe;
-    border-radius: 5px;
-}
-
-.header-first-action-button {
-    background: url(images/matugalnik.png) no-repeat scroll 4px 4px;
-    cursor: pointer;
-    height: 30px;
-    position: absolute;
-    width: 33px;
-    z-index: 2;
-    top: 0px;
-    left: 3px;
-    outline: none;
-}
-
-.header-first-action-button-mute {
-    background: url(images/matugalnik_dis.png) no-repeat scroll 4px 4px !important;
-}
-
-.header-second-action-button {
-    width: 28px;
-    height: 35px;
-    position: absolute;
-    right: -1px;
-    top: -1px;
-    z-index: 1;
-    background: url(images/notes_down.png) no-repeat 0 0;
-    cursor: pointer;
-    outline: none;
-}
-
-.section-suggest-box {
-    position: initial !important;
-    overflow: visible !important;
 }
 
 .H_td_ExtSearch .header-third-action-button {
@@ -798,10 +819,6 @@ td.datePickerMonth {
 }
 
 .decorated-suggest-box {
-
-}
-
-.section-suggest-box {
 
 }
 
