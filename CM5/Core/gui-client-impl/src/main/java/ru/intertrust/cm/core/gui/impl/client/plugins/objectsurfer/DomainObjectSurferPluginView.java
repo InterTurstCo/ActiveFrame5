@@ -90,7 +90,7 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     protected void splitterSetSize() {
         splitterPanel.setSize(surferWidth + "px", surferHeight + "px");
-        checkLastSplitterPosition(splitterPanel.isSplitType(), surferWidth, surferHeight / 2, false);
+      //  checkLastSplitterPosition(splitterPanel.isSplitType(), surferWidth, surferHeight / 2, false);
 
     }
 

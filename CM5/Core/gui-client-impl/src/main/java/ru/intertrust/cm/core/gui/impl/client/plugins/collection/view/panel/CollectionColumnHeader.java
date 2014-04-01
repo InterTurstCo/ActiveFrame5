@@ -128,7 +128,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     private void initElements() {
-        if (widget.getSearchFilterName() == null) {
+        if (widget.getSearchFilterName() == null && widget.isShowFilter()) {
             clearButton = DOM.getElementById(searchAreaId + HEADER_CLEAR_BUTTON_ID_PART);
             input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
             inputFilter = InputElement.as(input);

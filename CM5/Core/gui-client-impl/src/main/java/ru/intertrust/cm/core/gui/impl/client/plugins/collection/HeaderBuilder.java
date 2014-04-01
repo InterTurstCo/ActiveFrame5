@@ -119,7 +119,7 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
                 TableCellBuilder th =
                         tr.startTH().colSpan(prevColspan).className(classesBuilder.toString());
 
-             //   th.style().width(column.getMaxWidth(), com.google.gwt.dom.client.Style.Unit.PX);
+       //    th.style().width(column.getMinWidth(), com.google.gwt.dom.client.Style.Unit.PX);
                 enableColumnHandlers(th, column);
                 if (prevHeader != null) {
                     // Build the header.

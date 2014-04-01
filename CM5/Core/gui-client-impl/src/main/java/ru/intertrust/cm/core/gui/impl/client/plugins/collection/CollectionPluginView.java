@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -15,21 +14,18 @@ import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.google.gwt.view.client.MultiSelectionModel;
-
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
-
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DataGridResourceAdapter;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DataGridResources;
-
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseUtils;
-import ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.client.iview.SystemSizes;
+import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
@@ -61,7 +57,7 @@ public class CollectionPluginView extends PluginView {
     private boolean singleChoice = true;
     private SortCollectionState sortCollectionState;
     private ToggleButton filterButton = new ToggleButton();
-     private  HandlerRegistration scrollHandlerRegistration;
+    private  HandlerRegistration scrollHandlerRegistration;
     private ArrayList<Filter> filterList;
 
     private String simpleSearchQuery = "";
@@ -88,13 +84,13 @@ public class CollectionPluginView extends PluginView {
         tableBody.setHeaderBuilder(new HeaderBuilder<CollectionRowItem>(tableBody, false));
         tableBody.addStyleName("collection-plugin-view collection-plugin-view-container");
         filterList = new ArrayList<Filter>();
-        updateSizes();
-
+        tableWidth = plugin.getOwner().getVisibleWidth();
 
     }
 
     private void updateSizes() {
         tableWidth = plugin.getOwner().getVisibleWidth();
+        CollectionDataGridUtils.addjustColumnsWidth(tableWidth, tableBody);
 
     }
 
@@ -138,7 +134,7 @@ public class CollectionPluginView extends PluginView {
     private void createTableColumns() {
         headerController = new CollectionColumnHeaderController();
         if (singleChoice) {
-            createTableColumnsWithoutCheckBoxes(fieldPropertiesMap, 0);
+            createTableColumnsWithoutCheckBoxes(fieldPropertiesMap);
         } else {
             createTableColumnsWithCheckBoxes(fieldPropertiesMap);
         }
@@ -309,18 +305,24 @@ public class CollectionPluginView extends PluginView {
                         try {
                             DateTimeFormat format = header.getDateTimeFormat();
                             Date selectedDate = format.parse(filterValue);
-                            TimelessDate timelessDateSelected = new TimelessDate(selectedDate.getYear() + 1900, selectedDate.getMonth(),selectedDate.getDay());
+                            Date copyOfDate = CalendarUtil.copyDate(selectedDate);
+                            CalendarUtil.setToFirstDayOfMonth(copyOfDate);
+                            int daysBetweenSelectedDate = CalendarUtil.getDaysBetween(selectedDate, copyOfDate) - 1;
+                            TimelessDate timelessDateSelected = new TimelessDate(selectedDate.getYear() + 1900, selectedDate.getMonth(),daysBetweenSelectedDate);
                             value = new TimelessDateValue(timelessDateSelected );
                             filter.addCriterion(0, value);
                             Date currentDate = new Date(System.currentTimeMillis());
-                            TimelessDate currentTimelessDate = new TimelessDate(currentDate.getYear() + 1900, currentDate.getMonth(), currentDate.getDay()) ;
+                            copyOfDate = CalendarUtil.copyDate(currentDate);
+                            CalendarUtil.setToFirstDayOfMonth(copyOfDate);
+
+                            int daysBetweenCurrentDate = CalendarUtil.getDaysBetween(currentDate,copyOfDate) - 1;
+                            TimelessDate currentTimelessDate = new TimelessDate(currentDate.getYear() + 1900, currentDate.getMonth(), daysBetweenCurrentDate) ;
                             Value currentTimeValue = new TimelessDateValue(currentTimelessDate);
                             filter.addCriterion(1, currentTimeValue);
                         } catch (IllegalArgumentException e) {
                             Window.alert("Wrong date!");
                             return;
                         }
-                        //   value = new TimelessDateValue(date);
 
                 } else {
                     value = new StringValue("%" + filterValue + "%");
@@ -449,22 +451,15 @@ public class CollectionPluginView extends PluginView {
         checkColumn.setMoveable(false);
         tableBody.addColumn(checkColumn);
         checkColumn.setDataStoreName(CHECK_BOX_COLUMN_NAME);
-        tableBody.setColumnWidth(checkColumn, CHECK_BOX_MAX_WIDTH + "px");
-        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, CHECK_BOX_MAX_WIDTH);
+        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap);
     }
 
     private void createTableColumnsWithoutCheckBoxes(
-            LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap, final int sizeOffset) {
-        int numberOfColumns = sizeOffset + domainObjectFieldPropertiesMap.keySet().size();
-        int tableWidthAvailable = tableWidth;
+            LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap) {
         List<CollectionColumnHeader> headers = new ArrayList<CollectionColumnHeader>();
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
-            int columnWidthAverage = (tableWidthAvailable / numberOfColumns);
-            int columnWidth = BusinessUniverseUtils.adjustWidth(columnWidthAverage, column.getMinWidth(), column.getMaxWidth());
-            tableWidthAvailable -= columnWidth;
-            numberOfColumns -= 1;
             String searchFilterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
             String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.PATTERN_KEY);
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
@@ -473,7 +468,6 @@ public class CollectionPluginView extends PluginView {
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             headers.add(collectionColumnHeader);
             tableBody.addColumn(column, collectionColumnHeader);
-            tableBody.setColumnWidth(column, columnWidth + "px");
             SortedMarker sortedMarker = (SortedMarker) columnProperties.getProperty(CollectionColumnProperties.SORTED_MARKER);
             if (sortedMarker != null) {
                 boolean ascending = sortedMarker.isAscending();
@@ -481,8 +475,11 @@ public class CollectionPluginView extends PluginView {
                 tableBody.getColumnSortList().push(new ColumnSortList.ColumnSortInfo(column, ascending));
                 sortCollectionState = new SortCollectionState(0, FETCHED_ROW_COUNT, column.getDataStoreName(), ascending, true, field);
             }
-            headerController.setHeaders(headers);
+
+
         }
+        headerController.setHeaders(headers);
+        CollectionDataGridUtils.addjustColumnsWidth(tableWidth, tableBody);
     }
 
     public void insertRows(List<CollectionRowItem> list) {

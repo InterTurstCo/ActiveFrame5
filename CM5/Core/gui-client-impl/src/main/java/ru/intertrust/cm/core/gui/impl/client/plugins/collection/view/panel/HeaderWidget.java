@@ -5,7 +5,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.datepicker.client.DateBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.CMJDatePicker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.PopupDatePicker;
 
@@ -29,7 +28,7 @@ public class HeaderWidget {
     private boolean showFilter;
     private String minWidth;
     private String filterValue = EMPTY_VALUE;
-    private String datePattern;
+
    private DateTimeFormat dateTimeFormat;
 
     public HeaderWidget(String title, String fieldType, String searchFilterName, String id, String minWidth, String datePattern) {
@@ -38,9 +37,9 @@ public class HeaderWidget {
         this.searchFilterName = searchFilterName;
         this.title = title;
         this.minWidth = minWidth;
-        this.datePattern = datePattern;
+
         if (datePattern != null) {
-        dateTimeFormat = DateTimeFormat.getFormat("dd.MM.yyyy");
+        dateTimeFormat = DateTimeFormat.getFormat(datePattern);
         }
     }
 
@@ -65,7 +64,7 @@ public class HeaderWidget {
                     + id + HEADER_CLEAR_BUTTON_ID_PART + clearButtonClass;
             picker = new CMJDatePicker();
             picker.toggle("date-picker-baloon", "!!!");
-            DateBox.Format format = new DateBox.DefaultFormat(DATE_TIME_FORMAT);
+
             popupDatePicker = new PopupDatePicker(picker)  ;
             initHandlers();
         } else {
@@ -97,6 +96,10 @@ public class HeaderWidget {
             }
         });
 
+    }
+
+    public boolean isShowFilter() {
+        return showFilter;
     }
 
     public void setShowFilter(boolean showFilter) {
