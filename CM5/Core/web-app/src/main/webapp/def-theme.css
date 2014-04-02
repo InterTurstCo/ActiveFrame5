@@ -137,8 +137,32 @@ h1 {
     left: 30px;
 }
 
-.section-suggest-item .gwt-Label {
-    padding: 10px;
+.section-suggest-item:hover {
+    background: #faf8eb;
+    border-radius: 5px;
+}
+
+.header-notification-style {
+    background: #fffdf0;
+}
+
+.cross-button {
+    background: url("icons/filter-clear-button.png") no-repeat 0 0;
+    border: 0;
+    cursor: pointer;
+    display: inline-block;
+    height: 16px;
+    margin: 10px 5px 10px;
+    float: right;
+    width: 16px;
+}
+
+.cross-button:hover {
+    background: url("icons/filter-clear-button.png") no-repeat -16px 0;
+}
+
+.cross-button:active {
+    background: url("icons/filter-clear-button.png") no-repeat -33px 0;
 }
 
 .header-logo-container {

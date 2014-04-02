@@ -70,10 +70,10 @@ public class HeaderSectionSuggestBox implements IsWidget{
         secondImage.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                    pluginPopupShow = true;
-                    pluginPopupPanel.clear();
-                    pluginPopupPanel.add(headerNotificationPanel);
-                    pluginPopupPanel.show();
+                pluginPopupShow = true;
+                pluginPopupPanel.clear();
+                pluginPopupPanel.add(headerNotificationPanel);
+                pluginPopupPanel.show();
 
 
 
@@ -86,13 +86,12 @@ public class HeaderSectionSuggestBox implements IsWidget{
             public void onClose(CloseEvent<PopupPanel> event) {
                 sectionSuggestBox.clear();
                 sectionSuggestBox.add(headerNotificationPanel);
-                pluginPopupShow = false;
             }
         });
 
 //        sectionSuggestBox.getElement().getStyle().clearOverflow();
 //        sectionSuggestBox.getElement().getStyle().clearPosition();
-        sectionSuggestBox.setStyleName("section-suggest-box");
+          sectionSuggestBox.setStyleName("section-suggest-box");
           sectionSuggestBox.getElement().getStyle().clearPosition();
 
 //        AbsolutePanel decoratedSuggestBox = new AbsolutePanel();
