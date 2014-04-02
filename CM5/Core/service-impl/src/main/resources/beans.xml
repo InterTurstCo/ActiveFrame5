@@ -73,7 +73,20 @@
 
     <bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData" init-method="onLoad" />
 
-    <bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData" init-method="onLoad" />
+    <bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData" init-method="onLoad" >
+        <property name="reportServiceAdmin">
+            <bean id="reportServiceAdmin"
+                  class="ru.intertrust.cm.core.business.impl.ReportServiceAdminImpl">
+                <property name="attachmentService">
+                    <bean class="ru.intertrust.cm.core.business.impl.AttachmentServiceImpl">
+                        <property name="crudService">
+                            <bean class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"/>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
     
 
     <!-- Интеграция с Activiti -->

@@ -182,4 +182,8 @@ public class ReportServiceBase {
         }
         return result;
     }
+
+    public void setAttachmentService(AttachmentService attachmentService) {
+        this.attachmentService = attachmentService;
+    }
 }

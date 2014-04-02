@@ -222,6 +222,19 @@ public class AttachmentServiceImplTest {
         }
 
         @Bean
+        public DomainObjectDao domainObjectDaoService() {
+            doAnswer(new Answer() {
+                public Object answer(InvocationOnMock invocation) {
+                    DomainObject domainObject = new GenericDomainObject();
+                    domainObject.setString(AttachmentService.PATH, "" + (AttachmentServiceImplTest.suffix - 1));
+                    return domainObject;
+                }
+            }).when(domainObjectDao).find(any(Id.class), any(AccessToken.class));
+
+            return domainObjectDao;
+        }
+
+        @Bean
         public FormLogicalValidator formLogicalValidator() {
             return formLogicalValidator;
         }

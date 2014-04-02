@@ -20,9 +20,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.ejb.Local;
@@ -31,9 +29,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.io.IOException;
 import java.io.InputStream;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -175,10 +171,13 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
-            DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
+            AccessToken accessToken = createSystemAccessToken();
+            // [CMFIVE-705, 02/04/14] crudService.find(..) replaced with domainObjectDao.find(..) as crudService refers
+            // to EjbContext which is unavailable at reports deployment time
+            //DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
+            DomainObject attachmentDomainObject = domainObjectDao.find(attachmentDomainObjectId, accessToken);
             attachmentContentDao.deleteContent(attachmentDomainObject);
             //файл может быть и не удален
-            AccessToken accessToken = createSystemAccessToken();
             domainObjectDao.delete(attachmentDomainObjectId, accessToken);
         } catch (DaoException ex) {
             logger.error(ex.getMessage());
@@ -273,4 +272,9 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
         return declaringAttachmentDomainObject;
     }
+
+    public void setCrudService(CrudService crudService) {
+        this.crudService = crudService;
+    }
+
 }
