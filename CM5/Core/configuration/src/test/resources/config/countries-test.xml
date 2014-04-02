@@ -51,7 +51,7 @@
     <form name="country_form" domain-object-type="country" is-default="true">
         <markup>
             <header>
-                <table width="500px" height="200px">
+                <table>
                     <tr>
                         <td width="100px" h-align="right"><widget id="1"/></td> <!-- label (Название) -->
                         <td width="100%" h-align="left"><widget id="2"/></td> <!-- text-box (Название) -->

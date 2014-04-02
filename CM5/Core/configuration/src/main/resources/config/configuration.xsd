@@ -946,6 +946,7 @@
         </xs:complexContent>
     </xs:complexType>
 
+
     <xs:complexType name="collectionViewerType">
         <xs:sequence>
             <xs:choice>

@@ -165,6 +165,29 @@ h1 {
     background: url("icons/filter-clear-button.png") no-repeat -33px 0;
 }
 
+.cross-button-first{
+    background: url("icons/filter-clear-button.png") no-repeat 0 0;
+    border: 0;
+    cursor: pointer;
+    display: inline-block;
+    height: 16px;
+    margin: 10px 40px 10px;
+    float: right;
+    width: 16px;
+
+}
+
+.close-notification-popup {
+    width: 28px;
+    height: 35px;
+    position: absolute;
+    right: 0;
+    top: -1px;
+    z-index: 1;
+    background: url(images/notes_up.png) no-repeat 0 0;
+    cursor: pointer;
+}
+
 .header-logo-container {
     width: 138px;
     display: block;
