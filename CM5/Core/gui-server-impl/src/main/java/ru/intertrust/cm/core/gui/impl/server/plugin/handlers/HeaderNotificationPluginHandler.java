@@ -43,11 +43,12 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
     public Dto deleteNotification(Dto dto){
 
         CancelHeaderNotificationItem cancelHeaderNotificationItem = (CancelHeaderNotificationItem) dto;
+        if (cancelHeaderNotificationItem.getId() != null){
         DomainObject domainObject = crudService.find(cancelHeaderNotificationItem.getId());
         Value value = new DecimalValue(0);
         domainObject.setValue("new", value);
         crudService.save(domainObject);
-
+        }
         cancelHeaderNotificationItem.setItems(getNotificationList());
 
 

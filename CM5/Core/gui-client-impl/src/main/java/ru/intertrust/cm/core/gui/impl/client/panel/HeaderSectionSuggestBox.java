@@ -5,8 +5,12 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
+import ru.intertrust.cm.core.gui.impl.client.event.HeaderNotificationRemoveItemEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HeaderNotificationRemoveItemEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.headernotification.HeaderNotificationPlugin;
 
 /**
@@ -27,6 +31,8 @@ public class HeaderSectionSuggestBox implements IsWidget{
     private PluginPanel headerNotificationPanel;
     private boolean pluginPopupShow;
     private PopupPanel pluginPopupPanel;
+    private EventBus eventBus = Application.getInstance().getEventBus();
+    private int notificationRowCount;
 
     public HeaderSectionSuggestBox() {
         rootSuggestDiv = new AbsolutePanel();
@@ -73,7 +79,7 @@ public class HeaderSectionSuggestBox implements IsWidget{
         secondImage.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-
+                if (notificationRowCount > 1){
                 pluginPopupShow = true;
                 pluginPopupPanel.clear();
                 FlowPanel flowPanel = new FlowPanel();
@@ -81,6 +87,7 @@ public class HeaderSectionSuggestBox implements IsWidget{
                 flowPanel.add(headerNotificationPanel);
                 flowPanel.add(popupClose);
                 pluginPopupPanel.show();
+                }
 
 
 
@@ -104,9 +111,20 @@ public class HeaderSectionSuggestBox implements IsWidget{
             }
         });
 
+        eventBus.addHandler(HeaderNotificationRemoveItemEvent.TYPE, new HeaderNotificationRemoveItemEventHandler() {
+            @Override
+            public void headerNotificationPopupStatus(HeaderNotificationRemoveItemEvent event) {
+                notificationRowCount = event.getPluginRowCount();
+                if (notificationRowCount < 2){
+                    pluginPopupPanel.hide();
+                }
+
+            }
+        });
+
 //        sectionSuggestBox.getElement().getStyle().clearOverflow();
 //        sectionSuggestBox.getElement().getStyle().clearPosition();
-        sectionSuggestBox.setStyleName("section-suggest-box");
+                sectionSuggestBox.setStyleName("section-suggest-box");
         sectionSuggestBox.getElement().getStyle().clearPosition();
          
 

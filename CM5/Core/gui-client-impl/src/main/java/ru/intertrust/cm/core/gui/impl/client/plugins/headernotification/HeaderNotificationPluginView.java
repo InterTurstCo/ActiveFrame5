@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HeaderNotificationRemoveItemEvent;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -27,7 +29,7 @@ public class HeaderNotificationPluginView extends PluginView{
     private Plugin plugin;
     private HeaderNotificationPluginData headerNotificationPluginData;
     private ArrayList<HeaderNotificationItem> listNotificationItem;
-    private FormPlugin formPlugin;
+    private FormPlugin oldFormPlugin;
 
 
     protected HeaderNotificationPluginView(Plugin plugin) {
@@ -35,8 +37,20 @@ public class HeaderNotificationPluginView extends PluginView{
         this.plugin = plugin;
         headerNotificationPluginData = plugin.getInitialData();
         listNotificationItem = headerNotificationPluginData.getCollection();
+        updateNotificationTimer();
 
 
+    }
+
+    private void updateNotificationTimer(){
+        Timer timer = new Timer() {
+            @Override
+            public void run() {
+            canselHeaderNotificationItem(new CancelHeaderNotificationItem());
+            }
+        };
+
+        timer.scheduleRepeating(120000);
     }
 
     @Override
@@ -65,6 +79,7 @@ public class HeaderNotificationPluginView extends PluginView{
             absolutePanel.add( new Label("Новых уведомлений нет"));
             container.add(absolutePanel);
 
+
         }
         for (int i =0; i < listNotificationItem.size(); i++){
             AbsolutePanel absolutePanel = new AbsolutePanel();
@@ -86,15 +101,17 @@ public class HeaderNotificationPluginView extends PluginView{
                 @Override
                 public void onClick(ClickEvent event) {
                     FormPluginConfig config = new FormPluginConfig(listNotificationItem.get(finalI).getId()) ;
+                    FormPlugin formPlugin = new FormPlugin();
                     FormPluginState formPluginState = new FormPluginState();
                     formPluginState.setToggleEdit(true);
                     formPluginState.setEditable(false);
                     formPluginState.setInCentralPanel(true);
                     config.setPluginState(formPluginState);
-                    if (formPlugin != null){
-                        formPlugin.getOwner().closeCurrentPlugin();
+                    if (oldFormPlugin != null){
+                        oldFormPlugin.getOwner().closeCurrentPlugin();
                     }
                     formPlugin = createFormPlugin(config);
+                    oldFormPlugin = formPlugin;
 
 
                     Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
@@ -111,9 +128,11 @@ public class HeaderNotificationPluginView extends PluginView{
                 @Override
                 public void onClick(ClickEvent event) {
                     crossContainer.getParent().removeFromParent();
+                    canselHeaderNotificationItem(new CancelHeaderNotificationItem(listNotificationItem.get(finalI).getId()));
                 }
             });
         }
+        Application.getInstance().getEventBus().fireEvent(new HeaderNotificationRemoveItemEvent(listNotificationItem.size()));
     }
     
     private void canselHeaderNotificationItem(CancelHeaderNotificationItem cancelHeaderNotificationItem){
