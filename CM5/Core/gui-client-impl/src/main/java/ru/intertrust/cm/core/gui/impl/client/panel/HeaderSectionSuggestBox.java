@@ -115,9 +115,8 @@ public class HeaderSectionSuggestBox implements IsWidget{
             @Override
             public void headerNotificationPopupStatus(HeaderNotificationRemoveItemEvent event) {
                 notificationRowCount = event.getPluginRowCount();
-                if (notificationRowCount < 2){
-                    pluginPopupPanel.hide();
-                }
+                pluginPopupPanel.hide();
+
 
             }
         });
