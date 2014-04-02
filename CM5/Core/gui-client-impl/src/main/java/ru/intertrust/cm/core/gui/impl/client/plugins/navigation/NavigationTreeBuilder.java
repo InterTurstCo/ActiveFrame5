@@ -113,9 +113,6 @@ class NavigationTreeBuilder {
 
     private TreeItem composeTreeItem(String treeItemName, String displayText, LinkPluginDefinition pluginDefinition) {
         Label label = new Label();
-        label.getElement().getStyle().setFloat(Style.Float.LEFT);
-        label.getElement().getStyle().setMarginRight(120, Style.Unit.PX);
-
         if (displayText.length() > 18) {
             String cutDisplayText = displayText.substring(0, 18);
             label.setText(cutDisplayText + "...");

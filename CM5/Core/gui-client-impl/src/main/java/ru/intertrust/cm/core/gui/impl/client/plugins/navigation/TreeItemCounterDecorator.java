@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TreeItem;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 
 import java.util.Map;
@@ -21,6 +21,7 @@ public class TreeItemCounterDecorator implements CounterDecorator {
 
     @Override
     public void decorate(Long counterValue) {
+
         Label label = new Label();
         label.setStyleName("tree-label");
         label.removeStyleName("gwt-Label");

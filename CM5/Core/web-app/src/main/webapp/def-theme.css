@@ -1089,6 +1089,13 @@ td.datePickerMonth {
 
 }
 
+.left-tree-item-div{
+
+ }
+.right-tree-item-div{
+
+}
+
 .navigation-dynamic-panel {
     left: 15px;
     padding-top: 20px;
@@ -1106,7 +1113,7 @@ td.datePickerMonth {
 .group-tree {
 
     font-weight: bold;
-    margin-left: 124px;
+    margin-left: 130px;
     margin-top: 10px;
     padding: 0 0 15px;
     display: block;
@@ -1132,6 +1139,7 @@ td.datePickerMonth {
 .tree-label {
     text-decoration: none !important;
     padding-right: 8px;
+    padding-left: 5px;
     cursor: pointer;
     padding-top: 8px;
 
@@ -1896,8 +1904,11 @@ div.gwt-Good-Label {
 }
 
 .tree-label {
+    float:left;
     margin-left: -20px !important;
+    margin-right: 120px;
     padding-left: 20px !important;
+
 }
 
 .not-edit-date-text-label {

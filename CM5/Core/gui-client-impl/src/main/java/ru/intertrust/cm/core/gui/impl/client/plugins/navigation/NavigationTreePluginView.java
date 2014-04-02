@@ -5,7 +5,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.*;
+
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -82,8 +82,6 @@ public class NavigationTreePluginView extends PluginView {
         final FocusPanel focusContainer = new FocusPanel();
         focusContainer.addStyleName("focusContainer");
 
-        //  focusContainer.getElement().getStyle().setBackgroundColor("black");
-        focusContainer.addStyleName("focusContainer");
         SystemTreeStyles.I.styles().ensureInjected();
         VerticalPanel rootLinksPanel = new VerticalPanel();
         decorateRootlinksPanel(rootLinksPanel);
