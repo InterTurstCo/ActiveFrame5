@@ -528,7 +528,7 @@ public class CollectionPluginView extends PluginView {
                 headerController.saveFilterValues();
                 insertMoreRows(collectionRowItems);
                 tableBody.flush();
-                ScrollPanel scroll =   tableBody.getScrollPanel();
+                ScrollPanel scroll = tableBody.getScrollPanel();
                 scrollHandlerRegistration =  scroll.addScrollHandler(new ScrollLazyLoadHandler()) ;
                 headerController.setFocus();
                 headerController.updateFilterValues();
@@ -587,7 +587,7 @@ public class CollectionPluginView extends PluginView {
 
                     // добавление нового элемента
                     if (!inserted) {
-                        items.add(item);
+                       // items.add(item);
                         selectionModel.clear();
                         selectionModel.setSelected(item, true);
                     }
