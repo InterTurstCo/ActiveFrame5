@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler {
 
     protected EventBus eventBus;
-    private BusinessUniverseInitialization businessUniverseInitialization;
 
     // установка шины событий плагину
     public void setEventBus(EventBus eventBus) {
@@ -39,13 +38,5 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
     public void onRootNodeSelected(RootLinkSelectedEvent event) {
         NavigationTreePluginView pluginView = (NavigationTreePluginView) getView();
         pluginView.repaintNavigationTrees(event.getSelectedRootLinkName());
-    }
-
-    public void setBusinessUniverseInitialization(BusinessUniverseInitialization businessUniverseInitialization) {
-        this.businessUniverseInitialization = businessUniverseInitialization;
-    }
-
-    public BusinessUniverseInitialization getBusinessUniverseInitialization() {
-        return businessUniverseInitialization;
     }
 }

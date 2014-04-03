@@ -59,42 +59,31 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
         addInformationToInitializationObject(initialization);
-        addLogoImagePath(initialization);
-        addCollectionCountersUpdateTimePeriod(initialization);
+        final BusinessUniverseConfig businessUniverseConfig =
+                configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
+        addLogoImagePath(businessUniverseConfig, initialization);
+        if (businessUniverseConfig != null) {
+            initialization.setCollectionCountersUpdatePeriod(
+                    businessUniverseConfig.getCollectionCountRefreshConfig() == null
+                    ? null
+                    : businessUniverseConfig.getCollectionCountRefreshConfig().getTime());
+            initialization.setHeaderNotificationPeriod(
+                    businessUniverseConfig.getHeaderNotificationRefreshConfig() == null
+                    ? null
+                    : businessUniverseConfig.getHeaderNotificationRefreshConfig().getTime());
+        }
         return initialization;
     }
 
-    private void addCollectionCountersUpdateTimePeriod(BusinessUniverseInitialization businessUniverseInitialization) {
-        BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
-        if (businessUniverseConfig != null) {
-            businessUniverseInitialization.setCollectionCountersUpdatePeriod(businessUniverseConfig.getCollectionCountRefreshConfig().getTime());
-        }
-    }
-
-    public BusinessUniverseInitialization addInformationToInitializationObject(BusinessUniverseInitialization businessUniverseInitialization) {
-        String currentLogin = guiService.getSessionContext().getCallerPrincipal().getName();
-        DomainObject person = personService.findPersonByLogin(currentLogin);
+    public BusinessUniverseInitialization addInformationToInitializationObject(
+            BusinessUniverseInitialization businessUniverseInitialization) {
+        final String currentLogin = guiService.getSessionContext().getCallerPrincipal().getName();
+        final DomainObject person = personService.findPersonByLogin(currentLogin);
         businessUniverseInitialization.setCurrentLogin(currentLogin);
         businessUniverseInitialization.setFirstName(person.getString("FirstName"));
         businessUniverseInitialization.setLastName(person.getString("LastName"));
         businessUniverseInitialization.seteMail(person.getString("EMail"));
         businessUniverseInitialization.setTimeZoneIds(getTimeZoneIds());
-        return businessUniverseInitialization;
-    }
-
-    private BusinessUniverseInitialization addLogoImagePath(BusinessUniverseInitialization businessUniverseInitialization) {
-        BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
-        if (businessUniverseConfig == null) {
-            businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
-            return businessUniverseInitialization;
-        }
-        LogoConfig logoConfig = businessUniverseConfig.getLogoConfig();
-        if (logoConfig == null) {
-            businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
-            return businessUniverseInitialization;
-        }
-        String logoImagePath = logoConfig.getImage();
-        businessUniverseInitialization.setLogoImagePath(logoImagePath);
         return businessUniverseInitialization;
     }
 
@@ -126,6 +115,22 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         AttachmentUploadPercentage uploadProgress = AttachmentUploaderServlet.getUploadProgress(session);
 
         return uploadProgress;
+    }
+
+    private BusinessUniverseInitialization addLogoImagePath(final BusinessUniverseConfig businessUniverseConfig,
+                                                            BusinessUniverseInitialization businessUniverseInitialization) {
+        if (businessUniverseConfig == null) {
+            businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
+            return businessUniverseInitialization;
+        }
+        LogoConfig logoConfig = businessUniverseConfig.getLogoConfig();
+        if (logoConfig == null) {
+            businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
+            return businessUniverseInitialization;
+        }
+        String logoImagePath = logoConfig.getImage();
+        businessUniverseInitialization.setLogoImagePath(logoImagePath);
+        return businessUniverseInitialization;
     }
 
     private UserInfo getUserInfo() {

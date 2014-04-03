@@ -16,6 +16,7 @@ import com.google.web.bindery.event.shared.EventBus;
  * Time: 16:54
  */
 public class Application {
+    private static final int MILLIS_IN_SEC = 1000;
 
     private static Application ourInstance = null;
     private PopupPanel glassPopupPanel;
@@ -35,6 +36,8 @@ public class Application {
     private EventBus eventBus = null;
     private CompactModeState compactModeState;
     private List<String> timeZoneIds;
+    private int collectionCountersUpdatePeriod = -1;
+    private int headerNotificationPeriod = -1;
 
     /*
      * Метод получения экземпляра класса                                        ;
@@ -63,6 +66,26 @@ public class Application {
 
     public void setTimeZoneIds(List<String> timeZoneIds) {
         this.timeZoneIds = timeZoneIds;
+    }
+
+    public int getCollectionCountersUpdatePeriod() {
+        return collectionCountersUpdatePeriod;
+    }
+
+    public void setCollectionCountersUpdatePeriod(final Integer collectionCountersUpdatePeriod) {
+        if (collectionCountersUpdatePeriod != null && collectionCountersUpdatePeriod > 0) {
+            this.collectionCountersUpdatePeriod = collectionCountersUpdatePeriod * MILLIS_IN_SEC;
+        }
+    }
+
+    public int getHeaderNotificationPeriod() {
+        return headerNotificationPeriod;
+    }
+
+    public void setHeaderNotificationPeriod(final Integer headerNotificationPeriod) {
+        if (headerNotificationPeriod != null && headerNotificationPeriod > 0) {
+            this.headerNotificationPeriod = headerNotificationPeriod * MILLIS_IN_SEC;
+        }
     }
 
     public void showLoadingIndicator(){

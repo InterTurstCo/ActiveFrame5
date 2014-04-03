@@ -14,6 +14,9 @@ public class BusinessUniverseConfig implements TopLevelConfig {
     @Element(name = "logo", required = false)
     private LogoConfig logoConfig;
 
+    @Element(name = "header-notification-refresh", required = false)
+    private HeaderNotificationRefreshConfig headerNotificationRefreshConfig;
+
     @Element(name = "collection-count-refresh", required = true)
     private CollectionCountRefreshConfig collectionCountRefreshConfig;
 
@@ -26,6 +29,10 @@ public class BusinessUniverseConfig implements TopLevelConfig {
 
     public void setLogoConfig(LogoConfig logoConfig) {
         this.logoConfig = logoConfig;
+    }
+
+    public HeaderNotificationRefreshConfig getHeaderNotificationRefreshConfig() {
+        return headerNotificationRefreshConfig;
     }
 
     public CollectionCountRefreshConfig getCollectionCountRefreshConfig() {

@@ -18,6 +18,7 @@ public class BusinessUniverseInitialization implements Dto {
     private String logoImagePath;
     private List<String> timeZoneIds;
     private Integer collectionCountersUpdatePeriod;
+    private Integer headerNotificationPeriod;
 
     public String getCurrentLogin() {
         return currentLogin;
@@ -87,7 +88,15 @@ public class BusinessUniverseInitialization implements Dto {
         return collectionCountersUpdatePeriod;
     }
 
-    public void setCollectionCountersUpdatePeriod(Integer collectionCountersUpdatePeriod) {
+    public void setCollectionCountersUpdatePeriod(final Integer collectionCountersUpdatePeriod) {
         this.collectionCountersUpdatePeriod = collectionCountersUpdatePeriod;
+    }
+
+    public Integer getHeaderNotificationPeriod() {
+        return headerNotificationPeriod;
+    }
+
+    public void setHeaderNotificationPeriod(final Integer headerNotificationPeriod) {
+        this.headerNotificationPeriod = headerNotificationPeriod;
     }
 }

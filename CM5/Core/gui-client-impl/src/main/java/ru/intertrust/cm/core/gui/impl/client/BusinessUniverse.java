@@ -130,7 +130,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 // данному плагину устанавливается глобальная шина событий
                 navigationTreePlugin.setEventBus(eventBus);
-                navigationTreePlugin.setBusinessUniverseInitialization(result);
 
                 centralPluginPanel = new CentralPluginPanel();
                 //11 - отступ справа
@@ -211,7 +210,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 RootLayoutPanel.get().add(root);
                 RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
 
-                Application.getInstance().setTimeZoneIds(result.getTimeZoneIds());
+                final Application application = Application.getInstance();
+                application.setTimeZoneIds(result.getTimeZoneIds());
+                application.setHeaderNotificationPeriod(result.getHeaderNotificationPeriod());
+                application.setCollectionCountersUpdatePeriod(result.getCollectionCountersUpdatePeriod());
             }
 
             @Override

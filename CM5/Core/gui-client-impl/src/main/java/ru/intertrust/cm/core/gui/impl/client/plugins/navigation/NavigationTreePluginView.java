@@ -177,13 +177,13 @@ public class NavigationTreePluginView extends PluginView {
             }
         });
         setIndex(0);
-
-        NavigationTreePlugin navigationTreePlugin = (NavigationTreePlugin) plugin;
-        activateCollectionCountersUpdateTimer(navigationTreePlugin.getBusinessUniverseInitialization());
+        if (Application.getInstance().getCollectionCountersUpdatePeriod() > 0) {
+            activateCollectionCountersUpdateTimer(Application.getInstance().getCollectionCountersUpdatePeriod());
+        }
         return navigationTreeContainer;
     }
 
-    private void activateCollectionCountersUpdateTimer(BusinessUniverseInitialization businessUniverseInitialization) {
+    private void activateCollectionCountersUpdateTimer(final int collectionCountersUpdatePeriodMillis) {
         final Command collectionsCountersCommand = new Command();
         collectionsCountersCommand.setName("getCounters");
         collectionsCountersCommand.setComponentName("collection_counters_handler");
@@ -220,8 +220,6 @@ public class NavigationTreePluginView extends PluginView {
                 });
             }
         };
-        Integer collectionCountersUpdatePeriod = businessUniverseInitialization.getCollectionCountersUpdatePeriod();
-        int collectionCountersUpdatePeriodMillis = collectionCountersUpdatePeriod * 1000;
         timer.scheduleRepeating(collectionCountersUpdatePeriodMillis);
     }
 

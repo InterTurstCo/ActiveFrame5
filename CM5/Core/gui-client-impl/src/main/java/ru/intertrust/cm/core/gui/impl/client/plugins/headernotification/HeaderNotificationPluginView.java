@@ -1,12 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.headernotification;
 
+import java.util.ArrayList;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -16,10 +21,12 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HeaderNotificationRemoveItemEvent;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.model.plugin.CancelHeaderNotificationItem;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.HeaderNotificationItem;
+import ru.intertrust.cm.core.gui.model.plugin.HeaderNotificationPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-
-import java.util.ArrayList;
 
 /**
  * Created by lvov on 25.03.14.
@@ -31,26 +38,24 @@ public class HeaderNotificationPluginView extends PluginView{
     private ArrayList<HeaderNotificationItem> listNotificationItem;
     private FormPlugin oldFormPlugin;
 
-
     protected HeaderNotificationPluginView(Plugin plugin) {
         super(plugin);
         this.plugin = plugin;
         headerNotificationPluginData = plugin.getInitialData();
         listNotificationItem = headerNotificationPluginData.getCollection();
-        updateNotificationTimer();
-
-
+        if (Application.getInstance().getHeaderNotificationPeriod() > 0) {
+            updateNotificationTimer(Application.getInstance().getHeaderNotificationPeriod());
+        }
     }
 
-    private void updateNotificationTimer(){
+    private void updateNotificationTimer(final int headerNotificationPeriod){
         Timer timer = new Timer() {
             @Override
             public void run() {
-            canselHeaderNotificationItem(new CancelHeaderNotificationItem());
+                canselHeaderNotificationItem(new CancelHeaderNotificationItem());
             }
         };
-
-        timer.scheduleRepeating(120000);
+        timer.scheduleRepeating(headerNotificationPeriod);
     }
 
     @Override
@@ -134,7 +139,7 @@ public class HeaderNotificationPluginView extends PluginView{
         }
         Application.getInstance().getEventBus().fireEvent(new HeaderNotificationRemoveItemEvent(listNotificationItem.size()));
     }
-    
+
     private void canselHeaderNotificationItem(CancelHeaderNotificationItem cancelHeaderNotificationItem){
         Command command = new Command("deleteNotification", "header.notifications.plugin", cancelHeaderNotificationItem);
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
@@ -157,6 +162,4 @@ public class HeaderNotificationPluginView extends PluginView{
             }
         });
     }
-
-
 }
