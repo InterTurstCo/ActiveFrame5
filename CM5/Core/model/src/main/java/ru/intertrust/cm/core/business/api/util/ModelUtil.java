@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.business.api.util;
 
-import java.util.ArrayList;
-
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+
+import java.util.ArrayList;
 
 /**
  * Author: Denis Mitavskiy
@@ -65,4 +65,5 @@ public final class ModelUtil {
         }
         return builder.toString();
     }
+
 }

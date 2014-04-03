@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.impl.server.util.DateUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
@@ -206,7 +207,8 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
                 dateFormat.setTimeZone(TimeZone.getTimeZone(userTimeZoneId));
                 try {
                     final Date date = dateFormat.parse(context.getDateTime());
-                    final String timeZoneId = getTimeZoneId(context);
+                    final String rawTimeZoneId = context.getTimeZoneId();
+                    final String timeZoneId = DateUtil.getTimeZoneId(rawTimeZoneId);
                     final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
                     calendar.setTime(date);
                     final DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone();
@@ -231,20 +233,5 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
             return new DateTimeWithTimeZoneValue();
         }
 
-        /**
-         * If date changed on client side the {@link DateTimeContext#timeZoneId} attribute is setting to selected
-         * time zone id, otherwise the {@link DateTimeContext#timeZoneId} has origin value.
-         * @param context instance of the {@link DateTimeContext}.
-         * @return actual value of timeZoneId.
-         */
-        private String getTimeZoneId(final DateTimeContext context) {
-            switch (context.getTimeZoneId()) {
-                case ModelUtil.LOCAL_TIME_ZONE_ID:
-                case ModelUtil.DEFAULT_TIME_ZONE_ID:
-                case ModelUtil.ORIGINAL_TIME_ZONE_ID:
-                    return GuiContext.get().getUserInfo().getTimeZoneId();
-            }
-            return context.getTimeZoneId();
-        }
     }
 }

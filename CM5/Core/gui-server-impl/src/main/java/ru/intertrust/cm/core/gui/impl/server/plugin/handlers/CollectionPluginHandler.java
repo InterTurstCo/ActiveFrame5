@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -376,11 +377,19 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     }
     private List<Filter> prepareSearchFilters(Map<String, String> filtersMap, LinkedHashMap<String, CollectionColumnProperties> properties) {
         List<Filter> filters = new ArrayList<Filter>();
+        if(filtersMap == null) {
+            return filters;
+        }
         Set<String> fieldNames = filtersMap.keySet();
         for(String fieldName : fieldNames){
             String filterValue = filtersMap.get(fieldName);
             CollectionColumnProperties columnProperties = properties.get(fieldName);
-            Filter filter = FilterBuilder.prepareSearchFilter(filterValue, columnProperties);
+            Filter filter = null;
+            try {
+                filter = FilterBuilder.prepareSearchFilter(filterValue, columnProperties);
+            } catch (ParseException e) {
+                e.printStackTrace();  //for developers only
+            }
             filters.add(filter);
         }
         return filters;

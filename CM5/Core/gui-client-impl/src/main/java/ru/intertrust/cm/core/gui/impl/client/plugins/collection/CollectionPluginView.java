@@ -58,7 +58,6 @@ public class CollectionPluginView extends PluginView {
     private SortCollectionState sortCollectionState;
     private ToggleButton filterButton = new ToggleButton();
     private  HandlerRegistration scrollHandlerRegistration;
-    private ArrayList<Filter> filterList;
     private Map<String, String> filtersMap = new HashMap<String, String>();
     private String simpleSearchQuery = "";
     private String searchArea = "";
@@ -84,7 +83,7 @@ public class CollectionPluginView extends PluginView {
         tableBody.setHeaderBuilder(new HeaderBuilder<CollectionRowItem>(tableBody, false));
         tableBody.setAutoHeaderRefreshDisabled(true);
         tableBody.addStyleName("collection-plugin-view collection-plugin-view-container");
-        filterList = new ArrayList<Filter>();
+
         tableWidth = plugin.getOwner().getVisibleWidth();
 
     }
@@ -200,7 +199,7 @@ public class CollectionPluginView extends PluginView {
                         listCount = 0;
                         items.clear();
                         if (!event.isTypeButton()) {
-                            filterList.clear();
+                            filtersMap.clear();
 
                             simpleSearchQuery = "";
                         } else {
@@ -270,13 +269,22 @@ public class CollectionPluginView extends PluginView {
                 } else {
                     sb.append("&");
                     sb.append("filterName=");
-                    for (int i = 0; i < filterList.size(); i++) {
+                    Set<String> fieldNames = filtersMap.keySet();
+                  /*  for (int i = 0; i < filterList.size(); i++) {
                         if (filterList.get(i).getCriterion(0) != null && !filterList.get(i).getCriterion(0).isEmpty())
                             sb.append(filterList.get(i).getFilter());
                         sb.append(":");
                         sb.append(filterList.get(i).getCriterion(0));
                         sb.append(":");
 
+                    }*/
+                    for (String fieldName : fieldNames){
+                        CollectionColumnProperties columnProperties = fieldPropertiesMap.get(fieldName);
+                        String filterName = (String)columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+                        sb.append(filterName);
+                        sb.append(":");
+                        String filterValue = filtersMap.get(fieldName);
+                        sb.append(filterValue);
                     }
                 }
 
@@ -291,7 +299,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void onKeyEnterPressed() {
-        filterList.clear();
+        filtersMap.clear();
         boolean isRequestRequired = false;
         for (CollectionColumnHeader header : headerController.getHeaders()) {
             String filterValue = header.getFilterValue();
@@ -308,7 +316,6 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void onKeyEscapePressed() {
-        filterList.clear();
         filterButton.setValue(false);
         headerController.changeFiltersInputsVisibility(false);
         filtersMap.clear();
@@ -371,7 +378,7 @@ public class CollectionPluginView extends PluginView {
         includedIds.add(collectionObject.getId());
 
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(0, 1,
-                collectionName, fieldPropertiesMap, filterList, simpleSearchQuery, searchArea);
+                collectionName, fieldPropertiesMap, simpleSearchQuery, searchArea);
         collectionRowsRequest.setIncludedIds(includedIds);
         collectionOneRowRequestCommand(collectionRowsRequest);
 
@@ -485,7 +492,7 @@ public class CollectionPluginView extends PluginView {
 
     private void createCollectionData() {
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, FETCHED_ROW_COUNT, collectionName,
-                fieldPropertiesMap, filterList, simpleSearchQuery, searchArea);
+                fieldPropertiesMap, simpleSearchQuery, searchArea);
         collectionRowsRequest.setFiltersMap(filtersMap);
         collectionRowRequestCommand(collectionRowsRequest);
     }
@@ -497,19 +504,15 @@ public class CollectionPluginView extends PluginView {
         CollectionColumnProperties collectionColumnProperties = fieldPropertiesMap.get(field);
         if (sortCollectionState.isResetCollection()) {
             items.clear();
-            collectionRowsRequest = new CollectionRowsRequest(sortCollectionState.getOffset(),
-                    FETCHED_ROW_COUNT, collectionName, fieldPropertiesMap,
-                    sortCollectionState.isAscend(), sortCollectionState.getColumnName(),
-                    field, filterList);
+            collectionRowsRequest = new CollectionRowsRequest(sortCollectionState.getOffset(), FETCHED_ROW_COUNT, collectionName, fieldPropertiesMap,
+                    sortCollectionState.isAscend(), sortCollectionState.getColumnName(), field);
             sortCollectionState.setResetCollection(false);
             listCount = 0;
             lastScrollPos = 0;
         } else {
+            collectionRowsRequest = new CollectionRowsRequest(listCount, FETCHED_ROW_COUNT, collectionName, fieldPropertiesMap, ascending,
+                    sortCollectionState.getColumnName(), sortCollectionState.getField());
 
-            collectionRowsRequest = new CollectionRowsRequest(listCount,
-                    FETCHED_ROW_COUNT, collectionName, fieldPropertiesMap,
-                    ascending, sortCollectionState.getColumnName(),
-                    sortCollectionState.getField(), filterList);
         }
         SortCriteriaConfig sortCriteriaConfig = ascending ? collectionColumnProperties.getAscSortCriteriaConfig()
                 : collectionColumnProperties.getDescSortCriteriaConfig();
@@ -628,7 +631,6 @@ public class CollectionPluginView extends PluginView {
            }
            // If scrolling up, ignore the event.
            if (oldScrollPos == scroll.getMaximumVerticalScrollPosition()) {
-
 
            }
            if (oldScrollPos >= lastScrollPos) {

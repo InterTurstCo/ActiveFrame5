@@ -1,12 +1,14 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -24,7 +26,7 @@ public class CollectionRowsRequest implements Dto {
     private String columnName;
     private boolean sortable;
     private String sortedField;
-    private List<Filter> filterList;
+
     private String simpleSearchQuery;
     private String searchArea;
     private SortCriteriaConfig sortCriteriaConfig;
@@ -32,12 +34,12 @@ public class CollectionRowsRequest implements Dto {
     private LinkedHashMap<String, CollectionColumnProperties> columnProperties;
     private Map<String, String> filtersMap;
     public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
-                                 List<Filter> filterList, String simpleSearchQuery, String searchArea) {
+                                  String simpleSearchQuery, String searchArea) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
         this.columnProperties = properties;
-        this.filterList = filterList;
+
         this.simpleSearchQuery = simpleSearchQuery;
         this.searchArea = searchArea;
         includedIds = new HashSet<Id>();
@@ -45,7 +47,7 @@ public class CollectionRowsRequest implements Dto {
     }
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
-                                 boolean isSortAscending, String columnName, String sortedField,  List<Filter> filterList  ) {
+                                 boolean isSortAscending, String columnName, String sortedField) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
@@ -54,7 +56,6 @@ public class CollectionRowsRequest implements Dto {
         this.columnName = columnName;
         this.sortable = true;
         this.sortedField = sortedField;
-        this.filterList = filterList;
         includedIds = new HashSet<Id>();
     }
 
@@ -115,14 +116,6 @@ public class CollectionRowsRequest implements Dto {
 
     public void setSortedField(String sortedField) {
         this.sortedField = sortedField;
-    }
-
-    public List<Filter> getFilterList() {
-        return filterList;
-    }
-
-    public void setFilterList(List<Filter> filterList) {
-        this.filterList = filterList;
     }
 
     public String getSimpleSearchQuery() {

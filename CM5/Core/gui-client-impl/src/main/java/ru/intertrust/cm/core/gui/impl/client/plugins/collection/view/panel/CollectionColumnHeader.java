@@ -365,6 +365,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             } else if ((searchAreaId + HEADER_CLEAR_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
                 clearButton.setClassName("search-box-clear-button-off");
                 inputFilter.setValue(EMPTY_VALUE);
+                widget.setFilterValue(EMPTY_VALUE);
                 inputFilter.focus();
             } else if ((searchAreaId + HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
                 widget.getDateBox().getDatePicker().getElement().getStyle().setPosition(Position.ABSOLUTE);
