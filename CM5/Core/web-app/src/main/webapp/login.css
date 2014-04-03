@@ -1,15 +1,19 @@
+@import url(buttons.css);
+
 body {
-	background-color: #8496A6;
+    background: url(images/authpage-bg.png) no-repeat left top fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
-.auth_small_logo{
+.auth_small_logo {
     background-image: url(css/images/cm-logo.png);
-    height: 20px;
-    width: 150px;
-    top: 5px;
+    height: 35px;
+    width: 300px;
     display: inline-block;
-    float: left;
-    margin: 10px 5px 3px 6px;
+    margin: 0 5px 0 6px;
 }
 
 .auth_version {
@@ -17,41 +21,63 @@ body {
     font-weight: bold;
     display: inline-block;
     padding-top: 13px;
-    float:right;
+    float: right;
     margin-right: 7px;
 }
 
-.auth-DialogBox{
-	border-radius:  3px;
-	box-shadow: 1px 1px 1px 2px #8496A6;
-	border: 2px solid #D2D2D2 !important;
-	background-color: #F1F1F1;
-	box-shadow: 1px 2px 2px ;
+.auth-DialogBox {
+    border-radius: 7px;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, .4);
+    clip: auto !important;
+    padding: 10px;
 }
 
-.auth_LoginPage_wrapper{
-	width: auto;
-	background-color: #FFFFFF;
-	padding: 10px;
-	margin: 5px;
-	border: 1px solid #BBB;
-	border-radius: 3px;
+.auth_LoginPage_wrapper {
+    width: auto;
+    background-color: #FFFFFF;
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #BBB;
+    border-radius: 3px;
 }
 
-.auth_LoginPage_block{
-	width: 100%;
+.auth_LoginPage_block {
+    width: 100%;
 }
-.auth_wrapper{
+
+.auth_wrapper {
 
 }
-.auth_login{
-    margin-bottom: 10px;
+
+.auth_login,
+.auth_pass {
+    margin-bottom: 15px;
 }
 
 .auth-Label {
-	width: 130px;
-	float: left;
-	margin: 5px 10px 0 0;
+    width: 130px;
+    float: left;
+    margin: 5px 10px 0 0;
+}
+
+.auth_wrapper .gwt-TextBox,
+.auth_wrapper .gwt-PasswordTextBox {
+    border: 1px solid #afafaf;
+    float: right;
+    -webkit-appearance: textfield;
+    height: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+.auth_wrapper .gwt-TextBox:focus,
+.auth_wrapper .gwt-PasswordTextBox:focus {
+    border: 1px solid #5e94ff;
+    -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2);
+    -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2);
+    color: #1f2b5d;
+    outline: 0;
 }
 
 .auth-error-label {
@@ -61,86 +87,97 @@ body {
     text-align: center;
 }
 
-.auth_pass{
+.auth_pass {
 }
 
-.auth_remember{
-	width: 144px;
-	margin: 5px 0 5px 136px;
+.auth_remember {
+    width: 144px;
+    margin: 5px 0 5px 136px;
 }
+
 .auth-CheckBox {
-	float: left;
+    float: left;
 }
 
-.auth_checkbox_title{
-	margin: 2px 0 0 5px;
-	float: left;
+.auth_checkbox_title {
+    margin: 2px 0 0 5px;
+    float: left;
 }
+
 /*.gwt-Button {*/
-	/*border: none;*/
-	/*background: none;*/
+/*border: none;*/
+/*background: none;*/
 /*}*/
 
-.auth_button_title{
- margin-bottom: 5px;
+.auth_button_title {
+}
+
+.auth_wrapper .dark-button {
+    float: right;
+    margin: 10px 0;
+    padding: 6px 53px;
 }
 
 .auth_enter-button {
-	margin: 10px 0 10px 150px;
-	-moz-box-shadow: inset 0px 0px 0px 0px #ffffff;
-	-webkit-box-shadow: inset 0px 0px 0px 0px #ffffff;
-	box-shadow: inset 0px 0px 0px 0px #ffffff;
-	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f9f9f9), color-stop(1, #e9e9e9) );
-	background: -moz-linear-gradient( center top, #f9f9f9 5%, #e9e9e9 100% );
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e9e9e9');
-	background-color: #f9f9f9;
-	-webkit-border-top-left-radius: 42px;
-	-moz-border-radius-topleft: 42px;
-	border-top-left-radius: 42px;
-	-webkit-border-top-right-radius: 42px;
-	-moz-border-radius-topright: 42px;
-	border-top-right-radius: 42px;
-	-webkit-border-bottom-right-radius: 42px;
-	-moz-border-radius-bottomright: 42px;
-	border-bottom-right-radius: 42px;
-	-webkit-border-bottom-left-radius: 42px;
-	-moz-border-radius-bottomleft: 42px;
-	border-bottom-left-radius: 42px;
-	text-indent: 0px;
-	border: 1px solid #dcdcdc;
-	display: inline-block;
-	color: #666666;
-	font-family: Arial;
-	font-size: 15px;
-	font-weight: normal;
-	font-style: normal;
-	height: 30px;
-	line-height: 30px;
-	width: 120px;
-	text-decoration: none;
-	text-align: center;
-	text-shadow: 1px 1px 0px #ffffff;
+    margin: 10px 0 10px 150px;
+    -moz-box-shadow: inset 0px 0px 0px 0px #ffffff;
+    -webkit-box-shadow: inset 0px 0px 0px 0px #ffffff;
+    box-shadow: inset 0px 0px 0px 0px #ffffff;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f9f9f9), color-stop(1, #e9e9e9));
+    background: -moz-linear-gradient(center top, #f9f9f9 5%, #e9e9e9 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9f9f9', endColorstr='#e9e9e9');
+    background-color: #f9f9f9;
+    -webkit-border-top-left-radius: 42px;
+    -moz-border-radius-topleft: 42px;
+    border-top-left-radius: 42px;
+    -webkit-border-top-right-radius: 42px;
+    -moz-border-radius-topright: 42px;
+    border-top-right-radius: 42px;
+    -webkit-border-bottom-right-radius: 42px;
+    -moz-border-radius-bottomright: 42px;
+    border-bottom-right-radius: 42px;
+    -webkit-border-bottom-left-radius: 42px;
+    -moz-border-radius-bottomleft: 42px;
+    border-bottom-left-radius: 42px;
+    text-indent: 0px;
+    border: 1px solid #dcdcdc;
+    display: inline-block;
+    color: #666666;
+    font-family: Arial;
+    font-size: 15px;
+    font-weight: normal;
+    font-style: normal;
+    height: 30px;
+    line-height: 30px;
+    width: 120px;
+    text-decoration: none;
+    text-align: center;
+    text-shadow: 1px 1px 0px #ffffff;
 }
+
 .auth_enter-button:hover {
-	border-color: #dcdcdc #cccccc #cccccc #cccccc;
-	cursor: pointer;
-}.auth_enter-button:active {
-	background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #e9e9e9), color-stop(1, #f9f9f9) );
-	background: -moz-linear-gradient( center top, #e9e9e9 5%, #f9f9f9 100% );
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e9e9e9', endColorstr='#f9f9f9');
-	background-color: #e9e9e9;
-	position: relative;
-	top: 1px;
+    border-color: #dcdcdc #cccccc #cccccc #cccccc;
+    cursor: pointer;
 }
 
-.auth_language{
+.auth_enter-button:active {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #e9e9e9), color-stop(1, #f9f9f9));
+    background: -moz-linear-gradient(center top, #e9e9e9 5%, #f9f9f9 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e9e9e9', endColorstr='#f9f9f9');
+    background-color: #e9e9e9;
+    position: relative;
+    top: 1px;
+}
+
+.auth_language {
 
 }
+
 .auth-ListBox {
-	width: 141px;
-	margin: 5px 0 0 121px;
+    width: 141px;
+    margin: 5px 0 0 121px;
 }
 
-.auth_add_settings{
+.auth_add_settings {
 
 }

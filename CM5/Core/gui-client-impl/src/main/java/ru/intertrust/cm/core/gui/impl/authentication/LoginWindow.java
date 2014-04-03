@@ -102,7 +102,7 @@ public class LoginWindow implements Component{
         Label labelCheckBox = new Label("Запомнить меня");
         labelCheckBox.setStyleName("auth_checkbox_title");
         AbsolutePanel enterPanel = new AbsolutePanel();
-        enterPanel.setStyleName("auth_enter-button");
+        enterPanel.setStyleName("dark-button");
         AbsolutePanel languagePanel = new AbsolutePanel();
         languagePanel.setStyleName("auth_language");
 
