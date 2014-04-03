@@ -169,8 +169,13 @@ public class SqlQueryModifier {
             if (!(selectItem instanceof SelectExpressionItem)) {
                 continue;
             }
+
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
-            String column = selectExpressionItem.getAlias() + ":" +
+            if (selectExpressionItem.getAlias() == null) {
+                continue;
+            }
+
+            String column = selectExpressionItem.getAlias().getName() + ":" +
                     (selectExpressionItem.getExpression() instanceof Column ?
                         ((Column) selectExpressionItem.getExpression()).getColumnName() : "");
             column = column.toLowerCase();
@@ -343,6 +348,10 @@ public class SqlQueryModifier {
     }
 
     private void addReferenceFieldConfig(SelectExpressionItem selectExpressionItem, Map<String, FieldConfig> columnToConfigMap) {
+        if (selectExpressionItem.getAlias() == null) {
+            return;
+        }
+
         String name = DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase());
         if (columnToConfigMap.get(name) == null) {
             FieldConfig fieldConfig = new ReferenceFieldConfig();
@@ -530,7 +539,7 @@ public class SqlQueryModifier {
 
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
 
-            if (upperLevelColumn.getColumnName().equals(selectExpressionItem.getAlias().getName())) {
+            if (selectExpressionItem.getAlias() != null && upperLevelColumn.getColumnName().equals(selectExpressionItem.getAlias().getName())) {
                 return getFieldConfig(plainSelect, selectExpressionItem);
             }
 
