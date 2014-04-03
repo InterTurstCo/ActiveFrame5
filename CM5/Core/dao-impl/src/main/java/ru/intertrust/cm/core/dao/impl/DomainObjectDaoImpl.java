@@ -662,7 +662,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (accessToken.isDeferred()) {
             
             String aclReadTable = AccessControlUtility
-                    .getAclReadTableNameFor(domainObjectType);
+                    .getAclReadTableNameFor(configurationExplorer, domainObjectType);
             query.append("select distinct t.* from " + domainObjectType + " t ");
             query.append(" inner join ").append(aclReadTable).append(" r on t.id = r.object_id ");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on r.").append(wrap("group_id"))
@@ -845,12 +845,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" from ");
         appendTableNameQueryPart(query, typeName);
         query.append(" where ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("=:id ");
-
-        Map<String, Object> aclParameters = new HashMap<String, Object>();
+       
         if (accessToken.isDeferred()) {
             
             String aclReadTable = AccessControlUtility
-                    .getAclReadTableName(typeName);
+                    .getAclReadTableName(configurationExplorer, typeName);
+            
             query.append(" and exists (select a.object_id from ").append(aclReadTable).append(" a ");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on a.")
                     .append(wrap("group_id")).append(" = gg.").append(wrap("parent_group_id"));
@@ -886,10 +886,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" from ");
         appendTableNameQueryPart(query, typeName);
 
-        if (accessToken.isDeferred()) {
+        if (accessToken.isDeferred()) {                       
             
             String aclReadTable = AccessControlUtility
-                    .getAclReadTableName(typeName);
+                    .getAclReadTableName(configurationExplorer, typeName);
             query.append(" where exists (select a.object_id from ").append(aclReadTable).append(" a");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
                     .append(" = gg.").append(wrap("parent_group_id"));
@@ -1263,8 +1263,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private void appendAccessControlLogicToQuery(StringBuilder query,
             String linkedType) {
+
         String childAclReadTable = AccessControlUtility
-                .getAclReadTableNameFor(linkedType);
+                .getAclReadTableNameFor(configurationExplorer, linkedType);
+        
         query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
         
         String linkedTypeAlias = getSqlAlias(linkedType);

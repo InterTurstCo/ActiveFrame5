@@ -55,6 +55,7 @@ import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.PermissionException;
 
@@ -78,11 +79,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     //Реестр коллекторов по имени контекстной роли
     private Hashtable<String, List<ContextRoleRegisterItem>> collectorsByContextRoleNames =
             new Hashtable<String, List<ContextRoleRegisterItem>>();
-
-    /*public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
-        this.configurationExplorer = configurationExplorer;
-        doelResolver.setConfigurationExplorer(configurationExplorer);
-    }*/
 
     @Override
     public void notifyDomainObjectDeleted(DomainObject domainObject) {
@@ -200,7 +196,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         RdbmsId rdbmsObjectId = (RdbmsId) invalidContextId;
 
         String tableNameRead =
-                AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
+                AccessControlUtility.getAclReadTableName(configurationExplorer, domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
         String tableNameAcl =
                 AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
 
@@ -402,7 +398,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     private String generateDeleteAclReadRecordQuery(RdbmsId objectId) {
         String tableName = null;
-        tableName = AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
+        tableName = AccessControlUtility.getAclReadTableName(configurationExplorer, 
+                domainObjectTypeIdCache.getName(objectId.getTypeId()));
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
@@ -415,7 +412,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     private String generateInsertAclReadRecordQuery(RdbmsId objectId) {
         String tableName = null;
-        tableName = AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
+
+        tableName = AccessControlUtility.getAclReadTableName(configurationExplorer,
+                        domainObjectTypeIdCache.getName(objectId.getTypeId()));
 
         StringBuilder query = new StringBuilder();
         query.append("insert  into ");
@@ -426,6 +425,24 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return query.toString();
     }
 
+    private String generateInsertAclRecordQuery(RdbmsId objectId) {
+        String tableName = AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
+
+        StringBuilder query = new StringBuilder();
+        query.append("insert  into ");
+        query.append(DaoUtils.wrap(tableName)).append(" (").append(DaoUtils.wrap("operation")).append(", ").
+                append(DaoUtils.wrap("object_id")).append(", ").append(DaoUtils.wrap("group_id")).append(")").
+                append(" values (:operation, :object_id, :group_id)");
+
+        return query.toString();
+    }
+
+    private String getTopLevelParentType(RdbmsId objectId) {
+        String objectType = domainObjectTypeIdCache.getName(objectId.getTypeId());
+        String topLevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, objectType);
+        return topLevelParentType;
+    }
+    
     private String generateDeleteAclRecordQuery(RdbmsId objectId) {
         String tableName = null;
         tableName = AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
@@ -440,18 +457,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return query.toString();
     }
 
-    private String generateInsertAclRecordQuery(RdbmsId objectId) {
-        String tableName = null;
-        tableName = AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
 
-        StringBuilder query = new StringBuilder();
-        query.append("insert  into ");
-        query.append(DaoUtils.wrap(tableName)).append(" (").append(DaoUtils.wrap("operation")).append(", ").
-                append(DaoUtils.wrap("object_id")).append(", ").append(DaoUtils.wrap("group_id")).append(")").
-                append(" values (:operation, :object_id, :group_id)");
-
-        return query.toString();
-    }
 
     private Map<String, Object> initializeDeleteAclRecordParameters(AccessType accessType, RdbmsId rdbmsObjectId,
             RdbmsId rdbmsDynamicGroupId) {
@@ -522,7 +528,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String tableName = null;
         String typeName = domainObjectTypeIdCache.getName(objectId.getTypeId());
         if (isAclReadTable) {
-            tableName = AccessControlUtility.getAclReadTableName(typeName);
+            tableName = AccessControlUtility.getAclReadTableName(configurationExplorer, typeName);
         } else {
             tableName = AccessControlUtility.getAclTableName(typeName);
         }
@@ -716,7 +722,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         RdbmsId rdbmsObjectId = (RdbmsId) domainObjectId;
 
         String tableNameRead =
-                AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
+                AccessControlUtility.getAclReadTableName(configurationExplorer, domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
         String tableNameAcl =
                 AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
 

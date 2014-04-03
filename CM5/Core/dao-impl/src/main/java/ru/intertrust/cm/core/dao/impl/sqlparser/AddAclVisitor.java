@@ -131,7 +131,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         domainObjectType = DaoUtils.unwrap(domainObjectType);
         SubSelect subSelectWithAcl = new SubSelect();
         StringBuilder aclQuery = new StringBuilder();
-        String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
+        String aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectType);
         aclQuery.append("Select * from ").append(DaoUtils.wrap(domainObjectType))
                 .append(" " + domainObjectType + " where exists (select r.").append(DaoUtils.wrap("object_id"))
                 .append("from ")

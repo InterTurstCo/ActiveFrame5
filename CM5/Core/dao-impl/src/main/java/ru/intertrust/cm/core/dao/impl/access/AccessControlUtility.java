@@ -7,7 +7,9 @@ import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
+import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 
 /**
  * Утилитный класс системы контроля доступа.
@@ -24,12 +26,13 @@ public class AccessControlUtility {
         return getSqlName(domainObjectTable + PostgreSqlQueryHelper.ACL_TABLE_SUFFIX);
     }
 
-    public static String getAclReadTableName(String doTypeName) {
-        return getAclReadTableNameFor(doTypeName);
+    public static String getAclReadTableName(ConfigurationExplorer configurationExplorer, String doTypeName) {
+        return getAclReadTableNameFor(configurationExplorer, doTypeName);
     }
 
-    public static String getAclReadTableNameFor(String domainObjectTable) {
-        return getSqlName(domainObjectTable + PostgreSqlQueryHelper.READ_TABLE_SUFFIX);
+    public static String getAclReadTableNameFor(ConfigurationExplorer configurationExplorer, String domainObjectTable) {
+        String topLevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjectTable);
+        return getSqlName(topLevelParentType + PostgreSqlQueryHelper.READ_TABLE_SUFFIX);
     }
 
     /**

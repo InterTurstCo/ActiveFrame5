@@ -2,3 +2,5 @@ TYPE_NAME=notification;KEYS=from,to,subject
 from;to;subject;body;priority;new
 "login=""person1""";"login=""person2""";Test Subject1;Body 1;HIGH;true
 "login=""person1""";"login=""person2""";Test Subject2;Body 2;HIGH;false
+"login=""person3""";"login=""person2""";Test Subject3;Body 3;HIGH;false
+"login=""person4""";"login=""person2""";Test Subject4;Body 4;HIGH;false
