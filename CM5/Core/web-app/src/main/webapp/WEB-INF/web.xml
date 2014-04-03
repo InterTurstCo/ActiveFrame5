@@ -23,6 +23,10 @@
     <servlet>
         <servlet-name>export-to-csv</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/applicationContext.xml</param-value>
+        </init-param>
 <!--        <servlet-class>ru.intertrust.cm.core.gui.impl.client.plugins.collection.CsvExport</servlet-class>-->
 <!--        <init-param>
             <param-name>contextConfigLocation</param-name>
