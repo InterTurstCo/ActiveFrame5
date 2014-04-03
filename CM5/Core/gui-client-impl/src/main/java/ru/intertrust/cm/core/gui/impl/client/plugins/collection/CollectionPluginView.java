@@ -270,14 +270,7 @@ public class CollectionPluginView extends PluginView {
                     sb.append("&");
                     sb.append("filterName=");
                     Set<String> fieldNames = filtersMap.keySet();
-                  /*  for (int i = 0; i < filterList.size(); i++) {
-                        if (filterList.get(i).getCriterion(0) != null && !filterList.get(i).getCriterion(0).isEmpty())
-                            sb.append(filterList.get(i).getFilter());
-                        sb.append(":");
-                        sb.append(filterList.get(i).getCriterion(0));
-                        sb.append(":");
 
-                    }*/
                     for (String fieldName : fieldNames){
                         CollectionColumnProperties columnProperties = fieldPropertiesMap.get(fieldName);
                         String filterName = (String)columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
@@ -300,19 +293,14 @@ public class CollectionPluginView extends PluginView {
 
     private void onKeyEnterPressed() {
         filtersMap.clear();
-        boolean isRequestRequired = false;
         for (CollectionColumnHeader header : headerController.getHeaders()) {
             String filterValue = header.getFilterValue();
             if (filterValue != null && filterValue.length() > 0) {
                 filtersMap.put(header.getFieldName(), filterValue);
-                isRequestRequired = true;
 
             }
         }
-        if (isRequestRequired) {
-            clearAllTableData();
-
-        }
+        clearAllTableData();
     }
 
     private void onKeyEscapePressed() {
