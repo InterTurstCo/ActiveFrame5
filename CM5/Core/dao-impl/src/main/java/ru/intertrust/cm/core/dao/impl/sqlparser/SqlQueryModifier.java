@@ -484,9 +484,9 @@ public class SqlQueryModifier {
                     SubSelect subSelect = (SubSelect) join.getRightItem();
                     PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
                     return getDOTypeName(plainSubSelect, column, true);
-                }else if(join.getRightItem() instanceof Table){
+                } else if(join.getRightItem() instanceof Table){
                     Table joinTable = (Table) join.getRightItem();
-                    if (column.getTable().getName().equals(joinTable.getAlias().getName()) ||
+                    if (joinTable.getAlias() != null && column.getTable().getName().equals(joinTable.getAlias().getName()) ||
                             column.getTable().getName().equals(joinTable.getName())) {
                         return DaoUtils.unwrap(joinTable.getName());
                     }
