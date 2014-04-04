@@ -218,6 +218,7 @@ public class SqlQueryModifier {
                 boolean returnsId = caseExpressionReturnsId(caseExpression, plainSelect);
 
                 if (returnsId) {
+                    //TODO клон CaseExpression не работает
                     KryoCloner kryoCloner = new KryoCloner();
                     CaseExpression idTypeExpression = kryoCloner.cloneObject(caseExpression, caseExpression.getClass());
 
@@ -250,8 +251,10 @@ public class SqlQueryModifier {
                         idTypeSelectExpressionItem.setAlias(
                                 new Alias(getReferenceTypeColumnName(DaoUtils.unwrap(selectExpressionItem.getAlias().getName()))));
                     }
-
-                    selectItems.add(idTypeSelectExpressionItem);
+                     
+                    if (!containsExpressionInPlainselect(plainSelect, idTypeSelectExpressionItem)) {
+                        selectItems.add(idTypeSelectExpressionItem);
+                    }
                 }
             } else if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName().endsWith(REFERENCE_POSTFIX)) {
                 Alias alias = selectExpressionItem.getAlias();
@@ -282,6 +285,12 @@ public class SqlQueryModifier {
         }
 
         plainSelect.setSelectItems(selectItems);
+    }
+
+    private boolean containsExpressionInPlainselect(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
+        String plainSelectQuery = plainSelect.toString().replaceAll("\\s+", " ").trim();
+        String selectExpressionItemQuery = selectExpressionItem.toString().replaceAll("\\s+", " ").trim();
+        return plainSelectQuery.indexOf(selectExpressionItemQuery) > 0;        
     }
 
     private boolean caseExpressionReturnsId(CaseExpression caseExpression, PlainSelect plainSelect) {
