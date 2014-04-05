@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.util;
 
+import java.io.ByteArrayOutputStream;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-
-import java.io.*;
-import java.util.ArrayList;
+import com.esotericsoftware.shaded.org.objenesis.strategy.StdInstantiatorStrategy;
 
 /**
  * Вспомогательный класс для клонирования обхектов с использованием библиотеки Kryo
@@ -29,6 +29,8 @@ public class KryoCloner {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Output output = new Output(stream);
         kryo.register(tClass);
+        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+
         kryo.writeObject(output, source);
         output.close();
         byte[] bytes = stream.toByteArray();
