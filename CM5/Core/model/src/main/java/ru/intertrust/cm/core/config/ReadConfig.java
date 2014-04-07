@@ -13,13 +13,14 @@ public class ReadConfig extends BaseOperationPermitConfig {
      * Разрешает операцию чтения для всех персон.
      */
     @Attribute(name= "permit-everybody", required = false)
-    private boolean permitEverybody;
+    private Boolean permitEverybody;
 
-    public boolean isPermitEverybody() {
+    @Deprecated
+    public Boolean isPermitEverybody() {
         return permitEverybody;
     }
 
-    public void setPermitEverybody(boolean permitEverybody) {
+    public void setPermitEverybody(Boolean permitEverybody) {
         this.permitEverybody = permitEverybody;
     }
     

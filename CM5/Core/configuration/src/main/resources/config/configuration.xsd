@@ -828,7 +828,8 @@
                         maxOccurs="unbounded" minOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
-        <xs:attribute name="type" type="xs:string" use="required"></xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="required"/>
+        <xs:attribute name="read-everybody" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="accessMatrixSectionType">

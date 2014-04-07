@@ -1,13 +1,12 @@
 package ru.intertrust.cm.core.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Конфигурация матрицы доступа.
@@ -20,6 +19,9 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String type;
 
+    @Attribute(name= "read-everybody", required = false)
+    private Boolean readEverybody; // change to boolean after elimination of permit-everybody attribute in <read> tag
+
     @ElementList(inline = true, type = AccessMatrixStatusConfig.class, entry = "status", required = true)
     private List<AccessMatrixStatusConfig> status = new ArrayList<>();
 
@@ -29,6 +31,14 @@ public class AccessMatrixConfig implements TopLevelConfig {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Boolean isReadEverybody() {
+        return readEverybody;
+    }
+
+    public void setReadEverybody(Boolean readEverybody) {
+        this.readEverybody = readEverybody;
     }
 
     public List<AccessMatrixStatusConfig> getStatus() {
@@ -50,11 +60,13 @@ public class AccessMatrixConfig implements TopLevelConfig {
 
         AccessMatrixConfig that = (AccessMatrixConfig) o;
 
-        if (type != null ? !type.equals(that.type) : that.type != null) {
+        if (readEverybody != null ? !readEverybody.equals(that.readEverybody) : that.readEverybody != null) {
             return false;
         }
-
         if (status != null ? !status.equals(that.status) : that.status != null) {
+            return false;
+        }
+        if (type != null ? !type.equals(that.type) : that.type != null) {
             return false;
         }
 
@@ -64,6 +76,7 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Override
     public int hashCode() {
         int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (readEverybody != null ? readEverybody.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
         return result;
     }

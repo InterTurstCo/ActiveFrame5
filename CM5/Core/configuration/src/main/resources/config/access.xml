@@ -417,15 +417,15 @@
         </status>
     </access-matrix>
 
-    <access-matrix type="city">
-        <status name="*">
+    <access-matrix type="city" read-everybody="true" >
+        <!--status name="*">
             <read permit-everybody="true">
             </read>
-        </status>            
+        </status-->
         <status name="Active">
-            <read>
+            <!--read>
                 <permit-group name="AllPersons" />
-            </read>
+            </read-->
             <write>
                 <permit-group name="AllPersons" />
             </write>
@@ -436,7 +436,7 @@
                 <permit-group name="AllPersons" />
             </execute-action>
         </status>
-    </access-matrix>   
+    </access-matrix>
     
     <!-- Внутренний документ -->
     <access-matrix type="Internal_Document">

@@ -92,7 +92,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         globalSettingsLogicalValidator.validate();
         DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
         domainObjectLogicalValidator.validate();
-
+        AccessMatrixLogicalValidator accessMatrixLogicalValidator = new AccessMatrixLogicalValidator(this);
+        accessMatrixLogicalValidator.validate();
     }
 
     public void validateGui() {
@@ -250,19 +251,28 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
     }
 
-    private void fillReadPermittedToEverybodyMap(AccessMatrixConfig accessMatrixConfig) {
+    @Deprecated
+    private void fillReadPermittedToEverybodyMapFromStatus(AccessMatrixConfig accessMatrixConfig) {
         for (AccessMatrixStatusConfig accessMatrixStatus : accessMatrixConfig.getStatus()) {
-            if (ALL_STATUSES_SIGN.equals(accessMatrixStatus.getName())) {
+            if (ALL_STATUSES_SIGN.equals(accessMatrixStatus.getName()))
                 for (BaseOperationPermitConfig permission : accessMatrixStatus.getPermissions()) {
 
                     if (ReadConfig.class.equals(permission.getClass())
-                            && ((ReadConfig) permission).isPermitEverybody()) {
+                            && (Boolean.TRUE.equals(((ReadConfig) permission).isPermitEverybody()))) {
                         readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), true);
                         return;
                     }
                 }
-            }
             readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), false);
+        }
+    }
+
+    private void fillReadPermittedToEverybodyMap(AccessMatrixConfig accessMatrixConfig) {
+        Boolean readEverybody = accessMatrixConfig.isReadEverybody();
+        if (readEverybody != null) {
+            readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), readEverybody);
+        } else {
+            fillReadPermittedToEverybodyMapFromStatus(accessMatrixConfig);
         }
     }
 
