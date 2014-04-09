@@ -49,7 +49,7 @@ public class FormResolver {
         return findFormConfig(reportName, FormConfig.TYPE_REPORT, userUid);
     }
 
-    public FormConfig findFormConfig(String typeName, String formType, String userUid) {
+    public FormConfig findFormConfig(String targetTypeName, String formType, String userUid) {
         // находится форма для данного контекста, учитывая факт того, переопределена ли форма для пользователя/роли,
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
@@ -67,19 +67,19 @@ public class FormResolver {
             default:
                 cache = editingFormsCache;
         }
-        List<FormConfig> userFormConfigs = cache.getUserFormConfigs(userUid, typeName);
+        List<FormConfig> userFormConfigs = cache.getUserFormConfigs(userUid, targetTypeName);
         if (userFormConfigs != null && userFormConfigs.size() != 0) {
             if (userFormConfigs.size() > 1) {
                 log.warn("There's " + userFormConfigs.size()
-                        + " forms defined for Domain Object Type: " + typeName + " and User: " + userUid);
+                        + " forms defined for Domain Object Type: " + targetTypeName + " and User: " + userUid);
             }
             return userFormConfigs.get(0);
         }
 
         // todo define strategy of finding a form by role. which role? context role? or may be a static group?
-        List<FormConfig> allFormConfigs = cache.getAllFormConfigs(typeName);
+        List<FormConfig> allFormConfigs = cache.getAllFormConfigs(targetTypeName);
         if (allFormConfigs == null || allFormConfigs.size() == 0) {
-            log.warn("There's no default form defined for Domain Object Type: " + typeName);
+            log.warn("There's no default form defined for Domain Object Type: " + targetTypeName);
             return null;
         }
 
@@ -88,12 +88,12 @@ public class FormResolver {
             return firstMetForm;
         }
 
-        FormConfig defaultFormConfig = cache.getDefaultFormConfig(typeName);
+        FormConfig defaultFormConfig = cache.getDefaultFormConfig(targetTypeName);
         if (defaultFormConfig != null) {
             return defaultFormConfig;
         }
 
-        log.warn("There's no default form defined for Domain Object Type: " + typeName);
+        log.warn("There's no default form defined for Domain Object Type: " + targetTypeName);
         return firstMetForm;
     }
 
@@ -128,8 +128,8 @@ public class FormResolver {
                     log.warn("Form type is not defined for: " + formConfig.getName());
                     continue;
                 }
-                String domainObjectType = formConfig.getDomainObjectType();
-                if (domainObjectType == null) { // todo: for report form domain object type will empty
+                String domainObjectType = formConfig.getTargetTypeName(); // domain object type or report name
+                if (domainObjectType == null) {
                     log.warn("Domain Object Type is not defined for form: " + formConfig.getName());
                     continue;
                 }
@@ -166,20 +166,20 @@ public class FormResolver {
             }
         }
 
-        public FormConfig getDefaultFormConfig(String domainObjectType) {
-            return defaultFormByDomainObjectType.get(domainObjectType);
+        public FormConfig getDefaultFormConfig(String targetTypeName) {
+            return defaultFormByDomainObjectType.get(targetTypeName);
         }
 
-        public List<FormConfig> getAllFormConfigs(String domainObjectType) {
-            return allFormsByDomainObjectType.get(domainObjectType);
+        public List<FormConfig> getAllFormConfigs(String targetTypeName) {
+            return allFormsByDomainObjectType.get(targetTypeName);
         }
 
         private List<FormConfig> getRoleFormConfigs(String roleName, String domainObjectType) {
             return formsByRoleAndDomainObjectType.get(new Pair<>(roleName, domainObjectType));
         }
 
-        public List<FormConfig> getUserFormConfigs(String userUid, String domainObjectType) {
-            return formsByUserAndDomainObjectType.get(new Pair<>(userUid, domainObjectType));
+        public List<FormConfig> getUserFormConfigs(String userUid, String targetTypeName) {
+            return formsByUserAndDomainObjectType.get(new Pair<>(userUid, targetTypeName));
         }
 
         private Collection<FormMappingConfig> getFormMappingConfigs(ConfigurationExplorer explorer) {

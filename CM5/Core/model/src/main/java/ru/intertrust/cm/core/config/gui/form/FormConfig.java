@@ -38,6 +38,9 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Attribute(name = "type",required = false)
     private String type;
 
+    @Attribute(name = "report-template", required = false)
+    private String reportTemplate;
+
     @Element(name = "markup")
     private MarkupConfig markup;
 
@@ -173,4 +176,22 @@ public class FormConfig implements Dto, TopLevelConfig {
                 .append(domainObjectType);
         return sb.toString();
     }
+
+    public String getReportTemplate() {
+        return reportTemplate;
+    }
+
+    public void setReportTemplate(String reportTemplate) {
+        this.reportTemplate = reportTemplate;
+    }
+
+    /**
+     * Возвращает имя "целевого объекта" формы, т.е. тип доменного объекта (для формы редактирования или поиска),
+     * либо имя отчета (для формы отчета)
+     * @return тип доменного объекта либо имя отчета
+     */
+    public String getTargetTypeName() {
+        return TYPE_REPORT.equals(type) ? reportTemplate : domainObjectType;
+    }
+
 }

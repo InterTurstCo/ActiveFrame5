@@ -1180,6 +1180,7 @@
         <xs:attribute type="xs:boolean" name="debug"/>
         <xs:attribute type="xs:string" name="min-width"/>
         <xs:attribute type="con:formTypeType" name="type"/>
+        <xs:attribute type="xs:string" name="report-template"/>
     </xs:complexType>
 
     <xs:simpleType name="formTypeType">
