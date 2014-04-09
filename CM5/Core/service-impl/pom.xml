@@ -127,6 +127,13 @@
             <artifactId>opencsv</artifactId>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.jboss</groupId>
+            <artifactId>jboss-vfs</artifactId>
+            <version>3.1.0.Final</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>

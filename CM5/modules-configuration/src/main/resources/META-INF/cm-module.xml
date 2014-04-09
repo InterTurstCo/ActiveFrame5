@@ -53,22 +53,22 @@
             <template-file>reports/all-employee/all-employee.jrxml</template-file>
         </report-template>
 
-        <!--report-template>
+        <report-template>
             <template-file>reports/all-employee-ds/template.xml</template-file>
             <template-file>reports/all-employee-ds/all-employee-ds.jrxml</template-file>
             <template-file>reports/all-employee-ds/AllEmployeeDs.java</template-file>
-        </report-template-->
+        </report-template>
 
         <report-template>
             <template-file>reports/all-employee-params/template.xml</template-file>
             <template-file>reports/all-employee-params/all-employee-params.jrxml</template-file>
         </report-template>
 
-        <!--report-template>
+        <report-template>
             <template-file>reports/all-employee-scriptlet/template.xml</template-file>
             <template-file>reports/all-employee-scriptlet/all-employee-scriptlet.jrxml</template-file>
             <template-file>reports/all-employee-scriptlet/TestScriptlet.java</template-file>
-        </report-template-->
+        </report-template>
 
         <report-template>
             <template-file>reports/employee-groups/template.xml</template-file>

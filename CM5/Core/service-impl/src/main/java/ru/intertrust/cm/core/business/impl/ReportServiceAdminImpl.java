@@ -1,15 +1,23 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Locale;
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import org.apache.log4j.Logger;
+import org.jboss.vfs.VirtualFile;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
+import ru.intertrust.cm.core.business.api.dto.DeployReportData;
+import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.model.ReportServiceException;
+import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.report.ReportServiceBase;
+import ru.intertrust.cm.core.report.ScriptletClassLoader;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -22,29 +30,18 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
-
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
-
-import org.apache.log4j.Logger;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
-import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
-import ru.intertrust.cm.core.business.api.dto.DeployReportData;
-import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.dao.exception.InvalidIdException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
-import ru.intertrust.cm.core.model.ReportServiceException;
-import ru.intertrust.cm.core.model.UnexpectedException;
-import ru.intertrust.cm.core.report.ReportServiceBase;
-import ru.intertrust.cm.core.report.ScriptletClassLoader;
-
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Имплементация сервися администрирования подсистемы отчетов
@@ -162,7 +159,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
     private void compileReport(File tempFolder) throws IOException, JRException, NoSuchMethodException,
             SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-            InstantiationException, ClassNotFoundException {
+            InstantiationException, ClassNotFoundException, URISyntaxException {
 
         File[] filelist = tempFolder.listFiles();
 
@@ -206,7 +203,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
     private void scriptletCompilation(List<File> javaFiles, File tempFolder) throws IOException, NoSuchMethodException,
             SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-            InstantiationException, ClassNotFoundException {
+            InstantiationException, ClassNotFoundException, URISyntaxException {
 
         for (File file : javaFiles) {
             logger.debug("Compile class " + file.getName());
@@ -246,24 +243,37 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
     }
 
-    private String getCompileClassPath() throws IOException {
-        String[] rootPackages = new String[] { "net","ru","com","org" };
+    private String getCompileClassPath() throws IOException, URISyntaxException {
+        String[] rootPackages = new String[] {"net", "ru", "com", "org"};
         //Получаем библиотеки для runtime компилятора
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         //Список найденых jar библиотек. Необходим чтоб не дублировать jar-ы
         List<String> paths = new ArrayList<String>();
         StringBuilder cp = new StringBuilder();
-        
-        for (String rootPackage : rootPackages) {
 
+        String path;
+        for (String rootPackage : rootPackages) {
             Enumeration<URL> urls = classLoader.getResources(rootPackage);
             while (urls.hasMoreElements()) {
-                URL url = (URL) urls.nextElement();
-                int end = url.getPath().indexOf(".jar");
-                String path = url.getPath().substring(0, end + 4);
-                if (!paths.contains(path)){
-                    cp.append(path).append(File.pathSeparator);
-                    paths.add(path);
+                URL url = urls.nextElement();
+                if (url.getPath().contains(".jar")) {
+                    if ("vfs".equals(url.getProtocol())) {
+                        int end = url.toString().indexOf(".jar") + 4;
+                        URL urlToJar = new URL(url.toString().substring(0, end));
+                        URLConnection conn = urlToJar.openConnection();
+                        VirtualFile vf = (VirtualFile) conn.getContent();
+                        File physicalFile = vf.getPhysicalFile();
+                        String dirName = physicalFile.getParent();
+                        String fileName = vf.getName();
+                        path = new File(dirName, fileName).getPath();
+                    }  else { // process "file:" and other urls as usual
+                        int end = url.getPath().indexOf(".jar") + 4;
+                        path = url.getPath().substring(0, end);
+                    }
+                    if (!paths.contains(path)){
+                        cp.append(path).append(File.pathSeparator);
+                        paths.add(path);
+                    }
                 }
             }
         }
