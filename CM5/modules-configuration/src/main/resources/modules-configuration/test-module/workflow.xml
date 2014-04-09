@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<configuration xmlns="https://cm5.intertrust.ru/config">
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
 
     <collection name="Tasks" idField="mainattachment">
         <prototype>
@@ -293,7 +293,7 @@
         </widget-config>
     </form>
 
-    <form name="report-all" type="report"  report-template="all-employee">
+    <form name="report-all" type="report"  report-template="all-employee" xsi:type="formReportType">
         <markup>
             <header>
                 <table>
@@ -315,7 +315,7 @@
         </widget-config>
     </form>
 
-    <form name="report-params" type="report"  report-template="all-employee-params">
+    <form name="report-params" type="report"  report-template="all-employee-params" xsi:type="formReportType">
         <markup>
             <header>
                 <table>
@@ -375,7 +375,7 @@
         </widget-config>
     </form>
 
-    <form name="report-ds" type="report" report-template="all-employee-ds">
+    <form name="report-ds" type="report" report-template="all-employee-ds" xsi:type="formReportType">
         <markup>
             <header>
                 <table width="800px" height="40px">
@@ -397,7 +397,7 @@
         </widget-config>
     </form>
 
-    <form name="report-scriptlet" type="report" report-template="all-employee-scriptlet">
+    <form name="report-scriptlet" type="report" report-template="all-employee-scriptlet" xsi:type="formReportType">
         <markup>
             <header>
                 <table width="800px" height="40px">
@@ -419,7 +419,7 @@
         </widget-config>
     </form>
 
-    <form name="report-groups" type="report" report-template="employee-groups">
+    <form name="report-groups" type="report" report-template="employee-groups" xsi:type="formReportType">
         <markup>
             <header>
                 <table width="800px" height="40px">
