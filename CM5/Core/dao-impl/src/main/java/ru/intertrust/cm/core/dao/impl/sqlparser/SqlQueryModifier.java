@@ -1,19 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
@@ -33,6 +20,12 @@ import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.util.KryoCloner;
+
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 
 
 /**
@@ -484,8 +477,8 @@ public class SqlQueryModifier {
                 return DaoUtils.unwrap(fromItem.getName());
             }
 
-            if (column.getTable().getName().equals(fromItem.getAlias().getName()) ||
-                    column.getTable().getName().equals(fromItem.getName()) ) {
+            if ((fromItem.getAlias() != null && column.getTable().getName().equals(fromItem.getAlias().getName())) ||
+                    column.getTable().getName().equals(fromItem.getName())) {
                 return DaoUtils.unwrap(fromItem.getName());
             }
 
