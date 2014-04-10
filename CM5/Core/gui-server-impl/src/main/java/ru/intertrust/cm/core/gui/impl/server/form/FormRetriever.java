@@ -83,7 +83,7 @@ public class FormRetriever {
         HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
 
-        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects,
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                                                                        formConfig.getMinWidth(), formConfig.getDebug());
@@ -106,7 +106,7 @@ public class FormRetriever {
         HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
 
-        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects,
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
@@ -212,7 +212,7 @@ public class FormRetriever {
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
         }
-        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects,
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());

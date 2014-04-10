@@ -6,9 +6,9 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.validation.CustomValidatorFactory;
 import ru.intertrust.cm.core.gui.impl.server.validation.validators.DateRangeValidator;
@@ -98,13 +98,6 @@ public class SaveActionHandler extends ActionHandler {
         return errorMessages;
     }
 
-    private String getComponentNameByWidgetId(String widgetId, String domainObjectType) {
-        if (widgetId == null || domainObjectType == null) {
-            return null;
-        }
-        return guiService.getForm(domainObjectType, GuiContext.get().getUserInfo()).getWidgetComponent(widgetId);
-    }
-
     private ServerValidator createValidator(Constraint constraint) {
         switch (constraint.getType()) {
             case SIMPLE:
@@ -129,8 +122,7 @@ public class SaveActionHandler extends ActionHandler {
 
     private Value getValueToValidate(Constraint constraint, FormState formState) {
         String widgetId = constraint.param(Constraint.PARAM_WIDGET_ID);
-        String domainObjectType = constraint.param(Constraint.PARAM_DOMAIN_OBJECT_TYPE);
-        String componentName = getComponentNameByWidgetId(widgetId, domainObjectType);
+        String componentName = formState.getWidgetComponent(widgetId);
 
         WidgetState state = formState.getWidgetState(widgetId);
         if (state != null && componentName != null) {

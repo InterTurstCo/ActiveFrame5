@@ -19,6 +19,7 @@ public class FormState implements Dto {
     private FormObjects objects;
     private Map<String, String> messages;
     private Map<String, FieldPath> widgetFieldPaths;
+    private Map<String, String> widgetComponents;
 
     /**
      * Конструктор по умолчанию.
@@ -26,10 +27,11 @@ public class FormState implements Dto {
     public FormState() {
     }
 
-    public FormState(String name, Map<String, WidgetState> widgetStateMap, FormObjects objects, Map<String, String> messages) {
+    public FormState(String name, Map<String, WidgetState> widgetStateMap, FormObjects objects, Map<String, String> widgetComponents, Map<String, String> messages) {
         this.name = name;
         this.objects = objects;
         this.widgetStateMap = widgetStateMap;
+        this.widgetComponents = widgetComponents;
         this.messages = messages;
     }
 
@@ -90,5 +92,13 @@ public class FormState implements Dto {
 
     public void setWidgetFieldPaths(Map<String, FieldPath> widgetFieldPaths) {
         this.widgetFieldPaths = widgetFieldPaths;
+    }
+
+    public Map<String, String> getWidgetComponents() {
+        return widgetComponents;
+    }
+
+    public String getWidgetComponent(String widgetId) {
+        return this.widgetComponents.get(widgetId);
     }
 }

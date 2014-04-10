@@ -13,7 +13,6 @@ import java.util.HashMap;
 public class FormDisplayData implements Dto {
     private FormState formState;
     private MarkupConfig markup;
-    private HashMap<String, String> widgetComponents;
     private boolean debug;
     private String minWidth;
 
@@ -25,7 +24,6 @@ public class FormDisplayData implements Dto {
         this.minWidth = minWidth;
         this.formState = formState;
         this.markup = markup;
-        this.widgetComponents = widgetComponents;
         this.debug = debug;
     }
 
@@ -53,16 +51,8 @@ public class FormDisplayData implements Dto {
         this.markup = markup;
     }
 
-    public HashMap<String, String> getWidgetComponents() {
-        return widgetComponents;
-    }
-
-    public void setWidgetComponents(HashMap<String, String> widgetComponents) {
-        this.widgetComponents = widgetComponents;
-    }
-
     public String getWidgetComponent(String widgetId) {
-        return this.widgetComponents.get(widgetId);
+        return getFormState().getWidgetComponent(widgetId);
     }
 
     public String getMinWidth() {
