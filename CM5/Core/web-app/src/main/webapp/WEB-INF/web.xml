@@ -21,22 +21,16 @@
     <!--Export to CSV-->
 
     <servlet>
-        <servlet-name>export-to-csv</servlet-name>
+        <servlet-name>json-export-to-csv</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
             <param-value>/WEB-INF/applicationContext.xml</param-value>
         </init-param>
-<!--        <servlet-class>ru.intertrust.cm.core.gui.impl.client.plugins.collection.CsvExport</servlet-class>-->
-<!--        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>/WEB-INF/applicationContext.xml</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>-->
     </servlet>
     <servlet-mapping>
-        <servlet-name>export-to-csv</servlet-name>
-        <url-pattern>/export-to-csv/*</url-pattern>
+        <servlet-name>json-export-to-csv</servlet-name>
+        <url-pattern>/json-export-to-csv/*</url-pattern>
     </servlet-mapping>
 
     <!-- Uploader and Downloader part -->
@@ -92,8 +86,8 @@
             <url-pattern>/cm-sochi/*</url-pattern>
             <url-pattern>/*/attachment-download/*</url-pattern>
             <url-pattern>/*/attachment-upload</url-pattern>
-            <url-pattern>/*/export-to-csv/*</url-pattern>
             <url-pattern>/*/generate-report/*</url-pattern>
+            <url-pattern>/*/json-export-to-csv/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <description>
@@ -135,14 +129,14 @@
     </filter-mapping>
     <filter-mapping>
         <filter-name>LoginFilter</filter-name>
-        <url-pattern>/export-to-csv/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>LoginFilter</filter-name>
         <url-pattern>/generate-report/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>CharacterEncodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>/json-export-to-csv/*</url-pattern>
     </filter-mapping>
 </web-app>

@@ -107,7 +107,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     private void updateHyperlink(Id id) {
         HyperlinkUpdateRequest request = new HyperlinkUpdateRequest(id, selectionPattern);
         Command command = new Command("updateHyperlink", "linked-domain-object-hyperlink", request);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
                 HyperlinkUpdateResponse response = (HyperlinkUpdateResponse) result;
@@ -226,7 +226,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 suggestionRequest.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
                 suggestionRequest.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
                 Command command = new Command("obtainSuggestions", SuggestBoxWidget.this.getName(), suggestionRequest);
-                BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                     @Override
                     public void onSuccess(Dto result) {
                         SuggestionList list = (SuggestionList) result;

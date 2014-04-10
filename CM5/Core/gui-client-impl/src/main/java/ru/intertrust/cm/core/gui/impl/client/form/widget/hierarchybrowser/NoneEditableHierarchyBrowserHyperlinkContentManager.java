@@ -36,7 +36,7 @@ public class NoneEditableHierarchyBrowserHyperlinkContentManager extends Hierarc
         HyperlinkUpdateRequest request = new HyperlinkUpdateRequest(id, selectionPattern);
         Command command = new Command("updateHyperlink", "linked-domain-object-hyperlink", request);
 
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
                 HyperlinkUpdateResponse response = (HyperlinkUpdateResponse) result;

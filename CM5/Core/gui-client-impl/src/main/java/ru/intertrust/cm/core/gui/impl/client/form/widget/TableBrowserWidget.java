@@ -365,7 +365,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         formatRowsRequest.setIdsShouldBeFormatted(chosenIds);
 
         Command command = new Command("fetchParsedRows", getName(), formatRowsRequest);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
                 ParsedRowsList list = (ParsedRowsList) result;
@@ -390,7 +390,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     private void updateHyperlink(Id id, String selectionPattern) {
         HyperlinkUpdateRequest request = new HyperlinkUpdateRequest(id, selectionPattern);
         Command command = new Command("updateHyperlink", "linked-domain-object-hyperlink", request);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
                 HyperlinkUpdateResponse response = (HyperlinkUpdateResponse) result;

@@ -36,6 +36,9 @@ public interface BusinessUniverseServiceAsync {
         public static BusinessUniverseServiceAsync getInstance() {
             return instance;
         }
-    }
 
+        public static void executeCommand(Command command, AsyncCallback<? extends Dto> async) {
+            getInstance().executeCommand(command, async);
+        }
+    }
 }

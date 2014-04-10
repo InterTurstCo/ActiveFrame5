@@ -22,7 +22,7 @@ public class DateValidator implements Validator {
         if (canBeValidated != null && canBeValidated.getValue() instanceof String) {
             Dto request = new DateValidationRequest(canBeValidated.getValue());
             Command command = new Command("validate", "date-validation", request);
-            BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<ValidationResult>() {
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<ValidationResult>() {
                 @Override
                 public void onSuccess(ValidationResult result) {
                     GWT.log("Validation Result got from server: " + result);

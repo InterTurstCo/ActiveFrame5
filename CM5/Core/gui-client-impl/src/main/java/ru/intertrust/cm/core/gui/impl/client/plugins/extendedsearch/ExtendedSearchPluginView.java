@@ -206,7 +206,7 @@ public class ExtendedSearchPluginView extends PluginView {
             }
         };
         Command command = new Command("searchFormDataProcessor", this.plugin.getName(), extendedSearchData);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
     }
 
     // Вызов формы поиска, которая соответствует целевому доменному объекту и всем условиям поиска

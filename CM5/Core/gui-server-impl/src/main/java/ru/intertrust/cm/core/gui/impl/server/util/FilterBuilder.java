@@ -47,7 +47,8 @@ public class FilterBuilder {
         return null;
     }
 
-    public static Filter prepareSearchFilter(String filterValue, CollectionColumnProperties columnProperties) throws ParseException {
+    public static Filter prepareSearchFilter(String filterValue, CollectionColumnProperties columnProperties)
+            throws ParseException {
         Filter filter = new Filter();
         String filterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
         filter.setFilter(filterName);
@@ -70,7 +71,8 @@ public class FilterBuilder {
         return filter;
     }
 
-    private static void prepareTimelessDateFilter(Filter filter, String filterValue, CollectionColumnProperties columnProperties) throws ParseException {
+    private static void prepareTimelessDateFilter(Filter filter, String filterValue,
+                                                  CollectionColumnProperties columnProperties) throws ParseException {
 
         String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.PATTERN_KEY);
         DateFormat format = new SimpleDateFormat(datePattern);
@@ -79,18 +81,21 @@ public class FilterBuilder {
         TimeZone timeZone = prepareTimeZone(rawTimeZone);
         Calendar selectedCalendar = Calendar.getInstance(timeZone);
         selectedCalendar.setTime(selectedDate);
-        TimelessDate timelessDateSelected = new TimelessDate(selectedCalendar.get(Calendar.YEAR), selectedCalendar.get(Calendar.MONTH),
+        TimelessDate timelessDateSelected = new TimelessDate(selectedCalendar.get(Calendar.YEAR),
+                selectedCalendar.get(Calendar.MONTH),
                 selectedCalendar.get(Calendar.DAY_OF_MONTH));
         Value selectedTimeValue = new TimelessDateValue(timelessDateSelected);
         filter.addCriterion(0, selectedTimeValue);
         Calendar currentCalendar = Calendar.getInstance(timeZone);
-        TimelessDate currentTimelessDate = new TimelessDate(currentCalendar.get(Calendar.YEAR), currentCalendar.get(Calendar.MONTH),
+        TimelessDate currentTimelessDate = new TimelessDate(currentCalendar.get(Calendar.YEAR),
+                currentCalendar.get(Calendar.MONTH),
                 currentCalendar.get(Calendar.DAY_OF_MONTH));
         Value currentTimeValue = new TimelessDateValue(currentTimelessDate);
         filter.addCriterion(1, currentTimeValue);
     }
 
-    private static void prepareDateTimeFilter(Filter filter, String filterValue, CollectionColumnProperties columnProperties) throws ParseException {
+    private static void prepareDateTimeFilter(Filter filter, String filterValue,
+                                              CollectionColumnProperties columnProperties) throws ParseException {
         String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.PATTERN_KEY);
         DateFormat format = new SimpleDateFormat(datePattern);
         String rawTimeZone = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_ZONE_ID);
@@ -113,7 +118,8 @@ public class FilterBuilder {
         filter.addCriterion(0, value);
     }
 
-    private static void prepareDateTimeWithTimeZoneFilter(Filter filter, String filterValue, CollectionColumnProperties columnProperties) throws ParseException {
+    private static void prepareDateTimeWithTimeZoneFilter(Filter filter, String filterValue,
+                                                          CollectionColumnProperties columnProperties) throws ParseException {
         String userTimeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
         String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.PATTERN_KEY);
         DateFormat dateFormat = new SimpleDateFormat(datePattern);

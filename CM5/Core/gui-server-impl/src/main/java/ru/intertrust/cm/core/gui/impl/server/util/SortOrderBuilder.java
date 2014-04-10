@@ -18,7 +18,8 @@ import java.util.List;
  */
 public class SortOrderBuilder {
 
-    public static SortOrder getInitSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig, CollectionDisplayConfig collectionDisplayConfig) {
+    public static SortOrder getInitSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig,
+                                             CollectionDisplayConfig collectionDisplayConfig) {
         if (defaultSortCriteriaConfig == null){
             return null;
         }
@@ -63,7 +64,8 @@ public class SortOrderBuilder {
         return sortCriterion;
     }
 
-    private static SortCriteriaConfig getSortCriteriaIfExists(DefaultSortCriteriaConfig defaultSortCriteriaConfig, CollectionDisplayConfig collectionDisplayConfig){
+    private static SortCriteriaConfig getSortCriteriaIfExists(DefaultSortCriteriaConfig defaultSortCriteriaConfig,
+                                                              CollectionDisplayConfig collectionDisplayConfig){
         SortCriterion.Order order = defaultSortCriteriaConfig.getOrder();
         String field = defaultSortCriteriaConfig.getColumnField();
         CollectionColumnConfig columnConfig = getColumnConfig(field, collectionDisplayConfig);
@@ -85,5 +87,21 @@ public class SortOrderBuilder {
             }
         }
         throw new GuiException("Couldn't find sorting " + field + "'");
+    }
+
+    public static SortOrder getSortOrder(SortCriteriaConfig sortCriteriaConfig, String fieldName, boolean ascend ) {
+
+        SortOrder sortOrder = getComplexSortOrder(sortCriteriaConfig);
+        if (sortOrder == null) {
+            sortOrder = new SortOrder();
+            if (ascend) {
+                sortOrder.add(new SortCriterion(fieldName, SortCriterion.Order.ASCENDING));
+            } else {
+                sortOrder.add(new SortCriterion(fieldName, SortCriterion.Order.DESCENDING));
+            }
+        }
+
+        return sortOrder;
+
     }
 }

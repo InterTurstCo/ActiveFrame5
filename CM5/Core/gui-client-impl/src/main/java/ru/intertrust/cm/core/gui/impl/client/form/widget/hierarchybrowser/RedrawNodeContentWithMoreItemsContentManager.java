@@ -38,7 +38,7 @@ public class RedrawNodeContentWithMoreItemsContentManager extends RedrawNodeCont
         nodeContentRequest.setOffset(offset);
         nodeContentRequest.getNodeMetadata().setParentId(parentId);
         Command command = new Command("fetchNodeContent", "hierarchy-browser", nodeContentRequest);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;

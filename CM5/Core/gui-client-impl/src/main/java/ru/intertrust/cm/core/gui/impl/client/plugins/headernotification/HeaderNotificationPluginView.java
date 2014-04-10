@@ -1,17 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.headernotification;
 
-import java.util.ArrayList;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -21,12 +15,10 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HeaderNotificationRemoveItemEvent;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.plugin.CancelHeaderNotificationItem;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
-import ru.intertrust.cm.core.gui.model.plugin.HeaderNotificationItem;
-import ru.intertrust.cm.core.gui.model.plugin.HeaderNotificationPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import java.util.ArrayList;
 
 /**
  * Created by lvov on 25.03.14.
@@ -142,7 +134,7 @@ public class HeaderNotificationPluginView extends PluginView{
 
     private void canselHeaderNotificationItem(CancelHeaderNotificationItem cancelHeaderNotificationItem){
         Command command = new Command("deleteNotification", "header.notifications.plugin", cancelHeaderNotificationItem);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
                 GWT.log("something was going wrong while obtaining canselHeaderNotificationItemForPluginInitialization for ''");

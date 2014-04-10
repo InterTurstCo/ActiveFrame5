@@ -3,30 +3,33 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.*;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CollectionColumnHeader;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CollectionColumnHeaderController;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.HeaderWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DataGridResourceAdapter;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DataGridResources;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
+import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
@@ -52,7 +55,7 @@ public class CollectionPluginView extends PluginView {
     private LinkedHashMap<String, CollectionColumnProperties> fieldPropertiesMap;
     private VerticalPanel root = new VerticalPanel();
     private String collectionName;
-    private String collectionViewConfigName;
+
     private int listCount;
     private int tableWidth;
     private boolean singleChoice = true;
@@ -62,13 +65,11 @@ public class CollectionPluginView extends PluginView {
     private Map<String, String> filtersMap = new HashMap<String, String>();
     private String simpleSearchQuery = "";
     private String searchArea = "";
-
     private CollectionColumnHeaderController headerController;
     private int lastScrollPos;
-
     // локальная шина событий
     private EventBus eventBus;
-
+    private CollectionCsvController csvController;
     private CollectionColumn<CollectionRowItem, Boolean> checkColumn;
     private SetSelectionModel<CollectionRowItem> selectionModel;
     /**
@@ -95,7 +96,6 @@ public class CollectionPluginView extends PluginView {
     public IsWidget getViewWidget() {
         CollectionPluginData collectionPluginData = plugin.getInitialData();
         collectionName = collectionPluginData.getCollectionName();
-        collectionViewConfigName = collectionPluginData.getCollectionViewConfigName();
         fieldPropertiesMap = collectionPluginData.getDomainObjectFieldPropertiesMap();
         items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
@@ -117,6 +117,7 @@ public class CollectionPluginView extends PluginView {
         insertRows(items);
         applyBodyTableStyle();
         addHandlers();
+        csvController = new CollectionCsvController(root);
 
     }
 
@@ -155,7 +156,6 @@ public class CollectionPluginView extends PluginView {
 
             }
         });
-        // tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableBody, plugin, eventBus));
 
         // обработчик обновления коллекции (строки в таблице)
         eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
@@ -234,54 +234,13 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(SaveToCsvEvent.TYPE, new SaveToCsvEventHandler() {
             @Override
             public void saveToCsv(SaveToCsvEvent saveToCsvEvent) {
-                //To change body of implemented methods use File | Settings | File Templates.
-                StringBuilder sb = new StringBuilder();
 
-                sb.append("collectionName=");
-                sb.append(collectionName);
-
-                sb.append("&collectionView=");
-                sb.append(collectionViewConfigName);
-
-                if (sortCollectionState != null && sortCollectionState.isSortable()) {
-                    sb.append("&");
-                    sb.append("ColumnName=");
-                    sb.append(sortCollectionState.getField());
-                    sb.append("&");
-                    sb.append("Sortable=");
-                    sb.append(sortCollectionState.isAscend());
-
-                }
-
-                if (simpleSearchQuery != null && simpleSearchQuery.length() > 0) {
-                    sb.append("&");
-                    sb.append("simpleSearchQuery=");
-                    sb.append(simpleSearchQuery);
-                    sb.append("&");
-                    sb.append("searchArea=");
-
-                    sb.append(searchArea);
-
-
-                } else {
-                    sb.append("&");
-                    sb.append("filterName=");
-                    Set<String> fieldNames = filtersMap.keySet();
-
-                    for (String fieldName : fieldNames) {
-                        CollectionColumnProperties columnProperties = fieldPropertiesMap.get(fieldName);
-                        String filterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
-                        sb.append(filterName);
-                        sb.append(":");
-                        String filterValue = filtersMap.get(fieldName);
-                        sb.append(filterValue);
-                    }
-                }
-
-                String msg = sb.toString().replaceAll("%", "");
-                String query = GWT.getHostPageBaseURL() + "export-to-csv?" + msg;
-
-                Window.open(query, "Export to CSV", "");
+                JSONObject requestObj = new JSONObject();
+                int rowCount = items.size();
+                JsonUtil.prepareJsonAttributes(requestObj, collectionName, simpleSearchQuery, searchArea, rowCount);
+                JsonUtil.prepareJsonSortCriteria(requestObj, fieldPropertiesMap, sortCollectionState);
+                JsonUtil.prepareJsonColumnProperties(requestObj, fieldPropertiesMap, filtersMap);
+                csvController.doPostRequest(requestObj.toString());
 
             }
         });
@@ -493,7 +452,6 @@ public class CollectionPluginView extends PluginView {
         CollectionColumnProperties collectionColumnProperties = fieldPropertiesMap.get(field);
         if (sortCollectionState.isResetCollection()) {
             items.clear();
-
             collectionRowsRequest = new CollectionRowsRequest(sortCollectionState.getOffset(), FETCHED_ROW_COUNT, collectionName, fieldPropertiesMap,
                     sortCollectionState.isAscend(), sortCollectionState.getColumnName(), field);
             sortCollectionState.setResetCollection(false);
@@ -516,7 +474,7 @@ public class CollectionPluginView extends PluginView {
         scrollHandlerRegistration.removeHandler();
         lastScrollPos = 0;
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
                 GWT.log("something was going wrong while obtaining generateTableRowsForPluginInitialization for ''");
@@ -541,7 +499,7 @@ public class CollectionPluginView extends PluginView {
     private void collectionOneRowRequestCommand(CollectionRowsRequest collectionRowsRequest) {
 
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
                 GWT.log("something was going wrong while obtaining updated row");

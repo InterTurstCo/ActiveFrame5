@@ -7,6 +7,8 @@
     <inherits name="ru.intertrust.cm.core.gui.api.Api"/>
     <inherits name="ru.intertrust.cm.core.gui.GuiModel"/>
     <inherits name="ru.intertrust.cm.core.gui.impl.Login"/>
+    <inherits name="com.google.gwt.json.JSON" />
+
     <!-- <inherits name='com.google.gwt.user.theme.standard.Standard'/> -->
     <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 

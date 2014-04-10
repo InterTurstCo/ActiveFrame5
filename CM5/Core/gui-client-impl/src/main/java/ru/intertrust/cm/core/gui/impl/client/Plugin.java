@@ -101,7 +101,7 @@ public abstract class Plugin extends BaseComponent {
             }
         };
         Command command = new Command("initialize", this.getName(), getConfig());
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
     }
 
     protected GwtEvent.Type[] getEventTypesToHandle() {

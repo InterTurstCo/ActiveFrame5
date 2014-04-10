@@ -24,6 +24,14 @@ public class CommonSortCriterionConfig implements Dto {
         return SortCriterion.Order.ASCENDING;
     }
 
+    public String getOrderString(){
+        return order;
+    }
+
+    public void setOrderString(String order) {
+        this.order = order;
+    }
+
     public void setOrder(String order) {
         this.order = order;
     }

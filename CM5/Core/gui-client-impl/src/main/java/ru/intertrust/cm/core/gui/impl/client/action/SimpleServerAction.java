@@ -57,7 +57,7 @@ public abstract class SimpleServerAction extends Action {
             try {
                 ActionContext currentContext = appendCurrentContext(initialContext);
                 Command command = new Command("executeAction", this.getName(), currentContext);
-                BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
             } catch (GuiException e) {
                 Window.alert(e.getMessage());
             }

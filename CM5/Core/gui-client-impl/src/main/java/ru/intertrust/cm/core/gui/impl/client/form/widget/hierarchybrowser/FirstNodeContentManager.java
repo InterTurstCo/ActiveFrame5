@@ -36,7 +36,7 @@ public class FirstNodeContentManager extends NodeContentManager {
     public void fetchNodeContent() {
         NodeContentRequest nodeContentRequest = prepareRequestDataForFirstNodeOpening();
         Command command = new Command("fetchNodeContent", "hierarchy-browser", nodeContentRequest);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;

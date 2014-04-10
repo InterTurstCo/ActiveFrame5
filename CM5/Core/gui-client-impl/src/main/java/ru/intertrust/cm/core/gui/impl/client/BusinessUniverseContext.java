@@ -43,6 +43,6 @@ public class BusinessUniverseContext extends ApplicationContext {
             }
         };
         Command command = new Command("searchConfigurations", "extended.search.plugin", extendedSearchData);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
     }
 }
