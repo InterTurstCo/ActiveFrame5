@@ -206,8 +206,10 @@ public class NavigationTreePluginView extends PluginView {
                             counterObject.decorate(countersValues.get(identifier));
                         }
                         for (CounterDecorator counterObject : rootCounterDecorators) {
+                            if (counterObject.getCounterKey().getCollectionName() != null){
                             CounterKey identifier = counterObject.getCounterKey();
                             counterObject.decorate(countersValues.get(identifier));
+                            }
                         }
                         counterKeys.clear();
                         counterKeys.putAll(response.getCounterServerObjectIds());
@@ -220,6 +222,9 @@ public class NavigationTreePluginView extends PluginView {
                 });
             }
         };
+
+//        Integer collectionCountersUpdatePeriod = businessUniverseInitialization.getCollectionCountersUpdatePeriod();
+//        int collectionCountersUpdatePeriodMillis = collectionCountersUpdatePeriod * 1000;
         timer.scheduleRepeating(collectionCountersUpdatePeriodMillis);
     }
 
@@ -229,7 +234,9 @@ public class NavigationTreePluginView extends PluginView {
             counterKeys.put(counterDecorator.getCounterKey(), null);
         }
         for (CounterDecorator rootCounterDecorator : rootCounterDecorators) {
+            if (rootCounterDecorator.getCounterKey().getCollectionName() !=null){
             counterKeys.put(rootCounterDecorator.getCounterKey(), null);
+            }
         }
     }
 

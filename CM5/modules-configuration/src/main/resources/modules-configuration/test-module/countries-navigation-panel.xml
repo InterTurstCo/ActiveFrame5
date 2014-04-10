@@ -99,6 +99,20 @@
             </child-links>
         </link>
 
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar">
+            <child-links>
+
+                <link name="Calendar" display-text="calendar">
+                       <plugin>
+                            <custom name="calendar.plugin">
+
+                            </custom>
+
+                       </plugin>
+                </link>
+            </child-links>
+        </link>
+
         <link name="Documents" display-text="Документы" image="images/docs.png" child-to-open="Letters">
             <child-links>
                 <link name="Letters" display-text="Письма">

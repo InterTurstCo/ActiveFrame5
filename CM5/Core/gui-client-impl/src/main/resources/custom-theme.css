@@ -64,10 +64,12 @@
     background: #ffffff;
     text-decoration: none;
 }
-.gwt-PopupPanel{
+
+.gwt-PopupPanel {
     border: none;
     background: none;
 }
+
 .html-face {
     display: none;
 }
@@ -84,7 +86,7 @@
     z-index: 100;
 }
 
-.gwt-Label.header-notification{
+.gwt-Label.header-notification {
     padding-top: 2px !important;
     margin-top: 10px;
 }
@@ -93,3 +95,173 @@
     display: inline-block;
     padding: 10px;
 }
+
+/*CalendarPlugin*/
+
+.calendar-scroll-panel {
+    position: absolute !important;
+    top: 65px;
+    right: -16px;
+    bottom: 0;
+    left: 0;
+    background: rgba(248, 249, 255);
+
+    /*   overflow-y: hidden !important;*/
+
+}
+
+.calendar-container {
+    /*position: absolute;*/
+    background: rgba(89, 17, 20, 0.15);
+    right: 0;
+    left: 0;
+
+}
+
+.calendar-day-container{
+    position: absolute;
+    width: 16.6%;
+    overflow: visible !important;
+}
+
+.calendar-work-day-block {
+    background: rgb(248, 249, 255);
+    border-left: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    height: 90px;
+    z-index: 5;
+
+}
+
+.calendar-holiday-block {
+    height: 45px;
+    border-left: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    z-index: 5;
+    background: rgb(248, 249, 255);
+
+}
+
+.calendar-holiday-block:focus {
+    border-left: 1px solid #ddd;
+    background: rgb(248, 249, 255);
+}
+
+.calendar-holiday-block:hover {
+    background: #F6F6F6;
+
+}
+
+.calendar-work-day-block:hover {
+    background: #F6F6F6);
+}
+
+.calendar-weekend-day-bloks {
+
+}
+
+.calendar-focus-day-block {
+    background: #FFFBE2;
+    border: 2px solid #ffa34c !important;
+    /*border-bottom: 2px solid #ffa34c;*/
+    /*border-top: 2px solid #ffa34c;*/
+    /*border-left: 2px solid #ffa34c;*/
+    /*border-right: 2px solid #ffa34c;*/
+    border-radius: 10px;
+}
+
+.calendar-block-date {
+    position: absolute;
+    right: 0;
+    float: right;
+    color: #aaa;
+    margin: 0.3em 0.5em;
+    font-size: 90%;
+    z-index: 2;
+}
+
+.first-day-month {
+    border-top: 1px solid #000000;
+    border-left: 1px solid #000000;
+
+}
+
+.days-of-first-week {
+    border-top: 1px solid #000000 ;
+
+}
+
+.second-weekend{
+    border-left: 1px solid #000000 !important;
+
+}
+
+.today {
+    background: #FFFBE2;
+
+}
+
+.month-panel{
+    position: absolute !important;
+    overflow: hidden;
+    width: 100%;
+    height: 31px;
+    top: 65px;
+    z-index: 5;
+    background: #AFBCCC;
+    cursor: pointer;
+}
+
+.current-month-block{
+    position: absolute !important;
+    top: 65px;
+    left: 50%;
+    margin-left: -55px;
+    width: 110px;
+    height: 31px;
+    opacity: 0.15;
+    background: black;
+    z-index: 10;
+
+}
+
+.first{
+    position: absolute;
+    height: 22px;
+    width: 69px;
+    color: white;
+    line-height: 18px;
+    background: url(css/i/calendar-bg-day-labels.png) left top no-repeat;
+    text-align: center;
+    left: 50%;
+    top: -13px;
+    margin-left: -35px;
+    font-size: 90%;
+    z-Index: 4;
+}
+
+.first2{
+    position: absolute;
+    height: 22px;
+    width: 69px;
+    color: white;
+    line-height: 18px;
+    background: url(css/i/calendar-bg-day-labels.png) left top no-repeat;
+    text-align: center;
+    left: 50%;
+    top: 33px;
+    margin-left: -35px;
+    font-size: 90%;
+    z-Index: 4;
+}
+
+.month-block{
+    height: 18px;
+    width: 124px;
+    padding-top: 9px;
+    text-align: center;
+    color: #ffffff;
+
+}
+
+
