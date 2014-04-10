@@ -1183,21 +1183,6 @@
         <xs:attribute type="xs:string" name="report-template"/>
     </xs:complexType>
 
-    <xs:complexType name="formReportType">
-        <xs:complexContent>
-            <xs:restriction base="con:formType">
-                <xs:sequence>
-                    <xs:element type="con:markupType" name="markup"
-                                xmlns:con="https://cm5.intertrust.ru/config"/>
-                    <xs:element type="con:widgetConfigType" name="widget-config"
-                                xmlns:con="https://cm5.intertrust.ru/config"/>
-                </xs:sequence>
-                <xs:attribute name="type" type="con:formTypeType" use="required" fixed="report"/>
-                <xs:attribute name="report-template" type="xs:string" use="required"/>
-            </xs:restriction>
-        </xs:complexContent>
-    </xs:complexType>
-
     <xs:simpleType name="formTypeType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="edit"/>
