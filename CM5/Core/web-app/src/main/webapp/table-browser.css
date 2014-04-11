@@ -100,12 +100,6 @@
 .dataGridHeaderRow {
 }
 
-.table-browser-button.dark-button {
-    position: relative;
-    right: -12px;
-    margin-left: 55px;
-}
-
 .table-browser-dialog-box-content {
     padding: 10px;
 }

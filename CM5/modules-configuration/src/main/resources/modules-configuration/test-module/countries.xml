@@ -495,6 +495,7 @@
                 <default-sort-criteria column-field="name" order="desc"/>
                 <display-values-as-links value="true"/>
             </table-browser>
+            <!--<linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">-->
             <linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">
                 <field-path value="country_most_famous_city^country.city"/>
                 <linked-form name="city_form" inline="true"/>
@@ -519,6 +520,7 @@
                         <pattern value="{population}"/>
                     </summary-table-column>
                 </summary-table>
+                <single-choice value="true"/>
             </linked-domain-objects-table>
         </widget-config>
     </form>

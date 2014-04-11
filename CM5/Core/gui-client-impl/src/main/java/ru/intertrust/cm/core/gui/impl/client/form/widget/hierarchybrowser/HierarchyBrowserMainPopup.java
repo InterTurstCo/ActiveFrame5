@@ -127,7 +127,7 @@ public class HierarchyBrowserMainPopup {
     public void createAndShowPopup() {
         dialogBox = new DialogBox();
         dialogBox.setAnimationEnabled(true);
-         dialogBox.getCaption().setText("test");
+        dialogBox.getCaption().setText("header-mover");
         dialogBox.removeStyleName("gwt-DialogBox ");
         dialogBox.addStyleName("popup-body");
         dialogBox.setModal(true);

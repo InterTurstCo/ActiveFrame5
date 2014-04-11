@@ -58,8 +58,10 @@ class RowItemMapper {
             for (String fieldName : fieldsInPattern) {
                 if (!formattedFields.containsKey(fieldName)) {
                     Value value = dataExtractor.getValue(fieldName);
-                    if (value != null) {
+                    if (value != null  && !"null".equalsIgnoreCase(value.toString())) {
                         formattedFields.put(fieldName, value.toString());
+                    } else {
+                        formattedFields.put(fieldName, "");
                     }
                 }
             }

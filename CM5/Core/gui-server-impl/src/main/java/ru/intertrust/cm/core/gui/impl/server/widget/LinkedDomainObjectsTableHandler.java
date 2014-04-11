@@ -36,7 +36,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         LinkedDomainObjectsTableState state = new LinkedDomainObjectsTableState();
         LinkedDomainObjectsTableConfig domainObjectsTableConfig = context.getWidgetConfig();
         state.setLinkedDomainObjectTableConfig(domainObjectsTableConfig);
-
+        SingleChoiceConfig singleChoiceConfig = domainObjectsTableConfig.getSingleChoiceConfig();
+        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+        state.setSingleChoice(singleChoiceFromConfig);
 
         List<DomainObject> domainObjects = new ArrayList<>();
         if (context.getAllObjectIds() != null && !context.getAllObjectIds().isEmpty()) {

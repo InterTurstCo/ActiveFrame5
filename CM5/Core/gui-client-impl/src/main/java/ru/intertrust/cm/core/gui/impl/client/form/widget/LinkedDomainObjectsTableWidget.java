@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.IWidgetStateFilter;
+import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -80,7 +81,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         VerticalPanel hp = new VerticalPanel();
         Button addButton = createAddButton();
         addButton.removeStyleName("gwt-Button");
-        addButton.addStyleName("dialog-box-button");
+        addButton.addStyleName("dark-button");
         hp.add(addButton);
         hp.add(table);
         return hp;
@@ -205,42 +206,72 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         button.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
-                DialogBoxAction saveAction = new DialogBoxAction() {
-                    @Override
-                    public void execute(FormPlugin formPlugin) {
-                        FormState formState = formPlugin.getFormState(new IWidgetStateFilter() {
-                            @Override
-                            public boolean exclude(BaseWidget widget) {
-                                return false;
-                            }
-                        });
-                        String stateKey = currentState.addNewFormState(formState);
-                        RowItem rowItem = new RowItem();
-                        convertFormStateAndFillRowItem(formState, rowItem);
-                        rowItem.setParameter(STATE_KEY, stateKey);
-                        model.getList().add(rowItem);
-                    }
-                };
-                DialogBoxAction cancelAction = new DialogBoxAction() {
-                    @Override
-                    public void execute(FormPlugin formPlugin) {
-                        // no op
-                    }
-                };
-                DialogBox db = linkedFormDialogBoxBuilder
-                        .setSaveAction(saveAction)
-                        .setCancelAction(cancelAction)
-                        .withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
-                        .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
-                        .withObjectType(currentState.getObjectTypeName()).buildDialogBox();
-
-                db.center();
-                db.show();
-
+                if (currentState.isSingleChoice() && model.getList().size() >= 1) {
+                    final StyledDialogBox rewriteAlertDialog =
+                            new StyledDialogBox("Текущий обьект будет перезаписан\n Продолжить?");
+                    rewriteAlertDialog.addOkButtonClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            rewriteAlertDialog.hide();
+                            showNewForm();
+                        }
+                    });
+                    rewriteAlertDialog.addCancelButtonClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            rewriteAlertDialog.hide();
+                        }
+                    });
+                    rewriteAlertDialog.center();
+                } else {
+                    showNewForm();
+                }
             }
         });
         return button;
+    }
+
+    private void showNewForm() {
+        LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
+        DialogBoxAction saveAction = new DialogBoxAction() {
+            @Override
+            public void execute(FormPlugin formPlugin) {
+                if (currentState.isSingleChoice() && model.getList().size() >= 1) {
+                    currentState.clearPreviousStates();
+                    model.getList().clear();
+                    selectedIds.clear();
+
+                }
+                FormState formState = formPlugin.getFormState(new IWidgetStateFilter() {
+                    @Override
+                    public boolean exclude(BaseWidget widget) {
+                        return false;
+                    }
+                });
+                String stateKey = currentState.addNewFormState(formState);
+                RowItem rowItem = new RowItem();
+                convertFormStateAndFillRowItem(formState, rowItem);
+                rowItem.setParameter(STATE_KEY, stateKey);
+
+                model.getList().add(rowItem);
+            }
+        };
+        DialogBoxAction cancelAction = new DialogBoxAction() {
+            @Override
+            public void execute(FormPlugin formPlugin) {
+                // no op
+            }
+        };
+        DialogBox db = linkedFormDialogBoxBuilder
+                .setSaveAction(saveAction)
+                .setCancelAction(cancelAction)
+                .withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
+                .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
+                .withObjectType(currentState.getObjectTypeName()).buildDialogBox();
+
+        db.center();
+        db.show();
+
     }
 
     private void convertFormStateAndFillRowItem(FormState createdObjectState, RowItem item) {
@@ -250,13 +281,18 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             if (widgetState != null) {
                 if (widgetState instanceof TextState) {
                     TextState textBoxState = (TextState) widgetState;
-                    item.setValueByKey(summaryTableColumnConfig.getWidgetId(), textBoxState.getText());
-                    ;
+                    String text = textBoxState.getText();
+                    if (text != null) {
+                        item.setValueByKey(summaryTableColumnConfig.getWidgetId(), text);
+                    }
+
                 } else if (widgetState instanceof IntegerBoxState) {
                     IntegerBoxState integerBoxState = (IntegerBoxState) widgetState;
-                    item.setValueByKey(summaryTableColumnConfig.getWidgetId(), integerBoxState.getNumber().toString());
+                    Long number = integerBoxState.getNumber();
+                    if (number != null) {
+                        item.setValueByKey(summaryTableColumnConfig.getWidgetId(), number.toString());
+                    }
                 }
-
             }
         }
     }

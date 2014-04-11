@@ -111,7 +111,6 @@ public class LinkedFormDialogBoxBuilder {
         final DialogBox db = new DialogBox();
         db.removeStyleName("gwt-DialogBox");
         db.addStyleName("table-browser-dialog");
-        db.getElement().getStyle().setZIndex(10);
         db.setHeight(height);
         db.setWidth(width);
         db.addStyleName("popup-body");
@@ -119,6 +118,7 @@ public class LinkedFormDialogBoxBuilder {
 
         // create buttons
         Button saveButton = new Button("Сохранить");
+        saveButton.setStyleName("lnfm-save-button dark-button");
         decorateButton(saveButton);
         if (saveAction != null) {
             saveButton.addClickHandler(new ClickHandler() {
@@ -131,6 +131,7 @@ public class LinkedFormDialogBoxBuilder {
             });
         }
         Button cancelButton = new Button("Отменить");
+        cancelButton.setStyleName("lnfm-cancel-button light-button");
         decorateButton(cancelButton);
         if (cancelAction != null) {
             cancelButton.addClickHandler(new ClickHandler() {
@@ -158,7 +159,7 @@ public class LinkedFormDialogBoxBuilder {
 
     private void decorateButton(Button saveButton) {
         saveButton.removeStyleName("gwt-Button");
-        saveButton.addStyleName("dialog-box-button");
+//        saveButton.addStyleName("dialog-box-button");
     }
 
 

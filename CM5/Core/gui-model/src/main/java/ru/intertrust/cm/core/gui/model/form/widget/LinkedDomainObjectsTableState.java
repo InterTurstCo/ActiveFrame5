@@ -104,5 +104,9 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         }
     }
 
+    public void clearPreviousStates(){
+        newFormStates.clear();
+        editedFormStates.clear();
+    }
 
 }

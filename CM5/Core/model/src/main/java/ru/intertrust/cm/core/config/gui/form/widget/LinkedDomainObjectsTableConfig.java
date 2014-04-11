@@ -26,6 +26,9 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
     @Element(name = "summary-table")
     private SummaryTableConfig summaryTableConfig;
 
+    @Element(name = "single-choice", required = false)
+    private SingleChoiceConfig singleChoiceConfig;
+
     public LinkedFormConfig getLinkedFormConfig() {
         return linkedFormConfig;
     }
@@ -49,49 +52,6 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
     public void setSummaryTableConfig(SummaryTableConfig summaryTableConfig) {
         this.summaryTableConfig = summaryTableConfig;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        LinkedDomainObjectsTableConfig that = (LinkedDomainObjectsTableConfig) o;
-
-        if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
-            return false;
-        }
-        if (patternConfig != null ? !patternConfig.equals(that.patternConfig) : that.patternConfig != null) {
-            return false;
-        }
-        if (summaryTableConfig != null ? !summaryTableConfig.equals(that.patternConfig) : that.
-                summaryTableConfig != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
-        result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
-        result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String getComponentName() {
-        return "linked-domain-objects-table";  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public String getModalWidth() {
         return modalWidth;
     }
@@ -106,6 +66,69 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
 
     public void setModalHeight(String modalHeight) {
         this.modalHeight = modalHeight;
+    }
+
+    public SingleChoiceConfig getSingleChoiceConfig() {
+        return singleChoiceConfig;
+    }
+
+    public void setSingleChoiceConfig(SingleChoiceConfig singleChoiceConfig) {
+        this.singleChoiceConfig = singleChoiceConfig;
+    }
+
+    @Override
+    public String getComponentName() {
+        return "linked-domain-objects-table";  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) return false;
+
+        LinkedDomainObjectsTableConfig that = (LinkedDomainObjectsTableConfig) o;
+
+        if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
+            return false;
+        }
+        if (modalHeight != null ? !modalHeight.equals(that.modalHeight) : that.modalHeight != null) {
+            return false;
+        }
+        if (modalWidth != null ? !modalWidth.equals(that.modalWidth) : that.modalWidth != null) {
+            return false;
+        }
+        if (patternConfig != null ? !patternConfig.equals(that.patternConfig) : that.patternConfig != null) {
+            return false;
+        }
+        if (singleChoiceConfig != null ? !singleChoiceConfig.equals(that.singleChoiceConfig) : that.
+                singleChoiceConfig != null)  {
+            return false;
+        }
+
+        if (summaryTableConfig != null ? !summaryTableConfig.equals(that.summaryTableConfig) : that.
+                summaryTableConfig != null)  {
+            return false;
+        }
+
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (modalWidth != null ? modalWidth.hashCode() : 0);
+        result = 31 * result + (modalHeight != null ? modalHeight.hashCode() : 0);
+        result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
+        result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
+        result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
+        result = 31 * result + (singleChoiceConfig != null ? singleChoiceConfig.hashCode() : 0);
+        return result;
     }
 }
 
