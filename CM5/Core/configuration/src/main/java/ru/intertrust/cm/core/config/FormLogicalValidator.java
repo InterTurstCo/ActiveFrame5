@@ -109,11 +109,15 @@ public class FormLogicalValidator {
         validateHeader(data, logicalErrors);
         validateBody(data, logicalErrors);
         validateWidgetsForExtendingHandler(data, logicalErrors);
-        WidgetConfigurationLogicalValidator validator = new WidgetConfigurationLogicalValidator(configurationExplorer);
         if (!FormConfig.TYPE_REPORT.equals(formConfig.getType())) {
+            WidgetConfigurationLogicalValidator validator = new WidgetConfigurationLogicalValidator(configurationExplorer);
             validator.validate(data, logicalErrors);
-            logger.info("Form '{}' is validated", formName);
+
+        } else {
+            ReportFormLogicalValidator validator = new ReportFormLogicalValidator();
+            validator.validate(formConfig, logicalErrors);
         }
+        logger.info("Form '{}' is validated", formName);
     }
 
     private void validateHeader(FormToValidate data,
