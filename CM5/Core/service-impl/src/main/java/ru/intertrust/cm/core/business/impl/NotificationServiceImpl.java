@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.SessionContext;
@@ -76,6 +77,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Asynchronous
     public Future<Boolean> sendNow(String notificationType, Id sender, List<NotificationAddressee> addresseeList,
             NotificationPriority priority, NotificationContext context) {
         logger.debug("Send notification " + notificationType + " " + addresseeList);
@@ -94,7 +96,7 @@ public class NotificationServiceImpl implements NotificationService {
                     notificationChannelHandle.send(notificationType, sender, personId, priority, context);
                 } catch (NotificationException ex) {
                     //skip exception, allow other channels to be executed.
-                    logger.error("Error sending message on " + channelName + ", notificationType " + notificationType +  ", message : " +  ex.getMessage());
+                    logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
                 }
             }
         }
