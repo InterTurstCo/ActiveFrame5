@@ -34,7 +34,7 @@
     <import-files rewrite="true">
         <import-file>importdata/import-organization.csv</import-file>
         <import-file>importdata/import-department.csv</import-file>
-        <import-file>importdata/import-employee.csv</import-file>
+        <import-file rewrite="false">importdata/import-employee.csv</import-file>
         <import-file>importdata/set-organization-boss.csv</import-file>
         <import-file>importdata/set-department-boss.csv</import-file>
         <import-file rewrite="false">importdata/import-union.csv</import-file>

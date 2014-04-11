@@ -186,6 +186,7 @@
             <reference name="Organization" type="Organization" not-null="true"/>
             <reference name="Boss" type="Employee"/>
             <reference name="ParentDepartment" type="Department" not-null="false"/>
+            <string name="Description" length="512" not-null="false" />
         </fields>
     </domain-object-type>
 

@@ -14,6 +14,7 @@
             <reference name="Organization" type="organization_test" not-null="true"/>
             <reference name="Boss" type="employee_test"/>
             <reference name="ParentDepartment" type="department_test" not-null="false"/>
+            <string name="Description" length="512" not-null="false" />
         </fields>
     </domain-object-type>
     

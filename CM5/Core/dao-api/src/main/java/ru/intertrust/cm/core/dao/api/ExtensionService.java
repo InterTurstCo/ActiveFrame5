@@ -1,5 +1,9 @@
 package ru.intertrust.cm.core.dao.api;
 
+import java.util.List;
+
+import org.springframework.context.ApplicationContext;
+
 /**
  * интерфейс сервиса точек расширения
  * 
@@ -7,6 +11,8 @@ package ru.intertrust.cm.core.dao.api;
  * 
  */
 public interface ExtensionService {
+    public static final String PLATFORM_CONTEXT = "platform-context";
+    
     /**
      * Получение точки расширения в месте ее вызова
      * 
@@ -15,4 +21,11 @@ public interface ExtensionService {
      */
     <T> T getExtentionPoint(Class<T> extentionPointInterface, String filter);
 
+    /**
+     * Инициализация точек расширения из другого спринг контекста
+     * @param contextName
+     * @param applicationContext
+     * @param packages
+     */
+    void init(String contextName, ApplicationContext applicationContext, List<String> packages);
 }

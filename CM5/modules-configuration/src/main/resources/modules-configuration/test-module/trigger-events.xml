@@ -17,6 +17,7 @@
                         <fields>
                             <field>Name</field>
                             <field>Organization</field>
+                            <field>Description</field>
                         </fields>
                         <statuses>
                             <status>Active</status>
