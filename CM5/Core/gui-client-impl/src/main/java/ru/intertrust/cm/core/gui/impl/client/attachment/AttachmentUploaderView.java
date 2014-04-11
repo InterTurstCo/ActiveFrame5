@@ -89,6 +89,7 @@ public class AttachmentUploaderView extends Composite {
      */
     private void init() {
         root = new AbsolutePanel();
+        root.addStyleName("attachment-plugin-wrapper");
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box");
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
@@ -98,6 +99,7 @@ public class AttachmentUploaderView extends Composite {
         root.add(addFile);
         submitForm.add(fileUpload);
         root.add(submitForm);
+        submitForm.addStyleName("attachment-plugin-form-panel");
         root.add(mainBoxPanel);
         initWidget(root);
     }
