@@ -409,7 +409,6 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                         state.getSuggestBoxConfig().getClearAllButtonConfig().getImage(),
                         state.getSuggestBoxConfig().getClearAllButtonConfig().getText());
                 focusPanel.add(clearButton);
-                focusPanel.getElement().getStyle().setLeft(10, Style.Unit.PX);
                 super.add(focusPanel, clearAllButton);
                 focusPanel.addClickHandler(new ClickHandler() {
                     @Override

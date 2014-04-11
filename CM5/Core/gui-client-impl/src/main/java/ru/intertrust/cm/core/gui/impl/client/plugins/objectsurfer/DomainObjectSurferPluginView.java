@@ -132,12 +132,6 @@ public class DomainObjectSurferPluginView extends PluginView {
     private void reDrawSplitter(boolean type, int firstWidgetWidth, int firstWidgetHeight) {
 
         if (type) {
-
-            if (firstWidgetWidth > surferWidth) {
-                firstWidgetWidth = surferWidth - splitterPanel.getSplitterSize();
-
-            }
-
             splitterPanel.remove(0);
             splitterPanel.insertWest(splitterFirstWidget, firstWidgetWidth, splitterPanel.getWidget(0));
 

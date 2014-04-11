@@ -48,9 +48,8 @@ public class ButtonForm extends Composite{
     }
 
     private void createStyle(){
-        focusPanel.setStyleName("common-add-button common-composite-button");
+        focusPanel.setStyleName("table-browser-button dark-button");
         buttonPanel.setStyleName("common-buttons-panel");
-        buttonPanel.getElement().getStyle().setHeight(16, Style.Unit.PX);
     }
 
 

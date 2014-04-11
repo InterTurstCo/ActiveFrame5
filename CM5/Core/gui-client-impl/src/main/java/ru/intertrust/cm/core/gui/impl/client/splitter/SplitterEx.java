@@ -41,7 +41,8 @@ public class SplitterEx extends DockLayoutPanel {
             if (size == 0){
                 changeFullLeftPosition();
                 rightArrowVisible(false);
-            } else if (size == target.getParent().getOffsetWidth()-splitterSize) {
+            } else if (size == target.getParent().getParent().getOffsetWidth() - splitterSize) {
+
                 changeFullRightPosition();
                 leftArrowVisible(false);
             } else {
@@ -177,8 +178,8 @@ public class SplitterEx extends DockLayoutPanel {
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
                     //TODO DELETE FOREIGN CODE
-                    eventBus.fireEvent(new SplitterWidgetResizerEvent(splitterSize,
-                            0,  target.getParent().getOffsetHeight(), 0, splitType, true ));
+                    eventBus.fireEvent(new SplitterWidgetResizerEvent(target.getParent().getParent().getOffsetWidth() - splitterSize ,
+                           0,  target.getParent().getOffsetHeight(), 0, splitType, true ));
                 }
             }, ClickEvent.getType());
 
@@ -188,7 +189,7 @@ public class SplitterEx extends DockLayoutPanel {
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
-                    eventBus.fireEvent(new SplitterWidgetResizerEvent(0, 0/*target.getParent().getOffsetWidth()*/,
+                    eventBus.fireEvent(new SplitterWidgetResizerEvent(0, 0,
                            /*верхняя точка сплитер панели*/ splitterSize, target.getParent().getOffsetHeight() - splitterSize, splitType, true ));
                 }
             }, ClickEvent.getType());

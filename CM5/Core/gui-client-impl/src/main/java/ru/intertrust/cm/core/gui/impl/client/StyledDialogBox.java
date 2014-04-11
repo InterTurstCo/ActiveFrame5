@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.*;
  *         Date: 10.01.14
  *         Time: 13:15
  */
-public class StyledDialogBox extends PopupPanel {
+public class StyledDialogBox extends DialogBox {
     private Button okButton;
     private Button cancelButton;
     public StyledDialogBox(String text){
@@ -24,10 +24,10 @@ public class StyledDialogBox extends PopupPanel {
         // DialogBox is a SimplePanel, so you have to set its widget
         // property to whatever you want its contents to be.
         okButton= new Button("Да");
-        okButton.addStyleName("dialog-box-button");
+        okButton.addStyleName("dark-button");
         okButton.removeStyleName("gwt-Button");
         cancelButton = new Button("Нет");
-        cancelButton.addStyleName("dialog-box-button");
+        cancelButton.addStyleName("light-button");
         cancelButton.removeStyleName("gwt-Button");
         Label label = new Label(text);
         label.addStyleName("dialog-box-message");
@@ -40,7 +40,8 @@ public class StyledDialogBox extends PopupPanel {
         panel.add(header);
         panel.add(label);
         AbsolutePanel buttonsPanel = new AbsolutePanel();
-        buttonsPanel.addStyleName("buttons-panel");
+        buttonsPanel.addStyleName("attachments-buttons-panel");
+        buttonsPanel.getElement().getStyle().clearPosition();
         buttonsPanel.add(okButton);
         buttonsPanel.add(cancelButton);
         panel.add(buttonsPanel);

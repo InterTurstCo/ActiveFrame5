@@ -246,10 +246,10 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         initCollectionPluginPanel();
         Button okButton = new Button("OK");
         okButton.removeStyleName("gwt-Button");
-        okButton.addStyleName("dialog-box-button buttons-fixed");
-        Button cancelButton = new Button("CANCEL");
+        okButton.addStyleName("dark-button buttons-fixed");
+        Button cancelButton = new Button("Отмена");
         cancelButton.removeStyleName("gwt-Button");
-        cancelButton.addStyleName("dialog-box-button buttons-fixed position-margin-left");
+        cancelButton.addStyleName("light-button buttons-fixed position-margin-left");
         if (isSingleChoice()) {
             addClickHandlersForSingleChoice(okButton, cancelButton, dialogBox);
         } else {

@@ -64,9 +64,8 @@
     background: #ffffff;
     text-decoration: none;
 }
-
-.gwt-PopupPanel {
-    border: none;
+.gwt-PopupPanel{
+    border: 1px solid #eee;
     background: none;
 }
 
