@@ -96,6 +96,7 @@
             <string name="FirstName" length="128" />
             <string name="LastName" length="128" />
             <string name="EMail" length="128" />
+            <reference name="profile" type="person_profile"/>
         </fields>
         <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Login"/>
@@ -350,5 +351,65 @@
             <string name="notification_text" length="4000" />
         </fields>
     </domain-object-type>
+
+    <domain-object-type name="profile">
+        <fields>
+            <reference name="parent" type="profile" not-null="false"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="system_profile" extends="profile">
+        <fields>
+            <string name="name" length="256" not-null="true" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="person_profile" extends="profile">
+        <fields>
+            <!-- empty unused field because are problems with DO creation  -->
+            <string name="empty" length="5" not-null="false" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="profile_value">
+        <fields>
+            <reference name="profile" type="profile" not-null="true"/>
+            <string name="key" length="256" not-null="true" />
+            <boolean name="readonly" not-null="false"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="profile_value_long" extends="profile_value">
+        <fields>
+            <long name="value" not-null="false"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="profile_value_string" extends="profile_value">
+        <fields>
+            <string name="value" length="1024" not-null="false"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="profile_value_boolean" extends="profile_value">
+        <fields>
+            <boolean name="value" not-null="false"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="profile_value_date" extends="profile_value">
+        <fields>
+            <date-time name="value" not-null="false"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="profile_value_locale" extends="profile_value">
+        <fields>
+            <reference name="value" type="locale" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+
+
 
 </configuration>

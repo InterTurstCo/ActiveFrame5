@@ -1,0 +1,5 @@
+TYPE_NAME=profile_value_date;KEYS=profile,key;
+profile;key;value;readonly
+select id from system_profile where name='test1';key11d;24.08.1990 00:00:00;false
+select id from system_profile where name='test1';key12d;12.04.2013 00:00:00;true
+select id from system_profile where name='test3';key31d;15.06.1979 00:00:00;false

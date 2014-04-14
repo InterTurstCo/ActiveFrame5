@@ -10,6 +10,10 @@ import ru.intertrust.cm.core.business.api.dto.Profile;
  * 
  */
 public interface ProfileService {
+
+    public interface Remote extends ProfileService {
+    }
+
     /**
      * Получение профиля системы. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
      * редактирования системных профилей администраторами при его вызове должен создаваться AdminAccessToken
