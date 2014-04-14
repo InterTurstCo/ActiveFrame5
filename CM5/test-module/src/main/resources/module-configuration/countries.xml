@@ -497,7 +497,7 @@
             </table-browser>
             <!--<linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">-->
             <linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">
-                <field-path value="capital"/>
+                <field-path value="country_most_famous_city^country.city"/>
                 <linked-form name="city_form" inline="true"/>
                 <summary-table>
                     <summary-table-column header="Название" widget-id="2">
@@ -520,7 +520,7 @@
                         <pattern value="{population}"/>
                     </summary-table-column>
                 </summary-table>
-                <single-choice value="true"/>
+                <single-choice value="false"/>
             </linked-domain-objects-table>
         </widget-config>
     </form>

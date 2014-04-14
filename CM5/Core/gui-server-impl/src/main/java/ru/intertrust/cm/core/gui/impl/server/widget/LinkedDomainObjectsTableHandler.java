@@ -66,34 +66,18 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
     @Override
-    public void saveNewObjects(WidgetContext context, WidgetState state) {
+    public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
         LinkedDomainObjectsTableState linkedDomainObjectsTableState = (LinkedDomainObjectsTableState) state;
-        DomainObject rootDomainObject = context.getFormObjects().getRootNode().getDomainObject();
         LinkedHashMap<String, FormState> newFormStates = linkedDomainObjectsTableState.getNewFormStates();
         Set<Map.Entry<String, FormState>> entries = newFormStates.entrySet();
-        LinkedDomainObjectsTableConfig linkedDomainObjectsTableConfig = linkedDomainObjectsTableState.getLinkedDomainObjectsTableConfig();
-        FieldPath fieldPath = new FieldPath(linkedDomainObjectsTableConfig.getFieldPathConfig().getValue());
 
+        ArrayList<DomainObject> newObjects = new ArrayList<>(entries.size());
         for (Map.Entry<String, FormState> entry : entries) {
             FormState formState = entry.getValue();
             FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState);
             DomainObject savedObject = formSaver.saveForm();
-            if (fieldPath.isOneToManyReference()) {
-                savedObject.setReference(fieldPath.getLinkToParentName(), rootDomainObject);
-                crudService.save(savedObject);
-            } else if (fieldPath.isManyToManyReference()) {
-                String referenceType = fieldPath.getReferenceType();
-                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(referenceType, fieldPath.getReferenceName());
-                DomainObject referencedObject = crudService.createDomainObject(referenceType);
-                if (fieldConfig != null) {
-                    referencedObject.setReference(fieldConfig.getName(), savedObject);
-                }
-                fieldConfig = configurationExplorer.getFieldConfig(referenceType, rootDomainObject.getTypeName());
-                if (fieldConfig != null) {
-                    referencedObject.setReference(fieldConfig.getName(), rootDomainObject);
-                }
-                crudService.save(referencedObject);
-            }
+            newObjects.add(savedObject);
         }
+        return newObjects;
     }
 }

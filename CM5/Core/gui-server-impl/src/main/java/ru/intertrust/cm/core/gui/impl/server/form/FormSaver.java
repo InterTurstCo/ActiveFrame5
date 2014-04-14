@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
@@ -154,9 +155,37 @@ public class FormSaver {
                 continue;
             }
             WidgetHandler widgetHandler = getWidgetHandler(config);
-            if (widgetHandler instanceof LinkEditingWidgetHandler) {
-                WidgetContext widgetContext = new WidgetContext(config, formObjects);
-                ((LinkEditingWidgetHandler) widgetHandler).saveNewObjects(widgetContext, widgetState);
+            if (!(widgetHandler instanceof LinkEditingWidgetHandler)) {
+                continue;
+            }
+            WidgetContext widgetContext = new WidgetContext(config, formObjects);
+            final LinkEditingWidgetHandler linkEditingHandler = (LinkEditingWidgetHandler) widgetHandler;
+            final List<DomainObject> newObjects = linkEditingHandler.saveNewObjects(widgetContext, widgetState);
+            if (newObjects == null || linkEditingHandler.handlesNewObjectsReferences()) {
+                continue;
+            }
+            DomainObject rootDomainObject = formObjects.getRootNode().getDomainObject();
+            FieldPath fieldPath = new FieldPath(config.getFieldPathConfig().getValue());
+            for (DomainObject newObject : newObjects) {
+                if (fieldPath.isOneToManyReference()) {
+                    newObject.setReference(fieldPath.getLinkToParentName(), rootDomainObject);
+                    crudService.save(newObject);
+                } else if (fieldPath.isManyToManyReference()) {
+                    String referenceType = fieldPath.getReferenceType();
+                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(referenceType, fieldPath.getReferenceName());
+                    DomainObject referencedObject = crudService.createDomainObject(referenceType);
+                    if (fieldConfig != null) {
+                        referencedObject.setReference(fieldConfig.getName(), newObject);
+                    }
+                    fieldConfig = configurationExplorer.getFieldConfig(referenceType, rootDomainObject.getTypeName());
+                    if (fieldConfig != null) {
+                        referencedObject.setReference(fieldConfig.getName(), rootDomainObject);
+                    }
+                    crudService.save(referencedObject);
+                } else { // one-to-one reference
+                    formObjects.setFieldValue(fieldPath, new ReferenceValue(newObject.getId()));
+                    crudService.save(((SingleObjectNode) formObjects.getNode(fieldPath.getParentPath())).getDomainObject());
+                }
             }
         }
     }

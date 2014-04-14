@@ -75,7 +75,12 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         return state;
     }
 
-    public void saveNewObjects(WidgetContext context, WidgetState state) {
+    @Override
+    public boolean handlesNewObjectsReferences() {
+        return true;
+    }
+
+    public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         List<AttachmentItem> attachmentItems = attachmentBoxState.getAttachments();
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
@@ -85,6 +90,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
         String parentLinkFieldName = fieldPath.getLinkToParentName();
 
+        ArrayList<DomainObject> newObjects = new ArrayList<>(attachmentItems.size());
         for (AttachmentItem attachmentItem : attachmentItems) {
             if (attachmentItem.getId() != null) {
                 continue;
@@ -106,7 +112,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
 
                 attachmentDomainObject.setValue(ATTACHMENT_CONTENT_LENGTH, new LongValue(contentLength));
                 attachmentDomainObject.setReference(parentLinkFieldName, domainObject);
-                attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+                final DomainObject savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+                newObjects.add(savedDo);
                 fileToSave.delete();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -115,6 +122,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             }
 
         }
+        return newObjects;
     }
 
     @Override

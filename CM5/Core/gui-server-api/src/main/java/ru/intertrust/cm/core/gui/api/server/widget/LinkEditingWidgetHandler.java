@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -50,7 +52,19 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
         return result;
     }
 
-    public void saveNewObjects(WidgetContext context, WidgetState state) {
+    public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
+        return null;
+    }
+
+    /**
+     * Определяет, обрабатывает ли виджет ссылки на новые объекты (true) или это должен сделать механизм форм автоматически (false).
+     * Самостоятельная обработка ссылок данным обработчиком может быть удобна по причинам производительности, например, или при работе со
+     * специфическими системными доменными объектами
+     * @return false, если механизм форм должен автоматически расставить ссылки к созданным объектам, true -
+     * если обработчик делает это самостоятельно
+     */
+    public boolean handlesNewObjectsReferences() {
+        return false;
     }
 
     /**
