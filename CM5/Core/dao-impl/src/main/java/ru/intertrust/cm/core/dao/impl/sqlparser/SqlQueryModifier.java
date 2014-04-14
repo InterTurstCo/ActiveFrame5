@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.KryoCloner;
 
 import java.util.*;
@@ -56,12 +57,44 @@ public class SqlQueryModifier {
         return processQuery(query, new AddServiceColumnsQueryProcessor());
     }
 
+    /**
+     * Оборачивает имена сущностей бд в кавычки и приводит их к нижнему регистру
+     * @param query запрос
+     * @return модифицированный запрос
+     */
     public static String wrapAndLowerCaseNames(String query) {
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();
 
         selectBody.accept(new WrapAndLowerCaseSelectVisitor());
         return selectBody.toString();
+    }
+
+    /**
+     * Создает count-запрос из select-запроса
+     * @param query запрос
+     * @return модифицированный запрос
+     * throws FatalException если query не является простым select-запросом (используется union и т.п.)
+     */
+    public static String transformToCountQuery(String query) {
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
+        if (!(selectBody instanceof PlainSelect)) {
+            throw new FatalException("Counting prototype query must be provided for queries that are not plain selects");
+        }
+
+        PlainSelect plainSelect = (PlainSelect) selectBody;
+        if (plainSelect.getSelectItems() == null) {
+            plainSelect.setSelectItems(new ArrayList<SelectItem>());
+        }
+        plainSelect.getSelectItems().clear();
+
+        Function countExpression = new Function();
+        countExpression.setName("count");
+        countExpression.setAllColumns(true);
+        plainSelect.getSelectItems().add(new SelectExpressionItem(countExpression));
+
+        return plainSelect.toString();
     }
 
     public String addIdBasedFilters(String query, final List<? extends Filter> filterValues, final String idField) {

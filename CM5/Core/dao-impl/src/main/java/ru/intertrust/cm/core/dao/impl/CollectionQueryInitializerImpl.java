@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.transformToCountQuery;
+
 /**
  * Инициализирует запрос для извлечения коллекций, заполняет параметры в конфигурации фильтров, устанавливает порядок сортировки
  * @author atsvetkov
@@ -85,16 +87,17 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      */
     public String initializeCountQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues,
                                        AccessToken accessToken) {
-        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-
         String prototypeQuery = collectionConfig.getCountingPrototype();
-        String filledQuery = fillPrototypeQuery(filledFilterConfigs, null, 0, 0, prototypeQuery);
-
-        filledQuery = processPersonParameter(filledQuery);
-
-        filledQuery = postProcessQuery(collectionConfig, filterValues, accessToken, filledQuery);
-
-        return filledQuery;
+        if (prototypeQuery != null) {
+            List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
+            String filledQuery = fillPrototypeQuery(filledFilterConfigs, null, 0, 0, prototypeQuery);
+            filledQuery = processPersonParameter(filledQuery);
+            filledQuery = postProcessQuery(collectionConfig, filterValues, accessToken, filledQuery);
+            return filledQuery;
+        } else {
+            String filledQuery = initializeQuery(collectionConfig, filterValues, null, 0, 0, accessToken);
+            return transformToCountQuery(filledQuery);
+        }
     }
 
     protected String applyOffsetAndLimit(String query, int offset, int limit) {
