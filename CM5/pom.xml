@@ -16,7 +16,6 @@
         <module>Ear</module>
         <module>Client</module>
         <module>test-module</module>
-        <module>modules-configuration</module>
         <module>ItTests</module>
     </modules>
 
