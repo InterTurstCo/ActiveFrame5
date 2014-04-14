@@ -10,7 +10,6 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
  */
 public class MailSenderWrapper extends JavaMailSenderImpl {
 
-    @Value("${mail.default.sender}")
     private String defaultSender;
 
     public String getHost() {

@@ -12,6 +12,7 @@ public class ServerProperties {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        configurer.setNullValue("");
         //configurer.setIgnoreUnresolvablePlaceholders(true);
         return configurer;
     }

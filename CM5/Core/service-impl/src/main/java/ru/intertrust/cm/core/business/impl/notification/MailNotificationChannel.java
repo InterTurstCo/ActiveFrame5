@@ -15,7 +15,7 @@ import ru.intertrust.cm.core.model.MailNotificationException;
 /**
  * 
  * @author atsvetkov
- *
+ * 
  */
 @NotificationChannel(name = "MailNotificationChannel", description = "Канал отправки по электронной почте")
 public class MailNotificationChannel extends NotificationChannelBase implements NotificationChannelHandle {
@@ -37,13 +37,17 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
             NotificationContext context) {
 
         try {
-            SimpleMailMessage message = createMailMesssage(notificationType, senderId, addresseeId, context);
-            mailSenderWrapper.send(message);
+            //В случае если в конфигурации не указан host то канал отключаем
+            if (mailSenderWrapper.getHost() != null) {
+                SimpleMailMessage message = createMailMesssage(notificationType, senderId, addresseeId, context);
+                mailSenderWrapper.send(message);
+                logger.info("Notification sent by MailNotificationChannel notificationType=" + notificationType
+                        + "; senderId="
+                        + senderId + "; addresseeId=" + addresseeId + "; priority=" + priority + "; context=" + context);
+            }
         } catch (Exception ex) {
-            throw new MailNotificationException(ex.getMessage());
+            throw new MailNotificationException("Error send mail", ex);
         }
-        logger.info("Notification sent by MailNotificationChannel notificationType=" + notificationType + "; senderId="
-                + senderId + "; addresseeId=" + addresseeId + "; priority=" + priority + "; context=" + context);
     }
 
     private SimpleMailMessage createMailMesssage(String notificationType, Id senderId, Id addresseeId,
@@ -56,7 +60,7 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         } else {
             senderMail = mailSenderWrapper.getDefaultSender();
         }
-        
+
         mailSenderWrapper.getHost();
         GenericDomainObject addresseDO = (GenericDomainObject) domainObjectDao.find(addresseeId, systemAccessToken);
         String addresseMail = addresseDO.getString(EMAIL_FIELD);
