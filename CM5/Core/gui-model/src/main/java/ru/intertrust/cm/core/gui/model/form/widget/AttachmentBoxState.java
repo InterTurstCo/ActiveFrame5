@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class AttachmentBoxState extends LinkEditingWidgetState {
     private SelectionStyleConfig selectionStyleConfig;
-    private List<AttachmentItem> attachments;
+    private List<AttachmentItem> attachments = new ArrayList<AttachmentItem>();
     private ActionLinkConfig actionLinkConfig;
 
     public SelectionStyleConfig getSelectionStyleConfig() {

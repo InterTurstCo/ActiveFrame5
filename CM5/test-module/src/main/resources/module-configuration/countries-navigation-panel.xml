@@ -155,28 +155,37 @@
                     </plugin>
                 </link>-->
             </child-links>
+
+            <child-links>
+                <link name="Report_upload" display-text="Загрузка шаблонов отчетов">
+                    <plugin>
+                        <custom name="report.upload.plugin"/>
+                    </plugin>
+                </link>
+            </child-links>
+
             <child-links group-name="Отчеты">
-                <link name="Report" display-text="Все сотрудники">
+                <link name="Report_all" display-text="Все сотрудники">
                     <plugin>
                         <report-plugin report-name="all-employee"/>
                     </plugin>
                 </link>
-                <link name="Report" display-text="За период">
+                <link name="Report_params" display-text="За период">
                     <plugin>
                         <report-plugin report-name="all-employee-params"/>
                     </plugin>
                 </link>
-                <link name="Report" display-text="Источник данных">
+                <link name="Report_dataSource" display-text="Источник данных">
                     <plugin>
                         <report-plugin report-name="all-employee-ds"/>
                     </plugin>
                 </link>
-                <link name="Report" display-text="Скриптлет">
+                <link name="Report_scriptlet" display-text="Скриптлет">
                     <plugin>
                         <report-plugin report-name="all-employee-scriptlet"/>
                     </plugin>
                 </link>
-                <link name="Report" display-text="Группы">
+                <link name="Report_groups" display-text="Группы">
                     <plugin>
                         <report-plugin report-name="employee-groups"/>
                     </plugin>
