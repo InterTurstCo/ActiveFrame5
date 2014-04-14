@@ -5,8 +5,8 @@ import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 import org.apache.solr.client.solrj.SolrServer;
@@ -20,6 +20,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class SolrIndexingBean {
 
     private static final long WORKTIME_LIMIT = 290000L;
@@ -35,7 +36,6 @@ public class SolrIndexingBean {
     private SolrServer solrServer;
 
     @Schedule(hour = "*", minute = "*", second = "*/20", persistent = false)
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void processTimer() {
         if (active) {
             return;
