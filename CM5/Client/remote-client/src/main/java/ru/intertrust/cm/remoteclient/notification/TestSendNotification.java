@@ -42,11 +42,29 @@ public class TestSendNotification extends ClientBase {
 
             department.setString("Description", "description-" + System.currentTimeMillis());
             department = crudService.save(department);
+            
+            DomainObject employee = createEmployee("employee-" + System.currentTimeMillis(), department);
 
             System.out.println("Test End");
         } finally {
             writeLog();
         }
+    }
+
+    private DomainObject createEmployee(String name, DomainObject department) {
+        DomainObject employee = findDomainObject("employee_test", "Name", name);
+        if (employee == null) {
+            employee = crudService
+                    .createDomainObject("employee_test");
+            employee.setString("Name", name);
+            employee.setString("Login", name);
+            employee.setString("FirstName", name);
+            employee.setString("Position", "Ген. Дир");
+            employee.setReference("Department", department);
+            employee = crudService.save(employee);
+            log("Создан объект " + employee.getTypeName() + " " + employee.getId());
+        }
+        return employee;
     }
 
     private DomainObject createOrganization(String name) {

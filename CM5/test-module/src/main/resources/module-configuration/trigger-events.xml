@@ -31,6 +31,27 @@
         </notification-type>
     </notification>
 
+    <notification name="NotificationToSubtype">
+        <notification-type name="TestNotificationType" priority="HIGH">
+            <addressee>
+                <find-person>
+                    <find-query>Select p.id, p.lastname from person p where p.login = 'person1'
+                    </find-query>
+                </find-person>
+            </addressee>
+            <triggers>
+                <trigger domain-object-type="person_test" event="CHANGE">
+                    <config>
+                        <fields>
+                            <field>FirstName</field>
+                        </fields>
+                    </config>
+                </trigger>
+            </triggers>
+        </notification-type>
+    </notification>
+
+
      <!-- <notification name="NotificationAddresseeClassName">
         <notification-type name="NotificationType" priority="HIGH">
             <addressee>

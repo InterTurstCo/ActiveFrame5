@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.TriggerService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.NamedTriggerConfig;
 import ru.intertrust.cm.core.config.TriggerConfig;
 import ru.intertrust.cm.core.config.TriggerConfigConfig;
@@ -94,9 +95,9 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
         if (domainObject.getId() == null) {
             return false;
         }
-        String domainObjectType = domainObjectTypeIdCache.getName(domainObject.getId());
+
         if (triggerConfig.getEvent().equals(eventType)
-                && triggerConfig.getDomainObjectType().equals(domainObjectType)) {
+                && isTriggerForDomainObjectType(triggerConfig, domainObject)) {
             
             
             TriggerConfigConfig triggerConfigConfig = triggerConfig.getTriggerConfig();
@@ -147,7 +148,29 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
         }
         return false;
     }
-
+    
+    /**
+     * Проверка на соответствие типа доменного объекта тому что указан в конфигурации триггера. Проверка осуществляется с учетом наследования
+     * @param triggerConfig
+     * @param domainObject
+     * @return
+     */
+    private boolean isTriggerForDomainObjectType(TriggerConfig triggerConfig, DomainObject domainObject){
+        //Проверка непосредственно совпадение типа
+        boolean result = triggerConfig.getDomainObjectType().equalsIgnoreCase(domainObject.getTypeName());
+        // Если не совпадает то проверка является ли тип доменного объекта дочерним по отношению к типу доменного объекта объявленного в триггере
+        if (!result){
+            Collection<DomainObjectTypeConfig> chilTypeConfigs = configurationExplorer.findChildDomainObjectTypes(triggerConfig.getDomainObjectType(), true);
+            for (DomainObjectTypeConfig chilTypeConfig : chilTypeConfigs) {
+                if (chilTypeConfig.getName().equalsIgnoreCase(domainObject.getTypeName())){
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    
     private boolean executeJavaClass(String eventType, DomainObject domainObject,
             List<FieldModification> changedFields, TriggerConfig triggerConfig) {
         Class<?> triggerClassNameClass = null;

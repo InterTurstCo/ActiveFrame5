@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -16,6 +17,8 @@ import ru.intertrust.cm.remoteclient.ClientBase;
 public class TestCollection extends ClientBase {
 
     private CollectionsService.Remote collectionService;
+    
+    private SearchService.Remote searchService;
 
     public static void main(String[] args) {
         try {
@@ -32,6 +35,10 @@ public class TestCollection extends ClientBase {
 
             collectionService = (CollectionsService.Remote) getService(
                     "CollectionsServiceImpl", CollectionsService.Remote.class);
+            
+            searchService = (SearchService.Remote) getService(
+                    "SearchService", SearchService.Remote.class);
+            //searchService.dumpAll();
 
             String query = "select t.id, t.login, 'xxx' as xxx, 'yyy' as yyy from person t";
             executeQuery(query, 4);
