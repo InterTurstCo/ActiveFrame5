@@ -41,7 +41,7 @@ public class BootstrapBean {
             }
             logger.info("Start create spring context. Transaction timeout = " + timeout);
             
-            transaction.setTransactionTimeout(3000);
+            transaction.setTransactionTimeout(timeout);
             transaction.begin();
 
             //Загрузка контекста из файла beanRefContex.xml. Перенесено из интерсептора SpringBeanAutowiringInterceptor в этот метод для возможности установить таймаут транзакции
