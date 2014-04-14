@@ -47,6 +47,11 @@
             <scope>provided</scope>
         </dependency>        
        
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>gui-server-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>       
     </dependencies>
 
 </project>

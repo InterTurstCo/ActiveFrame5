@@ -14,22 +14,22 @@
     </gui-components-packages>
     <configuration-schema-path>modules-configuration/test-module/custom-configuration.xsd</configuration-schema-path>
     <configuration-paths>
-        <configuration-path>modules-configuration/test-module/custom-config.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/domain-objects.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/countries.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/letters.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/unions.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/countries-navigation-panel.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/access.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/workflow.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/global.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/search.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/extendedsearch.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/extendedsearch-int-docs.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/extendedsearch-countries.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/domain-objects-test.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/trigger-events.xml</configuration-path>
-        <configuration-path>modules-configuration/test-module/notifications.xml</configuration-path>        
+        <configuration-path>module-configuration/custom-config.xml</configuration-path>
+        <configuration-path>module-configuration/domain-objects.xml</configuration-path>
+        <configuration-path>module-configuration/countries.xml</configuration-path>
+        <configuration-path>module-configuration/letters.xml</configuration-path>
+        <configuration-path>module-configuration/unions.xml</configuration-path>
+        <configuration-path>module-configuration/countries-navigation-panel.xml</configuration-path>
+        <configuration-path>module-configuration/access.xml</configuration-path>
+        <configuration-path>module-configuration/workflow.xml</configuration-path>
+        <configuration-path>module-configuration/global.xml</configuration-path>
+        <configuration-path>module-configuration/search.xml</configuration-path>
+        <configuration-path>module-configuration/extendedsearch.xml</configuration-path>
+        <configuration-path>module-configuration/extendedsearch-int-docs.xml</configuration-path>
+        <configuration-path>module-configuration/extendedsearch-countries.xml</configuration-path>
+        <configuration-path>module-configuration/domain-objects-test.xml</configuration-path>
+        <configuration-path>module-configuration/trigger-events.xml</configuration-path>
+        <configuration-path>module-configuration/notifications.xml</configuration-path>        
     </configuration-paths>
     <import-files rewrite="true">
         <import-file>importdata/import-organization.csv</import-file>
