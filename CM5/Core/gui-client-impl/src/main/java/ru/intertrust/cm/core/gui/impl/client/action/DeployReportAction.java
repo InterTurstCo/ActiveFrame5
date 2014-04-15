@@ -32,6 +32,8 @@ public class DeployReportAction extends SimpleServerAction {
     @Override
     protected void onSuccess(ActionData result) {
         Window.alert("Report template successfully uploaded");
+        final ReportUploadPlugin plugin = (ReportUploadPlugin) getPlugin();
+        plugin.clear();
     }
 
 }

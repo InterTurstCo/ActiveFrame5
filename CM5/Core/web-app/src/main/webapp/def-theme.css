@@ -2814,3 +2814,7 @@ td.datePickerMonth {
     z-index: 15;
     padding: 15px 10px;
 }
+
+.upload-report-template {
+    padding: 10px;
+}

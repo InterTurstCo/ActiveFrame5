@@ -11,6 +11,9 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.AttachmentBoxWidget;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
+
+import java.util.List;
 
 /**
  * @author Lesia Puhova
@@ -28,24 +31,37 @@ public class ReportUploadPluginView  extends PluginView {
     }
 
     private void init() {
-        mainPanel.add(new Label("Upload report templates"));
-
-        attachmentBox = ComponentRegistry.instance.get("attachment-box");
-        WidgetDisplayConfig displayConfig = new WidgetDisplayConfig();
-        AttachmentBoxState state = new AttachmentBoxState();
-        attachmentBox.setDisplayConfig(displayConfig);
-        attachmentBox.setState(state);
-
+        mainPanel.add(new Label("Добавьте файлы шаблона отчета:"));
+        attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);
+        Application.getInstance().hideLoadingIndicator();
     }
 
     @Override
     public IsWidget getViewWidget() {
-        Application.getInstance().hideLoadingIndicator();
         return mainPanel;
     }
 
-    public AttachmentBoxWidget getAttachmentBox() {
+    protected List<AttachmentItem> getAttachmentItems() {
+        AttachmentBoxState state = (AttachmentBoxState)attachmentBox.getCurrentState();
+
+        return state.getAttachments();
+    }
+
+    public void clear() {
+        mainPanel.remove(attachmentBox);
+        attachmentBox = createAttachmentBox();
+        mainPanel.add(attachmentBox);
+    }
+
+    private AttachmentBoxWidget createAttachmentBox() {
+        AttachmentBoxWidget attachmentBox = ComponentRegistry.instance.get("attachment-box");
+        WidgetDisplayConfig displayConfig = new WidgetDisplayConfig();
+        AttachmentBoxState state = new AttachmentBoxState();
+        attachmentBox.setDisplayConfig(displayConfig);
+        attachmentBox.setState(state);
+        attachmentBox.asWidget().setStyleName("upload-report-template");
+
         return attachmentBox;
     }
 }
