@@ -877,6 +877,18 @@
                 ]]>
             </criteria>
         </filter>
+        <filter name="byId">
+            <reference placeholder="from-clause">
+                <![CDATA[
+                    inner join system_profile sp on pv.profile=sp.id
+                ]]>
+            </reference>
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    sp.id = {0}
+                ]]>
+            </criteria>
+        </filter>
 
     </collection>
 

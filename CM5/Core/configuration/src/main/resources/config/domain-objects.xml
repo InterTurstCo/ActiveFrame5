@@ -362,6 +362,9 @@
         <fields>
             <string name="name" length="256" not-null="true" />
         </fields>
+        <uniqueKey>
+            <field name="name" />
+        </uniqueKey>
     </domain-object-type>
 
     <domain-object-type name="person_profile" extends="profile">

@@ -6,12 +6,15 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.model.ProfileException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import java.util.ArrayList;
 import java.util.Collections;
 
 @Stateless(name = "ProfileService")
@@ -27,15 +30,22 @@ public class ProfileServiceImpl implements ProfileService {
     @Autowired
     private CrudService crudService;
 
+    @Autowired
+    private AccessControlService accessControlService;
+
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+
     /**
      * Получение профиля системы. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
      * редактирования системных профилей администраторами при его вызове должен создаваться AdminAccessToken
+     *
      * @param name имя профиля
      * @return
      */
     @Override
     public Profile getProfile(String name) {
-        //todo check admin privileges
+        accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
 
         Filter filter = new Filter();
         filter.setFilter("byName");
@@ -44,11 +54,14 @@ public class ProfileServiceImpl implements ProfileService {
         IdentifiableObjectCollection profileValues = collectionsService.findCollection("ProfileValues",
                 new SortOrder(), Collections.singletonList(filter));
         if (profileValues.size() == 0) {
-            throw new ProfileException("System Profile not found for name = " + name);
+            ProfileObject profileObject = new ProfileObject();
+            profileObject.setName(name);
+            return profileObject;
         }
 
-        ProfileObject profileObject = makeProfileObject(profileValues);
-
+        ProfileObject profileObject = new ProfileObject();
+        fillProfileAttributes(profileObject, profileValues);
+        profileObject.setName(name);
 
         return profileObject;
     }
@@ -56,59 +69,25 @@ public class ProfileServiceImpl implements ProfileService {
     /**
      * Получения профиля персоны. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
      * редактирования пользовательских профилей администраторами. При его вызове должен создаваться AdminAccessToken
+     *
      * @param personId
      * @return
      */
     @Override
     public Profile getPersonProfile(Id personId) {
-        //todo check admin privileges
+        accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
 
-        Filter filter = new Filter();
-        filter.setFilter("byPersonId");
-        filter.addReferenceCriterion(0, personId);
-
-        IdentifiableObjectCollection profileValues = collectionsService.findCollection("ProfileValues",
-                new SortOrder(), Collections.singletonList(filter));
+        IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(personId);
         if (profileValues.size() == 0) {
-            throw new ProfileException("Person Profile not found for personId = " + personId);
+            return new ProfileObject();
         }
 
-        ProfileObject profileObject = makeProfileObject(profileValues);
-
-
-        return profileObject;
-    }
-
-    private ProfileObject makeProfileObject(IdentifiableObjectCollection profileValues) {
         ProfileObject profileObject = new ProfileObject();
+        fillProfileAttributes(profileObject, profileValues);
 
-        for (IdentifiableObject profileValueObj : profileValues) {
-            Id profileValueId = profileValueObj.getId();
-            DomainObject domainObject = crudService.find(profileValueId);
-            String key = domainObject.getString("key");
-            Boolean readonly = domainObject.getBoolean("readonly");
-            Id profile = domainObject.getReference("profile");
-            profileObject.setId(profile);
-            Value value = domainObject.getValue("value");
-            ProfileValue profileValue = null;
-            if (value instanceof StringValue){
-                profileValue = new ProfileStringValue(((StringValue)value).get());
-            } else if (value instanceof LongValue){
-                profileValue = new ProfileLongValue(((LongValue)value).get());
-            } else if (value instanceof BooleanValue){
-                profileValue = new ProfileBooleanValue(((BooleanValue)value).get());
-            } else if (value instanceof DateTimeValue){
-                profileValue = new ProfileDateTimeValue(((DateTimeValue)value).get());
-            } else if (value instanceof ReferenceValue){
-                profileValue = new ProfileReferenceValue(((ReferenceValue)value).get());
-            } else {
-                throw new ProfileException("Unsupported profile value: " + value);
-            }
-            profileValue.setReadOnly(readonly);
-            profileObject.setValue(key, (Value)profileValue);
-        }
         return profileObject;
     }
+
 
     /**
      * Сохранения профиля системы. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
@@ -116,16 +95,177 @@ public class ProfileServiceImpl implements ProfileService {
      */
     @Override
     public void setProfile(Profile profile) {
+        accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
+
+        Id profileId = profile.getId();
+
+        DomainObject profileDomainObject = null;
+
+        if (profileId == null) {
+            // create new profile record
+            profileDomainObject = crudService.createDomainObject("system_profile");
+        } else {
+            profileDomainObject = crudService.find(profileId);
+            // profile already exists - clean existing attributes
+            IdentifiableObjectCollection profileValues = getProfileValuesByProfileId(profileId);
+            if (profileValues.size() > 0) {
+                for (IdentifiableObject profileValueObj : profileValues) {
+                    Id profileValueId = profileValueObj.getId();
+                    crudService.delete(profileValueId);
+                }
+            }
+        }
+
+        // save profile DO
+        profileDomainObject.setString("name", profile.getName());
+        profileDomainObject.setReference("parent", profile.getParent());
+        profileDomainObject = crudService.save(profileDomainObject);
+        profileId = profileDomainObject.getId();
+
+        // save attributes
+        ArrayList<String> attributeNames = profile.getFields();
+        if (attributeNames != null) {
+            for (String attributeName : attributeNames) {
+                DomainObject pvDomainObject = null;
+                ProfileValue profileValue = (ProfileValue) profile.getValue(attributeName);
+                Value value = profile.getValue(attributeName);
+                if (profileValue instanceof ProfileStringValue) {
+                    pvDomainObject = crudService.createDomainObject("profile_value_string");
+                } else if (profileValue instanceof ProfileLongValue) {
+                    pvDomainObject = crudService.createDomainObject("profile_value_long");
+                } else if (profileValue instanceof ProfileBooleanValue) {
+                    pvDomainObject = crudService.createDomainObject("profile_value_boolean");
+                } else if (profileValue instanceof ProfileDateTimeValue) {
+                    pvDomainObject = crudService.createDomainObject("profile_value_date");
+                } else if (profileValue instanceof ProfileReferenceValue) {
+                    // todo read type from configuration
+                    pvDomainObject = crudService.createDomainObject("profile_value_locale");
+                } else {
+                    throw new ProfileException("Unsupported profile profileValue: " + profileValue);
+                }
+
+                pvDomainObject.setString("key", attributeName);
+                pvDomainObject.setReference("profile", profileId);
+                pvDomainObject.setBoolean("readonly", profileValue.isReadOnly());
+                pvDomainObject.setValue("value", value);
+
+                crudService.save(pvDomainObject);
+            }
+        }
 
     }
 
+
+
+
+    /**
+     * Получение пользовательского профиля. Профиль содержит данные профиля пользователя с учетом иерархии профилей.
+     * Предназначен для работы под провами простого пользователя
+     *
+     * @return
+     */
     @Override
     public PersonProfile getPersonProfile() {
-        return null;
+
+        Id currentUserId = currentUserAccessor.getCurrentUserId();
+
+        PersonProfileObject personProfileObject = new PersonProfileObject();
+        DomainObject personDo = crudService.find(currentUserId);
+        Id profileId = personDo.getReference("profile");
+        if (profileId == null) {
+            return personProfileObject;
+        }
+
+        personProfileObject.setId(profileId);
+        IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(currentUserId);
+        fillProfileAttributes(personProfileObject, profileValues);
+
+        fillInheritedAttributes(personProfileObject, personProfileObject);
+
+        return personProfileObject;
+    }
+
+    private void fillInheritedAttributes(PersonProfileObject personProfileObject, BaseProfileObject current) {
+        if (current.getParent() == null) return;
+
+        ProfileObject parentProfileObject = new ProfileObject();
+        DomainObject parentProfileDo = crudService.find(current.getParent());
+        parentProfileObject.setId(parentProfileDo.getId());
+        fillProfileAttributes(parentProfileObject, getProfileValuesByProfileId(parentProfileDo.getId()));
+
+        ArrayList<String> personFields = personProfileObject.getFields();
+        ArrayList<String> parentFields = parentProfileObject.getFields();
+
+        if (parentFields != null) {
+            for (String parentField : parentFields) {
+                if (!personFields.contains(parentField)){
+                    Value inheritedValue = parentProfileObject.getValue(parentField);
+                    personProfileObject.setValue(parentField, inheritedValue);
+                }
+            }
+        }
+
+        fillInheritedAttributes(personProfileObject, parentProfileObject);
+
     }
 
     @Override
     public void setPersonProfile(PersonProfile profile) {
+
+    }
+
+
+    private IdentifiableObjectCollection getProfileValuesByProfileId(Id profileId) {
+        Filter filter = new Filter();
+        filter.setFilter("byId");
+        filter.addReferenceCriterion(0, profileId);
+
+        return collectionsService.findCollection("ProfileValues",
+                new SortOrder(), Collections.singletonList(filter));
+    }
+
+    private IdentifiableObjectCollection getProfileValuesByPersonId(Id personId) {
+        Filter filter = new Filter();
+        filter.setFilter("byPersonId");
+        filter.addReferenceCriterion(0, personId);
+
+        return collectionsService.findCollection("ProfileValues",
+                new SortOrder(), Collections.singletonList(filter));
+    }
+
+    private void fillProfileAttributes(BaseProfileObject profileObject, IdentifiableObjectCollection profileValues) {
+
+        if (profileValues != null) {
+            for (IdentifiableObject profileValueObj : profileValues) {
+                Id profileValueId = profileValueObj.getId();
+                DomainObject domainObject = crudService.find(profileValueId);
+                String key = domainObject.getString("key");
+                Boolean readonly = domainObject.getBoolean("readonly");
+                Id profile = domainObject.getReference("profile");
+                profileObject.setId(profile);
+                Value value = domainObject.getValue("value");
+                ProfileValue profileValue = null;
+                if (value instanceof StringValue) {
+                    profileValue = new ProfileStringValue(((StringValue) value).get());
+                } else if (value instanceof LongValue) {
+                    profileValue = new ProfileLongValue(((LongValue) value).get());
+                } else if (value instanceof BooleanValue) {
+                    profileValue = new ProfileBooleanValue(((BooleanValue) value).get());
+                } else if (value instanceof DateTimeValue) {
+                    profileValue = new ProfileDateTimeValue(((DateTimeValue) value).get());
+                } else if (value instanceof ReferenceValue) {
+                    profileValue = new ProfileReferenceValue(((ReferenceValue) value).get());
+                } else {
+                    throw new ProfileException("Unsupported profile value: " + value);
+                }
+                profileValue.setReadOnly(readonly);
+                profileObject.setValue(key, (Value) profileValue);
+            }
+        }
+
+        DomainObject profileDomainObject = crudService.find(profileObject.getId());
+        Id parent = profileDomainObject.getReference("parent");
+        profileObject.setParent(parent);
 
     }
 }
