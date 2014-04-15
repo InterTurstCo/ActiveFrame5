@@ -489,6 +489,9 @@
         </status>
     </access-matrix>
 
+    <!-- Карточка согласования. Наследует права у родительского документа -->
+    <access-matrix type="Negotiation_Card" matrix-reference="Parent_Document"/>
+
 </configuration>
 
 

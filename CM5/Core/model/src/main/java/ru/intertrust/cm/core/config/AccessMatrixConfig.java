@@ -22,9 +22,13 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Attribute(name= "read-everybody", required = false)
     private Boolean readEverybody; // change to boolean after elimination of permit-everybody attribute in <read> tag
 
-    @ElementList(inline = true, type = AccessMatrixStatusConfig.class, entry = "status", required = true)
+    @ElementList(inline = true, type = AccessMatrixStatusConfig.class, entry = "status", required = false)
     private List<AccessMatrixStatusConfig> status = new ArrayList<>();
 
+    @Attribute(name= "matrix-reference", required = false)
+    private String matrixReference;
+
+    
     public String getType() {
         return type;
     }
@@ -84,5 +88,13 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Override
     public String getName() {
         return type;
+    }
+
+    public String getMatrixReference() {
+        return matrixReference;
+    }
+
+    public void setMatrixReference(String matrixReference) {
+        this.matrixReference = matrixReference;
     }
 }

@@ -825,11 +825,12 @@
     <xs:complexType name="accessMatrixType">
         <xs:sequence>
             <xs:element name="status" type="con:accessMatrixSectionType"
-                        maxOccurs="unbounded" minOccurs="1"
+                        maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute name="type" type="xs:string" use="required"/>
         <xs:attribute name="read-everybody" type="xs:boolean" use="optional"/>
+        <xs:attribute name="matrix-reference" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="accessMatrixSectionType">
