@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.attachment;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -195,8 +196,10 @@ public class AttachmentUploaderView extends Composite {
     }
 
     private void initFileUpload() {
-
         fileUpload = new FileUpload();
+        if (!singleChoice) {
+            fileUpload.getElement().setAttribute("multiple", "multiple");
+        }
         Style style = fileUpload.getElement().getStyle();
         fileUpload.setName("fileUpload");
 

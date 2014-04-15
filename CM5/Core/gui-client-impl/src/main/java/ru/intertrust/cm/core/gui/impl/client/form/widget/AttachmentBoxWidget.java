@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
@@ -137,22 +138,24 @@ public class AttachmentBoxWidget extends BaseWidget {
         public void onSubmit(FormPanel.SubmitEvent event) {
 
             AttachmentUploaderView view = (AttachmentUploaderView) impl;
-            String browserFilename = view.getFileUpload().getFilename();
-            if ("".equalsIgnoreCase(browserFilename)) {
+            String browserFileName = getFileNames(view.getFileUpload().getElement());
+            if ("".equalsIgnoreCase(browserFileName)) {
                 return;
             }
-
-            String filename = getFilename(browserFilename);
-            AttachmentItem item = new AttachmentItem();
-            item.setName(filename);
-            view.displayAttachmentItem(item, new CancelUploadAttachmentHandler(item));
-            elapsedTimer = new Timer() {
-                public void run() {
-                    setUpProgressOfUpload(false);
-                }
-            };
-            elapsedTimer.scheduleRepeating(100);
-
+            // Let's show single progressBar for all attachments, if multiple files selected.
+            // TODO: rework AttachmentUploaderView to be able to show progress separately
+           // for (String browserFilename : browserFileNames.split(",")) {
+                String filename = getFilename(browserFileName);
+                AttachmentItem item = new AttachmentItem();
+                item.setName(filename);
+                view.displayAttachmentItem(item, new CancelUploadAttachmentHandler(item));
+                elapsedTimer = new Timer() {
+                    public void run() {
+                        setUpProgressOfUpload(false);
+                    }
+                };
+                elapsedTimer.scheduleRepeating(100);
+           // }
         }
     }
 
@@ -164,14 +167,16 @@ public class AttachmentBoxWidget extends BaseWidget {
                 dontShowNewRow = false;
                 return;
             }
-            String filePath = event.getResults();
+            String filePaths = event.getResults();
 
-            AttachmentItem item = handleFileNameFromServer(filePath);
-            AttachmentUploaderView view = (AttachmentUploaderView) impl;
-            view.getPercentage().getParent().removeFromParent();    //removing attachment with progress
-            view.displayAttachmentLinkItem(item);
-            cancelTimer();
-            view.getProgressbar().getElement().removeFromParent();
+            for (String filePath : filePaths.split(",")) {
+                AttachmentItem item = handleFileNameFromServer(filePath);
+                AttachmentUploaderView view = (AttachmentUploaderView) impl;
+                view.getPercentage().getParent().removeFromParent();    //removing attachment with progress
+                view.displayAttachmentLinkItem(item);
+                cancelTimer();
+                view.getProgressbar().getElement().removeFromParent();
+            }
 
         }
     }
@@ -218,4 +223,23 @@ public class AttachmentBoxWidget extends BaseWidget {
             elapsedTimer = null;
         }
     }
+
+    public static native String getFileNames(Element input) /*-{
+
+        var ret = "";
+
+        //microsoft support
+        if (typeof (input.files) == 'undefined'
+            || typeof (input.files.length) == 'undefined') {
+            return input.value;
+        }
+
+        for ( var i = 0; i < input.files.length; i++) {
+            if (i > 0) {
+                ret += ", ";
+            }
+            ret += input.files[i].name;
+        }
+        return ret;
+    }-*/;
 }

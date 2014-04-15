@@ -58,6 +58,7 @@ public class AttachmentUploaderServlet {
         zeroizePreviousUploadProgress(session);
         req.setCharacterEncoding("UTF-8");
         String savedFilename = null;
+        String savedFileNames = "";
         DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
         ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
         AttachmentUploadPercentage uploadProgress = getUploadProgress(session);
@@ -84,12 +85,12 @@ public class AttachmentUploaderServlet {
                         OutputStream outputStream = new FileOutputStream(pathToSave)) {
                     stream(inputStream, outputStream);
                 }
-
+                savedFileNames = savedFileNames + savedFilename + ",";
             }
         }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "text/html; charset=utf-8");
-        return new ResponseEntity<String>(savedFilename, headers, HttpStatus.OK);
+        return new ResponseEntity<String>(savedFileNames, headers, HttpStatus.OK);
     }
 
     private void stream(InputStream input, OutputStream output)
