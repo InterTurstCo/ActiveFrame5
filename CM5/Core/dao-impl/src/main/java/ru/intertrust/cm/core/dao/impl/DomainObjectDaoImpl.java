@@ -1005,26 +1005,31 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
         query.append("insert into ").append(wrap(tableName)).append(" (").append(wrap(ID_COLUMN)).append(", ");
-        query.append(wrap(TYPE_COLUMN)).append(", ");
+        query.append(wrap(TYPE_COLUMN));
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(wrap(CREATED_DATE_COLUMN)).append(", ")
+            query.append(", ").append(wrap(CREATED_DATE_COLUMN)).append(", ")
                     .append(wrap(UPDATED_DATE_COLUMN)).append(", ");
 
             query.append(wrap(STATUS_FIELD_NAME)).append(", ")
-                    .append(wrap(STATUS_TYPE_COLUMN)).append(", ");
+                    .append(wrap(STATUS_TYPE_COLUMN));
 
         }
 
-        query.append(commaSeparatedColumns);
-        query.append(") values (:id , :type_id, ");
+        if (commaSeparatedColumns.length() > 0) {
+            query.append(", ").append(commaSeparatedColumns);
+        }
+
+        query.append(") values (:id , :type_id");
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(":created_date, :updated_date, ");
-            query.append(":status, :status_type, ");
+            query.append(", :created_date, :updated_date, :status, :status_type");
         }
 
-        query.append(commaSeparatedParameters);
+        if (commaSeparatedParameters.length() > 0) {
+            query.append(", ").append(commaSeparatedParameters);
+        }
+
         query.append(")");
 
         return query.toString();
@@ -1054,23 +1059,29 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         StringBuilder query = new StringBuilder();
         query.append("insert into ").append(wrap(tableName)).append("(");
         query.append(wrap(ID_COLUMN)).append(", ");
-        query.append(wrap(TYPE_COLUMN)).append(", ");
+        query.append(wrap(TYPE_COLUMN));
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(wrap(OPERATION_COLUMN)).append(", ");
+            query.append(", ").append(wrap(OPERATION_COLUMN)).append(", ");
             query.append(wrap(UPDATED_DATE_COLUMN)).append(", ");
             query.append(wrap(COMPONENT_COLUMN)).append(", ");
             query.append(wrap(DOMAIN_OBJECT_ID_COLUMN)).append(", ");
             query.append(wrap(INFO_COLUMN)).append(", ");
-            query.append(wrap(IP_ADDRESS_COLUMN)).append(", ");
+            query.append(wrap(IP_ADDRESS_COLUMN));
         }
 
-        query.append(commaSeparatedColumns);
-        query.append(") values (:").append(ID_COLUMN).append(", :").append(TYPE_COLUMN).append(", ");
+        if (commaSeparatedColumns.length() > 0) {
+            query.append(", ").append(commaSeparatedColumns);
+        }
+
+        query.append(") values (:").append(ID_COLUMN).append(", :").append(TYPE_COLUMN);
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(":operation, :updated_date, :component, :domain_object_id, :info, :ip_address, ");
+            query.append(", :operation, :updated_date, :component, :domain_object_id, :info, :ip_address");
         }
 
-        query.append(commaSeparatedParameters);
+        if (commaSeparatedParameters.length() > 0) {
+            query.append(", ").append(commaSeparatedParameters);
+        }
+
         query.append(")");
 
         return query.toString();

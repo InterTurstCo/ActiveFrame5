@@ -9,13 +9,9 @@ import java.util.Arrays;
 */
 class DelimitedListFormatter<T> {
 
-    public String formatAsDelimitedList(Iterable<T> iterable, String delimiter) {
-        return formatAsDelimitedList(iterable, delimiter, null);
-    }
-
     public String formatAsDelimitedList(Iterable<T> iterable, String delimiter, String wrapper) {
         if (!iterable.iterator().hasNext()) {
-            throw new IllegalArgumentException("Iterable parameter is empty");
+            return "";
         }
 
         StringBuilder result = new StringBuilder();
@@ -39,10 +35,6 @@ class DelimitedListFormatter<T> {
         }
 
         return result.toString();
-    }
-
-    public String formatAsDelimitedList(T[] items, String delimiter) {
-        return formatAsDelimitedList(items, delimiter, null);
     }
 
     public String formatAsDelimitedList(T[] items, String delimiter, String wrapper) {
