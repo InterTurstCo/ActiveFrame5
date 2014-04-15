@@ -12,7 +12,7 @@
         <gui-components-package>ru</gui-components-package>
         <gui-components-package>com</gui-components-package>
     </gui-components-packages>
-    <configuration-schema-path>modules-configuration/test-module/custom-configuration.xsd</configuration-schema-path>
+    <configuration-schema-path>module-configuration/custom-configuration.xsd</configuration-schema-path>
     <configuration-paths>
         <configuration-path>module-configuration/custom-config.xml</configuration-path>
         <configuration-path>module-configuration/domain-objects.xml</configuration-path>

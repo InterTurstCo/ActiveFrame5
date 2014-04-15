@@ -55,12 +55,6 @@
 
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>modules-configuration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>test-module</artifactId>
             <version>${project.version}</version>
         </dependency>
