@@ -2,6 +2,10 @@ package ru.intertrust.cm.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -52,6 +56,7 @@ public class ConfigurationSchemaValidator {
 
     /**
      * Возвращает путь к конфигурационному файлу с доменными объектами.
+     *
      * @return
      */
     public String getConfigurationPath() {
@@ -60,6 +65,7 @@ public class ConfigurationSchemaValidator {
 
     /**
      * Устанавливает путь к конфигурационному файлу с доменными объектами. Нужен для валидации по XSD схеме.
+     *
      * @param configurationPath
      */
     public void setConfigurationPath(String configurationPath) {
@@ -68,6 +74,7 @@ public class ConfigurationSchemaValidator {
 
     /**
      * Возвращает путь к файлу с XSD схемой.
+     *
      * @return
      */
     public String getConfigurationSchemaPath() {
@@ -76,6 +83,7 @@ public class ConfigurationSchemaValidator {
 
     /**
      * Устанавливает путь к файлу с XSD схемой.
+     *
      * @param configurationSchemaPath
      */
     public void setConfigurationSchemaPath(String configurationSchemaPath) {
@@ -115,22 +123,23 @@ public class ConfigurationSchemaValidator {
     }
 
     private void validateAgainstXSD() {
-        System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/XML/XMLSchema/v1.1", "org.apache.xerces.jaxp.validation.XMLSchema11Factory");
+        System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/XML/XMLSchema/v1.1",
+                "org.apache.xerces.jaxp.validation.XMLSchema11Factory");
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
 
         try {
             if (configurationSchemaInputStreams == null) {
-                configurationSchemaInputStreams = new InputStream[] {getFileInputStream(configurationSchemaPath)};
+                configurationSchemaInputStreams = new InputStream[]{getFileInputStream(configurationSchemaPath)};
             }
 
             Source[] schemaSources = new StreamSource[configurationSchemaInputStreams.length];
-            for (int i = 0; i < configurationSchemaInputStreams.length; i ++) {
+            for (int i = 0; i < configurationSchemaInputStreams.length; i++) {
                 schemaSources[i] = new StreamSource(configurationSchemaInputStreams[i]);
             }
-
-            Schema schema = factory.newSchema(schemaSources);
-            Validator validator = schema.newValidator();
+            factory.setResourceResolver(new LSResourceResolverImpl());
+            final Schema schema = factory.newSchema(schemaSources);
+            final Validator validator = schema.newValidator();
 
             validateDomainObjectConfiguration(validator);
             logger.info("Document is valid against XSD");
@@ -155,10 +164,10 @@ public class ConfigurationSchemaValidator {
     }
 
     /**
-     * Обработчик ошибок валидации на предмет соответствия XSD схеме. Позволяет по различному обрабатывать ошибки разной критичности.
+     * Обработчик ошибок валидации на предмет соответствия XSD схеме. Позволяет по различному обрабатывать ошибки разной
+     * критичности.
      *
      * @author atsvetkov
-     *
      */
     private static class ValidationErrorHandler implements ErrorHandler {
 
@@ -172,6 +181,36 @@ public class ConfigurationSchemaValidator {
 
         public void fatalError(SAXParseException ex) throws SAXException {
             throw ex;
+        }
+    }
+
+    /**
+     * Соглашение по namespaceURI
+     *  - префикс - https://cm5.intertrust.ru/
+     *  - путь от рута jar
+     *  - суфикс - уникальное имя в пределах name space.
+     *  Например https://cm5.intertrust.ru/config/action
+     */
+    private class LSResourceResolverImpl implements LSResourceResolver {
+        private static final String URL_PREFIX = "https://cm5.intertrust.ru/";
+
+        @Override
+        public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId,
+                                       String baseURI) {
+            try {
+                final DOMImplementationLS domImplementationLS =
+                        (DOMImplementationLS) DOMImplementationRegistry.newInstance().getDOMImplementation("LS");
+                final LSInput lsInput = domImplementationLS.createLSInput();
+                lsInput.setSystemId(systemId);
+                final String path = namespaceURI.substring(URL_PREFIX.length(), namespaceURI.lastIndexOf('/'));
+                final StringBuilder builder = new StringBuilder(path).append('/').append(systemId);
+                final InputStream is =
+                        Thread.currentThread().getContextClassLoader().getResourceAsStream(builder.toString());
+                lsInput.setByteStream(is);
+                return lsInput;
+            } catch (Exception ex) {
+                return null;
+            }
         }
     }
 }

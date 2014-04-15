@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<act:tool-bar id="id_value" styleClass="styleClass_value"
+              xmlns:act="https://cm5.intertrust.ru/config/action">
+
+
+    <act:navigable-action componentName="action.navigation.one"/>
+    <act:workflow-action componentName="action.workflow.one"/>
+    <act:navigable-action componentName="action.navigation.two"/>
+    <act:perform-action componentName="action.perform.two"/>
+    <act:action-ref actionId="actionIdOne"/>
+    <act:action-separator/>
+
+    <act:navigable-action componentName="action.navigation.three">
+        <act:navigable-action componentName="action.navigation.three.one"/>
+        <act:action-separator  />
+        <act:workflow-action componentName="action.workflow.one"/>
+        <act:navigable-action componentName="action.navigation.three.two"/>
+        <act:perform-action componentName="action.perform.two"/>
+    </act:navigable-action>
+
+    <act:facet name="right">
+        <act:navigable-action componentName="action.navigable.one"/>
+        <act:navigable-action componentName="action.navigable.two">
+            <act:navigable-action componentName="action.navigable.two.one"/>
+            <act:action-separator/>
+            <act:navigable-action componentName="action.navigable.two.two"/>
+        </act:navigable-action>
+    </act:facet>
+</act:tool-bar>

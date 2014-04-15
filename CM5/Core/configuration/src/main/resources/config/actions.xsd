@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="https://cm5.intertrust.ru/config/action" elementFormDefault="qualified"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <xs:element name="menu-bar" type="act:menuBarType"/>
+    <xs:element name="tool-bar" type="act:toolBarType"/>
+    <xs:element name="action-context" type="act:actionContextType"/>
+    <xs:element name="navigable-action" type="act:actionEntryType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="perform-action" type="act:actionEntryType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="workflow-action" type="act:actionEntryType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="action-ref" type="act:actionRefType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="action-separator" type="act:actionSeparatorType" substitutionGroup="act:abstract-action"/>
+
+    <xs:element name="abstract-action" type="act:abstractActionType" abstract="true"/>
+
+    <!-- todo выделить в отдельную схему базовых типов компонентов -->
+    <xs:attributeGroup name="baseAttributeGroup">
+        <xs:attribute name="id" type="act:idType"/>
+        <xs:attribute name="style" type="xs:string"/>
+        <xs:attribute name="styleClass" type="xs:string"/>
+        <xs:attribute name="addStyleClass" type="xs:string"/>
+        <xs:attribute name="rendered" type="xs:boolean" default="true"/>
+    </xs:attributeGroup>
+
+    <xs:attributeGroup name="activeAttributeGroup">
+        <xs:attribute name="disabled" type="xs:boolean" default="false" />
+    </xs:attributeGroup>
+
+    <xs:simpleType name="idType">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:pattern value="[\w_]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="componentNameType">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:pattern value="[\w.]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- todo end -->
+
+    <xs:attributeGroup name="actionAttributeGroup">
+        <xs:attributeGroup ref="act:baseAttributeGroup"/>
+        <xs:attribute name="order" type="xs:positiveInteger" />
+        <xs:attribute name="merged" type="xs:boolean" default="false" />
+    </xs:attributeGroup>
+
+    <xs:complexType name="abstractActionType" abstract="true"/>
+
+    <xs:complexType name="actionEntryType">
+        <xs:complexContent>
+            <xs:extension base="act:abstractActionType">
+                <xs:sequence>
+                    <xs:element name="before-execution" type="act:beforeExecutionType" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="after-execution" type="act:afterExecutionType" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="action-settings" type="act:actionSettingsType" minOccurs="0" maxOccurs="1"/>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="act:abstract-action"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attributeGroup ref="act:actionAttributeGroup"/>
+                <xs:attributeGroup ref="act:activeAttributeGroup"/>
+                <xs:attribute name="componentName" type="act:componentNameType" use="required" />
+                <xs:attribute name="text" type="xs:string" />
+                <xs:attribute name="image" type="xs:string" />
+                <xs:attribute name="immediate" type="xs:boolean" default="false" />
+                <xs:attribute name="action" type="xs:string" />
+                <xs:attribute name="display" type="act:displayType"/>
+                <xs:attribute name="groupId" type="xs:string" />
+                <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="actionRefType">
+        <xs:complexContent>
+            <xs:extension base="act:abstractActionType">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="act:abstract-action"/>
+                </xs:choice>
+                <xs:attribute name="actionId" type="act:idType" use="required"/>
+                <xs:attribute name="showText" type="xs:boolean" default="true"/>
+                <xs:attribute name="showImage" type="xs:boolean" default="true"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="actionSeparatorType">
+        <xs:complexContent>
+            <xs:extension base="act:abstractActionType">
+                <xs:attributeGroup ref="act:actionAttributeGroup"/>
+                <xs:attribute name="componentName" type="act:componentNameType" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="menuBarType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="act:abstract-action" />
+        </xs:choice>
+        <xs:attributeGroup ref="act:baseAttributeGroup" />
+        <xs:attribute name="componentName" type="act:componentNameType" default="action.menu.bar" />
+    </xs:complexType>
+
+    <xs:complexType name="toolBarType">
+        <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="act:abstract-action" />
+            </xs:choice>
+            <xs:element name="facet" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="act:abstract-action" />
+                    </xs:choice>
+                    <xs:attribute name="name" use="required">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                                <xs:enumeration value="right" />
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="act:baseAttributeGroup" />
+        <xs:attribute name="componentName" type="act:componentNameType" default="action.tool.bar" />
+        <xs:attribute name="plugin" type="xs:string" />
+        <xs:attribute name="useDefault" type="xs:boolean" default="true" />
+    </xs:complexType>
+
+    <xs:simpleType name="displayType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="button" />
+            <xs:enumeration value="link" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="messageType">
+        <xs:attribute name="text" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="beforeExecutionType">
+        <xs:sequence>
+            <xs:element name="confirmation-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="afterExecutionType">
+        <xs:sequence>
+            <xs:element name="on-success-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="actionSettingsType">
+        <xs:sequence>
+            <xs:any minOccurs="1" maxOccurs="1" processContents="skip"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="actionContextType">
+        <xs:sequence>
+            <xs:element name="domain-object-context">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="type" type="xs:string"/>
+                        <xs:element name="status" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="action">
+                <xs:complexType>
+                    <xs:attribute name="name" use="required"
+                                  type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" use="required" type="xs:string"/>
+    </xs:complexType>
+
+    <!-- view rule block -->
+    <xs:element name="view-rule">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="view-id" type="xs:QName"/>
+                <xs:element name="page-name" type="xs:string"/>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string" use="required" />
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
