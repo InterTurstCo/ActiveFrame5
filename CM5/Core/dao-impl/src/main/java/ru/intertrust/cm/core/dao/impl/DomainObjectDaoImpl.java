@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
@@ -817,6 +818,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             parameters.put("status", statusId);
             parameters.put("status_type", statusTypeId);
+            
+            parameters.put("access_object_id", getAccessObjectId(domainObjectTypeConfig, domainObject));
 
         }
         parameters.put("type_id", type);
@@ -829,6 +832,38 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return parameters;
     }
 
+    /**
+     * Получение идентификатора объекта в разрезе которого колучаются права на сохраняемый доменный объект
+     * @param domainObjectTypeConfig
+     * @return
+     */
+    private long getAccessObjectId(DomainObjectTypeConfig domainObjectTypeConfig, DomainObject domainObject){
+        //Получаем матрицу и смотрим атрибут matrix_reference_field
+        AccessMatrixConfig matrixConfig = null;
+        DomainObjectTypeConfig childDomainObjectTypeConfig = domainObjectTypeConfig;
+        
+        //Ищим матрицу для типа с учетом иерархии типов
+        while((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null 
+                && childDomainObjectTypeConfig.getExtendsAttribute() != null){
+            childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
+        }
+
+        //По умолчанию access_object_id равен идентификатору самого объекта
+        RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
+        long result = rdbmsId.getId();
+        
+        //Нашли матрицу и у нее установлен атрибут matrix-reference-field, вычисляем access_object_id  
+        if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
+            Id refValue = domainObject.getReference(matrixConfig.getMatrixReference());
+            if (refValue == null){
+                throw new FatalException("Field " + matrixConfig.getMatrixReference() + " mast has value. This field is matrix-reference-field");
+            }
+            result = ((RdbmsId)refValue).getId(); 
+        }
+            
+        return result;        
+    }
+    
     /**
      * Создает SQL запрос для нахождения доменного объекта
      *
@@ -1014,6 +1049,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(wrap(STATUS_FIELD_NAME)).append(", ")
                     .append(wrap(STATUS_TYPE_COLUMN));
 
+            query.append(wrap(ACCESS_OBJECT_ID)).append(", ");
         }
 
         if (commaSeparatedColumns.length() > 0) {
@@ -1023,11 +1059,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(") values (:id , :type_id");
 
         if (!isDerived(domainObjectTypeConfig)) {
+<<<<<<< HEAD
             query.append(", :created_date, :updated_date, :status, :status_type");
         }
 
         if (commaSeparatedParameters.length() > 0) {
             query.append(", ").append(commaSeparatedParameters);
+=======
+            query.append(":created_date, :updated_date, ");
+            query.append(":status, :status_type, ");
+            query.append(":access_object_id, ");
+>>>>>>> 4abdc53... CMFIVE-32 Реализовано заполнение поля access_object_id
         }
 
         query.append(")");

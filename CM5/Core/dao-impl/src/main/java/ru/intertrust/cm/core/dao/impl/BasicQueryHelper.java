@@ -565,7 +565,8 @@ public abstract class BasicQueryHelper {
             query.append(wrap(UPDATED_DATE_COLUMN)).append(" timestamp not null, ");
 
             query.append(wrap(GenericDomainObject.STATUS_FIELD_NAME)).append(" ").append(getIdType()).append(", ");
-            query.append(wrap(DomainObjectDao.STATUS_TYPE_COLUMN)).append(" integer");
+            query.append(wrap(DomainObjectDao.STATUS_TYPE_COLUMN)).append(" integer, ");
+            query.append(DomainObjectDao.ACCESS_OBJECT_ID).append(" ").append(getIdType());
         }
     }
 

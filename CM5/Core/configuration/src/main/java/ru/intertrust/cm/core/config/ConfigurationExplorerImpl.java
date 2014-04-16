@@ -340,15 +340,26 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
 
         //Получаем все статусы
-        for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
-            if (status != null && status.equals(accessStatusConfig.getName())) {
-                return kryoCloner.cloneObject(accessStatusConfig, accessStatusConfig.getClass());
+        if (accessMatrixConfig.getStatus() != null){
+            for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
+                if (status != null && status.equals(accessStatusConfig.getName())) {
+                    return kryoCloner.cloneObject(accessStatusConfig, accessStatusConfig.getClass());
+                }
             }
         }
 
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AccessMatrixConfig getAccessMatrixByObjectType(String domainObjectType) {
+        //Получение конфигурации матрицы
+        AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
+        return accessMatrixConfig;
+    }
 
     /**
      * {@inheritDoc}

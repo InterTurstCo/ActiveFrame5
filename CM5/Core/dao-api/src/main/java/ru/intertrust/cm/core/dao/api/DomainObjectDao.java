@@ -25,6 +25,7 @@ public interface DomainObjectDao {
     String TYPE_COLUMN = "id_type";
     String CREATED_DATE_COLUMN = "created_date";
     String UPDATED_DATE_COLUMN = "updated_date";
+    String ACCESS_OBJECT_ID = "access_object_id";
     String STATUS_TYPE_COLUMN = GenericDomainObject.STATUS_FIELD_NAME + REFERENCE_TYPE_POSTFIX;
     String OPERATION_COLUMN = "operation";
 

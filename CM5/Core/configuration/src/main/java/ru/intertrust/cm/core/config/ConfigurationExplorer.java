@@ -111,4 +111,11 @@ public interface ConfigurationExplorer {
     
     boolean isReadPermittedToEverybody(String domainObjectType);
 
+    /**
+     * Получение матрицы доступа для типа
+     * @param domainObjectType тип доменного объекта
+     * @return возвращает матрицу доступа
+     */
+    AccessMatrixConfig getAccessMatrixByObjectType(String domainObjectType);
+
 }
