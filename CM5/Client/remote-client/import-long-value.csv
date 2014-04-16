@@ -1,0 +1,6 @@
+TYPE_NAME=profile_value_long;KEYS=profile,key;
+profile;key;value;readonly
+select id from system_profile where name='test1';key11L;111;false
+select id from system_profile where name='test2';key21L;222;true
+select id from system_profile where name='test3';key31L;333;false
+select id from profile where parent=(select id from system_profile where name='test1');pers_key_l;555;false

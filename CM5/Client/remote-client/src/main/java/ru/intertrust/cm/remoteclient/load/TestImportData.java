@@ -26,7 +26,14 @@ public class TestImportData extends ClientBase {
             importDataService.importData(readFile(new File("import-department.csv")), null, true);
             importDataService.importData(readFile(new File("import-employee.csv")), null, true);
             importDataService.importData(readFile(new File("set-organization-boss.csv")), null, true);
-            importDataService.importData(readFile(new File("set-department-boss.csv")), null, true);            
+            importDataService.importData(readFile(new File("import-profile.csv")), null, true);
+            importDataService.importData(readFile(new File("import-person-profile.csv")), null, true);
+            importDataService.importData(readFile(new File("import-string-value.csv")), null, true);
+            importDataService.importData(readFile(new File("import-boolean-value.csv")), null, true);
+            importDataService.importData(readFile(new File("import-date-value.csv")), null, true);
+            importDataService.importData(readFile(new File("import-locale-value.csv")), null, true);
+            importDataService.importData(readFile(new File("import-long-value.csv")), null, true);
+            importDataService.importData(readFile(new File("import-employee-prof.csv")), null, true);
 
         } finally {
             writeLog();

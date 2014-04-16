@@ -59,6 +59,9 @@
     <jee:local-slsb id="reportServiceAdmin"
                     jndi-name="java:module/ReportServiceAdmin!ru.intertrust.cm.core.business.api.ReportServiceAdmin"
                     business-interface="ru.intertrust.cm.core.business.api.ReportServiceAdmin"/>
+    <jee:local-slsb id="profileService"
+                    jndi-name="java:module/ProfileService!ru.intertrust.cm.core.business.api.ProfileService"
+                    business-interface="ru.intertrust.cm.core.business.api.ProfileService"/>
 
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"

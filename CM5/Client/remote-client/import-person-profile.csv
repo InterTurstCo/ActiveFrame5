@@ -1,0 +1,3 @@
+TYPE_NAME=person_profile;KEYS=parent;
+parent;
+select id from system_profile where name='test1';

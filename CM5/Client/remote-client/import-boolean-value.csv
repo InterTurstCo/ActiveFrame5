@@ -1,0 +1,5 @@
+TYPE_NAME=profile_value_boolean;KEYS=profile,key;
+profile;key;value;readonly
+select id from system_profile where name='test1';key11b;true;true
+select id from system_profile where name='test1';key12b;false;false
+select id from system_profile where name='test3';key31b;true;false
