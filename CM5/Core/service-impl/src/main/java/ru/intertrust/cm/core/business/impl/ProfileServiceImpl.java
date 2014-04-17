@@ -150,16 +150,21 @@ public class ProfileServiceImpl implements ProfileService {
     public PersonProfile getPersonProfile() {
 
         Id currentUserId = currentUserAccessor.getCurrentUserId();
+        return getPersonProfileByPersonId(currentUserId);
 
+    }
+
+    @Override
+    public PersonProfile getPersonProfileByPersonId(Id personId) {
         PersonProfileObject personProfileObject = new PersonProfileObject();
-        DomainObject personDo = crudService.find(currentUserId);
+        DomainObject personDo = crudService.find(personId);
         Id profileId = personDo.getReference("profile");
         if (profileId == null) {
             return personProfileObject;
         }
 
         personProfileObject.setId(profileId);
-        IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(currentUserId);
+        IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(personId);
         fillProfileAttributes(personProfileObject, profileValues);
 
         fillInheritedAttributes(personProfileObject, personProfileObject);
