@@ -14,14 +14,11 @@ import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getFilterParameterPrefix;
 import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.transformToCountQuery;
 
 /**
@@ -117,7 +114,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
                                                                  CollectionConfig collectionConfig) {
         List<CollectionFilterConfig> filterConfigs = collectionConfig.getFilters();
 
-        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<CollectionFilterConfig>();
+        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
 
         if (filterConfigs == null || filterValues == null) {
             return filledFilterConfigs;
@@ -130,7 +127,6 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
                 }
                 CollectionFilterConfig filledFilterConfig = replaceFilterCriteriaParam(filterConfig, filterValue);
                 filledFilterConfigs.add(filledFilterConfig);
-
             }
         }
         return filledFilterConfigs;
@@ -142,7 +138,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         String criteria = clonedFilterConfig.getFilterCriteria().getValue();
         String filterName = filterValue.getFilter();
 
-        String parameterPrefix = CollectionsDaoImpl.PARAM_NAME_PREFIX + filterName;
+        String parameterPrefix = getFilterParameterPrefix(filterName);
         String newFilterCriteria = CollectionsDaoImpl.adjustParameterNames(criteria, parameterPrefix);
 
         clonedFilterConfig.getFilterCriteria().setValue(newFilterCriteria);
@@ -199,6 +195,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
         query = sqlQueryModifier.addServiceColumns(query);
         query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
+        query = sqlQueryModifier.modifyQueryWithReferenceFilterValues(query, filterValues);
 
         if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query);

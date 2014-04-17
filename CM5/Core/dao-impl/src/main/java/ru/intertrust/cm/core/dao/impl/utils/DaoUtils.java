@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
@@ -54,6 +55,10 @@ public class DaoUtils {
 
     }
 
+    public static String generateReferenceTypeParameter(String referenceParameterName) {
+        return referenceParameterName + REFERENCE_TYPE_POSTFIX;
+    }
+
     /**
      * Формирует строку состоящую из списка переданных колонок разделенных
      * запятой. В результате получаем строку ввида : column1=:param1,
@@ -89,8 +94,7 @@ public class DaoUtils {
         if (value instanceof ReferenceValue) {
             RdbmsId rdbmsId = (RdbmsId) value.get();
             parameters.put(parameterName, rdbmsId.getId());
-            parameterName = generateParameter(getReferenceTypeColumnName(parameterName));
-            parameters.put(parameterName, rdbmsId.getTypeId());
+            parameters.put(generateReferenceTypeParameter(parameterName), rdbmsId.getTypeId());
         } else if (value instanceof DateTimeValue) {
             parameters.put(parameterName, getGMTDate((Date) value.get()));
         } else if (value instanceof DateTimeWithTimeZoneValue) {

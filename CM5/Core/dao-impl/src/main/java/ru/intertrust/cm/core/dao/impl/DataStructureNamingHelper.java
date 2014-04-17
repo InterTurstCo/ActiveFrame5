@@ -155,6 +155,10 @@ public class DataStructureNamingHelper {
         return name.toLowerCase();
     }
 
+    public static String getFilterParameterPrefix(String filterName) {
+        return CollectionsDaoImpl.PARAM_NAME_PREFIX + filterName;
+    }
+
     private static String convertToSqlFormat(String name) {
         if(name == null) {
             throw new IllegalArgumentException("Name is null");

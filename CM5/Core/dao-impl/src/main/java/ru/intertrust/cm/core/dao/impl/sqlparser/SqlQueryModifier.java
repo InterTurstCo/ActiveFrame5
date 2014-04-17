@@ -131,7 +131,13 @@ public class SqlQueryModifier {
         if (plainSelect.getWhere() != null) {
             plainSelect.getWhere().accept(collectWhereColumnConfigVisitor);
         }
-        columnToTableMapping.putAll(collectWhereColumnConfigVisitor.getWhereColumnToConfigMapping());
+
+        for (String column : collectWhereColumnConfigVisitor.getWhereColumnToConfigMapping().keySet()) {
+            FieldConfig fieldConfig = columnToTableMapping.get(column);
+            if (fieldConfig != null) {
+                columnToTableMapping.put(column, fieldConfig);
+            }
+        }
     }
 
     /**
@@ -153,6 +159,35 @@ public class SqlQueryModifier {
                 if (plainSelect.getWhere() != null) {
                     plainSelect.getWhere().accept(modifyReferenceFieldParameter);
                     replaceExpressions.putAll(modifyReferenceFieldParameter.getReplaceExpressions());
+                }
+            }
+        });
+
+        for (Map.Entry<String, String> entry : replaceExpressions.entrySet()) {
+            modifiedQuery = modifiedQuery.replaceAll(entry.getKey(), entry.getValue());
+        }
+
+        return modifiedQuery;
+    }
+
+    /**
+     * Заменяет параметризованный фильтр по Reference полю (например, t.id = {0}) на рабочий вариант этого фильтра
+     * {например, t.id = 1 and t.id_type = 2 }
+     * @param query SQL запрос
+     * @param filterValues список фильтров
+     * @return
+     */
+    public String modifyQueryWithReferenceFilterValues(String query, final List<? extends Filter> filterValues) {
+
+        final Map<String, String> replaceExpressions = new HashMap<>();
+
+        String modifiedQuery = processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                ReferenceFilterValuesProcessingVisitor visitor = new ReferenceFilterValuesProcessingVisitor(filterValues);
+                if (plainSelect.getWhere() != null) {
+                    plainSelect.getWhere().accept(visitor);
+                    replaceExpressions.putAll(visitor.getReplaceExpressions());
                 }
             }
         });
@@ -575,6 +610,15 @@ public class SqlQueryModifier {
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
 
             if (selectExpressionItem.getAlias() != null && upperLevelColumn.getColumnName().equals(selectExpressionItem.getAlias().getName())) {
+                if (selectExpressionItem.getExpression() instanceof CaseExpression) {
+                    CaseExpression caseExpression = (CaseExpression) selectExpressionItem.getExpression();
+                    if (caseExpressionReturnsId(caseExpression, plainSelect)) {
+                        ReferenceFieldConfig fieldConfig = new ReferenceFieldConfig();
+                        fieldConfig.setName(DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase()));
+                        return fieldConfig;
+                    }
+                }
+
                 return getFieldConfig(plainSelect, selectExpressionItem);
             }
 

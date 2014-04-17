@@ -278,13 +278,13 @@ public class DoelResolver implements DoelEvaluator {
                 domainObjectTypeIdCache.getName(id.getTypeId()));
         String query = evaluationQueryResult.getQuery();
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", id.getId());
+        Map<String, Object> filterValues = new HashMap<>();
+        filterValues.put("id", id.getId());
 
         final FieldConfig fieldConfig = evaluationQueryResult.getResultFieldConfig();
         final String columnName = evaluationQueryResult.getFieldName();
 
-        return jdbcTemplate.query(query, params, new DoelResolverRowMapper(columnName, fieldConfig));
+        return jdbcTemplate.query(query, filterValues, new DoelResolverRowMapper(columnName, fieldConfig));
 */
     }
 
