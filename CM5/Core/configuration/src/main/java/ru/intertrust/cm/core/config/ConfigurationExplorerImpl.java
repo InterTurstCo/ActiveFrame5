@@ -574,9 +574,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         //Получаем матрицу и смотрим атрибут matrix_reference_field
         AccessMatrixConfig matrixConfig = null;
         DomainObjectTypeConfig childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childTypeName);
-        
+
         //Ищим матрицу для типа с учетом иерархии типов
-        while((matrixConfig = getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null 
+        while((matrixConfig = getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
                 && childDomainObjectTypeConfig.getExtendsAttribute() != null){
             childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
         }
@@ -596,8 +596,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     /**
      * Получение типа, на который ссылается атрибут известного типа
-     * @param matrixReference
-     * @param childDomainObjectTypeConfig
+     * @param matrixReferenceFieldName
+     * @param domainObjectTypeConfig
      * @return
      */
     private String getParentTypeNameFromMatrixReference(String matrixReferenceFieldName,
@@ -613,7 +613,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
         return result;
     }
-    
+
     /**
      * @inheritDoc
      */
@@ -626,5 +626,5 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             }
         }
         return null;
-
+    }
 }
