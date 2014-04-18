@@ -604,7 +604,10 @@ public class ImportData {
         if (fieldConfig.getFieldType() == FieldType.LONG) {
             result = valueAsString;
         } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
-            result = String.valueOf(((RdbmsId) getReference(fieldName, valueAsString)).getId());
+            Id referenceValue = getReference(fieldName, valueAsString);
+            if (referenceValue != null){
+                result = String.valueOf(((RdbmsId) referenceValue).getId());
+            }
         } else {
             valueAsString = valueAsString.replace("'", "''");
             result = "'" + valueAsString + "'";
