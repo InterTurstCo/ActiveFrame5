@@ -73,7 +73,7 @@ public class CollectionsDaoImplTest {
                     "AND r.\"object_id\" = department.\"id\")) AS d ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
-            "SELECT e.\"id\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
+            "SELECT e.\"id\", e.\"id_type\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
                     "'employee' AS TEST_CONSTANT " +
                     "FROM (SELECT * FROM \"employee\" employee WHERE EXISTS (SELECT r.\"object_id\" " +
                     "FROM \"employee_read\" r " +
@@ -209,10 +209,14 @@ public class CollectionsDaoImplTest {
         DomainObjectTypeConfig externalEmployee = new DomainObjectTypeConfig();
         externalEmployee.setName("External_Employee");
 
+        DomainObjectTypeConfig employee = new DomainObjectTypeConfig();
+        employee.setName("employee");
+        
         Configuration configuration = new Configuration();
         configuration.getConfigurationList().add(doTypeConfig);
         configuration.getConfigurationList().add(internalEmployee);
         configuration.getConfigurationList().add(externalEmployee);
+        configuration.getConfigurationList().add(employee);
 
         collectionConfig = createEmployeesCollectionConfig();
         configuration.getConfigurationList().add(collectionConfig);

@@ -8,8 +8,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -35,7 +37,9 @@ public class PostgresDatabaseAccessAgentTest {
     private static final String CHECK_DOMAIN_OBJECT_ACCESS_QUERY =
             "select count(*) from \"employee_acl\" a  inner join " +
                     "\"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
-                    "gg.\"child_group_id\" = gm.\"usergroup\" where gm.\"person_id\" = :user_id and a.\"object_id\" " +
+                    "gg.\"child_group_id\" = gm.\"usergroup\" "
+                    + "inner join \"employee\" o on o.\"access_object_id\" = a.\"object_id\" "
+                    + "where gm.\"person_id\" = :user_id and o.\"id\" " +
                     "= :object_id and a.\"operation\" = :operation";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY =
@@ -55,8 +59,9 @@ public class PostgresDatabaseAccessAgentTest {
     private static final String CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY =
             "select a.\"operation\" operation from \"employee_acl\" a " +
                     " inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" inner join" +
-                    " \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "where gm.\"person_id\" = :user_id and a.\"object_id\" = :object_id and " +
+                    " \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"" +
+                    " inner join \"employee\" o on o.\"access_object_id\" = a.\"object_id\"" +
+                    " where gm.\"person_id\" = :user_id and o.\"id\" = :object_id and " +
                     "a.\"operation\" in (:operations)";
 
     @InjectMocks
@@ -66,6 +71,8 @@ public class PostgresDatabaseAccessAgentTest {
     private NamedParameterJdbcTemplate jdbcTemplate;
     @Mock
     private DomainObjectTypeIdCache domainObjetcTypeIdCache;
+    @Mock
+    private ConfigurationExplorer configurationExplorer;
 
     private RdbmsId employeeId;
     private RdbmsId departmentId;

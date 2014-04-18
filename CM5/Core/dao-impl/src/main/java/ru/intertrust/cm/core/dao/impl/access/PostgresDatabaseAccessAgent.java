@@ -48,6 +48,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         this.domainObjetcTypeIdCache = domainObjetcTypeIdCache;
     }
 
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+    
     /**
      * Устанавливает источник данных, который будет использоваться для выполнения запросов.
      *
