@@ -118,4 +118,11 @@ public interface ConfigurationExplorer {
      */
     AccessMatrixConfig getAccessMatrixByObjectType(String domainObjectType);
 
+    /**
+     * Получение имени типа доменного объекта, который необходимо использовать при вычисление прав на доменный объект в случае
+     * использования заимствования прав у связанного объекта
+     * @param childTypeName имя типа, для которого необходимо вычислить тип объекта из которого заимствуются права
+     * @return имя типа у которого заимствуются права или null в случае если заимствования нет
+     */
+    String getMatrixReferenceTypeName(String childTypeName);
 }

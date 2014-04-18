@@ -7,7 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -39,7 +41,9 @@ public abstract class ClientBase {
      * Контекст должен быть обязательно членам класса, и жить все время пока живет процесс. Инициализируется при получение первого сервиса и используется все
      * время только один экземпляр
      */
-    private InitialContext ctx;
+    private InitialContext ctx = null;
+    private String ctxLogin = null;
+    
 
     /**
      * Парсинг переданных параметров
@@ -133,6 +137,15 @@ public abstract class ClientBase {
      * @throws NamingException
      */
     protected Object getService(String serviceName, Class remoteInterfaceClass) throws NamingException {
+        return getService(serviceName, remoteInterfaceClass, this.user, this.password);
+    }
+
+    protected Object getService(String serviceName, Class remoteInterfaceClass, String login, String password) throws NamingException {
+        if (!login.equals(ctxLogin) && ctx != null){
+            ctx.close();
+            ctx = null;
+        }
+        
         if (ctx == null) {
             Properties jndiProps = new Properties();
             jndiProps.put(Context.INITIAL_CONTEXT_FACTORY,
@@ -142,18 +155,19 @@ public abstract class ClientBase {
             jndiProps
                     .put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT",
                             "false");
-            jndiProps.put(Context.SECURITY_PRINCIPAL, user);
+            jndiProps.put(Context.SECURITY_PRINCIPAL, login);
             jndiProps.put(Context.SECURITY_CREDENTIALS, password);
             jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
 
             ctx = new InitialContext(jndiProps);
+            ctxLogin = login;
         }
 
         Object service = ctx.lookup("ejb:cm-sochi/web-app//" + serviceName + "!" + remoteInterfaceClass.getName());
         return service;
 
-    }
-
+    }    
+    
     /**
      * Запись лог файла. Необходимо вызывать в finally блоке переопределенного метода execute
      * @throws IOException

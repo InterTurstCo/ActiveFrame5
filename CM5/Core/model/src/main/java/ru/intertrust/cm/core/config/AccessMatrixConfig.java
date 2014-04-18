@@ -25,7 +25,7 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @ElementList(inline = true, type = AccessMatrixStatusConfig.class, entry = "status", required = false)
     private List<AccessMatrixStatusConfig> status = new ArrayList<>();
 
-    @Attribute(name= " matrix-reference-field", required = false)
+    @Attribute(name= "matrix-reference-field", required = false)
     private String matrixReference;
 
     

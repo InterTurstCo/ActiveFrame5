@@ -471,6 +471,8 @@
         <status name="Registration">
             <read>
                 <permit-role name="Negotiator" />
+                <permit-role name="Author" />
+                <permit-role name="Registrator" />
             </read>
             <write>
                 <permit-role name="Author" />
@@ -481,6 +483,9 @@
             <read>
                 <permit-group name="AllPersons" />
             </read>
+            <delete>
+                <permit-role name="Author" />
+            </delete>
         </status>
         <status name="OnRevision">
             <write>

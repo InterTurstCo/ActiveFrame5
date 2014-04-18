@@ -104,7 +104,9 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         FromItem from = plainSelect.getFromItem();
         if (from instanceof Table) {
             Table table = (Table) from;
-            if (!configurationExplorer.isReadPermittedToEverybody(table.getName())) {
+            //добавляем подзапрос на права в случае если не стоит флаг read-everybody и не указано заимствование прав с помощью matrix-reference-field 
+            if (!configurationExplorer.isReadPermittedToEverybody(table.getName()) && 
+                    configurationExplorer.getMatrixReferenceTypeName(table.getName()) == null) {
                 SubSelect replace = createAclSubQuery(table.getName());
                 if (table.getAlias() == null) {
                     replace.setAlias(new Alias(table.getName()));

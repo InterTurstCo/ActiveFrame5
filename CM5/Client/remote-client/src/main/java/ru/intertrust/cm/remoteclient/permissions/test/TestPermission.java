@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.NamingException;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PermissionService;
@@ -18,10 +20,6 @@ import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestPermission extends ClientBase {
 
-    private CrudService.Remote crudService;
-    private CollectionsService.Remote collectionService;
-    private PermissionService.Remote permissionService;
-
     public static void main(String[] args) {
         try {
             TestPermission test = new TestPermission();
@@ -31,31 +29,41 @@ public class TestPermission extends ClientBase {
         }
     }
 
+    private CrudService.Remote getCrudService() throws NamingException{
+        return (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class);
+    }
+
+    private CollectionsService.Remote getCollectionService() throws NamingException{
+        return (CollectionsService.Remote) getService("CollectionsServiceImpl", CollectionsService.Remote.class);
+    }
+    
+    private PermissionService.Remote getPermissionService() throws NamingException{
+        return (PermissionService.Remote) getService("PermissionService",
+                PermissionService.Remote.class);
+    }
+    
     public void execute(String[] args) throws Exception {
         try {
             super.execute(args);
 
-            crudService = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class);
-            collectionService =
-                    (CollectionsService.Remote) getService("CollectionsServiceImpl", CollectionsService.Remote.class);
-            permissionService = (PermissionService.Remote) getService("PermissionService",
-                    PermissionService.Remote.class);
-
             //Создаем внутренний документ
-            DomainObject internalDocument = crudService.createDomainObject("Internal_Document");
+            DomainObject internalDocument = getCrudService().createDomainObject("Internal_Document");
             internalDocument.setString("Name", "Тестовый документ " + System.nanoTime());
             internalDocument.setString("ReturnOnReject", "YES");
             internalDocument.setLong("Stage", 0L);
             internalDocument.setString("RegNum", "InternalDoc111");
             internalDocument.setReference("docAuthor", getEmployeeId("Сотрудник 3"));
             internalDocument.setReference("Registrant", getEmployeeId("Сотрудник 4"));
-            internalDocument = crudService.save(internalDocument);
+            internalDocument = getCrudService().save(internalDocument);
 
+            List<Id> negotiationCards = new ArrayList<Id>();
+            
             //Создание карточек согласования
             for (int i = 0; i < 2; i++) {
-                createNegotiationCard(internalDocument.getId(), "Сотрудник " + (i + 5));
+                DomainObject negotiation = createNegotiationCard(internalDocument.getId(), "Сотрудник " + (i + 5));
+                negotiationCards.add(negotiation.getId());
             }
-
+                        
             //Проверка прав
             EtalonPermissions etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
@@ -64,17 +72,23 @@ public class TestPermission extends ClientBase {
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "StartProcessAction");
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "ChangeStatusAction");
             checkPermissions(internalDocument.getId(), etalon, "Status Draft");
+            for (Id negotiationId  : negotiationCards) {
+                checkPermissions(negotiationId, etalon, "Status Draft");
+            }
 
             //Смена статуса + проверка прав. Статус сейчас меняется в строковом поле, после в точке расширения отлавливается это изменение 
             //и меняется статус уже с помощью метода setState. Это сделано для тестирования и невозможности сменить статус снаружи
             internalDocument.setString("State", "Negotiation");
-            internalDocument = crudService.save(internalDocument);
-            internalDocument = crudService.find(internalDocument.getId());
+            internalDocument = getCrudService().save(internalDocument);
+            internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Status Negotiation");
+            for (Id negotiationId  : negotiationCards) {
+                checkPermissions(negotiationId, etalon, "Status Negotiation");
+            }            
 
             //Добавляем еще согласующего, права должны пересчитаться
             createNegotiationCard(internalDocument.getId(), "Сотрудник 7");
@@ -84,10 +98,13 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Add new Negotiator");
+            for (Id negotiationId  : negotiationCards) {
+                checkPermissions(negotiationId, etalon, "Add new Negotiator");
+            }            
 
             internalDocument.setString("State", "Registration");
-            internalDocument = crudService.save(internalDocument);
-            internalDocument = crudService.find(internalDocument.getId());
+            internalDocument = getCrudService().save(internalDocument);
+            internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Write);
@@ -95,29 +112,54 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Status Registration");
-
+            for (Id negotiationId  : negotiationCards) {
+                checkPermissions(negotiationId, etalon, "Status Registration");
+            }            
+            //Сотрудником 3 редактируем документ и карточку согласования
+            changeObject(internalDocument.getId(), getEmployee("Сотрудник 3").getString("login"), "Name", "Тестовый документ " + System.nanoTime());
+            internalDocument = getCrudService().find(internalDocument.getId());
+            changeObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"), "Name", "Карточка согласующего " + System.nanoTime());
+            
+            //Пытаемся удалить под сотрудником 3 карточку согласования, должны получить ошибку
+            try{
+                deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"));
+                assertTrue("Не должно быть прав на удаление", false);
+            }catch(Exception ignoreEx){
+            }
+            
             internalDocument.setString("State", "Registred");
-            internalDocument = crudService.save(internalDocument);
-            internalDocument = crudService.find(internalDocument.getId());
+            internalDocument = getCrudService().save(internalDocument);
+            internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
             //В этом статусе право read имеют все пользователи
             List<Id> allPersons = getAllPersons();
             for (Id personId : allPersons) {
                 etalon.addPermission(personId, Permission.Read);
             }
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
             checkPermissions(internalDocument.getId(), etalon, "Status Registred");
+            for (Id negotiationId  : negotiationCards) {
+                checkPermissions(negotiationId, etalon, "Status Registred");
+            }
+            
+            //Удаляем карточку согласования. Должно удалится без ошибок
+            deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"));
+            negotiationCards.remove(0);
 
             internalDocument.setString("State", "OnRevision");
-            internalDocument = crudService.save(internalDocument);
-            internalDocument = crudService.find(internalDocument.getId());
+            internalDocument = getCrudService().save(internalDocument);
+            internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
             checkPermissions(internalDocument.getId(), etalon, "Status OnRevision");
+            for (Id negotiationId  : negotiationCards) {
+                checkPermissions(negotiationId, etalon, "Status OnRevision");
+            }            
 
             //Создаем письмо
-            DomainObject letter = crudService.createDomainObject("letter");
+            DomainObject letter = getCrudService().createDomainObject("letter");
             letter.setString("subject", "Тестовое письмо " + System.nanoTime());
-            letter = crudService.save(letter);
+            letter = getCrudService().save(letter);
 
             etalon = new EtalonPermissions();
             etalon.addPermission(getPersonId("admin"), Permission.Delete);
@@ -133,10 +175,23 @@ public class TestPermission extends ClientBase {
         }
     }
 
-    private List<Id> getAllPersons() {
+    private void deleteObject(Id objectId, String login) throws NamingException {
+        CrudService.Remote localCrudService = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, login, "admin"); 
+        localCrudService.delete(objectId);
+    }
+
+    private DomainObject changeObject(Id objectId, String login, String field, String value) throws NamingException {
+        CrudService.Remote localCrudService = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, login, "admin"); 
+        DomainObject domainObject = localCrudService.find(objectId);
+        domainObject.setString(field, value);
+        domainObject = localCrudService.save(domainObject);
+        return domainObject;
+    }
+
+    private List<Id> getAllPersons() throws NamingException {
         List<Id> result = new ArrayList<Id>();
         IdentifiableObjectCollection collection =
-                collectionService.findCollectionByQuery("select id from person");
+                getCollectionService().findCollectionByQuery("select id from person");
         for (IdentifiableObject identifiableObject : collection) {
             result.add(identifiableObject.getId());
         }
@@ -144,13 +199,13 @@ public class TestPermission extends ClientBase {
     }
 
     private void checkPermissions(Id domainObjectId, EtalonPermissions etalon, String massage) throws Exception {
-        List<DomainObjectPermission> serverPermission = permissionService.getObjectPermissions(domainObjectId);
+        List<DomainObjectPermission> serverPermission = getPermissionService().getObjectPermissions(domainObjectId);
         etalon.compare(serverPermission, massage);
     }
 
-    private Id getEmployeeId(String employeeName) {
+    private Id getEmployeeId(String employeeName) throws NamingException {
         IdentifiableObjectCollection collection =
-                collectionService.findCollectionByQuery("select t.id from Employee t where t.Name = '" + employeeName
+                getCollectionService().findCollectionByQuery("select t.id from Employee t where t.Name = '" + employeeName
                         + "'");
         Id result = null;
         if (collection.size() > 0) {
@@ -159,9 +214,20 @@ public class TestPermission extends ClientBase {
         return result;
     }
 
-    private Id getPersonId(String personLogin) {
+    private DomainObject getEmployee(String employeeName) throws NamingException {
+        DomainObject result = null;
         IdentifiableObjectCollection collection =
-                collectionService.findCollectionByQuery("select t.id from person t where t.login = '" + personLogin
+                getCollectionService().findCollectionByQuery("select t.id from Employee t where t.Name = '" + employeeName
+                        + "'");
+        if (collection.size() > 0) {
+            result = getCrudService().find(collection.getId(0));
+        }
+        return result;
+    }    
+    
+    private Id getPersonId(String personLogin) throws NamingException {
+        IdentifiableObjectCollection collection =
+                getCollectionService().findCollectionByQuery("select t.id from person t where t.login = '" + personLogin
                         + "'");
         Id result = null;
         if (collection.size() > 0) {
@@ -170,13 +236,13 @@ public class TestPermission extends ClientBase {
         return result;
     }
 
-    private void createNegotiationCard(Id documentId, String employeeName) {
-        DomainObject negotiationCard = crudService.createDomainObject("Negotiation_Card");
+    private DomainObject createNegotiationCard(Id documentId, String employeeName) throws NamingException {
+        DomainObject negotiationCard = getCrudService().createDomainObject("Negotiation_Card");
         negotiationCard.setString("Name", "карточка согласующего");
         negotiationCard.setReference("Parent_Document", documentId);
         negotiationCard.setReference("Negotiator", getEmployeeId(employeeName));
-        negotiationCard = crudService.save(negotiationCard);
-
+        negotiationCard = getCrudService().save(negotiationCard);
+        return negotiationCard;
     }
 
     private class EtalonPermissions {

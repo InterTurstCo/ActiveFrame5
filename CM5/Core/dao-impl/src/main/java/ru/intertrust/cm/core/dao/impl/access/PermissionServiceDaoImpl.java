@@ -55,6 +55,7 @@ import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.PermissionException;
@@ -721,11 +722,19 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     private List<DomainObjectPermission> getObjectPermissions(Id domainObjectId, Id personId) {
         RdbmsId rdbmsObjectId = (RdbmsId) domainObjectId;
 
+        String objectType = domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId());
+        String permissionType = objectType;
+        String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(permissionType);
+        if (matrixRefType != null){
+            permissionType = matrixRefType; 
+        }
+        
+        String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, objectType));
         String tableNameRead =
-                AccessControlUtility.getAclReadTableName(configurationExplorer, domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
+                AccessControlUtility.getAclReadTableName(configurationExplorer, permissionType);
         String tableNameAcl =
-                AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
-
+                AccessControlUtility.getAclTableName(permissionType);
+        
         StringBuilder query = new StringBuilder();
         query.append("select 'R' as operation, gm.").append(DaoUtils.wrap("person_id")).append(", gm.").
                 append(DaoUtils.wrap("person_id_type")).append(" from ").append(DaoUtils.wrap(tableNameRead))
@@ -735,8 +744,12 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ")
                 .append(DaoUtils.wrap("group_member")).
                 append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.")
-                .append(DaoUtils.wrap("usergroup")).
-                append(" where r.").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
+                .append(DaoUtils.wrap("usergroup")).                
+                //обавляем в связи с появлением функциональности замещения прав
+                append("inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
+                .append(DaoUtils.wrap("access_object_id")).
+                append(" = r.").append(DaoUtils.wrap("object_id")).                                
+                append(") where o.").append(DaoUtils.wrap("id")).append(" = :object_id ");
         if (personId != null) {
             query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");
         }
@@ -751,7 +764,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 .append(DaoUtils.wrap("group_member")).
                 append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.")
                 .append(DaoUtils.wrap("usergroup")).
-                append(" where a.").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
+                //обавляем в связи с появлением функциональности замещения прав
+                append("inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
+                .append(DaoUtils.wrap("access_object_id")).
+                append(" = a.").append(DaoUtils.wrap("object_id")).                                
+                append(") where o.").append(DaoUtils.wrap("id")).append(" = :object_id ");
         if (personId != null) {
             query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");
         }

@@ -3,8 +3,10 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
@@ -14,6 +16,9 @@ import ru.intertrust.cm.core.util.KryoCloner;
 
 import java.io.*;
 import java.util.*;
+
+import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
+import javax.naming.OperationNotSupportedException;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации. После создания объекта данного класса требуется выполнить
@@ -555,5 +560,56 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             return readPermittedToEverybodyMap.get(domainObjectType);
         }
         return false;
+    }
+
+    /**
+     * Получение имени типа доменного объекта, который необходимо использовать при вычисление прав на доменный объект в случае
+     * использования заимствования прав у связанного объекта
+     * @param childTypeName имя типа, для которого необходимо вычислить тип объекта из которого заимствуются права
+     * @return имя типа у которого заимствуются права или null в случае если заимствования нет
+     */
+    @Override
+    public String getMatrixReferenceTypeName(String childTypeName) {
+        //Получаем матрицу и смотрим атрибут matrix_reference_field
+        AccessMatrixConfig matrixConfig = null;
+        DomainObjectTypeConfig childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childTypeName);
+        
+        //Ищим матрицу для типа с учетом иерархии типов
+        while((matrixConfig = getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null 
+                && childDomainObjectTypeConfig.getExtendsAttribute() != null){
+            childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
+        }
+        String result = null;
+        if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
+            //Получаем имя типа на которого ссылается martix-reference-field
+            String parentTypeName = getParentTypeNameFromMatrixReference(matrixConfig.getMatrixReference(), childDomainObjectTypeConfig);
+            //Вызываем рекурсивно метод для родительского типа, на случай если в родительской матрице так же заполнено поле martix-reference-field
+            result = getMatrixReferenceTypeName(parentTypeName);
+            //В случае если у родителя не заполнен атрибут martix-reference-field то возвращаем имя родителя
+            if (result == null){
+                result = parentTypeName;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Получение типа, на который ссылается атрибут известного типа
+     * @param matrixReference
+     * @param childDomainObjectTypeConfig
+     * @return
+     */
+    private String getParentTypeNameFromMatrixReference(String matrixReferenceFieldName,
+            DomainObjectTypeConfig domainObjectTypeConfig) {
+
+        String result = null;
+        if (matrixReferenceFieldName.indexOf(".") > 0){
+            // TODO здесь надо добавить обработку backlink
+            throw new UnsupportedOperationException("Not implemented access referencing using backlink.");
+        }else{
+            ReferenceFieldConfig fieldConfig =  (ReferenceFieldConfig)getFieldConfig(domainObjectTypeConfig.getName(), matrixReferenceFieldName);
+            result = fieldConfig.getType();
+        }
+        return result;
     }
 }

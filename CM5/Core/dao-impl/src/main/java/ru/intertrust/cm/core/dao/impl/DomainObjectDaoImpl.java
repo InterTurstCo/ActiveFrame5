@@ -819,7 +819,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put("status", statusId);
             parameters.put("status_type", statusTypeId);
             
-            parameters.put("access_object_id", getAccessObjectId(domainObjectTypeConfig, domainObject));
+            parameters.put("access_object_id", ((RdbmsId)getAccessObjectId(domainObject)).getId());
 
         }
         parameters.put("type_id", type);
@@ -832,37 +832,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return parameters;
     }
 
-    /**
-     * Получение идентификатора объекта в разрезе которого колучаются права на сохраняемый доменный объект
-     * @param domainObjectTypeConfig
-     * @return
-     */
-    private long getAccessObjectId(DomainObjectTypeConfig domainObjectTypeConfig, DomainObject domainObject){
-        //Получаем матрицу и смотрим атрибут matrix_reference_field
-        AccessMatrixConfig matrixConfig = null;
-        DomainObjectTypeConfig childDomainObjectTypeConfig = domainObjectTypeConfig;
-        
-        //Ищим матрицу для типа с учетом иерархии типов
-        while((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null 
-                && childDomainObjectTypeConfig.getExtendsAttribute() != null){
-            childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
-        }
-
-        //По умолчанию access_object_id равен идентификатору самого объекта
-        RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
-        long result = rdbmsId.getId();
-        
-        //Нашли матрицу и у нее установлен атрибут matrix-reference-field, вычисляем access_object_id  
-        if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
-            Id refValue = domainObject.getReference(matrixConfig.getMatrixReference());
-            if (refValue == null){
-                throw new FatalException("Field " + matrixConfig.getMatrixReference() + " mast has value. This field is matrix-reference-field");
-            }
-            result = ((RdbmsId)refValue).getId(); 
-        }
-            
-        return result;        
-    }
+    
     
     /**
      * Создает SQL запрос для нахождения доменного объекта
@@ -882,16 +852,25 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" where ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("=:id ");
        
         if (accessToken.isDeferred()) {
-            
+            String permissionType = typeName;
+            String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(typeName);
+            if (matrixRefType != null){
+                permissionType = matrixRefType; 
+            }            
             String aclReadTable = AccessControlUtility
-                    .getAclReadTableName(configurationExplorer, typeName);
+                    .getAclReadTableName(configurationExplorer, permissionType);
+            String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, typeName));
             
             query.append(" and exists (select a.object_id from ").append(aclReadTable).append(" a ");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on a.")
                     .append(wrap("group_id")).append(" = gg.").append(wrap("parent_group_id"));
             query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
                     .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
-            query.append(" where gm.person_id = :user_id and a.object_id = :id)");
+            //обавляем в связи с появлением функциональности замещения прав
+            query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
+            .append(DaoUtils.wrap("access_object_id")).
+            append(" = a.").append(DaoUtils.wrap("object_id"));            
+            query.append(") where gm.person_id = :user_id and o.id = :id)");
              
         }
 
@@ -1047,9 +1026,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .append(wrap(UPDATED_DATE_COLUMN)).append(", ");
 
             query.append(wrap(STATUS_FIELD_NAME)).append(", ")
-                    .append(wrap(STATUS_TYPE_COLUMN));
+                    .append(wrap(STATUS_TYPE_COLUMN)).append(", ");
 
-            query.append(wrap(ACCESS_OBJECT_ID)).append(", ");
+            query.append(wrap(ACCESS_OBJECT_ID));
         }
 
         if (commaSeparatedColumns.length() > 0) {
@@ -1059,17 +1038,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(") values (:id , :type_id");
 
         if (!isDerived(domainObjectTypeConfig)) {
-<<<<<<< HEAD
-            query.append(", :created_date, :updated_date, :status, :status_type");
+            query.append(", :created_date, :updated_date, :status, :status_type, :access_object_id");
         }
 
         if (commaSeparatedParameters.length() > 0) {
             query.append(", ").append(commaSeparatedParameters);
-=======
-            query.append(":created_date, :updated_date, ");
-            query.append(":status, :status_type, ");
-            query.append(":access_object_id, ");
->>>>>>> 4abdc53... CMFIVE-32 Реализовано заполнение поля access_object_id
         }
 
         query.append(")");
@@ -1645,4 +1618,44 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         return result;
     }
+    
+    /**
+     * Получение идентификатора объекта в разрезе которого получаются права на сохраняемый доменный объект
+     * @param domainObjectTypeConfig
+     * @return
+     */
+    private Id getAccessObjectId(DomainObject domainObject) {
+        //Получаем матрицу и смотрим атрибут matrix_reference_field
+        AccessMatrixConfig matrixConfig = null;
+        DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
+        
+        //Ищим матрицу для типа с учетом иерархии типов
+        while((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null 
+                && childDomainObjectTypeConfig.getExtendsAttribute() != null){
+            childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
+        }
+
+        //По умолчанию access_object_id равен идентификатору самого объекта
+        Id result = domainObject.getId();
+        
+        //Нашли матрицу и у нее установлен атрибут matrix-reference-field, вычисляем access_object_id  
+        if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
+            if (matrixConfig.getMatrixReference().indexOf(".") > 0){
+                // TODO здесь надо добавить обработку backlink
+                throw new UnsupportedOperationException("Not implemented access referencing using backlink.");
+            }else{
+                Id refValue = domainObject.getReference(matrixConfig.getMatrixReference());
+                if (refValue == null){
+                    throw new FatalException("Field " + matrixConfig.getMatrixReference() + " mast has value. This field is matrix-reference-field");
+                }
+                
+                //Вызываем рекурсивно данный метод на случай если в родительском типе так же указано заимствование матрицы
+                AccessToken accessToken = accessControlService
+                        .createSystemAccessToken(this.getClass().getName());
+                result = getAccessObjectId(find(refValue, accessToken));
+            }
+        }
+            
+        return result;        
+    }        
 }

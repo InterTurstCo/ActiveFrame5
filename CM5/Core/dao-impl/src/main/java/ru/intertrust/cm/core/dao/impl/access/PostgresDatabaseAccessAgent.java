@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl.access;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -11,11 +12,14 @@ import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
+import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 
 import javax.sql.DataSource;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -68,6 +72,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     private String getQueryForCheckDomainObjectAccess(RdbmsId id) {
         String domainObjectAclTable = getAclTableName(id);
+        String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
+                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjetcTypeIdCache.getName(id.getTypeId()))); 
+
         
         StringBuilder query = new StringBuilder();
         
@@ -76,8 +83,11 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
                 .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
         query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
                 .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
-        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and a.")
-                .append(DaoUtils.wrap("object_id")).append(" = :object_id and a.")
+        //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
+        query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on o.").append(DaoUtils.wrap("access_object_id"))
+                .append(" = a.").append(DaoUtils.wrap("object_id"));        
+        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.")
+                .append(DaoUtils.wrap("id")).append(" = :object_id and a.")
                 .append(DaoUtils.wrap("operation")).append(" = :operation");
         return query.toString();
     }
@@ -181,6 +191,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
 
     private String getQueryForCheckDomainObjectMultiAccess(RdbmsId id) {
+        String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
+                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjetcTypeIdCache.getName(id.getTypeId()))); 
         String domainObjectAclTable = getAclTableName(id);
 
         StringBuilder query = new StringBuilder();
@@ -191,7 +203,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
                 .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
         query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
                 .append(" = gm.").append(DaoUtils.wrap("usergroup"));
-        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and a.").append(DaoUtils.wrap("object_id"))
+        //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
+        query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on o.").append(DaoUtils.wrap("access_object_id"))
+                .append(" = a.").append(DaoUtils.wrap("object_id"));        
+        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.").append(DaoUtils.wrap("id"))
                 .append(" = :object_id and a.")
                 .append(DaoUtils.wrap("operation")).append(" in (:operations)");
 
@@ -200,6 +215,13 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     private String getAclTableName(RdbmsId id) {
         String domainObjectTable = domainObjetcTypeIdCache.getName(id.getTypeId());
+        
+        //Проверяем нет ли заимствования прав и в случае наличия подменяем тип откуда берем права
+        String martixRef = configurationExplorer.getMatrixReferenceTypeName(domainObjectTable);
+        if (martixRef != null){
+            domainObjectTable = martixRef; 
+        }
+        
         return getAclTableNameFor(domainObjectTable);
     }
 
