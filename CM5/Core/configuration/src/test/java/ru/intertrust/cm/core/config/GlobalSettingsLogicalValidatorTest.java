@@ -1,5 +1,10 @@
 package ru.intertrust.cm.core.config;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -9,13 +14,8 @@ import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
-import static ru.intertrust.cm.core.config.Constants.*;
+import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
+import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
 
 public class GlobalSettingsLogicalValidatorTest {
     private static final String GLOBAL_XML_PATH = "config/global-test.xml";
@@ -61,21 +61,20 @@ public class GlobalSettingsLogicalValidatorTest {
 
         return configuration;
     }
-    
+
     private ModuleService createModuleService(Set<String> configs) throws MalformedURLException {
         ModuleService result = new ModuleService();
-        ModuleConfiguration conf = new ModuleConfiguration(); 
+        ModuleConfiguration conf = new ModuleConfiguration();
         result.getModuleList().add(conf);
         conf.setConfigurationPaths(new ArrayList<String>());
         for (String config : configs) {
             conf.getConfigurationPaths().add(config);
-        }        
+        }
         conf.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
-        URL schemaUrl = getClass().getClassLoader().getResource(CONFIGURATION_SCHEMA_PATH);
-        URL moduleUrl = new URL(schemaUrl.toString().substring(0, schemaUrl.toString().indexOf(CONFIGURATION_SCHEMA_PATH)));
+        final URL moduleUrl = getClass().getClassLoader().getResource(".");
         conf.setModuleUrl(moduleUrl);
-        
+
         return result;
-    } 
+    }
 }
 

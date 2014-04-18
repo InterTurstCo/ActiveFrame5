@@ -5,13 +5,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 /**
- * Тестовый класс для {@link ru.intertrust.cm.core.config.ConfigurationLogicalValidator}
+ * Тестовый класс для {@link ru.intertrust.cm.core.config.ConfigurationSchemaValidator}
  * @author atsvetkov
  *
  */
 public class ConfigurationSchemaValidatorTest {
 
-    private static final String CONFIGURATION_SCHEMA = "config/configuration-test.xsd";
+    private static final String CONFIGURATION_SCHEMA = "config/configuration.xsd";
     private static final String CONFIGURATION_VALID = "config/domain-objects-test.xml";
     private static final String CONFIGURATION_INVALID = "config/domain-objects-invalid-test.xml";
     private static final String CONFIGURATION_INVALID_LONG_NAME =

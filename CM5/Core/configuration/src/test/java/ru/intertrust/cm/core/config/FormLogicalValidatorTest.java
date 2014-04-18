@@ -1,18 +1,18 @@
 package ru.intertrust.cm.core.config;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
@@ -88,7 +88,7 @@ public class FormLogicalValidatorTest {
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
         ConfigurationClassesCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        
+
         configurationSerializer.setModuleService(createModuleService(configPath));
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
@@ -100,17 +100,16 @@ public class FormLogicalValidatorTest {
 
     private ModuleService createModuleService(String configPath) throws MalformedURLException {
         ModuleService result = new ModuleService();
-        ModuleConfiguration conf = new ModuleConfiguration(); 
+        ModuleConfiguration conf = new ModuleConfiguration();
         result.getModuleList().add(conf);
         conf.setConfigurationPaths(new ArrayList<String>());
         conf.getConfigurationPaths().add(DOMAIN_OBJECTS_CONFIG_PATH);
         conf.getConfigurationPaths().add(GLOBAL_XML_PATH);
         conf.getConfigurationPaths().add(configPath);
         conf.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
-        URL schemaUrl = getClass().getClassLoader().getResource(CONFIGURATION_SCHEMA_PATH);
-        URL moduleUrl = new URL(schemaUrl.toString().substring(0, schemaUrl.toString().indexOf(CONFIGURATION_SCHEMA_PATH)));
+        final URL moduleUrl = getClass().getClassLoader().getResource(".");
         conf.setModuleUrl(moduleUrl);
         return result;
-    }    
+    }
 }
 

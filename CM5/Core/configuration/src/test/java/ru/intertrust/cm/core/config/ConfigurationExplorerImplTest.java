@@ -1,20 +1,30 @@
 package ru.intertrust.cm.core.config;
 
-import junit.framework.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import ru.intertrust.cm.core.config.base.CollectionConfig;
-import ru.intertrust.cm.core.config.base.Configuration;
-
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+
+import junit.framework.Assert;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static ru.intertrust.cm.core.config.Constants.COLLECTIONS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_CONFIG;
+import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_SCHEMA;
+import static ru.intertrust.cm.core.config.Constants.MODULES_DOMAIN_OBJECTS;
 
 /**
  * @author vmatsukevich
@@ -34,8 +44,7 @@ public class ConfigurationExplorerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        ConfigurationSerializer configurationSerializer =
-                ConfigurationSerializerTest.createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
 
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config);
@@ -143,5 +152,43 @@ public class ConfigurationExplorerImplTest {
         Collection<DomainObjectTypeConfig> types = configExplorer.findChildDomainObjectTypes("Person", true);
         assertTrue(types.contains(configExplorer.getConfig(DomainObjectTypeConfig.class, "Employee")));
         assertTrue(types.size() == 1);
+    }
+
+
+    private ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
+        ConfigurationClassesCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
+
+        ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
+        configurationSerializer.setModuleService(createModuleService(configPath));
+
+        return configurationSerializer;
+    }
+
+    private ModuleService createModuleService(String configPath) throws MalformedURLException {
+        URL moduleUrl = getClass().getClassLoader().getResource(".");
+
+        ModuleService result = new ModuleService();
+        ModuleConfiguration confCore = new ModuleConfiguration();
+        confCore.setName("core");
+        result.getModuleList().add(confCore);
+        confCore.setConfigurationPaths(new ArrayList<String>());
+        confCore.getConfigurationPaths().add(configPath);
+        confCore.getConfigurationPaths().add(COLLECTIONS_CONFIG_PATH);
+        confCore.getConfigurationPaths().add(GLOBAL_XML_PATH);
+        confCore.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
+        confCore.setModuleUrl(moduleUrl);
+
+        ModuleConfiguration confCustom = new ModuleConfiguration();
+        confCustom.setName("custom");
+        result.getModuleList().add(confCustom);
+        confCustom.setConfigurationPaths(new ArrayList<String>());
+        confCustom.getConfigurationPaths().add(MODULES_CUSTOM_CONFIG);
+        confCustom.getConfigurationPaths().add(MODULES_DOMAIN_OBJECTS);
+        confCustom.setConfigurationSchemaPath(MODULES_CUSTOM_SCHEMA);
+        confCustom.setDepends(new ArrayList<String>());
+        confCustom.getDepends().add(confCore.getName());
+        confCustom.setModuleUrl(moduleUrl);
+
+        return result;
     }
 }

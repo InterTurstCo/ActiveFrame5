@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.config;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -9,11 +12,8 @@ import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-
-import static ru.intertrust.cm.core.config.Constants.*;
+import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
+import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 13/9/13
@@ -70,7 +70,7 @@ public class CollectionViewLogicalValidatorTest {
 
     private ModuleService createModuleService(String configPath) throws MalformedURLException {
         ModuleService result = new ModuleService();
-        ModuleConfiguration conf = new ModuleConfiguration(); 
+        ModuleConfiguration conf = new ModuleConfiguration();
         result.getModuleList().add(conf);
         conf.setConfigurationPaths(new ArrayList<String>());
         conf.getConfigurationPaths().add(DOMAIN_OBJECTS_CONFIG_PATH);
@@ -78,10 +78,9 @@ public class CollectionViewLogicalValidatorTest {
         conf.getConfigurationPaths().add(GLOBAL_XML_PATH);
         conf.getConfigurationPaths().add(configPath);
         conf.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
-        URL schemaUrl = getClass().getClassLoader().getResource(CONFIGURATION_SCHEMA_PATH);
-        URL moduleUrl = new URL(schemaUrl.toString().substring(0, schemaUrl.toString().indexOf(CONFIGURATION_SCHEMA_PATH)));
+        URL moduleUrl = getClass().getClassLoader().getResource(".");
         conf.setModuleUrl(moduleUrl);
         return result;
-    }    
+    }
 }
 

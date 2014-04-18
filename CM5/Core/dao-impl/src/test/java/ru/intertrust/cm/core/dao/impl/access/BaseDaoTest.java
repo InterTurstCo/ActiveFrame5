@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class BaseDaoTest {
 
-    private static String CONFIGURATION_SCHEMA_PATH = "config/configuration-test.xsd";
+    private static String CONFIGURATION_SCHEMA_PATH = "config/configuration.xsd";
     private static String DOMAIN_OBJECTS_CONFIG_PATH = "config/domain-objects-test.xml";
     private static String COLLECTIONS_CONFIG_PATH = "config/collections-test.xml";
     private static String ACCESS_CONFIG_PATH = "config/access-test.xml";
@@ -206,14 +206,14 @@ public class BaseDaoTest {
     public static void tearDown() throws Exception {
         if (domainObjectDao != null){
             domainObjectDao.delete(savedDelegationObject.getId(), accessToken);
-    
+
             domainObjectDao.delete(savedEmployeeObject.getId(), accessToken);
             domainObjectDao.delete(savedEmployeeDelegateObject.getId(), accessToken);
-    
+
             domainObjectDao.delete(savedPersonObject.getId(), accessToken);
-    
+
             domainObjectDao.delete(savedDepartmentObject.getId(), accessToken);
-    
+
             domainObjectDao.delete(savedOrganizationObject.getId(), accessToken);
             domainObjectDao.delete(savedActiveStatus.getId(), accessToken);
             domainObjectDao.delete(savedDraftStatus.getId(), accessToken);

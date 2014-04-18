@@ -1,14 +1,5 @@
 package ru.intertrust.cm.core.config;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import ru.intertrust.cm.core.config.base.CollectionConfig;
-import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
-import ru.intertrust.cm.core.config.module.ModuleConfiguration;
-import ru.intertrust.cm.core.config.module.ModuleService;
-
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,9 +11,25 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.*;
-import static ru.intertrust.cm.core.config.Constants.*;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static ru.intertrust.cm.core.config.Constants.COLLECTIONS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
+import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_CONFIG;
+import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_SCHEMA;
+import static ru.intertrust.cm.core.config.Constants.MODULES_DOMAIN_OBJECTS;
 
 /**
  * @author vmatsukevich
@@ -136,7 +143,7 @@ public class ConfigurationSerializerTest {
         }
     }
 
-    static ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
+    private ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
         ConfigurationClassesCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
 
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
@@ -145,10 +152,9 @@ public class ConfigurationSerializerTest {
         return configurationSerializer;
     }
 
-    static private ModuleService createModuleService(String configPath) throws MalformedURLException {
-        URL schemaUrl = ConfigurationSerializerTest.class.getClassLoader().getResource(CONFIGURATION_SCHEMA_PATH);
-        URL moduleUrl = new URL(schemaUrl.toString().substring(0, schemaUrl.toString().indexOf(CONFIGURATION_SCHEMA_PATH)));
-        
+    private ModuleService createModuleService(String configPath) throws MalformedURLException {
+        URL moduleUrl = getClass().getClassLoader().getResource(".");
+
         ModuleService result = new ModuleService();
         ModuleConfiguration confCore = new ModuleConfiguration();
         confCore.setName("core");
@@ -160,7 +166,7 @@ public class ConfigurationSerializerTest {
         confCore.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
         confCore.setModuleUrl(moduleUrl);
 
-        ModuleConfiguration confCustom = new ModuleConfiguration(); 
+        ModuleConfiguration confCustom = new ModuleConfiguration();
         confCustom.setName("custom");
         result.getModuleList().add(confCustom);
         confCustom.setConfigurationPaths(new ArrayList<String>());
@@ -170,10 +176,10 @@ public class ConfigurationSerializerTest {
         confCustom.setDepends(new ArrayList<String>());
         confCustom.getDepends().add(confCore.getName());
         confCustom.setModuleUrl(moduleUrl);
-        
+
         return result;
-    }    
-    
+    }
+
     private String readTextFile(String filePath) throws IOException {
        File file = new File(FileUtils.getFileURL(filePath).getFile());
 

@@ -1185,7 +1185,9 @@
     <xs:complexType name="formType">
         <xs:sequence>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="act:abstract-action"/>
+                <xs:element ref="act:navigable-action"/>
+                <xs:element ref="act:perform-action"/>
+                <xs:element ref="act:workflow-action"/>
             </xs:choice>
             <xs:element ref="act:tool-bar" minOccurs="0" maxOccurs="1"/>
             <xs:element type="con:markupType" name="markup"
