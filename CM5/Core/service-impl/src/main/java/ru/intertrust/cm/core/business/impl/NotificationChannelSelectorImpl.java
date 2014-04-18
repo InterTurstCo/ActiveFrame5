@@ -44,7 +44,7 @@ public class NotificationChannelSelectorImpl implements NotificationChannelSelec
 
         List<String> resultChannelNames = new ArrayList<>(channelNames.size());
 
-        for (String channelName : resultChannelNames) {
+        for (String channelName : channelNames) {
             if (isChannelEnabled(channelName, notificationType, priority, personProfile )){
                 resultChannelNames.add(channelName);
             }

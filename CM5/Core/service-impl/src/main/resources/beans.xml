@@ -162,7 +162,7 @@
           class="ru.intertrust.cm.core.business.impl.NotificationChannelLoaderImpl" init-method="init" />
 
     <bean id="notificationChannelSelector"
-          class="ru.intertrust.cm.core.business.impl.NotificationChannelSelectorSimpleImpl"/>
+          class="ru.intertrust.cm.core.business.impl.NotificationChannelSelectorImpl"/>
 
     <bean id="eventTrigger" class="ru.intertrust.cm.core.business.impl.EventTriggerImpl"/>
 

@@ -15,14 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.NotificationService;
-import ru.intertrust.cm.core.business.api.PersonManagementService;
-import ru.intertrust.cm.core.business.api.PersonService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.*;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddressee;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeContextRole;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeDynamicGroup;
@@ -61,6 +55,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
         loginContext.login();
         try {
             initBase();
+            importTestData("test-data/import-person-profile.csv");
+            importTestData("test-data/import-string-value.csv");
+            importTestData("test-data/import-employee-prof.csv");
         } finally {
             loginContext.logout();
         }
@@ -202,6 +199,38 @@ public class NotificationSeviceIT extends IntegrationTestBase {
         } finally {
             loginContext.logout();
         }
+    }
+
+
+    @Test
+    public void sendToPersonProf() throws InterruptedException, LoginException {
+        LoginContext loginContext = login("admin", "admin");
+        loginContext.login();
+        try {
+            NotificationTestChannel testChannel = new NotificationTestChannel();
+            Id person1Id = personService.findPersonByLogin("person001").getId();
+            NotificationAddresseePerson addressee =
+                    new NotificationAddresseePerson(person1Id);
+            List<NotificationAddressee> addresseeList = new ArrayList<NotificationAddressee>();
+            addresseeList.add(addressee);
+            NotificationContext context = new NotificationContext();
+            context.addContextObject("contextObject", getOrganization("Организация 1").getId());
+
+            String notificationType = "TEST_NOTIFICATION_TO_PERSON";
+            Id senderId = personService.findPersonByLogin("admin").getId();
+            NotificationPriority priority = NotificationPriority.HIGH;
+
+            notificationService.sendOnTransactionSuccess(notificationType, senderId, addresseeList, priority, context);
+
+            //Спим секунду, так как отправка происходит в асинхронном режиме
+            Thread.currentThread().sleep(1000);
+
+            Assert.assertTrue(testChannel.contains(notificationType, senderId, person1Id,
+                    priority, context));
+        } finally {
+            loginContext.logout();
+        }
+
     }
     
     

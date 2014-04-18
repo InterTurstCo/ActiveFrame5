@@ -32,6 +32,9 @@ public class IntegrationTestSuit {
                 "test-data/import-employee.csv",
                 "test-data/set-department-boss.csv",
                 "test-data/set-organization-boss.csv",
+                "test-data/import-person-profile.csv",
+                "test-data/import-string-value.csv",
+                "test-data/import-employee-prof.csv",
                 "beans.xml" });
     }
 
