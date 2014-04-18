@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * A bean registry postprocessor which loads classes, annotated with {@link ComponentName} as bean definitions
  * to spring bean factory.
- * Target path for scanning is defined in {@link basePackage} field.
+ * Target path for scanning is defined in {@link PluginHandlerDefinitionsLoader#basePackage} field.
  */
 public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPostProcessor {
 

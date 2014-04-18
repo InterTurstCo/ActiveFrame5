@@ -29,7 +29,8 @@
         <configuration-path>module-configuration/extendedsearch-countries.xml</configuration-path>
         <configuration-path>module-configuration/domain-objects-test.xml</configuration-path>
         <configuration-path>module-configuration/trigger-events.xml</configuration-path>
-        <configuration-path>module-configuration/notifications.xml</configuration-path>        
+        <configuration-path>module-configuration/notifications.xml</configuration-path>
+        <configuration-path>module-configuration/actions.xml</configuration-path>
     </configuration-paths>
     <import-files rewrite="true">
         <import-file>importdata/import-organization.csv</import-file>

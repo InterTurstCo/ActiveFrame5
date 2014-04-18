@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.simpleframework.xml.Attribute;
@@ -8,17 +7,15 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.ElementUnion;
+import org.simpleframework.xml.Root;
+
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 /**
  * @author Sergey.Okolot
  *         Created on 14.04.2014 17:21.
  */
-@ElementUnion({
-        @Element(name = "navigable-action"),
-        @Element(name = "workflow-action"),
-        @Element(name = "perform-action")
-})
-public class ActionEntryConfig extends AbstractActionEntryConfig {
+public class ActionEntryConfig extends AbstractActionEntryConfig implements TopLevelConfig {
 
     @Element(name = "before-execution", required = false)
     private BeforeActionExecutionConfig beforeConfig;
@@ -58,6 +55,9 @@ public class ActionEntryConfig extends AbstractActionEntryConfig {
 
     @Attribute(required = false)
     private String image;
+
+    @Attribute(required = false)
+    private String tooltip;
 
     @Attribute(required = false)
     private boolean immediate = false;
@@ -135,6 +135,10 @@ public class ActionEntryConfig extends AbstractActionEntryConfig {
         return image;
     }
 
+    public String getTooltip() {
+        return tooltip;
+    }
+
     public boolean isImmediate() {
         return immediate;
     }
@@ -157,5 +161,10 @@ public class ActionEntryConfig extends AbstractActionEntryConfig {
 
     public List<ActionEntryConfig> getChildren() {
         return children == null ? Collections.EMPTY_LIST : children;
+    }
+
+    @Override
+    public String getName() {
+        return id;
     }
 }

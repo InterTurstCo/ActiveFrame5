@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.gui.api.server;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
-
 import java.util.List;
+
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 /**
  * Данный сервис отдает доступные действия для текущего контекста (типа
@@ -26,5 +26,12 @@ public interface ActionService {
      * @return
      */
     List<ActionContext> getActions(String domainObjectType);
+
+    /**
+     * Returns default toolbar for plugin.
+     * @param pluginName componentName of plugin.
+     * @return default toolbar of plugin. Can be NULL if toolbar not defined.
+     */
+    ToolBarConfig getDefaultToolbarConfig(String pluginName);
 
 }

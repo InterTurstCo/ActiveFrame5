@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.model.FatalException;
@@ -34,9 +35,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private Map<Class<?>, CaseInsensitiveMap<TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
-    
+
     private Map<String, Boolean> readPermittedToEverybodyMap = new HashMap<>();
-    
+
     private GlobalSettingsConfig globalSettings;
     private CaseInsensitiveMap<String> attachmentDomainObjectTypes = new CaseInsensitiveMap<>();
     @Autowired
@@ -612,4 +613,18 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
         return result;
     }
+    
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
+        final Collection<ToolBarConfig> configs = getConfigs(ToolBarConfig.class);
+        for (ToolBarConfig config : configs) {
+            if (config.getPlugin().equals(pluginName)) {
+                return config;
+            }
+        }
+        return null;
+
 }

@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.simpleframework.xml.Attribute;
@@ -9,14 +8,14 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
 
-import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 /**
  * @author Sergey.Okolot
  *         Created on 14.04.2014 12:07.
  */
-@Element(name = "tool-bar")
-public class ToolBarConfig extends BaseAttributeConfig {
+@Root(name = "tool-bar")
+public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig {
 
     @Attribute(name = "componentName", required = false)
     private String componentName = "action.tool.bar";
@@ -36,7 +35,7 @@ public class ToolBarConfig extends BaseAttributeConfig {
     })
     private List<AbstractActionEntryConfig> actions;
 
-    @Element(name = "facet")
+    @Element(name = "facet", required = false)
     private ToolbarRightFacetConfig rightFacetConfig;
 
     public String getComponentName() {
@@ -57,5 +56,10 @@ public class ToolBarConfig extends BaseAttributeConfig {
 
     public ToolbarRightFacetConfig getRightFacetConfig() {
         return rightFacetConfig == null ? new ToolbarRightFacetConfig() : rightFacetConfig;
+    }
+
+    @Override
+    public String getName() {
+        return getId();
     }
 }

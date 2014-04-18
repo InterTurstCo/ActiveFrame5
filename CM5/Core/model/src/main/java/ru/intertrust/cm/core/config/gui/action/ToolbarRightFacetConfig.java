@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.action;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import org.simpleframework.xml.Attribute;
@@ -12,7 +13,7 @@ import org.simpleframework.xml.ElementListUnion;
  *         Created on 15.04.2014 12:35.
  */
 @Element(name = "facet")
-public class ToolbarRightFacetConfig {
+public class ToolbarRightFacetConfig implements Serializable {
 
     @Attribute(name = "name")
     private String name;

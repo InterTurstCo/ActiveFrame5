@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
 import java.util.Collection;
@@ -108,7 +109,7 @@ public interface ConfigurationExplorer {
      * @return true если тип доменного обхекта - Attachment
      */
     boolean isAttachmentType(String domainObjectType);
-    
+
     boolean isReadPermittedToEverybody(String domainObjectType);
 
     /**
@@ -125,4 +126,12 @@ public interface ConfigurationExplorer {
      * @return имя типа у которого заимствуются права или null в случае если заимствования нет
      */
     String getMatrixReferenceTypeName(String childTypeName);
+    
+    /**
+     * Returns default toolbar for plugin.
+     * @param pluginName componentName of plugin.
+     * @return default toolbar of plugin. Can be NULL if toolbar not defined.
+     */
+    ToolBarConfig getDefaultToolbarConfig(String pluginName);
+    
 }

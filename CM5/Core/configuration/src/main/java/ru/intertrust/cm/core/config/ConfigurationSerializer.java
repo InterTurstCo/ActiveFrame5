@@ -129,9 +129,9 @@ public class ConfigurationSerializer {
                     new ConfigurationSchemaValidator(getStreamFromUrl(moduleUrl, configurationFilePath),
                             schemaInputStreams);
             schemaValidator.validate();
-
-            return createSerializerInstance().read(Configuration.class,
-                    getStreamFromUrl(moduleUrl, configurationFilePath));
+            final InputStream is = getStreamFromUrl(moduleUrl, configurationFilePath);
+            final Configuration result = createSerializerInstance().read(Configuration.class, is);
+            return result;
         } catch (Exception ex) {
             throw new ConfigurationException("Error load " + configurationFilePath, ex);
         }
@@ -150,5 +150,5 @@ public class ConfigurationSerializer {
         URL resultUrl = new URL(baseUrl.toString() + path);
         return resultUrl.openStream();
     }
-    
+
 }

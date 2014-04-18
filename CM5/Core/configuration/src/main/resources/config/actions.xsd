@@ -67,6 +67,7 @@
                 <xs:attribute name="componentName" type="act:componentNameType" use="required" />
                 <xs:attribute name="text" type="xs:string" />
                 <xs:attribute name="image" type="xs:string" />
+                <xs:attribute name="tooltip" type="xs:string"/>
                 <xs:attribute name="immediate" type="xs:boolean" default="false" />
                 <xs:attribute name="action" type="xs:string" />
                 <xs:attribute name="display" type="act:displayType"/>
@@ -85,6 +86,7 @@
                 <xs:attribute name="actionId" type="act:idType" use="required"/>
                 <xs:attribute name="showText" type="xs:boolean" default="true"/>
                 <xs:attribute name="showImage" type="xs:boolean" default="true"/>
+                <xs:attribute name="order" type="xs:positiveInteger" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -130,11 +132,13 @@
         <xs:attribute name="componentName" type="act:componentNameType" default="action.tool.bar" />
         <xs:attribute name="plugin" type="xs:string" />
         <xs:attribute name="useDefault" type="xs:boolean" default="true" />
+        <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
 
     <xs:simpleType name="displayType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="button" />
+            <xs:enumeration value="toggleButton"/>
             <xs:enumeration value="link" />
         </xs:restriction>
     </xs:simpleType>

@@ -1,12 +1,16 @@
 package ru.intertrust.cm.core.business.api;
 
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
-
 import java.util.Collection;
 import java.util.List;
+
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
 /**
  * @author vmatsukevich

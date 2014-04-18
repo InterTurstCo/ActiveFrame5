@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.form.MarkupConfig;
 
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 public class FormDisplayData implements Dto {
     private FormState formState;
     private MarkupConfig markup;
+    private ToolBarConfig toolBarConfig;
     private boolean debug;
     private String minWidth;
 
@@ -69,5 +71,13 @@ public class FormDisplayData implements Dto {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public ToolBarConfig getToolBarConfig() {
+        return toolBarConfig;
+    }
+
+    public void setToolBarConfig(ToolBarConfig toolBarConfig) {
+        this.toolBarConfig = toolBarConfig;
     }
 }

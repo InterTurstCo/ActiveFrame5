@@ -19,28 +19,22 @@ public class ActionRefConfig extends AbstractActionEntryConfig {
     @Attribute(name = "showImage", required = false)
     private boolean showImage = true;
 
+    @Attribute(name = "order", required = false)
+    private Integer order;
 
     public String getActionId() {
         return actionId;
-    }
-
-    public void setActionId(String actionId) {
-        this.actionId = actionId;
     }
 
     public boolean isShowText() {
         return showText;
     }
 
-    public void setShowText(boolean showText) {
-        this.showText = showText;
-    }
-
     public boolean isShowImage() {
         return showImage;
     }
 
-    public void setShowImage(boolean showImage) {
-        this.showImage = showImage;
+    public Integer getOrder() {
+        return order;
     }
 }

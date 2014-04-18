@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
 
 /**
@@ -40,6 +41,9 @@ public class FormConfig implements Dto, TopLevelConfig {
 
     @Attribute(name = "report-template", required = false)
     private String reportTemplate;
+
+    @Element(name = "tool-bar", required = false)
+    private ToolBarConfig toolbarConfig;
 
     @Element(name = "markup")
     private MarkupConfig markup;
@@ -109,6 +113,10 @@ public class FormConfig implements Dto, TopLevelConfig {
 
     public void setWidgetConfigurationConfig(WidgetConfigurationConfig widgetConfigurationConfig) {
         this.widgetConfigurationConfig = widgetConfigurationConfig;
+    }
+
+    public ToolBarConfig getToolbarConfig() {
+        return toolbarConfig;
     }
 
     @Override

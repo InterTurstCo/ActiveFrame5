@@ -20,7 +20,7 @@ public interface Constants {
     String MODULES_CONFIG_FOLDER = "modules-configuration";
     String MODULES_CONFIG_PATH = "/modules-configuration-test.xml";
     String MODULES_CONFIG_SCHEMA_PATH = "config/modules-configuration-test.xsd";
-    
+
     String MODULES_CUSTOM_CONFIG = MODULES_CONFIG_FOLDER + "/test-module/custom-config-test.xml";
     String MODULES_DOMAIN_OBJECTS = MODULES_CONFIG_FOLDER + "/test-module/domain-objects-test.xml";
     String MODULES_CUSTOM_SCHEMA = MODULES_CONFIG_FOLDER + "/test-module/custom-configuration-test.xsd";

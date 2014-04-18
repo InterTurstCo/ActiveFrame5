@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration xmlns="https://cm5.intertrust.ru/config">
+<configuration xmlns="https://cm5.intertrust.ru/config"
+        xmlns:act="https://cm5.intertrust.ru/config/action">
     <domain-object-type name="country" initial-status="Active">
         <fields>
             <string name="name" length="128"/>
@@ -100,6 +101,8 @@
 
 
     <form name="country_form" domain-object-type="country" is-default="true" debug="false" min-width="900px">
+        <act:navigable-action componentName="ksadjkljsd"/>
+        <act:tool-bar useDefault="true"/>
         <markup>
             <header>
                 <!--width="800px" height="200px"-->

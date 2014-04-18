@@ -7,6 +7,11 @@ package ru.intertrust.cm.core.gui.model;
  */
 public class GuiUtil {
 
+    /**
+     * Don't create instance of helper class.
+     */
+    private GuiUtil(){}
+
     public static String humanReadableByteCount(long bytes) {
         int unit = 1024;
         if (bytes < unit) return bytes + " B";

@@ -1,29 +1,34 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.gui.ActionConfig;
-import ru.intertrust.cm.core.config.gui.ActionContextActionConfig;
-import ru.intertrust.cm.core.config.gui.ActionContextConfig;
-import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
-import ru.intertrust.cm.core.gui.api.server.ActionService;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
-import ru.intertrust.cm.core.model.ActionServiceException;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.ActionConfig;
+import ru.intertrust.cm.core.config.gui.ActionContextActionConfig;
+import ru.intertrust.cm.core.config.gui.ActionContextConfig;
+import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.gui.api.server.ActionService;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
+import ru.intertrust.cm.core.model.ActionServiceException;
 
 @Stateless
 @Local(ActionService.class)
@@ -159,4 +164,8 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
         return null;
     }
 
+    @Override
+    public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
+        return configurationExplorer.getDefaultToolbarConfig(pluginName);
+    }
 }

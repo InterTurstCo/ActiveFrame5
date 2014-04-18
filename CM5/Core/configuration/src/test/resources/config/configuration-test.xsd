@@ -5,7 +5,7 @@
            xmlns:act="https://cm5.intertrust.ru/config/action"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <xs:import namespace="https://cm5.intertrust.ru/config/action" schemaLocation="actions.xsd" id="simpleId"/>
+    <xs:import namespace="https://cm5.intertrust.ru/config/action" schemaLocation="actions.xsd"/>
 
     <xs:element name="configuration" type="con:configurationType">
         <xs:unique name="actionIdUQ">
@@ -1186,6 +1186,10 @@
     </xs:complexType>
     <xs:complexType name="formType">
         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="act:abstract-action"/>
+            </xs:choice>
+            <xs:element ref="act:tool-bar" minOccurs="0" maxOccurs="1"/>
             <xs:element type="con:markupType" name="markup"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:widgetConfigType" name="widget-config"

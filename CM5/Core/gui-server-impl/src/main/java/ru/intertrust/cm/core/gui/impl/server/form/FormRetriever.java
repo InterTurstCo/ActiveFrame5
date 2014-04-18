@@ -214,8 +214,10 @@ public class FormRetriever {
         }
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
-        return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
+        final FormDisplayData result = new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
+        result.setToolBarConfig(formConfig.getToolbarConfig());
+        return result;
     }
 
     private List<Constraint> buildConstraints(WidgetContext context) {
