@@ -55,7 +55,7 @@ public class NotificationTestChannel implements NotificationChannelHandle {
             final int prime = 31;
             int result = 1;
             result = prime * result + ((addresseeId == null) ? 0 : addresseeId.hashCode());
-            result = prime * result + ((context == null) ? 0 : context.hashCode());
+//            result = prime * result + ((context == null) ? 0 : context.hashCode());
             result = prime * result + ((notificationType == null) ? 0 : notificationType.hashCode());
             result = prime * result + ((priority == null) ? 0 : priority.hashCode());
             result = prime * result + ((senderId == null) ? 0 : senderId.hashCode());
@@ -76,11 +76,11 @@ public class NotificationTestChannel implements NotificationChannelHandle {
                     return false;
             } else if (!addresseeId.equals(other.addresseeId))
                 return false;
-            if (context == null) {
+            /*if (context == null) {
                 if (other.context != null)
                     return false;
             } else if (!context.equals(other.context))
-                return false;
+                return false;*/
             if (notificationType == null) {
                 if (other.notificationType != null)
                     return false;

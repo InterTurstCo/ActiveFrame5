@@ -49,18 +49,44 @@ public class NotificationSeviceIT extends IntegrationTestBase {
     @EJB
     private CollectionsService.Remote collectionService;
 
+
+    /**
+     * Предотвращает загрузку данных для каждого теста. Данные загружаются один раз для всех тестов в данном классе.
+     */
+    private boolean isDataLoaded = false;
+
+
     @Before
     public void init() throws IOException, LoginException {
         LoginContext loginContext = login("admin", "admin");
         loginContext.login();
         try {
-            initBase();
-            importTestData("test-data/import-person-profile.csv");
-            importTestData("test-data/import-string-value.csv");
-            importTestData("test-data/import-employee-prof.csv");
+            if (!isDataLoaded) {
+                initBase();
+                importTestData("test-data/import-system-profile.csv");
+                importTestData("test-data/import-person-profile.csv");
+                importTestData("test-data/import-string-value.csv");
+                importTestData("test-data/import-employee-prof.csv");
+
+                setPersonProfile("person1", "002");
+                setPersonProfile("person3", "003");
+                setPersonProfile("person4", "004");
+                setPersonProfile("person5", "005");
+                setPersonProfile("admin", "006");
+
+                isDataLoaded = true;
+            }
         } finally {
             loginContext.logout();
         }
+    }
+
+    private void setPersonProfile(String person, String ppName) {
+        Id personId = personService.findPersonByLogin("person1").getId();
+        DomainObject person1profileDo = findDomainObject("person_profile", "empty", ppName);
+        DomainObject person1do = crudService.find(personId);
+        person1do.setReference("profile", person1profileDo.getId());
+        crudService.save(person1do);
     }
 
     @After
@@ -74,8 +100,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
         loginContext.login();
         try {
             NotificationTestChannel testChannel = new NotificationTestChannel();
+            Id person1id = personService.findPersonByLogin("person1").getId();
             NotificationAddresseePerson addressee =
-                    new NotificationAddresseePerson(personService.findPersonByLogin("person1").getId());
+                    new NotificationAddresseePerson(person1id);
             List<NotificationAddressee> addresseeList = new ArrayList<NotificationAddressee>();
             addresseeList.add(addressee);
             NotificationContext context = new NotificationContext();
@@ -90,7 +117,7 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             //Спим секунду, так как отправка происходит в асинхронном режиме
             Thread.currentThread().sleep(1000);
 
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, personService.findPersonByLogin("person1").getId(),
+            Assert.assertTrue(testChannel.contains(notificationType, senderId, person1id,
                     priority, context));
         } finally {
             loginContext.logout();

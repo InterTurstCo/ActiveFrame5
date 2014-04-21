@@ -1,3 +1,8 @@
 TYPE_NAME=person_profile;KEYS=empty;
-empty;
+empty;parent
 001;
+002;select id from system_profile where name='system1'
+003;select id from system_profile where name='system1'
+004;select id from system_profile where name='system1'
+005;select id from system_profile where name='system1'
+006;

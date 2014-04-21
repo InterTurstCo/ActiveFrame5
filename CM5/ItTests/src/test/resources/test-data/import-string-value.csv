@@ -1,3 +1,7 @@
 TYPE_NAME=profile_value_string;KEYS=profile,key;
 profile;key;value;readonly
 select id from person_profile where empty='001';NOTIFICATION.TEST_NOTIFICATION_CHANNEL.TEST_NOTIFICATION_TO_PERSON;NORMAL;false
+select id from person_profile where empty='002';NOTIFICATION.TEST_NOTIFICATION_CHANNEL.TEST_NOTIFICATION_TO_PERSON;HIGH;false
+select id from person_profile where empty='002';NOTIFICATION.TEST_NOTIFICATION_CHANNEL.TEST_NOTIFICATION_TO_CONTEXT_ROLE;HIGH;false
+select id from system_profile where name='system1';NOTIFICATION.TEST_NOTIFICATION_CHANNEL.TEST_NOTIFICATION_TO_DYN_GROUP;HIGH;false
+select id from person_profile where empty='006';NOTIFICATION.TEST_NOTIFICATION_CHANNEL.TEST_NOTIFICATION_TO_GROUP;LOW;false
