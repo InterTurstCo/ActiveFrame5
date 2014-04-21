@@ -40,7 +40,7 @@ public class PostgresDatabaseAccessAgentTest {
                     "gg.\"child_group_id\" = gm.\"usergroup\" "
                     + "inner join \"employee\" o on o.\"access_object_id\" = a.\"object_id\" "
                     + "where gm.\"person_id\" = :user_id and o.\"id\" " +
-                    "= :object_id and a.\"operation\" = :operation";
+                    "= :object_id and a.\"operation\" in (:operation)";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY =
             "select a.\"object_id\" object_id from \"employee_acl\" " +
