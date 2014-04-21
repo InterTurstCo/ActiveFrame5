@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl.access;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -64,7 +65,15 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     @Override
     public boolean checkDomainObjectAccess(int userId, Id objectId, AccessType type) {
         RdbmsId id = (RdbmsId) objectId;
-        String opCode = makeAccessTypeCode(type);
+        
+        //В случае наличия заимствования прав меняется проверяемый тип доступа
+        List<AccessType> checkAccessType = getMatrixReferencePermission(domainObjetcTypeIdCache.getName(id.getTypeId()), type);
+        
+        List<String> opCode = new ArrayList<String>();
+        for (AccessType accessType : checkAccessType) {
+            opCode.add(makeAccessTypeCode(accessType));
+        }
+        
         String query = getQueryForCheckDomainObjectAccess(id);
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("user_id", userId);
@@ -74,6 +83,27 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return result > 0;
     }
 
+    /**
+     * Метод получает права, которые необходимо проверить с учетом мапинга прав в случае заимствования прав
+     * @param type права которые проверяются
+     * @return права которые необходимо проверить на данных у типа, права которого заимствуются
+     */
+    private List<AccessType> getMatrixReferencePermission(String typeNmae, AccessType accessType){
+        List<AccessType> result = new ArrayList<AccessType>();
+        result.add(accessType);
+        //Проверяем нет ли заимствования прав и в случае наличия подменяем тип доступа согласно мапингу
+        String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeNmae);
+        //В случае наличия заимствования проверку права на delete заменяем на write, проверку на create заменяем на write
+        //TODO необходимо вынести конфигурацию мапинга прав в xml
+        if (martixRef != null){
+            if (accessType.equals(DomainObjectAccessType.DELETE)){
+                result.add(DomainObjectAccessType.WRITE);
+            }
+        }
+        return result;
+    }
+    
+    
     private String getQueryForCheckDomainObjectAccess(RdbmsId id) {
         String domainObjectAclTable = getAclTableName(id);
         String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
@@ -92,7 +122,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
                 .append(" = a.").append(DaoUtils.wrap("object_id"));        
         query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.")
                 .append(DaoUtils.wrap("id")).append(" = :object_id and a.")
-                .append(DaoUtils.wrap("operation")).append(" = :operation");
+                .append(DaoUtils.wrap("operation")).append(" in (:operation)");
         return query.toString();
     }
 

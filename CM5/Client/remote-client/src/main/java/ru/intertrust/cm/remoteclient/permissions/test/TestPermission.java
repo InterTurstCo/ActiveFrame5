@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import junit.framework.Assert;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PermissionService;
@@ -120,12 +121,16 @@ public class TestPermission extends ClientBase {
             internalDocument = getCrudService().find(internalDocument.getId());
             changeObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"), "Name", "Карточка согласующего " + System.nanoTime());
             
-            //Пытаемся удалить под сотрудником 3 карточку согласования, должны получить ошибку
+            //Пытаемся удалить под сотрудником 5 карточку согласования, должны получить ошибку
             try{
-                deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"));
-                assertTrue("Не должно быть прав на удаление", false);
+                deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 7").getString("login"));
+                Assert.assertTrue("Не должно быть прав на удаление", false);
             }catch(Exception ignoreEx){
             }
+
+            //Пытаемся удалить под пользователем 3 должно удалится, так как должен отработать мапинг прав
+            deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"));
+            negotiationCards.remove(0);
             
             internalDocument.setString("State", "Registred");
             internalDocument = getCrudService().save(internalDocument);
