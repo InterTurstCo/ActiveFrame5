@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.service.it.notification;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -17,13 +18,10 @@ import org.junit.runner.RunWith;
 
 import ru.intertrust.cm.core.business.api.*;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddressee;
-import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeContextRole;
-import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeDynamicGroup;
-import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeGroup;
-import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseePerson;
-import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
-import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
+import ru.intertrust.cm.core.business.api.dto.notification.*;
+import ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig;
+import ru.intertrust.cm.core.config.FindObjectsConfig;
+import ru.intertrust.cm.core.config.FindObjectsQueryConfig;
 import ru.intertrust.cm.core.service.it.IntegrationTestBase;
 
 /**
@@ -48,6 +46,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
 
     @EJB
     private CollectionsService.Remote collectionService;
+
+    @EJB
+    private ScheduleService.Remote schedulerService;
 
 
     /**
@@ -82,10 +83,10 @@ public class NotificationSeviceIT extends IntegrationTestBase {
     }
 
     private void setPersonProfile(String person, String ppName) {
-        Id personId = personService.findPersonByLogin("person1").getId();
-        DomainObject person1profileDo = findDomainObject("person_profile", "empty", ppName);
+        Id personId = personService.findPersonByLogin(person).getId();
+        DomainObject personProfileDo = findDomainObject("person_profile", "empty", ppName);
         DomainObject person1do = crudService.find(personId);
-        person1do.setReference("profile", person1profileDo.getId());
+        person1do.setReference("profile", personProfileDo.getId());
         crudService.save(person1do);
     }
 
@@ -258,6 +259,78 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             loginContext.logout();
         }
 
+    }
+
+    @Test
+    public void sendOnSchedule(String[] args) throws Exception {
+
+        LoginContext loginContext = login("admin", "admin");
+        loginContext.login();
+        DomainObject task = null;
+        try {
+
+            NotificationTestChannel testChannel = new NotificationTestChannel();
+
+            task = getTaskByName("NotificationScheduleTaskTest");
+            if (task == null) {
+                task =
+                        schedulerService.createScheduleTask(
+                                "ru.intertrust.cm.core.business.impl.notification.NotificationScheduleTask",
+                                "NotificationScheduleTaskTest");
+            }
+
+            String notificationType = "TEST_NOTIFICATION_SCHEDULE";
+            Id senderId = personService.findPersonByLogin("admin").getId();
+            NotificationPriority priority = NotificationPriority.HIGH;
+
+            NotificationTaskConfig testparam = new NotificationTaskConfig();
+            testparam.setNotificationType(notificationType);
+            testparam.setNotificationPriority(priority);
+            testparam.setTaskMode(NotificationTaskMode.BY_DOMAIN_OBJECT);
+
+            //По всем организациям
+            FindObjectsConfig findDomainObject = new FindObjectsConfig();
+            findDomainObject.setFindObjectType(new FindObjectsQueryConfig("select id from organization"));
+            testparam.setFindDomainObjects(findDomainObject);
+
+            FindObjectsConfig findPersonObject = new FindObjectsConfig();
+            findPersonObject.setFindObjectType(new FindObjectsQueryConfig("select id from person where login='person001'"));
+            testparam.setFindPersons(findPersonObject);
+
+            schedulerService.setTaskParams(task.getId(), testparam);
+
+            //Ждем чтобы было без 5 секунд до начала запуска задач по расписанию, для синхронизации теста и заданий
+            while (Calendar.getInstance().get(Calendar.SECOND) != 55) {
+                Thread.currentThread().sleep(500);
+            }
+
+            schedulerService.enableTask(task.getId());
+
+            Thread.currentThread().sleep(100000);
+
+            Assert.assertTrue(testChannel.contains(notificationType, senderId, personService.findPersonByLogin("person001").getId(),
+                    priority, null));
+
+        } finally {
+
+            //Отключение задач
+            if (task != null)
+                schedulerService.disableTask(task.getId());
+            loginContext.logout();
+        }
+    }
+
+    private DomainObject getTaskByName(String name) {
+        List<DomainObject> taskList = schedulerService.getTaskList();
+
+        DomainObject result = null;
+        for (DomainObject task : taskList) {
+            if (task.getString("name").equals(name)) {
+                result = task;
+                break;
+            }
+        }
+        return result;
     }
     
     
