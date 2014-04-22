@@ -1,0 +1,5 @@
+TYPE_NAME=SO_OrgSystem;KEYS=ShortName;;;;;
+ShortName;FullName;NoticesIsFromAllModules;NoticesFormulaIDs;NoticesFormulaFilter;IsDeleted
+ИнтерТраст;"ЗАО ""Интертраст""";false;;;false
+Рога & Co;"ОАО ""Рога и копыта""";false;;;false
+ЗАО Тест;Комплект для тестирования;false;;;false

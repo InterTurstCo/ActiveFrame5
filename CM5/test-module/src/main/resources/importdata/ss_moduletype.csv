@@ -1,0 +1,57 @@
+TYPE_NAME=SS_ModuleType;KEYS=alias;;
+name;alias;iscorporatesupported;iscomplectssupported
+Классификатор адресов;AddressClassifier;false;false
+Учет Входящей Корреспонденции;AdvInput;false;true
+AFWF Конструктор процессов;AFWFDesigner;false;false
+AFWF Экземпляры процессов;AFWFEngine;false;false
+AFWF Задачи;AFWFTasks;false;false
+Согласование;ApprovingDocs;true;true
+Заверитель;ArcSign;false;false
+Архив WF-согласования;ArcWFApprovingDocs;false;false
+Архив WF-Заявок;ArcWFRequests;false;false
+АРМ Контроля исполнения поручений Руководителя;Arm_Kipr;false;false
+Контроль заданий;Askid;false;false
+Кейс-менеджмент;Cases;false;false
+Номенклатура дел;Classifier;false;false
+Номенклатура дел (пред);ClassifierPrev;false;false
+Договоры;ContractsLite;false;true
+Архив договоров;ContractsLiteArch;false;false
+Списки рассылки;Delivery;false;true
+Обсуждения;Discussions;false;false
+Каталог;EDM-Catalog;false;false
+Документы;EDM-Docs;false;false
+НРД;EDM-Docs_NRD;false;false
+Портал;EDM-Portal;false;false
+Клиенты и контакты;ExtContact;false;true
+Межсетевые сообщения;ExtMessages;false;false
+Информационные материалы;FreeDocs;false;false
+Входящие документы;InputDocs;false;true
+Внутренние документы;InternalDocs;false;true
+Формирование дел;Inventory;false;true
+Формирование дел (пред);InventoryPrev;false;true
+Учебный центр;LearningCentre;false;false
+Классификатор связей;LinksClassifier;false;false
+Блокировки;Locking;false;false
+Специализированный почтовый ящик;MailBox;false;true
+Архив специализированного почтового ящика;MailBoxArch;false;false
+Заседания;Meetings;false;true
+MobileGate;MGate;false;false
+Организационно-распорядительные документы;Missions;false;true
+Нумератор;Numerator;false;false
+Справочник организаций - СпО;OrgDirectory;true;false
+Исходящие документы;OutputDocs;false;true
+Персональные настройки;Personal;false;false
+Справочник персон;PersonDirectory;false;false
+Планы;Projects;false;true
+Папки РВЗ;PRVZ;false;false
+Центр Отчетов;QRCentre;false;false
+Переадресация ссылок;Redirect;false;false
+Обращения граждан;Requests;false;true
+Ознакомление;Review;false;true
+Структура организации;SO;false;false
+Структура системы;SS;true;false
+Поручения;Tasks;false;true
+WF-Согласование;WFApprovingDocs;false;false
+WF-Заявки;WFRequests;false;false
+Образы;Rendition;false;false
+Настраиваемые реквизиты;ConfigDetails;false;false

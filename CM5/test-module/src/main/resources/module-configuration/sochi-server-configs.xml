@@ -1,0 +1,1222 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!--SO_OrgSystem-->
+    <form name="SO_OrgSystem_newForm" domain-object-type="SO_OrgSystem" is-default="true" debug="false"
+            >
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <!--Организация-->
+                        <td h-align="right">
+                            <widget id="1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Реквизиты">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+
+
+                                <tr>
+                                    <!--ShortName-->
+                                    <td h-align="right">
+                                        <widget id="10"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="11"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--FullName-->
+                                    <td h-align="right">
+                                        <widget id="12"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="13"/>
+                                    </td>
+                                </tr>
+                                <!-- Code -->
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="32"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="SO_Parent_SU"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--IsDeleted-->
+                                    <td h-align="right">
+                                        <widget id="14"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="15"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+        <widget-config>
+
+            <label id="1">
+                <text>Организация</text>
+            </label>
+
+            <!--NoticesFormulaIDs-->
+            <label id="2">
+                <text>NoticesFormulaIDs:</text>
+            </label>
+            <text-box id="3">
+                <field-path value="NoticesFormulaIDs"/>
+            </text-box>
+
+            <!--NoticesFormulaFilter-->
+            <label id="4">
+                <text>NoticesFormulaFilter:</text>
+            </label>
+            <text-box id="5">
+                <field-path value="NoticesFormulaFilter"/>
+            </text-box>
+
+            <!--NoticesIsFromAllModules-->
+            <label id="6">
+                <text>NoticesIsFromAllModules:</text>
+            </label>
+            <check-box id="7">
+                <field-path value="NoticesIsFromAllModules"/>
+            </check-box>
+
+            <!--Beard-->
+            <label id="8">
+                <text>Beard:</text>
+            </label>
+
+
+            <!--ShortName-->
+            <label id="10">
+                <text>ShortName:</text>
+            </label>
+            <text-box id="11">
+                <field-path value="ShortName"/>
+            </text-box>
+
+            <!--FullName-->
+            <label id="12">
+                <text>FullName:</text>
+            </label>
+            <text-box id="13">
+                <field-path value="FullName"/>
+            </text-box>
+
+            <!--IsDeleted-->
+            <label id="14">
+                <text>IsDeleted:</text>
+            </label>
+            <check-box id="15">
+                <field-path value="IsDeleted"/>
+            </check-box>
+            <label id="32">
+                <text>Код организации:</text>
+            </label>
+            <linked-domain-objects-table id="SO_Parent_SU" modal-height="300px" modal-width="805px">
+                <field-path value="SO_Parent_SU^Owner"/>
+                <linked-form name="SO_Parent_SU_newForm" inline="true"/>
+                <summary-table>
+                    <summary-table-column header="Код" widget-id="3">
+                        <pattern value="{code}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Код является индексом" widget-id="5">
+                        <pattern value="{IsCodeNumIndex}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
+        </widget-config>
+    </form>
+    <form name="SO_Parent_SU_newForm" domain-object-type="SO_Parent_SU" is-default="true" debug="false"
+          min-width="900px">
+        <markup>
+            <header>
+                <table width="500px" height="20px">
+                    <tr>
+                        <!--                         SO_Parent_SU -->
+                        <td h-align="right">
+                            <widget id="1"/>
+                        </td>
+                        <td>
+                            <widget id="dep_owner" width="600px"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Код подразделения">
+                    <bookmarks>
+                        <tab-group name="Настройки">
+                            <table>
+
+                                <tr>
+                                    <!--Code-->
+                                    <td h-align="right" width="200px">
+                                        <widget id="2"/>
+                                    </td>
+                                    <td>
+                                        <widget id="3" width="600px"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--IsCodeNumIndex-->
+                                    <td>
+                                        <widget id="4" width="200px"/>
+                                    </td>
+                                    <td>
+                                        <widget id="5" width="600px"/>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </tab-group>
+                    </bookmarks>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+
+            <label id="1">
+                <text>Код подразделения</text>
+            </label>
+            <label id="dep_owner">
+                <field-path value="Owner.FullName"/>
+                <font-weight value="bolder"/>
+                <font-style value="italic"/>
+                <font-size value="12px"/>
+                <pattern value="Полное название: {Owner.Fullname}"/>
+                <all-values-empty-message value="Не определено"/>
+            </label>
+
+            <!--Code-->
+            <label id="2">
+
+                <text>Код:</text>
+            </label>
+            <text-box id="3">
+                <field-path value="Code"/>
+            </text-box>
+
+            <!--IsCodeNumIndex-->
+            <label id="4">
+                <text>Код является номенклатурным индексом:</text>
+            </label>
+            <check-box id="5">
+                <field-path value="IsCodeNumIndex"/>
+            </check-box>
+
+        </widget-config>
+    </form>
+    <!-- Новая форма для подразделения -->
+    <form name="SO_Department_newForm" domain-object-type="SO_Department" is-default="true" debug="false"
+          min-width="1200px">
+        <!-- Было и раньше -->
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <!--SO_Department-->
+                        <td h-align="right">
+                            <widget id="1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="SO_Department">
+                    <bookmarks>
+                        <tab-group name="Настройки">
+                            <table>
+                                <!--                             Филатов -->
+                                <tr>
+                                    <!-- FullName -->
+                                    <td h-align="right">
+                                        <widget id="20"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="21"/>
+                                    </td>
+                                </tr>
+                                <!-- ShortName -->
+                                <tr>
+                                    <!-- FullName -->
+                                    <td h-align="right">
+                                        <widget id="22"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="23"/>
+                                    </td>
+                                </tr>
+                                <!-- Code -->
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="32"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="SO_Parent_SU"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <!--HierRoot-->
+                                    <td h-align="right">
+                                        <widget id="2"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="3"/>
+                                    </td>
+                                </tr>
+
+                                <!-- <tr>
+                                     &lt;!&ndash;HierParent&ndash;&gt;
+                                     <td h-align="right">
+                                         <widget id="4"/>
+                                     </td>
+                                     <td width="100%" h-align="left">
+                                         <widget id="5"/>
+                                     </td>
+                                 </tr>-->
+                                <tr>
+                                    <td width="100%" h-align="left">
+                                        <widget id="36"/>
+                                    </td>
+                                </tr>
+
+
+                                <tr>
+                                    <!--Type-->
+                                    <td h-align="right" width="200px">
+                                        <widget id="12"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="13"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--IsIndependent-->
+                                    <td h-align="right" width="200px">
+                                        <widget id="14"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="15"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--IsIsolated-->
+                                    <td h-align="right" width="200px">
+                                        <widget id="16"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="17"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--Telex-->
+                                    <td h-align="right" width="200px">
+                                        <widget id="18"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="19"/>
+                                    </td>
+                                </tr>
+
+                                <!--                             Филатов -->
+                                <tr>
+                                    <!-- Notices -->
+                                    <td h-align="right">
+                                        <widget id="24"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="25"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <!-- для тестов -->
+                                    <td h-align="right">
+                                        <widget id="30"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="31"/>
+                                    </td>
+                                </tr>
+
+
+                            </table>
+                        </tab-group>
+                    </bookmarks>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+
+            <label id="1">
+                <text>SO_Department</text>
+            </label>
+
+            <!--HierRoot-->
+            <label id="2">
+                <text>Организация:</text>
+            </label>
+
+            <combo-box id="3">
+                <field-path value="HierRoot"/>
+                <pattern value="{shortname}"/>
+            </combo-box>
+
+
+            <!-- <label id="4">
+                 <text>Вышестоящее подразделение:</text>
+             </label>
+
+             <suggest-box id="5">
+                 <field-path value="HierParent"/>
+                 <collection-ref name="SO_Parent_SU_Collection"/>
+                 <drop-down-pattern value="{code} {owner}"/>
+                 <selection-pattern value="{code} {owner}"/>
+                 <input-text-filter name="byText"/>
+                 <page-size>30</page-size>
+                 <selection-style name="inline"/>
+             </suggest-box>
+ -->
+
+            <!--Type-->
+            <label id="12">
+                <text>Тип:</text>
+            </label>
+            <text-box id="13">
+                <field-path value="Type"/>
+            </text-box>
+
+            <!--IsIndependent-->
+            <label id="14">
+                <text>Самостоятельное подразделение:</text>
+            </label>
+            <check-box id="15">
+                <field-path value="IsIndependent"/>
+            </check-box>
+
+            <!--IsIsolated-->
+            <label id="16">
+                <text>Обособленное подразделение:</text>
+            </label>
+            <check-box id="17">
+                <field-path value="IsIsolated"/>
+            </check-box>
+
+            <!--Telex-->
+            <label id="18">
+                <text>Телекс:</text>
+            </label>
+            <text-box id="19">
+                <field-path value="Telex"/>
+            </text-box>
+            <!--             Филатов -->
+            <label id="20">
+                <text>Полное название:</text>
+            </label>
+
+            <text-box id="21">
+                <field-path value="FullName"/>
+            </text-box>
+            <label id="22">
+                <text>Сокращенное название:</text>
+            </label>
+            <text-box id="23">
+                <field-path value="ShortName"/>
+            </text-box>
+
+            <label id="24">
+                <text>Уведомления из всех баз данных:</text>
+            </label>
+            <check-box id="25">
+                <field-path value="NoticesIsFromAllModules"/>
+            </check-box>
+            <label id="26">
+                <text>Формула для получателей уведомлений:</text>
+            </label>
+            <text-box id="27">
+                <field-path value="NoticesFormulaIDs"/>
+            </text-box>
+            <label id="28">
+                <text>Формула для фильтра уведомлений:</text>
+            </label>
+            <text-box id="29">
+                <field-path value="NoticesFormulaFilter"/>
+            </text-box>
+            <!--              Beard -->
+
+
+            <label id="32">
+                <text>Крактое название:</text>
+            </label>
+
+           <!-- <linked-domain-objects-table id="SO_Parent_SU" modal-height="1200px" modal-width="805px">
+                <field-path value="SO_Parent_SU^Owner"/>
+                <linked-form name="SO_Parent_SU_newForm" inline="true"/>
+                <summary-table>
+                    <summary-table-column header="Код" widget-id="3">
+                        <pattern value="{code}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Код является индексом" widget-id="5">
+                        <pattern value="{IsCodeNumIndex}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>-->
+            <hierarchy-browser id="SO_Parent_SU">
+                <field-path value="HierParent.Owner"/>
+
+
+                <node-collection-def collection="SO_StructureUnit_Collection" domain-object-type="SO_StructureUnit">
+
+                    <input-text-filter name="byName"/>
+
+                    <selection-pattern value="{shortname}"/>
+                    <default-sort-criteria column-field="shortname" order="asc"/>
+
+                </node-collection-def>
+
+
+                <page-size>10</page-size>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="..."/>
+                <display-values-as-links value="true"/>
+            </hierarchy-browser>
+
+        </widget-config>
+        <!-- конец было и раньше -->
+
+    </form>
+    <form name="SS_ModuleOrg_Form" domain-object-type="SS_ModuleOrg" is-default="true" debug="false">
+        <markup>
+            <header>
+                <table width="100%">
+                    <tr>
+                        <!--Типы модулей-->
+                        <td>
+                            <widget id="1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Модули и организации">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <!-- <tr>
+                                     &lt;!&ndash;Module&ndash;&gt;
+                                     <td >
+                                         <widget id="2"/>
+                                     </td>
+                                     <td width="100%" >
+                                         <widget id="3"/>
+                                     </td>
+                                 </tr>-->
+                                <tr>
+                                    <!--Organization-->
+                                    <td>
+                                        <widget id="4"/>
+                                    </td>
+                                    <td width="100%">
+                                        <widget id="5"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+
+            <label id="1">
+                <text></text>
+            </label>
+
+            <!--Type-->
+            <!--   <label id="2">
+                   <text>Type:</text>
+               </label>
+               <suggest-box id="3">
+                   <field-path value="Type"/>
+                   <collection-ref name="SS_ModuleType_Collection"/>
+                   <drop-down-pattern value="{Name}"/>
+                   <selection-pattern value="{Name}"/>
+                   <input-text-filter name="byText"/>
+                   <page-size>30</page-size>
+                   <selection-style name="inline"/>
+               </suggest-box>-->
+
+            <!--Organization-->
+            <label id="4">
+                <text>Организация:</text>
+            </label>
+            <suggest-box id="5">
+                <field-path value="Organization"/>
+                <collection-ref name="SO_OrgSystem_Collection"/>
+                <drop-down-pattern value="{ShortName}"/>
+                <selection-pattern value="{ShortName}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+        </widget-config>
+    </form>
+    <!--SS_ModuleType-->
+    <form name="SS_ModuleType_Form" domain-object-type="SS_ModuleType" is-default="true" debug="false"
+          min-width="900px">
+        <markup>
+            <header>
+                <table width="100%">
+                    <tr>
+                        <!--Типы модулей-->
+                        <td>
+                            <widget id="1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Типы модулей">
+                    <single-entry-group>
+                        <tab-group name="Настройки">
+                            <table>
+                                <tr>
+                                    <!--Name-->
+                                    <td h-align="right">
+                                        <widget id="2"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="3"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--Alias-->
+                                    <td h-align="right">
+                                        <widget id="4"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="5"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <!--IsCorporateSupported-->
+                                    <td h-align="right">
+                                        <widget id="6"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="7"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--IsComplectsSupported-->
+                                    <td h-align="right">
+                                        <widget id="8"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="9"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+
+            <label id="1">
+                <text>Типы модулей:</text>
+            </label>
+
+            <!--Name-->
+            <label id="2">
+                <text>Name:</text>
+            </label>
+            <text-box id="3">
+                <field-path value="Name"/>
+            </text-box>
+
+            <!--Alias-->
+            <label id="4">
+                <text>Alias:</text>
+            </label>
+            <text-box id="5">
+                <field-path value="Alias"/>
+            </text-box>
+
+            <!--IsCorporateSupported-->
+            <label id="6">
+                <text>IsCorporateSupported:</text>
+            </label>
+            <check-box id="7">
+                <field-path value="IsCorporateSupported"/>
+            </check-box>
+
+            <!--IsComplectsSupported-->
+            <label id="8">
+                <text>IsComplectsSupported:</text>
+            </label>
+            <check-box id="9">
+                <field-path value="IsComplectsSupported"/>
+            </check-box>
+
+
+        </widget-config>
+    </form>
+    <!--SS_Module-->
+    <form name="SS_Module_Form" domain-object-type="SS_Module" is-default="true" debug="false"
+            >
+        <markup>
+            <header>
+                <table width="100%">
+                    <tr>
+                        <!--Модули-->
+                        <td>
+                            <widget id="1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <!--Type-->
+                                    <td>
+                                        <widget id="2"/>
+                                    </td>
+                                    <td width="100%">
+                                        <widget id="3"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--Title-->
+                                    <td>
+                                        <widget id="4"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="5"/>
+                                    </td>
+                                </tr>
+                                <tr>
+
+                                    <td>
+                                        <widget id="add-label"/>
+                                    </td>
+                                    <td>
+                                        <widget id="add"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--Complect-->
+                                    <td>
+                                        <widget id="6"/>
+                                    </td>
+                                    <td>
+                                        <widget id="7"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--FileName-->
+                                    <td>
+                                        <widget id="8"/>
+                                    </td>
+                                    <td>
+                                        <widget id="9"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--IsNamed-->
+                                    <td>
+                                        <widget id="10"/>
+                                    </td>
+                                    <td>
+                                        <widget id="11"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--IsAutoReg-->
+                                    <td>
+                                        <widget id="12"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="13"/>
+                                    </td>
+                                </tr>
+                                <!--  <tr>
+                                      &lt;!&ndash;RegFrom&ndash;&gt;
+                                      <td>
+                                          <widget id="14"/>
+                                      </td>
+                                      <td h-align="left">
+                                          <widget id="15"/>
+                                      </td>
+                                  </tr>
+                                  <tr>
+                                      &lt;!&ndash;RegUntil&ndash;&gt;
+                                      <td>
+                                          <widget id="16"/>
+                                      </td>
+                                      <td h-align="left">
+                                          <widget id="17"/>
+                                      </td>
+                                  </tr>-->
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+
+            <label id="1">
+                <text></text>
+            </label>
+
+            <!--Type-->
+            <label id="2">
+                <text>Type:</text>
+            </label>
+            <suggest-box id="3">
+                <field-path value="Type"/>
+                <collection-ref name="SS_ModuleType_Collection"/>
+                <drop-down-pattern value="{Name}"/>
+                <selection-pattern value="{Name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+            </suggest-box>
+
+            <!--Title-->
+            <label id="4">
+                <text>Title:</text>
+            </label>
+            <text-box id="5">
+                <field-path value="Title"/>
+            </text-box>
+
+            <!--Complect-->
+            <label id="6">
+                <text>Complect:</text>
+            </label>
+            <text-box id="7">
+                <field-path value="Complect"/>
+            </text-box>
+
+            <!--FileName-->
+            <label id="8">
+                <text>FileName:</text>
+            </label>
+            <text-box id="9">
+                <field-path value="FileName"/>
+            </text-box>
+
+            <!--IsNamed-->
+            <label id="10">
+                <text>IsNamed:</text>
+            </label>
+            <check-box id="11">
+                <field-path value="IsNamed"/>
+            </check-box>
+
+            <!--IsAutoReg-->
+            <label id="12">
+                <text>IsAutoReg:</text>
+            </label>
+            <check-box id="13">
+                <field-path value="IsAutoReg"/>
+            </check-box>
+
+            <!--RegFrom-->
+            <!--  <label id="14">
+                  <text>RegFrom:</text>
+              </label>
+              <date-box id="15">
+                  <field-path value="RegFrom"/>
+              </date-box>
+
+              &lt;!&ndash;RegUntil&ndash;&gt;
+              <label id="16">
+                  <text>RegUntil:</text>
+              </label>
+              <date-box id="17">
+                  <field-path value="RegUntil"/>
+              </date-box>-->
+            <label id="add-label">
+                <text>Связать с организацией:</text>
+            </label>
+             <linked-domain-objects-table id="add" modal-height="300px" modal-width="805px">
+                 <field-path value="SS_ModuleOrg^module.organization"/>
+                 <linked-form name="SS_ModuleOrg_Form" inline="true"/>
+                 <summary-table>
+                     <!-- <summary-table-column header="Заголовок" widget-id="3">
+                          <pattern value="{Title}"/>
+                      </summary-table-column>-->
+                     <summary-table-column header="Название организации" widget-id="11">
+                         <pattern value="{Shortname}"/>
+                     </summary-table-column>
+                 </summary-table>
+             </linked-domain-objects-table>
+
+        </widget-config>
+    </form>
+
+    <domain-object-type name="SO_Parent">
+        <fields>
+            <string name="Code" length="253">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+            <boolean name="IsCodeNumIndex"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_Parent_SU">
+        <fields>
+            <reference name="Owner" type="SO_StructureUnit"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_Department" extends="SO_StructureUnit">
+        <fields>
+            <reference name="HierRoot" type="SO_OrgSystem" not-null="true"/>
+            <reference name="HierParent" type="SO_Parent" not-null="true"/>
+
+            <string name="Type" length="253"/>
+            <boolean name="IsIndependent" not-null="true"/>
+            <boolean name="IsIsolated" not-null="true"/>
+            <string name="Telex" length="253"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_StructureUnit" extends="SO_Unit" db-id="924">
+        <fields>
+            <string name="ShortName" length="253" not-null="true"/>
+            <string name="FullName" length="253"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_Unit">
+        <fields>
+            <boolean name="NoticesIsFromAllModules"/>
+            <string name="NoticesFormulaIDs" length="253"/>
+            <string name="NoticesFormulaFilter" length="253"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_OrgSystem" extends="SO_StructureUnit">
+        <fields>
+            <boolean name="IsDeleted" not-null="true"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SS_ModuleType">
+        <fields>
+            <string name="Name" not-null="true" length="253"/>
+            <string name="Alias" not-null="true" length="253"/>
+            <!-- ident -->
+            <boolean name="IsCorporateSupported" not-null="true"/>
+            <boolean name="IsComplectsSupported" not-null="true"/>
+        </fields>
+        <uniqueKey>
+            <field name="Alias"/>
+        </uniqueKey>
+    </domain-object-type>
+    <!-- Корневой ДОП "Модуль" -->
+    <domain-object-type name="SS_Module">
+        <fields>
+            <reference name="Type" type="SS_ModuleType" not-null="true"/>
+            <string name="Title" not-null="true" length="253"/>
+            <string name="Complect" length="253"/>
+            <!-- null, если "комплекты" не поддерживаются для выбранного типа -->
+            <string name="FileName" length="253"/>
+            <boolean name="IsNamed" not-null="true"/>
+            <boolean name="IsAutoReg"/>
+            <timelessDate name="RegFrom"/>
+            <timelessDate name="RegUntil"/>
+        </fields>
+        <uniqueKey>
+            <field name="FileName"></field>
+        </uniqueKey>
+    </domain-object-type>
+    <domain-object-type name="SS_ModuleOrg">
+        <fields>
+            <reference name="Module" type="SS_Module" not-null="true"/>
+            <reference name="Organization" type="SO_OrgSystem" not-null="true"/>
+        </fields>
+    </domain-object-type>
+    <!--  <domain-object-type name="SO_Beard" >
+
+          <fields>
+
+              <string name="OrgName" length="253" />
+              <reference name="Organization" type="SO_OrgDescription" />
+              <reference name="HierParent" type="SO_Beard" />
+              <boolean name="IsActive" not-null="true" />
+              <boolean name="IsNotVacancy" />
+              <string name="CmjUnid" not-null="true" length="48" />
+
+              <long name="Orig_Type" not-null="true" />
+              &lt;!&ndash; ENUM &ndash;&gt;
+              <string name="Orig_ShortName" not-null="true" length="253" />
+              <string name="Orig_PostName" length="253" />
+              <string name="Orig_DepartmentName" length="253" />
+
+              <long name="Eff_Type" />
+              &lt;!&ndash; ENUM &ndash;&gt;
+              <string name="Eff_ShortName" length="253" />
+              <string name="Eff_PostName" length="253" />
+              <string name="Eff_DepartmentName" length="253" />
+
+          </fields>
+
+          <uniqueKey>
+              <field name="CmjUnid" />
+          </uniqueKey>
+
+      </domain-object-type>
+      <domain-object-type name="SO_OrgDescription">
+          <fields>
+              <reference name="Module" type="SS_Module" not-null="true" />
+              <boolean name="IsDeleted" not-null="true" />
+              <boolean name="IsRequest" not-null="true" />
+              <reference name="Edited" type="SO_OrgDescription" />
+              <string name="Topic" length="253" />
+              <string name="Note" length="253" />
+              <string name="INN" length="253" />
+              <string name="KPP" length="253" />
+              <string name="BIK" length="253" />
+              <string name="OKONH" length="253" />
+              <string name="OKPO" length="253" />
+              <string name="Bank" length="253" />
+              <string name="Account" length="253" />
+              <string name="BankCorr" length="253" />
+              <string name="AccountCorr" length="253" />
+              <string name="Telex" length="253" />
+          </fields>
+      </domain-object-type>-->
+    <form-mappings name="SO_Department_Mapping">
+        <form-mapping domain-object-type="SO_Department" form="SO_Department_newForm">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+
+    </form-mappings>
+    <form-mappings name="SO_OrgSystem_Mapping">
+        <form-mapping domain-object-type="SO_OrgSystem" form="SO_OrgSystem_newForm">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
+    <form-mappings name="SO_Parent_SU_Mapping">
+        <form-mapping domain-object-type="SO_Parent_SU" form="SO_Parent_SU_newForm">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
+    <form-mappings name="SS_Module_Mapping">
+        <form-mapping domain-object-type="SS_Module" form="SS_Module_Form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
+    <form-mappings name="SS_ModuleType_Mapping">
+        <form-mapping domain-object-type="SS_ModuleType" form="SS_ModuleType_Form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
+    <collection name="SO_StructureUnit_Collection" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT id,
+
+                       shortname,
+                       fullname
+                FROM
+                       so_structureunit
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from so_structureunit ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+    <collection name="SO_Department_Collection" idField="id">
+        <prototype>
+            <![CDATA[
+            SELECT
+                    id,
+                    hierroot,
+                    hierparent,
+
+                    type,
+                    isindependent,
+                    isisolated,
+                    telex
+            FROM so_department
+                     ::from-clause
+             where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from so_department ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+    <collection name="SO_OrgSystem_Collection" idField="id">
+        <prototype>
+            <![CDATA[
+            select
+                so_orgsystem.id,
+                so_orgsystem.isdeleted,
+                so_structureunit.shortname,
+                so_structureunit.fullname
+            from so_orgsystem
+            inner join so_structureunit
+            on so_orgsystem.id=so_structureunit.id
+                ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from so_orgsystem ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+    <collection name="SO_Parent_SU_Collection" idField="id">
+        <prototype>
+            <![CDATA[
+              SELECT
+                    so_parent_su.id,
+                    so_parent.code,
+                    so_parent.iscodenumindex,
+                    so_parent_su.owner
+              FROM
+                    so_parent_su
+              JOIN
+                    so_parent
+              ON
+                    so_parent_su.id=so_parent.id
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from so_parent_su ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+    <collection name="SS_Module_Collection" idField="id">
+        <prototype>
+            <![CDATA[
+               select
+                    id,
+                    title,
+                    complect,
+                    filename,
+                    isnamed,
+                    isautoreg,
+                    regfrom,
+                    reguntil
+               from SS_Module
+               ::from-clause
+               where 1 = 1
+               ::where-clause
+           ]]>
+        </prototype>
+    </collection>
+    <collection name="SS_ModuleType_Collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                 id, name, alias, iscorporatesupported, iscomplectssupported
+                from
+                    SS_ModuleType
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from SS_ModuleType ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+    <collection-view name="SO_Department_Default_View" collection="SO_Department_Collection"
+                     is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="hierroot" name="HierRoot" type="string" sortable="false"/>
+            <column field="hierparent" name="HierParent" type="string" sortable="false"/>
+
+
+            <column field="telex" name="Telex" type="string" sortable="false"/>
+        </display>
+    </collection-view>
+    <collection-view name="SO_OrgSystem_Default_View" collection="SO_OrgSystem_Collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="shortname" name="ShortName" type="string" sortable="false"/>
+            <column field="fullname" name="FullName" type="string" sortable="false"/>
+            <column field="isdeleted" name="Удален" editable="false" type="string" sortable="false"/>
+        </display>
+    </collection-view>
+    <collection-view name="SS_ModuleType_Default_View" collection="SS_ModuleType_Collection" is-default="true">
+        <display>
+
+            <column field="name" name="name" type="string" sortable="false"/>
+            <column field="alias" name="alias" type="string" sortable="false"/>
+            <column field="iscorporatesupported" name="iscorporatesupported" type="boolean" sortable="false"/>
+            <column field="iscomplectssupported" name="iscomplectssupported" type="boolean" sortable="false"/>
+        </display>
+    </collection-view>
+    <collection-view name="SS_Module_Default_View" collection="SS_Module_Collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="title" name="title" type="string" sortable="false"/>
+            <column field="complect" name="complect" type="string" sortable="false"/>
+            <column field="filename" name="filename" type="string" sortable="false"/>
+            <column field="isnamed" name="isnamed" type="boolean" sortable="false"/>
+
+        </display>
+    </collection-view>
+
+</configuration>

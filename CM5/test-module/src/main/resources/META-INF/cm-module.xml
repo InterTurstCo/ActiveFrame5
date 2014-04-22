@@ -31,6 +31,7 @@
         <configuration-path>module-configuration/trigger-events.xml</configuration-path>
         <configuration-path>module-configuration/notifications.xml</configuration-path>
         <configuration-path>module-configuration/actions.xml</configuration-path>
+        <configuration-path>module-configuration/sochi-server-configs.xml</configuration-path>
     </configuration-paths>
     <import-files rewrite="true">
         <import-file>importdata/import-organization.csv</import-file>
@@ -44,6 +45,12 @@
         <import-file rewrite="false">importdata/import-locale.csv</import-file>
         <import-file rewrite="false">importdata/import-notification_text.csv</import-file>
         <import-file>importdata/import-notification.csv</import-file>
+
+        <import-file>importdata/ss_moduletype.csv</import-file>
+        <import-file rewrite="false">importdata/ss_module.csv</import-file>
+        <import-file rewrite="false">importdata/so_orgsystem.csv</import-file>
+        <import-file rewrite="false">importdata/ss_moduleorg.csv</import-file>
+
     </import-files>
 
     <import-reports>

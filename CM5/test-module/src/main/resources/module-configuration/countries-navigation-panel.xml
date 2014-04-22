@@ -296,6 +296,38 @@
 
             </child-links>
         </link>
+        <link name="SochiServer" display-text="Сочи Сервер" image="images/matugalnik2.png" child-to-open="Module">
+            <child-links>
+
+                <link name="Departments" display-text="департаменты">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SO_Department">
+                            <collection-viewer>
+                                <collection-ref name="SO_Department_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Organizations" display-text="организации">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SO_OrgSystem">
+                            <collection-viewer>
+                                <collection-ref name="SO_OrgSystem_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
     </navigation>
     <navigation name="panel_1"
                 is-default="false">
