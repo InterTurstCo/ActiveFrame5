@@ -1,15 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.FormatRowsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.ParsedRowsList;
@@ -17,7 +18,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,8 +30,9 @@ import java.util.regex.Pattern;
  */
 @ComponentName("table-browser")
 public class TableBrowserHandler extends LinkEditingWidgetHandler {
+    private static final int NUMBER_OF_ITEMS = 25;
     @Autowired
-    private CrudService crudService;
+    CollectionsService collectionsService;
 
     @Override
     public TableBrowserState getInitialState(WidgetContext context) {
@@ -39,22 +41,24 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         state.setTableBrowserConfig(widgetConfig);
         Id rootId = context.getFormObjects().getRootNode().getDomainObject().getId();
         state.setRootId(rootId);
-        ArrayList<Id> selectedIds = context.getAllObjectIds();
-        List<DomainObject> domainObjects;
-        if (!selectedIds.isEmpty()) {
-            domainObjects = crudService.find(selectedIds);
-        } else {
-            domainObjects = Collections.emptyList();
-        }
+        List<Id> selectedIds = context.getAllObjectIds();
+        String collectionName = widgetConfig.getCollectionRefConfig().getName();
+        Filter includeIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(includeIds);
+        DefaultSortCriteriaConfig defaultSortCriteriaConfig = widgetConfig.getDefaultSortCriteriaConfig();
+        SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
+        IdentifiableObjectCollection collection = collectionsService.
+                    findCollection(collectionName, sortOrder, filters, 0, NUMBER_OF_ITEMS);
         ArrayList<TableBrowserItem> items = new ArrayList<TableBrowserItem>();
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
         Pattern pattern = createDefaultRegexPattern();
         Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
 
-        for (DomainObject domainObject : domainObjects) {
+        for (IdentifiableObject collectionObject : collection) {
             TableBrowserItem item = new TableBrowserItem();
-            item.setId(domainObject.getId());
-            item.setStringRepresentation(format(domainObject, matcher));
+            item.setId(collectionObject.getId());
+            item.setStringRepresentation(format(collectionObject, matcher));
             items.add(item);
         }
         state.setTableBrowserItems(items);
@@ -69,17 +73,25 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
     public ParsedRowsList fetchParsedRows(Dto inputParams) {
         FormatRowsRequest formatRowsRequest = (FormatRowsRequest) inputParams;
         List<Id> idsToParse = formatRowsRequest.getIdsShouldBeFormatted();
-        List<DomainObject> domainObjects = crudService.find(idsToParse);
+        Filter includeIds = FilterBuilder.prepareFilter(new HashSet<Id>(idsToParse), FilterBuilder.INCLUDED_IDS_FILTER);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(includeIds);
+        String collectionName = formatRowsRequest.getCollectionName();
+        DefaultSortCriteriaConfig defaultSortCriteriaConfig = formatRowsRequest.getDefaultSortCriteriaConfig();
+        SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
+        IdentifiableObjectCollection collection = collectionsService.
+                findCollection(collectionName, sortOrder, filters, 0, NUMBER_OF_ITEMS);
+
         Pattern pattern = createDefaultRegexPattern();
 
         Matcher selectionMatcher = pattern.matcher(formatRowsRequest.getSelectionPattern());
 
         ArrayList<TableBrowserItem> items = new ArrayList<>();
 
-        for (DomainObject domainObject : domainObjects) {
+        for (IdentifiableObject collectionObject : collection) {
             TableBrowserItem item = new TableBrowserItem();
-            item.setId(domainObject.getId());
-            item.setStringRepresentation(format(domainObject, selectionMatcher));
+            item.setId(collectionObject.getId());
+            item.setStringRepresentation(format(collectionObject, selectionMatcher));
             items.add(item);
         }
         ParsedRowsList parsedRows = new ParsedRowsList();

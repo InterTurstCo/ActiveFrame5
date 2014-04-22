@@ -363,7 +363,8 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         FormatRowsRequest formatRowsRequest = new FormatRowsRequest();
         formatRowsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
         formatRowsRequest.setIdsShouldBeFormatted(chosenIds);
-
+        formatRowsRequest.setCollectionName(tableBrowserConfig.getCollectionRefConfig().getName());
+        formatRowsRequest.setDefaultSortCriteriaConfig(tableBrowserConfig.getDefaultSortCriteriaConfig());
         Command command = new Command("fetchParsedRows", getName(), formatRowsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

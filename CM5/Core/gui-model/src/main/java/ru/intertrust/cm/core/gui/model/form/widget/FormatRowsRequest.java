@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
 import java.util.ArrayList;
 
@@ -13,7 +14,8 @@ import java.util.ArrayList;
 public class FormatRowsRequest implements Dto {
     private String selectionPattern;
     private ArrayList<Id> idsShouldBeFormatted = new ArrayList<Id>();
-
+    private String collectionName;
+    private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     public String getSelectionPattern() {
         return selectionPattern;
     }
@@ -30,4 +32,19 @@ public class FormatRowsRequest implements Dto {
         this.idsShouldBeFormatted = idsShouldBeFormatted;
     }
 
+    public String getCollectionName() {
+        return collectionName;
+    }
+
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
+    }
+
+    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+        return defaultSortCriteriaConfig;
+    }
+
+    public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
+        this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
+    }
 }

@@ -262,14 +262,14 @@
                                     </td>
                                 </tr>
                                 <!-- Code -->
-                                <tr>
+                               <!-- <tr>
                                     <td h-align="right">
                                         <widget id="32"/>
                                     </td>
                                     <td width="100%" h-align="left">
                                         <widget id="SO_Parent_SU"/>
                                     </td>
-                                </tr>
+                                </tr>-->
 
                                 <tr>
                                     <!--HierRoot-->
@@ -376,6 +376,7 @@
             <combo-box id="3">
                 <field-path value="HierRoot"/>
                 <pattern value="{shortname}"/>
+
             </combo-box>
 
 
@@ -477,7 +478,7 @@
                     </summary-table-column>
                 </summary-table>
             </linked-domain-objects-table>-->
-            <hierarchy-browser id="SO_Parent_SU">
+           <!-- <hierarchy-browser id="SO_Parent_SU">
                 <field-path value="HierParent.Owner"/>
 
 
@@ -496,7 +497,7 @@
                 <clear-all-button text="Очистить"/>
                 <add-button image="..." text="..."/>
                 <display-values-as-links value="true"/>
-            </hierarchy-browser>
+            </hierarchy-browser>-->
 
         </widget-config>
         <!-- конец было и раньше -->
@@ -683,8 +684,8 @@
         </widget-config>
     </form>
     <!--SS_Module-->
-    <form name="SS_Module_Form" domain-object-type="SS_Module" is-default="true" debug="false"
-            >
+    <form name="SS_Module_Form" domain-object-type="SS_Module" is-default="true" debug="false" >
+
         <markup>
             <header>
                 <table width="100%">
@@ -764,24 +765,14 @@
                                         <widget id="13"/>
                                     </td>
                                 </tr>
-                                <!--  <tr>
-                                      &lt;!&ndash;RegFrom&ndash;&gt;
-                                      <td>
-                                          <widget id="14"/>
-                                      </td>
-                                      <td h-align="left">
-                                          <widget id="15"/>
-                                      </td>
-                                  </tr>
-                                  <tr>
-                                      &lt;!&ndash;RegUntil&ndash;&gt;
-                                      <td>
-                                          <widget id="16"/>
-                                      </td>
-                                      <td h-align="left">
-                                          <widget id="17"/>
-                                      </td>
-                                  </tr>-->
+                                <tr>
+
+                                    <td>
+                                        <widget id="tb"/>
+                                    </td>
+
+                                </tr>
+
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -878,7 +869,24 @@
                      </summary-table-column>
                  </summary-table>
              </linked-domain-objects-table>
+            <table-browser id="tb">
+                <field-path value="Col"/>
 
+                <collection-ref name="SO_OrgSystem_Collection"/>
+
+                <collection-view-ref name="SO_OrgSystem_Default_View"/>
+
+                <selection-pattern value="{fullname}"/>
+                <input-text-filter name="byName"/>
+                <page-size>30</page-size>
+                <display-chosen-values value="false"/>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+                <clear-all-button  text="Очистить"/>
+                <add-button image="..." text="..."/>
+                <default-sort-criteria column-field="shortname" order="desc"/>
+                <display-values-as-links value="true"/>
+            </table-browser>
         </widget-config>
     </form>
 
@@ -938,6 +946,37 @@
             <field name="Alias"/>
         </uniqueKey>
     </domain-object-type>
+    <domain-object-type name="SO_Post" extends="SO_Unit" db-id="933">
+        <fields>
+            <reference name="HierRoot" type="SO_OrgSystem" />
+            <reference name="HierParent" type="SO_Parent"  />
+
+            <!--             <boolean name="IsDeleted" not-null="true" /> -->
+            <boolean name="IsDeleted" />
+            <string name="Name" length="253" not-null="true" />
+            <long name="Rank" />
+            <!--             <boolean name="IsLeader" not-null="true" /> -->
+            <boolean name="IsLeader" />
+            <!--             <boolean name="IsAbsent" not-null="true" /> -->
+            <boolean name="IsAbsent"/>
+            <!--             <boolean name="NoticesIsCurrentWork" not-null="true" /> -->
+            <boolean name="NoticesIsCurrentWork" />
+            <!--             <boolean name="NoticesIsCurrentAbsent" not-null="true" /> -->
+            <boolean name="NoticesIsCurrentAbsent" />
+            <!--             <boolean name="EmailCreate" not-null="true" /> -->
+            <boolean name="EmailCreate" />
+            <!--             <boolean name="EmailIncludeContent" not-null="true" /> -->
+            <boolean name="EmailIncludeContent"  />
+            <string name="EmailFormulaContent" length="253" />
+            <string name="EmailDomain" length="253" />
+            <string name="EmailHost" length="253" />
+            <string name="EmailFormulaAddressesWork" length="253" />
+            <string name="EmailFormulaFilterWork" length="253" />
+            <string name="EmailFormulaAddressesAbs" length="253" />
+            <string name="EmailFormulaFilterAbsent" length="253" />
+        </fields>
+    </domain-object-type>
+
     <!-- Корневой ДОП "Модуль" -->
     <domain-object-type name="SS_Module">
         <fields>
@@ -950,6 +989,7 @@
             <boolean name="IsAutoReg"/>
             <timelessDate name="RegFrom"/>
             <timelessDate name="RegUntil"/>
+            <reference name="Col" type="SO_OrgSystem" />
         </fields>
         <uniqueKey>
             <field name="FileName"></field>
@@ -961,56 +1001,7 @@
             <reference name="Organization" type="SO_OrgSystem" not-null="true"/>
         </fields>
     </domain-object-type>
-    <!--  <domain-object-type name="SO_Beard" >
 
-          <fields>
-
-              <string name="OrgName" length="253" />
-              <reference name="Organization" type="SO_OrgDescription" />
-              <reference name="HierParent" type="SO_Beard" />
-              <boolean name="IsActive" not-null="true" />
-              <boolean name="IsNotVacancy" />
-              <string name="CmjUnid" not-null="true" length="48" />
-
-              <long name="Orig_Type" not-null="true" />
-              &lt;!&ndash; ENUM &ndash;&gt;
-              <string name="Orig_ShortName" not-null="true" length="253" />
-              <string name="Orig_PostName" length="253" />
-              <string name="Orig_DepartmentName" length="253" />
-
-              <long name="Eff_Type" />
-              &lt;!&ndash; ENUM &ndash;&gt;
-              <string name="Eff_ShortName" length="253" />
-              <string name="Eff_PostName" length="253" />
-              <string name="Eff_DepartmentName" length="253" />
-
-          </fields>
-
-          <uniqueKey>
-              <field name="CmjUnid" />
-          </uniqueKey>
-
-      </domain-object-type>
-      <domain-object-type name="SO_OrgDescription">
-          <fields>
-              <reference name="Module" type="SS_Module" not-null="true" />
-              <boolean name="IsDeleted" not-null="true" />
-              <boolean name="IsRequest" not-null="true" />
-              <reference name="Edited" type="SO_OrgDescription" />
-              <string name="Topic" length="253" />
-              <string name="Note" length="253" />
-              <string name="INN" length="253" />
-              <string name="KPP" length="253" />
-              <string name="BIK" length="253" />
-              <string name="OKONH" length="253" />
-              <string name="OKPO" length="253" />
-              <string name="Bank" length="253" />
-              <string name="Account" length="253" />
-              <string name="BankCorr" length="253" />
-              <string name="AccountCorr" length="253" />
-              <string name="Telex" length="253" />
-          </fields>
-      </domain-object-type>-->
     <form-mappings name="SO_Department_Mapping">
         <form-mapping domain-object-type="SO_Department" form="SO_Department_newForm">
             <users>
@@ -1180,6 +1171,51 @@
             select count(*) from SS_ModuleType ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
     </collection>
+    <collection name="SO_PostPlain_Collection" idField="id">
+    <prototype>
+        <![CDATA[
+            SELECT
+                    so_post.id,
+                    so_post.hierroot,
+
+                    so_post.hierparent,
+
+                    so_post.isdeleted,
+                    so_post.name as name,
+                    so_post.rank,
+                    so_post.isleader,
+                    so_post.isabsent,
+                    so_post.noticesiscurrentwork,
+                    so_post.noticesiscurrentabsent,
+                    so_post.emailcreate,
+                    so_post.emailincludecontent,
+                    so_post.emailformulacontent,
+                    so_post.emaildomain,
+                    so_post.emailhost,
+                    so_post.emailformulaaddresseswork,
+                    so_post.emailformulafilterwork,
+                    so_post.emailformulaaddressesabs,
+                    so_post.emailformulafilterabsent
+
+            FROM
+                    so_post
+
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+    </prototype>
+    <counting-prototype>
+        select count(*) from so_postplain ::from-clause WHERE 1=1 ::where-clause
+    </counting-prototype>
+    <filter name="byName">
+        <criteria placeholder="where-clause">
+            <![CDATA[
+                    so_post.name like {0}
+                ]]>
+        </criteria>
+    </filter>
+</collection>
     <collection-view name="SO_Department_Default_View" collection="SO_Department_Collection"
                      is-default="true">
         <display>
@@ -1215,6 +1251,15 @@
             <column field="complect" name="complect" type="string" sortable="false"/>
             <column field="filename" name="filename" type="string" sortable="false"/>
             <column field="isnamed" name="isnamed" type="boolean" sortable="false"/>
+
+        </display>
+    </collection-view>
+    <collection-view name="SO_PostPlain_Default_View" collection="SO_PostPlain_Collection"
+                     is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="name" name="name" type="string" sortable="false"/>
+        <!--    <column field="hierparent" name="HierParent" type="string" sortable="false"/>-->
 
         </display>
     </collection-view>
