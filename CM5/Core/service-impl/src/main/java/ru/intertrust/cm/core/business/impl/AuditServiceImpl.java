@@ -7,6 +7,7 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -18,6 +19,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.VersionComparisonResult;
 import ru.intertrust.cm.core.business.api.dto.VersionComparisonResultImpl;
 import ru.intertrust.cm.core.dao.api.AuditLogServiceDao;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * Интерфейс сервиса работы с Audit логом
@@ -30,6 +32,8 @@ import ru.intertrust.cm.core.dao.api.AuditLogServiceDao;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class AuditServiceImpl implements AuditService {
 
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(AuditServiceImpl.class);
+
     @Autowired
     private AuditLogServiceDao auditLogServiceDao;
 
@@ -40,7 +44,13 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public List<DomainObjectVersion> findAllVersions(Id domainObjectId) {
-        return auditLogServiceDao.findAllVersions(domainObjectId);
+        try {
+            return auditLogServiceDao.findAllVersions(domainObjectId);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("AuditService", "findAllVersions",
+                    "domainObjectId:" + domainObjectId, ex);
+        }
     }
 
     /**
@@ -50,7 +60,13 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public DomainObjectVersion findVersion(Id versionId) {
-        return auditLogServiceDao.findVersion(versionId);
+        try {
+            return auditLogServiceDao.findVersion(versionId);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("AuditService", "findVersion",
+                    "versionId:" + versionId, ex);
+        }
     }
 
     /**
@@ -59,7 +75,12 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public void clean(Id domainObjectId) {
-        auditLogServiceDao.clean(domainObjectId);
+        try {
+            auditLogServiceDao.clean(domainObjectId);
+        } catch (Exception ex) {
+            throw new UnexpectedException("AuditService", "clean",
+                    "domainObjectId:" + domainObjectId, ex);
+        }
     }
 
     /**
@@ -70,11 +91,16 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public VersionComparisonResult compare(Id baseVersionId) {
-        // Получение версий
-        DomainObjectVersion baseVersion = findVersion(baseVersionId);
-        DomainObjectVersion comparedVersion = auditLogServiceDao.findLastVersion(baseVersion.getDomainObjectId());
+        try {
+            // Получение версий
+            DomainObjectVersion baseVersion = findVersion(baseVersionId);
+            DomainObjectVersion comparedVersion = auditLogServiceDao.findLastVersion(baseVersion.getDomainObjectId());
 
-        return compare(baseVersion, comparedVersion);
+            return compare(baseVersion, comparedVersion);
+        } catch (Exception ex) {
+            throw new UnexpectedException("AuditService", "compare",
+                    "baseVersionId:" + baseVersionId, ex);
+        }
     }
 
     /**
@@ -86,11 +112,16 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     public VersionComparisonResult compare(Id baseVersionId, Id comparedVersionId) {
-        // Получение версий
-        DomainObjectVersion baseVersion = findVersion(baseVersionId);
-        DomainObjectVersion comparedVersion = findVersion(comparedVersionId);
+        try {
+            // Получение версий
+            DomainObjectVersion baseVersion = findVersion(baseVersionId);
+            DomainObjectVersion comparedVersion = findVersion(comparedVersionId);
 
-        return compare(baseVersion, comparedVersion);
+            return compare(baseVersion, comparedVersion);
+        } catch (Exception ex) {
+            throw new UnexpectedException("AuditService", "compare",
+                    "baseVersionId:" + baseVersionId + " comparedVersionId:" + comparedVersionId, ex);
+        }
     }
 
     /**

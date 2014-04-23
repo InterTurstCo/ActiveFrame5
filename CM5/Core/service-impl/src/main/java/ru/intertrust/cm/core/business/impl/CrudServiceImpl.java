@@ -19,6 +19,8 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.CrudException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.UnexpectedException;
@@ -27,10 +29,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Реализация сервиса для работы c базовы CRUD-операциями. Смотри link @CrudService
@@ -92,20 +91,28 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public DomainObject createDomainObject(String name) {
-        GenericDomainObject domainObject = new GenericDomainObject();
-        domainObject.setTypeName(name);
-        Date currentDate = new Date();
-        domainObject.setCreatedDate(currentDate);
-        domainObject.setModifiedDate(currentDate);
+        try {
+            GenericDomainObject domainObject = new GenericDomainObject();
+            domainObject.setTypeName(name);
+            Date currentDate = new Date();
+            domainObject.setCreatedDate(currentDate);
+            domainObject.setModifiedDate(currentDate);
 
-        //Точка расширения после создания
-        List<String> parentTypes = getAllParentTypes(name);
-        for (String typeName : parentTypes) {
-            AfterCreateExtentionHandler extension = extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, typeName);
-            extension.onAfterCreate(domainObject);
+            //Точка расширения после создания
+            List<String> parentTypes = getAllParentTypes(name);
+            for (String typeName : parentTypes) {
+                AfterCreateExtentionHandler extension = extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, typeName);
+                extension.onAfterCreate(domainObject);
+            }
+
+            return domainObject;
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw ex;
         }
-        
-        return domainObject;
+        catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CrudService", "createDomainObject", "name:" + name, ex);
+        }
     }
 
     /**
@@ -128,45 +135,47 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     
     @Override
     public DomainObject save(DomainObject domainObject) {
-        checkForAttachment(domainObject.getTypeName());
-        AccessToken accessToken = null;
-        if (!domainObject.isNew()) {
-            String user = currentUserAccessor.getCurrentUser();
-            Id objectId = ((GenericDomainObject) domainObject).getId();
-            accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
-        } else {
-            accessToken = createSystemAccessToken();              
-        }
-
-        DomainObject result = null;
         try {
-            result = domainObjectDao.save(domainObject, accessToken);
-        } catch (DaoException ex) {
-            logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " DO:" + domainObject.getId());
-        }
-        if (result == null) {
-            throw new ObjectNotFoundException(domainObject.getId());
-        }
+            checkForAttachment(domainObject.getTypeName());
+            AccessToken accessToken = null;
+            if (!domainObject.isNew()) {
+                String user = currentUserAccessor.getCurrentUser();
+                Id objectId = ((GenericDomainObject) domainObject).getId();
+                accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
+            } else {
+                accessToken = createSystemAccessToken();
+            }
 
-        return result;
+            DomainObject result = domainObjectDao.save(domainObject, accessToken);
+            if (result == null) {
+                throw new ObjectNotFoundException(domainObject.getId());
+            }
+
+            return result;
+        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CrudService", "save", "domainObject:" + domainObject, ex);
+        }
     }
 
 
     @Override
     public List<DomainObject> save(List<DomainObject> domainObjects) {
 
-        for (DomainObject domainObject : domainObjects) {
-           checkForAttachment(domainObject.getTypeName());
-        }
-
-        AccessToken accessToken = createSystemAccessToken();
-
         try {
+            for (DomainObject domainObject : domainObjects) {
+               checkForAttachment(domainObject.getTypeName());
+            }
+
+            AccessToken accessToken = createSystemAccessToken();
             return domainObjectDao.save(domainObjects, accessToken);
-        } catch (DaoException ex) {
+        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException ex) {
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage());
+            throw new UnexpectedException("CrudService", "save", "domainObjects:" + Arrays.toString(domainObjects.toArray()), ex);
         }
     }
 
@@ -178,29 +187,38 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public boolean exists(Id id) {
         try {
             return domainObjectDao.exists(id);
-        } catch (DaoException ex) {
+        } catch (NullPointerException e) {
+            throw e;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " Id:" + id);
+            throw new UnexpectedException("CrudService", "exists", "id:" + id, ex);
         }
     }
 
     @Override
     public DomainObject find(Id id) {
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = null;
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = null;
 
-        if (isReadPermittedToEverybody(id)) {
-            accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
-        } else {
-            accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
+            if (isReadPermittedToEverybody(id)) {
+                accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
+            } else {
+                accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
+            }
+
+            DomainObject result = domainObjectDao.find(id, accessToken);
+            if (result == null) {
+                throw new ObjectNotFoundException(id);
+            }
+
+            return result;
+        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CrudService", "find", "id:" + id, ex);
         }
-
-        DomainObject result = domainObjectDao.find(id, accessToken);
-        if (result == null) {
-            throw new ObjectNotFoundException(id);
-        }
-
-        return result;
     }
 
     private boolean isReadPermittedToEverybody(Id id) {
@@ -214,15 +232,22 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public DomainObject findAndLock(Id id) {
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.WRITE);
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.WRITE);
 
-        DomainObject result = domainObjectDao.findAndLock(id, accessToken);
-        if (result == null) {
-            throw new ObjectNotFoundException(id);
+            DomainObject result = domainObjectDao.findAndLock(id, accessToken);
+            if (result == null) {
+                throw new ObjectNotFoundException(id);
+            }
+
+            return result;
+        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CrudService", "findAndLock", "id:" + id, ex);
         }
-
-        return result;
     }
 
     @Override
@@ -231,77 +256,113 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             throw new IllegalArgumentException("Ids list can not be empty");
         }
         Id[] idsArray = ids.toArray(new Id[ids.size()]);
-        String user = currentUserAccessor.getCurrentUser();
+        try {
+            String user = currentUserAccessor.getCurrentUser();
 
-        AccessToken accessToken =
-                accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.READ, false);
+            AccessToken accessToken =
+                    accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.READ, false);
 
-        return domainObjectDao.find(ids, accessToken);
+            return domainObjectDao.find(ids, accessToken);
+        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CrudService", "find", "ids:" + Arrays.toString(idsArray), ex);
+        }
     }
 
     @Override
     public List<DomainObject> findAll(String domainObjectType) {
         if (domainObjectType == null || domainObjectType.trim().isEmpty()) {
             throw new IllegalArgumentException("Domain Object type can not be null or empty");
-        }        
-        
-        AccessToken accessToken = null;
-        if (isReadPermittedToEverybody(domainObjectType)) {
-            accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
-        } else {
-            String user = currentUserAccessor.getCurrentUser();
-            accessToken = accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
         }
-        
-        return domainObjectDao.findAll(domainObjectType, accessToken);
+
+        try {
+            AccessToken accessToken = null;
+            if (isReadPermittedToEverybody(domainObjectType)) {
+                accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
+            } else {
+                String user = currentUserAccessor.getCurrentUser();
+                accessToken = accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
+            }
+
+            return domainObjectDao.findAll(domainObjectType, accessToken);
+        } catch (AccessException | ObjectNotFoundException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CrudService", "findAll", "domainObjectType:" + domainObjectType, ex);
+        }
     }
 
     @Override
     public void delete(Id id) {
-        String objectName = domainObjectTypeIdCache.getName(id);
-        checkForAttachment(objectName);
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = null;
-        accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
         try {
+            String objectName = domainObjectTypeIdCache.getName(id);
+            checkForAttachment(objectName);
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = null;
+            accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
             domainObjectDao.delete(id, accessToken);
-        } catch (DaoException ex) {
+        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " Id:" + id);
+            throw new UnexpectedException("CrudService", "delete", "id:" + id, ex);
         }
     }
 
     @Override
     public int delete(Collection<Id> ids) {
-        if (ids == null || ids.size() == 0) {
-            return 0;
-        }
-        for (Id id : ids) {
-            String objectName = domainObjectTypeIdCache.getName(id);
-            checkForAttachment(objectName);
-        }
-
-        Id[] idsArray = ids.toArray(new Id[ids.size()]);
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
         try {
+            if (ids == null || ids.size() == 0) {
+                return 0;
+            }
+            for (Id id : ids) {
+                String objectName = domainObjectTypeIdCache.getName(id);
+                checkForAttachment(objectName);
+            }
+
+            Id[] idsArray = ids.toArray(new Id[ids.size()]);
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
             return domainObjectDao.delete(ids, accessToken);
-        } catch (DaoException ex) {
+        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage());
+            throw new UnexpectedException("CrudService", "delete", "ids:" + Arrays.toString(ids.toArray()), ex);
         }
     }
 
     @Override
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField) {
-        AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
-        return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, accessToken);
+        try {
+            AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
+            return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, accessToken);
+        } catch (AccessException  ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CrudService", "findLinkedDomainObjects",
+                    "domainObjectId:" + domainObjectId + " linkedType:" + linkedType
+                    + " linkedField:" + linkedField, ex);
+        }
     }
 
     @Override
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
-        AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
-        return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
+        try {
+            AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
+            return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
+        } catch (AccessException  ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CrudService", "findLinkedDomainObjectsIds",
+                    "domainObjectId:" + domainObjectId + " linkedType:" + linkedType
+                            + " linkedField:" + linkedField, ex);
+        }
     }
 
     private AccessToken createAccessTokenForFindLinkedDomainObjects(String linkedType) {
@@ -317,7 +378,12 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public String getDomainObjectType(Id id) {
-        return domainObjectTypeIdCache.getName(id);
+        try {
+            return domainObjectTypeIdCache.getName(id);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CrudService", "getDomainObjectType", "id:" + id, ex);
+        }
     }
 
     private void checkForAttachment(String objectType) {

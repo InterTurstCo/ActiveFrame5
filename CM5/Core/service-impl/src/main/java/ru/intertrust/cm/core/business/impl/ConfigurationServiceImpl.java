@@ -6,6 +6,8 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -20,6 +22,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * {@link ConfigurationExplorer}
@@ -33,6 +36,8 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ConfigurationServiceImpl implements ConfigurationService {
 
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
@@ -45,63 +50,134 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public Configuration getConfiguration() {
-        return configurationExplorer.getConfiguration();
+        try {
+            return configurationExplorer.getConfiguration();
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getConfiguration", "", ex);
+        }
     }
 
     @Override
     public GlobalSettingsConfig getGlobalSettings() {
-        return configurationExplorer.getGlobalSettings();
+        try {
+            return configurationExplorer.getGlobalSettings();
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getGlobalSettings", "", ex);
+        }
     }
 
     @Override
     public <T> T getConfig(Class<T> type, String name) {
-        return configurationExplorer.getConfig(type, name);
+        try {
+            return configurationExplorer.getConfig(type, name);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getConfig",
+                    "type:" + type + " name:" + name, ex);
+        }
     }
 
     @Override
     public <T> Collection<T> getConfigs(Class<T> type) {
-        return configurationExplorer.getConfigs(type);
+        try {
+            return configurationExplorer.getConfigs(type);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getConfigs",
+                    "type:" + type, ex);
+        }
     }
 
     @Override
     public Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect) {
-        return configurationExplorer.findChildDomainObjectTypes(typeName, includeIndirect);
+        try {
+            return configurationExplorer.findChildDomainObjectTypes(typeName, includeIndirect);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "findChildDomainObjectTypes",
+                    "typeName:" + typeName + " includeIndirect:" + includeIndirect, ex);
+        }
     }
 
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {
-        return configurationExplorer.getFieldConfig(domainObjectConfigName, fieldConfigName);
+        try {
+            return configurationExplorer.getFieldConfig(domainObjectConfigName, fieldConfigName);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getFieldConfig",
+                    "domainObjectConfigName:" + domainObjectConfigName + " fieldConfigName:" + fieldConfigName, ex);
+        }
     }
 
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig) {
-        return configurationExplorer.getFieldConfig(domainObjectConfigName, fieldConfigName, returnInheritedConfig);
+        try {
+            return configurationExplorer.getFieldConfig(domainObjectConfigName, fieldConfigName, returnInheritedConfig);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getFieldConfig",
+                    "domainObjectConfigName:" + domainObjectConfigName + " fieldConfigName:" + fieldConfigName
+                    + " returnInheritedConfig:" + returnInheritedConfig, ex);
+        }
     }
 
     @Override
     public CollectionColumnConfig getCollectionColumnConfig(String collectionConfigName, String columnConfigName) {
-        return configurationExplorer.getCollectionColumnConfig(collectionConfigName, columnConfigName);
+        try {
+            return configurationExplorer.getCollectionColumnConfig(collectionConfigName, columnConfigName);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getCollectionColumnConfig",
+                    "collectionConfigName:" + collectionConfigName + " columnConfigName:" + columnConfigName, ex);
+        }
     }
 
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType) {
-        return configurationExplorer.getDynamicGroupConfigsByContextType(domainObjectType);
+        try {
+            return configurationExplorer.getDynamicGroupConfigsByContextType(domainObjectType);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getDynamicGroupConfigsByContextType",
+                    "domainObjectType:" + domainObjectType, ex);
+        }
     }
 
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String objectTypeName, String status) {
-        return configurationExplorer.getDynamicGroupConfigsByTrackDO(objectTypeName, status);
+        try {
+            return configurationExplorer.getDynamicGroupConfigsByTrackDO(objectTypeName, status);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getDynamicGroupConfigsByTrackDO",
+                    "objectTypeName:" + objectTypeName + " status:" + status, ex);
+        }
     }
 
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(Id objectId, String status) {
-        return configurationExplorer.getDynamicGroupConfigsByTrackDO(crudService.getDomainObjectType(objectId),
-                status);
+        try {
+            return configurationExplorer.getDynamicGroupConfigsByTrackDO(crudService.getDomainObjectType(objectId),
+                    status);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getDynamicGroupConfigsByTrackDO",
+                    "objectId:" + objectId + " status:" + status, ex);
+        }
     }
 
     @Override
     public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
-        return configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
+        try {
+            return configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getAccessMatrixByObjectTypeAndStatus",
+                    "domainObjectType:" + domainObjectType + " status:" + status, ex);
+        }
     }
 
     /**
@@ -110,6 +186,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      * @return true если тип доменного обхекта - Attachment
      */
     public boolean isAttachmentType(String domainObjectType) {
-        return configurationExplorer.isAttachmentType(domainObjectType);
+        try {
+            return configurationExplorer.isAttachmentType(domainObjectType);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "isAttachmentType",
+                    "domainObjectType:" + domainObjectType, ex);
+        }
     }
 }

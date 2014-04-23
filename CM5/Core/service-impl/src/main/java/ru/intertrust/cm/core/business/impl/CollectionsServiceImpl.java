@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -11,11 +12,14 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +33,8 @@ import java.util.List;
 @Remote(CollectionsService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class CollectionsServiceImpl implements CollectionsService {
+
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(CollectionsServiceImpl.class);
 
     @Autowired
     private CollectionsDao collectionsDao;
@@ -54,10 +60,20 @@ public class CollectionsServiceImpl implements CollectionsService {
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
             List<? extends Filter> filterValues, int offset, int limit) {
-        String user = currentUserAccessor.getCurrentUser();
+        try {
+            String user = currentUserAccessor.getCurrentUser();
 
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-        return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
+            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+            return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
+        } catch (AccessException e) {
+            throw e;
+        } catch (Exception ex){
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CollectionsService", "findCollection",
+                    "collectionName:" + collectionName + " sortOrder: " + sortOrder
+                    + " filterValues:" + (filterValues == null ? "null" : Arrays.toString(filterValues.toArray()))
+                            + " offset:" + offset + " limit:" + limit, ex);
+        }
     }
 
     @Override
@@ -78,17 +94,33 @@ public class CollectionsServiceImpl implements CollectionsService {
 
     @Override
     public int findCollectionCount(String collectionName, List<? extends Filter> filterValues) {
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-        return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+            return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
+        } catch (AccessException e) {
+            throw e;
+        } catch (Exception ex){
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CollectionsService", "findCollectionCount",
+                    "collectionName:" + collectionName + " filterValues:" + filterValues, ex);
+        }
     }
 
     /** {@inheritDoc} */
     @Override
     public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit) {
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-        return collectionsDao.findCollectionByQuery(query, offset, limit, accessToken);
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+            return collectionsDao.findCollectionByQuery(query, offset, limit, accessToken);
+        } catch (AccessException e) {
+            throw e;
+        } catch (Exception ex){
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CollectionsService", "findCollectionByQuery",
+                    "query:" + query + " offset:" + offset + " limit:" + limit, ex);
+        }
     }
 
     /** {@inheritDoc} */
@@ -101,9 +133,18 @@ public class CollectionsServiceImpl implements CollectionsService {
     @Override
     public IdentifiableObjectCollection findCollectionByQuery(String query,
             List<? extends Value> params, int offset, int limit) {
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-        return collectionsDao.findCollectionByQuery(query, params, offset, limit, accessToken);
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+            return collectionsDao.findCollectionByQuery(query, params, offset, limit, accessToken);
+        } catch (AccessException e) {
+            throw e;
+        } catch (Exception ex){
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("CollectionsService", "findCollectionByQuery",
+                    "query:" + query + " params: " + (params == null ? "null" : Arrays.toString(params.toArray()))
+                    +  " offset:" + offset + " limit:" + limit, ex);
+        }
     }
 
     /** {@inheritDoc} */

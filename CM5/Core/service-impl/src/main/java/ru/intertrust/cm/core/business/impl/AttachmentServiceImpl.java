@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
@@ -72,14 +73,20 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     public DomainObject createAttachmentDomainObjectFor(Id objectId, String attachmentType) {
-        GenericDomainObject attachmentDomainObject = (GenericDomainObject) crudService.createDomainObject(attachmentType);
+        try {
+            GenericDomainObject attachmentDomainObject = (GenericDomainObject) crudService.createDomainObject(attachmentType);
 
-        String domainObjectType = domainObjectTypeIdCache.getName(objectId);
-        
-        String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
-        
-        attachmentDomainObject.setReference(attchmentLinkedField, objectId);
-        return attachmentDomainObject;
+            String domainObjectType = domainObjectTypeIdCache.getName(objectId);
+
+            String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
+
+            attachmentDomainObject.setReference(attchmentLinkedField, objectId);
+            return attachmentDomainObject;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("AttachmentService", "createAttachmentDomainObjectFor",
+                    "objectId:" + objectId + " attachmentType:" + attachmentType,  ex);
+        }
     }
 
     public void setAccessControlService(AccessControlService accessControlService) {
@@ -122,10 +129,13 @@ public class AttachmentServiceImpl implements AttachmentService {
                 attachmentDomainObject.setValue(PATH_NAME, newFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
-            throw new UnexpectedException(ex.getMessage() + " DO:" + attachmentDomainObject.getId());
-        } catch (DaoException ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " DO:" + attachmentDomainObject.getId());
+            throw new UnexpectedException("AttachmentService", "saveAttachment",
+                    "attachmentDomainObject:" + attachmentDomainObject.getId(),  ex);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("AttachmentService", "saveAttachment",
+                    "attachmentDomainObject:" + attachmentDomainObject.getId(),  ex);
         }
         finally {
             if (contentStream != null) {
@@ -164,7 +174,8 @@ public class AttachmentServiceImpl implements AttachmentService {
             if (remoteInputStream != null) {
                 remoteInputStream.close();
             }
-            throw new UnexpectedException(ex.getMessage() + " Id:" + attachmentDomainObjectId);
+            throw new UnexpectedException("AttachmentService", "loadAttachment",
+                    "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
         }
     }
 
@@ -181,7 +192,8 @@ public class AttachmentServiceImpl implements AttachmentService {
             domainObjectDao.delete(attachmentDomainObjectId, accessToken);
         } catch (DaoException ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " Id:" + attachmentDomainObjectId);
+            throw new UnexpectedException("AttachmentService", "deleteAttachment",
+                    "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
         }
     }
 
@@ -193,11 +205,17 @@ public class AttachmentServiceImpl implements AttachmentService {
      */
     @Override
     public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId) {
-        String domainObjectTypeName = domainObjectTypeIdCache.getName(domainObjectId);
-        List<DomainObject> foundAttachments = new ArrayList<>();
-        
-        collectAttachmentsForDOAndParentDO(domainObjectId, domainObjectTypeName, foundAttachments);
-        return foundAttachments;
+        try {
+            String domainObjectTypeName = domainObjectTypeIdCache.getName(domainObjectId);
+            List<DomainObject> foundAttachments = new ArrayList<>();
+
+            collectAttachmentsForDOAndParentDO(domainObjectId, domainObjectTypeName, foundAttachments);
+            return foundAttachments;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",
+                    "domainObjectId:" + domainObjectId, ex);
+        }
     }
 
     private void collectAttachmentsForDOAndParentDO(Id domainObjectId, String domainObjectTypeName,
@@ -235,13 +253,19 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType) {
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = accessControlService.createAccessToken(user, domainObjectId, DomainObjectAccessType.READ);
-        String domainObjectType = domainObjectTypeIdCache.getName(domainObjectId);
-        
-        String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
-        
-        return  domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attchmentLinkedField, accessToken);
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createAccessToken(user, domainObjectId, DomainObjectAccessType.READ);
+            String domainObjectType = domainObjectTypeIdCache.getName(domainObjectId);
+
+            String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
+
+            return  domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attchmentLinkedField, accessToken);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",
+                    "domainObjectId:" + domainObjectId + " attachmentType:" + attachmentType, ex);
+        }
     }
 
     private String getAttachmentOwnerObject(String attachmentType, String domainObjectType) {
