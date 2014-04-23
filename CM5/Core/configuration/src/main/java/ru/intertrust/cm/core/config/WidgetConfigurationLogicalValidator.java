@@ -75,6 +75,7 @@ public class WidgetConfigurationLogicalValidator {
 
     public void prepareAndValidateWidgetConfigurationDependingOnFieldPath(FormToValidate data,
                                                                           WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
+
         String[] pathParts = widget.getCurrentFieldPathValue().split("\\.");
         int numberOfParts = pathParts.length;
 
@@ -100,7 +101,7 @@ public class WidgetConfigurationLogicalValidator {
         }
     }
 
-    private WidgetConfigurationToValidate prepareWidgetConfigurationForValidation(WidgetConfig widgetConfig){
+    private WidgetConfigurationToValidate prepareWidgetConfigurationForValidation(WidgetConfig widgetConfig) {
 
         WidgetConfigurationToValidate widgetConfiguration = new WidgetConfigurationToValidate();
         widgetConfiguration.setWidgetConfig(widgetConfig);
@@ -126,6 +127,7 @@ public class WidgetConfigurationLogicalValidator {
         }
         String className = fieldConfig.getClass().getCanonicalName();
         if (fieldTypeIsReference(className)) {
+
             widget.setDomainObjectTypeForManyToMany(widget.getDomainObjectTypeToValidate());
             widget.setDomainObjectTypeToValidate(((ReferenceFieldConfig) fieldConfig).getType());
             return;
@@ -144,6 +146,7 @@ public class WidgetConfigurationLogicalValidator {
         if (requiredFieldConfig == null) {
             return findRequiredFieldConfigManyToMany(widget, logicalErrors);
         }
+
         return requiredFieldConfig;
     }
 
@@ -186,6 +189,7 @@ public class WidgetConfigurationLogicalValidator {
 
         if (fieldConfig == null && parent != null) {
             widget.setDomainObjectTypeToValidate(parent);
+            widget.setDomainObjectTypeForManyToMany(null);
             return findRequiredFieldConfig(widget, logicalErrors);
         }
         return fieldConfig;
@@ -212,7 +216,7 @@ public class WidgetConfigurationLogicalValidator {
             validateHierarchyBrowserWidget(widget, logicalErrors);
         } else if (thisIsRadioButtonWidget(componentName)) {
             validateRadioButtonWidget(widget, logicalErrors);
-        }  else if (thisIsLabelWidget(componentName)) {
+        } else if (thisIsLabelWidget(componentName)) {
             validateLabelWidget(widget, logicalErrors);
         }
 
@@ -244,8 +248,8 @@ public class WidgetConfigurationLogicalValidator {
         HierarchyBrowserConfig config = (HierarchyBrowserConfig) widget.getWidgetConfig();
         NodeCollectionDefConfig nodeConfig = config.getNodeCollectionDefConfig();
         if (!widget.isMethodValidated("validateNode")) {
-        validateHierarchyBrowserNode(widget, nodeConfig, logicalErrors);
-        widget.addValidatedMethod("validateNode");
+            validateHierarchyBrowserNode(widget, nodeConfig, logicalErrors);
+            widget.addValidatedMethod("validateNode");
         }
 
     }
@@ -254,24 +258,24 @@ public class WidgetConfigurationLogicalValidator {
         validatePattern(widget, logicalErrors);
     }
 
-    private void validateAllowedCombinationOfTags(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors){
+    private void validateAllowedCombinationOfTags(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
         LabelConfig labelConfig = (LabelConfig) widget.getWidgetConfig();
         String text = labelConfig.getText();
         PatternConfig patternConfig = labelConfig.getPattern();
         RendererConfig rendererConfig = labelConfig.getRenderer();
-        if (text != null && patternConfig != null){
+        if (text != null && patternConfig != null) {
             String error = String.format("Widget with id '%s' has redundant tag <pattern>",
                     labelConfig.getId());
             logger.error(error);
             logicalErrors.addError(error);
         }
-        if (text != null && rendererConfig != null){
+        if (text != null && rendererConfig != null) {
             String error = String.format("Widget with id '%s' has redundant tag <renderer>",
                     labelConfig.getId());
             logger.error(error);
             logicalErrors.addError(error);
         }
-        if (text == null && rendererConfig != null && patternConfig != null){
+        if (text == null && rendererConfig != null && patternConfig != null) {
             String error = String.format("Widget with id '%s' has redundant tag <pattern>",
                     labelConfig.getId());
             logger.error(error);
@@ -299,7 +303,7 @@ public class WidgetConfigurationLogicalValidator {
             logger.error(error);
             logicalErrors.addError(error);
         } else {
-            ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig)widget.getFieldConfigToValidate();
+            ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) widget.getFieldConfigToValidate();
             String domainObjectType = fieldConfig.getType();
 
             List<String> fieldNames = getFieldNames(domainObjectType);
@@ -307,7 +311,7 @@ public class WidgetConfigurationLogicalValidator {
             List<String> placeholders = findPatternPlaceholders(pattern);
             for (String placeholder : placeholders) {
                 if (!fieldNames.contains(placeholder)) {
-                    String error = String.format("Incorrect pattern placeholder '%s' found for domain object '%s' in %s with id '%s'", placeholder, domainObjectType,  widgetName, widgetId);
+                    String error = String.format("Incorrect pattern placeholder '%s' found for domain object '%s' in %s with id '%s'", placeholder, domainObjectType, widgetName, widgetId);
                     logger.error(error);
                     logicalErrors.addError(error);
                 }
@@ -364,7 +368,7 @@ public class WidgetConfigurationLogicalValidator {
                                               NodeCollectionDefConfig nodeConfig, LogicalErrors logicalErrors) {
         String collectionName = nodeConfig.getCollection();
         CollectionConfig collectionConfig = validateIfCollectionExists(widget, collectionName, logicalErrors);
-        if( collectionConfig != null) {
+        if (collectionConfig != null) {
             validateIfFiltersExist(collectionConfig, nodeConfig, logicalErrors);
         }
         NodeCollectionDefConfig childNodeConfig = nodeConfig.getNodeCollectionDefConfig();
@@ -374,7 +378,7 @@ public class WidgetConfigurationLogicalValidator {
     }
 
     private CollectionConfig validateIfCollectionExists(WidgetConfigurationToValidate widget,
-                                                                 String collectionName, LogicalErrors logicalErrors) {
+                                                        String collectionName, LogicalErrors logicalErrors) {
         CollectionConfig config = (CollectionConfig) findRequiredConfigByClassAndName(CollectionConfig.class, collectionName);
         if (config == null) {
             String error = String.format("Collection '%s' for %s with id '%s' wasn't found",
@@ -383,30 +387,30 @@ public class WidgetConfigurationLogicalValidator {
             logicalErrors.addError(error);
 
         }
-           return  config;
+        return config;
     }
 
     private void validateIfFiltersExist(CollectionConfig collectionConfig,
-                                        NodeCollectionDefConfig nodeConfig, LogicalErrors logicalErrors){
+                                        NodeCollectionDefConfig nodeConfig, LogicalErrors logicalErrors) {
         String filterInWidget = nodeConfig.getParentFilter();
         if (filterInWidget == null) {
             return;
         }
         List<String> filtersFromCollectionConfig = getFiltersFromCollectionConfig(collectionConfig);
-            if (!filtersFromCollectionConfig.contains(filterInWidget)){
-                String error = String.format("Collection '%s' has no filter '%s'", collectionConfig.getName(), filterInWidget);
-                logger.error(error);
-                logicalErrors.addError(error);
-            }
+        if (!filtersFromCollectionConfig.contains(filterInWidget)) {
+            String error = String.format("Collection '%s' has no filter '%s'", collectionConfig.getName(), filterInWidget);
+            logger.error(error);
+            logicalErrors.addError(error);
+        }
     }
 
-    private List<String> getFiltersFromCollectionConfig(CollectionConfig config){
+    private List<String> getFiltersFromCollectionConfig(CollectionConfig config) {
         List<String> filtersFromCollectionConfig = new ArrayList<String>();
         List<CollectionFilterConfig> filterConfigs = config.getFilters();
         for (CollectionFilterConfig filterConfig : filterConfigs) {
-                filtersFromCollectionConfig.add(filterConfig.getName());
-            }
-        return  filtersFromCollectionConfig;
+            filtersFromCollectionConfig.add(filterConfig.getName());
+        }
+        return filtersFromCollectionConfig;
     }
 
     private TopLevelConfig findRequiredConfigByClassAndName(Class classOfConfig, String name) {
@@ -444,6 +448,7 @@ public class WidgetConfigurationLogicalValidator {
     private boolean thisIsRadioButtonWidget(String componentName) {
         return WIDGET_RADIO_BUTTON.equalsIgnoreCase(componentName);
     }
+
     private boolean thisIsLabelWidget(String componentName) {
         return WIDGET_LABEL.equalsIgnoreCase(componentName);
     }

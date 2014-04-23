@@ -57,33 +57,40 @@
             <reference name="delegate" type="Employee" not-null="true" />
         </fields>
     </domain-object-type>
-    <!--
-    <domain-object-type name="Status">
+    <domain-object-type name="SO_Parent_SU">
         <fields>
-            <string name="Name" length="128" not-null="true" />
+            <reference name="Owner" type="SO_StructureUnit"/>
         </fields>
     </domain-object-type>
-    
-     <domain-object-type name="Internal_Document" initial-status="Active2"> Internal_Document table
+    <domain-object-type name="SO_Department" extends="SO_StructureUnit">
         <fields>
-            <string name="Name" length="128" />
-            <long name="Stage"/>
-            <string name="ReturnOnReject" length="3" />
-            <string name="RegNum" length="128" />
-            <reference name="docAuthor" type="Employee"/>
-            <reference name="Registrant" type="Employee"/>
-            <reference name="Inspector" type="Employee"/>
+            <reference name="HierRoot" type="SO_OrgSystem" not-null="true"/>
+            <reference name="HierParent" type="SO_Parent_SU" not-null="true"/>
+
+            <string name="Type" length="253"/>
+            <boolean name="IsIndependent" not-null="true"/>
+            <boolean name="IsIsolated" not-null="true"/>
+            <string name="Telex" length="253"/>
         </fields>
     </domain-object-type>
-    
-    <domain-object-type name="Negotiation_Card" initial-status="Active2"> Internal_Document table
+    <domain-object-type name="SO_StructureUnit" extends="SO_Unit" db-id="924">
         <fields>
-            <string name="Name" length="128" />
-            <reference name="Parent_Document" type="Internal_Document"/>
-            <reference name="Negotiator" type="Employee"/> This means Foreign Key to Employee and index are created automatically
-            <reference name="Add_Negotiation_Card" type="Negotiation_Card"/>
+            <string name="ShortName" length="253" not-null="true"/>
+            <string name="FullName" length="253"/>
         </fields>
-    </domain-object-type> -->
+    </domain-object-type>
+    <domain-object-type name="SO_Unit">
+        <fields>
+            <boolean name="NoticesIsFromAllModules"/>
+            <string name="NoticesFormulaIDs" length="253"/>
+            <string name="NoticesFormulaFilter" length="253"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_OrgSystem" extends="SO_StructureUnit">
+        <fields>
+            <boolean name="IsDeleted" not-null="true"/>
+        </fields>
+    </domain-object-type>
 
     <!-- Системный объект, должен определяться в системной конфигурации -->
     <domain-object-type name="Authentication_Info">

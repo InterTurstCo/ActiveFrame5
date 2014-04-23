@@ -1,24 +1,25 @@
 package ru.intertrust.cm.core.config;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 import static org.powermock.api.support.membermodification.MemberModifier.suppress;
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
+
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 13/9/13
@@ -31,16 +32,19 @@ public class FormLogicalValidatorTest {
     private static final String FORM_XML_PATH = "config/forms-test.xml";
     private static final String INVALID_FORM_XML_PATH = "config/form-with-errors.xml";
     private static final String GLOBAL_XML_PATH = "config/global-test.xml";
+
     /**
      * Вызов метода validateWidgetsHandlers исключается на время тестов
      * Для корректной работы validateWidgetsHandlers требуется спринг контекст
+     *
      * @throws Exception
      */
     @Before
-     public void SetUp() throws Exception {
+    public void SetUp() throws Exception {
         suppress(method(FormLogicalValidator.class, "validateWidgetsForExtendingHandler"));
 
-     }
+    }
+
     @Test
     public void validateCorrectForm() throws Exception {
 
@@ -73,14 +77,19 @@ public class FormLogicalValidatorTest {
                 + "Path part 'year_of_foundation' in  'year_of_foundation.date' isn't a reference type\n"
                 + "Could not find field 'letter'  in path 'organization_addressee^letter.organization'\n"
                 + "Collection 'Departments' has no filter 'byOrganization'\n"
-                + "Collection 'Employees' for hierarchy-browser with id '33d' wasn't found\n");
-       ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
+                + "Collection 'Employees' for hierarchy-browser with id '33d' wasn't found\n"
+                + "Configuration of form with name 'SO_Department_newForm' was validated with errors.Count: 4 Content:\n"
+                + "Couldn't find widget with id '36'\n"
+                + "Couldn't find widget with id '30'\n"
+                + "Couldn't find widget with id '31'\n"
+                + "Collection 'SO_StructureUnit_Collection' for hierarchy-browser with id 'SO_Parent_SU' wasn't found\n");
+        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
 
-       FormLogicalValidator formValidator = new FormLogicalValidator();
-       formValidator.setConfigurationExplorer(configurationExplorer);
-       try {
-           formValidator.validate();
-       } catch(ConfigurationException e) {
+        FormLogicalValidator formValidator = new FormLogicalValidator();
+        formValidator.setConfigurationExplorer(configurationExplorer);
+        try {
+            formValidator.validate();
+        } catch (ConfigurationException e) {
             assertEquals(expectedMessage, e.getMessage());
         }
     }

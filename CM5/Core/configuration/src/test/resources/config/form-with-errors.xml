@@ -394,6 +394,287 @@
             </hierarchy-browser>
         </widget-config>
     </form>
+    <form name="SO_Department_newForm" domain-object-type="SO_Department" is-default="true" debug="false"
+          min-width="1200px">
+        <!-- Было и раньше -->
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <!--SO_Department-->
+                        <td h-align="right">
+                            <widget id="1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="SO_Department">
+                    <bookmarks>
+                        <tab-group name="Настройки">
+                            <table>
+                                <!--                             Филатов -->
+                                <tr>
+                                    <!-- FullName -->
+                                    <td h-align="right">
+                                        <widget id="20"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="21"/>
+                                    </td>
+                                </tr>
+                                <!-- ShortName -->
+                                <tr>
+                                    <!-- FullName -->
+                                    <td h-align="right">
+                                        <widget id="22"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="23"/>
+                                    </td>
+                                </tr>
+                                <!-- Code -->
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="32"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="SO_Parent_SU"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <!--HierRoot-->
+                                    <td h-align="right">
+                                        <widget id="2"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="3"/>
+                                    </td>
+                                </tr>
+
+                                <!-- <tr>
+                                     &lt;!&ndash;HierParent&ndash;&gt;
+                                     <td h-align="right">
+                                         <widget id="4"/>
+                                     </td>
+                                     <td width="100%" h-align="left">
+                                         <widget id="5"/>
+                                     </td>
+                                 </tr>-->
+                                <tr>
+                                    <td width="100%" h-align="left">
+                                        <widget id="36"/>
+                                    </td>
+                                </tr>
+
+
+                                <tr>
+                                    <!--Type-->
+                                    <td h-align="right" width="200px">
+                                        <widget id="12"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="13"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--IsIndependent-->
+                                    <td h-align="right" width="200px">
+                                        <widget id="14"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="15"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--IsIsolated-->
+                                    <td h-align="right" width="200px">
+                                        <widget id="16"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="17"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!--Telex-->
+                                    <td h-align="right" width="200px">
+                                        <widget id="18"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="19"/>
+                                    </td>
+                                </tr>
+
+                                <!--                             Филатов -->
+                                <tr>
+                                    <!-- Notices -->
+                                    <td h-align="right">
+                                        <widget id="24"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="25"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <!-- для тестов -->
+                                    <td h-align="right">
+                                        <widget id="30"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="31"/>
+                                    </td>
+                                </tr>
+
+
+                            </table>
+                        </tab-group>
+                    </bookmarks>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+
+            <label id="1">
+                <text>SO_Department</text>
+            </label>
+
+            <!--HierRoot-->
+            <label id="2">
+                <text>Организация:</text>
+            </label>
+
+            <combo-box id="3">
+                <field-path value="HierRoot"/>
+                <pattern value="{shortname}"/>
+
+            </combo-box>
+
+
+            <!-- <label id="4">
+                 <text>Вышестоящее подразделение:</text>
+             </label>
+
+             <suggest-box id="5">
+                 <field-path value="HierParent"/>
+                 <collection-ref name="SO_Parent_SU_Collection"/>
+                 <drop-down-pattern value="{code} {owner}"/>
+                 <selection-pattern value="{code} {owner}"/>
+                 <input-text-filter name="byText"/>
+                 <page-size>30</page-size>
+                 <selection-style name="inline"/>
+             </suggest-box>
+ -->
+
+            <!--Type-->
+            <label id="12">
+                <text>Тип:</text>
+            </label>
+            <text-box id="13">
+                <field-path value="Type"/>
+            </text-box>
+
+            <!--IsIndependent-->
+            <label id="14">
+                <text>Самостоятельное подразделение:</text>
+            </label>
+            <check-box id="15">
+                <field-path value="IsIndependent"/>
+            </check-box>
+
+            <!--IsIsolated-->
+            <label id="16">
+                <text>Обособленное подразделение:</text>
+            </label>
+            <check-box id="17">
+                <field-path value="IsIsolated"/>
+            </check-box>
+
+            <!--Telex-->
+            <label id="18">
+                <text>Телекс:</text>
+            </label>
+            <text-box id="19">
+                <field-path value="Telex"/>
+            </text-box>
+            <!--             Филатов -->
+            <label id="20">
+                <text>Полное название:</text>
+            </label>
+
+            <text-box id="21">
+                <field-path value="FullName"/>
+            </text-box>
+            <label id="22">
+                <text>Сокращенное название:</text>
+            </label>
+            <text-box id="23">
+                <field-path value="ShortName"/>
+            </text-box>
+
+            <label id="24">
+                <text>Уведомления из всех баз данных:</text>
+            </label>
+            <check-box id="25">
+                <field-path value="NoticesIsFromAllModules"/>
+            </check-box>
+            <label id="26">
+                <text>Формула для получателей уведомлений:</text>
+            </label>
+            <text-box id="27">
+                <field-path value="NoticesFormulaIDs"/>
+            </text-box>
+            <label id="28">
+                <text>Формула для фильтра уведомлений:</text>
+            </label>
+            <text-box id="29">
+                <field-path value="NoticesFormulaFilter"/>
+            </text-box>
+            <!--              Beard -->
+
+
+            <label id="32">
+                <text>Крактое название:</text>
+            </label>
+
+            <!-- <linked-domain-objects-table id="SO_Parent_SU" modal-height="1200px" modal-width="805px">
+                 <field-path value="SO_Parent_SU^Owner"/>
+                 <linked-form name="SO_Parent_SU_newForm" inline="true"/>
+                 <summary-table>
+                     <summary-table-column header="Код" widget-id="3">
+                         <pattern value="{code}"/>
+                     </summary-table-column>
+                     <summary-table-column header="Код является индексом" widget-id="5">
+                         <pattern value="{IsCodeNumIndex}"/>
+                     </summary-table-column>
+                 </summary-table>
+             </linked-domain-objects-table>-->
+            <hierarchy-browser id="SO_Parent_SU">
+                <field-path value="HierParent.Owner"/>
+
+
+                <node-collection-def collection="SO_StructureUnit_Collection" domain-object-type="SO_StructureUnit">
+
+                    <input-text-filter name="byName"/>
+
+                    <selection-pattern value="{shortname}"/>
+                    <default-sort-criteria column-field="shortname" order="asc"/>
+
+                </node-collection-def>
+
+
+                <page-size>10</page-size>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="..."/>
+                <display-values-as-links value="true"/>
+            </hierarchy-browser>
+
+        </widget-config>
+        <!-- конец было и раньше -->
+
+    </form>
     <collection name="Countries" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
 
