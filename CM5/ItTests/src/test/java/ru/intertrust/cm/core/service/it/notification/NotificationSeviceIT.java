@@ -280,7 +280,6 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             }
 
             String notificationType = "TEST_NOTIFICATION_SCHEDULE";
-            Id senderId = personService.findPersonByLogin("admin").getId();
             NotificationPriority priority = NotificationPriority.HIGH;
 
             NotificationTaskConfig testparam = new NotificationTaskConfig();
@@ -306,9 +305,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
 
             schedulerService.enableTask(task.getId());
 
-            Thread.currentThread().sleep(100000);
+            Thread.currentThread().sleep(15000);
 
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, personService.findPersonByLogin("person001").getId(),
+            Assert.assertTrue(testChannel.contains(notificationType, null, personService.findPersonByLogin("person001").getId(),
                     priority, null));
 
         } finally {
