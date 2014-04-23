@@ -477,27 +477,11 @@
 }
 
 .dataGridFooter {
-   /* border-top: 2px solid #6f7277;
-    padding: 3px 15px;
-    text-align: left;
-    color: #4b4a4a;
-    text-shadow: #ddf 1px 1px 0;
-    overflow: hidden;
-    white-space: nowrap;*/
 }
 
 .dataGridCell {
     color: #1c1c1c;
-    padding: 0 5px;
-    /*height: 26px;
-    padding: 2px 15px;
-    overflow: hidden;
-    text-align: left;
-    *//*position: relative;*//*
-    clear: left;
-    color: #000000;
-    font-weight: normal;
-    background: #FFFFFF;*/
+    padding: 3px 0 3px 5px;
 }
 
 .dataGridFirstColumnFooter {
@@ -524,12 +508,9 @@
 }
 
 .dataGridSortableHeader:hover {
-    /*color: #036AB3;*/
-    /*cursor: move;*/
 }
 
 .dataGridSortableHeader:active {
-    /*color: #036AB3;*/
     cursor: move;
 }
 .dataGridSortedHeaderAscending {
@@ -558,11 +539,11 @@
 }
 
 .dataGridEvenRowCell {
-    padding: 5px 0 5px 5px;
+    padding: 3px 0 3px 5px;
 }
 
 .dataGridOddRow {
-    padding: 5px 0 5px 5px;
+    padding: 3px 0 3px 5px;
 }
 
 .dataGridOddRowCell {

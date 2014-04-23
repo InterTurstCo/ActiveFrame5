@@ -65,11 +65,9 @@ public class HierarchyBrowserView extends Composite {
         widgetContainer.setStyleName("hierarh-browser-inline");
         buttonActionPanel = new VerticalPanel(); //TODO: looks like it's never used
         buttonActionPanel.setStyleName("hierarh-browser-inline");
-        Label label = new Label("Адресаты:");
-        label.setStyleName("hierarh-browser-inline");
+
         widgetChosenContent = new HierarchyBrowserFacebookStyleView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarh-browser-border");
-        widgetContainer.add(label, DockPanel.WEST);
         widgetContainer.add(widgetChosenContent, DockPanel.CENTER);
         widgetContainer.add(buttonActionPanel, DockPanel.EAST);
         return widgetContainer;
@@ -107,6 +105,7 @@ public class HierarchyBrowserView extends Composite {
             buttonForm = new ButtonForm(openPopupButton, "images/green-plus.png", text);
         }
         openPopupButton.add(buttonForm);
+        openPopupButton.addStyleName("hierar-add-button");
         widgetContainer.add(openPopupButton, DockPanel.EAST);
     }
 
@@ -118,7 +117,7 @@ public class HierarchyBrowserView extends Composite {
             clearButton = new FocusPanel();
             ButtonForm buttonForm = new ButtonForm(clearButton, config.getImage(), config.getText());
             clearButton.add(buttonForm);
-            clearButton.getElement().getStyle().setMarginLeft(24, Style.Unit.PX);
+            clearButton.addStyleName("hierar-clear-button");
             widgetContainer.add(clearButton, DockPanel.EAST);
             clearButton.addClickHandler(new ClickHandler() {
                 @Override

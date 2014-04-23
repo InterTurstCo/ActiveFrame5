@@ -765,13 +765,13 @@
                                         <widget id="13"/>
                                     </td>
                                 </tr>
-                                <tr>
+                                <!--<tr>
 
-                                    <td>
+                                    <td colspan="2">
                                         <widget id="tb"/>
                                     </td>
 
-                                </tr>
+                                </tr>-->
 
                             </table>
                         </tab-group>
@@ -857,19 +857,19 @@
             <label id="add-label">
                 <text>Связать с организацией:</text>
             </label>
-             <linked-domain-objects-table id="add" modal-height="300px" modal-width="805px">
+             <linked-domain-objects-table id="add">
                  <field-path value="SS_ModuleOrg^module.organization"/>
                  <linked-form name="SS_ModuleOrg_Form" inline="true"/>
                  <summary-table>
                      <!-- <summary-table-column header="Заголовок" widget-id="3">
                           <pattern value="{Title}"/>
                       </summary-table-column>-->
-                     <summary-table-column header="Название организации" widget-id="11">
-                         <pattern value="{Shortname}"/>
+                     <summary-table-column header="Название организации" widget-id="5">
+                         <pattern value="{ShortName}"/>
                      </summary-table-column>
                  </summary-table>
              </linked-domain-objects-table>
-            <table-browser id="tb">
+           <!-- <table-browser id="tb">
                 <field-path value="Col"/>
 
                 <collection-ref name="SO_OrgSystem_Collection"/>
@@ -886,7 +886,7 @@
                 <add-button image="..." text="..."/>
                 <default-sort-criteria column-field="shortname" order="desc"/>
                 <display-values-as-links value="true"/>
-            </table-browser>
+            </table-browser>-->
         </widget-config>
     </form>
 

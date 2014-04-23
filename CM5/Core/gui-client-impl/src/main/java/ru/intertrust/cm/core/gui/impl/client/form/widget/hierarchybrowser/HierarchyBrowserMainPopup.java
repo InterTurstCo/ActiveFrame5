@@ -74,9 +74,7 @@ public class HierarchyBrowserMainPopup {
 
     private VerticalPanel initPopup() {
         VerticalPanel root = new VerticalPanel();
-        Label title = new Label("Выбрать");
-        title.addStyleName("header-title");
-        root.add(title);
+
         HorizontalPanel linksAndNodesSection = new HorizontalPanel();
         linksAndNodesSection.addStyleName("grey-background");
         VerticalPanel linksSection = new VerticalPanel();
@@ -127,7 +125,6 @@ public class HierarchyBrowserMainPopup {
     public void createAndShowPopup() {
         dialogBox = new DialogBox();
         dialogBox.setAnimationEnabled(true);
-        dialogBox.getCaption().setText("header-mover");
         dialogBox.removeStyleName("gwt-DialogBox ");
         dialogBox.addStyleName("popup-body");
         dialogBox.setModal(true);

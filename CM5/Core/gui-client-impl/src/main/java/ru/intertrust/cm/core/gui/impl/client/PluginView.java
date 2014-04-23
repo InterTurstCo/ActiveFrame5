@@ -121,8 +121,6 @@ public abstract class PluginView implements IsWidget {
     private AbsolutePanel createToolbar() {
         final AbsolutePanel toolbar = new AbsolutePanel();
         toolbar.setStyleName("action-bar");
-        toolbar.getElement().getStyle().setHeight(40, Style.Unit.PX);
-
         return toolbar;
     }
 

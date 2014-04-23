@@ -240,8 +240,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     private void initDialogView() {
         dialogBox = new DialogBox();
         dialogBox.removeStyleName("gwt-DialogBox");
-        dialogBox.addStyleName("table-browser-dialog");
-        dialogBox.getElement().getStyle().setZIndex(10);
+        dialogBox.addStyleName("table-browser-dialog popup-z-index");
         initCollectionConfig();
         initCollectionPluginPanel();
         Button okButton = new Button("OK");

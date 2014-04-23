@@ -46,7 +46,40 @@
             <decimal name="square" precision="9" scale="2"/>
         </fields>
     </domain-object-type>
+    <domain-object-type name="SO_Parent_SU">
+        <fields>
+            <reference name="Owner" type="SO_StructureUnit"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_Department" extends="SO_StructureUnit">
+        <fields>
+            <reference name="HierRoot" type="SO_OrgSystem" not-null="true"/>
+            <reference name="HierParent" type="SO_Parent_SU" not-null="true"/>
 
+            <string name="Type" length="253"/>
+            <boolean name="IsIndependent" not-null="true"/>
+            <boolean name="IsIsolated" not-null="true"/>
+            <string name="Telex" length="253"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_StructureUnit" extends="SO_Unit" db-id="924">
+        <fields>
+            <string name="ShortName" length="253" not-null="true"/>
+            <string name="FullName" length="253"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_Unit">
+        <fields>
+            <boolean name="NoticesIsFromAllModules"/>
+            <string name="NoticesFormulaIDs" length="253"/>
+            <string name="NoticesFormulaFilter" length="253"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="SO_OrgSystem" extends="SO_StructureUnit">
+        <fields>
+            <boolean name="IsDeleted" not-null="true"/>
+        </fields>
+    </domain-object-type>
     <domain-object-type name="federal_unit">
         <fields>
             <reference name="country" type="country"/>

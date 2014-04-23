@@ -62,8 +62,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     private void setCurrentStateForEditableWidget(HierarchyBrowserWidgetState state) {
         final HierarchyBrowserView view = (HierarchyBrowserView) impl;
-        view.initAddButton(hierarchyBrowserConfig.getAddButtonConfig());
         view.initClearButtonIfItIs(hierarchyBrowserConfig.getClearAllButtonConfig());
+        view.initAddButton(hierarchyBrowserConfig.getAddButtonConfig());
         final WidgetDisplayConfig displayConfig = getDisplayConfig();
         final ArrayList<HierarchyBrowserItem> chosenItems = state.getChosenItems();
 

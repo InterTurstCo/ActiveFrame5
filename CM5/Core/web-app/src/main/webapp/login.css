@@ -17,7 +17,7 @@ body {
 }
 
 .auth_version {
-    color: #4D5C94;
+    color: #4d5c94;
     font-weight: bold;
     display: inline-block;
     padding-top: 13px;
@@ -34,10 +34,10 @@ body {
 
 .auth_LoginPage_wrapper {
     width: auto;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     padding: 10px 20px;
     margin: 5px;
-    border: 1px solid #BBB;
+    border: 1px solid #bbb;
     border-radius: 3px;
 }
 

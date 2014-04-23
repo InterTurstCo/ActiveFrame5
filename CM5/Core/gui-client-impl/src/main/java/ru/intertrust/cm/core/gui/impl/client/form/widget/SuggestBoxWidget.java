@@ -261,17 +261,16 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         private SuggestBox suggestBox;
         private Integer maxDropDownWidth;
         private Integer maxDropDownHeight;
-        private int preferableWidth;
 
         private SuggestPresenter() {
             Element row = DOM.createTR();
             this.selectedSuggestions = new HashMap<Id, String>();
-            setStyleName("suggest-container");
+            setStyleName("suggest-container-block");
             container = DOM.createTD();
             DOM.appendChild(row, container);
             DOM.appendChild(getBody(), row);
             arrowBtn = DOM.createTD();
-            arrowBtn.setClassName("arrow-suggest-btn");
+            arrowBtn.setClassName("suggest-container-arrow-btn");
             //       DOM.appendChild(row, arrowBtn);
             DOM.setEventListener(arrowBtn, new EventListener() {
                 @Override
@@ -322,8 +321,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
 
             DOM.appendChild(row, arrowBtn);
             clearAllButton = DOM.createTD();
-            clearAllButton.getStyle().setMarginRight(-80, Style.Unit.PX);
-            clearAllButton.getStyle().setDisplay(Style.Display.BLOCK);
+            clearAllButton.setClassName("suggest-container-clear-btn");
             DOM.appendChild(row, clearAllButton);
             DOM.sinkEvents(arrowBtn, Event.ONCLICK);
             DOM.setEventListener(container, new EventListener() {
@@ -385,12 +383,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
             clear();
             this.suggestBox = suggestBox;
             if (getElement().getStyle().getProperty("maxWidth").isEmpty()) {
-                preferableWidth = getElement().getClientWidth();
-                if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
-                    int clearButtonWidth = 48; // using hardcode as clearAllButton.getClientWidth() returns wrong value (because of rightMargin = -80)
-                    preferableWidth = preferableWidth - clearButtonWidth;
-                }
-                container.getStyle().setWidth(100, Style.Unit.PCT);
+                container.setClassName("suggest-container-input");
             }
             for (final Map.Entry<Id, String> listEntry : selectedSuggestions.entrySet()) {
                 final SelectedItemComposite itemComposite =
@@ -417,12 +410,11 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                             remove(i);
                         }
                         selectedSuggestions.clear();
-                        updateSuggestBoxWidth();
+
                     }
                 });
             }
 
-            updateSuggestBoxWidth();
         }
 
         public void insert(final Id itemId, final String itemName) {
@@ -443,23 +435,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
             selectedSuggestions.put(itemId, itemName);
             final int index = container.getChildCount() - 1;
             super.insert(itemComposite, container, index, true);
-            updateSuggestBoxWidth();
-        }
 
-        private void updateSuggestBoxWidth() {
-            getElement().getStyle().setProperty("width", preferableWidth, Style.Unit.PX);
-            int maxChildWidth = 0;
-            for (Widget child : this) {
-                if (child instanceof SelectedItemComposite) {
-                    if (child.getOffsetWidth() > maxChildWidth) {
-                        maxChildWidth = child.getOffsetWidth();
-                    }
-                }
-            }
-            maxChildWidth = maxChildWidth + arrowBtn.getOffsetWidth() + 25;
-            if (maxChildWidth > preferableWidth) {
-                getElement().getStyle().setProperty("width", maxChildWidth, Style.Unit.PX);
-            }
         }
 
         private EventListener createCloseBtnListener(final SelectedItemComposite itemComposite) {
@@ -469,7 +445,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                     remove(itemComposite);
                     selectedSuggestions.remove(itemComposite.getItemId());
                     suggestBox.setFocus(true);
-                    updateSuggestBoxWidth();
+
                 }
             };
         }

@@ -5,7 +5,7 @@
 }
 
 .gwt-TabPanelBottom {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     border: 0;
     padding: 0;
 }
@@ -64,7 +64,8 @@
     background: #ffffff;
     text-decoration: none;
 }
-.gwt-PopupPanel{
+
+.gwt-PopupPanel {
     border: 1px solid #eee;
     background: none;
 }
@@ -74,10 +75,10 @@
 }
 
 .gwt-PopupPanel.header-notification-popup {
-    background: none repeat scroll 0 0 #FFFDF0;
+    background: none repeat scroll 0 0 #fffdf0;
     border-radius: 5px;
     border: 1px solid;
-    border-color: #FFF1CA #FFEDBE #FFEDBE;
+    border-color: #fff1ca #ffedbe #ffedbe;
     box-shadow: 3px 3px 5px 0 rgba(0, 0, 0, .3);
     top: 12px !important;
     right: 420px;
@@ -117,7 +118,7 @@
 
 }
 
-.calendar-day-container{
+.calendar-day-container {
     position: absolute;
     width: 16.6%;
     overflow: visible !important;
@@ -147,12 +148,12 @@
 }
 
 .calendar-holiday-block:hover {
-    background: #F6F6F6;
+    background: #f6f6f6;
 
 }
 
 .calendar-work-day-block:hover {
-    background: #F6F6F6);
+    background: #f6f6f6);
 }
 
 .calendar-weekend-day-bloks {
@@ -160,7 +161,7 @@
 }
 
 .calendar-focus-day-block {
-    background: #FFFBE2;
+    background: #fffbe2;
     border: 2px solid #ffa34c !important;
     /*border-bottom: 2px solid #ffa34c;*/
     /*border-top: 2px solid #ffa34c;*/
@@ -186,32 +187,32 @@
 }
 
 .days-of-first-week {
-    border-top: 1px solid #000000 ;
+    border-top: 1px solid #000000;
 
 }
 
-.second-weekend{
+.second-weekend {
     border-left: 1px solid #000000 !important;
 
 }
 
 .today {
-    background: #FFFBE2;
+    background: #fffbe2;
 
 }
 
-.month-panel{
+.month-panel {
     position: absolute !important;
     overflow: hidden;
     width: 100%;
     height: 31px;
     top: 65px;
     z-index: 5;
-    background: #AFBCCC;
+    background: #afbccc;
     cursor: pointer;
 }
 
-.current-month-block{
+.current-month-block {
     position: absolute !important;
     top: 65px;
     left: 50%;
@@ -224,7 +225,7 @@
 
 }
 
-.first{
+.first {
     position: absolute;
     height: 22px;
     width: 69px;
@@ -239,7 +240,7 @@
     z-Index: 4;
 }
 
-.first2{
+.first2 {
     position: absolute;
     height: 22px;
     width: 69px;
@@ -254,13 +255,272 @@
     z-Index: 4;
 }
 
-.month-block{
+.month-block {
     height: 18px;
     width: 124px;
     padding-top: 9px;
     text-align: center;
     color: #ffffff;
+}
+
+/**
+*  Form Panel - right part
+**/
+
+.decorated-right-div .gwt-TextBox {
 
 }
 
+/**
+*  def-theme gwt styles
+**/
+.H_td_user .gwt-Hyperlink a {
+    font: bold 14px Arial;
+    cursor: pointer;
+    text-decoration: underline;
+    color: black !important;
+    padding-right: 20px;
+    background: url(images/user.png) no-repeat right center;
+}
+
+.H_td_links .gwt-Anchor {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    white-space: nowrap;
+    float: left;
+    margin-right: 1px;
+    font-size: 0px;
+    text-indent: 9999px;
+    overflow: hidden;
+}
+
+.H_td_links .decorated-settings .gwt-Anchor {
+    background: url(images/settings.png) no-repeat scroll 0 0 transparent;
+}
+
+.H_td_links .decorated-help .gwt-Anchor {
+    background: url(images/help.png) no-repeat scroll 0 0 transparent;
+}
+
+.gwt-TextBox,
+.gwt-ListBox,
+.gwt-TextArea {
+    padding: 7px !important;
+    border: 1px solid #ccc;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.gwt-TextBox {
+    margin: 5px 0;
+    display: inline-block;
+}
+
+.gwt-ListBox {
+    width: 165px;
+}
+
+.gwt-custom-TreeItem-selected .tree-label:after {
+    content: open-quote;
+    display: block;
+    position: absolute;
+    width: 27px;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) right top no-repeat;
+    right: -11px;
+    font-size: 0px;
+    top: 4px;
+    margin-left: 5px;
+}
+
+.gwt-custom-TreeItem-selected .tree-label:before {
+    content: open-quote;
+    display: block;
+    position: absolute;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) left top no-repeat;
+    left: 13px;
+    right: 0;
+    top: 4px;
+    font-size: 0px;
+    margin-left: 5px;
+}
+
+.gwt-custom-TreeItem-selected .tree-label {
+    text-decoration: underline !important;
+}
+
+.gwt-custom-TreeItem-selected .tree-label,
+.gwt-custom-TreeItem-selected,
+.gwt-TreeItem {
+    position: relative;
+    white-space: nowrap;
+
+}
+
+.gwt-custom-TreeItem-selected td {
+    vertical-align: bottom;
+}
+
+.gwt-custom-TreeItem-selected .tree-label {
+    color: #ffffff !important;
+}
+
+.gwt-custom-white {
+    color: #ffffff !important;
+}
+
+.facebook-element .gwt-Label {
+    padding: 1px 7px;
+    margin: 5px;
+    background: #f1f1f1;
+    border-radius: 5px;
+    text-decoration: underline;
+    border: 1px solid #f1f1f1;
+}
+
+.facebook-element .facebook-label,
+.facebook-element .gwt-Image {
+    /*float: left;*/
+}
+
+.facebook-element .gwt-Image {
+    margin-left: 11px;
+}
+
+.ext-search-root-div .gwt-Label {
+    margin-left: 0px;
+    margin-bottom: 10px;
+}
+
+.ext-search-save-query-popup-button-div .gwt-Button {
+    background: url(images/button_open.png) no-repeat;
+    border: none;
+    font-size: 0px;
+    text-indent: 999px;
+    height: 19px;
+    margin-left: 5px;
+    outline: none;
+}
+
+.ext-query-close-button-div .gwt-Button {
+    background: url(css/icons/icon-close.png) left top no-repeat;
+    display: inline-block;
+    position: relative;
+    height: 16px;
+    width: 16px;
+    left: auto;
+    border-bottom: none !important;
+    vertical-align: bottom;
+    cursor: pointer;
+    margin-right: 16px;
+    float: right;
+    font-size: 0px;
+    border: none;
+    margin-left: 61px;
+    outline: none;
+    text-indent: 9999px;
+}
+
+.ext-query-link-div .gwt-Label,
+.ext-search-save-query-link-div .gwt-Label {
+    border-bottom: 1px dotted #ffffff;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.ext-query-link-div .gwt-Label:hover,
+.ext-search-save-query-link-div .gwt-Label:hover {
+    color: #ff0000;
+    border-bottom: 1px dotted #ff0000;
+}
+
+#gwt-splitter {
+    overflow: visible;
+    top: 30%;
+    left: -1px !important;
+    right: 0;
+    border-collapse: collapse;
+    z-index: 2;
+}
+
+.gwt-SplitLayoutPanel-VDragger {
+    background: url("css/images/mover-bg-hor.gif") /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */ top left repeat-x;
+    cursor: row-resize;
+    overflow: hidden;
+}
+
+.gwt-SplitLayoutPanel-HDragger {
+    background: url("css/images/mover-bg-vert.gif") /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */ top left repeat-y !important;
+    cursor: col-resize !important;
+}
+
+div.gwt-Good-Label {
+    font-weight: bold;
+    margin: 5px;
+}
+
+.gwt-Red-Label {
+    color: red;
+    vertical-align: super;
+    font-weight: bold;
+    padding-top: 5px;
+}
+
+.ext-search-content-wrapper .gwt-TabLayoutPanelContentContainer {
+    background: none;
+}
+
+/*** TAB PANEL***/
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
+    padding-top: 6px;
+    padding-left: 5px;
+    margin-left: 0;
+    margin-right: 20px;
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelContentContainer {
+    border-color: #ccc;
+    border-style: solid;
+    border-width: 0px 1px 1px;
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
+    overflow: visible;
+    /* padding: 6px; */
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
+    color: #000000;
+    font-size: 110%;
+    margin-left: 4px;
+    margin-right: 20px;
+    cursor: pointer;
+    cursor: hand;
+    font-weight: normal;
+    text-align: center;
+    -moz-border-radius: 3px 3px 0px 0px;
+    border-radius: 3px 3px 0px 0px;
+    /*text-decoration: underline;*/
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
+    cursor: default;
+    color: #333;
+    font-weight: bold;
+    text-decoration: none;
+    background: url("css/images/tabs_selected_r.png") no-repeat scroll 100% 0 transparent;
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-corner {
+    background: url("css/images/tabs_selected_l.gif") no-repeat 0 0 #ffffff;
+    margin-right: 24px;
+    padding: 1px;
+}
+
+.radio-button-widget .gwt-RadioButton {
+    margin-top: 3px;
+    display: inline-block;
+}
 

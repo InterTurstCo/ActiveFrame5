@@ -65,10 +65,12 @@
     border-radius: 13px 0 0 13px;
     border: 1px solid #000000;
 }
+
 .left-button:hover {
     background: url(images/tab-close-block.png) no-repeat #F4F7F9;
     border: 1px solid #757575;
 }
+
 .left-button:active {
     background: url(images/tab-close-block.png) no-repeat #DAE5EC;
     border: 1px solid #024186;
@@ -111,6 +113,7 @@ ins {
     background: url(images/form/form-footer-bg_long.jpg) repeat-y scroll 0 0;
     height: 100%;
 }
+
 .root-div-unshadowed {
     height: 100%;
 }
@@ -149,15 +152,12 @@ ins {
     padding-left: 37px !important;
 }
 
-.decorated-left-div {
-    padding: 0 0 10px 0;
-}
-
+.decorated-left-div,
 .decorated-right-div {
     padding: 0 0 40px 0;
 }
 
-.decorated-right-div .wrap-date{
+.decorated-right-div .wrap-date {
     margin: 3px 0;
 }
 

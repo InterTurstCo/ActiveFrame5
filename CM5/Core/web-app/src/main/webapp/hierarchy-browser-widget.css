@@ -1,6 +1,6 @@
 .hierarh-browser-inline {
-    margin-left: 10px;
-   display: block;
+    /*margin-left: 10px;*/
+    display: block;
     position: relative;
     vertical-align: top;
 }
@@ -26,7 +26,7 @@
     border-radius: 5px;
     white-space: nowrap;
     box-shadow: 1px 1px 2px 1px #999;
-    background: #ffffff;
+    background: #fff;
 }
 
 .hierarh-browser-button {
@@ -56,7 +56,7 @@
     white-space: nowrap;
     padding: 15px;
     box-shadow: 1px 1px 2px 1px #999;
-    background: url(images/refresh.gif) no-repeat #ffffff center center;
+    background: url(images/refresh.gif) no-repeat #fff center center;
 }
 
 .one-node-scroll {
@@ -77,13 +77,13 @@
 }
 
 .popup-chosen-content {
-    background: #ffffff;
+    background: #fff;
     border-bottom: 1px solid gray;
     margin: 0 8px 0 6px;
 }
 
 .white-background {
-    background: #ffffff;
+    background: #fff;
 }
 
 .grey-background {
@@ -102,7 +102,7 @@
 }
 
 .one-node-scroll {
-    background: #ffffff;
+    background: #fff;
     border: 2px solid #FFA500;
     width: 100%;
     margin-right: 50px;
@@ -114,13 +114,13 @@
     white-space: nowrap;
     margin-right: 7px;
     background: #5e8ee4; /* Old browsers */
-    background: -moz-linear-gradient(top,  #5e8ee4 0%, #4173c9 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5e8ee4), color-stop(100%,#4173c9)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #5e8ee4 0%,#4173c9 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #5e8ee4 0%,#4173c9 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #5e8ee4 0%,#4173c9 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #5e8ee4 0%,#4173c9 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5e8ee4', endColorstr='#4173c9',GradientType=0 ); /* IE6-9 */
+    background: -moz-linear-gradient(top, #5e8ee4 0%, #4173c9 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5e8ee4), color-stop(100%, #4173c9)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #5e8ee4 0%, #4173c9 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #5e8ee4 0%, #4173c9 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #5e8ee4 0%, #4173c9 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #5e8ee4 0%, #4173c9 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5e8ee4', endColorstr='#4173c9', GradientType=0); /* IE6-9 */
     box-shadow: 0 2px 2px #000;
     text-decoration: none;
     color: #000;
@@ -131,19 +131,19 @@
 
 .bottom-popup-button:hover {
     background: #5e84da; /* Old browsers */
-    background: -moz-linear-gradient(top,  #5e84da 0%, #416cc2 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5e84da), color-stop(100%,#416cc2)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #5e84da 0%,#416cc2 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #5e84da 0%,#416cc2 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #5e84da 0%,#416cc2 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #5e84da 0%,#416cc2 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5e8ee4', endColorstr='#4173c9',GradientType=0 ); /* IE6-9 */
-    color: #ffffff;
+    background: -moz-linear-gradient(top, #5e84da 0%, #416cc2 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #5e84da), color-stop(100%, #416cc2)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #5e84da 0%, #416cc2 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #5e84da 0%, #416cc2 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #5e84da 0%, #416cc2 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #5e84da 0%, #416cc2 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5e8ee4', endColorstr='#4173c9', GradientType=0); /* IE6-9 */
+    color: #fff;
 }
 
 .bottom-popup-button:active {
-    -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .bottom-popup-buttons-panel {
@@ -160,8 +160,8 @@
 .node-link {
     margin-left: 7px;
     margin-top: 2px;
-    color: #ffffff !important;
-    border-bottom: 1px dotted #ffffff;
+    color: #fff !important;
+    border-bottom: 1px dotted #fff;
 }
 
 .node-item-link {
@@ -169,15 +169,13 @@
 }
 
 .header-title {
-    font: 18px Tahoma, Arial !important;
-    color: #ffffff;
-    margin-top: 7px;
-    margin-bottom: 7px;
-    margin-right: 15px;
+    color: #fff;
+    font: 18px Arial !important;
+    margin: 0 0 10px 5px;
 }
 
 .node-section {
-    background: #ffffff;
+    background: #DCDCDC;
     width: 100%;
 }
 
@@ -206,11 +204,11 @@
 .magnifier {
     border: 2px solid #AFBCC3;
     border-right: none;
-    background-color: #ffffff;
+    background-color: #fff;
     -moz-border-top-left-radius: 5px 5px;
     -moz-border-bottom-left-radius: 5px 5px;
-    -webkit-border( top-right-radius : 5 px 5 px );
-    -webkit-border( bottom-right-radius : 5 px 5 px );
+-webkit-border( top-right-radius : 5 px 5 px );
+-webkit-border( bottom-right-radius : 5 px 5 px );
     border-top-left-radius: 3px 3px;
     border-bottom-left-radius: 3px 3px;
     padding: 2px;
@@ -229,8 +227,8 @@
     border-style: solid;
     -moz-border-top-right-radius: 5px 5px;
     -moz-border-bottom-right-radius: 5px 5px;
-    -webkit-border( top-right-radius : 5 px 5 px );
-    -webkit-border( bottom-right-radius : 5 px 5 px );
+-webkit-border( top-right-radius : 5 px 5 px );
+-webkit-border( bottom-right-radius : 5 px 5 px );
     border-top-right-radius: 5px 5px;
     border-bottom-right-radius: 5px 5px;
     padding: 2px 2px 3px 4px;
@@ -256,7 +254,7 @@
 }
 
 .selected-node-link a {
-    color: #ffffff !important;
+    color: #fff !important;
 }
 
 .reset-button {
@@ -277,8 +275,8 @@
 
 .node-item-row-active {
     background: #356a9e;
-    color: #ffffff !important;
-    border-bottom: 1px dotted #ffffff;
+    color: #fff !important;
+    border-bottom: 1px dotted #fff;
 }
 
 .reset-button:hover {
@@ -299,4 +297,16 @@
 
 .node-link:hover {
     cursor: pointer;
+}
+
+.hierar-clear-button {
+
+}
+
+.hierar-add-button {
+    margin-left: 15px;
+}
+
+.decorated-right-div > table tr {
+    margin: 5px 0;
 }

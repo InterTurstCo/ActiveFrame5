@@ -52,7 +52,9 @@ h1 {
     top: 11px;
 }
 
-/* ------------>>> Header <<<------------ */
+/**
+ *  Header
+**/
 .HeadTable {
     width: 100%;
     background-color: #ffffff;
@@ -77,13 +79,17 @@ h1 {
     display: block;
 }
 
-/* ------------>>> Header Search Panel <<<------------ */
+/**
+ *  Header Search Panel
+**/
 .H_td_notes {
     width: 100%;
     padding: 0 10px;
 }
 
-/* ------------>>> Suggest Box <<<------------ */
+/**
+ *  Suggest Box
+**/
 .root-suggest-div {
     width: 100%;
 }
@@ -806,35 +812,6 @@ td.datePickerMonth {
     margin-top: 40px;
 }
 
-.H_td_user .gwt-Hyperlink a {
-    font: bold 14px Arial;
-    cursor: pointer;
-    text-decoration: underline;
-    color: black !important;
-    padding-right: 20px;
-    background: url(images/user.png) no-repeat right center;
-}
-
-.H_td_links .gwt-Anchor {
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    white-space: nowrap;
-    float: left;
-    margin-right: 1px;
-    font-size: 0px;
-    text-indent: 9999px;
-    overflow: hidden;
-}
-
-.H_td_links .decorated-settings .gwt-Anchor {
-    background: url(images/settings.png) no-repeat scroll 0 0 transparent;
-}
-
-.H_td_links .decorated-help .gwt-Anchor {
-    background: url(images/help.png) no-repeat scroll 0 0 transparent;
-}
-
 .H_td_logout a {
     white-space: nowrap;
     padding: 9px 9px 8px 18px;
@@ -872,24 +849,6 @@ td.datePickerMonth {
 
 }
 
-.gwt-TextBox,
-.gwt-ListBox,
-.gwt-TextArea {
-    padding: 7px !important;
-    border: 1px solid #ccc;
-    margin: 0px;
-    font-family: arial;
-}
-
-.gwt-TextBox {
-    margin: 5px 0;
-    display: inline-block;
-}
-
-.gwt-ListBox {
-    width: 165px;
-}
-
 .action-section {
 
 }
@@ -897,7 +856,6 @@ td.datePickerMonth {
 .left-section {
     float: left;
     z-index: 15 !important;
-
     background: #4c93c9;
     background: -moz-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9), color-stop(51%, #3b649a), color-stop(100%, #232464));
@@ -906,7 +864,6 @@ td.datePickerMonth {
     background: -ms-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0);
     background: linear-gradient(478 BCC);
-
     display: block;
     height: auto;
     position: absolute !important;
@@ -921,7 +878,6 @@ td.datePickerMonth {
 }
 
 .left-section-active {
-    /*width: 130px;*/
     float: left;
     z-index: 15 !important;
     background: #4c93c9;
@@ -932,16 +888,6 @@ td.datePickerMonth {
     background: -ms-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0);
     background: linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
-    /*
-    background: #4c93c9;
-    background: -moz-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9),	 color-stop(51%, #3b649a), color-stop(100%, #232464) );
-    background: -webkit-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    background: -o-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    background: -ms-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#4c93c9", endColorstr\= "#232464", GradientType\= 0 \);
-    background: linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    */
     display: block;
     height: auto;
     position: absolute !important;
@@ -1027,71 +973,6 @@ td.datePickerMonth {
 
 }
 
-/* aktivnue punktu v levoy kolonke */
-/*
-.gwt-TreeItem-selected .tree-label:after  {
-    content: open-quote;
-    display: block;
-    position: absolute;
-    width: 27px;
-    height: 25px;
-    background: url(images/folder-list-selected-bg.png) right top no-repeat;
-    right: -11px;
-    font-size: 0px;
-    top: 4px;
-    margin-left: 5px;
-}
-
-.gwt-TreeItem-selected .tree-label:before  {
-    content: open-quote;
-    display: block;
-    position: absolute;
-    height: 25px;
-    background: url(images/folder-list-selected-bg.png) left top no-repeat;
-    left: 8px;
-    right: 0;
-    top: 4px;
-    font-size: 0px;
-    margin-left: 5px;
-}   */
-.gwt-custom-TreeItem-selected .tree-label:after {
-    content: open-quote;
-    display: block;
-    position: absolute;
-    width: 27px;
-    height: 25px;
-    background: url(images/folder-list-selected-bg.png) right top no-repeat;
-    right: -11px;
-    font-size: 0px;
-    top: 4px;
-    margin-left: 5px;
-}
-
-.gwt-custom-TreeItem-selected .tree-label:before {
-    content: open-quote;
-    display: block;
-    position: absolute;
-    height: 25px;
-    background: url(images/folder-list-selected-bg.png) left top no-repeat;
-    left: 13px;
-    right: 0;
-    top: 4px;
-    font-size: 0px;
-    margin-left: 5px;
-}
-
-.gwt-custom-TreeItem-selected .tree-label {
-    text-decoration: underline !important;
-}
-
-.gwt-custom-TreeItem-selected .tree-label,
-.gwt-custom-TreeItem-selected,
-.gwt-TreeItem {
-    position: relative;
-    white-space: nowrap;
-
-}
-
 .left-tree-item-div{
 
  }
@@ -1109,10 +990,6 @@ td.datePickerMonth {
     vertical-align: bottom !important;
 }
 
-.gwt-custom-TreeItem-selected td {
-    vertical-align: bottom;
-}
-
 .group-tree {
 
     font-weight: bold;
@@ -1120,14 +997,6 @@ td.datePickerMonth {
     margin-top: 10px;
     padding: 0 0 15px;
     display: block;
-}
-
-.gwt-custom-TreeItem-selected .tree-label {
-    color: #ffffff !important;
-}
-
-.gwt-custom-white {
-    color: #ffffff !important;
 }
 
 .centr-inner-section {
@@ -1148,7 +1017,9 @@ td.datePickerMonth {
 
 }
 
-/* aktivnue punktu v levoy kolonke END */
+/**
+ *  active items in left column END
+**/
 .GLW1MH4CFK {
     margin-left: -40px;
 }
@@ -1166,9 +1037,6 @@ td.datePickerMonth {
 }
 
 .footer-section {
-
-    /*width: 100%;*/
-    /*height: 200px;*/
 }
 
 .center-section {
@@ -1190,16 +1058,16 @@ td.datePickerMonth {
 }
 
 .root-section {
-    /*min-height: 100%;*/
-    /*height: 100% !important;*/
-    /*height: 100%;*/
 }
 
 .popup-content {
     padding: 40px;
 }
 
-/*splitter!!!*/
+
+/**
+ *  splitter
+**/
 .GLW1MH4CPL {
     height: 8px !important;
 }
@@ -1208,10 +1076,6 @@ td.datePickerMonth {
     padding: 5px;
     display: inline-block;
 }
-
-/*.suggest-choose:hover {*/
-/*border: 1px solid #f7c137;*/
-/*}*/
 
 .suggest-choose-close {
     background: url(css/icons/icons.png) no-repeat 0 0;
@@ -1227,11 +1091,14 @@ td.datePickerMonth {
     background-position: -16px 0;
 }
 
-.arrow-suggest-btn {
-    min-width: 20px;
-    width: 20px;
+.suggest-container-arrow-btn {
     background: url("images/arrow-down.png") no-repeat center transparent;
     cursor: pointer;
+    display: inline-block;
+    height: 30px;
+    margin-left: -20px;
+    min-width: 20px;
+    width: 20px;
 }
 
 .header-section {
@@ -1241,9 +1108,6 @@ td.datePickerMonth {
 }
 
 .H-B-V-button {
-    /*padding: 20px;*/
-    /*background-color: #ff0000;*/
-    /*background: url(css/icons/icons.png) left top no-repeat;*/
     background: url(images/tab-close.png) no-repeat 0 0;
     top: 0;
     right: 0px;
@@ -1252,7 +1116,9 @@ td.datePickerMonth {
     width: 16px;
 }
 
-/* ATTACHMENTS */
+/**
+ *  Attachments
+**/
 .facebook-main-box {
     color: #000;
     /* border: 1px solid #ccc;*/
@@ -1261,15 +1127,6 @@ td.datePickerMonth {
     min-height: 24px;
     padding: 1px 2px !important;
     margin: 5px 5px 5px 5px;
-}
-
-.facebook-element .gwt-Label {
-    padding: 1px 7px;
-    margin: 5px;
-    background: #f1f1f1;
-    border-radius: 5px;
-    text-decoration: underline;
-    border: 1px solid #f1f1f1;
 }
 
 .facebook-element {
@@ -1285,14 +1142,9 @@ td.datePickerMonth {
     border: 1px solid #f1f1f1;
 }
 
-.facebook-element .facebook-label,
-.facebook-element .gwt-Image {
-    /*float: left;*/
-}
-
 .hyperlink-label-none-editable {
     cursor: pointer !important;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     font-weight: bold;
     font-size: 13px;
 }
@@ -1316,10 +1168,6 @@ td.datePickerMonth {
     cursor: default;
     color: #888888;
     text-decoration: none;
-}
-
-.facebook-element .gwt-Image {
-    margin-left: 11px;
 }
 
 .facebook-element a {
@@ -1365,12 +1213,13 @@ td.datePickerMonth {
     background-position: -16px 0;
 }
 
-/*ext-search*/
+/**
+ *  Extended Search Panel
+**/
 .ext-search-root-div {
-    background-color: #ffffff;
-    border: 1px solid;
-    border-color: black;
-    z-index: 99999999;
+    /*border: 1px solid ;*/
+    /*border-color: black;*/
+    /*z-index: 99999999;*/
     width: 682px;
     min-height: 500px;
     z-index: 100;
@@ -1433,11 +1282,6 @@ td.datePickerMonth {
     float: left;
 }
 
-.ext-search-root-div .gwt-Label {
-    margin-left: 0px;
-    margin-bottom: 10px;
-}
-
 .ext-search-section-checkbox span.ext-search-section-checkbox,
 .ext-search-radio-div span.ext-search-radio-button {
     float: left;
@@ -1474,83 +1318,15 @@ td.datePickerMonth {
     display: block;
 }
 
-.ext-search-save-query-popup-button-div .gwt-Button {
-    background: url(images/button_open.png) no-repeat;
-    border: none;
-    font-size: 0px;
-    text-indent: 999px;
-    height: 19px;
-    margin-left: 5px;
-    outline: none;
-}
-
-.ext-query-close-button-div .gwt-Button {
-    background: url(css/icons/icon-close.png) left top no-repeat;
-    display: inline-block;
-    position: relative;
-    height: 16px;
-    width: 16px;
-    left: auto;
-    border-bottom: none !important;
-    vertical-align: bottom;
-    cursor: pointer;
-    margin-right: 16px;
-    float: right;
-    font-size: 0px;
-    border: none;
-    margin-left: 61px;
-    outline: none;
-    text-indent: 9999px;
-}
-
-.ext-query-link-div .gwt-Label,
-.ext-search-save-query-link-div .gwt-Label {
-    border-bottom: 1px dotted #ffffff;
-    font-weight: normal;
-    cursor: pointer;
-}
-
-.ext-query-link-div .gwt-Label:hover,
-.ext-search-save-query-link-div .gwt-Label:hover {
-    color: #ff0000;
-    border-bottom: 1px dotted #ff0000;
-}
-
-.gggg {
-    padding-bottom: -15px !important;
-}
-
-.gggg table tr td {
-    vertical-align: middle !important;
-}
-
-/*.collection-table-td {*/
-/*padding-bottom: -15px !important;*/
-/*}*/
-
-/*.collection-table-td table tr td {*/
-/*vertical-align: middle !important;*/
-/*}*/
-
 .ext-serch-form-div {
     clear: left;
 }
 
 .before-target-target {
-    /*position: absolute !important;
-    width: 100% !important;
-    height: 100% !important;
-    display: block;
-    height: auto;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;*/
 }
 
 #sidebar ul {
     list-style: none;
-    /* 	position: relative; */
     margin: 0;
     padding: 0;
     text-decoration: none;
@@ -1559,7 +1335,6 @@ td.datePickerMonth {
 #sidebar li {
     list-style: none;
     margin: 0;
-    /*  height: 74px;*/
     padding: 5px;
     text-align: center;
     font-size: 90%;
@@ -1574,12 +1349,8 @@ td.datePickerMonth {
 }
 
 #sidebar .non-selected {
-
     width: 100px;
     height: 83px;
-    /*
-    position: fixed;
-*/
     z-index: 3;
 }
 
@@ -1590,7 +1361,6 @@ td.datePickerMonth {
     display: block;
     width: 106px;
     text-align: center;
-
 }
 
 #sidebar li a:hover {
@@ -1605,7 +1375,6 @@ td.datePickerMonth {
     padding: 1px 3px;
     position: absolute;
     top: 5px;
-    /*left:70px;/**/
     left: 20px;
     border-radius: 3px;
     font-weight: normal;
@@ -1618,7 +1387,7 @@ td.datePickerMonth {
     background: -o-linear-gradient(top, #fab665 0%, #d0751a 100%);
     background: -ms-linear-gradient(top, #fab665 0%, #d0751a 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fab665', endColorstr='#d0751a', GradientType=0);
-    background: linear-gradient(top, #fab665 0%, #d0751a 100%); /**/
+    background: linear-gradient(top, #fab665 0%, #d0751a 100%);
 }
 
 #sidebar li img {
@@ -1637,9 +1406,8 @@ td.datePickerMonth {
     display: inline-block;
     cursor: pointer;
     position: relative;
-    margin: 0px;
-    background-image: url("css/icons/icon-sidebar-buttons.png");
-    background-repeat: no-repeat;
+    margin: 0;
+    background: url("css/icons/icon-sidebar-buttons.png") no-repeat;
 }
 
 #sidebar .arr:hover {
@@ -1663,7 +1431,6 @@ td.datePickerMonth {
 .synchronized {
     color: #72CCFF;
     text-decoration: underline;
-
 }
 
 .folder-list, .folder-list * {
@@ -1672,14 +1439,13 @@ td.datePickerMonth {
 }
 
 .folder-list {
-    /* margin: 10px 10px 10px 20px; */
     margin-top: 25px;
     padding: 0 0 10px 0;
 }
 
 .folder-list li {
     margin: 0;
-    padding: 0 0 0 0px;
+    padding: 0;
     list-style: none;
     position: relative;
     font-weight: bold;
@@ -1690,7 +1456,7 @@ td.datePickerMonth {
 }
 
 .folder-list ul {
-    margin: 0 0 0 0px;
+    margin: 0;
     padding: 0;
 }
 
@@ -1699,21 +1465,22 @@ td.datePickerMonth {
     padding: 0;
 }
 
-/*this*/
+/**
+ *  this
+**/
 #sidebar {
     position: absolute;
     overflow: hidden;
-    left: 0px;
-    top: 0px;
-    right: 0px;
-    bottom: 0px;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
     width: 129px;
     float: left;
     z-index: 2;
 }
 
 #sidebar .gradient {
-
     position: absolute;
     z-index: 0;
     left: 0;
@@ -1773,26 +1540,6 @@ td.datePickerMonth {
     width: 18px;
 }
 
-#gwt-splitter {
-    overflow: visible;
-    top: 30%;
-    left: -1px !important;
-    right: 0;
-    border-collapse: collapse;
-    z-index: 2;
-}
-
-.gwt-SplitLayoutPanel-VDragger {
-    background: url("css/images/mover-bg-hor.gif") /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */ top left repeat-x;
-    cursor: row-resize;
-    overflow: hidden;
-}
-
-.gwt-SplitLayoutPanel-HDragger {
-    background: url("css/images/mover-bg-vert.gif") /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */ top left repeat-y !important;
-    cursor: col-resize !important;
-}
-
 .docs-ctg-listContainerHeader {
     color: black;
     font-size: 12px;
@@ -1802,8 +1549,8 @@ td.datePickerMonth {
 }
 
 .rootPathPanel {
-    padding-top: 0px;
-    padding-bottom: 0px;
+    padding-top: 0;
+    padding-bottom: 0;
     float: left;
     white-space: nowrap;
     overflow: hidden;
@@ -1833,25 +1580,9 @@ td.datePickerMonth {
 }
 
 .scrollable-cell-table {
-    /*border: 1px solid #ccc;*/
     right: 0;
     width: 18px;
 }
-
-/*.centerTopBottomDividerRoot {*/
-/*margin: 10px 10px 1px 0;*/
-/*background: #ffffff;*/
-/*background: -moz-linear-gradient(top, #ffffff 0%, #e8eff3 100%);*/
-/*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #e8eff3));*/
-/*background: -webkit-linear-gradient(top, #ffffff 0%, #e8eff3 100%);*/
-/*background: -o-linear-gradient(top, #ffffff 0%, #e8eff3 100%);*/
-/*background: -ms-linear-gradient(top, #ffffff 0%, #e8eff3 100%);*/
-/*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e8eff3', GradientType=0);*/
-/*background: linear-gradient(top, #ffffff 0%, #e8eff3 100%);*/
-
-/*border-radius: 5px;*/
-/*height: 100%;*/
-/*}*/
 
 .content-actions button.Ca_button:hover {
     background: #ffffff;
@@ -1865,7 +1596,6 @@ td.datePickerMonth {
 }
 
 .content-actions button.Ca_button:active {
-    /*background: #ffffff;/**/
     box-shadow: inset 0 1px 2px #999;
     background: #ffffff;
     background: -moz-linear-gradient(top, #ffffff 0%, #d0d6da 100%);
@@ -1890,20 +1620,8 @@ td.datePickerMonth {
 .custom-tree-item {
 }
 
-div.gwt-Good-Label {
-    font-weight: bold;
-    margin: 5px;
-}
-
 .not-edit-date-text-label {
-    margin: 5px 5px 5px 5px;
-}
-
-.gwt-Red-Label {
-    color: red;
-    vertical-align: super;
-    font-weight: bold;
-    padding-top: 5px;
+    margin: 5px;
 }
 
 .tree-label {
@@ -1911,12 +1629,11 @@ div.gwt-Good-Label {
     margin-left: -20px !important;
     margin-right: 120px;
     padding-left: 20px !important;
-
 }
 
 .not-edit-date-text-label {
     min-height: 24px;
-    margin: 5px 5px 5px 5px;
+    margin: 5px;
 }
 
 .ext-search-content-wrapper {
@@ -1927,57 +1644,6 @@ div.gwt-Good-Label {
     left: 0;
     display: block;
     height: 410px;
-}
-
-.ext-search-content-wrapper .gwt-TabLayoutPanelContentContainer {
-    background: none;
-}
-
-/*** TAB PANEL***/
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
-    padding-top: 6px;
-    padding-left: 5px;
-    margin-left: 0;
-    margin-right: 20px;
-}
-
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelContentContainer {
-    border-color: #ccc;
-    border-style: solid;
-    border-width: 0px 1px 1px;
-}
-
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
-    overflow: visible;
-    /* padding: 6px; */
-}
-
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
-    color: #000000;
-    font-size: 110%;
-    margin-left: 4px;
-    margin-right: 20px;
-    cursor: pointer;
-    cursor: hand;
-    font-weight: normal;
-    text-align: center;
-    -moz-border-radius: 3px 3px 0px 0px;
-    border-radius: 3px 3px 0px 0px;
-    /*text-decoration: underline;*/
-}
-
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
-    cursor: default;
-    color: #333;
-    font-weight: bold;
-    text-decoration: none;
-    background: url("css/images/tabs_selected_r.png") no-repeat scroll 100% 0 transparent;
-}
-
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-corner {
-    background: url("css/images/tabs_selected_l.gif") no-repeat 0 0 #ffffff;
-    margin-right: 24px;
-    padding: 1px;
 }
 
 .frm-pnl-top {
@@ -2295,7 +1961,7 @@ a:active .icon.back {
 }
 
 .action-bar-menu {
-    height: 0px !important;
+    height: 0 !important;
     vertical-align: middle;
 
     padding-top: 10px;
@@ -2309,12 +1975,10 @@ a:active .icon.back {
     float: none;
     height: 16px;
     width: 16px;
-    /*left: auto;*/
     left: 140px !important;
     top: 10px !important;
     border-bottom: none !important;
-    background-position: center center;
-    background-repeat: no-repeat;
+    background: no-repeat center center;
     vertical-align: bottom;
 }
 
@@ -2501,8 +2165,9 @@ a:active .icon.back {
     left: 5px;
 }
 
-/*оформление поиска коллекшен плагин вю начало*/
-
+/**
+ *  Decorating search collection plugin to begin
+**/
 .horizont-container {
     background-color: #f0f4ff;
     padding: 5px 0 0 0;
@@ -2552,7 +2217,6 @@ a:active .icon.back {
     margin: 2px 2px 2px -22px;
     vertical-align: middle;
     display: inline-block;
-    /*float: right;*/
     height: 16px;
     left: auto;
     position: relative;
@@ -2738,11 +2402,6 @@ td.datePickerMonth {
     min-height: 24px;
 }
 
-.radio-button-widget .gwt-RadioButton {
-    margin-top: 3px;
-    display: inline-block;
-}
-
 .form-container {
     background: #c2e7f0; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
@@ -2808,7 +2467,9 @@ td.datePickerMonth {
 
 }
 
-/*---------------- Linked Form DialogBox Panel ----------------*/
+/**
+ *  Linked Form DialogBox Panel
+**/
 .linked-form-buttons-panel {
     position: relative;
     z-index: 15;
@@ -2817,4 +2478,23 @@ td.datePickerMonth {
 
 .upload-report-template {
     padding: 10px;
+}
+
+
+.Caption {
+    display: block;
+    height: 15px;
+}
+
+.Caption:hover {
+    cursor: move;
+    cursor: -webkit-grab;
+}
+
+.Caption:active {
+    cursor: move;
+    cursor: -webkit-grabbing;
+}
+.popup-z-index {
+    z-index: 20;
 }

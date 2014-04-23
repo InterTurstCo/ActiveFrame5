@@ -28,7 +28,7 @@ public class LinkedFormDialogBoxBuilder {
     private Id id;
     private String objectTypeName;
     private FormPlugin formPlugin;
-    private String height = "600px";
+    private String height = "300px";
     private String width = "1000px";
 
     public FormPlugin getFormPlugin() {
@@ -61,11 +61,15 @@ public class LinkedFormDialogBoxBuilder {
     }
 
     public LinkedFormDialogBoxBuilder withWidth(String width) {
+        if(width != null) {
         this.width = width;
+        }
         return this;
     }
     public LinkedFormDialogBoxBuilder withHeight(String height) {
+        if(height != null) {
         this.height = height;
+        }
         return this;
     }
 
@@ -110,10 +114,9 @@ public class LinkedFormDialogBoxBuilder {
         // create dialog box
         final DialogBox db = new DialogBox();
         db.removeStyleName("gwt-DialogBox");
-        db.addStyleName("table-browser-dialog");
         db.setHeight(height);
         db.setWidth(width);
-        db.addStyleName("popup-body");
+        db.addStyleName("popup-body popup-z-index");
         db.setModal(true);
 
         // create buttons
