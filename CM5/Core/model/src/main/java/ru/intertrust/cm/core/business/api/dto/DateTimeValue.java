@@ -8,7 +8,7 @@ import java.util.Date;
  * Date: 19.05.13
  * Time: 16:20
  */
-public class DateTimeValue extends Value {
+public class DateTimeValue extends Value<DateTimeValue> {
     private Date value;
 
     /**
@@ -32,5 +32,14 @@ public class DateTimeValue extends Value {
     @Override
     public Date get() {
         return value;
+    }
+
+    @Override
+    public int compareTo(DateTimeValue o) {
+        if (o == null || o.isEmpty()) {
+            return this.isEmpty() ? 0 : 1;
+        } else {
+            return this.isEmpty() ? -1 : value.compareTo(o.value);
+        }
     }
 }

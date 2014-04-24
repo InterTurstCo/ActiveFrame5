@@ -6,7 +6,7 @@ package ru.intertrust.cm.core.business.api.dto;
  *         Date: 10/24/13
  *         Time: 3:29 PM
  */
-public class TimelessDateValue extends Value {
+public class TimelessDateValue extends Value<TimelessDateValue> {
     private TimelessDate value;
 
     /**
@@ -26,6 +26,15 @@ public class TimelessDateValue extends Value {
     @Override
     public TimelessDate get() {
         return value;
+    }
+
+    @Override
+    public int compareTo(TimelessDateValue o) {
+        if (o == null || o.isEmpty()) {
+            return this.isEmpty() ? 0 : 1;
+        } else {
+            return this.isEmpty() ? -1 : value.compareTo(o.value);
+        }
     }
 
     public TimelessDate getValue() {

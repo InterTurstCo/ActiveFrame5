@@ -10,7 +10,7 @@ import java.math.BigInteger;
  * Date: 19.05.13
  * Time: 16:20
  */
-public class DecimalValue extends Value {
+public class DecimalValue extends Value<DecimalValue> {
     private BigDecimal value;
 
     /**
@@ -54,6 +54,15 @@ public class DecimalValue extends Value {
     @Override
     public BigDecimal get() {
         return value;
+    }
+
+    @Override
+    public int compareTo(DecimalValue o) {
+        if (o == null || o.isEmpty()) {
+            return this.isEmpty() ? 0 : 1;
+        } else {
+            return this.isEmpty() ? -1 : value.compareTo(o.value);
+        }
     }
 
 }

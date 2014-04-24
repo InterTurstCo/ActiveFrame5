@@ -7,7 +7,7 @@ package ru.intertrust.cm.core.business.api.dto;
  *         Date: 10/24/13
  *         Time: 1:43 PM
  */
-public class TimelessDate implements Dto {
+public class TimelessDate implements Dto, Comparable<TimelessDate> {
 
     private int year;
     private int month; // нумерация начинается с 0 (0 - январь)
@@ -85,5 +85,22 @@ public class TimelessDate implements Dto {
                 .append(month + 1).append("-")
                 .append(dayOfMonth).append("}")
                 .toString();
+    }
+
+    @Override
+    public int compareTo(TimelessDate o) {
+        if (o == null) {
+            return 1;
+        }
+        if (year != o.year) {
+            return year > o.year ? 1 : -1;
+        }
+        if (month != o.month) {
+            return month > o.month ? 1 : -1;
+        }
+        if (dayOfMonth != o.dayOfMonth) {
+            return dayOfMonth > o.dayOfMonth ? 1 : -1;
+        }
+        return 0;
     }
 }

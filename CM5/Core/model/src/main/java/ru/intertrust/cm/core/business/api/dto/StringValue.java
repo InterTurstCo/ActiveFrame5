@@ -6,7 +6,7 @@ package ru.intertrust.cm.core.business.api.dto;
  * Date: 19.05.13
  * Time: 16:20
  */
-public class StringValue extends Value {
+public class StringValue extends Value<StringValue> {
     private String value;
 
     /**
@@ -26,6 +26,15 @@ public class StringValue extends Value {
     @Override
     public String get() {
         return value;
+    }
+
+    @Override
+    public int compareTo(StringValue o) {
+        if (o == null || o.isEmpty()) {
+            return this.isEmpty() ? 0 : 1;
+        } else {
+            return this.isEmpty() ? -1 : value.compareTo(o.value);
+        }
     }
 
     @Override
