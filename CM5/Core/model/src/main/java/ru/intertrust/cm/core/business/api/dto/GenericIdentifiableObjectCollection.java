@@ -1,10 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -18,8 +15,8 @@ import ru.intertrust.cm.core.config.FieldConfig;
  */
 public class GenericIdentifiableObjectCollection implements IdentifiableObjectCollection {
 
-    private ArrayList<IdentifiableObject> list = new ArrayList<IdentifiableObject>();
-    private CaseInsensitiveMap<Integer> fieldIndexes = new CaseInsensitiveMap<Integer>();
+    private ArrayList<IdentifiableObject> list = new ArrayList<>();
+    private CaseInsensitiveMap<Integer> fieldIndexes = new CaseInsensitiveMap<>();
     private ArrayList<String> fields;
     private ArrayList<FieldConfig> fieldConfigs;
 
@@ -39,18 +36,18 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             throw new IllegalArgumentException("Collection field configs are already set");
         }*/
         if (fieldConfigs == null) {
-            this.fieldConfigs = new ArrayList<FieldConfig>(0);
+            this.fieldConfigs = new ArrayList<>(0);
         } else {
-            this.fieldConfigs = new ArrayList<FieldConfig>(fieldConfigs);
+            this.fieldConfigs = new ArrayList<>(fieldConfigs);
         }
         int fieldIndex = 0;
         for (FieldConfig field : this.fieldConfigs) {
-            fieldIndexes.put(new String(field.getName()).toLowerCase(), fieldIndex);
+            fieldIndexes.put(field.getName().toLowerCase(), fieldIndex);
             ++fieldIndex;
         }
     }
 
-    public boolean containsField(String fieldName) {
+    public boolean containsField(String fieldName) { // todo: not used and incorrect: fieldConfigs doesn't contain Strings
         if (fieldConfigs.contains(fieldName)) {
             return true;
         }
@@ -93,6 +90,10 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     @Override
     public Value get(int fieldIndex, int row) {
         return ((FastIdentifiableObjectImpl) list.get(row)).getValue(fieldIndex);
+    }
+
+    public void sort(SortOrder sortOrder) {
+
     }
 
     @Override
@@ -162,7 +163,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         private FastIdentifiableObjectImpl(IdentifiableObjectCollection collection) {
             this.collection = collection;
             int fieldsSize = collection.getFieldsConfiguration().size();
-            fieldValues = new ArrayList<Value>(fieldsSize);
+            fieldValues = new ArrayList<>(fieldsSize);
             for (int i = 0; i < fieldsSize; ++i) {
                 fieldValues.add(null);
             }
@@ -371,7 +372,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public ArrayList<String> getFields() {
-            ArrayList<String> result = new ArrayList<String>();
+            ArrayList<String> result = new ArrayList<>();
             
             for (int i = 0; i < collection.getFieldsConfiguration().size(); i++) {
                 FieldConfig config = collection.getFieldsConfiguration().get(i);
@@ -394,5 +395,27 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             dirty = false;
         }
     }
-    
+
+    static class FastIdentifiableObjectComparator implements Comparator<FastIdentifiableObjectImpl> {
+        private SortOrder sortOrder;
+        private ArrayList<Integer> sortCriterionFieldIndexes;
+        private ArrayList<Comparator<Value>> comparators;
+
+        FastIdentifiableObjectComparator(GenericIdentifiableObjectCollection collection, SortOrder sortOrder) {
+            this.sortOrder = sortOrder;
+            sortCriterionFieldIndexes = new ArrayList<>(sortOrder.size());
+            comparators = new ArrayList<>(sortOrder.size());
+            for (SortCriterion criterion : sortOrder) {
+                sortCriterionFieldIndexes.add(collection.getFieldIndex(criterion.getField()));
+                // get field config, if DateTimeWithTimeZone - choose comparator, if not - use default...
+                // smth like this
+                //comparators.add(Value.getComparator(fieldConfig.getType().getValueClass(), true, true))
+            }
+        }
+
+        @Override
+        public int compare(FastIdentifiableObjectImpl o1, FastIdentifiableObjectImpl o2) {
+            return 0;
+        }
+    }
 }

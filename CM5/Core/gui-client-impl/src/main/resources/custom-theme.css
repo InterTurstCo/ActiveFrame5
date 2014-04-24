@@ -313,8 +313,11 @@
 }
 
 .gwt-TextBox {
-    margin: 5px 0;
+
     display: inline-block;
+    box-sizing: border-box;
+/*    margin: 5px 10px;*/
+    width: 100%;
 }
 
 .gwt-ListBox {

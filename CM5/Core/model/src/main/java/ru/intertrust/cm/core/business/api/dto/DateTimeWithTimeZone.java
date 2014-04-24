@@ -191,4 +191,8 @@ public class DateTimeWithTimeZone implements Dto {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return year + "-" + (month + 1) + "-" + dayOfMonth + " " + hours + ':' + minutes + ':' + seconds + '.' + milliseconds + ", " + timeZoneContext;
+    }
 }

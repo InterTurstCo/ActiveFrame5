@@ -10,4 +10,9 @@ import java.io.Serializable;
 public abstract class TimeZoneContext implements Serializable {
 
     public abstract String getTimeZoneId();
+
+    @Override
+    public String toString() {
+        return getTimeZoneId();
+    }
 }

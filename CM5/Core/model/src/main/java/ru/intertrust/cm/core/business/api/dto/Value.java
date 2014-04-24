@@ -1,12 +1,15 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 /**
  * Значение поля доменного объекта. По сути является отображением типов, определённых в системе на типы Java.
  * Author: Denis Mitavskiy
  * Date: 19.05.13
  * Time: 16:10
  */
-public abstract class Value implements Dto {
+public abstract class Value<T extends Value<T>> implements Dto, Comparable<T> {
     /**
      * Создаёт значение поля доменного объекта
      */
@@ -52,6 +55,74 @@ public abstract class Value implements Dto {
         Object thisValue = get();
         Object anotherValue = ((Value) another).get();
         return thisValue == null && anotherValue == null || thisValue != null && thisValue.equals(anotherValue);
+    }
+
+    @Override
+    public int compareTo(T o) {
+        // GWT-хак (работает начиная с GWT 2.6). Этот метод в DateTimeWithTimeZoneValue помечен как несовместимый с GWT,
+        // поэтому в его случае GWT исполнит данный базовый метод (с его точки зрения он окажется не переопределён). На
+        // всякий случай, добавлена проверка совпадения классов (чтобы кто-то по ошибке не отнаследовался, забыв переопределить
+        // этот метод.
+        if (this.getClass() == DateTimeWithTimeZoneValue.class) {
+            return ((DateTimeWithTimeZoneValue) (Value) this).gwtCompareTo((DateTimeWithTimeZoneValue) o);
+        }
+        return 0;
+    }
+
+    /**
+     * Возвращает Java Comparator, позволяющий сравнить значения {@link Value}. Пустые (nulls) значения разрешены.
+     * Исключение {@link ClassCastException} будет выброшено при попытке использовать Comparator для сравнения объектов разных типов.
+     * @param asc true, если сортировка будет осуществляться по возрастанию, false - в противном случае
+     * @param nullsFirstWhenSortedAsc true, если пустые значения должны идти вначале в случае сортировки по возрастанию, false - если в конце
+     * @return Java Comparator, позволяющий сортировать объекты {@link Value}
+     */
+    public static <T extends Value<T>> Comparator<T> getComparator(boolean asc, boolean nullsFirstWhenSortedAsc) {
+        if (asc) {
+            if (nullsFirstWhenSortedAsc) {
+                return new Comparator<T>() {
+                    @Override
+                    public int compare(Value o1, Value o2) {
+                        return defaultAscCompare(o1, o2, -1, 1);
+                    }
+                };
+            } else {
+                return new Comparator<T>() {
+                    @Override
+                    public int compare(Value o1, Value o2) {
+                        return defaultAscCompare(o1, o2, 1, -1);
+                    }
+                };
+            }
+        } else {
+            if (nullsFirstWhenSortedAsc) {
+                return new Comparator<T>() {
+                    @Override
+                    public int compare(Value o1, Value o2) {
+                        return -defaultAscCompare(o1, o2, -1, 1);
+                    }
+                };
+            } else {
+                return new Comparator<T>() {
+                    @Override
+                    public int compare(Value o1, Value o2) {
+                        return -defaultAscCompare(o1, o2, 1, -1);
+                    }
+                };
+            }
+        }
+    }
+
+    private static int defaultAscCompare(final Value o1, final Value o2, final int o1NullResult, final int o2NullResult) {
+        if (o1 == null && o2 == null) {
+            return 0;
+        }
+        if (o1 == null || o1.isEmpty()) {
+            return o1NullResult;
+        }
+        if (o2 == null || o2.isEmpty()) {
+            return o2NullResult;
+        }
+        return o1.compareTo(o2);
     }
 
     @Override

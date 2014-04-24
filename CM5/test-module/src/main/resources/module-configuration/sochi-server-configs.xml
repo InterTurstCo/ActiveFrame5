@@ -240,7 +240,7 @@
                 <tab name="SO_Department">
                     <bookmarks>
                         <tab-group name="Настройки">
-                            <table>
+                            <table width="100%">
                                 <!--                             Филатов -->
                                 <tr>
                                     <!-- FullName -->
@@ -398,6 +398,7 @@
             <!--Type-->
             <label id="12">
                 <text>Тип:</text>
+                <relates-to widget-id="13"/>
             </label>
             <text-box id="13">
                 <field-path value="Type"/>
@@ -910,7 +911,10 @@
             <reference name="HierRoot" type="SO_OrgSystem" not-null="true"/>
             <reference name="HierParent" type="SO_Parent_SU" not-null="true"/>
 
-            <string name="Type" length="253"/>
+            <string name="Type" length="253">
+            <constraints>
+                <simple-constraint value="not-empty"/>
+            </constraints></string>
             <boolean name="IsIndependent" not-null="true"/>
             <boolean name="IsIsolated" not-null="true"/>
             <string name="Telex" length="253"/>

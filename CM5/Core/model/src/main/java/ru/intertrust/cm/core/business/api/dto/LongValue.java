@@ -6,7 +6,7 @@ package ru.intertrust.cm.core.business.api.dto;
  * Date: 19.05.13
  * Time: 16:21
  */
-public class LongValue extends Value {
+public class LongValue extends Value<LongValue> {
     private Long value;
 
     /**
@@ -34,6 +34,15 @@ public class LongValue extends Value {
     @Override
     public Long get() {
         return value;
+    }
+
+    @Override
+    public int compareTo(LongValue o) {
+        if (o == null || o.isEmpty()) {
+            return this.isEmpty() ? 0 : 1;
+        } else {
+            return this.isEmpty() ? -1 : value.compareTo(o.value);
+        }
     }
 
 }

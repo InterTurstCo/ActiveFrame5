@@ -5,7 +5,7 @@ package ru.intertrust.cm.core.business.api.dto;
  * 
  * @author apirozhkov
  */
-public class ReferenceValue extends Value {
+public class ReferenceValue extends Value<ReferenceValue> {
 
     private Id reference;
 
@@ -29,4 +29,12 @@ public class ReferenceValue extends Value {
         return reference;
     }
 
+    @Override
+    public int compareTo(ReferenceValue o) {
+        if (o == null || o.isEmpty()) {
+            return this.isEmpty() ? 0 : 1;
+        } else {
+            return this.isEmpty() ? -1 : reference.toStringRepresentation().compareTo(o.reference.toStringRepresentation());
+        }
+    }
 }
