@@ -152,7 +152,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             }
 
             return result;
-        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException ex) {
+        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error(ex.getMessage());
@@ -171,7 +171,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
             AccessToken accessToken = createSystemAccessToken();
             return domainObjectDao.save(domainObjects, accessToken);
-        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException ex) {
+        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error(ex.getMessage());
@@ -304,7 +304,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             AccessToken accessToken = null;
             accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
             domainObjectDao.delete(id, accessToken);
-        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+        } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error(ex.getMessage());
@@ -327,7 +327,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
             return domainObjectDao.delete(ids, accessToken);
-        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+        } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error(ex.getMessage());
