@@ -250,7 +250,7 @@
                             <table>
                                 <tr>
                                     <td h-align="right">
-                                        <widget id="13"/>
+                                        <widget id="12"/>
                                     </td>
                                     <td h-align="left">
                                         <widget id="14"/>
@@ -459,6 +459,7 @@
             <label id="13">
                 <text>Города:</text>
             </label>
+
            <!-- <list-box id="14"> &lt;!&ndash; в поле City.country надо сохранить Id текущей страны??? &ndash;&gt;
                 <field-path value="city^country"/>
                 &lt;!&ndash; редактирует названи&ndash;&gt;

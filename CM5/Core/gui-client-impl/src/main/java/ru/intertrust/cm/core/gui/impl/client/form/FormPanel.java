@@ -270,7 +270,11 @@ public class FormPanel implements IsWidget {
                 widget.setState(widgetState);
                 widget.setOwner(this);
                 widgets.add(widget);
-                table.setWidget(rowIndex, colIndex, widget);
+                AbsolutePanel wrapper = new AbsolutePanel();
+                wrapper.addStyleName("widget-wrapper");
+                wrapper.getElement().getStyle().clearOverflow();
+                wrapper.add(widget);
+                table.setWidget(rowIndex, colIndex,wrapper);
 
                 String cellWidth = cell.getWidth();
                 if (cellWidth != null && !cellWidth.isEmpty()) {

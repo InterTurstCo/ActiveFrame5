@@ -150,3 +150,8 @@
 .form-panel-header .gwt-Good-Label {
     margin: 5px 5px 5px 15px;
 }
+
+.widget-wrapper {
+    margin: 0 10px 0 0;
+    padding: 5px 10px;
+}
