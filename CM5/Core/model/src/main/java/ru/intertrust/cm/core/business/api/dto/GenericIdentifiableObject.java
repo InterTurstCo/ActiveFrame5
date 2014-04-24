@@ -3,10 +3,7 @@ package ru.intertrust.cm.core.business.api.dto;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 /**
  * Author: Denis Mitavskiy
@@ -17,7 +14,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     private Id id;
     protected LinkedHashMap<String, Value> fieldValues;
-    protected HashSet<String> originalKeys = new HashSet<String>();
+    protected LinkedHashSet<String> originalKeys = new LinkedHashSet<>();
     protected boolean dirty = false;
 
     /**

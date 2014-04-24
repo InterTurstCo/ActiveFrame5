@@ -76,17 +76,17 @@ public abstract class Value<T extends Value<T>> implements Dto, Comparable<T> {
      * @param nullsFirstWhenSortedAsc true, если пустые значения должны идти вначале в случае сортировки по возрастанию, false - если в конце
      * @return Java Comparator, позволяющий сортировать объекты {@link Value}
      */
-    public static <T extends Value<T>> Comparator<T> getComparator(boolean asc, boolean nullsFirstWhenSortedAsc) {
+    public static Comparator<Value> getComparator(boolean asc, boolean nullsFirstWhenSortedAsc) {
         if (asc) {
             if (nullsFirstWhenSortedAsc) {
-                return new Comparator<T>() {
+                return new Comparator<Value>() {
                     @Override
                     public int compare(Value o1, Value o2) {
                         return defaultAscCompare(o1, o2, -1, 1);
                     }
                 };
             } else {
-                return new Comparator<T>() {
+                return new Comparator<Value>() {
                     @Override
                     public int compare(Value o1, Value o2) {
                         return defaultAscCompare(o1, o2, 1, -1);
@@ -95,14 +95,14 @@ public abstract class Value<T extends Value<T>> implements Dto, Comparable<T> {
             }
         } else {
             if (nullsFirstWhenSortedAsc) {
-                return new Comparator<T>() {
+                return new Comparator<Value>() {
                     @Override
                     public int compare(Value o1, Value o2) {
                         return -defaultAscCompare(o1, o2, -1, 1);
                     }
                 };
             } else {
-                return new Comparator<T>() {
+                return new Comparator<Value>() {
                     @Override
                     public int compare(Value o1, Value o2) {
                         return -defaultAscCompare(o1, o2, 1, -1);
