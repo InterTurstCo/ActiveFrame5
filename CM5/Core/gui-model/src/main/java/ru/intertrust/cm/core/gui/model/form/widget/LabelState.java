@@ -7,7 +7,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
  */
 public class LabelState extends WidgetState {
     private String label;
-    private boolean relatedToRequiredField;
+    private boolean asteriskRequired;
     private String pattern;
     private String fontWeight;
     private String fontStyle;
@@ -28,12 +28,12 @@ public class LabelState extends WidgetState {
         this.label = label;
     }
 
-    public boolean isRelatedToRequiredField() {
-        return relatedToRequiredField;
+    public boolean isAsteriskRequired() {
+        return asteriskRequired;
     }
 
-    public void setRelatedToRequiredField(boolean relatedToRequiredField) {
-        this.relatedToRequiredField = relatedToRequiredField;
+    public void setAsteriskRequired(boolean asteriskRequired) {
+        this.asteriskRequired = asteriskRequired;
     }
 
     public String getPattern() {

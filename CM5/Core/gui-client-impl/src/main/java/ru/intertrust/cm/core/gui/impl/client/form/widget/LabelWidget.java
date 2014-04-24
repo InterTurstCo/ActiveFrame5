@@ -36,7 +36,7 @@ public class LabelWidget extends BaseWidget {
         setTrimmedText(label, labelState.getLabel());
         applyFontStyle(label, labelState);
 
-        boolean showRedAsterisk = labelState.isRelatedToRequiredField() && isEditable;
+        boolean showRedAsterisk = labelState.isAsteriskRequired() && isEditable;
         redAsteriskLabel.setText(showRedAsterisk ? "*" : "");
         applyFontStyle(redAsteriskLabel, labelState);
     }
@@ -50,7 +50,7 @@ public class LabelWidget extends BaseWidget {
         Label redAsteriskLabel = (Label) iterator.next();
         Label label = (Label) iterator.next();
         state.setLabel(getTrimmedText(label));
-        state.setRelatedToRequiredField(!redAsteriskLabel.getText().isEmpty());
+        state.setAsteriskRequired(!redAsteriskLabel.getText().isEmpty());
         state.setPattern(initialState.getPattern());
         state.setFontWeight(initialState.getFontWeight());
         state.setFontStyle(initialState.getFontStyle());

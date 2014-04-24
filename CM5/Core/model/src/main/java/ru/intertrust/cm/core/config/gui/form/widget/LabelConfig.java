@@ -35,6 +35,9 @@ public class LabelConfig extends WidgetConfig implements Dto {
     @Element(name = "all-values-empty-message", required = false)
     private AllValuesEmptyMessageConfig allValuesEmptyMessage;
 
+    @Element(name = "force-required-asterisk", required = false)
+    private ForceRequiredAsteriskConfig forceRequiredAsterisk;
+
     public String getText() {
         return text;
     }
@@ -99,6 +102,14 @@ public class LabelConfig extends WidgetConfig implements Dto {
         this.allValuesEmptyMessage = allValuesEmptyMessage;
     }
 
+    public ForceRequiredAsteriskConfig getForceRequiredAsterisk() {
+        return forceRequiredAsterisk;
+    }
+
+    public void setForceRequiredAsterisk(ForceRequiredAsteriskConfig forceRequiredAsterisk) {
+        this.forceRequiredAsterisk = forceRequiredAsterisk;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -138,7 +149,10 @@ public class LabelConfig extends WidgetConfig implements Dto {
                 allValuesEmptyMessage != null) {
             return false;
         }
-
+        if (forceRequiredAsterisk != null ? !forceRequiredAsterisk.equals(that.forceRequiredAsterisk) : that.
+                forceRequiredAsterisk != null) {
+            return false;
+        }
         return true;
     }
 
@@ -153,6 +167,7 @@ public class LabelConfig extends WidgetConfig implements Dto {
         result = 31 * result + (fontWeight != null ? fontWeight.hashCode() : 0);
         result = 31 * result + (fontStyle != null ? fontStyle.hashCode() : 0);
         result = 31 * result + (fontSize != null ? fontSize.hashCode() : 0);
+        result = 31 * result + (forceRequiredAsterisk != null ? forceRequiredAsterisk.hashCode() : 0);
         return result;
     }
 

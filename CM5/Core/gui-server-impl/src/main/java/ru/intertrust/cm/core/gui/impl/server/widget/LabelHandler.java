@@ -18,13 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.AllValuesEmptyMessageConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FontSizeConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FontStyleConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FontWeightConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -74,7 +68,7 @@ public class LabelHandler extends ValueEditingWidgetHandler {
             }
 
         }
-        state.setRelatedToRequiredField(isRelatedFieldRequired(context, labelConfig));
+        state.setAsteriskRequired(isAsteriskRequired(context, labelConfig));
         return state;
     }
 
@@ -142,8 +136,21 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         }
         return pattern.toString();
     }
+    private boolean isAsteriskRequired(WidgetContext context, LabelConfig labelConfig) {
+        return isForceRequiredAsterisk(context, labelConfig) || isRelatedFieldRequired(context, labelConfig);
+
+    }
+
+    private boolean isForceRequiredAsterisk(WidgetContext context, LabelConfig labelConfig) {
+        ForceRequiredAsteriskConfig forceRequiredAsteriskConfig = labelConfig.getForceRequiredAsterisk();
+        if(forceRequiredAsteriskConfig == null){
+            return false;
+        }
+        return forceRequiredAsteriskConfig.isForceRequiredAsterisk();
+    }
 
     private boolean isRelatedFieldRequired(WidgetContext context, LabelConfig labelConfig) {
+
         if (labelConfig.getRelatesTo() != null) {
             String relatedWidgetId = labelConfig.getRelatesTo().getWidgetId();
             WidgetConfig relatedConfig = context.getWidgetConfigById(relatedWidgetId);

@@ -1974,10 +1974,16 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:uiRendererType" name="renderer"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:forceRequiredAsterisk" name="force-required-asterisk"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="forceRequiredAsterisk">
+        <xs:attribute type="xs:boolean"
+                      name="value" use="required"/>
     </xs:complexType>
     <xs:complexType name="relatesToType">
         <xs:attribute type="xs:string"
