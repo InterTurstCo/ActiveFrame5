@@ -51,6 +51,9 @@
                 </parent-link>
             </linked-domain-object>
             <target-collection name="Internal_Document"/>
+            <filter>
+                <conditions-script>ctx.get('Name') == 'Department'</conditions-script>
+            </filter>            
         </target-domain-object>
     </search-area>
 

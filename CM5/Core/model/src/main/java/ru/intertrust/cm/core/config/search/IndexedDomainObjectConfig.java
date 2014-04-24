@@ -13,7 +13,7 @@ abstract public class IndexedDomainObjectConfig implements Serializable {
     @Attribute(required = true)
     private String type;
 
-    @Element(required = false)
+    @Element(name= "filter", required = false)
     private DomainObjectFilterConfig filter;
 
     @ElementList(entry = "indexed-field", inline = true)
