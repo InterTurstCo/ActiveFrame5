@@ -34,7 +34,23 @@ public class ActionRefConfig extends AbstractActionEntryConfig {
         return showImage;
     }
 
+    @Override
     public Integer getOrder() {
         return order;
+    }
+
+    @Override
+    public boolean isRendered() {
+        return true;
+    }
+
+    @Override
+    public String getId() {
+        return null;
+    }
+
+    @Override
+    public String getGroupId() {
+        return null;
     }
 }

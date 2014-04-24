@@ -10,22 +10,22 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class ToolbarContext implements Dto {
 
-    private ArrayList<String> leftFacetActionIds = new ArrayList<String>();
-    private ArrayList<String> rightFacetActionIds = new ArrayList<String>();
+    private ArrayList<ActionEntryContext> leftFacetActions = new ArrayList<ActionEntryContext>();
+    private ArrayList<ActionEntryContext> rightFacetActions = new ArrayList<ActionEntryContext>();
 
-    public void addActionId(final String actionId, final boolean isRightFacet) {
+    public void addAction(final ActionEntryContext actionCtx, final boolean isRightFacet) {
         if (isRightFacet) {
-            rightFacetActionIds.add(actionId);
+            rightFacetActions.add(actionCtx);
         } else {
-            leftFacetActionIds.add(actionId);
+            leftFacetActions.add(actionCtx);
         }
     }
 
-    public ArrayList<String> getLeftFacetActionIds() {
-        return leftFacetActionIds;
+    public ArrayList<ActionEntryContext> getLeftFacetActions() {
+        return leftFacetActions;
     }
 
-    public ArrayList<String> getRightFacetActionIds() {
-        return rightFacetActionIds;
+    public ArrayList<ActionEntryContext> getRightFacetActions() {
+        return rightFacetActions;
     }
 }

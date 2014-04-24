@@ -9,4 +9,11 @@ import java.io.Serializable;
  */
 public abstract class AbstractActionEntryConfig implements Serializable {
 
+    public abstract String getId();
+
+    public abstract Integer getOrder();
+
+    public abstract boolean isRendered();
+
+    public abstract String getGroupId();
 }

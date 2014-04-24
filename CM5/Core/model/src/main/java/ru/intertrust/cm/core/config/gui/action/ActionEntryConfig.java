@@ -8,14 +8,18 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.ElementUnion;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.convert.Convert;
 
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.converter.ActionDisplayTypeConverter;
+import ru.intertrust.cm.core.config.converter.ActionTypeConverter;
 
 /**
  * @author Sergey.Okolot
  *         Created on 14.04.2014 17:21.
  */
-public class ActionEntryConfig extends AbstractActionEntryConfig implements TopLevelConfig {
+@Root(name = "action-entry")
+public class ActionEntryConfig extends AbstractActionEntryConfig implements TopLevelConfig, Cloneable {
 
     @Element(name = "before-execution", required = false)
     private BeforeActionExecutionConfig beforeConfig;
@@ -66,7 +70,12 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
     private String action;
 
     @Attribute(required = false)
-    private String display = "button";
+    @Convert(ActionDisplayTypeConverter.class)
+    private ActionDisplayType display = ActionDisplayType.button;
+
+    @Attribute(required = false)
+    @Convert(ActionTypeConverter.class)
+    private ActionType type = ActionType.perform;
 
     @Attribute(required = false)
     private String groupId;
@@ -75,13 +84,11 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
     private boolean dirtySensitivity = true;
 
     @ElementListUnion({
-            @ElementList(entry = "navigable-action", type = ActionEntryConfig.class, inline = true, required = false),
-            @ElementList(entry = "perform-action", type = ActionEntryConfig.class, inline = true, required = false),
-            @ElementList(entry = "workflow-action", type = ActionEntryConfig.class, inline = true, required = false),
+            @ElementList(entry = "action-entry", type = ActionEntryConfig.class, inline = true, required = false),
             @ElementList(entry = "action-ref", type = ActionRefConfig.class, inline = true, required = false),
             @ElementList(entry = "action-separator", type = ActionSeparatorConfig.class, inline = true, required = false)
     })
-    private List<ActionEntryConfig> children;
+    private List<AbstractActionEntryConfig> children;
 
     public BeforeActionExecutionConfig getBeforeConfig() {
         return beforeConfig;
@@ -91,6 +98,7 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
         return afterConfig;
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -111,8 +119,13 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
         return rendered;
     }
 
+    @Override
     public Integer getOrder() {
         return order;
+    }
+
+    public void setOrder(final Integer order) {
+        this.order = order;
     }
 
     public boolean isMerged() {
@@ -131,8 +144,16 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
         return text;
     }
 
+    public void clearText() {
+        text = null;
+    }
+
     public String getImage() {
         return image;
+    }
+
+    public void clearImage() {
+        image = null;
     }
 
     public String getTooltip() {
@@ -147,10 +168,15 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
         return action;
     }
 
-    public String getDisplay() {
+    public ActionDisplayType getDisplay() {
         return display;
     }
 
+    public ActionType getType() {
+        return type;
+    }
+
+    @Override
     public String getGroupId() {
         return groupId;
     }
@@ -159,12 +185,22 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
         return dirtySensitivity;
     }
 
-    public List<ActionEntryConfig> getChildren() {
+    public List<AbstractActionEntryConfig> getChildren() {
         return children == null ? Collections.EMPTY_LIST : children;
     }
 
     @Override
     public String getName() {
         return id;
+    }
+
+    @Override
+    public ActionEntryConfig clone() {
+        try {
+            final ActionEntryConfig result = (ActionEntryConfig) super.clone();
+            return result;
+        } catch (CloneNotSupportedException cnse) {
+            throw new RuntimeException(cnse);
+        }
     }
 }

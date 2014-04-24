@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <global-settings>
+        <audit-log enable="false"/>
+        <sql-trace enable="true" resolveParameters="true" minTime="0" minRows="0"/>
+    </global-settings>
+
+    <act:action-entry id="id_value" styleClass="styleClass_value" componentName="action.test">
+        <act:action-entry componentName="action.child.test1" id="act_2">
+            <act:before-execution>
+                <act:confirmation-message text="confirmation" />
+            </act:before-execution>
+            <act:after-execution>
+                <act:on-success-message text="on success" />
+            </act:after-execution>
+            <act:action-ref actionId="act1" />
+            <act:action-separator />
+        </act:action-entry>
+    </act:action-entry>
+    <act:action-entry componentName="test.perform" id="act1" order="100"/>
+
+    <act:tool-bar plugin="form.plugin" id="1">
+        <act:action-entry componentName="test.perform" id="t1"/>
+        <act:action-separator/>
+        <act:action-ref actionId="id_value"/>
+        <act:action-entry componentName="sjhdfkjhs" groupId="t10"/>
+    </act:tool-bar>
+
+</configuration>
