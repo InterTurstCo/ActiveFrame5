@@ -44,6 +44,12 @@ public interface IdentifiableObjectCollection extends Iterable<IdentifiableObjec
 
     Value get(int fieldIndex, int row);
 
+    /**
+     * Сортирует данную коллекцию согласно заданному порядку сортировки
+     * @param sortOrder порядок сортировки
+     */
+    void sort(SortOrder sortOrder);
+
     int getFieldIndex(String field);
 
     ArrayList<FieldConfig> getFieldsConfiguration();
