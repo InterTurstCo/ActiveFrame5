@@ -34,6 +34,7 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ScheduleException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
@@ -67,56 +68,78 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public List<DomainObject> getTaskList() {
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        String query = "select t.id from schedule t";
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
-        for (IdentifiableObject identifiableObject : collection) {
-            DomainObject task = domainObjectDao.find(identifiableObject.getId(), accessToken);
-            result.add(task);
+        try {
+            List<DomainObject> result = new ArrayList<DomainObject>();
+            String query = "select t.id from schedule t";
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+            for (IdentifiableObject identifiableObject : collection) {
+                DomainObject task = domainObjectDao.find(identifiableObject.getId(), accessToken);
+                result.add(task);
+            }
+            return result;
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ScheduleService", "getTaskList", "", ex);
         }
-        return result;
     }
 
     @Override
     public List<String> getTaskClasses() {
-        List<SheduleTaskReestrItem> tasksDescriptions = sheduleTaskLoader.getSheduleTaskReestrItems(true);
-        List<String> result = new ArrayList<String>();
-        for (SheduleTaskReestrItem sheduleTaskReestrItem : tasksDescriptions) {
-            result.add(sheduleTaskReestrItem.getScheduleTask().getClass().toString());
+        try {
+            List<SheduleTaskReestrItem> tasksDescriptions = sheduleTaskLoader.getSheduleTaskReestrItems(true);
+            List<String> result = new ArrayList<String>();
+            for (SheduleTaskReestrItem sheduleTaskReestrItem : tasksDescriptions) {
+                result.add(sheduleTaskReestrItem.getScheduleTask().getClass().toString());
+            }
+            return result;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ScheduleService", "getTaskClasses", "", ex);
         }
-        return result;
     }
 
     @Override
     public Schedule getTaskSchedule(Id taskId) {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        DomainObject task = domainObjectDao.find(taskId, accessToken);
-        Schedule result = new Schedule();
-        result.setDayOfMonth(task.getString(SCHEDULE_DAY_OF_MONTH));
-        result.setDayOfWeek(task.getString(SCHEDULE_DAY_OF_WEEK));
-        result.setHour(task.getString(SCHEDULE_HOUR));
-        result.setMinute(task.getString(SCHEDULE_MINUTE));
-        result.setMonth(task.getString(SCHEDULE_MONTH));
-        result.setYear(task.getString(SCHEDULE_YEAR));
-        return result;
+        try {
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            DomainObject task = domainObjectDao.find(taskId, accessToken);
+            Schedule result = new Schedule();
+            result.setDayOfMonth(task.getString(SCHEDULE_DAY_OF_MONTH));
+            result.setDayOfWeek(task.getString(SCHEDULE_DAY_OF_WEEK));
+            result.setHour(task.getString(SCHEDULE_HOUR));
+            result.setMinute(task.getString(SCHEDULE_MINUTE));
+            result.setMonth(task.getString(SCHEDULE_MONTH));
+            result.setYear(task.getString(SCHEDULE_YEAR));
+            return result;
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ScheduleService", "getTaskSchedule", "taskId:" + taskId, ex);
+        }
     }
 
     @Override
     public void setTaskSchedule(Id taskId, Schedule schedule) {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        DomainObject task = domainObjectDao.find(taskId, accessToken);
-        task.setString(SCHEDULE_DAY_OF_MONTH, schedule.getDayOfMonth());
-        task.setString(SCHEDULE_DAY_OF_WEEK, schedule.getDayOfWeek());
-        task.setString(SCHEDULE_HOUR, schedule.getHour());
-        task.setString(SCHEDULE_MINUTE, schedule.getMinute());
-        task.setString(SCHEDULE_MONTH, schedule.getMonth());
-        task.setString(SCHEDULE_YEAR, schedule.getYear());
         try {
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            DomainObject task = domainObjectDao.find(taskId, accessToken);
+            task.setString(SCHEDULE_DAY_OF_MONTH, schedule.getDayOfMonth());
+            task.setString(SCHEDULE_DAY_OF_WEEK, schedule.getDayOfWeek());
+            task.setString(SCHEDULE_HOUR, schedule.getHour());
+            task.setString(SCHEDULE_MINUTE, schedule.getMinute());
+            task.setString(SCHEDULE_MONTH, schedule.getMonth());
+            task.setString(SCHEDULE_YEAR, schedule.getYear());
             domainObjectDao.save(task, accessToken);
-        } catch (DaoException ex) {
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " taskId:" + taskId);
+            throw new UnexpectedException("ScheduleService", "setTaskSchedule",
+                    "taskId:" + taskId + " schedule:" + schedule, ex);
         }
     }
 
@@ -178,77 +201,86 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public void enableTask(Id taskId) {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        DomainObject task = domainObjectDao.find(taskId, accessToken);
-        if (!task.getBoolean(SCHEDULE_ACTIVE)) {
-            task.setBoolean(SCHEDULE_ACTIVE, true);
-            try {
+        try {
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            DomainObject task = domainObjectDao.find(taskId, accessToken);
+            if (!task.getBoolean(SCHEDULE_ACTIVE)) {
+                task.setBoolean(SCHEDULE_ACTIVE, true);
                 domainObjectDao.save(task, accessToken);
-            } catch (DaoException ex) {
-                logger.error(ex.getMessage());
-                throw new UnexpectedException(ex.getMessage() + " taskId:" + taskId);
             }
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ScheduleService", "enableTask", "taskId:" + taskId, ex);
         }
     }
 
     @Override
     public void disableTask(Id taskId) {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        DomainObject task = domainObjectDao.find(taskId, accessToken);
-        if (task.getBoolean(SCHEDULE_ACTIVE)) {
-            task.setBoolean(SCHEDULE_ACTIVE, false);
-            try {
+        try {
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            DomainObject task = domainObjectDao.find(taskId, accessToken);
+            if (task.getBoolean(SCHEDULE_ACTIVE)) {
+                task.setBoolean(SCHEDULE_ACTIVE, false);
                 domainObjectDao.save(task, accessToken);
-            } catch (DaoException ex) {
-                logger.error(ex.getMessage());
-                throw new UnexpectedException(ex.getMessage() + " taskId:" + taskId);
             }
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ScheduleService", "disableTask", "taskId:" + taskId, ex);
         }
     }
 
     @Override
     public void run(Id taskId) {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        DomainObject task = domainObjectDao.setStatus(taskId, statusDao.getStatusIdByName(SCHEDULE_STATUS_READY), accessToken);
-        task.setTimestamp(SCHEDULE_LAST_REDY, new Date());
         try {
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            DomainObject task = domainObjectDao.setStatus(taskId, statusDao.getStatusIdByName(SCHEDULE_STATUS_READY), accessToken);
+            task.setTimestamp(SCHEDULE_LAST_REDY, new Date());
             domainObjectDao.save(task, accessToken);
-        } catch (DaoException ex) {
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " taskId:" + taskId);
+            throw new UnexpectedException("ScheduleService", "run", "taskId:" + taskId, ex);
         }
-
     }
 
     @Override
     public void setPriority(Id taskId, int priority) {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        DomainObject task = domainObjectDao.find(taskId, accessToken);
-        if (task.getLong(SCHEDULE_PRIORITY) != priority) {
-            task.setLong(SCHEDULE_PRIORITY, new Long(priority));
-            try {
+        try {
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            DomainObject task = domainObjectDao.find(taskId, accessToken);
+            if (task.getLong(SCHEDULE_PRIORITY) != priority) {
+                task.setLong(SCHEDULE_PRIORITY, new Long(priority));
                 domainObjectDao.save(task, accessToken);
-            } catch (DaoException ex) {
-                logger.error(ex.getMessage());
-                throw new UnexpectedException(ex.getMessage() + " taskId:" + taskId);
             }
-
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ScheduleService", "setPriority",
+                    "taskId:" + taskId + " priority: " + priority, ex);
         }
     }
 
     @Override
     public void setTimeout(Id taskId, int timeout) {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        DomainObject task = domainObjectDao.find(taskId, accessToken);
-        if (task.getLong(SCHEDULE_TIMEOUT) != timeout) {
-            task.setLong(SCHEDULE_TIMEOUT, new Long(timeout));
-            try {
+        try {
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            DomainObject task = domainObjectDao.find(taskId, accessToken);
+            if (task.getLong(SCHEDULE_TIMEOUT) != timeout) {
+                task.setLong(SCHEDULE_TIMEOUT, new Long(timeout));
                 domainObjectDao.save(task, accessToken);
-            } catch (DaoException ex) {
-                logger.error(ex.getMessage());
-                throw new UnexpectedException(ex.getMessage() + " taskId:" + taskId);
             }
-
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ScheduleService", "setTimeout",
+                    "taskId:" + taskId + " timeout:" + timeout, ex);
         }
     }
 
@@ -256,9 +288,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     public DomainObject createScheduleTask(String className, String name) {
         try {
             return sheduleTaskLoader.createTaskDomainObject(sheduleTaskLoader.getSheduleTaskReestrItem(className), name);
-        } catch (DaoException ex) {
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " className:" + className + "; name:" + name);
+            throw new UnexpectedException("ScheduleService", "createScheduleTask",
+                    "className:" + className + " name:" + name, ex);
         }
     }
     

@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless(name = "PersonManagementService")
@@ -35,56 +36,129 @@ public class PersonManagementServiceImpl implements PersonManagementService {
 
     @Override
     public Id getPersonId(String login) {
-        return personServiceDao.findPersonByLogin(login).getId();
+        try {
+            return personServiceDao.findPersonByLogin(login).getId();
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "getPersonId",
+                    "login:" + login, ex);
+        }
     }
 
     @Override
     public List<DomainObject> getPersonsInGroup(Id groupId) {
-        return personManagementServiceDao.getPersonsInGroup(groupId);
+        try {
+            return personManagementServiceDao.getPersonsInGroup(groupId);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "getPersonsInGroup",
+                    "groupId:" + groupId, ex);
+        }
     }
 
     @Override
     public List<DomainObject> getAllPersonsInGroup(Id groupId) {
-        return personManagementServiceDao.getAllPersonsInGroup(groupId);
+        try {
+            return personManagementServiceDao.getAllPersonsInGroup(groupId);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "getAllPersonsInGroup",
+                    "groupId:" + groupId, ex);
+        }
     }
 
     @Override
     public boolean isPersonInGroup(Id groupId, Id personId) {
-        return personManagementServiceDao.isPersonInGroup(groupId, personId);
+        try {
+            return personManagementServiceDao.isPersonInGroup(groupId, personId);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "isPersonInGroup",
+                    "groupId:" + groupId + " personId:" + personId, ex);
+        }
     }
 
     @Override
     public List<DomainObject> getPersonGroups(Id personId) {
-        return personManagementServiceDao.getPersonGroups(personId);
+        try {
+            return personManagementServiceDao.getPersonGroups(personId);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "getPersonGroups",
+                    "personId:" + personId, ex);
+        }
     }
 
     @Override
     public boolean isGroupInGroup(Id parent, Id child, boolean recursive) {
-        return personManagementServiceDao.isGroupInGroup(parent, child, recursive);
+        try {
+            return personManagementServiceDao.isGroupInGroup(parent, child, recursive);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "isGroupInGroup",
+                    "parent:" + parent + " child:" + child + " recursive: " + recursive, ex);
+        }
     }
 
     @Override
     public List<DomainObject> getAllParentGroup(Id child) {
-        return personManagementServiceDao.getAllParentGroup(child);
+        try {
+            return personManagementServiceDao.getAllParentGroup(child);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "getAllParentGroup",
+                    "child:" + child, ex);
+        }
     }
 
     @Override
     public List<DomainObject> getChildGroups(Id parent) {
-        return personManagementServiceDao.getChildGroups(parent);
+        try {
+            return personManagementServiceDao.getChildGroups(parent);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "getChildGroups",
+                    "parent:" + parent, ex);
+        }
     }
 
     @Override
     public List<DomainObject> getAllChildGroups(Id parent) {
-        return personManagementServiceDao.getAllChildGroups(parent);
+        try {
+            return personManagementServiceDao.getAllChildGroups(parent);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "getAllChildGroups",
+                    "parent:" + parent, ex);
+        }
     }
 
     @Override
     public void addPersonToGroup(Id group, Id person) {
         try {
             personManagementServiceDao.addPersonToGroup(group, person);
-        } catch (DaoException ex) {
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " group:" + group + "; person:" + person);
+            throw new UnexpectedException("PersonManagementService", "addPersonToGroup",
+                    "group:" + group + " person:" + person, ex);
         }
     }
 
@@ -92,9 +166,12 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public void addGroupToGroup(Id parent, Id child) {
         try {
             personManagementServiceDao.addGroupToGroup(parent, child);
-        } catch (DaoException ex) {
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " parent:" + parent + "; child:" + child);
+            throw new UnexpectedException("PersonManagementService", "addGroupToGroup",
+                    "parent:" + parent + " child:" + child, ex);
         }
     }
 
@@ -102,9 +179,12 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public void remotePersonFromGroup(Id group, Id person) {
         try {
             personManagementServiceDao.remotePersonFromGroup(group, person);
-        } catch (DaoException ex) {
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " group:" + group + "; person:" + person);
+            throw new UnexpectedException("PersonManagementService", "remotePersonFromGroup",
+                    "group:" + group + " person:" + person, ex);
         }
     }
 
@@ -112,21 +192,40 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public void remoteGroupFromGroup(Id parent, Id child) {
         try {
             personManagementServiceDao.remoteGroupFromGroup(parent, child);
-        } catch (DaoException ex) {
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " parent:" + parent + "; child:" + child);
+            throw new UnexpectedException("PersonManagementService", "remoteGroupFromGroup",
+                    "parent:" + parent + " child:" + child, ex);
         }
 
     }
 
     @Override
     public Id getGroupId(String groupName) {
-        return personManagementServiceDao.getGroupId(groupName);
+        try {
+            return personManagementServiceDao.getGroupId(groupName);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "getGroupId",
+                    "groupName:" + groupName, ex);
+        }
     }
 
     @Override
     public DomainObject findDynamicGroup(String name, Id contectId) {
-        return personManagementServiceDao.findDynamicGroup(name, contectId);
+        try {
+            return personManagementServiceDao.findDynamicGroup(name, contectId);
+        } catch (AccessException ex){
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonManagementService", "findDynamicGroup",
+                    "name:" + name + " contectId:" + contectId, ex);
+        }
     }
 
 }

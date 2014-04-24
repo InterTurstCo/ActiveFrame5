@@ -38,6 +38,8 @@ import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -68,6 +70,8 @@ import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 @Remote(ReportService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ReportServiceImpl extends ReportServiceBase implements ReportService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReportServiceImpl.class);
 
     private static final String TEMPLATES_FOLDER_NAME = "report-service-templates";
     private static final String RESULT_FOLDER_NAME = "report-service-results";
@@ -118,6 +122,7 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             
             return reportResult;
         } catch (Exception ex) {
+            logger.error(ex.getMessage());
             throw new ReportServiceException("Error on generate report", ex);
         }
     }

@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -12,7 +14,9 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ProfileException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -29,6 +33,7 @@ import java.util.List;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ProfileServiceImpl implements ProfileService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProfileServiceImpl.class);
 
     @Autowired
     private CollectionsService collectionsService;
@@ -54,25 +59,32 @@ public class ProfileServiceImpl implements ProfileService {
      */
     @Override
     public Profile getProfile(String name) {
-        accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
+        try {
+            accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
 
-        Filter filter = new Filter();
-        filter.setFilter("byName");
-        filter.addStringCriterion(0, name);
+            Filter filter = new Filter();
+            filter.setFilter("byName");
+            filter.addStringCriterion(0, name);
 
-        IdentifiableObjectCollection profileValues = collectionsService.findCollection("ProfileValues",
-                new SortOrder(), Collections.singletonList(filter));
-        if (profileValues.size() == 0) {
+            IdentifiableObjectCollection profileValues = collectionsService.findCollection("ProfileValues",
+                    new SortOrder(), Collections.singletonList(filter));
+            if (profileValues.size() == 0) {
+                ProfileObject profileObject = new ProfileObject();
+                profileObject.setName(name);
+                return profileObject;
+            }
+
             ProfileObject profileObject = new ProfileObject();
+            fillProfileAttributes(profileObject, profileValues);
             profileObject.setName(name);
+
             return profileObject;
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProfileService", "getProfile", "name: " + name, ex);
         }
-
-        ProfileObject profileObject = new ProfileObject();
-        fillProfileAttributes(profileObject, profileValues);
-        profileObject.setName(name);
-
-        return profileObject;
     }
 
     /**
@@ -84,17 +96,24 @@ public class ProfileServiceImpl implements ProfileService {
      */
     @Override
     public Profile getPersonProfile(Id personId) {
-        accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
+        try {
+            accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
 
-        IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(personId);
-        if (profileValues.size() == 0) {
-            return new ProfileObject();
+            IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(personId);
+            if (profileValues.size() == 0) {
+                return new ProfileObject();
+            }
+
+            ProfileObject profileObject = new ProfileObject();
+            fillProfileAttributes(profileObject, profileValues);
+
+            return profileObject;
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProfileService", "getPersonProfile", "personId: " + personId, ex);
         }
-
-        ProfileObject profileObject = new ProfileObject();
-        fillProfileAttributes(profileObject, profileValues);
-
-        return profileObject;
     }
 
 
@@ -104,37 +123,44 @@ public class ProfileServiceImpl implements ProfileService {
      */
     @Override
     public void setProfile(Profile profile) {
-        accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
+        try {
+            accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
 
-        Id profileId = profile.getId();
+            Id profileId = profile.getId();
 
-        DomainObject profileDomainObject = null;
+            DomainObject profileDomainObject = null;
 
-        if (profileId == null) {
-            // create new profile record
-            profileDomainObject = crudService.createDomainObject("system_profile");
-        } else {
-            profileDomainObject = crudService.find(profileId);
-            // profile already exists - clean existing attributes
-            cleanProfileAttributes(profileId);
-        }
-
-        // save profile DO
-        String name = profile.getName();
-        if (name == null || name.length() == 0){
-            throw new ProfileException("System profile name can't be empty");
-        }
-        profileDomainObject.setString("name", name);
-        profileDomainObject.setReference("parent", profile.getParent());
-        profileDomainObject = crudService.save(profileDomainObject);
-        profileId = profileDomainObject.getId();
-
-        // save attributes
-        ArrayList<String> attributeNames = profile.getFields();
-        if (attributeNames != null) {
-            for (String attributeName : attributeNames) {
-                saveProfileAttribute(profile, profileId, attributeName);
+            if (profileId == null) {
+                // create new profile record
+                profileDomainObject = crudService.createDomainObject("system_profile");
+            } else {
+                profileDomainObject = crudService.find(profileId);
+                // profile already exists - clean existing attributes
+                cleanProfileAttributes(profileId);
             }
+
+            // save profile DO
+            String name = profile.getName();
+            if (name == null || name.length() == 0){
+                throw new ProfileException("System profile name can't be empty");
+            }
+            profileDomainObject.setString("name", name);
+            profileDomainObject.setReference("parent", profile.getParent());
+            profileDomainObject = crudService.save(profileDomainObject);
+            profileId = profileDomainObject.getId();
+
+            // save attributes
+            ArrayList<String> attributeNames = profile.getFields();
+            if (attributeNames != null) {
+                for (String attributeName : attributeNames) {
+                    saveProfileAttribute(profile, profileId, attributeName);
+                }
+            }
+        } catch (AccessException | ProfileException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProfileService", "setProfile", "profile: " + profile, ex);
         }
 
     }
@@ -149,82 +175,95 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public PersonProfile getPersonProfile() {
 
-        Id currentUserId = currentUserAccessor.getCurrentUserId();
-        return getPersonProfileByPersonId(currentUserId);
+        try {
+            Id currentUserId = currentUserAccessor.getCurrentUserId();
+            return getPersonProfileByPersonId(currentUserId);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProfileService", "getPersonProfile", "", ex);
+        }
 
     }
 
     @Override
     public PersonProfile getPersonProfileByPersonId(Id personId) {
-        PersonProfileObject personProfileObject = new PersonProfileObject();
-        DomainObject personDo = crudService.find(personId);
-        Id profileId = personDo.getReference("profile");
-        if (profileId == null) {
+        try {
+            PersonProfileObject personProfileObject = new PersonProfileObject();
+            DomainObject personDo = crudService.find(personId);
+            Id profileId = personDo.getReference("profile");
+            if (profileId == null) {
+                return personProfileObject;
+            }
+
+            personProfileObject.setId(profileId);
+            IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(personId);
+            fillProfileAttributes(personProfileObject, profileValues);
+
+            fillInheritedAttributes(personProfileObject, personProfileObject);
+
             return personProfileObject;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProfileService", "getPersonProfileByPersonId", "personId: " + personId, ex);
         }
-
-        personProfileObject.setId(profileId);
-        IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(personId);
-        fillProfileAttributes(personProfileObject, profileValues);
-
-        fillInheritedAttributes(personProfileObject, personProfileObject);
-
-        return personProfileObject;
     }
 
     @Override
     public void setPersonProfile(PersonProfile profile) {
 
-        Id profileId = profile.getId();
+        try {
+            Id profileId = profile.getId();
 
-        DomainObject personProfileDo = null;
+            DomainObject personProfileDo = null;
 
-        if (profileId == null) {
-            // create new profile record
-            personProfileDo = crudService.createDomainObject("person_profile");
-        } else {
-            personProfileDo = crudService.find(profileId);
-            // profile already exists - clean existing attributes
-            cleanProfileAttributes(profileId);
-        }
-
-        // save person profile DO
-        Id parentProfileId = profile.getParent();
-        personProfileDo.setReference("parent", parentProfileId);
-        personProfileDo = crudService.save(personProfileDo);
-        profileId = personProfileDo.getId();
-
-        // read parent and inherited profile attributes
-        BaseProfileObject parentProfile = new ProfileObject();
-        if (parentProfileId != null){
-            fillProfileAttributes(parentProfile, getProfileValuesByProfileId(parentProfileId));
-            fillInheritedAttributes(parentProfile, parentProfile);
-        }
-
-        // save only overridden attributes
-        ArrayList<String> attributeNames = profile.getFields();
-        ArrayList<String> parentProfileAttributeNames = parentProfile.getFields();
-        if (attributeNames != null) {
-            for (String attributeName : attributeNames) {
-                DomainObject pvDomainObject = null;
-                ProfileValue profileValue = (ProfileValue) profile.getValue(attributeName);
-                if (parentProfileAttributeNames.contains(attributeName)){
-                    ProfileValue parentProfileValue = (ProfileValue) parentProfile.getValue(attributeName);
-                    if (parentProfileValue.isReadOnly()){
-                        continue;
-                    }
-
-                    if (profileValue.equals(parentProfileValue)){
-                        continue;
-                    }
-                }
-
-                saveProfileAttribute(profile, profileId, attributeName);
+            if (profileId == null) {
+                // create new profile record
+                personProfileDo = crudService.createDomainObject("person_profile");
+            } else {
+                personProfileDo = crudService.find(profileId);
+                // profile already exists - clean existing attributes
+                cleanProfileAttributes(profileId);
             }
+
+            // save person profile DO
+            Id parentProfileId = profile.getParent();
+            personProfileDo.setReference("parent", parentProfileId);
+            personProfileDo = crudService.save(personProfileDo);
+            profileId = personProfileDo.getId();
+
+            // read parent and inherited profile attributes
+            BaseProfileObject parentProfile = new ProfileObject();
+            if (parentProfileId != null){
+                fillProfileAttributes(parentProfile, getProfileValuesByProfileId(parentProfileId));
+                fillInheritedAttributes(parentProfile, parentProfile);
+            }
+
+            // save only overridden attributes
+            ArrayList<String> attributeNames = profile.getFields();
+            ArrayList<String> parentProfileAttributeNames = parentProfile.getFields();
+            if (attributeNames != null) {
+                for (String attributeName : attributeNames) {
+                    ProfileValue profileValue = (ProfileValue) profile.getValue(attributeName);
+                    if (parentProfileAttributeNames.contains(attributeName)){
+                        ProfileValue parentProfileValue = (ProfileValue) parentProfile.getValue(attributeName);
+                        if (parentProfileValue.isReadOnly()){
+                            continue;
+                        }
+
+                        if (profileValue.equals(parentProfileValue)){
+                            continue;
+                        }
+                    }
+
+                    saveProfileAttribute(profile, profileId, attributeName);
+                }
+            }
+        } catch (AccessException | ProfileException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProfileService", "setPersonProfile", "profile: " + profile, ex);
         }
-
-
-
     }
 
     private void cleanProfileAttributes(Id profileId) {

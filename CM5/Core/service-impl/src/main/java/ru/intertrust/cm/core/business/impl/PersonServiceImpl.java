@@ -1,11 +1,14 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -18,11 +21,19 @@ import javax.interceptor.Interceptors;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class PersonServiceImpl implements PersonService {
 
+    private static final Logger logger = LoggerFactory.getLogger(PersonServiceImpl.class);
+
     @Autowired
     private PersonServiceDao personServiceDao;
 
     @Override
     public DomainObject findPersonByLogin(String login) {
-        return personServiceDao.findPersonByLogin(login);
+        try {
+            return personServiceDao.findPersonByLogin(login);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PersonService", "findPersonByLogin",
+                    "login:" + login, ex);
+        }
     }
 }

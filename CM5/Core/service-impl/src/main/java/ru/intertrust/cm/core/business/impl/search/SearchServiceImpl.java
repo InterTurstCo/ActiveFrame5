@@ -33,6 +33,7 @@ import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.model.SearchException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless(name = "SearchService")
 @Local(SearchService.class)
@@ -60,48 +61,56 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     @Override
     public IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName,
             int maxResults) {
-        StringBuilder queryString = new StringBuilder();
-        for (String field : listCommonSolrFields()) {
-            queryString.append(queryString.length() == 0 ? "" : " OR ")
-                    .append(field)
-                    .append(":")
-                    .append(protectQueryString(query));
-        }
-        SolrQuery solrQuery = new SolrQuery()
-                .setQuery(queryString.toString())
-                .addFilterQuery(SolrFields.AREA + ":\"" + areaName + "\"")
-                //.addFilterQuery(SolrFields.TARGET_TYPE + ":" + configHelper.getTargetObjectType(targetCollectionName))
-                .addField(SolrFields.MAIN_OBJECT_ID);
-        if (maxResults > 0) {
-            solrQuery.setRows(maxResults);
-        }
+        try {
+            StringBuilder queryString = new StringBuilder();
+            for (String field : listCommonSolrFields()) {
+                queryString.append(queryString.length() == 0 ? "" : " OR ")
+                        .append(field)
+                        .append(":")
+                        .append(protectQueryString(query));
+            }
+            SolrQuery solrQuery = new SolrQuery()
+                    .setQuery(queryString.toString())
+                    .addFilterQuery(SolrFields.AREA + ":\"" + areaName + "\"")
+                    //.addFilterQuery(SolrFields.TARGET_TYPE + ":" + configHelper.getTargetObjectType(targetCollectionName))
+                    .addField(SolrFields.MAIN_OBJECT_ID);
+            if (maxResults > 0) {
+                solrQuery.setRows(maxResults);
+            }
 
-        int fetchLimit = maxResults;
-        while (true) {
-            QueryResponse response = null;
-            try {
-                response = solrServer.query(solrQuery);
-            } catch (Exception e) {
-                log.error("Search error", e);
-                throw new SearchException("Search error: " + e.getMessage());
-            }
-            if (fetchLimit <= 0) {
-                fetchLimit = response.getResults().size();
-            }
-            IdentifiableObjectCollection result =
-                    queryCollection(targetCollectionName, response.getResults(), maxResults);
-            if (response.getResults().size() == fetchLimit && result.size() < maxResults) {
-                // Увеличиваем размер выборки в Solr
-                int factor = 10;
-                if (result.size() > 0) {
-                    // Пытаемся оценить процент отсева 
-                    factor = 1 + response.getResults().size() / result.size();
+            int fetchLimit = maxResults;
+            while (true) {
+                QueryResponse response = null;
+                try {
+                    response = solrServer.query(solrQuery);
+                } catch (Exception e) {
+                    log.error("Search error", e);
+                    throw new SearchException("Search error: " + e.getMessage());
                 }
-                fetchLimit *= factor;
-                solrQuery.setRows(fetchLimit);
-                continue;
+                if (fetchLimit <= 0) {
+                    fetchLimit = response.getResults().size();
+                }
+                IdentifiableObjectCollection result =
+                        queryCollection(targetCollectionName, response.getResults(), maxResults);
+                if (response.getResults().size() == fetchLimit && result.size() < maxResults) {
+                    // Увеличиваем размер выборки в Solr
+                    int factor = 10;
+                    if (result.size() > 0) {
+                        // Пытаемся оценить процент отсева
+                        factor = 1 + response.getResults().size() / result.size();
+                    }
+                    fetchLimit *= factor;
+                    solrQuery.setRows(fetchLimit);
+                    continue;
+                }
+                return result;
             }
-            return result;
+        } catch (SearchException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw new UnexpectedException("SearchService", "search",
+                    "query:" + query + " areaName:" + areaName + " targetCollectionName: " + targetCollectionName, ex);
         }
         //return result;
     }
@@ -109,67 +118,76 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     @Override
     @SuppressWarnings("unchecked")
     public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName, int maxResults) {
-        StringBuilder queryString = new StringBuilder();
-        for (SearchFilter filter : query.getFilters()) {
-            @SuppressWarnings("rawtypes")
-            FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
-            String filterValue = adapter.getFilterString(filter, query);
-            if (filterValue == null || filterValue.isEmpty()) {
-                continue;
+        try {
+            StringBuilder queryString = new StringBuilder();
+            for (SearchFilter filter : query.getFilters()) {
+                @SuppressWarnings("rawtypes")
+                FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
+                String filterValue = adapter.getFilterString(filter, query);
+                if (filterValue == null || filterValue.isEmpty()) {
+                    continue;
+                }
+
+                if (queryString.length() > 0) {
+                    queryString.append(" AND ");
+                }
+                queryString.append(filterValue);
+            }
+            StringBuilder areas = new StringBuilder();
+            for (String areaName : query.getAreas()) {
+                areas.append(areas.length() == 0 ? "(" : " OR ")
+                     .append("\"")
+                     .append(areaName)
+                     .append("\"");
+            }
+            areas.append(")");
+            SolrQuery solrQuery = new SolrQuery()
+                    .setQuery(queryString.toString())
+                    .addFilterQuery(SolrFields.AREA + ":" + areas)
+                    .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
+                    //.addField(SolrFields.FIELD_PREFIX + "*")
+                    .addField(SolrFields.MAIN_OBJECT_ID);
+            if (maxResults > 0) {
+                solrQuery.setRows(maxResults);
             }
 
-            if (queryString.length() > 0) {
-                queryString.append(" AND ");
-            }
-            queryString.append(filterValue);
-        }
-        StringBuilder areas = new StringBuilder();
-        for (String areaName : query.getAreas()) {
-            areas.append(areas.length() == 0 ? "(" : " OR ")
-                 .append("\"")
-                 .append(areaName)
-                 .append("\"");
-        }
-        areas.append(")");
-        SolrQuery solrQuery = new SolrQuery()
-                .setQuery(queryString.toString())
-                .addFilterQuery(SolrFields.AREA + ":" + areas)
-                .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
-                //.addField(SolrFields.FIELD_PREFIX + "*")
-                .addField(SolrFields.MAIN_OBJECT_ID);
-        if (maxResults > 0) {
-            solrQuery.setRows(maxResults);
-        }
-
-        int fetchLimit = maxResults;
-        while(true) {
-            QueryResponse response = null;
-            try {
-                response = solrServer.query(solrQuery);
-                if (log.isDebugEnabled()) {
-                    log.debug("Response: " + response);
+            int fetchLimit = maxResults;
+            while(true) {
+                QueryResponse response = null;
+                try {
+                    response = solrServer.query(solrQuery);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Response: " + response);
+                    }
+                } catch (Exception e) {
+                    log.error("Search error", e);
+                    throw new SearchException("Search error: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                log.error("Search error", e);
-                throw new SearchException("Search error: " + e.getMessage());
-            }
-            if (fetchLimit <= 0) {
-                fetchLimit = response.getResults().size();
-            }
-            IdentifiableObjectCollection result =
-                    queryCollection(targetCollectionName, response.getResults(), maxResults);
-            if (response.getResults().size() == fetchLimit && result.size() < maxResults) {
-                // Увеличиваем размер выборки в Solr
-                int factor = 10;
-                if (result.size() > 0) {
-                    // Пытаемся оценить процент отсева 
-                    factor = 1 + response.getResults().size() / result.size();
+                if (fetchLimit <= 0) {
+                    fetchLimit = response.getResults().size();
                 }
-                fetchLimit *= factor;
-                solrQuery.setRows(fetchLimit);
-                continue;
+                IdentifiableObjectCollection result =
+                        queryCollection(targetCollectionName, response.getResults(), maxResults);
+                if (response.getResults().size() == fetchLimit && result.size() < maxResults) {
+                    // Увеличиваем размер выборки в Solr
+                    int factor = 10;
+                    if (result.size() > 0) {
+                        // Пытаемся оценить процент отсева
+                        factor = 1 + response.getResults().size() / result.size();
+                    }
+                    fetchLimit *= factor;
+                    solrQuery.setRows(fetchLimit);
+                    continue;
+                }
+                return result;
             }
-            return result;
+        } catch (SearchException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            throw new UnexpectedException("SearchService", "search",
+                    "query:" + query + " targetCollectionName: " + targetCollectionName
+                    + " maxResults:" + maxResults, ex);
         }
     }
 
@@ -231,6 +249,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            log.error(e.getMessage());
         } finally {
             if (out != null) {
                 out.close();
