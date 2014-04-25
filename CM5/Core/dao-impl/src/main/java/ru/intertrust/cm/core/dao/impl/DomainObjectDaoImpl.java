@@ -393,6 +393,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             beforeDeleteEH.onBeforeDelete(deletedObject);
         }
 
+        //Пересчет прав непосредственно перед удалением объекта из базы, чтобы не нарушать целостность данных
+        refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
+
         //непосредственно удаление из базыы
         internalDelete(id);
         //Удалене из кэша
@@ -409,9 +412,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
             afterDeleteEH.onAfterDelete(deletedObject);
         }
-
-        //Пересчет прав
-        refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
 
     }
 
