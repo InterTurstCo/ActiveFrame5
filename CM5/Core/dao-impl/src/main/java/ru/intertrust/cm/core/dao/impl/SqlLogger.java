@@ -1,6 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -9,15 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.SqlTrace;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * @author vmatsukevich
@@ -26,6 +32,8 @@ import java.util.*;
  */
 @Aspect
 public class SqlLogger {
+    private static final String PARAMETER_PATTERN = ":\\w";
+
     private static final Logger logger = LoggerFactory.getLogger(SqlLogger.class);
 
     @Autowired
@@ -139,7 +147,7 @@ public class SqlLogger {
         return queryWithParameters.toString();
     }
 
-    private String fillParameters(String query, Map<String, Object> parameters) {
+    protected String fillParameters(String query, Map<String, Object> parameters) {
         if (parameters == null || parameters.isEmpty()) {
             return query;
         }
@@ -153,7 +161,13 @@ public class SqlLogger {
 
         int index;
         int prevIndex = 0;
-        while((index = query.indexOf(":", prevIndex)) >= 0) {
+        Pattern pattern = Pattern.compile(PARAMETER_PATTERN);
+        Matcher matcher = pattern.matcher(query);
+
+        while (matcher.find()) {
+
+            index = matcher.start();
+
             String parameterName = parametersPositionMap.get(index);
             if (parameterName == null) {
                 continue;
@@ -165,6 +179,7 @@ public class SqlLogger {
             appendFormattedValue(value, queryWithParameters);
 
             prevIndex = index + parameterName.length() + 1;
+
         }
 
         if (prevIndex != query.length()) {
