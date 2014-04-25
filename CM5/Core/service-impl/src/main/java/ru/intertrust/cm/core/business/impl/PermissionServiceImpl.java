@@ -9,6 +9,8 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -19,6 +21,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * Сервис получения прав пользователя на доменные объекты
@@ -30,6 +33,9 @@ import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 @Remote(PermissionService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class PermissionServiceImpl implements PermissionService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PermissionServiceImpl.class);
+
     @Autowired
     private PermissionServiceDao permissionServiceDao;
     
@@ -45,25 +51,49 @@ public class PermissionServiceImpl implements PermissionService {
     
     @Override
     public DomainObjectPermission getObjectPermission(Id domainObjectId) {
-        String personLogin = context.getCallerPrincipal().getName();
-        Id personId = personServiceDao.findPersonByLogin(personLogin).getId();
-        
-        return permissionServiceDao.getObjectPermission(domainObjectId, personId);
+        try {
+            String personLogin = context.getCallerPrincipal().getName();
+            Id personId = personServiceDao.findPersonByLogin(personLogin).getId();
+
+            return permissionServiceDao.getObjectPermission(domainObjectId, personId);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PermissionService", "getObjectPermission",
+                    "domainObjectId:" + domainObjectId, ex);
+        }
     }
 
     @Override
     public DomainObjectPermission getObjectPermission(Id domainObjectId, Id userId) {
-        return permissionServiceDao.getObjectPermission(domainObjectId, userId);
+        try {
+            return permissionServiceDao.getObjectPermission(domainObjectId, userId);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PermissionService", "getObjectPermission",
+                    "domainObjectId:" + domainObjectId + " userId:" + userId, ex);
+        }
     }
 
     @Override
     public List<DomainObjectPermission> getObjectPermissions(Id domainObjectId) {
-        return permissionServiceDao.getObjectPermissions(domainObjectId);
+        try {
+            return permissionServiceDao.getObjectPermissions(domainObjectId);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PermissionService", "getObjectPermissions",
+                    "domainObjectId:" + domainObjectId, ex);
+        }
     }
 
     @Override
     public boolean isReadPermittedToEverybody(String domainObjectType) {
-        return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
+        try {
+            return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("PermissionService", "isReadPermittedToEverybody",
+                    "domainObjectType:" + domainObjectType, ex);
+        }
     }
     
 }

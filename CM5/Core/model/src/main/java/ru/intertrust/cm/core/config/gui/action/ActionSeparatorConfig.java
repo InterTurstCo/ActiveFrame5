@@ -30,8 +30,14 @@ public class ActionSeparatorConfig extends AbstractActionEntryConfig {
     @Attribute(name = "componentName", required = false)
     private String componentName;
 
+    @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public String getGroupId() {
+        return null;
     }
 
     public void setId(String id) {
@@ -42,26 +48,15 @@ public class ActionSeparatorConfig extends AbstractActionEntryConfig {
         return style;
     }
 
-    public void setStyle(String style) {
-        this.style = style;
-    }
-
     public String getStyleClass() {
         return styleClass;
-    }
-
-    public void setStyleClass(String styleClass) {
-        this.styleClass = styleClass;
     }
 
     public boolean isRendered() {
         return rendered;
     }
 
-    public void setRendered(boolean rendered) {
-        this.rendered = rendered;
-    }
-
+    @Override
     public Integer getOrder() {
         return order;
     }
@@ -74,15 +69,7 @@ public class ActionSeparatorConfig extends AbstractActionEntryConfig {
         return merged;
     }
 
-    public void setMerged(boolean merged) {
-        this.merged = merged;
-    }
-
     public String getComponentName() {
         return componentName;
-    }
-
-    public void setComponentName(String componentName) {
-        this.componentName = componentName;
     }
 }

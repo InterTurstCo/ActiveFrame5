@@ -50,6 +50,8 @@ public interface IdentifiableObjectCollection extends Iterable<IdentifiableObjec
      */
     void sort(SortOrder sortOrder);
 
+    void append(IdentifiableObjectCollection collection);
+
     int getFieldIndex(String field);
 
     ArrayList<FieldConfig> getFieldsConfiguration();

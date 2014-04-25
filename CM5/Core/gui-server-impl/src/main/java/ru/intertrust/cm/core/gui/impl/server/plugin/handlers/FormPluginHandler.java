@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
+import ru.intertrust.cm.core.config.gui.action.AbstractActionEntryConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionEntryConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolbarRightFacetConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
@@ -73,6 +76,22 @@ public class FormPluginHandler extends ActivePluginHandler {
 
 
         return ctx;
+    }
+
+    private ToolBarConfig mergeToolBar(final ToolBarConfig master, final ToolBarConfig slave) {
+        final ToolBarConfig result = new ToolBarConfig();
+        result.setPlugin(master.getPlugin());
+        final List<AbstractActionEntryConfig> actions = new ArrayList<>();
+        actions.addAll(master.getActions());
+        actions.addAll(slave.getActions());
+        result.setActions(actions);
+        final ToolbarRightFacetConfig facet = result.getRightFacetConfig();
+        final List<AbstractActionEntryConfig> facetActions = new ArrayList<>();
+        facetActions.addAll(master.getRightFacetConfig().getActions());
+        facetActions.addAll(slave.getRightFacetConfig().getActions());
+        facet.setActions(facetActions);
+        // todo handle action list
+        return result;
     }
 
     private static List<ActionContext> getActionContexts(final FormPluginState pluginState) {

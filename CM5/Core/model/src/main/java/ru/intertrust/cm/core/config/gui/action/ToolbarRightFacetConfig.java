@@ -19,9 +19,7 @@ public class ToolbarRightFacetConfig implements Serializable {
     private String name;
 
     @ElementListUnion({
-            @ElementList(entry = "navigable-action", type = ActionEntryConfig.class, inline = true, required = false),
-            @ElementList(entry = "perform-action", type = ActionEntryConfig.class, inline = true, required = false),
-            @ElementList(entry = "workflow-action", type = ActionEntryConfig.class, inline = true, required = false),
+            @ElementList(entry = "action-entry", type = ActionEntryConfig.class, inline = true, required = false),
             @ElementList(entry = "action-ref", type = ActionRefConfig.class, inline = true, required = false),
             @ElementList(entry = "action-separator", type = ActionSeparatorConfig.class, inline = true, required = false)
     })
@@ -33,5 +31,9 @@ public class ToolbarRightFacetConfig implements Serializable {
 
     public List<AbstractActionEntryConfig> getActions() {
         return actions == null ? Collections.EMPTY_LIST : actions;
+    }
+
+    public void setActions(List<AbstractActionEntryConfig> actions) {
+        this.actions = actions;
     }
 }

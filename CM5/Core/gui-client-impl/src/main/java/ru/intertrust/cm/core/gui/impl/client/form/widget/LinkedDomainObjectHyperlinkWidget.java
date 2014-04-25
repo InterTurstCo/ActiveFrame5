@@ -39,10 +39,15 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
         selectionPattern = state.getSelectionPattern();
         String title = state.getDomainObjectType();
         Id id = state.getId();
-
-            LinkedDomainObjectHyperlinkItem hyperlinkItem = (LinkedDomainObjectHyperlinkItem) impl;
+        LinkedDomainObjectHyperlinkItem hyperlinkItem = (LinkedDomainObjectHyperlinkItem) impl;
+        if (id == null) {
+            hyperlinkItem.hideWidget();
+        } else {
+            hyperlinkItem.showWidget();
             hyperlinkItem.setText(state.getStringRepresentation());
             hyperlinkItem.addItemClickHandler(new HyperlinkClickHandler(title, id, localEventBus));
+
+        }
 
     }
 
@@ -55,18 +60,18 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
-        return new LinkedDomainObjectHyperlinkItem(true);
+        return new LinkedDomainObjectHyperlinkItem();
     }
 
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
-        localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
-        return new LinkedDomainObjectHyperlinkItem(false);
+      return  asEditableWidget(state);
     }
 
     @Override
     public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
         Id id = event.getId();
+
         updateHyperlink(id);
     }
 
@@ -79,8 +84,8 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
                 HyperlinkUpdateResponse response = (HyperlinkUpdateResponse) result;
                 String representation = response.getRepresentation();
 
-                    LinkedDomainObjectHyperlinkItem item = (LinkedDomainObjectHyperlinkItem) impl;
-                    item.setText(representation);
+                LinkedDomainObjectHyperlinkItem item = (LinkedDomainObjectHyperlinkItem) impl;
+                item.setText(representation);
 
             }
 

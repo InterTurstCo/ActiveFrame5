@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -37,6 +38,7 @@ import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.model.NotificationException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
 @Stateless(name = "NotificationService")
@@ -70,38 +72,53 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendOnTransactionSuccess(String notificationType, Id sender, List<NotificationAddressee> addresseeList,
             NotificationPriority priority, NotificationContext context) {
-        SendNotificationActionListener listener =
-                new SendNotificationActionListener(notificationType, sender, addresseeList, priority, context);
-        userTransactionService.addListener(listener);
-        logger.debug("Register to send notification " + notificationType + " " + addresseeList);
+        try {
+            SendNotificationActionListener listener =
+                    new SendNotificationActionListener(notificationType, sender, addresseeList, priority, context);
+            userTransactionService.addListener(listener);
+            logger.debug("Register to send notification " + notificationType + " " + addresseeList);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("NotificationService", "sendOnTransactionSuccess",
+                    "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
+                    + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray())), ex);
+        }
     }
 
     @Override
     @Asynchronous
     public Future<Boolean> sendNow(String notificationType, Id sender, List<NotificationAddressee> addresseeList,
             NotificationPriority priority, NotificationContext context) {
-        logger.debug("Send notification " + notificationType + " " + addresseeList);
-        //Получаем список адресатов
-        List<Id> persons = getAddressee(addresseeList);
+        try {
+            logger.debug("Send notification " + notificationType + " " + addresseeList);
+            //Получаем список адресатов
+            List<Id> persons = getAddressee(addresseeList);
 
-        for (Id personId : persons) {
-            context.addContextObject("addressee", new DomainObjectAccessor(personId));
-            //Получаем список каналов для персоны
-            List<String> channelNames =
-                    notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
-            for (String channelName : channelNames) {
-                try {
-                    NotificationChannelHandle notificationChannelHandle =
-                            notificationChannelLoader.getNotificationChannel(channelName);
-                    notificationChannelHandle.send(notificationType, sender, personId, priority, context);
-                } catch (NotificationException ex) {
-                    //skip exception, allow other channels to be executed.
-                    logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
+            for (Id personId : persons) {
+                context.addContextObject("addressee", new DomainObjectAccessor(personId));
+                //Получаем список каналов для персоны
+                List<String> channelNames =
+                        notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
+                for (String channelName : channelNames) {
+                    try {
+                        NotificationChannelHandle notificationChannelHandle =
+                                notificationChannelLoader.getNotificationChannel(channelName);
+                        notificationChannelHandle.send(notificationType, sender, personId, priority, context);
+                    } catch (NotificationException ex) {
+                        //skip exception, allow other channels to be executed.
+                        logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
+                    }
                 }
             }
-        }
 
-        return new AsyncResult<Boolean>(true);
+            return new AsyncResult<Boolean>(true);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("NotificationService", "sendNow",
+                    "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
+                    + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray()))
+                    + " priority: " + priority + " context:" + context , ex);
+        }
     }
 
     /**

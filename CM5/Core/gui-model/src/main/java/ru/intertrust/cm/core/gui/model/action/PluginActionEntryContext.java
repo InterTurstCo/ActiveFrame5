@@ -24,7 +24,7 @@ public class PluginActionEntryContext implements Dto {
     public ActionEntryContext addToolbarAction(final AbstractActionEntryConfig config, final boolean isRightFacet) {
         final ActionEntryContext ctx = configToContext(config);
         actionContexts.put(ctx.getId(), ctx);
-        toolbarContext.addActionId(ctx.getId(), isRightFacet);
+//        toolbarContext.addActionId(ctx.getId(), isRightFacet);
         return ctx;
     }
 

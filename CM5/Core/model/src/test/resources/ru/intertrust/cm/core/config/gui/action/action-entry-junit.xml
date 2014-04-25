@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<act:navigable-action id="id_value" styleClass="styleClass_value" componentName="action.test"
+<act:action-entry id="id_value" styleClass="styleClass_value" componentName="action.test"
                       xmlns:act="https://cm5.intertrust.ru/config/action">
-    <act:navigable-action componentName="action.child.test1" id="act_2">
+    <act:action-entry componentName="action.child.test1" id="act_2">
         <act:before-execution>
             <act:confirmation-message text="confirmation"/>
         </act:before-execution>
@@ -10,6 +10,6 @@
         </act:after-execution>
         <act:action-ref actionId="id2"/>
         <act:action-separator/>
-    </act:navigable-action>
+    </act:action-entry>
 
-</act:navigable-action>
+</act:action-entry>

@@ -27,9 +27,7 @@ public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig
     private boolean useDefault = true;
 
     @ElementListUnion({
-            @ElementList(entry = "navigable-action", type = ActionEntryConfig.class, inline = true, required = false),
-            @ElementList(entry = "perform-action", type = ActionEntryConfig.class, inline = true, required = false),
-            @ElementList(entry = "workflow-action", type = ActionEntryConfig.class, inline = true, required = false),
+            @ElementList(entry = "action-entry", type = ActionEntryConfig.class, inline = true, required = false),
             @ElementList(entry = "action-ref", type = ActionRefConfig.class, inline = true, required = false),
             @ElementList(entry = "action-separator", type = ActionSeparatorConfig.class, inline = true, required = false)
     })
@@ -42,20 +40,40 @@ public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig
         return componentName;
     }
 
+    public void setComponentName(String componentName) {
+        this.componentName = componentName;
+    }
+
     public String getPlugin() {
         return plugin;
+    }
+
+    public void setPlugin(String plugin) {
+        this.plugin = plugin;
     }
 
     public boolean isUseDefault() {
         return useDefault;
     }
 
+    public void setUseDefault(boolean useDefault) {
+        this.useDefault = useDefault;
+    }
+
     public List<AbstractActionEntryConfig> getActions() {
         return actions == null ? Collections.EMPTY_LIST : actions;
     }
 
+    public void setActions(List<AbstractActionEntryConfig> actions) {
+        this.actions = actions;
+    }
+
     public ToolbarRightFacetConfig getRightFacetConfig() {
         return rightFacetConfig == null ? new ToolbarRightFacetConfig() : rightFacetConfig;
+    }
+
+    public void setRightFacetConfig(ToolbarRightFacetConfig rightFacetConfig) {
+        this.rightFacetConfig = rightFacetConfig;
     }
 
     @Override

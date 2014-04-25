@@ -14,6 +14,9 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
@@ -123,6 +126,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
             tmpFolder.delete();
         } catch (Exception ex) {
+            logger.error(ex.getMessage());
             throw new ReportServiceException("Error deploy process", ex);
         }
 
@@ -145,15 +149,17 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
      */
     @Override
     public void undeploy(String name) {
-        //TODO переделать на админ токен
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        //Поиск шаблона по имени
-        DomainObject reportTemplateObject = getReportTemplateObject(name);
         try {
+            //TODO переделать на админ токен
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            //Поиск шаблона по имени
+            DomainObject reportTemplateObject = getReportTemplateObject(name);
             domainObjectDao.delete(reportTemplateObject.getId(), accessToken);
-        } catch (DaoException ex) {
+        } catch (AccessException | ObjectNotFoundException ex) {
+            throw ex;
+        } catch (Exception ex) {
             logger.error(ex.getMessage());
-            throw new UnexpectedException(ex.getMessage() + " name:" + name);
+            throw new UnexpectedException("ReportServiceAdmin", "undeploy", "name: " + name, ex);
         }
     }
 

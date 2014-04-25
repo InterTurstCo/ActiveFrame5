@@ -3,11 +3,7 @@ package ru.intertrust.cm.core.business.impl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.ejb.Local;
@@ -22,6 +18,8 @@ import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -40,7 +38,9 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ProcessException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.tools.Session;
 
@@ -49,6 +49,8 @@ import ru.intertrust.cm.core.tools.Session;
 @Remote(ProcessService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ProcessServiceImpl implements ProcessService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.class);
 
     @Autowired
     private RepositoryService repositoryService;
@@ -97,21 +99,28 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public String startProcess(String processName, Id attachedObjectId,
             List<ProcessVariable> variables) {
-        String idProcess = null;
-        HashMap<String, Object> variablesHM = createHashMap(variables);
+        try {
+            String idProcess = null;
+            HashMap<String, Object> variablesHM = createHashMap(variables);
 
-        if (attachedObjectId != null) {
-            variablesHM.put(ProcessService.MAIN_ATTACHMENT_ID,
-                    attachedObjectId);
-            variablesHM.put(ProcessService.MAIN_ATTACHMENT,
-                    new DomainObjectAccessor(attachedObjectId));
+            if (attachedObjectId != null) {
+                variablesHM.put(ProcessService.MAIN_ATTACHMENT_ID,
+                        attachedObjectId);
+                variablesHM.put(ProcessService.MAIN_ATTACHMENT,
+                        new DomainObjectAccessor(attachedObjectId));
+            }
+
+            variablesHM.put(ProcessService.SESSION, new Session());
+
+            idProcess = runtimeService.startProcessInstanceByKey(processName,
+                    variablesHM).getId();
+            return idProcess;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProcessService", "startProcess",
+                    "processName:" + processName + " attachedObjectId:" + attachedObjectId
+                    + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray())), ex);
         }
-        
-        variablesHM.put(ProcessService.SESSION, new Session());
-
-        idProcess = runtimeService.startProcessInstanceByKey(processName,
-                variablesHM).getId();
-        return idProcess;
     }
 
     /**
@@ -135,7 +144,13 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public void terminateProcess(String processId) {
-        runtimeService.deleteProcessInstance(processId, null);
+        try {
+            runtimeService.deleteProcessInstance(processId, null);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProcessService", "terminateProcess",
+                    "processId:" + processId, ex);
+        }
     }
 
     @Override
@@ -150,6 +165,7 @@ public class ProcessServiceImpl implements ProcessService {
             Deployment depl = db.deploy();
             return depl.getId();
         } catch (Exception ex) {
+            logger.error(ex.getMessage());
             throw new ProcessException("Error on deploy process", ex);
         } finally {
             try {
@@ -161,92 +177,123 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public void undeployProcess(String processDefinitionId, boolean cascade) {
-        repositoryService.deleteDeployment(processDefinitionId, cascade);
+        try {
+            repositoryService.deleteDeployment(processDefinitionId, cascade);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProcessService", "undeployProcess",
+                    "processDefinitionId:" + processDefinitionId + " cascade:" + cascade, ex);
+        }
     }
 
     @Override
     public List<DomainObject> getUserTasks() {
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        String personLogin = context.getCallerPrincipal().getName();
-        Id personId = personService.findPersonByLogin(personLogin).getId();
-        result = getUserTasks(personId);
-        return result;
+        try {
+            List<DomainObject> result = new ArrayList<DomainObject>();
+            String personLogin = context.getCallerPrincipal().getName();
+            Id personId = personService.findPersonByLogin(personLogin).getId();
+            result = getUserTasks(personId);
+            return result;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProcessService", "getUserTasks", "", ex);
+        }
 
     }
 
     @Override
     public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId) {
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        String personLogin = context.getCallerPrincipal().getName();
-        DomainObject personByLogin = personService.findPersonByLogin(personLogin);
-        Id personId = personByLogin.getId();
-        if (personId != null){
-            result = getUserDomainObjectTasks(attachedObjectId, personId);
+        try {
+            List<DomainObject> result = new ArrayList<DomainObject>();
+            String personLogin = context.getCallerPrincipal().getName();
+            DomainObject personByLogin = personService.findPersonByLogin(personLogin);
+            Id personId = personByLogin.getId();
+            if (personId != null){
+                result = getUserDomainObjectTasks(attachedObjectId, personId);
+            }
+            return result;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProcessService", "getUserDomainObjectTasks",
+                    "attachedObjectId:" + attachedObjectId, ex);
         }
-		return result;     
     }
 
     @Override
     public void completeTask(Id taskDomainObjectId,
             List<ProcessVariable> variables, String action) {
 
-        String personLogin = context.getCallerPrincipal().getName();
-        Id personId = personService.findPersonByLogin(personLogin).getId();
-        // Костыль, нужно избавлятся от использования идентификатора как int или
-        // long
+
+        try {
+            String personLogin = context.getCallerPrincipal().getName();
+            Id personId = personService.findPersonByLogin(personLogin).getId();
+            // Костыль, нужно избавлятся от использования идентификатора как int или
+            // long
         /*
          * int personIdAsInt =
          * Integer.parseInt(personId.toStringRepresentation()
          * .substring(personId.toStringRepresentation().indexOf('|') + 1));
          */
 
-        /**
-         * AccessToken accessToken = accessControlService.createAccessToken(
-         * personIdAsInt, taskDomainObjectId, DomainObjectAccessType.READ);
-         */
-        // TODO Переделать правила доступа после реализации прав
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("ProcessService");
+            /**
+             * AccessToken accessToken = accessControlService.createAccessToken(
+             * personIdAsInt, taskDomainObjectId, DomainObjectAccessType.READ);
+             */
+            // TODO Переделать правила доступа после реализации прав
+            AccessToken accessToken = accessControlService
+                    .createSystemAccessToken("ProcessService");
 
-        DomainObject taskDomainObject = domainObjectDao.find(
-                taskDomainObjectId, accessToken);
-        //taskDomainObject.setLong("State", ProcessService.TASK_STATE_COMPLETE);
-        //domainObjectDao.save(taskDomainObject, accessToken);
-        taskDomainObject = domainObjectDao.setStatus(taskDomainObject.getId(),
-                statusDao.getStatusIdByName(ProcessService.TASK_STATE_COMPLETE), accessToken);
+            DomainObject taskDomainObject = domainObjectDao.find(
+                    taskDomainObjectId, accessToken);
+            //taskDomainObject.setLong("State", ProcessService.TASK_STATE_COMPLETE);
+            //domainObjectDao.save(taskDomainObject, accessToken);
+            taskDomainObject = domainObjectDao.setStatus(taskDomainObject.getId(),
+                    statusDao.getStatusIdByName(ProcessService.TASK_STATE_COMPLETE), accessToken);
 
-        String taskId = taskDomainObject.getString("TaskId");
+            String taskId = taskDomainObject.getString("TaskId");
 
-        Map<String, String> params = new Hashtable<String, String>();
-        if (variables != null) {
-            for (ProcessVariable processVariable : variables) {
-                params.put(processVariable.getName(), processVariable
-                        .getValue().toString());
+            Map<String, String> params = new Hashtable<String, String>();
+            if (variables != null) {
+                for (ProcessVariable processVariable : variables) {
+                    params.put(processVariable.getName(), processVariable
+                            .getValue().toString());
+                }
             }
-        }
-        if (action != null) {
-            params.put("ACTIONS", action);
-        }
+            if (action != null) {
+                params.put("ACTIONS", action);
+            }
 
-        formService.submitTaskFormData(taskId, params);
+            formService.submitTaskFormData(taskId, params);
 
-        // taskService.complete(taskId, createHashMap(variables));
+            // taskService.complete(taskId, createHashMap(variables));
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProcessService", "completeTask",
+                    "taskDomainObjectId:" + taskDomainObjectId
+                    + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray()))
+                    + " action:" + action, ex);
+        }
     }
 
     @Override
     public List<DeployedProcess> getDeployedProcesses() {
-        List<Deployment> deployList = repositoryService.createDeploymentQuery()
-                .list();
-        List<DeployedProcess> result = new ArrayList<DeployedProcess>();
-        for (Deployment deployment : deployList) {
-            DeployedProcess resItem = new DeployedProcess();
-            resItem.setCategory(deployment.getCategory());
-            resItem.setDeployedTime(deployment.getDeploymentTime());
-            resItem.setId(deployment.getId());
-            resItem.setName(deployment.getName());
-            result.add(resItem);
+        try {
+            List<Deployment> deployList = repositoryService.createDeploymentQuery()
+                    .list();
+            List<DeployedProcess> result = new ArrayList<DeployedProcess>();
+            for (Deployment deployment : deployList) {
+                DeployedProcess resItem = new DeployedProcess();
+                resItem.setCategory(deployment.getCategory());
+                resItem.setDeployedTime(deployment.getDeploymentTime());
+                resItem.setId(deployment.getId());
+                resItem.setName(deployment.getName());
+                result.add(resItem);
+            }
+            return result;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProcessService", "getDeployedProcesses", "", ex);
         }
-        return result;
     }
 
 	@Override
@@ -261,40 +308,47 @@ public class ProcessServiceImpl implements ProcessService {
         // поиск задач отправленных пользователю, или любой группе в которую
         // входит пользователь
 
-        Filter filter = new Filter();
-        filter.setFilter("byPerson");
-        ReferenceValue rv = new ReferenceValue(personId);
-        filter.addCriterion(0, rv);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(filter);
+        try {
+            Filter filter = new Filter();
+            filter.setFilter("byPerson");
+            ReferenceValue rv = new ReferenceValue(personId);
+            filter.addCriterion(0, rv);
+            List<Filter> filters = new ArrayList<>();
+            filters.add(filter);
 
         /*
          * AccessToken accessToken = accessControlService
          * .createCollectionAccessToken(personIdAsint);
          */
-        // TODO пока права не работают работаю от имени админа
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("ProcessService");
+            // TODO пока права не работают работаю от имени админа
+            AccessToken accessToken = accessControlService
+                    .createSystemAccessToken("ProcessService");
 
-        IdentifiableObjectCollection collection1 = collectionsDao
-                .findCollection("PersonTask", filters, null, 0, 0, accessToken);
-        IdentifiableObjectCollection collection2 = collectionsDao
-                .findCollection("PersonGroupTask", filters, null, 0, 0,
-                        accessToken);
+            IdentifiableObjectCollection collection1 = collectionsDao
+                    .findCollection("PersonTask", filters, null, 0, 0, accessToken);
+            IdentifiableObjectCollection collection2 = collectionsDao
+                    .findCollection("PersonGroupTask", filters, null, 0, 0,
+                            accessToken);
 
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        for (IdentifiableObject item : collection1) {
-            DomainObject group = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(group);
+            List<DomainObject> result = new ArrayList<DomainObject>();
+            for (IdentifiableObject item : collection1) {
+                DomainObject group = domainObjectDao
+                        .find(item.getId(), accessToken);
+                result.add(group);
+            }
+            for (IdentifiableObject item : collection2) {
+                DomainObject group = domainObjectDao
+                        .find(item.getId(), accessToken);
+                result.add(group);
+            }
+            return result;
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProcessService", "getUserTasks", "personId: " + personId, ex);
         }
-        for (IdentifiableObject item : collection2) {
-            DomainObject group = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(group);
-        }
-        return result;
-	}
+    }
 
 	@Override
 	public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId,
@@ -309,44 +363,52 @@ public class ProcessServiceImpl implements ProcessService {
         // поиск задач отправленных пользователю, или любой группе в которую
         // входит пользователь
 
-        Filter filter = new Filter();
-        filter.setFilter("byPerson");
-        Value rv = new ReferenceValue(personId);
-        filter.addCriterion(0, rv);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(filter);
-        filter = new Filter();
-        filter.setFilter("byAttachment");
-        rv = new ReferenceValue(attachedObjectId);
-        filter.addCriterion(0, rv);
-        filters.add(filter);
+        try {
+            Filter filter = new Filter();
+            filter.setFilter("byPerson");
+            Value rv = new ReferenceValue(personId);
+            filter.addCriterion(0, rv);
+            List<Filter> filters = new ArrayList<>();
+            filters.add(filter);
+            filter = new Filter();
+            filter.setFilter("byAttachment");
+            rv = new ReferenceValue(attachedObjectId);
+            filter.addCriterion(0, rv);
+            filters.add(filter);
 
         /*
          * AccessToken accessToken = accessControlService
          * .createCollectionAccessToken(personIdAsint);
          */
-        // TODO пока права не работают работаю от имени процесса
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("ProcessService");
+            // TODO пока права не работают работаю от имени процесса
+            AccessToken accessToken = accessControlService
+                    .createSystemAccessToken("ProcessService");
 
-        IdentifiableObjectCollection collection1 = collectionsDao
-                .findCollection("PersonTask", filters, null, 0, 0, accessToken);
-        IdentifiableObjectCollection collection2 = collectionsDao
-                .findCollection("PersonGroupTask", filters, null, 0, 0,
-                        accessToken);
+            IdentifiableObjectCollection collection1 = collectionsDao
+                    .findCollection("PersonTask", filters, null, 0, 0, accessToken);
+            IdentifiableObjectCollection collection2 = collectionsDao
+                    .findCollection("PersonGroupTask", filters, null, 0, 0,
+                            accessToken);
 
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        for (IdentifiableObject item : collection1) {
-            DomainObject group = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(group);
+            List<DomainObject> result = new ArrayList<DomainObject>();
+            for (IdentifiableObject item : collection1) {
+                DomainObject group = domainObjectDao
+                        .find(item.getId(), accessToken);
+                result.add(group);
+            }
+            for (IdentifiableObject item : collection2) {
+                DomainObject group = domainObjectDao
+                        .find(item.getId(), accessToken);
+                result.add(group);
+            }
+            return result;
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ProcessService", "getUserDomainObjectTasks",
+                    "attachedObjectId: " + attachedObjectId + " personId: " + personId, ex);
         }
-        for (IdentifiableObject item : collection2) {
-            DomainObject group = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(group);
-        }
-        return result;
-	}
+    }
 
 }
