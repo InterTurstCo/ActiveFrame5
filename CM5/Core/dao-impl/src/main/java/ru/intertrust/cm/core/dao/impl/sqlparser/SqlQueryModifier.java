@@ -133,7 +133,7 @@ public class SqlQueryModifier {
         }
 
         for (String column : collectWhereColumnConfigVisitor.getWhereColumnToConfigMapping().keySet()) {
-            FieldConfig fieldConfig = columnToTableMapping.get(column);
+            FieldConfig fieldConfig = collectWhereColumnConfigVisitor.getWhereColumnToConfigMapping().get(column);
             if (fieldConfig != null) {
                 columnToTableMapping.put(column, fieldConfig);
             }
