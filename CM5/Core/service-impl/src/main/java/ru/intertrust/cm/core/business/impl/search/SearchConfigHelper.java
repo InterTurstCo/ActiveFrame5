@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -32,7 +33,9 @@ import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.SearchLanguageConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
  * Класс, содержащий вспомогательные методы для облегчения работы с конфигурацией подсистемы поиска.
@@ -162,18 +165,30 @@ public class SearchConfigHelper {
 
     @SuppressWarnings("unchecked")
     private DomainObjectFilter createFilter(IndexedDomainObjectConfig config) {
+        
+        ApplicationContext ctx = SpringApplicationContext.getContext();
+        
         DomainObjectFilterConfig filterConfig = config.getFilter();
         if (filterConfig == null) {
             return null;
         }
         if (filterConfig.getJavaClass() != null) {
-            try {
-                Class<? extends DomainObjectFilter> clazz =
-                        (Class<? extends DomainObjectFilter>) Class.forName(filterConfig.getJavaClass());
-                return clazz.newInstance();
-            } catch (Exception e) {
-                throw new FatalException("Error creating search area filter: " + filterConfig.getJavaClass(), e);
-            }
+            JavaClassDomainObjectFilter javaClassDomainObjectFilter =
+                    (JavaClassDomainObjectFilter) ctx.getBean(JavaClassDomainObjectFilter.class);
+            javaClassDomainObjectFilter.setJavaClass(filterConfig.getJavaClass());
+            return javaClassDomainObjectFilter;
+        } else if (filterConfig.getSearchQuery() != null) {
+            SqlQueryDomainObjectFilter sqlQueryDomainObjectFilter =
+                    (SqlQueryDomainObjectFilter) ctx.getBean(SqlQueryDomainObjectFilter.class);
+            sqlQueryDomainObjectFilter.setSqlQuery(filterConfig.getSearchQuery());
+            return sqlQueryDomainObjectFilter;
+
+        } else if (filterConfig.getConditionsScript() != null) {
+            ConditionsScriptDomainObjectFilter conditionsScriptDomainObjectFilter =
+                    (ConditionsScriptDomainObjectFilter) ctx.getBean(ConditionsScriptDomainObjectFilter.class);
+            conditionsScriptDomainObjectFilter.setConditionsScript(filterConfig.getConditionsScript());
+            return conditionsScriptDomainObjectFilter;
+
         }
         return null;    //*****
     }

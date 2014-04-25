@@ -25,7 +25,7 @@ import ru.intertrust.cm.core.config.TriggerStatusConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.EventTriggerException;
-import ru.intertrust.cm.core.tools.ScriptDomainObjectAccessor;
+import ru.intertrust.cm.core.tools.EventTriggerScriptContext;
 
 /**
  * 
@@ -193,7 +193,7 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
     private boolean executeScript(String eventType, DomainObject domainObject, List<FieldModification> changedFields,
             TriggerConfig triggerConfig) {
         String script = triggerConfig.getTriggerConditionsScriptConfig().getData();
-        ScriptDomainObjectAccessor context = new ScriptDomainObjectAccessor(domainObject, eventType, changedFields);
+        EventTriggerScriptContext context = new EventTriggerScriptContext(domainObject, eventType, changedFields);
         return (Boolean) scriptService.eval(script, context);
     }
 

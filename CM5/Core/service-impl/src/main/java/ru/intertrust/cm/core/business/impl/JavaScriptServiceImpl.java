@@ -20,13 +20,27 @@ public class JavaScriptServiceImpl implements ScriptService {
 
     private static final String CONTEXT_OBJECT = "ctx";
 
+    /**
+     * Вовращает результат вычисления Java Script выражения. Если результат вычисления не устанавливаетя явно в скрипте
+     * (через вызов ScriptContext.setResult()), то возвращается результат вычисления самого
+     * скриптового выражения (результат вычисления последнего выполненного выражения).
+     */
     @Override
-    public Object eval(String script, ScriptContext context) {
+    public Boolean eval(String script, ScriptContext context) {
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
         engine.put(SESSION_OBJECT, new Session());
         engine.put(CONTEXT_OBJECT, context);
         try {
-            engine.eval(script);
+            Object evaluateResult = engine.eval(script);
+            if (context.getResult() == null) {
+                if (evaluateResult instanceof Boolean) {
+                    return (Boolean) evaluateResult;
+                } else {
+                    throw new IllegalArgumentException("Script is not correct: " + script
+                            + ". It should either evaluate to boolean result " +
+                            " or define the result in ScriptContext");
+                }
+            }
             return context.getResult();
         } catch (ScriptException e) {
             throw new EventTriggerException("Error executing script " + script);

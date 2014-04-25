@@ -14,5 +14,5 @@ public interface ScriptService {
      * @param context
      * @return
      */
-    Object eval(String script, ScriptContext context);
+    Boolean eval(String script, ScriptContext context);
 }
