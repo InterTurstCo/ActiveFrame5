@@ -6,13 +6,15 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkUpdateRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkUpdateResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ import java.util.regex.Pattern;
  *         Time: 10:25
  */
 @ComponentName("linked-domain-object-hyperlink")
-public class LinkedDomainObjectHyperlinkHandler extends LinkEditingWidgetHandler {
+public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     @Autowired
     ConfigurationService configurationService;
     @Autowired
@@ -78,5 +80,10 @@ public class LinkedDomainObjectHyperlinkHandler extends LinkEditingWidgetHandler
         String representation = buildStringRepresentation(domainObject,selectionPattern);
         HyperlinkUpdateResponse response = new HyperlinkUpdateResponse(id, representation);
         return response;
+    }
+
+    @Override
+    public Value getValue(WidgetState state) {
+        return null;
     }
 }
