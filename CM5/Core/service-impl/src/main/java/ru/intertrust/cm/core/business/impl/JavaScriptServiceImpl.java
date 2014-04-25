@@ -26,7 +26,7 @@ public class JavaScriptServiceImpl implements ScriptService {
      * скриптового выражения (результат вычисления последнего выполненного выражения).
      */
     @Override
-    public Boolean eval(String script, ScriptContext context) {
+    public Object eval(String script, ScriptContext context) {
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
         engine.put(SESSION_OBJECT, new Session());
         engine.put(CONTEXT_OBJECT, context);

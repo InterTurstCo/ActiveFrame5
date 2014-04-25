@@ -26,7 +26,7 @@ public class ConditionsScriptDomainObjectFilter implements DomainObjectFilter {
     @Override
     public boolean filter(DomainObject object) {
         SearchAreaFilterScriptContext context = new SearchAreaFilterScriptContext(object);
-        return scriptService.eval(conditionsScript, context);
+        return (Boolean) scriptService.eval(conditionsScript, context);
     }
 
 }
