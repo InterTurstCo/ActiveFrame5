@@ -339,22 +339,25 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
-        //Получение конфигурации матрицы
-        AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
-        if (accessMatrixConfig == null) {
-            return null;
-        }
+    	AccessMatrixStatusConfig result = null;
+    	//Получение конфигурации матрицы
+    	AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
+    	if (accessMatrixConfig != null && accessMatrixConfig.getStatus() != null) {
 
-        //Получаем все статусы
-        if (accessMatrixConfig.getStatus() != null){
-            for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
-                if (status != null && status.equals(accessStatusConfig.getName())) {
-                    return kryoCloner.cloneObject(accessStatusConfig, accessStatusConfig.getClass());
-                }
-            }
-        }
+    		//Получаем все статусы
+    		for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
+    			//Если статус в конфигурации звезда то не проверяем статусы на соответствие, а возвращаем текущий
+    			if (accessStatusConfig.getName().equals("*")){
+    				result = kryoCloner.cloneObject(accessStatusConfig, accessStatusConfig.getClass());
+    				break;
+    			}else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
+    				result = kryoCloner.cloneObject(accessStatusConfig, accessStatusConfig.getClass());
+    				break;
+    			}
+    		}
+    	}
 
-        return null;
+    	return result;
     }
 
     /**

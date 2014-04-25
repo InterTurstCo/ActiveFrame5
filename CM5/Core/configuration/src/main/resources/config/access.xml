@@ -291,7 +291,7 @@
     </access-matrix>
     
     <access-matrix type="letter">
-        <status name="Active">
+        <status name="*">
             <read>
                 <permit-group name="Administrators" />
                 <permit-group name="Administrators_Read_Only" />
