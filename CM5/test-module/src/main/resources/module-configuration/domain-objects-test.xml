@@ -79,5 +79,88 @@
             <decimal name="longitude" precision="9" scale="2"/>
             <decimal name="square" precision="9" scale="2"/>
         </fields> 
-    </domain-object-type>  
+    </domain-object-type>
+    
+    <collection name="Employees_test" idField="id">
+        <prototype>
+            <![CDATA[                                    
+    select
+        e.id, e.name, e.position, department, department_type
+        from                    
+                    (select
+                    e.id, e.name, e.position,
+                    
+                    CASE WHEN e.department IS NOT NULL THEN e.department
+                            ELSE e.department
+                            END AS department,
+        
+                    CASE WHEN e.department IS NOT NULL THEN e.department_type
+                            ELSE e.department_type
+                            END AS department_type        
+                from
+                    Employee e) e
+                    ::from-clause
+                where
+                    1=1 ::where-clause
+                    
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
+            вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from Employee e
+            ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byDepartment">
+            <!-- по умолчанию and, если перед условием нет других (только
+                ключ. слово where), то условие опускаем -->
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть 
+                несколько параметров -->
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.department = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byDepartmentNames">
+            <reference placeholder="from-clause">
+                 <![CDATA[
+                    inner join department d on e.department = d.id
+                ]]>
+            </reference>
+
+            <!-- по умолчанию and, если перед условием нет других (только ключ. слово where), то условие опускаем -->
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть несколько параметров -->
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    d.name in ({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.name = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byFirstLetter">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.name like {0} || '%'
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byNameAndPosition">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.name || e.position like {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>  
 </configuration>
