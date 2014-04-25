@@ -172,15 +172,9 @@ public class FormSaver {
                     crudService.save(newObject);
                 } else if (fieldPath.isManyToManyReference()) {
                     String referenceType = fieldPath.getReferenceType();
-                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(referenceType, fieldPath.getReferenceName());
                     DomainObject referencedObject = crudService.createDomainObject(referenceType);
-                    if (fieldConfig != null) {
-                        referencedObject.setReference(fieldConfig.getName(), newObject);
-                    }
-                    fieldConfig = configurationExplorer.getFieldConfig(referenceType, rootDomainObject.getTypeName());
-                    if (fieldConfig != null) {
-                        referencedObject.setReference(fieldConfig.getName(), rootDomainObject);
-                    }
+                    referencedObject.setReference(fieldPath.getLinkToChildrenName(), newObject);
+                    referencedObject.setReference(fieldPath.getLinkToParentName(), rootDomainObject);
                     crudService.save(referencedObject);
                 } else { // one-to-one reference
                     formObjects.setFieldValue(fieldPath, new ReferenceValue(newObject.getId()));

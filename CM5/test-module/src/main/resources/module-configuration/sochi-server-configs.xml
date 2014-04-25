@@ -860,7 +860,7 @@
             </label>
              <linked-domain-objects-table id="add">
                  <field-path value="SS_ModuleOrg^module.organization"/>
-                 <linked-form name="SS_ModuleOrg_Form" inline="true"/>
+                 <linked-form name="SO_OrgSystem_newForm" inline="true"/>
                  <summary-table>
                      <!-- <summary-table-column header="Заголовок" widget-id="3">
                           <pattern value="{Title}"/>
