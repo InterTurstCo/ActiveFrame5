@@ -98,6 +98,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
                                                        List<? extends Filter> filterValues,
                                                        SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
 
+        checkFilterValues(filterValues);
+
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled){
@@ -134,6 +136,25 @@ public class CollectionsDaoImpl implements CollectionsDao {
         }
 
         return collection;
+    }
+
+    /**
+     * При запросе коллекции с набором фильтров, если в этом наборе дважды
+     * встречается фильтр с одним и тем же именем, следует выбрасывать
+     * исключение IllegalArgumentException.
+     * @param filterValues набор фильтров
+     */
+    private void checkFilterValues(List<? extends Filter> filterValues) {
+        if (filterValues != null && !filterValues.isEmpty()) {
+            List <String> names = new ArrayList<>();
+            for (Filter filterValue : filterValues) {
+                String filterName = filterValue.getFilter();
+                if (names.contains(filterName)) {
+                    throw new IllegalArgumentException("Filter values have duplicate filter name:" + filterName);
+                }
+                names.add(filterName);
+            }
+        }
     }
 
     private void addCurrentPersonParameter(String collectionQuery, Map<String, Object> parameters) {
@@ -232,6 +253,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Override
     public int findCollectionCount(String collectionName,
             List<? extends Filter> filterValues, AccessToken accessToken) {
+        checkFilterValues(filterValues);
+
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         String collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
 
