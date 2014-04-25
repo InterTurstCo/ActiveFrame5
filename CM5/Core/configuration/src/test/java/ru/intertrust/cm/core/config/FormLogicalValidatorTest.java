@@ -102,9 +102,7 @@ public class FormLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration);
-        configurationExplorer.build();
-        return configurationExplorer;
+        return new ConfigurationExplorerImpl(configuration);
     }
 
     private ModuleService createModuleService(String configPath) throws MalformedURLException {

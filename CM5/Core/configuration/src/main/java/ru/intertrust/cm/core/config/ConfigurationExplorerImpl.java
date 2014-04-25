@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
@@ -18,28 +17,15 @@ import ru.intertrust.cm.core.util.KryoCloner;
 import java.io.*;
 import java.util.*;
 
-import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
-import javax.naming.OperationNotSupportedException;
-
 /**
- * Предоставляет быстрый доступ к элементам конфигурации. После создания объекта данного класса требуется выполнить
- * инициализацию через вызов метода {@link #build()}.
+ * Предоставляет быстрый доступ к элементам конфигурации.
  * @author vmatsukevich Date: 6/12/13 Time: 5:21 PM
  */
 public class ConfigurationExplorerImpl implements ConfigurationExplorer {
-    private static final String ALL_STATUSES_SIGN = "*";
     private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
-    private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
-    private Configuration configuration;
 
-    private Map<Class<?>, CaseInsensitiveMap<TopLevelConfig>> topLevelConfigMap = new HashMap<>();
-    private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
-    private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
+    private ConfigurationStorage configStorage;
 
-    private Map<String, Boolean> readPermittedToEverybodyMap = new HashMap<>();
-
-    private GlobalSettingsConfig globalSettings;
-    private CaseInsensitiveMap<String> attachmentDomainObjectTypes = new CaseInsensitiveMap<>();
     @Autowired
     FormLogicalValidator formLogicalValidator;
 
@@ -52,8 +38,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * Создает {@link ConfigurationExplorerImpl}
      */
     public ConfigurationExplorerImpl(Configuration configuration) {
-        this.configuration = configuration;
-        build();
+        new ConfigurationExplorerBuilder().buildConfigurationStorage(this, configuration);
         validate();
     }
 
@@ -62,29 +47,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public Configuration getConfiguration() {
-
-        Configuration cloneConfiguration = kryoCloner.cloneObject(configuration, Configuration.class);
+        Configuration cloneConfiguration = kryoCloner.cloneObject(configStorage.configuration, Configuration.class);
         return cloneConfiguration;
     }
 
-    /**
-     * Устанавливает конфигурацию
-     * @param configuration
-     *            конфигурация
-     */
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
     public GlobalSettingsConfig getGlobalSettings() {
-        return kryoCloner.cloneObject(globalSettings, GlobalSettingsConfig.class) ;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void build() {
-        initConfigurationMaps();
+        return kryoCloner.cloneObject(configStorage.globalSettings, GlobalSettingsConfig.class) ;
     }
 
     /**
@@ -94,7 +62,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     private void validate() {
         GlobalSettingsLogicalValidator globalSettingsLogicalValidator =
-                new GlobalSettingsLogicalValidator(configuration);
+                new GlobalSettingsLogicalValidator(configStorage.configuration);
         globalSettingsLogicalValidator.validate();
         DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
         domainObjectLogicalValidator.validate();
@@ -130,7 +98,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getConfig(Class<T> type, String name) {
-        CaseInsensitiveMap<TopLevelConfig> typeMap = topLevelConfigMap.get(type);
+        CaseInsensitiveMap<TopLevelConfig> typeMap = configStorage.topLevelConfigMap.get(type);
         if (typeMap == null) {
             return null;
         }
@@ -145,7 +113,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Collection<T> getConfigs(Class<T> type) {
-        CaseInsensitiveMap<TopLevelConfig> typeMap = topLevelConfigMap.get(type);
+        CaseInsensitiveMap<TopLevelConfig> typeMap = configStorage.topLevelConfigMap.get(type);
         if (typeMap == null) {
             return Collections.EMPTY_LIST;
         }
@@ -191,7 +159,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
 
         FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
-        FieldConfig result = fieldConfigMap.get(fieldConfigKey);
+        FieldConfig result = configStorage.fieldConfigMap.get(fieldConfigKey);
 
         if (result != null) {
             return kryoCloner.cloneObject(result, result.getClass());
@@ -217,69 +185,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     public CollectionColumnConfig getCollectionColumnConfig(String collectionViewName, String columnConfigName) {
         FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionViewName, columnConfigName);
-        CollectionColumnConfig collectionColumnConfig = collectionColumnConfigMap.get(collectionColumnConfigKey);
+        CollectionColumnConfig collectionColumnConfig = configStorage.collectionColumnConfigMap.get(collectionColumnConfigKey);
         return kryoCloner.cloneObject(collectionColumnConfig, collectionColumnConfig.getClass());
-    }
-
-    private void initConfigurationMaps() {
-        if (configuration == null) {
-            throw new FatalException("Failed to initialize ConfigurationExplorerImpl because " +
-                    "Configuration is null");
-        }
-
-        topLevelConfigMap.clear();
-        fieldConfigMap.clear();
-        attachmentDomainObjectTypes.clear();
-        readPermittedToEverybodyMap.clear();
-        List<DomainObjectTypeConfig> attachmentOwnerDots = new ArrayList<>();
-        for (TopLevelConfig config : configuration.getConfigurationList()) {
-
-            if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
-                globalSettings = (GlobalSettingsConfig) config;
-            }
-            fillTopLevelConfigMap(config);
-
-            if (DomainObjectTypeConfig.class.equals(config.getClass())) {
-                DomainObjectTypeConfig domainObjectTypeConfig = (DomainObjectTypeConfig) config;
-                fillFieldsConfigMap(domainObjectTypeConfig);
-                if (domainObjectTypeConfig.getAttachmentTypesConfig() != null) {
-                    attachmentOwnerDots.add(domainObjectTypeConfig);
-                }
-            } else if (CollectionViewConfig.class.equals(config.getClass())) {
-                CollectionViewConfig collectionViewConfig = (CollectionViewConfig) config;
-                fillCollectionColumnConfigMap(collectionViewConfig);
-            } else if (AccessMatrixConfig.class.equals(config.getClass())) {
-                AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) config;
-                fillReadPermittedToEverybodyMap(accessMatrixConfig);
-            }
-        }
-
-        initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
-    }
-
-    @Deprecated
-    private void fillReadPermittedToEverybodyMapFromStatus(AccessMatrixConfig accessMatrixConfig) {
-        for (AccessMatrixStatusConfig accessMatrixStatus : accessMatrixConfig.getStatus()) {
-            if (ALL_STATUSES_SIGN.equals(accessMatrixStatus.getName()))
-                for (BaseOperationPermitConfig permission : accessMatrixStatus.getPermissions()) {
-
-                    if (ReadConfig.class.equals(permission.getClass())
-                            && (Boolean.TRUE.equals(((ReadConfig) permission).isPermitEverybody()))) {
-                        readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), true);
-                        return;
-                    }
-                }
-            readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), false);
-        }
-    }
-
-    private void fillReadPermittedToEverybodyMap(AccessMatrixConfig accessMatrixConfig) {
-        Boolean readEverybody = accessMatrixConfig.isReadEverybody();
-        if (readEverybody != null) {
-            readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), readEverybody);
-        } else {
-            fillReadPermittedToEverybodyMapFromStatus(accessMatrixConfig);
-        }
     }
 
     /**
@@ -287,9 +194,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType) {
-        List<DynamicGroupConfig> dynamicGroups = new ArrayList<DynamicGroupConfig>();
+        List<DynamicGroupConfig> dynamicGroups = new ArrayList<>();
 
-        CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
+        CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = configStorage.topLevelConfigMap.get(DynamicGroupConfig.class);
 
         for (String groupKey : dynamicGroupMap.keySet()) {
             DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
@@ -311,7 +218,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String trackDOTypeName, String status) {
         List<DynamicGroupConfig> dynamicGroups = new ArrayList<DynamicGroupConfig>();
 
-        CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
+        CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = configStorage.topLevelConfigMap.get(DynamicGroupConfig.class);
 
         for (String groupKey : dynamicGroupMap.keySet()) {
             DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
@@ -375,193 +282,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public boolean isAttachmentType(String domainObjectType) {
-        return attachmentDomainObjectTypes.containsKey(domainObjectType);
-    }
-
-    private void fillTopLevelConfigMap(TopLevelConfig config) {
-        CaseInsensitiveMap<TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
-        if (typeMap == null) {
-            typeMap = new CaseInsensitiveMap<>();
-            topLevelConfigMap.put(config.getClass(), typeMap);
-        }
-        typeMap.put(config.getName(), config);
-    }
-
-    private void fillSystemFields(DomainObjectTypeConfig domainObjectTypeConfig) {
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getSystemFieldConfigs()) {
-            FieldConfigKey fieldConfigKey =
-                    new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
-            if (GenericDomainObject.STATUS_DO.equals(domainObjectTypeConfig.getName())
-                    && GenericDomainObject.STATUS_FIELD_NAME.equals(fieldConfig.getName())) {
-                continue;
-            }
-            fieldConfigMap.put(fieldConfigKey, fieldConfig);
-        }
-    }
-
-    private void fillCollectionColumnConfigMap(CollectionViewConfig collectionViewConfig) {
-        if (collectionViewConfig.getCollectionDisplayConfig() != null) {
-            for (CollectionColumnConfig columnConfig : collectionViewConfig.getCollectionDisplayConfig().
-                    getColumnConfig()) {
-                FieldConfigKey fieldConfigKey =
-                        new FieldConfigKey(collectionViewConfig.getName(), columnConfig.getField());
-                collectionColumnConfigMap.put(fieldConfigKey, columnConfig);
-
-            }
-        }
-    }
-
-    private void fillFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            FieldConfigKey fieldConfigKey =
-                    new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
-            fieldConfigMap.put(fieldConfigKey, fieldConfig);
-        }
-        fillSystemFields(domainObjectTypeConfig);
-    }
-
-    private void initConfigurationMapsOfAttachmentDomainObjectTypes(List<DomainObjectTypeConfig> ownerAttachmentDOTs) {
-        if (ownerAttachmentDOTs == null || ownerAttachmentDOTs.isEmpty()) {
-            return;
-        }
-
-        try {
-            AttachmentPrototypeHelper factory = new AttachmentPrototypeHelper();
-            for (DomainObjectTypeConfig domainObjectTypeConfig : ownerAttachmentDOTs) {
-                for (AttachmentTypeConfig attachmentTypeConfig : domainObjectTypeConfig.getAttachmentTypesConfig()
-                        .getAttachmentTypeConfigs()) {
-                    DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                            factory.makeAttachmentConfig(attachmentTypeConfig.getName(),
-                                    domainObjectTypeConfig.getName());
-                    fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
-                    fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
-                    attachmentDomainObjectTypes.put(attachmentDomainObjectTypeConfig.getName(), attachmentDomainObjectTypeConfig.getName());
-                }
-            }
-        } catch (IOException e) {
-            throw new ConfigurationException(e);
-        } catch (ClassNotFoundException e) {
-            throw new ConfigurationException(e);
-        }
-    }
-
-    private class FieldConfigKey {
-
-        private String domainObjectName;
-        private String fieldConfigName;
-
-        private FieldConfigKey(String domainObjectName, String fieldConfigName) {
-            this.domainObjectName = domainObjectName.toLowerCase();
-            this.fieldConfigName = fieldConfigName.toLowerCase();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            FieldConfigKey that = (FieldConfigKey) o;
-
-            if (domainObjectName != null ? !domainObjectName.equals(that.domainObjectName) :
-                    that.domainObjectName != null) {
-                return false;
-            }
-            if (fieldConfigName != null ? !fieldConfigName.equals(that.fieldConfigName) :
-                    that.fieldConfigName != null) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = domainObjectName != null ? domainObjectName.hashCode() : 0;
-            result = 31 * result + (fieldConfigName != null ? fieldConfigName.hashCode() : 0);
-            return result;
-        }
-    }
-
-    private class TopLevelConfigKey {
-        private String key;
-
-        private TopLevelConfigKey(String key) {
-            if (key != null) {
-                this.key = key.toLowerCase();
-            } else {
-                this.key = null;
-            }
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            TopLevelConfigKey that = (TopLevelConfigKey) o;
-
-            if (key != null ? !key.equals(that.key) : that.key != null) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return key != null ? key.hashCode() : 0;
-        }
-    }
-
-    private class PrototypeHelper {
-        private ByteArrayInputStream bis;
-
-        private PrototypeHelper(String templateName) throws IOException {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            TopLevelConfig templateDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, templateName);
-            oos.writeObject(templateDomainObjectTypeConfig);
-            oos.close();
-            bis = new ByteArrayInputStream(bos.toByteArray());
-        }
-
-        public DomainObjectTypeConfig makeDomainObjectTypeConfig(String name)
-                throws IOException, ClassNotFoundException {
-            bis.reset();
-            DomainObjectTypeConfig cloneDomainObjectTypeConfig =
-                    (DomainObjectTypeConfig) new ObjectInputStream(bis).readObject();
-            cloneDomainObjectTypeConfig.setTemplate(false);
-            cloneDomainObjectTypeConfig.setName(name);
-
-            return cloneDomainObjectTypeConfig;
-        }
-    }
-
-    private class AttachmentPrototypeHelper {
-        private PrototypeHelper prototypeHelper;
-
-        private AttachmentPrototypeHelper() throws IOException {
-            prototypeHelper = new PrototypeHelper("Attachment");
-        }
-
-        public DomainObjectTypeConfig makeAttachmentConfig(String name, String ownerTypeName)
-                throws IOException, ClassNotFoundException {
-            DomainObjectTypeConfig cloneDomainObjectTypeConfig = prototypeHelper.makeDomainObjectTypeConfig(name);
-
-            ReferenceFieldConfig ownerReferenceConfig = new ReferenceFieldConfig();
-            ownerReferenceConfig.setName(ownerTypeName);
-            ownerReferenceConfig.setType(ownerTypeName);
-            cloneDomainObjectTypeConfig.getFieldConfigs().add(ownerReferenceConfig);
-
-            return cloneDomainObjectTypeConfig;
-        }
+        return configStorage.attachmentDomainObjectTypes.containsKey(domainObjectType);
     }
 
     public boolean isReadPermittedToEverybody(String domainObjectType) {
-        if (readPermittedToEverybodyMap.get(domainObjectType) != null) {
-            return readPermittedToEverybodyMap.get(domainObjectType);
+        if (configStorage.readPermittedToEverybodyMap.get(domainObjectType) != null) {
+            return configStorage.readPermittedToEverybodyMap.get(domainObjectType);
         }
         return false;
     }
@@ -629,5 +355,13 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             }
         }
         return null;
+    }
+
+    ConfigurationStorage getConfig() {
+        return configStorage;
+    }
+
+    void setConfig(ConfigurationStorage config) {
+        this.configStorage = config;
     }
 }
