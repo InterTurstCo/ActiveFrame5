@@ -194,7 +194,7 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
             TriggerConfig triggerConfig) {
         String script = triggerConfig.getTriggerConditionsScriptConfig().getData();
         EventTriggerScriptContext context = new EventTriggerScriptContext(domainObject, eventType, changedFields);
-        return (Boolean) scriptService.eval(script, context);
+        return scriptService.eval(script, context);
     }
 
     
