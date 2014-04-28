@@ -3,11 +3,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -214,6 +210,7 @@ public class SqlLogger {
         } else if (value instanceof Calendar) {
             Calendar calendarValue = (Calendar) value;
             DateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
             queryWithParameters.append("'").append(dateFormatter.format(calendarValue.getTime())).append("'");
         } else {
             queryWithParameters.append(value.toString());
