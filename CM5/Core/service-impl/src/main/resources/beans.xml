@@ -41,9 +41,12 @@
     <jee:local-slsb id="configurationService"
                     jndi-name="java:module/ConfigurationServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationService"
                     business-interface="ru.intertrust.cm.core.business.api.ConfigurationService"/>
-    <jee:local-slsb id="attachmentService"
-                    jndi-name="java:module/AttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService"
+    <jee:local-slsb id="localAttachmentService"
+                    jndi-name="java:module/LocalAttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService"
                     business-interface="ru.intertrust.cm.core.business.api.AttachmentService"/>
+    <jee:local-slsb id="remoteAttachmentService"
+                    jndi-name="java:module/RemoteAttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService$Remote"
+                    business-interface="ru.intertrust.cm.core.business.api.AttachmentService.Remote"/>
     <jee:local-slsb id="searchService"
                     jndi-name="java:module/SearchService!ru.intertrust.cm.core.business.api.SearchService"
                     business-interface="ru.intertrust.cm.core.business.api.SearchService"/>
@@ -74,17 +77,17 @@
     <bean id="attachmentCleaner" class="ru.intertrust.cm.core.business.impl.AttachmentCleaner"/>
 
     <bean id="sheduleTaskLoader" class="ru.intertrust.cm.core.business.shedule.SheduleTaskLoader">
-        <property name="basePackage" value="ru/intertrust/cm" />
+        <property name="basePackage" value="ru/intertrust/cm"/>
     </bean>
 
-    <bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData" init-method="onLoad" />
+    <bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData" init-method="onLoad"/>
 
-    <bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData" init-method="onLoad" >
+    <bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData" init-method="onLoad">
         <property name="reportServiceAdmin">
             <bean id="reportServiceAdmin"
                   class="ru.intertrust.cm.core.business.impl.ReportServiceAdminImpl">
                 <property name="attachmentService">
-                    <bean class="ru.intertrust.cm.core.business.impl.AttachmentServiceImpl">
+                    <bean class="ru.intertrust.cm.core.business.impl.LocalAttachmentServiceImpl">
                         <property name="crudService">
                             <bean class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"/>
                         </property>
@@ -93,7 +96,7 @@
             </bean>
         </property>
     </bean>
-    
+
 
     <!-- Интеграция с Activiti -->
     <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
@@ -125,7 +128,7 @@
 
     <bean id="solrServer"
           class="ru.intertrust.cm.core.business.impl.search.SolrServerFactory"/>
-          <!-- factory-method="getSolrServer"/> -->
+    <!-- factory-method="getSolrServer"/> -->
 
     <bean id="solrUpdateQueue" class="ru.intertrust.cm.core.business.impl.search.SolrUpdateRequestQueue"/>
 
@@ -159,7 +162,7 @@
           class="ru.intertrust.cm.core.business.impl.UrlFormerImpl"/>
 
     <bean id="notificationChannelLoader"
-          class="ru.intertrust.cm.core.business.impl.NotificationChannelLoaderImpl" init-method="init" />
+          class="ru.intertrust.cm.core.business.impl.NotificationChannelLoaderImpl" init-method="init"/>
 
     <bean id="notificationChannelSelector"
           class="ru.intertrust.cm.core.business.impl.NotificationChannelSelectorImpl"/>
@@ -170,5 +173,5 @@
 
     <bean id="mailSender" class="ru.intertrust.cm.core.business.impl.notification.MailSenderWrapper">
     </bean>
-    
+
 </beans>

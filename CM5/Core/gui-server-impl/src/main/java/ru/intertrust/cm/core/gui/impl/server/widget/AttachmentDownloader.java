@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +37,8 @@ public class AttachmentDownloader {
     protected IdService idService;
     @Autowired
     protected AttachmentService attachmentService;
+    @Autowired
+    protected AttachmentService.Remote remoteAttachmentService;
 
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
     public void getFile(@PathVariable("id") String id, HttpServletResponse response) throws IOException {

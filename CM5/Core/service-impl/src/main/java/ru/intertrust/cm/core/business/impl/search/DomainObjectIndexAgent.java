@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -145,9 +145,9 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
         request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
         request.setParam("literal." + SolrFields.MODIFIED, dateFormatter.format(object.getModifiedDate()));
-        addFieldToContentRequest(request, object, AttachmentService.NAME, SearchFieldType.TEXT);
-        addFieldToContentRequest(request, object, AttachmentService.DESCRIPTION, SearchFieldType.TEXT);
-        addFieldToContentRequest(request, object, AttachmentService.CONTENT_LENGTH, SearchFieldType.LONG);
+        addFieldToContentRequest(request, object, BaseAttachmentService.NAME, SearchFieldType.TEXT);
+        addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION, SearchFieldType.TEXT);
+        addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH, SearchFieldType.LONG);
         request.setParam("literal.id", createUniqueId(object, config));
         request.setParam("uprefix", "cm_c_");
         request.setParam("fmap.content", SolrFields.CONTENT);
@@ -292,22 +292,22 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
 
         @Override
         public String getName() {
-            return attachment.getString(AttachmentService.NAME);
+            return attachment.getString(BaseAttachmentService.NAME);
         }
 
         @Override
         public String getSourceInfo() {
-            return attachment.getString(AttachmentService.DESCRIPTION);
+            return attachment.getString(BaseAttachmentService.DESCRIPTION);
         }
 
         @Override
         public String getContentType() {
-            return attachment.getString(AttachmentService.MIME_TYPE);
+            return attachment.getString(BaseAttachmentService.MIME_TYPE);
         }
 
         @Override
         public Long getSize() {
-            return attachment.getLong(AttachmentService.CONTENT_LENGTH);
+            return attachment.getLong(BaseAttachmentService.CONTENT_LENGTH);
         }
 
         @Override

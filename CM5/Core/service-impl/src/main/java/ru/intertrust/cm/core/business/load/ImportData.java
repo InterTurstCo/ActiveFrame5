@@ -35,7 +35,7 @@ import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.business.impl.AttachmentServiceImpl;
+import ru.intertrust.cm.core.business.impl.BaseAttachmentServiceImpl;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -651,7 +651,7 @@ public class ImportData {
             }
             newFilePathValue = new StringValue(newFilePath);
             StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
-            attachmentDomainObject.setValue(AttachmentServiceImpl.PATH_NAME, new StringValue(newFilePath));
+            attachmentDomainObject.setValue(BaseAttachmentServiceImpl.PATH_NAME, new StringValue(newFilePath));
 
             attachmentDomainObject.setLong("ContentLength", contentLength);
 
@@ -660,14 +660,14 @@ public class ImportData {
             //предыдущий файл удаляем
             if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
                 //файл может быть и не удален, в случае если заблокирован
-                attachmentDomainObject.setValue(AttachmentServiceImpl.PATH_NAME, oldFilePathValue);
+                attachmentDomainObject.setValue(BaseAttachmentServiceImpl.PATH_NAME, oldFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             savedDoaminObject.setValue("path", newFilePathValue);
             return savedDoaminObject;
         } catch (Exception ex) {
             if (newFilePathValue != null && !newFilePathValue.isEmpty()) {
-                attachmentDomainObject.setValue(AttachmentServiceImpl.PATH_NAME, newFilePathValue);
+                attachmentDomainObject.setValue(BaseAttachmentServiceImpl.PATH_NAME, newFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             throw new FatalException("Error save attachment", ex);

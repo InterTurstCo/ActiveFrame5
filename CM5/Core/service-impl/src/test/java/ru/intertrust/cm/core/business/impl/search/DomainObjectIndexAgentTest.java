@@ -22,7 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
@@ -397,14 +397,14 @@ public class DomainObjectIndexAgentTest {
         Id id = idMock("TestId");
         when(object.getId()).thenReturn(id);
         when(object.getTypeName()).thenReturn("TestType");
-        when(object.getValue(AttachmentService.NAME)).thenReturn(new StringValue("Attachment name"));
-        when(object.getValue(AttachmentService.DESCRIPTION)).thenReturn(new StringValue("Attachment description"));
-        when(object.getValue(AttachmentService.CONTENT_LENGTH)).thenReturn(new LongValue(1500L));
+        when(object.getValue(BaseAttachmentService.NAME)).thenReturn(new StringValue("Attachment name"));
+        when(object.getValue(BaseAttachmentService.DESCRIPTION)).thenReturn(new StringValue("Attachment description"));
+        when(object.getValue(BaseAttachmentService.CONTENT_LENGTH)).thenReturn(new LongValue(1500L));
         when(object.getModifiedDate()).thenReturn(new Date(55777L));
         Id parentId = idMock("ParentId");
         when(object.getReference("ParentLink")).thenReturn(parentId);
         FieldModification modMock = mock(FieldModification.class);
-        when(modMock.getName()).thenReturn(AttachmentService.NAME);
+        when(modMock.getName()).thenReturn(BaseAttachmentService.NAME);
         InputStream contentMock = mock(InputStream.class);
         when(attachmentContentDao.loadContent(Mockito.any(DomainObject.class))).thenReturn(contentMock);
 

@@ -5,12 +5,14 @@ import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -20,50 +22,32 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * User: vlad
+ * Created by andrey on 25.04.14.
  */
-@Stateless
-@Local(AttachmentService.class)
-@Remote(AttachmentService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class AttachmentServiceImpl implements AttachmentService {
-
-    final static org.slf4j.Logger logger = LoggerFactory.getLogger(AttachmentServiceImpl.class);
-
+public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService {
     final static public String PATH_NAME = "Path";
-
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(RemoteAttachmentServiceImpl.class);
     @Autowired
     private AttachmentContentDao attachmentContentDao;
-
     @Autowired
     private DomainObjectDao domainObjectDao;
-
     @Autowired
     private CrudService crudService;
-
     @Autowired
     private ConfigurationExplorer configurationExplorer;
-
     @Autowired
     private AccessControlService accessControlService;
-
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
-
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
@@ -71,7 +55,6 @@ public class AttachmentServiceImpl implements AttachmentService {
         this.currentUserAccessor = currentUserAccessor;
     }
 
-    @Override
     public DomainObject createAttachmentDomainObjectFor(Id objectId, String attachmentType) {
         try {
             GenericDomainObject attachmentDomainObject = (GenericDomainObject) crudService.createDomainObject(attachmentType);
@@ -85,7 +68,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new UnexpectedException("AttachmentService", "createAttachmentDomainObjectFor",
-                    "objectId:" + objectId + " attachmentType:" + attachmentType,  ex);
+                    "objectId:" + objectId + " attachmentType:" + attachmentType, ex);
         }
     }
 
@@ -97,7 +80,6 @@ public class AttachmentServiceImpl implements AttachmentService {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
-    @Override
     public DomainObject saveAttachment(RemoteInputStream inputStream, DomainObject attachmentDomainObject) {
         InputStream contentStream = null;
         StringValue newFilePathValue = null;
@@ -131,13 +113,12 @@ public class AttachmentServiceImpl implements AttachmentService {
             }
             logger.error(ex.getMessage());
             throw new UnexpectedException("AttachmentService", "saveAttachment",
-                    "attachmentDomainObject:" + attachmentDomainObject.getId(),  ex);
+                    "attachmentDomainObject:" + attachmentDomainObject.getId(), ex);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new UnexpectedException("AttachmentService", "saveAttachment",
-                    "attachmentDomainObject:" + attachmentDomainObject.getId(),  ex);
-        }
-        finally {
+                    "attachmentDomainObject:" + attachmentDomainObject.getId(), ex);
+        } finally {
             if (contentStream != null) {
                 try {
                     contentStream.close();
@@ -153,15 +134,14 @@ public class AttachmentServiceImpl implements AttachmentService {
         return accessControlService.createSystemAccessToken("AttachmentService");
     }
 
-    @Override
     public RemoteInputStream loadAttachment(Id attachmentDomainObjectId) {
         InputStream inFile = null;
         SimpleRemoteInputStream remoteInputStream = null;
         DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
         try {
-            inFile = attachmentContentDao.loadContent(attachmentDomainObject);
-            remoteInputStream = new SimpleRemoteInputStream(inFile);
-            return remoteInputStream.export();
+            InputStream inputStream = attachmentContentDao.loadContent(attachmentDomainObject);
+            RemoteInputStream export = wrapStream(inputStream);
+            return export;
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             if (inFile != null) {
@@ -179,7 +159,8 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
-    @Override
+    abstract RemoteInputStream wrapStream(InputStream inputStream) throws java.rmi.RemoteException;
+
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
             AccessToken accessToken = createSystemAccessToken();
@@ -197,13 +178,10 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
-
-
     /**
      * Поиск вложений доменного объекта. Выполняет поиск всех вложеннний, указанных в цепочке наследования доменного
      * объекта.
      */
-    @Override
     public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId) {
         try {
             String domainObjectTypeName = domainObjectTypeIdCache.getName(domainObjectId);
@@ -219,7 +197,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     private void collectAttachmentsForDOAndParentDO(Id domainObjectId, String domainObjectTypeName,
-            List<DomainObject> attachmentDomainObjects) {
+                                                    List<DomainObject> attachmentDomainObjects) {
 
         findAttachmentsDeclaredInParticularDO(domainObjectId, domainObjectTypeName, attachmentDomainObjects);
 
@@ -233,7 +211,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     private void findAttachmentsDeclaredInParticularDO(Id domainObjectId, String domainObjectTypeName,
-            List<DomainObject> attachmentDomainObjects) {
+                                                       List<DomainObject> attachmentDomainObjects) {
         DomainObjectTypeConfig domainObjectTypeConfig =
                 configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeName);
 
@@ -251,7 +229,6 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
-    @Override
     public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType) {
         try {
             String user = currentUserAccessor.getCurrentUser();
@@ -260,7 +237,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
             String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
 
-            return  domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attchmentLinkedField, accessToken);
+            return domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attchmentLinkedField, accessToken);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",
@@ -300,5 +277,4 @@ public class AttachmentServiceImpl implements AttachmentService {
     public void setCrudService(CrudService crudService) {
         this.crudService = crudService;
     }
-
 }

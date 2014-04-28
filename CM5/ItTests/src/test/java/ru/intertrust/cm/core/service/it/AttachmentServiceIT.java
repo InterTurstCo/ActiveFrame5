@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -141,12 +142,12 @@ public class AttachmentServiceIT extends IntegrationTestBase {
 
     private DomainObject createAttachmentDomainObject(Id childDocId, String attachmentType) {
         DomainObject attachment = attachmentService.createAttachmentDomainObjectFor(childDocId, attachmentType);
-        attachment.setValue(AttachmentService.NAME, new StringValue("Attachment"));
-        attachment.setValue(AttachmentService.DESCRIPTION, new StringValue("Attachment Description"));
+        attachment.setValue(BaseAttachmentService.NAME, new StringValue("Attachment"));
+        attachment.setValue(BaseAttachmentService.DESCRIPTION, new StringValue("Attachment Description"));
         String mimeType = "text/xml";
-        attachment.setValue(AttachmentService.MIME_TYPE, new StringValue(mimeType));
+        attachment.setValue(BaseAttachmentService.MIME_TYPE, new StringValue(mimeType));
         int contentLength = 10;
-        attachment.setValue(AttachmentService.CONTENT_LENGTH, new LongValue(contentLength));
+        attachment.setValue(BaseAttachmentService.CONTENT_LENGTH, new LongValue(contentLength));
         return attachment;
     }
 

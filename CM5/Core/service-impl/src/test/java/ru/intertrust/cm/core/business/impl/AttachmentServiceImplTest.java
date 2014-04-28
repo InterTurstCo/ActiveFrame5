@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -166,7 +167,7 @@ public class AttachmentServiceImplTest {
 
         @Bean
         public AttachmentService attachmentService() {
-            return new AttachmentServiceImpl();
+            return new LocalAttachmentServiceImpl();
         }
 
         @Bean
@@ -178,6 +179,7 @@ public class AttachmentServiceImplTest {
         public CurrentUserAccessor getCurrentUserAccessor() {
             return currentUserAccessor;
         }
+
         @Bean
         public AttachmentContentDao attachmentContentDao() {
             doAnswer(new Answer() {
@@ -213,7 +215,7 @@ public class AttachmentServiceImplTest {
             doAnswer(new Answer() {
                 public Object answer(InvocationOnMock invocation) {
                     DomainObject domainObject = new GenericDomainObject();
-                    domainObject.setString(AttachmentService.PATH, "" + (AttachmentServiceImplTest.suffix - 1));
+                    domainObject.setString(BaseAttachmentService.PATH, "" + (AttachmentServiceImplTest.suffix - 1));
                     return domainObject;
                 }
             }).when(crudService).find(any(Id.class));
@@ -226,7 +228,7 @@ public class AttachmentServiceImplTest {
             doAnswer(new Answer() {
                 public Object answer(InvocationOnMock invocation) {
                     DomainObject domainObject = new GenericDomainObject();
-                    domainObject.setString(AttachmentService.PATH, "" + (AttachmentServiceImplTest.suffix - 1));
+                    domainObject.setString(BaseAttachmentService.PATH, "" + (AttachmentServiceImplTest.suffix - 1));
                     return domainObject;
                 }
             }).when(domainObjectDao).find(any(Id.class), any(AccessToken.class));
