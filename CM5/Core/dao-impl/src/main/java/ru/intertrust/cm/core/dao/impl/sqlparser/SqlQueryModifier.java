@@ -642,7 +642,9 @@ public class SqlQueryModifier {
             return table.getAlias() != null ? table.getAlias().getName() : table.getName();
         }
 
-        throw new CollectionQueryException("Unsupported FromItem type.");
+        return "";
+
+//        throw new CollectionQueryException("Unsupported FromItem type.");
     }
 
     private String getDomainObjectTypeFromSelect(PlainSelect plainSelect) {
