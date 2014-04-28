@@ -16,6 +16,8 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
     private String modalWidth;
     @Attribute(name = "modal-height",required = false)
     private String modalHeight;
+    @Attribute(name = "delete-linked-objects",required = false)
+    private boolean deleteLinkedObjects;
 
     @Element(name = "linked-form")
     private LinkedFormConfig linkedFormConfig;
@@ -64,6 +66,14 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
         return modalHeight;
     }
 
+    public boolean isDeleteLinkedObjects() {
+        return deleteLinkedObjects;
+    }
+
+    public void setDeleteLinkedObjects(boolean deleteLinkedObjects) {
+        this.deleteLinkedObjects = deleteLinkedObjects;
+    }
+
     public void setModalHeight(String modalHeight) {
         this.modalHeight = modalHeight;
     }
@@ -109,21 +119,24 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
                 singleChoiceConfig != null)  {
             return false;
         }
-
         if (summaryTableConfig != null ? !summaryTableConfig.equals(that.summaryTableConfig) : that.
                 summaryTableConfig != null)  {
             return false;
         }
-
+        if (deleteLinkedObjects != that.deleteLinkedObjects) {
+            return false;
+        }
 
         return true;
     }
+
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (modalWidth != null ? modalWidth.hashCode() : 0);
         result = 31 * result + (modalHeight != null ? modalHeight.hashCode() : 0);
+        result = 31 * result + (deleteLinkedObjects ? 1 : 0);
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
         result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
         result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);

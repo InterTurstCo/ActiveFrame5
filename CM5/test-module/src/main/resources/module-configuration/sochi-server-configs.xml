@@ -858,7 +858,7 @@
             <label id="add-label">
                 <text>Связать с организацией:</text>
             </label>
-             <linked-domain-objects-table id="add">
+             <linked-domain-objects-table id="add" delete-linked-objects="true">
                  <field-path value="SS_ModuleOrg^module.organization"/>
                  <linked-form name="SO_OrgSystem_newForm" inline="true"/>
                  <summary-table>

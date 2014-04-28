@@ -1459,6 +1459,7 @@
                 <xs:attribute type="xs:string" name="id" use="required"/>
                 <xs:attribute type="xs:string" name="modal-width"/>
                 <xs:attribute type="xs:string" name="modal-height"/>
+                <xs:attribute type="xs:boolean" name="delete-linked-objects"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

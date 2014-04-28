@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -71,8 +72,9 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
      * Метод возвращает true, если при разрыве связи со связанными объектами, сами связанные объекты удаляются. Если false,
      * то разрывается связь, а бывшие связанные объекты остаются в системе.
      * @return true, если при разрыве связи со связанными объекты, сами связанные объекты удаляются, false - в противном случае
+     * @param config
      */
-    public boolean deleteEntriesOnLinkDrop() {
+    public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
         return false;
     }
 }

@@ -80,4 +80,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         }
         return newObjects;
     }
+
+    @Override
+    public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
+        return ((LinkedDomainObjectsTableConfig) config).isDeleteLinkedObjects();
+    }
 }

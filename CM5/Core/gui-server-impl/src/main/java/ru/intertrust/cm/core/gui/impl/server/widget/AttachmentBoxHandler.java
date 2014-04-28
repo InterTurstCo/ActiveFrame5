@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.gui.form.widget.AttachmentBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -126,7 +127,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     }
 
     @Override
-    public boolean deleteEntriesOnLinkDrop() {
+    public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
         return true;
     }
 }

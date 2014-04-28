@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
@@ -85,7 +84,7 @@ public class FormSaver {
             FieldPath firstFieldPath = fieldPaths[0];
             WidgetHandler handler = getWidgetHandler(widgetConfig);
             if (firstFieldPath.isBackReference()) {
-                boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop();
+                boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop(widgetConfig);
                 HashMap<FieldPath, ArrayList<Id>> fieldPathsIds
                         = getBackReferenceFieldPathsIds(fieldPaths, (LinkEditingWidgetState) widgetState);
                 for (FieldPath fieldPath : fieldPaths) {
@@ -313,7 +312,7 @@ public class FormSaver {
         if (fieldPath.isOneToManyReference()) {
             return mergeOneToMany(fieldPath, newIds, deleteEntriesOnLinkDrop);
         } else {
-            return mergeManyToMany(fieldPath, newIds);
+            return mergeManyToMany(fieldPath, newIds, deleteEntriesOnLinkDrop);
         }
     }
 
@@ -367,7 +366,7 @@ public class FormSaver {
         return operations;
     }
 
-    private ArrayList<FormSaveOperation> mergeManyToMany(FieldPath fieldPath, ArrayList<Id> newIds) {
+    private ArrayList<FormSaveOperation> mergeManyToMany(FieldPath fieldPath, ArrayList<Id> newIds, boolean deleteEntriesOnLinkDrop) {
         MultiObjectNode mergedNode = (MultiObjectNode) formObjects.getNode(fieldPath);
         String linkObjectType = mergedNode.getType();
 
@@ -414,6 +413,9 @@ public class FormSaver {
             }
             final DomainObject inBetweenDOToDrop = prevInBetweenDOsByLinkedObjectId.get(id);
             operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, inBetweenDOToDrop.getId()));
+            if (deleteEntriesOnLinkDrop) {
+                operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, id));
+            }
         }
         return operations;
     }
