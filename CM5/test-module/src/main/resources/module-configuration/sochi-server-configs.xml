@@ -142,10 +142,10 @@
         </widget-config>
     </form>
     <form name="SO_Parent_SU_newForm" domain-object-type="SO_Parent_SU" is-default="true" debug="false"
-          min-width="900px">
+         >
         <markup>
             <header>
-                <table width="500px" height="20px">
+                <table >
                     <tr>
                         <!--                         SO_Parent_SU -->
                         <td h-align="right">
@@ -263,11 +263,19 @@
                                 </tr>
                                 <!-- Code -->
                                 <tr>
+                                <td h-align="right">
+                                    <widget id="32"/>
+                                </td>
+                                <td width="100%" h-align="left">
+                                    <widget id="SO_Parent_SU"/>
+                                </td>
+                            </tr>
+                                <tr>
                                     <td h-align="right">
-                                        <widget id="32"/>
+                                        <widget id="52"/>
                                     </td>
                                     <td width="100%" h-align="left">
-                                        <widget id="SO_Parent_SU"/>
+                                        <widget id="HierParent"/>
                                     </td>
                                 </tr>
 
@@ -464,10 +472,10 @@
 
 
             <label id="32">
-                <text>Крактое название:</text>
+                <text>SO_Parent_SU:</text>
             </label>
 
-           <!-- <linked-domain-objects-table id="SO_Parent_SU" modal-height="1200px" modal-width="805px">
+            <linked-domain-objects-table id="SO_Parent_SU" >
                 <field-path value="SO_Parent_SU^Owner"/>
                 <linked-form name="SO_Parent_SU_newForm" inline="true"/>
                 <summary-table>
@@ -478,8 +486,11 @@
                         <pattern value="{IsCodeNumIndex}"/>
                     </summary-table-column>
                 </summary-table>
-            </linked-domain-objects-table>-->
-            <hierarchy-browser id="SO_Parent_SU">
+            </linked-domain-objects-table>
+            <label id="52">
+                <text>HierParent:</text>
+            </label>
+            <hierarchy-browser id="HierParent">
                 <field-path value="HierParent.Owner"/>
 
 
@@ -903,7 +914,7 @@
     </domain-object-type>
     <domain-object-type name="SO_Parent_SU">
         <fields>
-            <reference name="Owner" type="SO_StructureUnit"/>
+            <reference name="Owner" type="SO_StructureUnit" not-null="true"/>
         </fields>
     </domain-object-type>
     <domain-object-type name="SO_Department" extends="SO_StructureUnit">
