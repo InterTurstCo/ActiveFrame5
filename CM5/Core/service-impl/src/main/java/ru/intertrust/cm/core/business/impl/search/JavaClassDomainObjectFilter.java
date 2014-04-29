@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import ru.intertrust.cm.core.business.api.ClassDomainObjectFilter;
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.model.FatalException;
@@ -19,10 +20,10 @@ public class JavaClassDomainObjectFilter implements DomainObjectFilter {
 
     @Override
     public boolean filter(DomainObject object) {
-        DomainObjectFilter filter = null;
+        ClassDomainObjectFilter filter = null;
         try {
-            Class<? extends DomainObjectFilter> clazz =
-                    (Class<? extends DomainObjectFilter>) Class.forName(javaClass);
+            Class<? extends ClassDomainObjectFilter> clazz =
+                    (Class<? extends ClassDomainObjectFilter>) Class.forName(javaClass);
             filter = clazz.newInstance();
         } catch (Exception e) {
             throw new FatalException("Error creating JavaClassDomainObjectFilter : " + javaClass, e);

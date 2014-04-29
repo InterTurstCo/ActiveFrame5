@@ -26,7 +26,15 @@ public class ConditionsScriptDomainObjectFilter implements DomainObjectFilter {
     @Override
     public boolean filter(DomainObject object) {
         SearchAreaFilterScriptContext context = new SearchAreaFilterScriptContext(object);
-        return (Boolean) scriptService.eval(conditionsScript, context);
+        Object evaluateResult = scriptService.eval(conditionsScript, context);
+        if (evaluateResult instanceof Boolean) {
+            return (Boolean) evaluateResult;
+        } else {
+            throw new IllegalArgumentException("Script is not correct: " + conditionsScript
+                    + ". It should either evaluate to boolean result " +
+                    " or define the result in ScriptContext");
+        }
+
     }
 
 }

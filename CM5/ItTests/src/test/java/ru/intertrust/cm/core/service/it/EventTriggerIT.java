@@ -154,6 +154,12 @@ public class EventTriggerIT extends IntegrationTestBase {
         
         DomainObject departmentDomainObject = crudService.createDomainObject("department_test");
         departmentDomainObject.setString("Name", "Departmment");
+        departmentDomainObject.setLong("Number1", new Long(1));
+        departmentDomainObject.setLong("Number2", new Long(2));
+        
+        departmentDomainObject.setTimestamp("Date1", new Date());
+        departmentDomainObject.setTimestamp("Date2", new Date());
+
         departmentDomainObject.setReference("Organization", organizationDomainObject.getId());
         return departmentDomainObject;
     }

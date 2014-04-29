@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  */
 public class BaseScriptContext extends DomainObjectAccessor implements ScriptContext {
 
-    protected Boolean result;
+    protected Object result;
 
     public BaseScriptContext(DomainObject domainObject) {
         super(domainObject);
@@ -22,12 +22,12 @@ public class BaseScriptContext extends DomainObjectAccessor implements ScriptCon
     }
 
     @Override
-    public Boolean getResult() {
+    public Object getResult() {
         return result;
     }
 
     @Override
-    public void setResult(Boolean result) {
+    public void setResult(Object result) {
         this.result = result;
     }
 

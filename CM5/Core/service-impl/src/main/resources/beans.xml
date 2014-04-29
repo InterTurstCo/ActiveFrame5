@@ -171,7 +171,10 @@
 
     <bean id="scriptService" class="ru.intertrust.cm.core.business.impl.JavaScriptServiceImpl"/>
 
-    <bean id="mailSender" class="ru.intertrust.cm.core.business.impl.notification.MailSenderWrapper">
-    </bean>
-
+    <bean id="mailSender" class="ru.intertrust.cm.core.business.impl.notification.MailSenderWrapper"/>
+        
+    <bean id="javaClassDomainObjectFilter" class="ru.intertrust.cm.core.business.impl.search.JavaClassDomainObjectFilter"/>
+    <bean id="sqlQueryDomainObjectFilter" class="ru.intertrust.cm.core.business.impl.search.SqlQueryDomainObjectFilter"/>
+    <bean id="conditionsScriptDomainObjectFilter" class="ru.intertrust.cm.core.business.impl.search.ConditionsScriptDomainObjectFilter"/>
+    
 </beans>

@@ -13,6 +13,10 @@
             <indexed-field name="Author_Name">
                 <doel>docAuthor.Name</doel>
             </indexed-field>
+            <indexed-field name="Full_Description">
+                <script>ctx.get('Name') + ctx.get('Description') + ctx.get('Author')</script>
+            </indexed-field>            
+            
             <indexed-field name="Registrant"/>
             <indexed-field name="Registrant_Name">
                 <doel>Registrant.Name</doel>
@@ -52,7 +56,7 @@
             </linked-domain-object>
             <target-collection name="Internal_Document"/>
             <filter>
-                <conditions-script>ctx.get('Name') == 'Department'</conditions-script>
+                <conditions-script>ctx.get('Name') != ''</conditions-script>
             </filter>            
         </target-domain-object>
     </search-area>

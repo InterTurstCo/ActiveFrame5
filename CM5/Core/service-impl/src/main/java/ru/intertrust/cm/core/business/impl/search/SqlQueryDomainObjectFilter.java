@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 
 /**
  * Возвращает результат вычисления SQL запроса в фильтре в области поиска. 
@@ -29,7 +30,15 @@ public class SqlQueryDomainObjectFilter implements DomainObjectFilter {
     @Override
     public boolean filter(DomainObject object) {
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("id", object.getId());
+        long id = ((RdbmsId) object.getId()).getId();
+        int idType = ((RdbmsId) object.getId()).getTypeId();
+
+        paramMap.put("id", id);
+        paramMap.put("id_type", idType);
+        StringBuilder sqlQueryBuilder = new StringBuilder(sqlQuery);
+        sqlQueryBuilder.append(" and id_type=:id_type ");
+        sqlQuery = sqlQueryBuilder.toString();
+
         List<Map<String, Object>> queryResult = jdbcTemplate.queryForList(sqlQuery, paramMap);
         return (queryResult != null && queryResult.size() > 0);
     }

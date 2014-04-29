@@ -7,8 +7,8 @@ package ru.intertrust.cm.core.business.api;
  */
 public interface ScriptContext {
 
-    Boolean getResult();
+    Object getResult();
 
-    void setResult(Boolean result);
+    void setResult(Object result);
 
 }
