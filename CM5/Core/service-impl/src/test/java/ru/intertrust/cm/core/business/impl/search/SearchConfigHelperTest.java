@@ -1,7 +1,12 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.InputStream;
@@ -10,6 +15,7 @@ import java.io.Reader;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,7 +108,7 @@ public class SearchConfigHelperTest {
         DomainObject object = mock(DomainObject.class);
         when(object.getTypeName()).thenReturn("Type_B");
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs = testee.findEffectiveConfigs(object);
-        assertTrue("Объект Type_B должен индексироваться 2 раза, а не " + configs.size(), configs.size() == 2);
+        assertTrue("Объект Type_B должен индексироваться 3 раза, а не " + configs.size(), configs.size() == 3);
         assertTrue("Объект Type_B должен индексироваться в Area_A, а не в " + configs.get(0).getAreaName(),
                 "Area_A".equalsIgnoreCase(configs.get(0).getAreaName()));
         assertTrue("Объект Type_B должен индексироваться для поиска по Type_A, а не в "
@@ -184,6 +190,42 @@ public class SearchConfigHelperTest {
         SearchConfigHelper.FieldDataType type = testee.getFieldType(config, "Type_D");
         assertEquals(type.getDataType(), FieldType.DATETIMEWITHTIMEZONE);
         assertTrue("Поле String_B может иметь несколько значений", type.isMultivalued());
+    }
+
+    @Test
+    public void testGetFieldType_CalculatedString() {
+        IndexedFieldConfig config = mock(IndexedFieldConfig.class);
+        when(config.getName()).thenReturn("String_Calculated");
+        when(config.getDoel()).thenReturn(null);
+        when(config.getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
+        
+        SearchConfigHelper.FieldDataType type = testee.getFieldType(config, "Type_B", new String("Some value"));
+        assertEquals(type.getDataType(), FieldType.STRING);
+        assertFalse("Поле String_Calculated имеет единственное значение", type.isMultivalued());
+    }
+
+    @Test
+    public void testGetFieldType_CalculatedNumber() {
+        IndexedFieldConfig config = mock(IndexedFieldConfig.class);
+        when(config.getName()).thenReturn("Long_Calculated");
+        when(config.getDoel()).thenReturn(null);
+        when(config.getScript()).thenReturn("ctx.get('Long_B') + ctx.get('Long_Bc') + ctx.get('Long_Bd')");
+        
+        SearchConfigHelper.FieldDataType type = testee.getFieldType(config, "Type_B", new Double(1));
+        assertEquals(type.getDataType(), FieldType.DECIMAL);
+        assertFalse("Поле Long_Calculated имеет единственное значение", type.isMultivalued());
+    }
+
+    @Test
+    public void testGetFieldType_CalculatedDate() {
+        IndexedFieldConfig config = mock(IndexedFieldConfig.class);
+        when(config.getName()).thenReturn("Date_Calculated");
+        when(config.getDoel()).thenReturn(null);
+        when(config.getScript()).thenReturn("ctx.get('Date_B')");
+        
+        SearchConfigHelper.FieldDataType type = testee.getFieldType(config, "Type_B", new Date());
+        assertEquals(type.getDataType(), FieldType.DATETIME);
+        assertFalse("Поле Date_Calculated имеет единственное значение", type.isMultivalued());
     }
 
     @Test

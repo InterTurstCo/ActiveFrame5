@@ -28,9 +28,15 @@
     <domain-object-type name="Type_B">
         <fields>
             <string name="String_B" length="20"/>
+            <string name="String_Bc" length="20"/>
+            <string name="String_Bd" length="20"/>            
             <long name="Long_B"/>
+            <long name="Long_Bc"/>
+            <long name="Long_Bd"/>            
             <decimal name="Decimal_B"/>
             <date-time name="DateTime_B"/>
+            <date-time name="DateTime_Bc"/>
+            <date-time name="DateTime_Bd"/>            
             <dateTimeWithTimeZone name="DateTimeZone_B"/>
             <timelessDate name="Date_B"/>
             <reference name="Reference_B_A" type="Type_A"/>
@@ -156,4 +162,38 @@
             <indexed-field name="Reference_B_A"/>
         </target-domain-object>
     </search-area>
+    
+    <search-area name="Area_C">
+        <target-domain-object type="Type_B">
+            <indexed-field name="String_B"/>
+            <indexed-field name="String_Calculated">
+                <script>ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')</script>
+            </indexed-field>
+            <indexed-field name="Long_B"/>
+            <indexed-field name="Long_Calculated">
+                <script>ctx.get('Long_B') + ctx.get('Long_Bc') + ctx.get('Long_Bd')</script>
+            </indexed-field>
+            <indexed-field name="Decimal_B"/>
+            <indexed-field name="Decimal_A">
+                <doel>Reference_B_A.Decimal_A</doel>
+            </indexed-field>
+            <indexed-field name="DateTime_B"/>
+            <indexed-field name="DateTime_A">
+                <doel>Reference_B_A.DateTime_A</doel>
+            </indexed-field>
+            <indexed-field name="DateTimeZone_B"/>
+            <indexed-field name="DateTimeZone_A">
+                <doel>Reference_B_A.DateTimeZone_A</doel>
+            </indexed-field>
+            <indexed-field name="Date_B"/>
+            <indexed-field name="Date_Calculated">
+                <script>
+                    var resultDate = new Date();
+                    resultDate.setDate(ctx.get('Date_B') + 5);
+                </script>
+            </indexed-field>
+            <indexed-field name="Reference_B_A"/>
+        </target-domain-object>
+    </search-area>
+    
 </configuration>

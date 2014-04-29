@@ -2263,6 +2263,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="doel" type="con:doelType"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="script" type="xs:string"/>
         </xs:choice>
     </xs:complexType>
 

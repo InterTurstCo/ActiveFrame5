@@ -30,16 +30,10 @@ public class JavaScriptServiceImpl implements ScriptService {
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
         engine.put(SESSION_OBJECT, new Session());
         engine.put(CONTEXT_OBJECT, context);
-        try {
+        try {            
             Object evaluateResult = engine.eval(script);
             if (context.getResult() == null) {
-                if (evaluateResult instanceof Boolean) {
-                    return (Boolean) evaluateResult;
-                } else {
-                    throw new IllegalArgumentException("Script is not correct: " + script
-                            + ". It should either evaluate to boolean result " +
-                            " or define the result in ScriptContext");
-                }
+                return evaluateResult;
             }
             return context.getResult();
         } catch (ScriptException e) {

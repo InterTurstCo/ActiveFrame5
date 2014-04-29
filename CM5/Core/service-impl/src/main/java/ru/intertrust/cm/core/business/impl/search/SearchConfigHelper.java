@@ -1,8 +1,13 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,8 +38,6 @@ import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.SearchLanguageConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
@@ -258,6 +261,33 @@ public class SearchConfigHelper {
             }
             return new FieldDataType(fieldConfig.getFieldType());
         }
+    }
+
+    /**
+     * 
+     * @param config конфигурация индексируемого поля
+     * @param objectType имя типа объекта, содержащего поле
+     * @param value значение вычисляемого поля. По значению определяется тип вычисляемого поля.
+     * @return тип данных, хранимых в индексируемом поле
+     */
+    public FieldDataType getFieldType(IndexedFieldConfig config, String objectType, Object value) {
+        if (config.getScript() != null) {
+            return new FieldDataType(getValueType(value));
+        } else {
+            return getFieldType(config, objectType);
+        }
+    }
+
+    private FieldType getValueType(Object value) {
+        if(value instanceof Date){
+            return FieldType.DATETIME;            
+        }else if(value instanceof Long){
+            return FieldType.LONG;  
+        }else if(value instanceof Number){
+            return FieldType.DECIMAL;  
+        }else{
+            return FieldType.STRING;
+        }        
     }
 
     public Set<FieldDataType> getFieldTypes(String name, Collection<String> areas) {

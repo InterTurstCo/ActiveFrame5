@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
+import ru.intertrust.cm.core.business.api.ScriptService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -40,6 +41,7 @@ import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
+import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
 
 /**
  * Компонент, осуществляющий индексацию доменных объектов при их изменении.
@@ -68,6 +70,9 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
 
     @Autowired
     private AccessControlService accessControlService;
+    
+    @Autowired
+    private ScriptService scriptService;    
 
     @Autowired
     private AttachmentContentDao attachmentContentDao;
@@ -98,9 +103,10 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
             doc.addField(SolrFields.MODIFIED, domainObject.getModifiedDate());
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                SearchConfigHelper.FieldDataType type =
-                        configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
                 Object value = calculateField(domainObject, fieldConfig);
+                SearchConfigHelper.FieldDataType type =
+                        configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType(), value);
+                //test this area
                 if (isTextField(type.getDataType())) {
                     List<String> languages =
                             configHelper.getSupportedLanguages(fieldConfig.getName(), config.getAreaName());
@@ -173,6 +179,11 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     }
 
     private Object calculateField(DomainObject object, IndexedFieldConfig config) {
+        if (config.getScript() != null) {
+            SearchAreaFilterScriptContext context = new SearchAreaFilterScriptContext(object);
+            Object result = scriptService.eval(config.getScript(), context);
+            return result;
+        }
         if (config.getDoel() != null) {
             AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
             List<? extends Value> values = doelEvaluator.evaluate(

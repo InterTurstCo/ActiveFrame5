@@ -91,19 +91,19 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.findEffectiveConfigs(Mockito.any(DomainObject.class)))
                 .thenReturn(Arrays.asList(areaConfig));
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
-        when(configHelper.getFieldType(same(stringField), anyString()))
+        when(configHelper.getFieldType(same(stringField), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
-        when(configHelper.getFieldType(same(ruStringField), anyString()))
+        when(configHelper.getFieldType(same(ruStringField), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
-        when(configHelper.getFieldType(same(ruEnGeTextField), anyString()))
+        when(configHelper.getFieldType(same(ruEnGeTextField), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.TEXT));
-        when(configHelper.getFieldType(same(longField), anyString()))
+        when(configHelper.getFieldType(same(longField), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.LONG));
-        when(configHelper.getFieldType(same(dateField), anyString()))
+        when(configHelper.getFieldType(same(dateField), anyString(),anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.DATETIME));
-        when(configHelper.getFieldType(same(referenceField), anyString()))
+        when(configHelper.getFieldType(same(referenceField), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.REFERENCE));
-        when(configHelper.getFieldType(same(doelField), anyString()))
+        when(configHelper.getFieldType(same(doelField), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING, true));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(configHelper.getSupportedLanguages(eq("RuStringField"), anyString())).thenReturn(Arrays.asList("ru"));
@@ -177,7 +177,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.findEffectiveConfigs(Mockito.any(DomainObject.class)))
                 .thenReturn(Arrays.asList(areaConfig));
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
-        when(configHelper.getFieldType(same(stringField), anyString()))
+        when(configHelper.getFieldType(same(stringField), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(accessControlService.createSystemAccessToken(anyString())).thenAnswer(RETURNS_MOCKS);
@@ -304,7 +304,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.findEffectiveConfigs(Mockito.any(DomainObject.class)))
                 .thenReturn(Arrays.asList(area1, area2, area3, area4));
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
-        when(configHelper.getFieldType(Mockito.any(IndexedFieldConfig.class), anyString()))
+        when(configHelper.getFieldType(Mockito.any(IndexedFieldConfig.class), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(accessControlService.createSystemAccessToken(anyString())).thenAnswer(RETURNS_MOCKS);

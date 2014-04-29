@@ -11,12 +11,37 @@
     <domain-object-type name="department_test" audit-log="true" initial-status="Active">
         <fields>
             <string name="Name" length="128" not-null="true" />
+            <long name="Number1" not-null="false" />            
+            <long name="Number2" not-null="false" />
+            <date-time name="Date1" not-null="false" />            
+            <date-time name="Date2" not-null="false" />            
             <reference name="Organization" type="organization_test" not-null="true"/>
             <reference name="Boss" type="employee_test"/>
             <reference name="ParentDepartment" type="department_test" not-null="false"/>
             <string name="Description" length="512" not-null="false" />
         </fields>
     </domain-object-type>
+
+    <search-area name="Внутренние документы">
+        <target-domain-object type="Internal_Document">
+            <indexed-field name="RegNum" />
+            <indexed-field name="Name" />
+            <indexed-field name="Description" />
+            <indexed-field name="Author">
+                <doel>docAuthor</doel>
+            </indexed-field>
+            <indexed-field name="Author_Name">
+                <doel>docAuthor.Name</doel>
+            </indexed-field>
+            <indexed-field name="Full_Description">
+                <script>ctx.get('Name') + ctx.get('Description') + ctx.get('Author')</script>
+            </indexed-field>
+            <target-collection name="Internal_Document" />
+            <filter>
+                <conditions-script>ctx.get('Name') == 'Department'</conditions-script>
+            </filter>
+        </target-domain-object>
+    </search-area>
     
     <domain-object-type name="person_test" initial-status="Active3">
         <fields>
