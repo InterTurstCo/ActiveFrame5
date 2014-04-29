@@ -72,8 +72,16 @@ public class TestCollection extends ClientBase {
 
             query = "select d.id from department d where d.id = {0}";
             List<Value> params = new ArrayList<Value>();
-            params.add(new ReferenceValue(new RdbmsId(1, 1)));
+            params.add(new ReferenceValue(new RdbmsId(5015, 1)));
             executeQuery(query, 1, params);
+            
+            query = "select p.login from person p ";
+            query += "inner join employee e on (p.id = e.id) ";
+            query += "where e.department = {0}";
+            params = new ArrayList<Value>();
+            params.add(new ReferenceValue(new RdbmsId(5015, 1)));
+            executeQuery(query, 1, params);
+            
 
             //TODO расскомментировать после исполнения 395
             /*List<Filter> filters = new ArrayList<Filter>();
