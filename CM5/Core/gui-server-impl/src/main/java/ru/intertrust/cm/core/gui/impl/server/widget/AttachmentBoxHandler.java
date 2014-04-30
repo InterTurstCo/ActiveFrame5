@@ -76,11 +76,6 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         return state;
     }
 
-    @Override
-    public boolean handlesNewObjectsReferences() {
-        return true;
-    }
-
     public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         List<AttachmentItem> attachmentItems = attachmentBoxState.getAttachments();

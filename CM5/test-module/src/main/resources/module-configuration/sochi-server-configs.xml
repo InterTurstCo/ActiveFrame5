@@ -475,7 +475,7 @@
                 <text>SO_Parent_SU:</text>
             </label>
 
-            <linked-domain-objects-table id="SO_Parent_SU" >
+            <linked-domain-objects-table id="SO_Parent_SU" delete-linked-objects="true">
                 <field-path value="SO_Parent_SU^Owner"/>
                 <linked-form name="SO_Parent_SU_newForm" inline="true"/>
                 <summary-table>

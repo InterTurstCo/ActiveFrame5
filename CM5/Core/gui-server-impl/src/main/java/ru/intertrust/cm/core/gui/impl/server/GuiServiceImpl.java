@@ -113,7 +113,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     public DomainObject saveForm(final FormState formState, final UserInfo userInfo) {
         final GuiContext guiCtx = GuiContext.get();
         guiCtx.setUserInfo(userInfo);
-        FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState);
+        FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState, null);
         return formSaver.saveForm();
     }
 

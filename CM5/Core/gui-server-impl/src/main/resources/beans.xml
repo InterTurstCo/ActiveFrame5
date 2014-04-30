@@ -29,6 +29,7 @@
 
     <bean id="formSaver" class="ru.intertrust.cm.core.gui.impl.server.form.FormSaver" scope="prototype">
         <constructor-arg value=""/>
+        <constructor-arg value=""/>
     </bean>
 
     <bean id="formResolver" class="ru.intertrust.cm.core.gui.impl.server.form.FormResolver" scope="singleton"

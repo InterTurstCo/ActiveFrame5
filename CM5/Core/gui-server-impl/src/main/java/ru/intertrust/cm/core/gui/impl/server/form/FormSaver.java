@@ -39,6 +39,7 @@ public class FormSaver {
     @Autowired
     private AttachmentService attachmentService;
     private FormState formState;
+    private Map<FieldPath, Value> forcedRootDomainObjectValues;
     private FormObjects formObjects;
     private List<WidgetConfig> widgetConfigs;
     private HashSet<ObjectCreationOperation> newObjectsCreationOperations;
@@ -46,9 +47,10 @@ public class FormSaver {
     private HashSet<FieldPath> objectsFieldPathsToUpdate;
     private HashMap<Id, DomainObject> savedObjectsById;
 
-    public FormSaver(FormState formState) {
+    public FormSaver(FormState formState, Map<FieldPath, Value> forcedRootDomainObjectValues) {
         this.formState = formState;
         this.formObjects = formState.getObjects();
+        this.forcedRootDomainObjectValues = forcedRootDomainObjectValues == null ? new HashMap<FieldPath, Value>(0) : forcedRootDomainObjectValues;
         newObjectsCreationOperations = new HashSet<>();
         linkChangeOperations = new ArrayList<>();
         objectsFieldPathsToUpdate = new HashSet<>();
@@ -75,7 +77,7 @@ public class FormSaver {
                 Set<Map.Entry<String, FormState>> entries = nestedFormStates.entrySet();
                 for (Map.Entry<String, FormState> entry : entries) {
                     FormState nestedFormState = entry.getValue();
-                    FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", nestedFormState);
+                    FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", nestedFormState, null);
                     formSaver.saveForm();
                 }
             }
@@ -110,6 +112,10 @@ public class FormSaver {
                 }
                 formObjects.setFieldValue(firstFieldPath, newValue);
             }
+        }
+
+        for (FieldPath forcedValueFieldPath : forcedRootDomainObjectValues.keySet()) {
+            formObjects.setFieldValue(forcedValueFieldPath, forcedRootDomainObjectValues.get(forcedValueFieldPath));
         }
 
         createNewDirectLinkObjects();
@@ -154,31 +160,9 @@ public class FormSaver {
                 continue;
             }
             WidgetHandler widgetHandler = getWidgetHandler(config);
-            if (!(widgetHandler instanceof LinkEditingWidgetHandler)) {
-                continue;
-            }
-            WidgetContext widgetContext = new WidgetContext(config, formObjects);
-            final LinkEditingWidgetHandler linkEditingHandler = (LinkEditingWidgetHandler) widgetHandler;
-            final List<DomainObject> newObjects = linkEditingHandler.saveNewObjects(widgetContext, widgetState);
-            if (newObjects == null || linkEditingHandler.handlesNewObjectsReferences()) {
-                continue;
-            }
-            DomainObject rootDomainObject = formObjects.getRootNode().getDomainObject();
-            FieldPath fieldPath = new FieldPath(config.getFieldPathConfig().getValue());
-            for (DomainObject newObject : newObjects) {
-                if (fieldPath.isOneToManyReference()) {
-                    newObject.setReference(fieldPath.getLinkToParentName(), rootDomainObject);
-                    crudService.save(newObject);
-                } else if (fieldPath.isManyToManyReference()) {
-                    String referenceType = fieldPath.getReferenceType();
-                    DomainObject referencedObject = crudService.createDomainObject(referenceType);
-                    referencedObject.setReference(fieldPath.getLinkToChildrenName(), newObject);
-                    referencedObject.setReference(fieldPath.getLinkToParentName(), rootDomainObject);
-                    crudService.save(referencedObject);
-                } else { // one-to-one reference
-                    formObjects.setFieldValue(fieldPath, new ReferenceValue(newObject.getId()));
-                    crudService.save(((SingleObjectNode) formObjects.getNode(fieldPath.getParentPath())).getDomainObject());
-                }
+            if (widgetHandler instanceof LinkEditingWidgetHandler) {
+                WidgetContext widgetContext = new WidgetContext(config, formObjects);
+                ((LinkEditingWidgetHandler) widgetHandler).saveNewObjects(widgetContext, widgetState);
             }
         }
     }

@@ -15,6 +15,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
     private static final String[] EMPTY_PATHS = new String[1];
 
     private String path;
+    private transient String caseInsensitivePath;
     private transient Element[] elements;
     private transient FieldPath parentPath;
 
@@ -136,7 +137,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
 
         FieldPath fieldPath = (FieldPath) o;
 
-        if (!getPath().equals(fieldPath.getPath())) {
+        if (!getCaseInsensitivePath().equals(fieldPath.getCaseInsensitivePath())) {
             return false;
         }
 
@@ -145,7 +146,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
 
     @Override
     public int hashCode() {
-        return getPath().hashCode();
+        return getCaseInsensitivePath().hashCode();
     }
 
     public Iterator<FieldPath> childrenIterator() {
@@ -181,6 +182,14 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         }
         this.path = result.toString();
         return this.path;
+    }
+
+    private String getCaseInsensitivePath() {
+        if (this.caseInsensitivePath != null) {
+            return this.caseInsensitivePath;
+        }
+        this.caseInsensitivePath = getPath().toLowerCase();
+        return this.caseInsensitivePath;
     }
 
     private Element[] getElements() {
