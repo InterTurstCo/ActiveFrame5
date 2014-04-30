@@ -1,15 +1,5 @@
 package ru.intertrust.cm.core.jdbc;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.RowIdLifetime;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
@@ -21,6 +11,16 @@ import ru.intertrust.cm.core.config.LongFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.RowIdLifetime;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
@@ -423,8 +423,7 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public String getCatalogSeparator() throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return "";
     }
 
     @Override
