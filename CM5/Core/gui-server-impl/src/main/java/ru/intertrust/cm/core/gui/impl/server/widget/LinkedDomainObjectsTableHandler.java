@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
@@ -17,7 +17,6 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
 import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -29,8 +28,6 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     CrudService crudService;
-    @Autowired
-    ConfigurationExplorer configurationExplorer;
     @Autowired
     ApplicationContext applicationContext;
 
@@ -51,7 +48,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
         String linkedFormName = domainObjectsTableConfig.getLinkedFormConfig().getName();
         if (linkedFormName != null && !linkedFormName.isEmpty()) {
-            FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, linkedFormName);
+            FormConfig formConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
             state.setObjectTypeName(formConfig.getDomainObjectType());
         }
 

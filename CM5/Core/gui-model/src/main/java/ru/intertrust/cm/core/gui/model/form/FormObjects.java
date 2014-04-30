@@ -46,6 +46,14 @@ public class FormObjects implements Dto {
         return (SingleObjectNode) fieldPathNodes.get(FieldPath.ROOT);
     }
 
+    public DomainObject getRootDomainObject() {
+        return getRootNode().getDomainObject();
+    }
+
+    public String getRootDomainObjectType() {
+        return getRootNode().getDomainObject().getTypeName();
+    }
+
     public void setFieldValue(FieldPath fieldPath, Value value) {
         ((SingleObjectNode) getParentNode(fieldPath)).getDomainObject().setValue(fieldPath.getFieldName(), value);
     }

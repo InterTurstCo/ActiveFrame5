@@ -86,7 +86,7 @@ public class FormSaver {
             FieldPath firstFieldPath = fieldPaths[0];
             WidgetHandler handler = getWidgetHandler(widgetConfig);
             if (firstFieldPath.isBackReference()) {
-                boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop(widgetConfig);
+                boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop(widgetConfig) || isParentReferencedByNotNullField(fieldPaths);
                 HashMap<FieldPath, ArrayList<Id>> fieldPathsIds
                         = getBackReferenceFieldPathsIds(fieldPaths, (LinkEditingWidgetState) widgetState);
                 for (FieldPath fieldPath : fieldPaths) {
@@ -151,6 +151,21 @@ public class FormSaver {
         }
         saveNewLinkedObjects();
         return rootDomainObject;
+    }
+
+    private boolean isParentReferencedByNotNullField(FieldPath[] fieldPaths) {
+        for (final FieldPath fieldPath : fieldPaths) {
+            if (!fieldPath.isOneToManyReference()) {
+                continue;
+            }
+            final String type = fieldPath.getReferenceType();
+            final String fieldName = fieldPath.getLinkToParentName();
+            final ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationExplorer.getFieldConfig(type, fieldName);
+            if (fieldConfig.isNotNull()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void saveNewLinkedObjects() {

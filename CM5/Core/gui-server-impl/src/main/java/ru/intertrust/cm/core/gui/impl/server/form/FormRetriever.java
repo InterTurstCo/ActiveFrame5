@@ -291,7 +291,7 @@ public class FormRetriever {
         String referenceField = childPath.getLinkToParentName();
 
         // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
-
+        // todo: limit result rows
         DomainObject parentDomainObject = parentNode.getDomainObject();
         List<DomainObject> linkedDomainObjects = parentDomainObject.getId() == null
                 ? new ArrayList<DomainObject>()
