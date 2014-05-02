@@ -1,10 +1,16 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import ru.intertrust.cm.core.business.api.dto.*;
-
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
+
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.OlsonTimeZoneContext;
+import ru.intertrust.cm.core.business.api.dto.TimeZoneContext;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
 
 /**
  * @author vmatsukevich
@@ -13,16 +19,44 @@ import java.util.TimeZone;
  */
 public class DateUtils {
 
+    private static ThreadLocal<Map<String, Calendar>>  calendarCache = new ThreadLocal<Map<String, Calendar>>();
+    
+    public static Calendar getCalendar(String timeZoneId) {
+        if (calendarCache.get() != null) {
+            Map<String, Calendar> timeZoneIdToCalendar = calendarCache.get();
+            if (timeZoneIdToCalendar.get(timeZoneId) != null) {
+                return timeZoneIdToCalendar.get(timeZoneId);
+            } else {
+                Calendar calendar = createNewCalendar(timeZoneId);
+                timeZoneIdToCalendar.put(timeZoneId, calendar);
+                return calendar;
+            }
+
+        } else {
+            Map<String, Calendar> timezoneIdToCalendar = new HashMap<>();
+            calendarCache.set(timezoneIdToCalendar);
+            Calendar calendar = createNewCalendar(timeZoneId);
+            timezoneIdToCalendar.put(timeZoneId, calendar);
+            return calendar;
+        }
+    }
+
+    private static Calendar createNewCalendar(String timeZoneId) {
+        TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
+        Calendar calendar = Calendar.getInstance(timeZone);
+        return calendar;
+    }
+
     public static Calendar getGMTDate(Date date) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar calendar = getCalendar("GMT");
         calendar.setTime(date);
         return calendar;
     }
 
     public static Calendar getGMTDate(DateTimeWithTimeZone dateTimeWithTimeZone) {
-        TimeZone timeZone = getTimeZoneFromContext(dateTimeWithTimeZone);
-        Calendar calendar = Calendar.getInstance(timeZone);
-
+        String timeZoneId = getTimeZoneId(dateTimeWithTimeZone);
+                
+        Calendar calendar = getCalendar(timeZoneId);
         calendar.set(Calendar.YEAR, dateTimeWithTimeZone.getYear());
         calendar.set(Calendar.MONTH, dateTimeWithTimeZone.getMonth());
         calendar.set(Calendar.DAY_OF_MONTH, dateTimeWithTimeZone.getDayOfMonth());
@@ -31,13 +65,13 @@ public class DateUtils {
         calendar.set(Calendar.SECOND, dateTimeWithTimeZone.getSeconds());
         calendar.set(Calendar.MILLISECOND, dateTimeWithTimeZone.getMilliseconds());
 
-        Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar gmtCalendar = getCalendar("GMT");
         gmtCalendar.setTime(calendar.getTime());
         return gmtCalendar;
     }
 
     public static Calendar getGMTDate(TimelessDate timelessDate) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar calendar = getCalendar("GMT");
         calendar.set(Calendar.YEAR, timelessDate.getYear());
         calendar.set(Calendar.MONTH, timelessDate.getMonth());
         calendar.set(Calendar.DAY_OF_MONTH, timelessDate.getDayOfMonth());

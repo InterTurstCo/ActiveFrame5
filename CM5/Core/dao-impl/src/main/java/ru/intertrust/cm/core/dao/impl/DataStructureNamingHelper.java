@@ -1,14 +1,17 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.IndexFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Helper для отображения имен конфигурации доменных объектов на базу данных
@@ -18,6 +21,8 @@ import java.util.List;
  */
 public class DataStructureNamingHelper {
 
+    private static Map<String, String> sqlNameCache = new ConcurrentHashMap<>();
+    
     public static final int MAX_NAME_LENGTH = 26;
 
     /**
@@ -142,17 +147,7 @@ public class DataStructureNamingHelper {
     }
 
     public static String getSqlAlias(String name) {
-        if(name == null) {
-            throw new IllegalArgumentException("Name is null");
-        }
-
-        name = name.trim();
-
-        if(name.isEmpty()) {
-            throw new IllegalArgumentException("Name is empty");
-        }
-
-        return name.toLowerCase();
+        return convertToSqlFormat(name);
     }
 
     public static String getFilterParameterPrefix(String filterName) {
@@ -160,16 +155,27 @@ public class DataStructureNamingHelper {
     }
 
     private static String convertToSqlFormat(String name) {
-        if(name == null) {
+        if (name == null) {
             throw new IllegalArgumentException("Name is null");
         }
 
-        name = name.trim();
+        if (sqlNameCache.get(name) != null) {
+            return sqlNameCache.get(name);
+        } else {
+            String result = getConvertedValue(name);
+            sqlNameCache.put(name, result);
+            return result;
+        }
+    }
 
-        if(name.isEmpty()) {
+    private static String getConvertedValue(String name) {
+        String trimmedName = name.trim();
+        if (trimmedName.isEmpty()) {
             throw new IllegalArgumentException("Name is empty");
         }
 
-        return name.toLowerCase();
+        String result = trimmedName.toLowerCase();
+        return result;
     }
+    
 }
