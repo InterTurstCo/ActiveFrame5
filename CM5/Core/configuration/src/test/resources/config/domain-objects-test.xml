@@ -108,4 +108,15 @@
         </fields>
     </domain-object-type>
 
+
+    <domain-object-type name="A1"/>
+    <domain-object-type name="B1" extends="A1"/>
+    <domain-object-type name="C1" extends="B1"/>
+    <domain-object-type name="D1" extends="C1"/>
+
+    <domain-object-type name="A2" extends="D2"/>
+    <domain-object-type name="B2" extends="A2"/>
+    <domain-object-type name="C2" extends="B2"/>
+    <domain-object-type name="D2" extends="C2"/>
+
 </configuration>

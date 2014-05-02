@@ -2,10 +2,8 @@ package ru.intertrust.cm.core.config;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,6 +17,7 @@ import ru.intertrust.cm.core.config.module.ModuleService;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 import static ru.intertrust.cm.core.config.Constants.COLLECTIONS_CONFIG_PATH;
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
@@ -77,13 +76,13 @@ public class ConfigurationExplorerImplTest {
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
 
         assertNotNull(domainObjectTypeConfigs);
-        assertEquals(13, domainObjectTypeConfigs.size());
+        assertEquals(21, domainObjectTypeConfigs.size());
 
         List<String> domainObjectNames = new ArrayList<>();
         domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Department",
                 "Assignment", "Incoming_Document", "Incoming_Document2", "Attachment", "Person_Attachment",
                 "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation", "Negotiation_Card", "Organization",
-                "Internal_Document", "Delegation", "Status"));
+                "Internal_Document", "Delegation", "Status", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2"));
 
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
             String name = domainObjectTypeConfig.getName();
@@ -152,6 +151,42 @@ public class ConfigurationExplorerImplTest {
         Collection<DomainObjectTypeConfig> types = configExplorer.findChildDomainObjectTypes("Person", true);
         assertTrue(types.contains(configExplorer.getConfig(DomainObjectTypeConfig.class, "Employee")));
         assertTrue(types.size() == 1);
+    }
+
+    @Test
+    public void testDomainObjectTypesHierarchy() {
+        String parent = configExplorer.getDomainObjectParentType("Employee");
+        assertEquals("Person", parent);
+        String rootType = configExplorer.getDomainObjectRootType("Employee");
+        assertEquals("Person", rootType);
+        String[] employeeTypesHierarchy = configExplorer.getDomainObjectTypesHierarchy("Employee");
+        assertEquals(Arrays.asList(new String[]{"Person"}), Arrays.asList(employeeTypesHierarchy));
+
+        String[] dTypesHierarchy = configExplorer.getDomainObjectTypesHierarchy("D1");
+        List<String> expDTypesHierarchy = new ArrayList<>();
+        expDTypesHierarchy.add("A1");
+        expDTypesHierarchy.add("B1");
+        expDTypesHierarchy.add("C1");
+        assertEquals(expDTypesHierarchy, Arrays.asList(dTypesHierarchy));
+
+        assertEquals("A1", configExplorer.getDomainObjectRootType("D1"));
+        assertEquals("A1", configExplorer.getDomainObjectRootType("C1"));
+        assertEquals("A1", configExplorer.getDomainObjectRootType("B1"));
+        assertEquals("A1", configExplorer.getDomainObjectParentType("B1"));
+        assertEquals("B1", configExplorer.getDomainObjectParentType("C1"));
+        assertEquals("C1", configExplorer.getDomainObjectParentType("D1"));
+
+        assertNull(configExplorer.getDomainObjectParentType("Department"));
+        assertEquals("Department", configExplorer.getDomainObjectRootType("Department"));
+
+        try {
+            configExplorer.getDomainObjectTypesHierarchy("D2");
+            assertTrue(false);
+        } catch (ConfigurationException e) {
+            assertTrue(true);
+        }
+
+
     }
 
 
