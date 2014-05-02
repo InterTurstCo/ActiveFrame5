@@ -126,6 +126,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     @Override
+    public DomainObjectTypeConfig getDomainObjectTypeConfig(String typeName) {
+        return getConfig(DomainObjectTypeConfig.class, typeName);
+    }
+
+    @Override
     public Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect) {
         ArrayList<DomainObjectTypeConfig> childTypes = new ArrayList<>();
         Collection<DomainObjectTypeConfig> allTypes = getConfigs(DomainObjectTypeConfig.class);
@@ -356,6 +361,57 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
         return null;
     }
+
+
+    @Override
+    public String getDomainObjectParentType(String typeName) {
+        String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
+
+        if (typesHierarchy == null || typesHierarchy.length==0){
+            return null;
+        }
+
+        return typesHierarchy[typesHierarchy.length - 1];
+    }
+
+    @Override
+    public String getDomainObjectRootType(String typeName) {
+        String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
+
+        if (typesHierarchy == null || typesHierarchy.length == 0){
+            return typeName;
+        }
+
+        return typesHierarchy[0];
+    }
+
+    @Override
+    public String[] getDomainObjectTypesHierarchy(String typeName) {
+        if (this.configStorage.domainObjectTypesHierarchy.containsKey(typeName)){
+            return this.configStorage.domainObjectTypesHierarchy.get(typeName);
+        }
+        List <String> typesHierarchy = new ArrayList<>();
+        buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
+        Collections.reverse(typesHierarchy);
+        String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
+        this.configStorage.domainObjectTypesHierarchy.put(typeName, types);
+        return types;
+    }
+
+    private void buildDomainObjectTypesHierarchy(List<String> typesHierarchy, String typeName) {
+        DomainObjectTypeConfig domainObjectTypeConfig = getDomainObjectTypeConfig(typeName);
+        if (domainObjectTypeConfig != null) {
+            String parentType = domainObjectTypeConfig.getExtendsAttribute();
+            if (parentType != null && parentType.trim().length() > 0) {
+                if (typesHierarchy.contains(parentType)) {
+                    throw new ConfigurationException("Loop in the hierarchy, typeName: " + typeName);
+                }
+                typesHierarchy.add(parentType);
+                buildDomainObjectTypesHierarchy(typesHierarchy, parentType);
+            }
+        }
+    }
+
 
     ConfigurationStorage getConfig() {
         return configStorage;

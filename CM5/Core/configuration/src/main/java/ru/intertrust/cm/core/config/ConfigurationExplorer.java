@@ -45,6 +45,13 @@ public interface ConfigurationExplorer {
     <T> Collection<T> getConfigs(Class<T> type);
 
     /**
+     * Возвращает конфигурацию типа доменного объекта
+     * @param typeName имя типа доменного объекта
+     * @return тип доменного объекта или null, если ничего не найдено
+     */
+    DomainObjectTypeConfig getDomainObjectTypeConfig(String typeName);
+
+    /**
      * Находит конфигурацию всех типов доменных объектов, являющихся дочерними для заданного типа.
      * @param typeName имя типа доменного объекта
      * @param includeIndirect true, если в результат должны быть включены все уровни наследников
@@ -133,5 +140,25 @@ public interface ConfigurationExplorer {
      * @return default toolbar of plugin. Can be NULL if toolbar not defined.
      */
     ToolBarConfig getDefaultToolbarConfig(String pluginName);
-    
+
+    /**
+     * Возвращает родительский тип доменного объекта
+     * @param typeName имя типа доменного объекта
+     * @return тип родительского объекта; null если такой отсутствует
+     */
+    String getDomainObjectParentType(String typeName);
+
+    /**
+     * Возвращает корневой тип доменного объекта
+     * @param typeName имя типа доменного объекта
+     * @return тип корневого объекта; текущий тип, если нет иерархии
+     */
+    String getDomainObjectRootType(String typeName);
+
+    /**
+     * Нахождение иерархии наследования по цепочке от корневого типа ДО до непосредственного родителя
+     * @param typeName имя типа доменного объекта
+     * @return цепочку от корня до родителя. Если нет родителя - пустой массив.
+     */
+    String[] getDomainObjectTypesHierarchy(String typeName);
 }

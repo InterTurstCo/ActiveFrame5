@@ -103,6 +103,38 @@
       </fields>
       <indices/>
    </domain-object-type>
+   <domain-object-type name="A1">
+      <fields/>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="B1" extends="A1">
+      <fields/>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="C1" extends="B1">
+      <fields/>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="D1" extends="C1">
+      <fields/>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="A2" extends="D2">
+      <fields/>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="B2" extends="A2">
+      <fields/>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="C2" extends="B2">
+      <fields/>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="D2" extends="C2">
+      <fields/>
+      <indices/>
+   </domain-object-type>
    <collection name="Employees" idField="id">
       <prototype><![CDATA[
             

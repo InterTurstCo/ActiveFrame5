@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class ConfigurationStorage {
@@ -20,5 +21,7 @@ class ConfigurationStorage {
 
     GlobalSettingsConfig globalSettings;
     CaseInsensitiveMap<String> attachmentDomainObjectTypes = new CaseInsensitiveMap<>();
+
+    CaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new CaseInsensitiveMap<>();
 
 }
