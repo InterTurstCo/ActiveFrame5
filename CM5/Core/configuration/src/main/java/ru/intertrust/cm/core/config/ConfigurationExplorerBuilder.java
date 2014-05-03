@@ -122,6 +122,10 @@ class ConfigurationExplorerBuilder {
         Collection<DomainObjectTypeConfig> allTypes = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig type : allTypes) {
             if (typeName.equals(type.getExtendsAttribute())) {
+                if (indirectChildTypes.contains(type)) {
+                    throw new ConfigurationException("Loop in the hierarchy, typeName: " + typeName);
+                }
+
                 if (fillDirect) {
                     directChildTypes.add(type);
                 }

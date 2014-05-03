@@ -14,6 +14,7 @@ public interface Constants {
     String NAVIGATION_PANEL_SCHEMA_PATH = "config/navigation-panel.xsd";
     String CONFIGURATION_SCHEMA_PATH = "config/configuration.xsd";
     String DOMAIN_OBJECTS_CONFIG_PATH = "config/domain-objects-test.xml";
+    String DOMAIN_OBJECTS_LOOP_IN_HIERARCHY_CONFIG_PATH = "config/domain-objects-loop-in-hierarchy-test.xml";
     String SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH = "test-config/system-domain-objects-test.xml";
     String COLLECTIONS_CONFIG_PATH = "config/collections-test.xml";
 

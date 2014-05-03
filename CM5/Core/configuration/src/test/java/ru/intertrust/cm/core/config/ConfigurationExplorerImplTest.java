@@ -5,9 +5,11 @@ import java.net.URL;
 import java.util.*;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import junit.framework.Assert;
+import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
@@ -21,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import static ru.intertrust.cm.core.config.Constants.COLLECTIONS_CONFIG_PATH;
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_LOOP_IN_HIERARCHY_CONFIG_PATH;
 import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_CONFIG;
 import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_SCHEMA;
 import static ru.intertrust.cm.core.config.Constants.MODULES_DOMAIN_OBJECTS;
@@ -36,6 +39,9 @@ public class ConfigurationExplorerImplTest {
     private static final String EMPLOYEES_CONFIG_NAME = "Employees";
     private static final String E_MAIL_CONFIG_NAME = "EMail";
     private static final String GLOBAL_XML_PATH = "config/global-test.xml";
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     private Configuration config;
 
@@ -76,7 +82,7 @@ public class ConfigurationExplorerImplTest {
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
 
         assertNotNull(domainObjectTypeConfigs);
-        assertEquals(21, domainObjectTypeConfigs.size());
+        assertEquals(17, domainObjectTypeConfigs.size());
 
         List<String> domainObjectNames = new ArrayList<>();
         domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Department",
@@ -154,7 +160,12 @@ public class ConfigurationExplorerImplTest {
     }
 
     @Test
-    public void testDomainObjectTypesHierarchy() {
+    public void testDomainObjectTypesHierarchy() throws Exception {
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
+
+        config = configurationSerializer.deserializeConfiguration();
+        configExplorer = new ConfigurationExplorerImpl(config);
+
         String parent = configExplorer.getDomainObjectParentType("Employee");
         assertEquals("Person", parent);
         String rootType = configExplorer.getDomainObjectRootType("Employee");
@@ -178,15 +189,18 @@ public class ConfigurationExplorerImplTest {
 
         assertNull(configExplorer.getDomainObjectParentType("Department"));
         assertEquals("Department", configExplorer.getDomainObjectRootType("Department"));
+    }
 
-        try {
-            configExplorer.getDomainObjectTypesHierarchy("D2");
-            assertTrue(false);
-        } catch (ConfigurationException e) {
-            assertTrue(true);
-        }
+    @Test
+    public void testLoopInHierarchy() throws Exception {
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_LOOP_IN_HIERARCHY_CONFIG_PATH);
 
+        config = configurationSerializer.deserializeConfiguration();
 
+        expectedException.expect(ConfigurationException.class);
+        expectedException.expectMessage("Loop in the hierarchy, typeName: A2");
+
+        configExplorer = new ConfigurationExplorerImpl(config);
     }
 
 

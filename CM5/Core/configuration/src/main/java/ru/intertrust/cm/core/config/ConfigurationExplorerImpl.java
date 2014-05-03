@@ -427,14 +427,14 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     public String[] getDomainObjectTypesHierarchy(String typeName) {
         if (this.configStorage.domainObjectTypesHierarchy.containsKey(typeName)){
-            return this.configStorage.domainObjectTypesHierarchy.get(typeName);
+            return getReturnObject(this.configStorage.domainObjectTypesHierarchy.get(typeName), String[].class);
         }
         List <String> typesHierarchy = new ArrayList<>();
         buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
         Collections.reverse(typesHierarchy);
         String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
-        this.configStorage.domainObjectTypesHierarchy.put(typeName, types);
-        return types;
+        this.configStorage.domainObjectTypesHierarchy.putIfAbsent(typeName, types);
+        return getReturnObject(types, String[].class);
     }
 
     private void buildDomainObjectTypesHierarchy(List<String> typesHierarchy, String typeName) {

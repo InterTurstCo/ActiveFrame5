@@ -41,6 +41,6 @@ class ConfigurationStorage {
 
     CaseInsensitiveMap<String> attachmentDomainObjectTypes = new CaseInsensitiveMap<>();
 
-    CaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new CaseInsensitiveMap<>();
+    ConcurrentCaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new ConcurrentCaseInsensitiveMap<>();
 
 }
