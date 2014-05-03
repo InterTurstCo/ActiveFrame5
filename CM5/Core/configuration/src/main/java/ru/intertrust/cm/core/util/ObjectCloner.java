@@ -10,10 +10,10 @@ import com.esotericsoftware.shaded.org.objenesis.strategy.StdInstantiatorStrateg
 /**
  * Вспомогательный класс для клонирования обхектов с использованием библиотеки Kryo
  */
-public class KryoCloner {
+public class ObjectCloner {
 
 
-    public KryoCloner() {
+    public ObjectCloner() {
     }
 
     /**

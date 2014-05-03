@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public class CaseInsensitiveMap<T> implements Dto {
 
-    private LinkedHashMap<String, T> map = new LinkedHashMap<>();
+    protected LinkedHashMap<String, T> map = new LinkedHashMap<>();
 
     public CaseInsensitiveMap() {
     }

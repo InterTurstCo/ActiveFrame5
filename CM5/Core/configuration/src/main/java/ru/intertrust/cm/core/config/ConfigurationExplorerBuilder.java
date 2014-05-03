@@ -4,12 +4,14 @@ import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 class ConfigurationExplorerBuilder {
@@ -40,6 +42,7 @@ class ConfigurationExplorerBuilder {
 
             if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
                 configurationStorage.globalSettings = (GlobalSettingsConfig) config;
+                configurationStorage.sqlTrace = configurationStorage.globalSettings.getSqlTrace();
             }
             fillTopLevelConfigMap(config);
 
@@ -55,10 +58,77 @@ class ConfigurationExplorerBuilder {
             } else if (AccessMatrixConfig.class.equals(config.getClass())) {
                 AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) config;
                 fillReadPermittedToEverybodyMap(accessMatrixConfig);
+            } else if (ToolBarConfig.class.equals(config.getClass())) {
+                ToolBarConfig toolBarConfig = (ToolBarConfig) config;
+                if (configurationStorage.toolbarConfigByPluginMap.get(toolBarConfig.getPlugin()) == null) {
+                    configurationStorage.toolbarConfigByPluginMap.put(toolBarConfig.getPlugin(), toolBarConfig);
+                }
             }
         }
 
+        initDynamicGroupConfigContextMap();
+
         initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
+        initConfigurationMapOfChildDomainObjectTypes();
+    }
+
+    private void initDynamicGroupConfigContextMap() {
+        Collection<DynamicGroupConfig> dynamicGroupConfigs = configurationExplorer.getConfigs(DynamicGroupConfig.class);
+        for (DynamicGroupConfig dynamicGroup : dynamicGroupConfigs) {
+            if (dynamicGroup.getContext() != null && dynamicGroup.getContext().getDomainObject() != null) {
+                String objectType = dynamicGroup.getContext().getDomainObject().getType();
+
+                if (configurationStorage.dynamicGroupConfigByContextMap.get(objectType) != null) {
+                    continue;
+                }
+
+                initDynamicGroupConfigContextMap(objectType);
+            }
+        }
+    }
+
+    private void initDynamicGroupConfigContextMap(String domainObjectType) {
+        List<DynamicGroupConfig> dynamicGroups = new ArrayList<>();
+
+        Collection<DynamicGroupConfig> dynamicGroupConfigs = configurationExplorer.getConfigs(DynamicGroupConfig.class);
+        for (DynamicGroupConfig dynamicGroup : dynamicGroupConfigs) {
+            if (dynamicGroup.getContext() != null && dynamicGroup.getContext().getDomainObject() != null) {
+                String objectType = dynamicGroup.getContext().getDomainObject().getType();
+
+                if (objectType.equals(domainObjectType)) {
+                    dynamicGroups.add(dynamicGroup);
+                }
+            }
+        }
+
+        configurationStorage.dynamicGroupConfigByContextMap.put(domainObjectType, dynamicGroups);
+    }
+
+    private void initConfigurationMapOfChildDomainObjectTypes() {
+        Collection<DomainObjectTypeConfig> allTypes = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+        for (DomainObjectTypeConfig type : allTypes) {
+            ArrayList<DomainObjectTypeConfig> directChildTypes = new ArrayList<>();
+            ArrayList<DomainObjectTypeConfig> indirectChildTypes = new ArrayList<>();
+            String typeName = type.getName();
+
+            initConfigurationMapOfChildDomainObjectTypes(typeName, directChildTypes, indirectChildTypes, true);
+            configurationStorage.directChildDomainObjectTypesMap.put(typeName, directChildTypes);
+            configurationStorage.indirectChildDomainObjectTypesMap.put(typeName, indirectChildTypes);
+        }
+    }
+
+    private void initConfigurationMapOfChildDomainObjectTypes(String typeName, ArrayList<DomainObjectTypeConfig> directChildTypes,
+                                                              ArrayList<DomainObjectTypeConfig> indirectChildTypes, boolean fillDirect) {
+        Collection<DomainObjectTypeConfig> allTypes = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+        for (DomainObjectTypeConfig type : allTypes) {
+            if (typeName.equals(type.getExtendsAttribute())) {
+                if (fillDirect) {
+                    directChildTypes.add(type);
+                }
+                indirectChildTypes.add(type);
+                initConfigurationMapOfChildDomainObjectTypes(type.getName(), directChildTypes, indirectChildTypes, false);
+            }
+        }
     }
 
     private void fillTopLevelConfigMap(TopLevelConfig config) {

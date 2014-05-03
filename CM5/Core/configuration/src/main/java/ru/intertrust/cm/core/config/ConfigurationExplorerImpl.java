@@ -5,16 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
-import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.KryoCloner;
 
-import java.io.*;
 import java.util.*;
 
 /**
@@ -32,7 +27,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Autowired
     NavigationPanelLogicalValidator navigationPanelLogicalValidator;
 
-    private KryoCloner kryoCloner = new KryoCloner();
+    //private ObjectCloner objectCloner = new ObjectCloner();
 
     /**
      * Создает {@link ConfigurationExplorerImpl}
@@ -47,12 +42,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public Configuration getConfiguration() {
-        Configuration cloneConfiguration = kryoCloner.cloneObject(configStorage.configuration, Configuration.class);
+        Configuration cloneConfiguration = getReturnObject(configStorage.configuration, Configuration.class);
         return cloneConfiguration;
     }
 
     public GlobalSettingsConfig getGlobalSettings() {
-        return kryoCloner.cloneObject(configStorage.globalSettings, GlobalSettingsConfig.class) ;
+        return getReturnObject(configStorage.globalSettings, GlobalSettingsConfig.class);
     }
 
     /**
@@ -104,7 +99,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
 
         T config = (T) typeMap.get(name);
-        return kryoCloner.cloneObject(config, type);
+        return getReturnObject(config, type);
     }
 
     /**
@@ -122,7 +117,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         List<T> result = new ArrayList<T>();
         result.addAll((Collection<T>) typeMap.values());
 
-        return kryoCloner.cloneObject(result, ArrayList.class);
+        return getReturnObject(result, ArrayList.class);
     }
 
     @Override
@@ -132,17 +127,18 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     @Override
     public Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect) {
-        ArrayList<DomainObjectTypeConfig> childTypes = new ArrayList<>();
-        Collection<DomainObjectTypeConfig> allTypes = getConfigs(DomainObjectTypeConfig.class);
-        for (DomainObjectTypeConfig type : allTypes) {
-            if (typeName.equals(type.getExtendsAttribute())) {
-                childTypes.add(kryoCloner.cloneObject(type, type.getClass()));
-                if (includeIndirect) {
-                    childTypes.addAll(findChildDomainObjectTypes(type.getName(), true));
-                }
-            }
+        Collection<DomainObjectTypeConfig> childTypes =
+                includeIndirect ? configStorage.indirectChildDomainObjectTypesMap.get(typeName) :
+                        configStorage.directChildDomainObjectTypesMap.get(typeName);
+
+        if (childTypes == null) {
+            return new ArrayList<>();
         }
-        return childTypes;
+
+        List<DomainObjectTypeConfig> result = new ArrayList<>();
+        result.addAll(childTypes);
+
+        return getReturnObject(result, ArrayList.class);
     }
 
     /**
@@ -167,7 +163,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         FieldConfig result = configStorage.fieldConfigMap.get(fieldConfigKey);
 
         if (result != null) {
-            return kryoCloner.cloneObject(result, result.getClass());
+            return getReturnObject(result, result.getClass());
         }
 
         if (returnInheritedConfig) {
@@ -191,7 +187,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     public CollectionColumnConfig getCollectionColumnConfig(String collectionViewName, String columnConfigName) {
         FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionViewName, columnConfigName);
         CollectionColumnConfig collectionColumnConfig = configStorage.collectionColumnConfigMap.get(collectionColumnConfigKey);
-        return kryoCloner.cloneObject(collectionColumnConfig, collectionColumnConfig.getClass());
+        return getReturnObject(collectionColumnConfig, collectionColumnConfig.getClass());
     }
 
     /**
@@ -199,30 +195,32 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType) {
-        List<DynamicGroupConfig> dynamicGroups = new ArrayList<>();
+        List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigByContextMap.get(domainObjectType);
 
-        CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = configStorage.topLevelConfigMap.get(DynamicGroupConfig.class);
-
-        for (String groupKey : dynamicGroupMap.keySet()) {
-            DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
-            if (dynamicGroup.getContext() != null && dynamicGroup.getContext().getDomainObject() != null) {
-                String objectType = dynamicGroup.getContext().getDomainObject().getType();
-
-                if (objectType.equals(domainObjectType)) {
-                    dynamicGroups.add(kryoCloner.cloneObject(dynamicGroup, dynamicGroup.getClass()));
-                }
-            }
+        if (dynamicGroups == null) {
+            return new ArrayList<>();
         }
 
-        return dynamicGroups;
+        List<DynamicGroupConfig> result = new ArrayList<>();
+        result.addAll(dynamicGroups);
+
+        return getReturnObject(result, ArrayList.class);
     }
 
     /**
      * {@inheritDoc}
      */
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String trackDOTypeName, String status) {
-        List<DynamicGroupConfig> dynamicGroups = new ArrayList<DynamicGroupConfig>();
+        FieldConfigKey key = new FieldConfigKey(trackDOTypeName, status);
+        List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigsByTrackDOMap.get(key);
 
+        if (dynamicGroups != null) {
+            List<DynamicGroupConfig> result = new ArrayList<>(dynamicGroups.size());
+            result.addAll(dynamicGroups);
+            return getReturnObject(result, ArrayList.class);
+        }
+
+        dynamicGroups = new ArrayList<>();
         CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = configStorage.topLevelConfigMap.get(DynamicGroupConfig.class);
 
         for (String groupKey : dynamicGroupMap.keySet()) {
@@ -237,13 +235,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                     if (trackDOTypeName.equalsIgnoreCase(configuredType)) {
 
                         if (configuredStatus == null || configuredStatus.equals(status)) {
-                            dynamicGroups.add(kryoCloner.cloneObject(dynamicGroup, dynamicGroup.getClass()));
+                            dynamicGroups.add(dynamicGroup);
                         }
                     }
                 }
             }
         }
-        return dynamicGroups;
+
+        if (dynamicGroups != null) {
+            configStorage.dynamicGroupConfigsByTrackDOMap.putIfAbsent(key, dynamicGroups);
+        }
+
+        List<DynamicGroupConfig> result = new ArrayList<>(dynamicGroups.size());
+        result.addAll(dynamicGroups);
+        return getReturnObject(result, ArrayList.class);
     }
 
     /**
@@ -251,7 +256,17 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
-    	AccessMatrixStatusConfig result = null;
+        if (status == null) {
+            status = "*";
+        }
+
+        FieldConfigKey key = new FieldConfigKey(domainObjectType, status);
+        AccessMatrixStatusConfig result = configStorage.accessMatrixByObjectTypeAndStatusMap.get(key);
+
+        if (result != null) {
+            return getReturnObject(result, AccessMatrixStatusConfig.class);
+        }
+
     	//Получение конфигурации матрицы
     	AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
     	if (accessMatrixConfig != null && accessMatrixConfig.getStatus() != null) {
@@ -260,16 +275,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     		for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
     			//Если статус в конфигурации звезда то не проверяем статусы на соответствие, а возвращаем текущий
     			if (accessStatusConfig.getName().equals("*")){
-    				result = kryoCloner.cloneObject(accessStatusConfig, accessStatusConfig.getClass());
+    				result = getReturnObject(accessStatusConfig, accessStatusConfig.getClass());
     				break;
-    			}else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
-    				result = kryoCloner.cloneObject(accessStatusConfig, accessStatusConfig.getClass());
+    			} else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
+    				result = getReturnObject(accessStatusConfig, accessStatusConfig.getClass());
     				break;
     			}
     		}
     	}
 
-    	return result;
+        if (result != null) {
+            configStorage.accessMatrixByObjectTypeAndStatusMap.putIfAbsent(key, result);
+        }
+
+    	return getReturnObject(result, AccessMatrixStatusConfig.class);
     }
 
     /**
@@ -279,7 +298,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     public AccessMatrixConfig getAccessMatrixByObjectType(String domainObjectType) {
         //Получение конфигурации матрицы
         AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
-        return accessMatrixConfig;
+        return getReturnObject(accessMatrixConfig, AccessMatrixConfig.class);
     }
 
     /**
@@ -305,6 +324,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public String getMatrixReferenceTypeName(String childTypeName) {
+        String result = configStorage.matrixReferenceTypeNameMap.get(childTypeName);
+
+        if (result != null) {
+            return result;
+        }
+
         //Получаем матрицу и смотрим атрибут matrix_reference_field
         AccessMatrixConfig matrixConfig = null;
         DomainObjectTypeConfig childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childTypeName);
@@ -314,7 +339,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                 && childDomainObjectTypeConfig.getExtendsAttribute() != null){
             childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
         }
-        String result = null;
+
         if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
             //Получаем имя типа на которого ссылается martix-reference-field
             String parentTypeName = getParentTypeNameFromMatrixReference(matrixConfig.getMatrixReference(), childDomainObjectTypeConfig);
@@ -325,7 +350,29 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                 result = parentTypeName;
             }
         }
+
+        if (result != null) {
+            configStorage.matrixReferenceTypeNameMap.putIfAbsent(childTypeName, result);
+        }
+
         return result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
+        ToolBarConfig toolBarConfig = configStorage.toolbarConfigByPluginMap.get(pluginName);
+        return getReturnObject(toolBarConfig, ToolBarConfig.class);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public SqlTrace getSqlTraceConfiguration() {
+        return getReturnObject(configStorage.sqlTrace, SqlTrace.class);
     }
 
     /**
@@ -348,18 +395,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         return result;
     }
 
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
-        final Collection<ToolBarConfig> configs = getConfigs(ToolBarConfig.class);
-        for (ToolBarConfig config : configs) {
-            if (config.getPlugin().equals(pluginName)) {
-                return config;
-            }
-        }
-        return null;
+    private <T> T getReturnObject(Object source, Class<T> tClass) {
+        //return objectCloner.cloneObject(source, tClass);
+        // cloning is switched off for performance purpose
+        return (T) source;
     }
 
 

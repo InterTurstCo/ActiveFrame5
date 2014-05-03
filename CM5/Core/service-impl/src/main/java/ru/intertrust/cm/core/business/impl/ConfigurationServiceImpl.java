@@ -14,12 +14,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.DynamicGroupConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.model.UnexpectedException;
@@ -66,6 +61,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             logger.error(ex.getMessage());
             throw new UnexpectedException("ConfigurationService", "getGlobalSettings", "", ex);
         }
+    }
+
+    @Override
+    public SqlTrace getSqlTraceConfiguration() {
+        return configurationExplorer.getSqlTraceConfiguration();
     }
 
     @Override

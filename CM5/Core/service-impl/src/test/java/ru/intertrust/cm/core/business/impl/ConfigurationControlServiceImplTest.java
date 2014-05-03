@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -31,6 +32,8 @@ public class ConfigurationControlServiceImplTest {
     private ConfigurationControlServiceImpl configurationService = new ConfigurationControlServiceImpl();
     @Mock
     private DataStructureDao dataStructureDao;
+    @Mock
+    private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Mock
     private ConfigurationDao configurationDao;
     @Mock

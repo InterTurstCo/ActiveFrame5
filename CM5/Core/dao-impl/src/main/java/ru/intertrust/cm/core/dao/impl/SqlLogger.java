@@ -39,16 +39,16 @@ public class SqlLogger {
                 "this(org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations)) && " +
                 "execution(* *(String, ..))")
     public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
+        SqlTrace configuration = configurationExplorer.getSqlTraceConfiguration();
+        if (!configuration.isEnable()) {
+            return joinPoint.proceed();
+        }
+
         long startTime = System.currentTimeMillis();
         Object returnValue = joinPoint.proceed();
         long timing = System.currentTimeMillis() - startTime;
 
         String query = joinPoint.getArgs()[0].toString();
-
-        SqlTrace configuration = getConfiguration();
-        if (!configuration.isEnable()) {
-            return returnValue;
-        }
 
         if (timing < configuration.getMinTime()){
             return returnValue;
@@ -214,18 +214,6 @@ public class SqlLogger {
             queryWithParameters.append("'").append(dateFormatter.format(calendarValue.getTime())).append("'");
         } else {
             queryWithParameters.append(value.toString());
-        }
-    }
-
-    private SqlTrace getConfiguration() {
-        GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
-
-        if (globalSettings != null) {
-            return globalSettings.getSqlTrace();
-        } else {
-            SqlTrace configuration = new SqlTrace();
-            configuration.setEnable(false);
-            return configuration;
         }
     }
 }

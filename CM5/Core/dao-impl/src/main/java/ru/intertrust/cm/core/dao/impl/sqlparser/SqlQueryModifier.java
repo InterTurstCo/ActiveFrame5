@@ -20,7 +20,7 @@ import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.KryoCloner;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.util.*;
 
@@ -280,8 +280,8 @@ public class SqlQueryModifier {
 
                 if (returnsId) {
                     //TODO клон CaseExpression не работает
-                    KryoCloner kryoCloner = new KryoCloner();
-                    CaseExpression idTypeExpression = kryoCloner.cloneObject(caseExpression, caseExpression.getClass());
+                    ObjectCloner objectCloner = new ObjectCloner();
+                    CaseExpression idTypeExpression = objectCloner.cloneObject(caseExpression, caseExpression.getClass());
 
                     for (Expression whenExpression : idTypeExpression.getWhenClauses()) {
                         WhenClause whenClause = (WhenClause) whenExpression;
