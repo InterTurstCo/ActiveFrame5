@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +21,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 public class DataStructureNamingHelper {
 
     private static Map<String, String> sqlNameCache = new ConcurrentHashMap<>();
+    private static Map<ServiceColumnKey, String> serviceColumnNameCache = new ConcurrentHashMap<>();
     
     public static final int MAX_NAME_LENGTH = 26;
 
@@ -136,16 +136,30 @@ public class DataStructureNamingHelper {
     }
 
     public static String getServiceColumnName(String columnName, String postfix) {
+        
+        ServiceColumnKey serviceColumnKey = new ServiceColumnKey(columnName, postfix);
+        
+        if (serviceColumnNameCache.get(serviceColumnKey) != null) {
+            return serviceColumnNameCache.get(serviceColumnKey);
+        } else {
+            String processedName = retreiveServiceColumnName(columnName, postfix);
+            serviceColumnNameCache.put(serviceColumnKey, processedName);
+            return processedName;
+        }
+    }
+
+    private static String retreiveServiceColumnName(String columnName, String postfix) {
         String resultName;
         if (columnName.length() + postfix.length() > MAX_NAME_LENGTH) {
             resultName = columnName.substring(0, MAX_NAME_LENGTH - postfix.length() - 1) + postfix;
         } else {
             resultName = columnName + postfix;
         }
-
-        return getSqlName(resultName);
+        String processedName = getSqlName(resultName);
+        return processedName;
     }
 
+    
     public static String getSqlAlias(String name) {
         return convertToSqlFormat(name);
     }
@@ -177,5 +191,64 @@ public class DataStructureNamingHelper {
         String result = trimmedName.toLowerCase();
         return result;
     }
-    
+
+    /**
+     * Ключ, используемый в кеше названий колонок.
+     * @author atsvetkov
+     *
+     */
+    private static class ServiceColumnKey {
+        private String columnName;
+        private String postfix;
+
+        public ServiceColumnKey(String name, String prefix) {
+            this.columnName = name;
+            this.postfix = prefix;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((columnName == null) ? 0 : columnName.hashCode());
+            result = prime * result + ((postfix == null) ? 0 : postfix.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ServiceColumnKey other = (ServiceColumnKey) obj;
+
+            if (columnName == null) {
+                if (other.columnName != null) {
+                    return false;
+                }
+            } else if (!columnName.equals(other.columnName)) {
+                return false;
+            }
+            if (postfix == null) {
+                if (other.postfix != null) {
+                    return false;
+                }
+            } else if (!postfix.equals(other.postfix)) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "ServiceColumnKey [columnName=" + columnName + ", postfix=" + postfix + "]";
+        }
+        
+    }
 }
