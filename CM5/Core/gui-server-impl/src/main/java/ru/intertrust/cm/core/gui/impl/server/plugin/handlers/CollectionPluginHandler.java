@@ -179,7 +179,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     }
 
     private CollectionViewConfig findRequiredCollectionView(String collection) {
-
+        // todo: very slow
         Collection<CollectionViewConfig> collectionViewConfigs = getCollectionOfViewConfigs();
         for (CollectionViewConfig collectionViewConfig : collectionViewConfigs) {
 

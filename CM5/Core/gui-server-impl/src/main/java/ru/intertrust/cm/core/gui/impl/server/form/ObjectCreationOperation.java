@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
+
+import java.util.HashMap;
 
 /**
 * @author Denis Mitavskiy
@@ -8,19 +11,25 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 *         Time: 20:20
 */
 class ObjectCreationOperation implements Comparable<ObjectCreationOperation> {
-    public final FieldPath path;
-    public final FieldPath parentToUpdateReference;
-    public final String parentField;
+    public final FieldPath path; // field path of object to create (its only ID until it's physically created)
 
-    ObjectCreationOperation(FieldPath path, FieldPath parentPathToUpdateReferenceIn, String parentField) {
+    // created object should get these references (keys) set with Ids of objects in the corresponding field paths (values)
+    public final HashMap<String, FieldPath> refFieldObjectFieldPath;
+
+    ObjectCreationOperation(FieldPath path, HashMap<String, FieldPath> refFieldObjectFieldPath) {
         this.path = path;
-        this.parentToUpdateReference = parentPathToUpdateReferenceIn;
-        this.parentField = parentField;
+        this.refFieldObjectFieldPath = refFieldObjectFieldPath;
     }
 
     @Override
     public int compareTo(ObjectCreationOperation o) {
-        return -path.compareTo(o.path);
+        for (FieldPath oRefFieldPath : o.refFieldObjectFieldPath.values()) {
+            // if THAT object contains a reference field pointing to THIS field path, THIS should be the first operation
+            if (path.equals(oRefFieldPath)) {
+                return -1;
+            }
+        }
+        return 0;
     }
 
     @Override

@@ -42,18 +42,20 @@ public class FormSaver {
     private Map<FieldPath, Value> forcedRootDomainObjectValues;
     private FormObjects formObjects;
     private List<WidgetConfig> widgetConfigs;
-    private HashSet<ObjectCreationOperation> newObjectsCreationOperations;
+    private HashMap<FieldPath, ObjectCreationOperation> toCreate;
+    private HashMap<FieldPath, ObjectReferencesUpdateOperation> toUpdateExistingObjectsReferences;
     private ArrayList<FormSaveOperation> linkChangeOperations;
-    private HashSet<FieldPath> objectsFieldPathsToUpdate;
+    private HashSet<FieldPath> toUpdate;
     private HashMap<Id, DomainObject> savedObjectsById;
 
     public FormSaver(FormState formState, Map<FieldPath, Value> forcedRootDomainObjectValues) {
         this.formState = formState;
         this.formObjects = formState.getObjects();
         this.forcedRootDomainObjectValues = forcedRootDomainObjectValues == null ? new HashMap<FieldPath, Value>(0) : forcedRootDomainObjectValues;
-        newObjectsCreationOperations = new HashSet<>();
+        toCreate = new HashMap<>();
+        toUpdateExistingObjectsReferences = new HashMap<>();
         linkChangeOperations = new ArrayList<>();
-        objectsFieldPathsToUpdate = new HashSet<>();
+        toUpdate = new HashSet<>();
         savedObjectsById = new HashMap<>();
     }
 
@@ -99,17 +101,8 @@ public class FormSaver {
             Value oldValue = formObjects.getFieldValue(firstFieldPath);
             if (!areValuesSemanticallyEqual(newValue, oldValue)) {
                 FieldPath parentObjectPath = firstFieldPath.getParentPath();
-                ArrayList<ObjectCreationOperation> objectCreationOperations = addNewNodeChainIfNotEmpty(parentObjectPath);
-                if (!objectCreationOperations.isEmpty()) {
-                    for (ObjectCreationOperation operation : objectCreationOperations) {
-                        if (operation.parentToUpdateReference != null) {
-                            objectsFieldPathsToUpdate.add(operation.parentToUpdateReference);
-                        }
-                    }
-                    newObjectsCreationOperations.addAll(objectCreationOperations);
-                } else { // value is changed -> add field's object to be updated
-                    objectsFieldPathsToUpdate.add(parentObjectPath);
-                }
+                addNewNodeChainAndFillCreateAndReferencesUpdateOperations(parentObjectPath, null);
+                toUpdate.add(parentObjectPath);
                 formObjects.setFieldValue(firstFieldPath, newValue);
             }
         }
@@ -120,25 +113,7 @@ public class FormSaver {
 
         createNewDirectLinkObjects();
 
-        // root DO is saved separately as we should return it's identifier in case it's created from scratch
-        boolean saveRoot = false;
-        for (FieldPath fieldPath : objectsFieldPathsToUpdate) {
-            if (fieldPath.isRoot()) {
-                saveRoot = true;
-                continue;
-            }
-            DomainObject domainObject = getSingleDomainObject(fieldPath);
-            save(domainObject);
-            ((SingleObjectNode) formObjects.getNode(fieldPath)).setDomainObject(domainObject);
-        }
         DomainObject rootDomainObject = formObjects.getRootNode().getDomainObject();
-        saveRoot = saveRoot || rootDomainObject.getId() == null;
-        if (saveRoot) {
-            rootDomainObject = save(rootDomainObject);
-
-            // todo: do this for all saved objects to keep new objects IDs up to date
-            formObjects.getRootNode().setDomainObject(rootDomainObject);
-        }
         ReferenceValue rootObjectReference = new ReferenceValue(rootDomainObject.getId());
 
         for (FormSaveOperation operation : linkChangeOperations) {
@@ -199,17 +174,45 @@ public class FormSaver {
     }
 
     private void createNewDirectLinkObjects() {
-        ArrayList<ObjectCreationOperation> creationOperations = new ArrayList<>(newObjectsCreationOperations.size());
-        creationOperations.addAll(newObjectsCreationOperations);
+        ArrayList<ObjectCreationOperation> creationOperations = new ArrayList<>(toCreate.values());
         Collections.sort(creationOperations);
 
+        // 1) Save (update form object node (substitute) while saving )
+        // 2) Merge reference updates of existing objects with regular updates
+        // 3) update!
         for (ObjectCreationOperation operation : creationOperations) {
-            DomainObject newObject = save(getSingleDomainObject(operation.path));
-            if (operation.parentToUpdateReference != null) {
-                DomainObject parentObject = getSingleDomainObject(operation.parentToUpdateReference);
-                parentObject.setValue(operation.parentField, new ReferenceValue(newObject.getId()));
+            final DomainObject domainObject = getSingleDomainObject(operation.path);
+            for (String refFieldName : operation.refFieldObjectFieldPath.keySet()) {
+                final DomainObject reference = getSingleDomainObject(operation.refFieldObjectFieldPath.get(refFieldName));
+                domainObject.setReference(refFieldName, reference);
             }
+            saveDomainObject(operation.path);
         }
+
+        for (FieldPath fieldPath : toUpdateExistingObjectsReferences.keySet()) {
+            final ObjectReferencesUpdateOperation operation = toUpdateExistingObjectsReferences.get(fieldPath);
+            final DomainObject domainObject = getSingleDomainObject(operation.path);
+            for (String refFieldName : operation.refFieldObjectFieldPath.keySet()) {
+                final DomainObject reference = getSingleDomainObject(operation.refFieldObjectFieldPath.get(refFieldName));
+                domainObject.setReference(refFieldName, reference);
+            }
+            toUpdate.remove(fieldPath);
+        }
+        toUpdate.removeAll(toCreate.keySet());
+
+        for (FieldPath fieldPath : toUpdate) {
+            saveDomainObject(fieldPath);
+        }
+
+        DomainObject rootDomainObject = formObjects.getRootNode().getDomainObject();
+        if (rootDomainObject.isNew() && !toUpdate.contains(FieldPath.ROOT)) {
+            saveDomainObject(FieldPath.ROOT);
+        }
+    }
+
+    private void saveDomainObject(FieldPath fieldPath) {
+        final DomainObject domainObject = crudService.save(getSingleDomainObject(fieldPath));
+        ((SingleObjectNode) formObjects.getNode(fieldPath)).setDomainObject(domainObject);
     }
 
     private DomainObject save(DomainObject object) {
@@ -242,37 +245,44 @@ public class FormSaver {
         return configurationExplorer.isAttachmentType(crudService.getDomainObjectType(id));
     }
 
-    private ArrayList<ObjectCreationOperation> addNewNodeChainIfNotEmpty(FieldPath objectPath) {
+    private void addNewNodeChainAndFillCreateAndReferencesUpdateOperations(FieldPath objectPath, HashMap<String, FieldPath> referencesToFill) {
         // let's say we are pointing to a.b.c.d (objects, not values)
         // it means 1:1 relationship
         // a->b exists, b->c empty, c->d empty
         // 1) create d and put it into a.b.c.d
         // 2) create c and put it into a.b.c
         // 3) as b exists, that's all
-        ObjectsNode node = formObjects.getNode(objectPath);
-        if (!node.isEmpty()) {
-            return new ArrayList<>(0);
+        SingleObjectNode node = (SingleObjectNode) formObjects.getNode(objectPath);
+        if (!node.isEmpty()) { // root node is never empty - thus operation of its creation is not created in this method
+            return;
         }
-        ArrayList<ObjectCreationOperation> result = new ArrayList<>();
         DomainObject domainObject = crudService.createDomainObject(node.getType());
-        formObjects.setNode(objectPath, new SingleObjectNode(domainObject));
+        node.setDomainObject(domainObject);
+        toCreate.put(objectPath, new ObjectCreationOperation(objectPath, referencesToFill == null ? new HashMap<String, FieldPath>(2) : referencesToFill));
+        // ref to this will have to be updated in parent objects
+
         FieldPath parentPath = objectPath.getParentPath();
         SingleObjectNode parentNode = (SingleObjectNode) formObjects.getNode(parentPath);
-        String fieldNameInParent = objectPath.getFieldName();
+        String fieldNameInParent = objectPath.getFieldName(); // todo not true for backlink 1:1
+        // todo add 2nd link for 1:1 back reference
         if (parentNode.isEmpty()) {
-            // parent path doesn't contain objects, so ref to this will have to be updated
-            result.add(new ObjectCreationOperation(objectPath, parentPath, fieldNameInParent));
+
+            HashMap<String, FieldPath> referencesToFillInParent = new HashMap<>(2);
+            referencesToFillInParent.put(fieldNameInParent, objectPath);
+            addNewNodeChainAndFillCreateAndReferencesUpdateOperations(parentPath, referencesToFillInParent);
         } else {
-            Value value = parentNode.getDomainObject().getValue(fieldNameInParent);
-            if (value == null || value.get() == null) {
-                result.add(new ObjectCreationOperation(objectPath, parentPath, fieldNameInParent));
+            final ObjectCreationOperation creationOperationOfParentNode = toCreate.get(parentPath);
+            if (creationOperationOfParentNode != null) { // parent node ref to this node should be updated
+                creationOperationOfParentNode.refFieldObjectFieldPath.put(fieldNameInParent, objectPath);
             } else {
-                result.add(new ObjectCreationOperation(objectPath, null, null));
+                ObjectReferencesUpdateOperation referencesUpdateOperation = toUpdateExistingObjectsReferences.get(parentPath);
+                if (referencesUpdateOperation == null) {
+                    referencesUpdateOperation = new ObjectReferencesUpdateOperation(parentPath, new HashMap<String, FieldPath>(2));
+                    toUpdateExistingObjectsReferences.put(parentPath, referencesUpdateOperation);
+                }
+                referencesUpdateOperation.refFieldObjectFieldPath.put(fieldNameInParent, objectPath);
             }
         }
-        result.addAll(addNewNodeChainIfNotEmpty(parentPath));
-
-        return result;
     }
 
     private HashMap<FieldPath, ArrayList<Id>> getBackReferenceFieldPathsIds(FieldPath[] fieldPaths,
