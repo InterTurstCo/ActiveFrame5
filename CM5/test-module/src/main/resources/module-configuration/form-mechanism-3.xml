@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <!-- Test 3 - mixed references 1:1 -->
+    <domain-object-type name="a3">
+        <fields>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+            <reference name="b3" type="b3" not-null="true"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="b3">
+        <fields>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="c3">
+        <fields>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+            <reference name="b3" type="b3" not-null="true"/>
+            <reference name="d3" type="d3" not-null="true"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="d3">
+        <fields>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <form name="a3_form" domain-object-type="a3" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="righ">
+                            <widget id="a_name1_label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="a_name1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="a_name2_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="a_name2"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="b_name1_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="b_name1"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="b_name2_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="b_name2"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="c_name1_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="c_name1"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="c_name2_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="c_name2"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="d_name1_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="d_name1"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="d_name2_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="d_name2"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="b_name1_label">
+                <field-path/>
+                <text>B. Name 1:</text>
+            </label>
+            <text-box id="b_name1">
+                <field-path value="b3.name1"/>
+            </text-box>
+            <label id="b_name2_label">
+                <field-path/>
+                <text>B. Name 2:</text>
+            </label>
+            <text-box id="b_name2">
+                <field-path value="b3.name2"/>
+            </text-box>
+
+            <label id="d_name1_label">
+                <field-path/>
+                <text>D. Name 1:</text>
+            </label>
+            <text-box id="d_name1">
+                <field-path value="b3.c3|b3.d3.name1"/>
+            </text-box>
+            <label id="d_name2_label">
+                <field-path/>
+                <text>D. Name 2:</text>
+            </label>
+            <text-box id="d_name2">
+                <field-path value="b3.c3|b3.d3.name2"/>
+            </text-box>
+
+            <label id="a_name1_label">
+                <field-path/>
+                <text>A. Name 1:</text>
+            </label>
+            <text-box id="a_name1">
+                <field-path value="name1"/>
+            </text-box>
+            <label id="a_name2_label">
+                <field-path/>
+                <text>A. Name 2:</text>
+            </label>
+            <text-box id="a_name2">
+                <field-path value="name2"/>
+            </text-box>
+
+            <label id="c_name1_label">
+                <field-path/>
+                <text>C. Name 1:</text>
+            </label>
+            <text-box id="c_name1">
+                <field-path value="b3.c3|b3.name1"/>
+            </text-box>
+            <label id="c_name2_label">
+                <field-path/>
+                <text>C. Name 2:</text>
+            </label>
+            <text-box id="c_name2">
+                <field-path value="b3.c3|b3.name2"/>
+            </text-box>
+        </widget-config>
+    </form>
+
+    <collection name="a3_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select a3.id, a3.name1 a_name1, a3.name2 a_name2, b3.name1 b_name1, b3.name2 b_name2, c3.name1 c_name1, c3.name2 c_name2, d3.name1 d_name1, d3.name2 d_name2
+                from a3
+                left outer join b3 on a3.b3 = b3.id
+                left outer join c3 on c3.b3 = b3.id
+                left outer join d3 on c3.d3 = d3.id
+
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from country co ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+
+    <collection-view name="a3_collection_default_view" collection="a3_collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
+            <column field="a_name1" name="a_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="a_name2" name="a_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="b_name1" name="b_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="b_name2" name="b_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="c_name1" name="c_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="c_name2" name="c_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="d_name1" name="d_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="d_name2" name="d_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+        </display>
+    </collection-view>
+
+
+</configuration>

@@ -33,6 +33,8 @@
         <configuration-path>module-configuration/actions.xml</configuration-path>
         <configuration-path>module-configuration/sochi-server-configs.xml</configuration-path>
         <configuration-path>module-configuration/form-mechanism-1.xml</configuration-path>
+        <configuration-path>module-configuration/form-mechanism-2.xml</configuration-path>
+        <configuration-path>module-configuration/form-mechanism-3.xml</configuration-path>
     </configuration-paths>
     <import-files rewrite="true">
         <import-file>importdata/import-organization.csv</import-file>

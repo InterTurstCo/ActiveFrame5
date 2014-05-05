@@ -258,14 +258,14 @@ public class FormRetriever {
     }
 
     private ObjectsNode findLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
-        if (childPath.isOneToOneReference()) { // direct reference
-            return findOneToOneLinkedNode(parentNode, childPath);
+        if (childPath.isOneToOneDirectReference()) { // direct reference
+            return findOneToOneDirectReferenceLinkedNode(parentNode, childPath);
         } else { // back reference
             return findBackReferenceLinkedNode(parentNode, childPath);
         }
     }
 
-    private SingleObjectNode findOneToOneLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
+    private SingleObjectNode findOneToOneDirectReferenceLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
         String referenceFieldName = childPath.getOneToOneReferenceName();
         ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig)
                 configurationExplorer.getFieldConfig(parentNode.getType(), referenceFieldName);
@@ -282,10 +282,11 @@ public class FormRetriever {
         }
     }
 
-    private MultiObjectNode findBackReferenceLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
-        String linkedType = childPath.getReferenceType();
+    private ObjectsNode findBackReferenceLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
+        final String linkedType = childPath.getReferenceType();
+        final boolean oneToOneBackReference = childPath.isOneToOneBackReference();
         if (parentNode.isEmpty()) {
-            return new MultiObjectNode(linkedType);
+            return oneToOneBackReference ? new SingleObjectNode(linkedType) : new MultiObjectNode(linkedType);
         }
 
         String referenceField = childPath.getLinkToParentName();
@@ -296,7 +297,10 @@ public class FormRetriever {
         List<DomainObject> linkedDomainObjects = parentDomainObject.getId() == null
                 ? new ArrayList<DomainObject>()
                 : crudService.findLinkedDomainObjects(parentDomainObject.getId(), linkedType, referenceField);
-        return new MultiObjectNode(linkedType, linkedDomainObjects);
+        if (!oneToOneBackReference) {
+            return new MultiObjectNode(linkedType, linkedDomainObjects);
+        }
+        return linkedDomainObjects.isEmpty() ? new SingleObjectNode(linkedType) : new SingleObjectNode(linkedDomainObjects.get(0));
     }
 
     private HashMap<String, WidgetConfig> buildWidgetConfigsById(List<WidgetConfig> widgetConfigs) {

@@ -67,6 +67,10 @@ public class FormSaver {
     }
 
     public DomainObject saveForm() {
+        DomainObject rootDomainObject = formObjects.getRootNode().getDomainObject();
+        if (rootDomainObject.isNew()) {
+            toCreate.put(FieldPath.ROOT, new ObjectCreationOperation(FieldPath.ROOT, new HashMap<String, FieldPath>(0)));
+        }
         for (WidgetConfig widgetConfig : widgetConfigs) {
             WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
             if (widgetState == null) { // ignore - such data shouldn't be saved
@@ -111,9 +115,9 @@ public class FormSaver {
             formObjects.setFieldValue(forcedValueFieldPath, forcedRootDomainObjectValues.get(forcedValueFieldPath));
         }
 
-        createNewDirectLinkObjects();
+        saveRootWithDirectlyLinkedObjects();
 
-        DomainObject rootDomainObject = formObjects.getRootNode().getDomainObject();
+        rootDomainObject = formObjects.getRootNode().getDomainObject(); // after save its ID changed
         ReferenceValue rootObjectReference = new ReferenceValue(rootDomainObject.getId());
 
         for (FormSaveOperation operation : linkChangeOperations) {
@@ -173,9 +177,9 @@ public class FormSaver {
         return newValue.equals(oldValue);
     }
 
-    private void createNewDirectLinkObjects() {
+    private void saveRootWithDirectlyLinkedObjects() {
         ArrayList<ObjectCreationOperation> creationOperations = new ArrayList<>(toCreate.values());
-        Collections.sort(creationOperations);
+        creationOperations = ObjectCreationOperation.sortForSave(creationOperations);
 
         // 1) Save (update form object node (substitute) while saving )
         // 2) Merge reference updates of existing objects with regular updates
@@ -202,11 +206,6 @@ public class FormSaver {
 
         for (FieldPath fieldPath : toUpdate) {
             saveDomainObject(fieldPath);
-        }
-
-        DomainObject rootDomainObject = formObjects.getRootNode().getDomainObject();
-        if (rootDomainObject.isNew() && !toUpdate.contains(FieldPath.ROOT)) {
-            saveDomainObject(FieldPath.ROOT);
         }
     }
 
@@ -256,33 +255,50 @@ public class FormSaver {
         if (!node.isEmpty()) { // root node is never empty - thus operation of its creation is not created in this method
             return;
         }
+        FieldPath parentPath = objectPath.getParentPath();
+        final boolean oneToOneBackReference = objectPath.isOneToOneBackReference();
         DomainObject domainObject = crudService.createDomainObject(node.getType());
         node.setDomainObject(domainObject);
-        toCreate.put(objectPath, new ObjectCreationOperation(objectPath, referencesToFill == null ? new HashMap<String, FieldPath>(2) : referencesToFill));
+
+        referencesToFill = referencesToFill == null ? new HashMap<String, FieldPath>(2) : referencesToFill;
+        if (oneToOneBackReference) { // reference to parent object should be updated in this object
+            referencesToFill.put(objectPath.getLinkToParentName(), parentPath);
+        }
+        toCreate.put(objectPath, new ObjectCreationOperation(objectPath, referencesToFill));
         // ref to this will have to be updated in parent objects
 
-        FieldPath parentPath = objectPath.getParentPath();
         SingleObjectNode parentNode = (SingleObjectNode) formObjects.getNode(parentPath);
-        String fieldNameInParent = objectPath.getFieldName(); // todo not true for backlink 1:1
         // todo add 2nd link for 1:1 back reference
         if (parentNode.isEmpty()) {
-
             HashMap<String, FieldPath> referencesToFillInParent = new HashMap<>(2);
-            referencesToFillInParent.put(fieldNameInParent, objectPath);
-            addNewNodeChainAndFillCreateAndReferencesUpdateOperations(parentPath, referencesToFillInParent);
-        } else {
-            final ObjectCreationOperation creationOperationOfParentNode = toCreate.get(parentPath);
-            if (creationOperationOfParentNode != null) { // parent node ref to this node should be updated
-                creationOperationOfParentNode.refFieldObjectFieldPath.put(fieldNameInParent, objectPath);
-            } else {
-                ObjectReferencesUpdateOperation referencesUpdateOperation = toUpdateExistingObjectsReferences.get(parentPath);
-                if (referencesUpdateOperation == null) {
-                    referencesUpdateOperation = new ObjectReferencesUpdateOperation(parentPath, new HashMap<String, FieldPath>(2));
-                    toUpdateExistingObjectsReferences.put(parentPath, referencesUpdateOperation);
-                }
-                referencesUpdateOperation.refFieldObjectFieldPath.put(fieldNameInParent, objectPath);
+            if (!oneToOneBackReference) { // direct reference
+                String fieldNameInParent = objectPath.getFieldName();
+                referencesToFillInParent.put(fieldNameInParent, objectPath);
             }
+            addNewNodeChainAndFillCreateAndReferencesUpdateOperations(parentPath, referencesToFillInParent);
+            return;
         }
+
+        if (oneToOneBackReference) { // nothing to do more for back links
+            return;
+        }
+
+        // but for direct links parent object references to this should be updated
+        String fieldNameInParent = objectPath.getFieldName();
+        final ObjectCreationOperation creationOperationOfParentNode = toCreate.get(parentPath);
+        if (creationOperationOfParentNode != null) { // parent node ref to this node should be updated
+            creationOperationOfParentNode.refFieldObjectFieldPath.put(fieldNameInParent, objectPath);
+            return;
+        }
+
+        // node is not empty and no creation operation for it exists - it means this node contains existing object which
+        // references should also be updated
+        ObjectReferencesUpdateOperation referencesUpdateOperation = toUpdateExistingObjectsReferences.get(parentPath);
+        if (referencesUpdateOperation == null) {
+            referencesUpdateOperation = new ObjectReferencesUpdateOperation(parentPath, new HashMap<String, FieldPath>(2));
+            toUpdateExistingObjectsReferences.put(parentPath, referencesUpdateOperation);
+        }
+        referencesUpdateOperation.refFieldObjectFieldPath.put(fieldNameInParent, objectPath);
     }
 
     private HashMap<FieldPath, ArrayList<Id>> getBackReferenceFieldPathsIds(FieldPath[] fieldPaths,

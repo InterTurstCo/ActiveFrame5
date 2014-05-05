@@ -10,6 +10,10 @@ import java.util.*;
  *         Time: 13:47
  */
 public class FieldPath implements Dto, Comparable<FieldPath> {
+    public static final short MULTI_BACK_REFERENCE = 0;
+    public static final short SINGLE_BACK_REFERENCE = 1;
+    public static final short FIELD = 2;
+
     public static final FieldPath ROOT = new FieldPath();
 
     private static final String[] EMPTY_PATHS = new String[1];
@@ -74,7 +78,16 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
     }
 
     public boolean isOneToOneReference() {
-        return getLastElement() instanceof OneToOneReference;
+        final Element lastElement = getLastElement();
+        return lastElement instanceof OneToOneDirectReference || lastElement instanceof OneToOneBackReference;
+    }
+
+    public boolean isOneToOneDirectReference() {
+        return getLastElement() instanceof OneToOneDirectReference;
+    }
+
+    public boolean isOneToOneBackReference() {
+        return getLastElement() instanceof OneToOneBackReference;
     }
 
     public boolean isOneToManyReference() {
@@ -86,7 +99,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
     }
 
     public boolean isBackReference() {
-        return getLastElement() instanceof BackReference;
+        return getLastElement() instanceof MultiBackReference;
     }
 
     public String getFieldName() {
@@ -101,8 +114,8 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         return ((BackReference) getLastElement()).getReferenceType();
     }
 
-    public String getReferenceName() {
-        BackReference lastElement = (BackReference) getLastElement();
+    public String getReferenceName() { // todo rename or drop at all. very confusing method
+        MultiBackReference lastElement = (MultiBackReference) getLastElement();
         if (lastElement instanceof ManyToManyReference) {
             return ((ManyToManyReference) lastElement).getLinkToChildrenName();
         } else {
@@ -119,7 +132,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
     }
 
     public String getLinkingObjectType() {
-        return ((ManyToManyReference) getLastElement()).getLinkingObjectType();
+        return ((ManyToManyReference) getLastElement()).getLinkedObjectType();
     }
 
     public String getLinkToChildrenName() {
@@ -156,6 +169,20 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
     @Override
     public String toString() {
         return getPath();
+    }
+
+    public String toStringExtended() {
+        final Element[] elements = getElements();
+        StringBuilder result = new StringBuilder(elements.length * 5);
+        boolean notFirst = false;
+        for (Element elt : elements) {
+            if (notFirst) {
+                result.append('.');
+            }
+            result.append(elt);
+            notFirst = true;
+        }
+        return result.toString();
     }
 
     @Override
@@ -202,7 +229,8 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         ArrayList<Element> elements = new ArrayList<Element>(size);
         for (int i = 0; i < size; i++) {
             String elt = primitiveElements[i];
-            if (elt.contains("^")) {
+            short type = resolveElement(elt);
+            if (type == MULTI_BACK_REFERENCE) {
                 if (i == lastElementIndex) {
                     elements.add(new OneToManyReference(elt));
                 } else {
@@ -217,14 +245,32 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
                 }
                 break;
             }
+            if (type == SINGLE_BACK_REFERENCE) {
+                elements.add(new OneToOneBackReference(elt));
+                continue;
+            }
             if (i == lastElementIndex) {
                 elements.add(new Field(elt));
             } else {
-                elements.add(new OneToOneReference(elt));
+                elements.add(new OneToOneDirectReference(elt));
             }
         }
         this.elements = elements.toArray(new Element[elements.size()]);
         return this.elements;
+    }
+
+    private static short resolveElement(final String elt) {
+        final int length = elt.length();
+        char symbol;
+        for (int i = 0; i < length; ++i) {
+            symbol = elt.charAt(i);
+            if (symbol == '^') {
+                return MULTI_BACK_REFERENCE;
+            } else if (symbol == '|') {
+                return SINGLE_BACK_REFERENCE;
+            }
+        }
+        return FIELD;
     }
 
     private Element getLastElement() {
@@ -285,11 +331,11 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         }
     }
 
-    public static class OneToOneReference extends Element {
-        public OneToOneReference() {
+    public static class OneToOneDirectReference extends Element {
+        public OneToOneDirectReference() {
         }
 
-        public OneToOneReference(String name) {
+        public OneToOneDirectReference(String name) {
             super(name);
         }
 
@@ -301,6 +347,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
 
     public static abstract class BackReference extends Element {
         protected String linkToParentName;
+        protected String linkedObjectType;
 
         protected BackReference() {
         }
@@ -309,22 +356,6 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
             super(name);
         }
 
-        public abstract String getReferenceType();
-
-        public abstract String getLinkToParentName();
-    }
-
-    public static class OneToManyReference extends BackReference {
-        private String linkedObjectType;
-
-        public OneToManyReference() {
-        }
-
-        public OneToManyReference(String name) {
-            super(name);
-        }
-
-        @Override
         public String getReferenceType() {
             return getLinkedObjectType();
         }
@@ -345,7 +376,49 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
             return linkToParentName;
         }
 
-        private void resolveElements() {
+        protected abstract void resolveElements();
+    }
+
+    public static class OneToOneBackReference extends BackReference {
+        protected OneToOneBackReference() {
+        }
+
+        public OneToOneBackReference(String name) {
+            super(name);
+        }
+
+        @Override
+        protected void resolveElements() {
+            String[] linkTypeAndField = name.split("\\|");
+            linkedObjectType = linkTypeAndField[0];
+            linkToParentName = linkTypeAndField[1];
+        }
+
+        @Override
+        public String toString() {
+            return name + "(1:1-back)";
+        }
+    }
+
+    public static abstract class MultiBackReference extends BackReference {
+        protected MultiBackReference() {
+        }
+
+        public MultiBackReference(String name) {
+            super(name);
+        }
+    }
+
+    public static class OneToManyReference extends MultiBackReference {
+        public OneToManyReference() {
+        }
+
+        public OneToManyReference(String name) {
+            super(name);
+        }
+
+        @Override
+        protected void resolveElements() {
             String[] linkTypeAndField = name.split("\\^");
             linkedObjectType = linkTypeAndField[0];
             linkToParentName = linkTypeAndField[1];
@@ -357,8 +430,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         }
     }
 
-    public static class ManyToManyReference extends BackReference {
-        private String linkingObjectType;
+    public static class ManyToManyReference extends MultiBackReference {
         private String linkToChildrenName;
 
         public ManyToManyReference() {
@@ -366,27 +438,6 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
 
         public ManyToManyReference(String name) {
             super(name);
-        }
-
-        @Override
-        public String getReferenceType() {
-            return getLinkingObjectType();
-        }
-
-        public String getLinkingObjectType() {
-            if (linkingObjectType != null) {
-                return linkingObjectType;
-            }
-            resolveElements();
-            return linkingObjectType;
-        }
-
-        public String getLinkToParentName() {
-            if (linkToParentName != null) {
-                return linkToParentName;
-            }
-            resolveElements();
-            return linkToParentName;
         }
 
         public String getLinkToChildrenName() {
@@ -397,9 +448,10 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
             return linkToChildrenName;
         }
 
-        private void resolveElements() {
+        @Override
+        protected void resolveElements() {
             String[] linkTypeAndField = name.split("\\^|\\.");
-            linkingObjectType = linkTypeAndField[0];
+            linkedObjectType = linkTypeAndField[0];
             linkToParentName = linkTypeAndField[1];
             linkToChildrenName = linkTypeAndField[2];
         }

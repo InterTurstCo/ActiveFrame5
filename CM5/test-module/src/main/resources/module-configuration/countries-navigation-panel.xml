@@ -51,6 +51,24 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="FormsTest2" display-text="Механизм форм 2">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a2">
+                            <collection-viewer>
+                                <collection-ref name="a2_collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest3" display-text="Механизм форм 3">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a3">
+                            <collection-viewer>
+                                <collection-ref name="a3_collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
             </child-links>
         </link>
 
