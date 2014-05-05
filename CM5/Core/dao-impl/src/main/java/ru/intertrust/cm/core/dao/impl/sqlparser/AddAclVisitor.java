@@ -1,8 +1,34 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
-import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.Alias;
+import net.sf.jsqlparser.expression.AllComparisonExpression;
+import net.sf.jsqlparser.expression.AnalyticExpression;
+import net.sf.jsqlparser.expression.AnyComparisonExpression;
+import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.CaseExpression;
+import net.sf.jsqlparser.expression.CastExpression;
+import net.sf.jsqlparser.expression.DateValue;
+import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.ExpressionVisitor;
+import net.sf.jsqlparser.expression.ExtractExpression;
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.IntervalExpression;
+import net.sf.jsqlparser.expression.JdbcNamedParameter;
+import net.sf.jsqlparser.expression.JdbcParameter;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.NullValue;
+import net.sf.jsqlparser.expression.OracleHierarchicalExpression;
+import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.SignedExpression;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.TimeValue;
+import net.sf.jsqlparser.expression.TimestampValue;
+import net.sf.jsqlparser.expression.WhenClause;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
@@ -14,7 +40,22 @@ import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.*;
+import net.sf.jsqlparser.expression.operators.relational.Between;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.ExistsExpression;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
+import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
+import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
+import net.sf.jsqlparser.expression.operators.relational.Matches;
+import net.sf.jsqlparser.expression.operators.relational.MinorThan;
+import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -45,6 +86,8 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
  */
 public class AddAclVisitor implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
+    private static Map<String, String> aclSubQueryCache = new HashMap<>();
+    
     private ConfigurationExplorer configurationExplorer;
 
     public AddAclVisitor(ConfigurationExplorer configurationExplorer) {
@@ -131,21 +174,30 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
      */
     private SubSelect createAclSubQuery(String domainObjectType) {
         domainObjectType = DaoUtils.unwrap(domainObjectType);
-        SubSelect subSelectWithAcl = new SubSelect();
-        StringBuilder aclQuery = new StringBuilder();
-        String aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectType);
-        aclQuery.append("Select * from ").append(DaoUtils.wrap(domainObjectType))
-                .append(" " + domainObjectType + " where exists (select r.").append(DaoUtils.wrap("object_id"))
-                .append("from ")
-                .append(DaoUtils.wrap(aclReadTable)).append(" r ");
-        aclQuery.append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.")
-                .append(DaoUtils.wrap("group_id") + " = gg.").append(DaoUtils.wrap("parent_group_id"));
-        aclQuery.append("inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
-                .append(" = gm.").append(DaoUtils.wrap("usergroup"));
-        aclQuery.append(" where gm.person_id = ").append(SqlQueryModifier.USER_ID_PARAM)
-                .append(" and r.object_id = " + domainObjectType + ".id )");
 
-        SqlQueryParser aclSqlParser = new SqlQueryParser(aclQuery.toString());
+        String aclQueryString = null;
+        if (aclSubQueryCache.get(domainObjectType) != null) {
+            aclQueryString = aclSubQueryCache.get(domainObjectType);
+        } else {
+            StringBuilder aclQuery = new StringBuilder();
+            String aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectType);
+            aclQuery.append("Select * from ").append(DaoUtils.wrap(domainObjectType))
+                    .append(" " + domainObjectType + " where exists (select r.").append(DaoUtils.wrap("object_id"))
+                    .append("from ")
+                    .append(DaoUtils.wrap(aclReadTable)).append(" r ");
+            aclQuery.append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.")
+                    .append(DaoUtils.wrap("group_id") + " = gg.").append(DaoUtils.wrap("parent_group_id"));
+            aclQuery.append("inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
+                    .append(DaoUtils.wrap("child_group_id"))
+                    .append(" = gm.").append(DaoUtils.wrap("usergroup"));
+            aclQuery.append(" where gm.person_id = ").append(SqlQueryModifier.USER_ID_PARAM)
+                    .append(" and r.object_id = " + domainObjectType + ".id )");
+            aclQueryString = aclQuery.toString();
+            aclSubQueryCache.put(domainObjectType, aclQueryString);
+        }
+
+        SubSelect subSelectWithAcl = new SubSelect();
+        SqlQueryParser aclSqlParser = new SqlQueryParser(aclQueryString);
         PlainSelect aclEnforcedExpression = (PlainSelect) aclSqlParser.getSelectBody();
         subSelectWithAcl.setSelectBody(aclEnforcedExpression);
         return subSelectWithAcl;
