@@ -16,7 +16,9 @@ import javax.security.auth.login.LoginException;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 
@@ -32,6 +34,9 @@ import ru.intertrust.cm.webcontext.ApplicationContextProvider;
  */
 @RunWith(Arquillian.class)
 public class CrudServiceIT extends IntegrationTestBase {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @EJB
     private CrudService.Remote crudService;
@@ -82,8 +87,8 @@ public class CrudServiceIT extends IntegrationTestBase {
         DomainObject foundOrganization = crudService.find(savedOrganization1.getId());
         assertNotNull(foundOrganization);
         crudService.delete(foundOrganization.getId());
+        thrown.expect(Exception.class);
         foundOrganization = crudService.find(foundOrganization.getId());
-        assertTrue(foundOrganization == null);
 
     }
 

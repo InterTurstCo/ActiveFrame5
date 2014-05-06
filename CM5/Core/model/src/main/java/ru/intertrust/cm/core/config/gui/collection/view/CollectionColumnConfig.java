@@ -259,7 +259,7 @@ public class CollectionColumnConfig implements Dto {
         if (type != null ? !type.equals(that.type) : that.type != null) {
             return false;
         }
-        if (rendererConfig != null ? !rendererConfig.equals(that.type) : that.type != null) {
+        if (rendererConfig != null ? !rendererConfig.equals(that.rendererConfig) : that.rendererConfig != null) {
             return false;
         }
 

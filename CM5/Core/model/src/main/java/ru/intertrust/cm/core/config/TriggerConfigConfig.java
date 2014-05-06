@@ -2,12 +2,14 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Element;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
 /**
  * 
  * @author atsvetkov
  *
  */
-public class TriggerConfigConfig {
+public class TriggerConfigConfig implements Dto {
 
     @Element(name = "fields", required = false)
     private TriggerFieldsConfig triggerFieldsConfig;
