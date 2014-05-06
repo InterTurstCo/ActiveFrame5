@@ -102,7 +102,7 @@ public class TestJdbc extends ClientBase {
     private DomainObject createOutgoingDocument() {
         DomainObject document = crudService.createDomainObject("Outgoing_Document");
         document.setString("Name", "Outgoing_Document");
-        document.setReference("Author", findDomainObject("Employee", "Login", "person1"));
+        document.setReference("Author", findDomainObject("person", "login", "person1"));
         document.setLong("Long_Field", 10L);
 
         document = crudService.save(document);

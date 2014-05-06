@@ -64,17 +64,14 @@ public class SochiClient {
 
             jndiProps.put(Context.PROVIDER_URL, "remote://" + address);
             jndiProps.put("jboss.naming.client.ejb.context", "true");
-            //jndiProps.put("org.jboss.ejb.client.scoped.context","true");
             jndiProps.put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false");
-            jndiProps.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
             jndiProps.put(Context.SECURITY_PRINCIPAL, login);
             jndiProps.put(Context.SECURITY_CREDENTIALS, password);
-            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
 
             ctx = new InitialContext(jndiProps);
         }
 
-        Object service = ctx.lookup("ejb:cm-sochi/web-app//" + serviceName + "!" + remoteInterfaceClass.getName());
+        Object service = ctx.lookup("cm-sochi/web-app/" + serviceName + "!" + remoteInterfaceClass.getName());
 
         return service;
     }

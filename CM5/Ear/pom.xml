@@ -297,9 +297,8 @@
                                                         <properties>
                                                             <login-modules>
                                                             !![
-                                                            {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
-                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info."password" from "authentication_info" info where info."user_uid" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from "authentication_info" where "user_uid" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
                                                             </login-modules>
                                                         </properties>
@@ -313,21 +312,23 @@
                                 <id>change-application-realm</id>
                                 <phase>install</phase>
                                 <goals>
-                                    <goal>execute-commands</goal>
+                                    <goal>execute-commands-ex</goal>
                                 </goals>
                                 <configuration>
                                     <execute-commands>
-                                        <batch>true</batch>
+                                        <ignoreException>true</ignoreException>
                                         <commands>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=local:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authorization=properties:remove</command>
                                         </commands>
                                     </execute-commands>                                
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>set-server-property-location</id>
+                                <id>set-server-config</id>
                                 <phase>install</phase>
                                 <goals>
                                     <goal>execute-commands-ex</goal>
@@ -335,7 +336,7 @@
                                 <configuration>
                                     <execute-commands>
                                         <ignoreException>true</ignoreException>                                        
-                                            <commands>
+                                        <commands>
                                             <command>/system-property=server.properties.location:add(value=${server.properties.location})</command>
                                             <command>/system-property=server.properties.location:write-attribute(name=value, value=${server.properties.location})</command>
                                             <command>/system-property=spring.profiles.active:add(value=${spring.profiles.active})</command>
@@ -347,6 +348,7 @@
                                             <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:add(value=${org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING})</command>
                                             <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:write-attribute(name=value, value=true)</command>
                                             <command>/subsystem=deployment-scanner/scanner=default:write-attribute(name=deployment-timeout, value=3600)</command>                                                 
+                                            <command>/subsystem=ejb3:write-attribute(name=default-missing-method-permissions-deny-access, value=false)</command>
                                         </commands>
                                     </execute-commands>                                
                                 </configuration>
@@ -436,9 +438,8 @@
                                                     <properties>
                                                         <login-modules>
                                                             !![
-                                                            {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
-                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info."password" from "authentication_info" info where info."user_uid" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from "authentication_info" where "user_uid" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
                                                         </login-modules>
                                                     </properties>
@@ -459,14 +460,16 @@
                                         <batch>true</batch>
                                         <commands>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=local:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authorization=properties:remove</command>
                                         </commands>
                                     </execute-commands>
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>set-server-property-location</id>
+                                <id>set-server-config</id>
                                 <phase>install</phase>
                                 <goals>
                                     <goal>execute-commands-ex</goal>
@@ -479,6 +482,12 @@
                                             <command>/system-property=server.properties.location:write-attribute(name=value, value=${server.properties.location})</command>
                                             <command>/system-property=spring.profiles.active:add(value=${spring.profiles.active})</command>
                                             <command>/system-property=spring.profiles.active:write-attribute(name=value, value=${spring.profiles.active})</command>
+											<command>/system-property=org.apache.catalina.connector.URI_ENCODING:add(value=${org.apache.catalina.connector.URI_ENCODING})</command>
+                                            <command>/system-property=org.apache.catalina.connector.URI_ENCODING:write-attribute(name=value, value=UTF-8)</command>
+                                            <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:add(value=${org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING})</command>
+                                            <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:write-attribute(name=value, value=true)</command>                                            
+                                            <command>/subsystem=deployment-scanner/scanner=default:write-attribute(name=deployment-timeout, value=3600)</command>
+                                            <command>/subsystem=ejb3:write-attribute(name=default-missing-method-permissions-deny-access, value=false)</command>
                                         </commands>
                                     </execute-commands>
                                 </configuration>

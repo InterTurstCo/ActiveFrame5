@@ -157,13 +157,12 @@ public abstract class ClientBase {
                             "false");
             jndiProps.put(Context.SECURITY_PRINCIPAL, login);
             jndiProps.put(Context.SECURITY_CREDENTIALS, password);
-            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
 
             ctx = new InitialContext(jndiProps);
             ctxLogin = login;
         }
 
-        Object service = ctx.lookup("ejb:cm-sochi/web-app//" + serviceName + "!" + remoteInterfaceClass.getName());
+        Object service = ctx.lookup("cm-sochi/web-app/" + serviceName + "!" + remoteInterfaceClass.getName());
         return service;
 
     }    
