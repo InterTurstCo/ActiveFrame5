@@ -309,6 +309,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         return configStorage.attachmentDomainObjectTypes.containsKey(domainObjectType);
     }
 
+    @Override
+    public String[] getAllAttachmentTypes() {
+        Collection<String> values = configStorage.attachmentDomainObjectTypes.values();
+        return values.toArray(new String[values.size()]);
+    }
+
     public boolean isReadPermittedToEverybody(String domainObjectType) {
         if (configStorage.readPermittedToEverybodyMap.get(domainObjectType) != null) {
             return configStorage.readPermittedToEverybodyMap.get(domainObjectType);

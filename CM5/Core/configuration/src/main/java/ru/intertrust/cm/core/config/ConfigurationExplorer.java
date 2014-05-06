@@ -141,6 +141,8 @@ public interface ConfigurationExplorer {
      */
     boolean isAttachmentType(String domainObjectType);
 
+    public String[] getAllAttachmentTypes();
+
     boolean isReadPermittedToEverybody(String domainObjectType);
 
     /**
