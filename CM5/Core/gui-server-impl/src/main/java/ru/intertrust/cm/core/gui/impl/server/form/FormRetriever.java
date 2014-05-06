@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -17,6 +14,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -54,6 +52,14 @@ public class FormRetriever {
         return buildDomainObjectForm(root);
     }
 
+    public FormDisplayData getForm(String domainObjectType, String updaterComponentName, Dto updaterContext) {
+        DomainObject root = crudService.createDomainObject(domainObjectType);
+        DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
+        domainObjectUpdater.updateDomainObject(root, updaterContext);
+        // todo: separate empty form?
+        return buildDomainObjectForm(root);
+    }
+
     public FormDisplayData getForm(Id domainObjectId) {
         DomainObject root = crudService.find(domainObjectId);
         if (root == null) {
@@ -61,6 +67,17 @@ public class FormRetriever {
         }
         return buildDomainObjectForm(root);
     }
+
+    public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext) {
+        DomainObject root = crudService.find(domainObjectId);
+        if (root == null) {
+            throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
+        }
+        DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
+        domainObjectUpdater.updateDomainObject(root, updaterContext);
+        return buildDomainObjectForm(root);
+    }
+
 
     // форма поиска для доменного объекта указанного типа
     public FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields) {

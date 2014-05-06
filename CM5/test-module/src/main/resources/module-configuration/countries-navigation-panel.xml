@@ -151,6 +151,15 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="Org_Middle" display-text="Промежуточный Обьетк">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="org_middle">
+                            <collection-viewer>
+                                <collection-ref name="org_middle_collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
                 <link name="Internal_Document" display-text="Внутренние документы">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="Internal_Document">

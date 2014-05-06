@@ -4,9 +4,9 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -16,28 +16,26 @@ import java.util.ArrayList;
 
 public abstract class NodeContentManager {
     protected HierarchyBrowserConfig config;
+    protected Map<String, NodeCollectionDefConfig> collectionNameNodeMap;
     protected HierarchyBrowserMainPopup mainPopup;
+    protected Id parentId;
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
-    public NodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup, ArrayList<Id> chosenIds) {
+    public NodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,
+                              ArrayList<Id> chosenIds, Id parentId, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
         this.config = config;
         this.mainPopup = mainPopup;
         this.chosenIds = chosenIds;
+        this.parentId = parentId;
+        this.collectionNameNodeMap = collectionNameNodeMap;
     }
 
     protected NodeContentRequest createRequestDataFromNodeConfig(NodeCollectionDefConfig nodeConfig) {
         NodeContentRequest nodeContentRequest = new NodeContentRequest();
-        nodeContentRequest.setSelectionPattern(nodeConfig.getSelectionPatternConfig().getValue());
         nodeContentRequest.setNumberOfItemsToDisplay(config.getPageSize());
-        NodeMetadata nodeMetadata = new NodeMetadata();
-        nodeMetadata.setCollectionName(nodeConfig.getCollection());
-        nodeMetadata.setDomainObjectType(nodeConfig.getDomainObjectType());
-        nodeContentRequest.setNodeMetadata(nodeMetadata);
-        nodeContentRequest.setInputTextFilterName(nodeConfig.getInputTextFilterConfig().getName());
-        nodeContentRequest.setParentFilterName(nodeConfig.getParentFilter());
         nodeContentRequest.setChosenIds(chosenIds);
-        nodeContentRequest.setSelective(nodeConfig.isSelective());
-        nodeContentRequest.setDefaultSortCriteriaConfig(nodeConfig.getDefaultSortCriteriaConfig());
+        nodeContentRequest.setParentId(parentId);
+        nodeContentRequest.setNodeCollectionDefConfig(nodeConfig);
         return nodeContentRequest;
     }
-    public abstract void fetchNodeContent() ;
+    public abstract void fetchNodeContent();
 }

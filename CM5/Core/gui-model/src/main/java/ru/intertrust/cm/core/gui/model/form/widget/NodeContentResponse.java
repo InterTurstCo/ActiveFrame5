@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -10,24 +11,27 @@ import java.util.ArrayList;
  *         Time: 13:15
  */
 public class NodeContentResponse implements Dto {
-    private NodeMetadata nodeMetadata;
-    private ArrayList<HierarchyBrowserItem> nodeContent;
+
+    private List<HierarchyBrowserItem> nodeContent;
+    private String parentCollectionName;
+    private List<String> domainObjectTypes;
+    private Id parentId;
 
     private boolean selective = true;
-    public ArrayList<HierarchyBrowserItem> getNodeContent() {
+    public List<HierarchyBrowserItem> getNodeContent() {
         return nodeContent;
     }
 
-    public void setNodeContent(ArrayList<HierarchyBrowserItem> nodeContent) {
+    public void setNodeContent(List<HierarchyBrowserItem> nodeContent) {
         this.nodeContent = nodeContent;
     }
 
-    public NodeMetadata getNodeMetadata() {
-        return nodeMetadata;
+    public Id getParentId() {
+        return parentId;
     }
 
-    public void setNodeMetadata(NodeMetadata nodeMetadata) {
-        this.nodeMetadata = nodeMetadata;
+    public void setParentId(Id parentId) {
+        this.parentId = parentId;
     }
 
     public boolean isSelective() {
@@ -36,5 +40,21 @@ public class NodeContentResponse implements Dto {
 
     public void setSelective(boolean selective) {
         this.selective = selective;
+    }
+
+    public String getParentCollectionName() {
+        return parentCollectionName;
+    }
+
+    public void setParentCollectionName(String parentCollectionName) {
+        this.parentCollectionName = parentCollectionName;
+    }
+
+    public List<String> getDomainObjectTypes() {
+        return domainObjectTypes;
+    }
+
+    public void setDomainObjectTypes(List<String> domainObjectTypes) {
+        this.domainObjectTypes = domainObjectTypes;
     }
 }

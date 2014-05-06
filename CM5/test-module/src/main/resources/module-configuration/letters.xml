@@ -29,7 +29,135 @@
             <reference name="employee" type="Employee"/>
         </fields>
     </domain-object-type>
+    <domain-object-type name="org_middle"  >
+        <fields>
 
+            <string name="name" length="20"/>
+            <reference name="organization" type="Organization"/>
+        </fields>
+    </domain-object-type>
+    <form name="org_middle_form" domain-object-type="org_middle" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="name_label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="name"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="org_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="org"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+        <widget-config>
+            <label id="name_label">
+                <field-path/>
+                <text>Имя:</text>
+            </label>
+            <text-box id="name">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="org_label">
+                <text>Организация:</text>
+            </label>
+
+            <!-- <list-box id="addressees">
+                 <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                 <pattern value="{Name}"/>
+             </list-box>-->
+            <suggest-box id="org">
+                <field-path value="organization"/>
+
+                <collection-ref name="Organizations"/>
+
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{name}"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byText"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                <page-size>30</page-size>
+
+                <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
+                    Если тэг отсутствует, то используется "inline"-вариант. -->
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+                <clear-all-button  text="Очистить"/>
+                <default-sort-criteria column-field="name" order="asc"/>
+            </suggest-box>
+        </widget-config>
+    </form>
+    <collection-view name="org_middle_default_view" collection="org_middle_collection" is-default="true">
+        <display>
+
+            <column field="name" name="name" editable="false" type="string" sortable="true"/>
+
+        </display>
+    </collection-view>
+    <collection name="org_middle_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        om.id, om.name, om.organization
+                    from
+                        org_middle om
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from  org_middle om
+        </counting-prototype>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    om.name like {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byId">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    om.collection like {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+    <form-mappings name="org_middle_mappings">
+        <form-mapping domain-object-type="org_middle" form="org_middle_form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
     <collection name="letters" idField="id">
         <prototype>
             <![CDATA[
@@ -128,18 +256,21 @@
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
-                    <node-collection-def collection="Departments" parent-filter="byOrganization" domain-object-type="Department">
+                    <node-collection-def collection="Departments" parent-filter="byOrganization" domain-object-type="Department"  >
                         <!-- название фильтра по тексту, введённому пользователем -->
+                        <fill-parent-on-add field-to-fill="organization"/>
                         <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
-                        <node-collection-def collection="Employees" parent-filter="byDepartment" domain-object-type="Employee">
-                            <!-- название фильтра по тексту, введённому пользователем -->
-                            <input-text-filter name="byNameAndPosition"/>
-                            <!-- паттерн отображения уже выбранных значений -->
-                            <selection-pattern value="{name} {position}"/>
-                        </node-collection-def>
+
+                    </node-collection-def>
+                    <node-collection-def collection="OrganizationsDepartmentsEmployees" parent-filter="byDepartmentAndOrganization" domain-object-type="Employee" >
+                        <!-- название фильтра по тексту, введённому пользователем -->
+                        <fill-parent-on-add field-to-fill="org_middle" collection="org_middle_collection"  filter-by-parent-id="byId"/>
+                        <input-text-filter name="byNameAndPosition"/>
+                        <!-- паттерн отображения уже выбранных значений -->
+                        <selection-pattern value="{name} {position}"/>
                     </node-collection-def>
                 </node-collection-def>
 
@@ -229,8 +360,8 @@
                 <field-path value="Position"/>
             </text-box>
             <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
-                <field-path value="department.organization"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="organization_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
+                <field-path value="department"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
+                <linked-form name="department_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
                 <pattern value="{name}"/> <!-- в паттерне ссылки задаются относительно field-path -->
             </linked-domain-object-hyperlink>
 
@@ -261,9 +392,9 @@
                 </table>
             </header>
             <body display-single-tab="false"> <!-- в теле - только закладки -->
-                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
-                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
-                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                <!--<tab name="Главная"> &lt;!&ndash; закладка состоит из групп с разметкой &ndash;&gt;
+                    <single-entry-group> &lt;!&ndash; наследник от TabGroupsConfig &ndash;&gt;
+                        <tab-group> &lt;!&ndash; вхождение в группу уже может содержать разметку &ndash;&gt;
                             <table>
                                 <tr>
                                     <td h-align="right">
@@ -276,7 +407,7 @@
                             </table>
                         </tab-group>
                     </single-entry-group>
-                </tab>
+                </tab>-->
             </body>
         </markup>
         <widget-config>

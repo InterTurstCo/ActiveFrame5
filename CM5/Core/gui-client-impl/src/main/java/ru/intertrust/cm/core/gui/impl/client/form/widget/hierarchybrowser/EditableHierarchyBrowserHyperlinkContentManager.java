@@ -12,6 +12,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkUpdateRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkUpdateResponse;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.Map;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 03.01.14
@@ -20,16 +22,18 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 public class EditableHierarchyBrowserHyperlinkContentManager extends HierarchyBrowserHyperlinkContentManager {
     private HierarchyBrowserView view;
     private HierarchyBrowserMainPopup mainPopup;
+
     public EditableHierarchyBrowserHyperlinkContentManager(Id id, String collectionName, HierarchyBrowserConfig config,
-                                                           HierarchyBrowserView view, HierarchyBrowserMainPopup mainPopup) {
-        super(id, collectionName, config);
+                                                           HierarchyBrowserView view, HierarchyBrowserMainPopup mainPopup,
+                                                           Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
+        super(id, collectionName, config, collectionNameNodeMap);
         this.view = view;
         this.mainPopup = mainPopup;
     }
 
     @Override
     protected void updateHyperlink() {
-        NodeCollectionDefConfig nodeConfig = getNodeConfigForRedraw(collectionName, config.getNodeCollectionDefConfig());
+        NodeCollectionDefConfig nodeConfig = collectionNameNodeMap.get(collectionName);
         String selectionPattern = nodeConfig.getSelectionPatternConfig().getValue();
         HyperlinkUpdateRequest request = new HyperlinkUpdateRequest(id, selectionPattern);
         Command command = new Command("updateHyperlink", "linked-domain-object-hyperlink", request);

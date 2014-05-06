@@ -47,6 +47,14 @@ public class FilterBuilder {
         return null;
     }
 
+    public static Filter prepareReferenceFilter(Id parentId, String filterByParentName) {
+        Filter referenceFilter = new Filter();
+        referenceFilter.setFilter(filterByParentName);
+        referenceFilter.addCriterion(0, new ReferenceValue(parentId));
+        return referenceFilter;
+
+    }
+
     public static Filter prepareSearchFilter(String filterValue, CollectionColumnProperties columnProperties)
             throws ParseException {
         Filter filter = new Filter();

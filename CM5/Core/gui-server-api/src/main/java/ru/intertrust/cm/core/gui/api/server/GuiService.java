@@ -42,7 +42,11 @@ public interface GuiService {
 
     FormDisplayData getForm(String domainObjectType, UserInfo userInfo);
 
+    FormDisplayData getForm(String domainObjectType, String domainObjectUpdaterName, Dto updaterContext,UserInfo userInfo);
+
     FormDisplayData getForm(Id domainObjectId, UserInfo userInfo);
+
+    FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo);
 
     // получение формы расширенного поиска
     FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields, UserInfo userInfo);

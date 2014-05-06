@@ -1,82 +1,22 @@
+
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import net.sf.jsqlparser.expression.Alias;
-import net.sf.jsqlparser.expression.AllComparisonExpression;
-import net.sf.jsqlparser.expression.AnalyticExpression;
-import net.sf.jsqlparser.expression.AnyComparisonExpression;
-import net.sf.jsqlparser.expression.BinaryExpression;
-import net.sf.jsqlparser.expression.CaseExpression;
-import net.sf.jsqlparser.expression.CastExpression;
-import net.sf.jsqlparser.expression.DateValue;
-import net.sf.jsqlparser.expression.DoubleValue;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.ExtractExpression;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.IntervalExpression;
-import net.sf.jsqlparser.expression.JdbcNamedParameter;
-import net.sf.jsqlparser.expression.JdbcParameter;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.OracleHierarchicalExpression;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.SignedExpression;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.TimeValue;
-import net.sf.jsqlparser.expression.TimestampValue;
-import net.sf.jsqlparser.expression.WhenClause;
-import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseXor;
-import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
-import net.sf.jsqlparser.expression.operators.arithmetic.Division;
-import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
-import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
-import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
+import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.Between;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.ExistsExpression;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
-import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
-import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
-import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
-import net.sf.jsqlparser.expression.operators.relational.Matches;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.AllColumns;
-import net.sf.jsqlparser.statement.select.AllTableColumns;
-import net.sf.jsqlparser.statement.select.FromItem;
-import net.sf.jsqlparser.statement.select.FromItemVisitor;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.LateralSubSelect;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItemVisitor;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
-import net.sf.jsqlparser.statement.select.SetOperationList;
-import net.sf.jsqlparser.statement.select.SubJoin;
-import net.sf.jsqlparser.statement.select.SubSelect;
-import net.sf.jsqlparser.statement.select.ValuesList;
-import net.sf.jsqlparser.statement.select.WithItem;
+import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Добавляет проверки прав доступа (ACL проверки) в SQL запросы коллекций. Заменяет названия таблиц (доменных объектов)
@@ -87,13 +27,13 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 public class AddAclVisitor implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
     private static Map<String, String> aclSubQueryCache = new HashMap<>();
-    
+
     private ConfigurationExplorer configurationExplorer;
 
     public AddAclVisitor(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
-    
+
     @Override
     public void visit(PlainSelect plainSelect) {
         processFromItem(plainSelect);
@@ -148,7 +88,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         if (from instanceof Table) {
             Table table = (Table) from;
             //добавляем подзапрос на права в случае если не стоит флаг read-everybody и не указано заимствование прав с помощью matrix-reference-field 
-            if (!configurationExplorer.isReadPermittedToEverybody(table.getName()) && 
+            if (!configurationExplorer.isReadPermittedToEverybody(table.getName()) &&
                     configurationExplorer.getMatrixReferenceTypeName(table.getName()) == null) {
                 SubSelect replace = createAclSubQuery(table.getName());
                 if (table.getAlias() == null) {
@@ -166,7 +106,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
     private boolean isDomainObjectType(String tableName) {
         return configurationExplorer.getConfig(DomainObjectTypeConfig.class, tableName) != null;
     }
-    
+
     /**
      * Выполняет замену названия таблицы на ACL подзапрос.
      * @param domainObjectType
@@ -202,7 +142,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         subSelectWithAcl.setSelectBody(aclEnforcedExpression);
         return subSelectWithAcl;
     }
-    
+
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
         binaryExpression.getLeftExpression().accept(this);
         binaryExpression.getRightExpression().accept(this);

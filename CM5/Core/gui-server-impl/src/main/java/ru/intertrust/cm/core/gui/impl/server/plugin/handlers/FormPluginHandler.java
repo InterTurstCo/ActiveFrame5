@@ -1,16 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.tools.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionEntryConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionEntryConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolbarRightFacetConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -26,6 +20,10 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 23.08.13
@@ -39,16 +37,29 @@ public class FormPluginHandler extends ActivePluginHandler {
 
     public FormPluginData initialize(Dto initialData) {
         FormPluginConfig config = (FormPluginConfig) initialData;
-        String domainObjectToCreate = config.getDomainObjectTypeToCreate();
-        final UserInfo userInfo = GuiContext.get().getUserInfo();
-        FormDisplayData form = domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate, userInfo)
-                : guiService.getForm(config.getDomainObjectId(), userInfo);
+        FormDisplayData form = getFormDisplayData(config) ;
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
         pluginData.setPluginState(config.getPluginState());
         pluginData.setActionContexts(getActions(config));
         PluginActionEntryContext actionEntryContext = getPluginActionEntryContext(form);
         return pluginData;
+    }
+
+    private FormDisplayData getFormDisplayData(FormPluginConfig config) {
+        String domainObjectToCreate = config.getDomainObjectTypeToCreate();
+        final UserInfo userInfo = GuiContext.get().getUserInfo();
+        String domainObjectUpdaterName = config.getDomainObjectUpdatorComponent();
+        if (domainObjectUpdaterName == null) {
+            return domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate, userInfo)
+                    : guiService.getForm(config.getDomainObjectId(), userInfo);
+        } else {
+            Dto updaterContext = config.getUpdaterContext();
+            return domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate,
+                    domainObjectUpdaterName, updaterContext, userInfo)
+                    : guiService.getForm(config.getDomainObjectId(), domainObjectUpdaterName, updaterContext, userInfo);
+        }
+
     }
 
     private List<ActionContext> getActions(FormPluginConfig config) {
@@ -109,7 +120,8 @@ public class FormPluginHandler extends ActivePluginHandler {
                         "save.action", "save.action", "Сохранить", "icons/icon-save.png",
                         Collections.singletonList(new ValidatorConfig(
                                 "ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator",
-                                "suggest_capital")), true)));
+                                "suggest_capital")), true
+                )));
             } else {
                 contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig(
                         "create.new.object.action", "create.new.object.action",
@@ -127,7 +139,8 @@ public class FormPluginHandler extends ActivePluginHandler {
                     "save.action", "save.action", "Сохранить", "icons/icon-save.png",
                     Collections.singletonList(new ValidatorConfig(
                             "ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator",
-                            "suggest_capital")), true)));
+                            "suggest_capital")), true
+            )));
             contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
                     "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
 

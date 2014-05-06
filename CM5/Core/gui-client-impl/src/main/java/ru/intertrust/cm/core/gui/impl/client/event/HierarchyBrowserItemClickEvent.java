@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -13,11 +12,11 @@ public class HierarchyBrowserItemClickEvent extends GwtEvent<HierarchyBrowserIte
 
     public static Type<HierarchyBrowserItemClickEventHandler> TYPE = new Type<HierarchyBrowserItemClickEventHandler>();
     private Id itemId;
-    private NodeMetadata metadata;
+    private String collectionName;
 
-    public HierarchyBrowserItemClickEvent(NodeMetadata metadata, Id itemId) {
-        this.metadata = metadata;
+    public HierarchyBrowserItemClickEvent(Id itemId, String collectionName) {
         this.itemId = itemId;
+        this.collectionName = collectionName;
 
     }
 
@@ -35,7 +34,7 @@ public class HierarchyBrowserItemClickEvent extends GwtEvent<HierarchyBrowserIte
         return itemId;
     }
 
-    public NodeMetadata getMetadata() {
-        return metadata;
+    public String getCollectionName() {
+        return collectionName;
     }
 }

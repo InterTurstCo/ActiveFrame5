@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkUpdateResponse;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -24,14 +25,16 @@ public class NoneEditableHierarchyBrowserHyperlinkContentManager extends Hierarc
     private HierarchyBrowserNoneEditablePanelWithHyperlinks panel;
     private List<HierarchyBrowserItem> items;
 
-    public NoneEditableHierarchyBrowserHyperlinkContentManager(Id id, String collectionName, HierarchyBrowserConfig config, HierarchyBrowserNoneEditablePanelWithHyperlinks panel, List<HierarchyBrowserItem> items) {
-        super(id, collectionName, config);
+    public NoneEditableHierarchyBrowserHyperlinkContentManager(Id id, String collectionName,
+           HierarchyBrowserConfig config, HierarchyBrowserNoneEditablePanelWithHyperlinks panel,
+           List<HierarchyBrowserItem> items, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
+        super(id, collectionName, config, collectionNameNodeMap);
         this.panel = panel;
         this.items = items;
     }
 
     protected void updateHyperlink() {
-        NodeCollectionDefConfig nodeConfig = getNodeConfigForRedraw(collectionName, config.getNodeCollectionDefConfig());
+        NodeCollectionDefConfig nodeConfig = collectionNameNodeMap.get(collectionName);
         String selectionPattern = nodeConfig.getSelectionPatternConfig().getValue();
         HyperlinkUpdateRequest request = new HyperlinkUpdateRequest(id, selectionPattern);
         Command command = new Command("updateHyperlink", "linked-domain-object-hyperlink", request);

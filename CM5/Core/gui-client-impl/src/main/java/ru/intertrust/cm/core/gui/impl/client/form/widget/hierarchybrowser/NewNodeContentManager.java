@@ -7,14 +7,12 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -23,42 +21,35 @@ import java.util.List;
  */
 public class NewNodeContentManager extends NodeContentManager {
         private String collectionName;
-        private Id parentId;
+
         public NewNodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,
-                                     ArrayList<Id> chosenIds, String collectionName, Id parentId){
-            super(config, mainPopup, chosenIds);
+                                     ArrayList<Id> chosenIds, String collectionName, Id parentId,
+                                     Map<String, NodeCollectionDefConfig> collectionNameNodeMap){
+            super(config, mainPopup, chosenIds, parentId, collectionNameNodeMap);
             this.collectionName = collectionName;
-            this.parentId = parentId;
+
         }
+
     private NodeContentRequest prepareRequestDataForNewNodeOpening() {
-        NodeCollectionDefConfig nodeConfig = getNodeConfigForNewNodeOpening(collectionName, config.getNodeCollectionDefConfig());
+        NodeCollectionDefConfig nodeConfig = collectionNameNodeMap.get(collectionName);
         NodeContentRequest nodeContentRequest = createRequestDataFromNodeConfig(nodeConfig);
         return nodeContentRequest;
     }
 
-    private NodeCollectionDefConfig getNodeConfigForNewNodeOpening(String collectionName, NodeCollectionDefConfig nodeConfig) {
-        if (nodeConfig == null) {
-            return null;
-        }
-
-        if (collectionName.equalsIgnoreCase(nodeConfig.getCollection())){
-            return nodeConfig.getNodeCollectionDefConfig();
-        }
-        else return getNodeConfigForNewNodeOpening(collectionName, nodeConfig.getNodeCollectionDefConfig());
-    }
 
     public void fetchNodeContent() {
         NodeContentRequest nodeContentRequest = prepareRequestDataForNewNodeOpening();
-        nodeContentRequest.getNodeMetadata().setParentId(parentId);
         Command command = new Command("fetchNodeContent", "hierarchy-browser", nodeContentRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
-                NodeMetadata nodeMetadata = nodeContent.getNodeMetadata();
+                List<String> domainObjectTypes = nodeContent.getDomainObjectTypes();
+                Id parentId = nodeContent.getParentId();
+                String parentCollectionName = nodeContent.getParentCollectionName();
                 boolean selective = nodeContent.isSelective();
-                mainPopup.drawNewNode(items, nodeMetadata, selective);
+                mainPopup.drawNewNode(parentId, parentCollectionName,items, selective, domainObjectTypes);
 
             }
 

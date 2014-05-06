@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 
@@ -12,7 +13,8 @@ public class FormPluginConfig extends PluginConfig {
     private Id domainObjectId;
     private String domainObjectTypeToCreate;
     private FormPluginState pluginState;
-
+    private String domainObjectUpdatorComponent;
+    private Dto updaterContext;
 
     public FormPluginConfig() {
     }
@@ -50,6 +52,22 @@ public class FormPluginConfig extends PluginConfig {
 
     public void setPluginState(FormPluginState pluginState) {
         this.pluginState = pluginState;
+    }
+
+    public String getDomainObjectUpdatorComponent() {
+        return domainObjectUpdatorComponent;
+    }
+
+    public void setDomainObjectUpdatorComponent(String domainObjectUpdatorComponent) {
+        this.domainObjectUpdatorComponent = domainObjectUpdatorComponent;
+    }
+
+    public Dto getUpdaterContext() {
+        return updaterContext;
+    }
+
+    public void setUpdaterContext(Dto updaterContext) {
+        this.updaterContext = updaterContext;
     }
 
     @Override

@@ -5,9 +5,9 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 
 import java.util.*;
 
@@ -154,9 +154,17 @@ public class HierarchyBrowserMainPopup {
 
         return buttonsPanel;
     }
+    private String buildNodeType(List<String> nodeTypes){
+        StringBuilder sb = new StringBuilder();
+        for (String nodeType : nodeTypes) {
+            sb.append(nodeType);
+            sb.append(";") ;
+        }
+        return sb.toString();
+    }
 
-    public void drawNewNode(List<HierarchyBrowserItem> items, NodeMetadata nodeMetadata, boolean selective) {
-            String nodeType = nodeMetadata.getDomainObjectType();
+    public void drawNewNode(Id parentId, String parentCollectionName, List<HierarchyBrowserItem> items,boolean selective, List<String> domainObjectTypes) {
+        String nodeType = buildNodeType(domainObjectTypes);
         if (containerMap.containsKey(nodeType)) {
             nodesSection.remove(containerMap.get(nodeType));
         }
@@ -176,21 +184,21 @@ public class HierarchyBrowserMainPopup {
         HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus, nodeHeight,
                selective);
         nodesSection.add(nodeView);
-        nodeView.drawNode(items,nodeMetadata);
+        nodeView.drawNode(parentId, parentCollectionName, items, domainObjectTypes);
         containerMap.put(nodeType, nodeView);
         adjustNodeWidth();
 
     }
 
-    public void redrawNodeWithMoreItems(List<HierarchyBrowserItem> items, NodeMetadata nodeMetadata) {
-        String nodeType = nodeMetadata.getDomainObjectType();
+    public void redrawNodeWithMoreItems(List<String> domainObjectTypes, List<HierarchyBrowserItem> items) {
+        String nodeType = buildNodeType(domainObjectTypes);
         HierarchyBrowserNodeView nodeView = containerMap.get(nodeType);
-        nodeView.drawMoreItems(items, nodeMetadata);
+        nodeView.drawMoreItems(items);
 
     }
 
-    public void redrawNode(List<HierarchyBrowserItem> items, NodeMetadata nodeMetadata) {
-        String nodeType = nodeMetadata.getDomainObjectType();
+    public void redrawNode(List<String> domainObjectTypes, List<HierarchyBrowserItem> items) {
+        String nodeType = buildNodeType(domainObjectTypes);
         int index = nodeTypes.indexOf(nodeType);
         List<String> children = nodeTypes.subList(index + 1, nodeTypes.size());
         for (String childType : children) {
@@ -201,7 +209,7 @@ public class HierarchyBrowserMainPopup {
             }
         }
         HierarchyBrowserNodeView nodeView = containerMap.get(nodeType);
-        nodeView.redrawNode(items, nodeMetadata);
+        nodeView.redrawNode(items);
         adjustNodeWidth();
     }
 

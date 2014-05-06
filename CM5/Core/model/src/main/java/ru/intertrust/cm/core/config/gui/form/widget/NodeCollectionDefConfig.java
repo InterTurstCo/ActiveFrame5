@@ -2,9 +2,13 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -34,8 +38,11 @@ public class NodeCollectionDefConfig implements Dto {
     @Element(name = "default-sort-criteria", required = false)
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
 
-    @Element(name = "node-collection-def", required = false)
-    private NodeCollectionDefConfig nodeCollectionDefConfig;
+    @Element(name = "fill-parent-on-add", required = false)
+    private FillParentOnAddConfig fillParentOnAddConfig;
+
+    @ElementList(inline = true, name ="node-collection-def", required = false)
+    private List<NodeCollectionDefConfig> nodeCollectionDefConfigs = new ArrayList<NodeCollectionDefConfig>();
 
     public SelectionPatternConfig getSelectionPatternConfig() {
         return selectionPatternConfig;
@@ -61,12 +68,12 @@ public class NodeCollectionDefConfig implements Dto {
         this.inputTextFilterConfig = inputTextFilterConfig;
     }
 
-    public NodeCollectionDefConfig getNodeCollectionDefConfig() {
-        return nodeCollectionDefConfig;
+    public List<NodeCollectionDefConfig> getNodeCollectionDefConfigs() {
+        return nodeCollectionDefConfigs;
     }
 
-    public void setNodeCollectionDefConfig(NodeCollectionDefConfig nodeCollectionDefConfig) {
-        this.nodeCollectionDefConfig = nodeCollectionDefConfig;
+    public void setNodeCollectionDefConfigs(List<NodeCollectionDefConfig> nodeCollectionDefConfigs) {
+        this.nodeCollectionDefConfigs = nodeCollectionDefConfigs;
     }
 
     public String getCollection() {
@@ -93,6 +100,14 @@ public class NodeCollectionDefConfig implements Dto {
         this.domainObjectType = domainObjectType;
     }
 
+    public FillParentOnAddConfig getFillParentOnAddConfig() {
+        return fillParentOnAddConfig;
+    }
+
+    public void setFillParentOnAddConfig(FillParentOnAddConfig fillParentOnAddConfig) {
+        this.fillParentOnAddConfig = fillParentOnAddConfig;
+    }
+
     public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
         return defaultSortCriteriaConfig;
     }
@@ -112,8 +127,8 @@ public class NodeCollectionDefConfig implements Dto {
 
         NodeCollectionDefConfig that = (NodeCollectionDefConfig) o;
 
-        if (nodeCollectionDefConfig != null ? !nodeCollectionDefConfig.
-                equals(that.nodeCollectionDefConfig) : that.nodeCollectionDefConfig != null) {
+        if (nodeCollectionDefConfigs != null ? !nodeCollectionDefConfigs.
+                equals(that.nodeCollectionDefConfigs) : that.nodeCollectionDefConfigs != null) {
             return false;
         }
 
@@ -128,6 +143,11 @@ public class NodeCollectionDefConfig implements Dto {
         if (parentFilter != null ? !parentFilter.equals(that.parentFilter) : that.parentFilter != null) {
             return false;
         }
+        if (fillParentOnAddConfig != null ? !fillParentOnAddConfig.equals(that.fillParentOnAddConfig) : that.
+                fillParentOnAddConfig != null) {
+            return false;
+        }
+
         if (collection != null ? !collection.equals(that.collection) : that.collection != null) {
             return false;
         }
@@ -148,10 +168,11 @@ public class NodeCollectionDefConfig implements Dto {
     public int hashCode() {
         int result = selectionPatternConfig != null ? selectionPatternConfig.hashCode() : 0;
         result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);
-        result = 31 * result + (nodeCollectionDefConfig != null ? nodeCollectionDefConfig.hashCode() : 0);
+        result = 31 * result + (nodeCollectionDefConfigs != null ? nodeCollectionDefConfigs.hashCode() : 0);
+        result = 31 * result + (fillParentOnAddConfig != null ? fillParentOnAddConfig.hashCode() : 0);
         result = 31 * result + (parentFilter != null ? parentFilter.hashCode() : 0);
         result = 31 * result + (collection != null ? collection.hashCode() : 0);
-        result = 31 * result +(selective ? 1 : 0);
+        result = 31 * result + (selective ? 1 : 0);
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         return result;

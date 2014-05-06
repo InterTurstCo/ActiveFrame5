@@ -4,6 +4,8 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 
+import java.util.Map;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 03.01.14
@@ -13,24 +15,16 @@ public abstract class HierarchyBrowserHyperlinkContentManager {
     protected Id id;
     protected String collectionName;
     protected HierarchyBrowserConfig config;
-
-    protected HierarchyBrowserHyperlinkContentManager(Id id, String collectionName, HierarchyBrowserConfig config) {
+    protected Map<String, NodeCollectionDefConfig> collectionNameNodeMap;
+    protected HierarchyBrowserHyperlinkContentManager(Id id, String collectionName, HierarchyBrowserConfig config,
+                                                      Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
         this.collectionName = collectionName;
         this.config = config;
         this.id = id;
+        this.collectionNameNodeMap = collectionNameNodeMap;
     }
 
     protected abstract void updateHyperlink();
 
-    protected NodeCollectionDefConfig getNodeConfigForRedraw(String collectionName, NodeCollectionDefConfig nodeConfig) {
-        if (nodeConfig == null) {
-            return null;
-        }
-
-        if (collectionName.equalsIgnoreCase(nodeConfig.getCollection())){
-            return nodeConfig;
-        }
-        else return getNodeConfigForRedraw(collectionName, nodeConfig.getNodeCollectionDefConfig());
-    }
 
 }

@@ -371,10 +371,11 @@ public class WidgetConfigurationLogicalValidator {
         if (collectionConfig != null) {
             validateIfFiltersExist(collectionConfig, nodeConfig, logicalErrors);
         }
-        NodeCollectionDefConfig childNodeConfig = nodeConfig.getNodeCollectionDefConfig();
-        if (childNodeConfig != null) {
+        List<NodeCollectionDefConfig> childNodeConfigs = nodeConfig.getNodeCollectionDefConfigs();
+        for (NodeCollectionDefConfig childNodeConfig : childNodeConfigs) {
             validateHierarchyBrowserNode(widget, childNodeConfig, logicalErrors);
         }
+
     }
 
     private CollectionConfig validateIfCollectionExists(WidgetConfigurationToValidate widget,

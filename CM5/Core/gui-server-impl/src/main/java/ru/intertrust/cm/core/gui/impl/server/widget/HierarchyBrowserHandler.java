@@ -15,10 +15,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,19 +40,24 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         Matcher selectionMatcher = pattern.matcher(selectionPatternConfig.getValue());
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
+        Map<String, NodeCollectionDefConfig> collectionNameNodeMap = new HashMap<>();
+        String firstCollectionName = nodeConfig.getCollection();
+        collectionNameNodeMap.put(firstCollectionName, nodeConfig);
+        fillCollectionNameNodeMap(nodeConfig, collectionNameNodeMap);
         if (!selectedIds.isEmpty()) {
             List<Filter> filters = new ArrayList<Filter>();
             filters = addIncludeIdsFilter(selectedIds, filters);
-            List<String> collectionNames = new ArrayList<String>();
-            collectionNames = getCollectionsNames(nodeConfig, collectionNames);
-            for (String collectionName : collectionNames){
-                 generateChosenItemsForCollection(collectionName, filters, selectionMatcher, chosenItems);
+            Set<String> collectionNames = collectionNameNodeMap.keySet();
+            for (String collectionName : collectionNames) {
+                generateChosenItemsForCollection(collectionName, filters, selectionMatcher, chosenItems);
             }
+
         }
         HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
+        state.setCollectionNameNodeMap(collectionNameNodeMap);
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
-        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
+        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
         state.setSingleChoice(singleChoice);
         state.setHierarchyBrowserConfig(widgetConfig);
         state.setChosenItems(chosenItems);
@@ -63,15 +65,16 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     }
 
     private void generateChosenItemsForCollection(String collectionName, List<Filter> filters,
-                                                                             Matcher matcher, ArrayList<HierarchyBrowserItem> items) {
+                                                  Matcher matcher, ArrayList<HierarchyBrowserItem> items) {
         IdentifiableObjectCollection collectionForFacebookStyleItems = collectionsService.
                 findCollection(collectionName, null, filters, 0, 0);
         for (IdentifiableObject identifiableObject : collectionForFacebookStyleItems) {
-            HierarchyBrowserItem item = createHierarchyBrowserItem(collectionName,identifiableObject, matcher);
+            HierarchyBrowserItem item = createHierarchyBrowserItem(collectionName, identifiableObject, matcher);
             items.add(item);
         }
 
     }
+
     private HierarchyBrowserItem createHierarchyBrowserItem(String collectionName,
                                                             IdentifiableObject identifiableObject, Matcher matcher) {
         HierarchyBrowserItem item = new HierarchyBrowserItem();
@@ -83,44 +86,52 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     public NodeContentResponse fetchNodeContent(Dto inputParams) {
         NodeContentRequest nodeContentRequest = (NodeContentRequest) inputParams;
-        NodeMetadata metadata = nodeContentRequest.getNodeMetadata();
-        String collectionName = metadata.getCollectionName();
-        Pattern pattern = createDefaultRegexPattern();
-        Matcher selectionMatcher = pattern.matcher(nodeContentRequest.getSelectionPattern());
+        ArrayList<HierarchyBrowserItem> items = new ArrayList<HierarchyBrowserItem>();
+        NodeCollectionDefConfig rootNodeCollectionDefConfig = nodeContentRequest.getNodeCollectionDefConfig();
+        List<NodeCollectionDefConfig> nodeCollectionDefConfigs = getNodeCollectionConfigs(rootNodeCollectionDefConfig,
+                nodeContentRequest.isOpenChildren());
         int numberOfItems = nodeContentRequest.getNumberOfItemsToDisplay();
         int offset = nodeContentRequest.getOffset();
         ArrayList<Id> chosenIds = nodeContentRequest.getChosenIds();
-        ArrayList<HierarchyBrowserItem> items = new ArrayList<HierarchyBrowserItem>();
-        List<Filter> filters = new ArrayList<Filter>();
-        Id parentId = metadata.getParentId();
-        if (parentId != null) {
-            filters = addParentFilter(nodeContentRequest, filters);
-        }
-        String inputText = nodeContentRequest.getInputText();
-        if (inputText != null && !inputText.equalsIgnoreCase("")) {
-            filters =  addInputTextFilter(nodeContentRequest.getInputTextFilterName(), inputText, filters);
-        }
-        DefaultSortCriteriaConfig sortCriteriaConfig = nodeContentRequest.getDefaultSortCriteriaConfig();
-        SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
-        IdentifiableObjectCollection collection = collectionsService.
-                findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
-
-        for (IdentifiableObject identifiableObject : collection) {
-            HierarchyBrowserItem item = new HierarchyBrowserItem();
-            Id id = identifiableObject.getId();
-            item.setId(id);
-            item.setStringRepresentation(format(identifiableObject, selectionMatcher));
-            item.setNodeCollectionName(collectionName);
-
-            if (chosenIds.contains(id)) {
-                item.setChosen(true);
+        List<String> domainObjectTypes = new ArrayList<>();
+        Id parentId = nodeContentRequest.getParentId();
+        for (NodeCollectionDefConfig nodeCollectionDefConfig : nodeCollectionDefConfigs) {
+            domainObjectTypes.add(nodeCollectionDefConfig.getDomainObjectType());
+            String collectionName = nodeCollectionDefConfig.getCollection();
+            Pattern pattern = createDefaultRegexPattern();
+            Matcher selectionMatcher = pattern.matcher(nodeCollectionDefConfig.getSelectionPatternConfig().getValue());
+            List<Filter> filters = new ArrayList<Filter>();
+            if (parentId != null) {
+                filters = addParentFilter(parentId, nodeCollectionDefConfig.getParentFilter(), filters);
             }
-            items.add(item);
+            String inputText = nodeContentRequest.getInputText();
+            if (inputText != null && !inputText.equalsIgnoreCase("")) {
+                String inputTextFilterName = nodeCollectionDefConfig.getInputTextFilterConfig().getName();
+                filters = addInputTextFilter(inputTextFilterName, inputText, filters);
+            }
+            DefaultSortCriteriaConfig sortCriteriaConfig = nodeCollectionDefConfig.getDefaultSortCriteriaConfig();
+            SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
+            IdentifiableObjectCollection collection = collectionsService.
+                    findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
+            for (IdentifiableObject identifiableObject : collection) {
+                HierarchyBrowserItem item = new HierarchyBrowserItem();
+                Id id = identifiableObject.getId();
+                item.setId(id);
+                item.setStringRepresentation(format(identifiableObject, selectionMatcher));
+                item.setNodeCollectionName(collectionName);
+                if (chosenIds.contains(id)) {
+                    item.setChosen(true);
+                }
+                items.add(item);
+            }
+
         }
         NodeContentResponse nodeContent = new NodeContentResponse();
         nodeContent.setNodeContent(items);
-        nodeContent.setNodeMetadata(metadata);
+        nodeContent.setDomainObjectTypes(domainObjectTypes);
+        nodeContent.setParentCollectionName(rootNodeCollectionDefConfig.getCollection());
         nodeContent.setSelective(nodeContentRequest.isSelective());
+        nodeContent.setParentId(parentId);
         return nodeContent;
     }
 
@@ -128,22 +139,19 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         return Pattern.compile("\\{\\w+\\}");
     }
 
-    private List<Filter> addParentFilter(NodeContentRequest nodeContentRequest, List<Filter> filters) {
-        Id nodeId = nodeContentRequest.getNodeMetadata().getParentId();
-        String filterName = nodeContentRequest.getParentFilterName();
-        Filter parentFilter = new Filter();
-        parentFilter.setFilter(filterName);
-        parentFilter.addCriterion(0, new ReferenceValue(nodeId));
+    private List<Filter> addParentFilter(Id parentId, String filterByParentName, List<Filter> filters) {
+        Filter parentFilter = FilterBuilder.prepareReferenceFilter(parentId, filterByParentName);
         filters.add(parentFilter);
         return filters;
     }
 
     private List<Filter> addIncludeIdsFilter(List<Id> includedIds, List<Filter> filters) {
-        Set<Id> idsIncluded= new HashSet<Id>(includedIds);
+        Set<Id> idsIncluded = new HashSet<Id>(includedIds);
         Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, FilterBuilder.INCLUDED_IDS_FILTER);
         filters.add(idsIncludedFilter);
         return filters;
     }
+
     private List<Filter> addInputTextFilter(String name, String text, List<Filter> filters) {
         Filter textFilter = new Filter();
         textFilter.setFilter(name);
@@ -152,14 +160,28 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         return filters;
     }
 
-    private List<String> getCollectionsNames(NodeCollectionDefConfig nodeConfig, List<String> collectionNames) {
-        if (nodeConfig == null) {
-            return collectionNames;
+    private void fillCollectionNameNodeMap(NodeCollectionDefConfig nodeConfig,
+                                           Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
+        List<NodeCollectionDefConfig> nodeCollectionConfigs = nodeConfig.getNodeCollectionDefConfigs();
+        for (NodeCollectionDefConfig node : nodeCollectionConfigs) {
+            collectionNameNodeMap.put(node.getCollection(), node);
+            List<NodeCollectionDefConfig> childNodes = node.getNodeCollectionDefConfigs();
+            for (NodeCollectionDefConfig childNode : childNodes) {
+                collectionNameNodeMap.put(childNode.getCollection(), childNode);
+                fillCollectionNameNodeMap(childNode, collectionNameNodeMap);
+            }
         }
-        String collectionName = nodeConfig.getCollection();
-        collectionNames.add(collectionName);
-        NodeCollectionDefConfig childNodeConfig = nodeConfig.getNodeCollectionDefConfig();
-        return getCollectionsNames(childNodeConfig, collectionNames);
     }
 
+    private List<NodeCollectionDefConfig> getNodeCollectionConfigs(NodeCollectionDefConfig rootNodeCollectionDefConfig,
+                                                                   boolean openChildren) {
+
+        if (openChildren) {
+            return rootNodeCollectionDefConfig.getNodeCollectionDefConfigs();
+        } else {
+            List<NodeCollectionDefConfig> nodeCollectionDefConfigs = new ArrayList<>();
+            nodeCollectionDefConfigs.add(rootNodeCollectionDefConfig);
+            return nodeCollectionDefConfigs;
+        }
+    }
 }

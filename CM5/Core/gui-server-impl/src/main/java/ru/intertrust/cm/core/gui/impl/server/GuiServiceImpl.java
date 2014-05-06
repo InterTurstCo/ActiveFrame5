@@ -92,9 +92,22 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
+    public FormDisplayData getForm(String domainObjectType, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo) {
+        FormRetriever formRetriever = getFormRetriever(userInfo);
+        return formRetriever.getForm(domainObjectType, domainObjectUpdaterName, updaterContext);
+
+    }
+
+    @Override
     public FormDisplayData getForm(final Id domainObjectId, final UserInfo userInfo) {
         FormRetriever formRetriever = getFormRetriever(userInfo);
         return formRetriever.getForm(domainObjectId);
+    }
+
+    @Override
+    public FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo) {
+        FormRetriever formRetriever = getFormRetriever(userInfo);
+        return formRetriever.getForm(domainObjectId, domainObjectUpdaterName, updaterContext);
     }
 
     @Override

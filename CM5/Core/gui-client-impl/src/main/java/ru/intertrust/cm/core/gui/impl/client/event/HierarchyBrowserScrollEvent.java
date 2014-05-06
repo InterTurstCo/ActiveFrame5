@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -11,11 +11,13 @@ import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 public class HierarchyBrowserScrollEvent extends GwtEvent<HierarchyBrowserScrollEventHandler> {
 
     public static Type<HierarchyBrowserScrollEventHandler> TYPE = new Type<HierarchyBrowserScrollEventHandler>();
-   private NodeMetadata nodeMetadata;
+    private Id parentId;
+    private String parentCollectionName;
     private String inputText;
     private int factor;
-    public HierarchyBrowserScrollEvent(NodeMetadata nodeMetadata, int factor, String inputText){
-        this.nodeMetadata = nodeMetadata;
+    public HierarchyBrowserScrollEvent(Id parentId, String parentCollectionName, int factor, String inputText){
+        this.parentId = parentId;
+        this.parentCollectionName = parentCollectionName;
         this.factor = factor;
         this.inputText = inputText;
     }
@@ -30,8 +32,12 @@ public class HierarchyBrowserScrollEvent extends GwtEvent<HierarchyBrowserScroll
         handler.onHierarchyBrowserScroll(this);
     }
 
-    public NodeMetadata getNodeMetadata() {
-        return nodeMetadata;
+    public Id getParentId() {
+        return parentId;
+    }
+
+    public String getParentCollectionName() {
+        return parentCollectionName;
     }
 
     public int getFactor() {

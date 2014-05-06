@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  *         Time: 13:15
  */
 public class HierarchyBrowserItem implements Dto {
+
     private String stringRepresentation;
     private Id id;
     private String nodeCollectionName;
@@ -30,6 +31,7 @@ public class HierarchyBrowserItem implements Dto {
         this.id = id;
 
     }
+
 
     public String getStringRepresentation() {
         return stringRepresentation;

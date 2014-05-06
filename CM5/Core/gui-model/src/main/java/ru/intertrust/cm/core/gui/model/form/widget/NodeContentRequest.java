@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 
 import java.util.ArrayList;
 
@@ -12,55 +12,29 @@ import java.util.ArrayList;
  *         Time: 13:15
  */
 public class NodeContentRequest implements Dto {
-    private NodeMetadata nodeMetadata;
-    private String parentFilterName;
-    private String selectionPattern;
-    private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
-    private String inputTextFilterName;
+
+    private NodeCollectionDefConfig nodeCollectionDefConfig;
     private int numberOfItemsToDisplay;
     private int offset;
     private String inputText;
     private boolean selective = true;
+    private Id parentId;
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
-
-    public NodeMetadata getNodeMetadata() {
-        return nodeMetadata;
-    }
-
-    public void setNodeMetadata(NodeMetadata nodeMetadata) {
-        this.nodeMetadata = nodeMetadata;
-    }
-
-    public String getParentFilterName() {
-        return parentFilterName;
-    }
-
-    public void setParentFilterName(String parentFilterName) {
-        this.parentFilterName = parentFilterName;
-    }
-
-    public String getSelectionPattern() {
-        return selectionPattern;
-    }
-
-    public void setSelectionPattern(String selectionPattern) {
-        this.selectionPattern = selectionPattern;
-    }
-
-    public String getInputTextFilterName() {
-        return inputTextFilterName;
-    }
-
-    public void setInputTextFilterName(String inputTextFilterName) {
-        this.inputTextFilterName = inputTextFilterName;
-    }
-
+    private boolean openChildren = true;
     public int getNumberOfItemsToDisplay() {
         return numberOfItemsToDisplay;
     }
 
     public void setNumberOfItemsToDisplay(int numberOfItemsToDisplay) {
         this.numberOfItemsToDisplay = numberOfItemsToDisplay;
+    }
+
+    public boolean isOpenChildren() {
+        return openChildren;
+    }
+
+    public void setOpenChildren(boolean openChildren) {
+        this.openChildren = openChildren;
     }
 
     public ArrayList<Id> getChosenIds() {
@@ -95,11 +69,19 @@ public class NodeContentRequest implements Dto {
         this.selective = selective;
     }
 
-    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
-        return defaultSortCriteriaConfig;
+    public NodeCollectionDefConfig getNodeCollectionDefConfig() {
+        return nodeCollectionDefConfig;
     }
 
-    public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
-        this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
+    public void setNodeCollectionDefConfig(NodeCollectionDefConfig nodeCollectionDefConfig) {
+        this.nodeCollectionDefConfig = nodeCollectionDefConfig;
+    }
+
+    public Id getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Id parentId) {
+        this.parentId = parentId;
     }
 }

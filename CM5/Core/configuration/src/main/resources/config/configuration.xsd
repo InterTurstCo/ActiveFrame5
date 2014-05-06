@@ -1885,8 +1885,10 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:nodeCollectionDefType" name="node-collection-def" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:fillParentOnAddType" name="fill-parent-on-add" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
-        <xs:attribute type="xs:string" name="collection" use="optional"/>
+        <xs:attribute type="xs:string" name="collection" use="required"/>
         <xs:attribute type="xs:string" name="parent-filter" use="optional"/>
         <xs:attribute type="xs:boolean" name="selective" default="true"/>
         <xs:attribute type="xs:string" name="domain-object-type"/>
@@ -1894,6 +1896,13 @@
 
     <xs:complexType name="displayValuesAsLinksType">
         <xs:attribute type="xs:boolean" name="value"/>
+    </xs:complexType>
+
+    <xs:complexType name="fillParentOnAddType">
+        <xs:attribute type="xs:string" name="field-to-fill" use="required"/>
+        <xs:attribute type="xs:string" name="collection" use="optional"/>
+        <xs:attribute type="xs:string" name="collection-field" use="optional"/>
+        <xs:attribute type="xs:string" name="filter-by-parent-id" use="optional"/>
     </xs:complexType>
 
     <xs:element type="con:attachmentBoxType" name="attachment-box" substitutionGroup="con:widget"/>

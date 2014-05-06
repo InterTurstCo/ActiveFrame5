@@ -130,6 +130,39 @@
                 ]]>
             </criteria>
         </filter>
+
+    </collection>
+    <collection name="OrganizationsDepartmentsEmployees" idField="id">
+        <prototype>
+            <![CDATA[
+                   select
+                        o.id as orgid, d.id , e.name, e.position
+                        from Organization o
+                        join Department d
+                        on o.id = d.organization
+                        join Employee e
+                        on e.department = d.id
+                        where
+                    1=1 ::where-clause
+                ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from Organization o
+        </counting-prototype>
+        <filter name="byDepartmentAndOrganization">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    o.id = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byNameAndPosition">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.name || e.position like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
     <collection name="Cities" idField="id">
         <prototype>
