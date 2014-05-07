@@ -49,7 +49,7 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
 
         addObserver(new TopLevelConfigObserver(this, configStorage));
         addObserver(new CollectionViewConfigObserver(this, configStorage));
-        addObserver(new ToolBarConfigObserver(this, configStorage));
+        addObserver(new ToolBarConfigObserver1(this, configStorage));
     }
 
     /**

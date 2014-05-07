@@ -3,10 +3,10 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 
-public class ToolBarConfigObserver extends ConfigurationObserver<ToolBarConfig> {
+public class ToolBarConfigObserver1 extends ConfigurationObserver<ToolBarConfig> {
 
 
-    protected ToolBarConfigObserver(ConfigurationExplorer configurationExplorer, ConfigurationStorage configStorage) {
+    protected ToolBarConfigObserver1(ConfigurationExplorer configurationExplorer, ConfigurationStorage configStorage) {
         super(configurationExplorer, configStorage);
     }
 
