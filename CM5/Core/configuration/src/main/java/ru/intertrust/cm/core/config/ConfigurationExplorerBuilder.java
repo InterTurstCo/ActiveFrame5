@@ -19,7 +19,7 @@ class ConfigurationExplorerBuilder {
     private static final String ALL_STATUSES_SIGN = "*";
     private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
 
-    ConfigurationExplorerImpl configurationExplorer;
+    private ConfigurationExplorerImpl configurationExplorer;
     private ConfigurationStorage configurationStorage;
 
     void buildConfigurationStorage(ConfigurationExplorerImpl configurationExplorer, Configuration configuration) {
@@ -29,6 +29,15 @@ class ConfigurationExplorerBuilder {
         this.configurationExplorer.setConfig(this.configurationStorage);
 
         initConfigurationMaps();
+    }
+
+    void fillTopLevelConfigMap(TopLevelConfig config) {
+        CaseInsensitiveMap<TopLevelConfig> typeMap = configurationStorage.topLevelConfigMap.get(config.getClass());
+        if (typeMap == null) {
+            typeMap = new CaseInsensitiveMap<>();
+            configurationStorage.topLevelConfigMap.put(config.getClass(), typeMap);
+        }
+        typeMap.put(config.getName(), config);
     }
 
     private void initConfigurationMaps() {
@@ -133,15 +142,6 @@ class ConfigurationExplorerBuilder {
                 initConfigurationMapOfChildDomainObjectTypes(type.getName(), directChildTypes, indirectChildTypes, false);
             }
         }
-    }
-
-    private void fillTopLevelConfigMap(TopLevelConfig config) {
-        CaseInsensitiveMap<TopLevelConfig> typeMap = configurationStorage.topLevelConfigMap.get(config.getClass());
-        if (typeMap == null) {
-            typeMap = new CaseInsensitiveMap<>();
-            configurationStorage.topLevelConfigMap.put(config.getClass(), typeMap);
-        }
-        typeMap.put(config.getName(), config);
     }
 
     private void fillSystemFields(DomainObjectTypeConfig domainObjectTypeConfig) {

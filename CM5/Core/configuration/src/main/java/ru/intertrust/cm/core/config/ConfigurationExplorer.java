@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
@@ -202,4 +203,6 @@ public interface ConfigurationExplorer {
      * @return цепочку от корня до родителя. Если нет родителя - пустой массив.
      */
     String[] getDomainObjectTypesHierarchy(String typeName);
+
+    void updateConfig(TopLevelConfig config);
 }

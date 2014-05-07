@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.config.IndexConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
@@ -67,6 +68,29 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         this.domainObjectTypeIdDao = domainObjectTypeIdDao;
     }
 
+    public void loadConfiguration(String configurationString) throws ConfigurationException {
+        Configuration configuration;
+        try {
+            configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString);
+            if (configuration == null) {
+                throw new ConfigurationException();
+            }
+        } catch (ConfigurationException e) {
+            throw new ConfigurationException("Configuration loading aborted: failed to deserialize configuration", e);
+        }
+
+        for (TopLevelConfig config : configuration.getConfigurationList()) {
+            if (DomainObjectTypeConfig.class.equals(config.getClass())) {
+                continue;
+            }
+
+            TopLevelConfig oldConfig = configurationExplorer.getConfig(config.getClass(), config.getName());
+            if (oldConfig == null || !oldConfig.equals(config)) {
+                configurationExplorer.updateConfig(config);
+            }
+        }
+    }
+
     /**
      * Смотри {@link ConfigurationControlService#loadConfiguration()}
      */
@@ -93,7 +117,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 throw new ConfigurationException();
             }
         } catch (ConfigurationException e) {
-            throw new ConfigurationException("Configuration loading aborted: failed to serialize last loaded " +
+            throw new ConfigurationException("Configuration loading aborted: failed to deserialize last loaded " +
                     "configuration. This may mean that configuration structure has changed since last configuration load", e);
         }
 

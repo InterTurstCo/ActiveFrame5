@@ -11,15 +11,23 @@ import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
  * @author vmatsukevich Date: 6/12/13 Time: 5:21 PM
  */
-public class ConfigurationExplorerImpl implements ConfigurationExplorer {
+public class ConfigurationExplorerImpl extends Observable implements ConfigurationExplorer {
+
     private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
 
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock readLock  = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
+
     private ConfigurationStorage configStorage;
+    private ConfigurationExplorerBuilder configurationExplorerBuilder;
 
     @Autowired
     FormLogicalValidator formLogicalValidator;
@@ -33,8 +41,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * Создает {@link ConfigurationExplorerImpl}
      */
     public ConfigurationExplorerImpl(Configuration configuration) {
-        new ConfigurationExplorerBuilder().buildConfigurationStorage(this, configuration);
+        configurationExplorerBuilder = new ConfigurationExplorerBuilder();
+        configurationExplorerBuilder.buildConfigurationStorage(this, configuration);
         validate();
+
+        addObserver(new TopLevelConfigObserver(this, configStorage));
     }
 
     /**
@@ -42,12 +53,22 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public Configuration getConfiguration() {
-        Configuration cloneConfiguration = getReturnObject(configStorage.configuration, Configuration.class);
-        return cloneConfiguration;
+        readLock.lock();
+        try {
+            Configuration cloneConfiguration = getReturnObject(configStorage.configuration, Configuration.class);
+            return cloneConfiguration;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public GlobalSettingsConfig getGlobalSettings() {
-        return getReturnObject(configStorage.globalSettings, GlobalSettingsConfig.class);
+        readLock.lock();
+        try {
+            return getReturnObject(configStorage.globalSettings, GlobalSettingsConfig.class);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -93,13 +114,18 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getConfig(Class<T> type, String name) {
-        CaseInsensitiveMap<TopLevelConfig> typeMap = configStorage.topLevelConfigMap.get(type);
-        if (typeMap == null) {
-            return null;
-        }
+        readLock.lock();
+        try {
+            CaseInsensitiveMap<TopLevelConfig> typeMap = configStorage.topLevelConfigMap.get(type);
+            if (typeMap == null) {
+                return null;
+            }
 
-        T config = (T) typeMap.get(name);
-        return getReturnObject(config, type);
+            T config = (T) typeMap.get(name);
+            return getReturnObject(config, type);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -108,37 +134,52 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Collection<T> getConfigs(Class<T> type) {
-        CaseInsensitiveMap<TopLevelConfig> typeMap = configStorage.topLevelConfigMap.get(type);
-        if (typeMap == null) {
-            return Collections.EMPTY_LIST;
+        readLock.lock();
+        try {
+            CaseInsensitiveMap<TopLevelConfig> typeMap = configStorage.topLevelConfigMap.get(type);
+            if (typeMap == null) {
+                return Collections.EMPTY_LIST;
+            }
+
+            //Перекладываем в другой контейнер, для возможности сериализации
+            List<T> result = new ArrayList<T>();
+            result.addAll((Collection<T>) typeMap.values());
+
+            return getReturnObject(result, ArrayList.class);
+        } finally {
+            readLock.unlock();
         }
-
-        //Перекладываем в другой контейнер, для возможности сериализации
-        List<T> result = new ArrayList<T>();
-        result.addAll((Collection<T>) typeMap.values());
-
-        return getReturnObject(result, ArrayList.class);
     }
 
     @Override
     public DomainObjectTypeConfig getDomainObjectTypeConfig(String typeName) {
-        return getConfig(DomainObjectTypeConfig.class, typeName);
+        readLock.lock();
+        try {
+            return getConfig(DomainObjectTypeConfig.class, typeName);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect) {
-        Collection<DomainObjectTypeConfig> childTypes =
-                includeIndirect ? configStorage.indirectChildDomainObjectTypesMap.get(typeName) :
-                        configStorage.directChildDomainObjectTypesMap.get(typeName);
+        readLock.lock();
+        try {
+            Collection<DomainObjectTypeConfig> childTypes =
+                    includeIndirect ? configStorage.indirectChildDomainObjectTypesMap.get(typeName) :
+                            configStorage.directChildDomainObjectTypesMap.get(typeName);
 
-        if (childTypes == null) {
-            return new ArrayList<>();
+            if (childTypes == null) {
+                return new ArrayList<>();
+            }
+
+            List<DomainObjectTypeConfig> result = new ArrayList<>();
+            result.addAll(childTypes);
+
+            return getReturnObject(result, ArrayList.class);
+        } finally {
+            readLock.unlock();
         }
-
-        List<DomainObjectTypeConfig> result = new ArrayList<>();
-        result.addAll(childTypes);
-
-        return getReturnObject(result, ArrayList.class);
     }
 
     /**
@@ -146,38 +187,47 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {
-        return getFieldConfig(domainObjectConfigName, fieldConfigName, true);
+        readLock.lock();
+        try {
+            return getFieldConfig(domainObjectConfigName, fieldConfigName, true);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName,
-            boolean returnInheritedConfig) {
-        if (REFERENCE_TYPE_ANY.equals(domainObjectConfigName)) {
-            throw new IllegalArgumentException("'*' is not a valid Domain Object type");
-        }
-
-        FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
-        FieldConfig result = configStorage.fieldConfigMap.get(fieldConfigKey);
-
-        if (result != null) {
-            return getReturnObject(result, result.getClass());
-        }
-
-        if (returnInheritedConfig) {
-            DomainObjectTypeConfig domainObjectTypeConfig =
-                    getConfig(DomainObjectTypeConfig.class, domainObjectConfigName);
-            if (domainObjectTypeConfig == null) {
-                return null;
+    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig) {
+        readLock.lock();
+        try {
+            if (REFERENCE_TYPE_ANY.equals(domainObjectConfigName)) {
+                throw new IllegalArgumentException("'*' is not a valid Domain Object type");
             }
-            if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-                return getFieldConfig(domainObjectTypeConfig.getExtendsAttribute(), fieldConfigName);
-            }
-        }
 
-        return null;
+            FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
+            FieldConfig result = configStorage.fieldConfigMap.get(fieldConfigKey);
+
+            if (result != null) {
+                return getReturnObject(result, result.getClass());
+            }
+
+            if (returnInheritedConfig) {
+                DomainObjectTypeConfig domainObjectTypeConfig =
+                        getConfig(DomainObjectTypeConfig.class, domainObjectConfigName);
+                if (domainObjectTypeConfig == null) {
+                    return null;
+                }
+                if (domainObjectTypeConfig.getExtendsAttribute() != null) {
+                    return getFieldConfig(domainObjectTypeConfig.getExtendsAttribute(), fieldConfigName);
+                }
+            }
+
+            return null;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -185,9 +235,14 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public CollectionColumnConfig getCollectionColumnConfig(String collectionViewName, String columnConfigName) {
-        FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionViewName, columnConfigName);
-        CollectionColumnConfig collectionColumnConfig = configStorage.collectionColumnConfigMap.get(collectionColumnConfigKey);
-        return getReturnObject(collectionColumnConfig, collectionColumnConfig.getClass());
+        readLock.lock();
+        try {
+            FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionViewName, columnConfigName);
+            CollectionColumnConfig collectionColumnConfig = configStorage.collectionColumnConfigMap.get(collectionColumnConfigKey);
+            return getReturnObject(collectionColumnConfig, collectionColumnConfig.getClass());
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -195,60 +250,70 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType) {
-        List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigByContextMap.get(domainObjectType);
+        readLock.lock();
+        try {
+            List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigByContextMap.get(domainObjectType);
 
-        if (dynamicGroups == null) {
-            return new ArrayList<>();
+            if (dynamicGroups == null) {
+                return new ArrayList<>();
+            }
+
+            List<DynamicGroupConfig> result = new ArrayList<>();
+            result.addAll(dynamicGroups);
+
+            return getReturnObject(result, ArrayList.class);
+        } finally {
+            readLock.unlock();
         }
-
-        List<DynamicGroupConfig> result = new ArrayList<>();
-        result.addAll(dynamicGroups);
-
-        return getReturnObject(result, ArrayList.class);
     }
 
     /**
      * {@inheritDoc}
      */
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String trackDOTypeName, String status) {
-        FieldConfigKey key = new FieldConfigKey(trackDOTypeName, status);
-        List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigsByTrackDOMap.get(key);
+        readLock.lock();
+        try {
+            FieldConfigKey key = new FieldConfigKey(trackDOTypeName, status);
+            List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigsByTrackDOMap.get(key);
 
-        if (dynamicGroups != null) {
-            List<DynamicGroupConfig> result = new ArrayList<>(dynamicGroups.size());
-            result.addAll(dynamicGroups);
-            return getReturnObject(result, ArrayList.class);
-        }
+            if (dynamicGroups != null) {
+                List<DynamicGroupConfig> result = new ArrayList<>(dynamicGroups.size());
+                result.addAll(dynamicGroups);
+                return getReturnObject(result, ArrayList.class);
+            }
 
-        dynamicGroups = new ArrayList<>();
-        CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = configStorage.topLevelConfigMap.get(DynamicGroupConfig.class);
+            dynamicGroups = new ArrayList<>();
+            CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = configStorage.topLevelConfigMap.get(DynamicGroupConfig.class);
 
-        for (String groupKey : dynamicGroupMap.keySet()) {
-            DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
+            for (String groupKey : dynamicGroupMap.keySet()) {
+                DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
 
-            if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
-                List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs =
-                        dynamicGroup.getMembers().getTrackDomainObjects();
-                for (DynamicGroupTrackDomainObjectsConfig trackDomainObjectConfig : trackDomainObjectConfigs) {
-                    String configuredStatus = trackDomainObjectConfig.getStatus();
-                    String configuredType = trackDomainObjectConfig.getType();
-                    if (trackDOTypeName.equalsIgnoreCase(configuredType)) {
+                if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
+                    List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs =
+                            dynamicGroup.getMembers().getTrackDomainObjects();
+                    for (DynamicGroupTrackDomainObjectsConfig trackDomainObjectConfig : trackDomainObjectConfigs) {
+                        String configuredStatus = trackDomainObjectConfig.getStatus();
+                        String configuredType = trackDomainObjectConfig.getType();
+                        if (trackDOTypeName.equalsIgnoreCase(configuredType)) {
 
-                        if (configuredStatus == null || configuredStatus.equals(status)) {
-                            dynamicGroups.add(dynamicGroup);
+                            if (configuredStatus == null || configuredStatus.equals(status)) {
+                                dynamicGroups.add(dynamicGroup);
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if (dynamicGroups != null) {
-            configStorage.dynamicGroupConfigsByTrackDOMap.putIfAbsent(key, dynamicGroups);
-        }
+            if (dynamicGroups != null) {
+                configStorage.dynamicGroupConfigsByTrackDOMap.putIfAbsent(key, dynamicGroups);
+            }
 
-        List<DynamicGroupConfig> result = new ArrayList<>(dynamicGroups.size());
-        result.addAll(dynamicGroups);
-        return getReturnObject(result, ArrayList.class);
+            List<DynamicGroupConfig> result = new ArrayList<>(dynamicGroups.size());
+            result.addAll(dynamicGroups);
+            return getReturnObject(result, ArrayList.class);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -256,39 +321,44 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
-        if (status == null) {
-            status = "*";
-        }
+        readLock.lock();
+        try {
+            if (status == null) {
+                status = "*";
+            }
 
-        FieldConfigKey key = new FieldConfigKey(domainObjectType, status);
-        AccessMatrixStatusConfig result = configStorage.accessMatrixByObjectTypeAndStatusMap.get(key);
+            FieldConfigKey key = new FieldConfigKey(domainObjectType, status);
+            AccessMatrixStatusConfig result = configStorage.accessMatrixByObjectTypeAndStatusMap.get(key);
 
-        if (result != null) {
+            if (result != null) {
+                return getReturnObject(result, AccessMatrixStatusConfig.class);
+            }
+
+            //Получение конфигурации матрицы
+            AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
+            if (accessMatrixConfig != null && accessMatrixConfig.getStatus() != null) {
+
+                //Получаем все статусы
+                for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
+                    //Если статус в конфигурации звезда то не проверяем статусы на соответствие, а возвращаем текущий
+                    if (accessStatusConfig.getName().equals("*")){
+                        result = getReturnObject(accessStatusConfig, accessStatusConfig.getClass());
+                        break;
+                    } else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
+                        result = getReturnObject(accessStatusConfig, accessStatusConfig.getClass());
+                        break;
+                    }
+                }
+            }
+
+            if (result != null) {
+                configStorage.accessMatrixByObjectTypeAndStatusMap.putIfAbsent(key, result);
+            }
+
             return getReturnObject(result, AccessMatrixStatusConfig.class);
+        } finally {
+            readLock.unlock();
         }
-
-    	//Получение конфигурации матрицы
-    	AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
-    	if (accessMatrixConfig != null && accessMatrixConfig.getStatus() != null) {
-
-    		//Получаем все статусы
-    		for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
-    			//Если статус в конфигурации звезда то не проверяем статусы на соответствие, а возвращаем текущий
-    			if (accessStatusConfig.getName().equals("*")){
-    				result = getReturnObject(accessStatusConfig, accessStatusConfig.getClass());
-    				break;
-    			} else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
-    				result = getReturnObject(accessStatusConfig, accessStatusConfig.getClass());
-    				break;
-    			}
-    		}
-    	}
-
-        if (result != null) {
-            configStorage.accessMatrixByObjectTypeAndStatusMap.putIfAbsent(key, result);
-        }
-
-    	return getReturnObject(result, AccessMatrixStatusConfig.class);
     }
 
     /**
@@ -296,9 +366,14 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public AccessMatrixConfig getAccessMatrixByObjectType(String domainObjectType) {
-        //Получение конфигурации матрицы
-        AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
-        return getReturnObject(accessMatrixConfig, AccessMatrixConfig.class);
+        readLock.lock();
+        try {
+            //Получение конфигурации матрицы
+            AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
+            return getReturnObject(accessMatrixConfig, AccessMatrixConfig.class);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -306,20 +381,35 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public boolean isAttachmentType(String domainObjectType) {
-        return configStorage.attachmentDomainObjectTypes.containsKey(domainObjectType);
+        readLock.lock();
+        try {
+            return configStorage.attachmentDomainObjectTypes.containsKey(domainObjectType);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public String[] getAllAttachmentTypes() {
-        Collection<String> values = configStorage.attachmentDomainObjectTypes.values();
-        return values.toArray(new String[values.size()]);
+        readLock.lock();
+        try {
+            Collection<String> values = configStorage.attachmentDomainObjectTypes.values();
+            return values.toArray(new String[values.size()]);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public boolean isReadPermittedToEverybody(String domainObjectType) {
-        if (configStorage.readPermittedToEverybodyMap.get(domainObjectType) != null) {
-            return configStorage.readPermittedToEverybodyMap.get(domainObjectType);
+        readLock.lock();
+        try {
+            if (configStorage.readPermittedToEverybodyMap.get(domainObjectType) != null) {
+                return configStorage.readPermittedToEverybodyMap.get(domainObjectType);
+            }
+            return false;
+        } finally {
+            readLock.unlock();
         }
-        return false;
     }
 
     /**
@@ -330,38 +420,43 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public String getMatrixReferenceTypeName(String childTypeName) {
-        String result = configStorage.matrixReferenceTypeNameMap.get(childTypeName);
+        readLock.lock();
+        try {
+            String result = configStorage.matrixReferenceTypeNameMap.get(childTypeName);
 
-        if (result != null) {
-            return result;
-        }
-
-        //Получаем матрицу и смотрим атрибут matrix_reference_field
-        AccessMatrixConfig matrixConfig = null;
-        DomainObjectTypeConfig childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childTypeName);
-
-        //Ищим матрицу для типа с учетом иерархии типов
-        while((matrixConfig = getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
-                && childDomainObjectTypeConfig.getExtendsAttribute() != null){
-            childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
-        }
-
-        if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
-            //Получаем имя типа на которого ссылается martix-reference-field
-            String parentTypeName = getParentTypeNameFromMatrixReference(matrixConfig.getMatrixReference(), childDomainObjectTypeConfig);
-            //Вызываем рекурсивно метод для родительского типа, на случай если в родительской матрице так же заполнено поле martix-reference-field
-            result = getMatrixReferenceTypeName(parentTypeName);
-            //В случае если у родителя не заполнен атрибут martix-reference-field то возвращаем имя родителя
-            if (result == null){
-                result = parentTypeName;
+            if (result != null) {
+                return result;
             }
-        }
 
-        if (result != null) {
-            configStorage.matrixReferenceTypeNameMap.putIfAbsent(childTypeName, result);
-        }
+            //Получаем матрицу и смотрим атрибут matrix_reference_field
+            AccessMatrixConfig matrixConfig = null;
+            DomainObjectTypeConfig childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childTypeName);
 
-        return result;
+            //Ищим матрицу для типа с учетом иерархии типов
+            while((matrixConfig = getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
+                    && childDomainObjectTypeConfig.getExtendsAttribute() != null){
+                childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
+            }
+
+            if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
+                //Получаем имя типа на которого ссылается martix-reference-field
+                String parentTypeName = getParentTypeNameFromMatrixReference(matrixConfig.getMatrixReference(), childDomainObjectTypeConfig);
+                //Вызываем рекурсивно метод для родительского типа, на случай если в родительской матрице так же заполнено поле martix-reference-field
+                result = getMatrixReferenceTypeName(parentTypeName);
+                //В случае если у родителя не заполнен атрибут martix-reference-field то возвращаем имя родителя
+                if (result == null){
+                    result = parentTypeName;
+                }
+            }
+
+            if (result != null) {
+                configStorage.matrixReferenceTypeNameMap.putIfAbsent(childTypeName, result);
+            }
+
+            return result;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -369,8 +464,13 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
-        ToolBarConfig toolBarConfig = configStorage.toolbarConfigByPluginMap.get(pluginName);
-        return getReturnObject(toolBarConfig, ToolBarConfig.class);
+        readLock.lock();
+        try {
+            ToolBarConfig toolBarConfig = configStorage.toolbarConfigByPluginMap.get(pluginName);
+            return getReturnObject(toolBarConfig, ToolBarConfig.class);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -378,7 +478,72 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public SqlTrace getSqlTraceConfiguration() {
-        return getReturnObject(configStorage.sqlTrace, SqlTrace.class);
+        readLock.lock();
+        try {
+            return getReturnObject(configStorage.sqlTrace, SqlTrace.class);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public String getDomainObjectParentType(String typeName) {
+        readLock.lock();
+        try {
+            String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
+
+            if (typesHierarchy == null || typesHierarchy.length==0){
+                return null;
+            }
+
+            return typesHierarchy[typesHierarchy.length - 1];
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public String getDomainObjectRootType(String typeName) {
+        readLock.lock();
+        try {
+            String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
+
+            if (typesHierarchy == null || typesHierarchy.length == 0){
+                return typeName;
+            }
+
+            return typesHierarchy[0];
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public String[] getDomainObjectTypesHierarchy(String typeName) {
+        readLock.lock();
+        try {
+            if (this.configStorage.domainObjectTypesHierarchy.containsKey(typeName)){
+                return getReturnObject(this.configStorage.domainObjectTypesHierarchy.get(typeName), String[].class);
+            }
+            List <String> typesHierarchy = new ArrayList<>();
+            buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
+            Collections.reverse(typesHierarchy);
+            String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
+            this.configStorage.domainObjectTypesHierarchy.putIfAbsent(typeName, types);
+            return getReturnObject(types, String[].class);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public void updateConfig(TopLevelConfig config) {
+        writeLock.lock();
+        try {
+            notifyObservers(config);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**
@@ -388,7 +553,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * @return
      */
     private String getParentTypeNameFromMatrixReference(String matrixReferenceFieldName,
-            DomainObjectTypeConfig domainObjectTypeConfig) {
+                                                        DomainObjectTypeConfig domainObjectTypeConfig) {
 
         String result = null;
         if (matrixReferenceFieldName.indexOf(".") > 0){
@@ -407,42 +572,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         return (T) source;
     }
 
-
-    @Override
-    public String getDomainObjectParentType(String typeName) {
-        String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
-
-        if (typesHierarchy == null || typesHierarchy.length==0){
-            return null;
-        }
-
-        return typesHierarchy[typesHierarchy.length - 1];
-    }
-
-    @Override
-    public String getDomainObjectRootType(String typeName) {
-        String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
-
-        if (typesHierarchy == null || typesHierarchy.length == 0){
-            return typeName;
-        }
-
-        return typesHierarchy[0];
-    }
-
-    @Override
-    public String[] getDomainObjectTypesHierarchy(String typeName) {
-        if (this.configStorage.domainObjectTypesHierarchy.containsKey(typeName)){
-            return getReturnObject(this.configStorage.domainObjectTypesHierarchy.get(typeName), String[].class);
-        }
-        List <String> typesHierarchy = new ArrayList<>();
-        buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
-        Collections.reverse(typesHierarchy);
-        String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
-        this.configStorage.domainObjectTypesHierarchy.putIfAbsent(typeName, types);
-        return getReturnObject(types, String[].class);
-    }
-
     private void buildDomainObjectTypesHierarchy(List<String> typesHierarchy, String typeName) {
         DomainObjectTypeConfig domainObjectTypeConfig = getDomainObjectTypeConfig(typeName);
         if (domainObjectTypeConfig != null) {
@@ -455,11 +584,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                 buildDomainObjectTypesHierarchy(typesHierarchy, parentType);
             }
         }
-    }
-
-
-    ConfigurationStorage getConfig() {
-        return configStorage;
     }
 
     void setConfig(ConfigurationStorage config) {
