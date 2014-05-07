@@ -59,7 +59,7 @@ class ConfigurationStorageBuilder {
     }
 
     void updateCollectionColumnConfigMap(CollectionViewConfig oldConfig, CollectionViewConfig newConfig) {
-        if (oldConfig.getCollectionDisplayConfig() != null) {
+        if (oldConfig != null && oldConfig.getCollectionDisplayConfig() != null) {
             for (CollectionColumnConfig columnConfig : oldConfig.getCollectionDisplayConfig().getColumnConfig()) {
                 FieldConfigKey fieldConfigKey = new FieldConfigKey(oldConfig.getName(), columnConfig.getField());
                 configurationStorage.collectionColumnConfigMap.remove(fieldConfigKey);
@@ -67,6 +67,20 @@ class ConfigurationStorageBuilder {
         }
 
         fillCollectionColumnConfigMap(newConfig);
+    }
+
+    void updateToolbarConfigByPluginMap(ToolBarConfig oldConfig, ToolBarConfig newConfig) {
+        if (oldConfig != null) {
+            configurationStorage.toolbarConfigByPluginMap.remove(oldConfig.getPlugin());
+        }
+
+        fillToolbarConfigByPluginMap(newConfig);
+    }
+
+    void fillToolbarConfigByPluginMap(ToolBarConfig toolBarConfig) {
+        if (configurationStorage.toolbarConfigByPluginMap.get(toolBarConfig.getPlugin()) == null) {
+            configurationStorage.toolbarConfigByPluginMap.put(toolBarConfig.getPlugin(), toolBarConfig);
+        }
     }
 
     private void initConfigurationMaps() {
@@ -94,9 +108,7 @@ class ConfigurationStorageBuilder {
                 fillReadPermittedToEverybodyMap(accessMatrixConfig);
             } else if (ToolBarConfig.class.equals(config.getClass())) {
                 ToolBarConfig toolBarConfig = (ToolBarConfig) config;
-                if (configurationStorage.toolbarConfigByPluginMap.get(toolBarConfig.getPlugin()) == null) {
-                    configurationStorage.toolbarConfigByPluginMap.put(toolBarConfig.getPlugin(), toolBarConfig);
-                }
+                fillToolbarConfigByPluginMap(toolBarConfig);
             }
         }
 
