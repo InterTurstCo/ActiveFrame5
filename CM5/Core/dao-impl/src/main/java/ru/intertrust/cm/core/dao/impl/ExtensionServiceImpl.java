@@ -14,8 +14,8 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.context.support.AbstractRefreshableApplicationContext;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
@@ -139,7 +139,7 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                                                         AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
                                                                         false);
 
-                                                ((AbstractRefreshableApplicationContext) applicationContext)
+                                                ((ConfigurableApplicationContext) applicationContext)
                                                         .getBeanFactory().registerSingleton(
                                                                 extentionPointClass.getName(),
                                                                 extentionPoint);
