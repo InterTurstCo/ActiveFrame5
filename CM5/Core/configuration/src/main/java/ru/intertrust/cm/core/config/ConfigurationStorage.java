@@ -43,4 +43,7 @@ class ConfigurationStorage {
 
     ConcurrentCaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new ConcurrentCaseInsensitiveMap<>();
 
+    ConfigurationStorage(Configuration configuration) {
+        this.configuration = configuration;
+    }
 }

@@ -27,7 +27,7 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
     private final Lock writeLock = readWriteLock.writeLock();
 
     private ConfigurationStorage configStorage;
-    private ConfigurationExplorerBuilder configurationExplorerBuilder;
+    private ConfigurationStorageBuilder configurationStorageBuilder;
 
     @Autowired
     FormLogicalValidator formLogicalValidator;
@@ -41,11 +41,14 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
      * Создает {@link ConfigurationExplorerImpl}
      */
     public ConfigurationExplorerImpl(Configuration configuration) {
-        configurationExplorerBuilder = new ConfigurationExplorerBuilder();
-        configurationExplorerBuilder.buildConfigurationStorage(this, configuration);
+        configStorage = new ConfigurationStorage(configuration);
+        configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage);
+
+        configurationStorageBuilder.buildConfigurationStorage();
         validate();
 
         addObserver(new TopLevelConfigObserver(this, configStorage));
+        addObserver(new CollectionViewConfigObserver(this, configStorage));
     }
 
     /**
@@ -540,7 +543,8 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
     public void updateConfig(TopLevelConfig config) {
         writeLock.lock();
         try {
-            notifyObservers(config);
+            TopLevelConfig oldConfig = getConfig(config.getClass(), config.getName());
+            notifyObservers(new ConfigurationUpdate(oldConfig, config));
         } finally {
             writeLock.unlock();
         }
@@ -586,7 +590,7 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
         }
     }
 
-    void setConfig(ConfigurationStorage config) {
+    void setConfigurationStorage(ConfigurationStorage config) {
         this.configStorage = config;
     }
 }

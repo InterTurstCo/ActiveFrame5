@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.config;
 
 
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
+
 import java.util.Observable;
 import java.util.Observer;
 
@@ -16,14 +18,21 @@ public abstract class ConfigurationObserver<T> implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        if (arg == null || getClazz() == null || !arg.getClass().isInstance(getClazz())) {
+        if (!(arg instanceof ConfigurationUpdate)) {
             return;
         }
 
-        doUpdate(o, arg);
+        ConfigurationUpdate configurationUpdate = (ConfigurationUpdate) arg;
+        TopLevelConfig config = configurationUpdate.getNewConfig();
+
+        if (config == null || getClazz() == null || !config.getClass().isInstance(getClazz())) {
+            return;
+        }
+
+        doUpdate(configurationUpdate);
     }
 
-    protected abstract void doUpdate(Observable o, Object arg);
+    protected abstract void doUpdate(ConfigurationUpdate configurationUpdate);
 
     protected abstract Class<T> getClazz();
 }

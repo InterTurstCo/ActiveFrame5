@@ -14,20 +14,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-class ConfigurationExplorerBuilder {
+class ConfigurationStorageBuilder {
 
     private static final String ALL_STATUSES_SIGN = "*";
     private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
 
-    private ConfigurationExplorerImpl configurationExplorer;
+    private ConfigurationExplorer configurationExplorer;
     private ConfigurationStorage configurationStorage;
 
-    void buildConfigurationStorage(ConfigurationExplorerImpl configurationExplorer, Configuration configuration) {
+    ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage) {
         this.configurationExplorer = configurationExplorer;
-        this.configurationStorage = new ConfigurationStorage();
-        this.configurationStorage.configuration = configuration;
-        this.configurationExplorer.setConfig(this.configurationStorage);
+        this.configurationStorage = configurationStorage;
+    }
 
+    void buildConfigurationStorage() {
         initConfigurationMaps();
     }
 
@@ -40,6 +40,35 @@ class ConfigurationExplorerBuilder {
         typeMap.put(config.getName(), config);
     }
 
+    void fillGlobalSettingsCache(TopLevelConfig config) {
+        if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
+            configurationStorage.globalSettings = (GlobalSettingsConfig) config;
+            configurationStorage.sqlTrace = configurationStorage.globalSettings.getSqlTrace();
+        }
+    }
+
+    void fillCollectionColumnConfigMap(CollectionViewConfig collectionViewConfig) {
+        if (collectionViewConfig.getCollectionDisplayConfig() != null) {
+            for (CollectionColumnConfig columnConfig : collectionViewConfig.getCollectionDisplayConfig().
+                    getColumnConfig()) {
+                FieldConfigKey fieldConfigKey =
+                        new FieldConfigKey(collectionViewConfig.getName(), columnConfig.getField());
+                configurationStorage.collectionColumnConfigMap.put(fieldConfigKey, columnConfig);
+            }
+        }
+    }
+
+    void updateCollectionColumnConfigMap(CollectionViewConfig oldConfig, CollectionViewConfig newConfig) {
+        if (oldConfig.getCollectionDisplayConfig() != null) {
+            for (CollectionColumnConfig columnConfig : oldConfig.getCollectionDisplayConfig().getColumnConfig()) {
+                FieldConfigKey fieldConfigKey = new FieldConfigKey(oldConfig.getName(), columnConfig.getField());
+                configurationStorage.collectionColumnConfigMap.remove(fieldConfigKey);
+            }
+        }
+
+        fillCollectionColumnConfigMap(newConfig);
+    }
+
     private void initConfigurationMaps() {
         if (configurationStorage.configuration == null) {
             throw new FatalException("Failed to initialize ConfigurationExplorerImpl because " +
@@ -48,11 +77,7 @@ class ConfigurationExplorerBuilder {
 
         List<DomainObjectTypeConfig> attachmentOwnerDots = new ArrayList<>();
         for (TopLevelConfig config : configurationStorage.configuration.getConfigurationList()) {
-
-            if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
-                configurationStorage.globalSettings = (GlobalSettingsConfig) config;
-                configurationStorage.sqlTrace = configurationStorage.globalSettings.getSqlTrace();
-            }
+            fillGlobalSettingsCache(config);
             fillTopLevelConfigMap(config);
 
             if (DomainObjectTypeConfig.class.equals(config.getClass())) {
@@ -153,18 +178,6 @@ class ConfigurationExplorerBuilder {
                 continue;
             }
             configurationStorage.fieldConfigMap.put(fieldConfigKey, fieldConfig);
-        }
-    }
-
-    private void fillCollectionColumnConfigMap(CollectionViewConfig collectionViewConfig) {
-        if (collectionViewConfig.getCollectionDisplayConfig() != null) {
-            for (CollectionColumnConfig columnConfig : collectionViewConfig.getCollectionDisplayConfig().
-                    getColumnConfig()) {
-                FieldConfigKey fieldConfigKey =
-                        new FieldConfigKey(collectionViewConfig.getName(), columnConfig.getField());
-                configurationStorage.collectionColumnConfigMap.put(fieldConfigKey, columnConfig);
-
-            }
         }
     }
 

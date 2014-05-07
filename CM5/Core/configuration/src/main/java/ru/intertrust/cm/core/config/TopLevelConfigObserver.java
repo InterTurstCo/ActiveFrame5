@@ -13,15 +13,18 @@ public class TopLevelConfigObserver extends ConfigurationObserver<TopLevelConfig
     }
 
     @Override
-    public void doUpdate(Observable o, Object arg) {
-        TopLevelConfig config = (TopLevelConfig) arg;
+    public void doUpdate(ConfigurationUpdate configurationUpdate) {
+        TopLevelConfig config = configurationUpdate.getNewConfig();
+        TopLevelConfig oldConfig = configurationUpdate.getOldConfig();
 
-        TopLevelConfig oldConfig = configurationExplorer.getConfig(config.getClass(), config.getName());
         if (oldConfig != null) {
             configStorage.configuration.getConfigurationList().remove(oldConfig);
         }
-
         configStorage.configuration.getConfigurationList().add(config);
+
+        ConfigurationStorageBuilder configurationStorageBuilder = new ConfigurationStorageBuilder(configurationExplorer, configStorage);
+        configurationStorageBuilder.fillGlobalSettingsCache(config);
+        configurationStorageBuilder.fillTopLevelConfigMap(config);
     }
 
     @Override
