@@ -1,15 +1,15 @@
 <configuration>
    <domain-object-type name="Outgoing_Document">
       <fields>
-         <string name="Registration_Number" not-null="false" length="128"/>
-         <date-time name="Registration_Date" not-null="false"/>
-         <string name="Name" not-null="false" length="128"/>
-         <string name="Description" not-null="false" length="128"/>
-         <reference name="Author" not-null="false" type="Employee"/>
-         <reference name="Negotiator" not-null="false" type="Employee"/>
-         <reference name="Signer" not-null="false" type="Employee"/>
-         <long name="Long_Field" not-null="false"/>
-         <decimal name="Decimal_Field" not-null="false" precision="10" scale="2"/>
+         <string name="Registration_Number" not-null="false" immutable="false" length="128"/>
+         <date-time name="Registration_Date" not-null="false" immutable="false"/>
+         <string name="Name" not-null="false" immutable="false" length="128"/>
+         <string name="Description" not-null="false" immutable="false" length="128"/>
+         <reference name="Author" not-null="false" immutable="false" type="Employee"/>
+         <reference name="Negotiator" not-null="false" immutable="false" type="Employee"/>
+         <reference name="Signer" not-null="false" immutable="false" type="Employee"/>
+         <long name="Long_Field" not-null="false" immutable="false"/>
+         <decimal name="Decimal_Field" not-null="false" immutable="false" precision="10" scale="2"/>
       </fields>
       <uniqueKey>
          <field name="Registration_Number"/>
@@ -18,16 +18,16 @@
    </domain-object-type>
    <domain-object-type name="Assignment">
       <fields>
-         <reference name="Outgoing_Document" not-null="true" type="Employee"/>
-         <string name="Name" not-null="false" length="128"/>
-         <string name="Description" not-null="false" length="128"/>
+         <reference name="Outgoing_Document" not-null="true" immutable="false" type="Employee"/>
+         <string name="Name" not-null="false" immutable="false" length="128"/>
+         <string name="Description" not-null="false" immutable="false" length="128"/>
       </fields>
       <indices/>
    </domain-object-type>
    <domain-object-type name="Person" initial-status="Active_Person">
       <fields>
-         <string name="EMail" not-null="false" length="128"/>
-         <string name="Login" not-null="true" length="64"/>
+         <string name="EMail" not-null="false" immutable="false" length="128"/>
+         <string name="Login" not-null="true" immutable="false" length="64"/>
       </fields>
       <uniqueKey>
          <field name="EMail"/>
@@ -36,12 +36,12 @@
    </domain-object-type>
    <domain-object-type name="Employee" initial-status="Active_Employee" extends="Person">
       <fields>
-         <reference name="Department" not-null="true" type="Employee"/>
-         <string name="Name" not-null="true" length="64"/>
-         <string name="Position" not-null="true" length="64"/>
-         <string name="Phone" not-null="false" length="32"/>
-         <string name="Certificate" not-null="false" length="4000"/>
-         <string name="Fingerprint" not-null="false" length="128"/>
+         <reference name="Department" not-null="true" immutable="false" type="Employee"/>
+         <string name="Name" not-null="true" immutable="false" length="64"/>
+         <string name="Position" not-null="true" immutable="false" length="64"/>
+         <string name="Phone" not-null="false" immutable="false" length="32"/>
+         <string name="Certificate" not-null="false" immutable="false" length="4000"/>
+         <string name="Fingerprint" not-null="false" immutable="false" length="128"/>
       </fields>
       <uniqueKey>
          <field name="Phone"/>
@@ -50,15 +50,15 @@
    </domain-object-type>
    <domain-object-type name="Delegation" initial-status="Active_Employee">
       <fields>
-         <reference name="person" not-null="true" type="Employee"/>
-         <reference name="delegate" not-null="true" type="Employee"/>
+         <reference name="person" not-null="true" immutable="false" type="Employee"/>
+         <reference name="delegate" not-null="true" immutable="false" type="Employee"/>
       </fields>
       <indices/>
    </domain-object-type>
    <domain-object-type name="Authentication_Info">
       <fields>
-         <string name="User_Uid" not-null="true" length="64"/>
-         <string name="Password" not-null="false" length="128" encrypted="true"/>
+         <string name="User_Uid" not-null="true" immutable="false" length="64"/>
+         <string name="Password" not-null="false" immutable="false" length="128" encrypted="true"/>
       </fields>
       <uniqueKey>
          <field name="User_Uid"/>
@@ -67,39 +67,39 @@
    </domain-object-type>
    <domain-object-type name="Department" initial-status="Active" audit-log="true">
       <fields>
-         <string name="Name" not-null="true" length="128"/>
-         <reference name="Organization" not-null="true" type="Organization"/>
-         <reference name="Boss" not-null="false" type="Employee"/>
-         <reference name="ParentDepartment" not-null="false" type="Department"/>
+         <string name="Name" not-null="true" immutable="false" length="128"/>
+         <reference name="Organization" not-null="true" immutable="false" type="Organization"/>
+         <reference name="Boss" not-null="false" immutable="false" type="Employee"/>
+         <reference name="ParentDepartment" not-null="false" immutable="false" type="Department"/>
       </fields>
       <indices/>
    </domain-object-type>
    <domain-object-type name="Organization" audit-log="true">
       <fields>
-         <string name="Name" not-null="true" length="128"/>
-         <reference name="Boss" not-null="false" type="Employee"/>
+         <string name="Name" not-null="true" immutable="false" length="128"/>
+         <reference name="Boss" not-null="false" immutable="false" type="Employee"/>
       </fields>
       <indices/>
    </domain-object-type>
    <domain-object-type name="User_Group">
       <fields>
-         <string name="group_name" not-null="true" length="64"/>
-         <long name="object_id" not-null="false"/>
-         <long name="is_static" not-null="false"/>
+         <string name="group_name" not-null="true" immutable="false" length="64"/>
+         <long name="object_id" not-null="false" immutable="false"/>
+         <long name="is_static" not-null="false" immutable="false"/>
       </fields>
       <indices/>
    </domain-object-type>
    <domain-object-type name="Group_Member">
       <fields>
-         <reference name="UserGroup" not-null="true" type="User_Group"/>
-         <reference name="person_id" not-null="true" type="Authentication_Info"/>
+         <reference name="UserGroup" not-null="true" immutable="false" type="User_Group"/>
+         <reference name="person_id" not-null="true" immutable="false" type="Authentication_Info"/>
       </fields>
       <indices/>
    </domain-object-type>
    <domain-object-type name="Group_Admin">
       <fields>
-         <reference name="UserGroup" not-null="true" type="User_Group"/>
-         <string name="role_name" not-null="true" length="64"/>
+         <reference name="UserGroup" not-null="true" immutable="false" type="User_Group"/>
+         <string name="role_name" not-null="true" immutable="false" length="64"/>
       </fields>
       <indices/>
    </domain-object-type>
@@ -177,15 +177,15 @@
    </global-settings>
    <domain-object-type name="Incoming_Document">
       <fields>
-         <string name="Registration_Number" not-null="false" length="128"/>
-         <date-time name="Registration_Date" not-null="false"/>
-         <string name="Name" not-null="false" length="128"/>
-         <string name="Description" not-null="false" length="128"/>
-         <reference name="Author" not-null="false" type="Employee"/>
-         <reference name="Negotiator" not-null="false" type="Employee"/>
-         <reference name="Signer" not-null="false" type="Employee"/>
-         <long name="Long_Field" not-null="false"/>
-         <decimal name="Decimal_Field" not-null="false" precision="10" scale="2"/>
+         <string name="Registration_Number" not-null="false" immutable="false" length="128"/>
+         <date-time name="Registration_Date" not-null="false" immutable="false"/>
+         <string name="Name" not-null="false" immutable="false" length="128"/>
+         <string name="Description" not-null="false" immutable="false" length="128"/>
+         <reference name="Author" not-null="false" immutable="false" type="Employee"/>
+         <reference name="Negotiator" not-null="false" immutable="false" type="Employee"/>
+         <reference name="Signer" not-null="false" immutable="false" type="Employee"/>
+         <long name="Long_Field" not-null="false" immutable="false"/>
+         <decimal name="Decimal_Field" not-null="false" immutable="false" precision="10" scale="2"/>
       </fields>
       <uniqueKey>
          <field name="Registration_Number"/>
@@ -194,15 +194,15 @@
    </domain-object-type>
    <domain-object-type name="Incoming_Document2">
       <fields>
-         <string name="Registration_Number" not-null="false" length="128"/>
-         <date-time name="Registration_Date" not-null="false"/>
-         <string name="Name" not-null="false" length="128"/>
-         <string name="Description" not-null="false" length="128"/>
-         <reference name="Author" not-null="false" type="Employee"/>
-         <reference name="Negotiator" not-null="false" type="Employee"/>
-         <reference name="Signer" not-null="false" type="Employee"/>
-         <long name="Long_Field" not-null="false"/>
-         <decimal name="Decimal_Field" not-null="false" precision="10" scale="2"/>
+         <string name="Registration_Number" not-null="false" immutable="false" length="128"/>
+         <date-time name="Registration_Date" not-null="false" immutable="false"/>
+         <string name="Name" not-null="false" immutable="false" length="128"/>
+         <string name="Description" not-null="false" immutable="false" length="128"/>
+         <reference name="Author" not-null="false" immutable="false" type="Employee"/>
+         <reference name="Negotiator" not-null="false" immutable="false" type="Employee"/>
+         <reference name="Signer" not-null="false" immutable="false" type="Employee"/>
+         <long name="Long_Field" not-null="false" immutable="false"/>
+         <decimal name="Decimal_Field" not-null="false" immutable="false" precision="10" scale="2"/>
       </fields>
       <uniqueKey>
          <field name="Registration_Number"/>

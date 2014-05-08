@@ -29,6 +29,7 @@
         <xs:attribute name="name" type="con:fieldNameType"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
+        <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
 
     </xs:complexType>
 
@@ -278,6 +279,7 @@
         <xs:attribute name="type" use="required" type="con:typeNameType"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
+        <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
     </xs:complexType>
 
     <xs:complexType name="dateTimeType">
@@ -289,6 +291,7 @@
         <xs:attribute name="name" use="required"
                       type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
+        <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
 
     </xs:complexType>
 
@@ -301,6 +304,7 @@
         <xs:attribute name="name" use="required"
                       type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
+        <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
 
     </xs:complexType>
 
@@ -313,6 +317,7 @@
         <xs:attribute name="name" use="required"
                       type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
+        <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
     </xs:complexType>
 
     <xs:complexType name="configurationType">
@@ -563,6 +568,7 @@
                               type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="length" use="required" type="xs:string"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
+                <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -578,6 +584,7 @@
         <xs:attribute name="precision" use="optional" type="xs:string"/>
         <xs:attribute name="scale" use="optional" type="xs:string"/>
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
+        <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
     </xs:complexType>
 
     <xs:complexType name="stringType">
@@ -590,6 +597,7 @@
                       type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute name="length" use="required" type="con:stringFieldLengthType"/>
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
+        <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
         <xs:attribute name="encrypted" use="optional" type="xs:string"/>
     </xs:complexType>
 
@@ -599,6 +607,7 @@
                 <xs:attribute name="name" use="required"
                               type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
+                <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -609,6 +618,7 @@
                 <xs:attribute name="name" use="required"
                               type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
+                <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

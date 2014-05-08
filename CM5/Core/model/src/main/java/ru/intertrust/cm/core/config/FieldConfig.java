@@ -34,6 +34,9 @@ public abstract class FieldConfig implements Serializable {
     @Attribute(name = "not-null", required = false)
     private boolean notNull;
 
+    @Attribute(name = "immutable", required = false)
+    private boolean immutable = false;
+
     protected FieldConfig() {
     }
 
@@ -53,6 +56,14 @@ public abstract class FieldConfig implements Serializable {
         this.notNull = notNull;
     }
 
+    public boolean isImmutable() {
+        return immutable;
+    }
+
+    public void setImmutable(boolean immutable) {
+        this.immutable = immutable;
+    }
+
     public abstract FieldType getFieldType();
 
     @Override
@@ -67,6 +78,9 @@ public abstract class FieldConfig implements Serializable {
         FieldConfig that = (FieldConfig) o;
 
         if (notNull != that.notNull) {
+            return false;
+        }
+        if (immutable != that.immutable) {
             return false;
         }
         if (constraintsConfig != null ? !constraintsConfig.equals(that.constraintsConfig) : that
@@ -85,6 +99,7 @@ public abstract class FieldConfig implements Serializable {
         int result = constraintsConfig != null ? constraintsConfig.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (notNull ? 1 : 0);
+        result = 31 * result + (immutable ? 1 : 0);
         return result;
     }
 

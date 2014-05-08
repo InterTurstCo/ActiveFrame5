@@ -936,6 +936,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<FieldConfig> feldConfigs = domainObjectTypeConfig
                 .getDomainObjectFieldsConfig().getFieldConfigs();
 
+        feldConfigs = removeImmutableFields(feldConfigs);
+
         List<String> columnNames = DataStructureNamingHelper
                 .getColumnNames(feldConfigs);
 
@@ -961,6 +963,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         return query.toString();
 
+    }
+
+    private List<FieldConfig> removeImmutableFields(List<FieldConfig> fieldConfigs) {
+        List<FieldConfig> ret = new ArrayList<>(fieldConfigs.size());
+        for (FieldConfig fieldConfig : fieldConfigs) {
+            if (!fieldConfig.isImmutable()) ret.add(fieldConfig);
+        }
+        return ret;
     }
 
     /**
