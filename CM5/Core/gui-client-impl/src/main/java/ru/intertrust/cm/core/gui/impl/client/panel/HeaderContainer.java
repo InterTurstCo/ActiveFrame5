@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.panel;
 
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -124,7 +125,7 @@ public class HeaderContainer extends SimplePanel {
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Window.Location.assign("/cm-sochi/Login.html"+ Window.Location.getQueryString());
+                Window.Location.assign(GWT.getHostPageBaseURL() + Window.Location.getQueryString());
             }
             @Override
             public void onFailure(Throwable caught) {

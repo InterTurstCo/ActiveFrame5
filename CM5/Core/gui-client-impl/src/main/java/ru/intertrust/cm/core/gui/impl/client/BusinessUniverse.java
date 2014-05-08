@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -218,7 +219,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
             @Override
             public void onFailure(Throwable caught) {
-                Window.Location.assign("/cm-sochi/Login.html" + Window.Location.getQueryString());
+                Window.Location.assign(GWT.getHostPageBaseURL() + Window.Location.getQueryString());
             }
         };
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
