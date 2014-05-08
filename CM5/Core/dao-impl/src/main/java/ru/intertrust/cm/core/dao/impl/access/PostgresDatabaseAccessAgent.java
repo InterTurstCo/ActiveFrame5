@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -253,12 +255,40 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         //Проверяем нет ли заимствования прав и в случае наличия подменяем тип откуда берем права
         String martixRef = configurationExplorer.getMatrixReferenceTypeName(domainObjectTable);
         if (martixRef != null){
-            domainObjectTable = martixRef; 
+            //Получаем реальный тип объекта у которого заимствуются права, для этого делаем запрос к martixRef и пол
+            domainObjectTable = getMatrixRefType(domainObjectTable, martixRef, id); 
         }
         
         return getAclTableNameFor(domainObjectTable);
     }
 
+    /**
+     * Получение имени типа у которого заимствуются права. При этом учитывается то что в матрице при заимствование 
+     * может быть указан атрибут ссылающийся на родительский тип того объекта, у которого реально надо взять матрицу прав
+     * @param childType
+     * @param parentType
+     * @param id
+     * @return
+     */
+    private String getMatrixRefType(String childType, String parentType, RdbmsId id){
+    	String rootForChildType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, childType);
+    	String query = "select p.id_type from " + rootForChildType + " c inner join " + parentType + " p on (c.access_object_id = p.id) where c.id = :id";
+    	
+    	Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("id", id.getId());
+
+        int typeId = jdbcTemplate.query(query, parameters, new ResultSetExtractor<Integer>(){
+
+			@Override
+			public Integer extractData(ResultSet rs) throws SQLException,
+					DataAccessException {
+				rs.next();
+				return rs.getInt("id_type");
+			}});
+        
+        return domainObjetcTypeIdCache.getName(typeId);
+    }
+    
     private String getAclTableNameFor(String domainObjectTable) {
         return getSqlName(domainObjectTable + PostgreSqlQueryHelper.ACL_TABLE_SUFFIX);
     }

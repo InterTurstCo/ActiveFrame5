@@ -855,8 +855,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String permissionType = typeName;
             String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(typeName);
             if (matrixRefType != null){
-                permissionType = matrixRefType; 
-            }            
+                permissionType = matrixRefType;                 
+            }
+            //Таблица с правами на read получается с учетом наследования типов
             String aclReadTable = AccessControlUtility
                     .getAclReadTableName(configurationExplorer, permissionType);
             String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, typeName));

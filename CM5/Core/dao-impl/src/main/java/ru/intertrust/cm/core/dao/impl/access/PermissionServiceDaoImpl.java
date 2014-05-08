@@ -726,7 +726,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String permissionType = objectType;
         String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(permissionType);
         if (matrixRefType != null){
-            permissionType = matrixRefType; 
+            permissionType = getMatrixRefType(objectType, matrixRefType, rdbmsObjectId); 
         }
         
         String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, objectType));
@@ -823,6 +823,33 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         });
     }
 
+    /**
+     * Получение имени типа у которого заимствуются права. При этом учитывается то что в матрице при заимствование 
+     * может быть указан атрибут ссылающийся на родительский тип того объекта, у которого реально надо взять матрицу прав
+     * @param childType
+     * @param parentType
+     * @param id
+     * @return
+     */
+    private String getMatrixRefType(String childType, String parentType, RdbmsId id){
+    	String rootForChildType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, childType);
+    	String query = "select p.id_type from " + rootForChildType + " c inner join " + parentType + " p on (c.access_object_id = p.id) where c.id = :id";
+    	
+    	Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("id", id.getId());
+
+        int typeId = jdbcTemplate.query(query, parameters, new ResultSetExtractor<Integer>(){
+
+			@Override
+			public Integer extractData(ResultSet rs) throws SQLException,
+					DataAccessException {
+				rs.next();
+				return rs.getInt("id_type");
+			}});
+        
+        return domainObjectTypeIdCache.getName(typeId);
+    }    
+    
     private void regRecalcInvalidAcl(List<Id> invalidContext) {
         //не обрабатываем вне транзакции
         if (getTxReg().getTransactionKey() == null) {
