@@ -19,4 +19,28 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="test_document_base" initial-status="Active">
+        <fields>
+            <string name="registration_number" length="128" />
+            <date-time name="registration_date"/>
+            <string name="name" length="128" />
+            <string name="description" length="128" />
+            <reference name="author" type="Employee"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_outgoing_document" extends="test_document_base" initial-status="Active"> 
+        <fields>
+            <reference name="signer" type="Employee"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_resolution" initial-status="Active">
+        <fields>
+            <reference name="executor" type="Employee"/>
+            <string name="text" length="128"/>
+            <reference name="document" type="test_document_base"/>
+        </fields>
+    </domain-object-type>
+
 </configuration>

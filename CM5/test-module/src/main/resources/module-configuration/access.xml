@@ -27,5 +27,50 @@
             <collector class-name="ru.intertrust.cm.test.acess.contextrole.AllUsers" />
         </groups>
     </context-role>
+    
+	<context-role name="test_outgoing_author">
+        <context>
+            <domain-object type="test_outgoing_document" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="PersonAndDelegates">
+                    <doel>author</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>    
 
+	<context-role name="test_outgoing_signer">
+        <context>
+            <domain-object type="test_outgoing_document" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="PersonAndDelegates">
+                    <doel>signer</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>    
+
+    <access-matrix type="test_outgoing_document">
+        <status name="Active">
+            <read>
+                <permit-role name="test_outgoing_author" />
+                <permit-role name="test_outgoing_signer" />
+            </read>
+            <write>
+                <permit-role name="test_outgoing_author" />
+                <permit-role name="test_outgoing_signer" />
+            </write>
+            <delete>
+                <permit-role name="test_outgoing_author" />
+                <permit-role name="test_outgoing_signer" />
+            </delete>
+        </status>
+    </access-matrix>
+
+    <access-matrix type="test_resolution" matrix-reference-field="document"/>
+    
 </configuration>

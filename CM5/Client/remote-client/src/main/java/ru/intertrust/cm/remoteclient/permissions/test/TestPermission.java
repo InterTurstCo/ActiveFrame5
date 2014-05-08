@@ -174,6 +174,25 @@ public class TestPermission extends ClientBase {
             etalon.addActionPermission(getPersonId("admin"), "action1");
             checkPermissions(letter.getId(), etalon, "New letter");
 
+            //Проверяем косвенные права с учетом наследования объектов у которых заимствуются права
+            DomainObject testOutgoingDocument = getCrudService().createDomainObject("test_outgoing_document");
+            testOutgoingDocument.setString("name", "Тестовый документ " + System.nanoTime());
+            testOutgoingDocument.setReference("author", getEmployee("Сотрудник 2"));
+            testOutgoingDocument.setReference("signer", getEmployee("Сотрудник 3"));
+            testOutgoingDocument = getCrudService().save(testOutgoingDocument);
+            
+            DomainObject testResolution = getCrudService().createDomainObject("test_resolution");
+            testResolution.setString("name", "Тестовый документ " + System.nanoTime());
+            testResolution.setReference("executor", getEmployee("Сотрудник 4"));
+            testResolution.setReference("document", testOutgoingDocument);
+            testResolution = getCrudService().save(testResolution);
+
+            etalon = new EtalonPermissions();
+            etalon.addPermission(getEmployeeId("Сотрудник 2"), Permission.Delete );
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
+            checkPermissions(testOutgoingDocument.getId(), etalon, "test_outgoing_document");
+            checkPermissions(testResolution.getId(), etalon, "test_resolution");
+            
             log("Test complete");
         } finally {
             writeLog();
