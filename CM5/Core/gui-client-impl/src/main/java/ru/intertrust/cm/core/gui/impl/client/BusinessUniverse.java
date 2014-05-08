@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
@@ -219,7 +220,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
             @Override
             public void onFailure(Throwable caught) {
-                Window.Location.assign(GWT.getHostPageBaseURL() + Window.Location.getQueryString());
+                Window.Location.assign(GWT.getHostPageBaseURL() + BusinessUniverseConstants.LOGIN_PAGE + Window.Location.getQueryString());
             }
         };
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);

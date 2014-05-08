@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtendedSearchPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 /**
@@ -125,7 +126,7 @@ public class HeaderContainer extends SimplePanel {
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Window.Location.assign(GWT.getHostPageBaseURL() + Window.Location.getQueryString());
+                Window.Location.assign(GWT.getHostPageBaseURL() + BusinessUniverseConstants.LOGIN_PAGE  + Window.Location.getQueryString());
             }
             @Override
             public void onFailure(Throwable caught) {

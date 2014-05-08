@@ -33,4 +33,5 @@ public class BusinessUniverseConstants {
     public static final String HEADER_INPUT_ID_PART = "input";
     public static final String HEADER_CLEAR_BUTTON_ID_PART = "clear-button";
     public static final String HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART = "date-picker";
+    public static final String LOGIN_PAGE = "Login.html";
 }
