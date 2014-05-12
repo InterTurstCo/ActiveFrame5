@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.config;
 /**
 * Created by vmatsukevich on 4/24/14.
 */
-class FieldConfigKey {
+public class FieldConfigKey {
 
     private String domainObjectName;
     private String fieldConfigName;

@@ -4,9 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
@@ -18,7 +21,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Предоставляет быстрый доступ к элементам конфигурации.
  * @author vmatsukevich Date: 6/12/13 Time: 5:21 PM
  */
-public class ConfigurationExplorerImpl extends Observable implements ConfigurationExplorer {
+public class ConfigurationExplorerImpl implements ConfigurationExplorer, ApplicationEventPublisherAware {
 
     private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
 
@@ -28,6 +31,8 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
 
     private ConfigurationStorage configStorage;
     private ConfigurationStorageBuilder configurationStorageBuilder;
+
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     FormLogicalValidator formLogicalValidator;
@@ -46,10 +51,6 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
 
         configurationStorageBuilder.buildConfigurationStorage();
         validate();
-
-        addObserver(new TopLevelConfigObserver(this, configStorage));
-        addObserver(new CollectionViewConfigObserver(this, configStorage));
-        addObserver(new ToolBarConfigObserver(this, configStorage));
     }
 
     /**
@@ -59,8 +60,7 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
     public Configuration getConfiguration() {
         readLock.lock();
         try {
-            Configuration cloneConfiguration = getReturnObject(configStorage.configuration, Configuration.class);
-            return cloneConfiguration;
+            return getReturnObject(configStorage.configuration, Configuration.class);
         } finally {
             readLock.unlock();
         }
@@ -257,6 +257,9 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
         readLock.lock();
         try {
             List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigByContextMap.get(domainObjectType);
+            if (dynamicGroups == null) {
+                dynamicGroups = configurationStorageBuilder.fillDynamicGroupConfigContextMap(domainObjectType);
+            }
 
             if (dynamicGroups == null) {
                 return new ArrayList<>();
@@ -279,37 +282,8 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
         try {
             FieldConfigKey key = new FieldConfigKey(trackDOTypeName, status);
             List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigsByTrackDOMap.get(key);
-
-            if (dynamicGroups != null) {
-                List<DynamicGroupConfig> result = new ArrayList<>(dynamicGroups.size());
-                result.addAll(dynamicGroups);
-                return getReturnObject(result, ArrayList.class);
-            }
-
-            dynamicGroups = new ArrayList<>();
-            CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = configStorage.topLevelConfigMap.get(DynamicGroupConfig.class);
-
-            for (String groupKey : dynamicGroupMap.keySet()) {
-                DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
-
-                if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
-                    List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs =
-                            dynamicGroup.getMembers().getTrackDomainObjects();
-                    for (DynamicGroupTrackDomainObjectsConfig trackDomainObjectConfig : trackDomainObjectConfigs) {
-                        String configuredStatus = trackDomainObjectConfig.getStatus();
-                        String configuredType = trackDomainObjectConfig.getType();
-                        if (trackDOTypeName.equalsIgnoreCase(configuredType)) {
-
-                            if (configuredStatus == null || configuredStatus.equals(status)) {
-                                dynamicGroups.add(dynamicGroup);
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (dynamicGroups != null) {
-                configStorage.dynamicGroupConfigsByTrackDOMap.putIfAbsent(key, dynamicGroups);
+            if (dynamicGroups == null) {
+                dynamicGroups = configurationStorageBuilder.fillDynamicGroupConfigsByTrackDOMap(trackDOTypeName, status);
             }
 
             List<DynamicGroupConfig> result = new ArrayList<>(dynamicGroups.size());
@@ -334,29 +308,8 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
             FieldConfigKey key = new FieldConfigKey(domainObjectType, status);
             AccessMatrixStatusConfig result = configStorage.accessMatrixByObjectTypeAndStatusMap.get(key);
 
-            if (result != null) {
-                return getReturnObject(result, AccessMatrixStatusConfig.class);
-            }
-
-            //Получение конфигурации матрицы
-            AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
-            if (accessMatrixConfig != null && accessMatrixConfig.getStatus() != null) {
-
-                //Получаем все статусы
-                for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
-                    //Если статус в конфигурации звезда то не проверяем статусы на соответствие, а возвращаем текущий
-                    if (accessStatusConfig.getName().equals("*")){
-                        result = getReturnObject(accessStatusConfig, accessStatusConfig.getClass());
-                        break;
-                    } else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
-                        result = getReturnObject(accessStatusConfig, accessStatusConfig.getClass());
-                        break;
-                    }
-                }
-            }
-
-            if (result != null) {
-                configStorage.accessMatrixByObjectTypeAndStatusMap.putIfAbsent(key, result);
+            if (result == null) {
+                result = configurationStorageBuilder.fillAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
             }
 
             return getReturnObject(result, AccessMatrixStatusConfig.class);
@@ -428,36 +381,11 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
         try {
             String result = configStorage.matrixReferenceTypeNameMap.get(childTypeName);
 
-            if (result != null) {
-                return result;
+            if (result == null) {
+                result = configurationStorageBuilder.fillMatrixReferenceTypeNameMap(childTypeName);
             }
 
-            //Получаем матрицу и смотрим атрибут matrix_reference_field
-            AccessMatrixConfig matrixConfig = null;
-            DomainObjectTypeConfig childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childTypeName);
-
-            //Ищим матрицу для типа с учетом иерархии типов
-            while((matrixConfig = getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
-                    && childDomainObjectTypeConfig.getExtendsAttribute() != null){
-                childDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
-            }
-
-            if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
-                //Получаем имя типа на которого ссылается martix-reference-field
-                String parentTypeName = getParentTypeNameFromMatrixReference(matrixConfig.getMatrixReference(), childDomainObjectTypeConfig);
-                //Вызываем рекурсивно метод для родительского типа, на случай если в родительской матрице так же заполнено поле martix-reference-field
-                result = getMatrixReferenceTypeName(parentTypeName);
-                //В случае если у родителя не заполнен атрибут martix-reference-field то возвращаем имя родителя
-                if (result == null){
-                    result = parentTypeName;
-                }
-            }
-
-            if (result != null) {
-                configStorage.matrixReferenceTypeNameMap.putIfAbsent(childTypeName, result);
-            }
-
-            return result;
+            return getReturnObject(result, String.class);
         } finally {
             readLock.unlock();
         }
@@ -496,7 +424,7 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
         try {
             String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
 
-            if (typesHierarchy == null || typesHierarchy.length==0){
+            if (typesHierarchy == null || typesHierarchy.length == 0){
                 return null;
             }
 
@@ -528,13 +456,9 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
         try {
             if (this.configStorage.domainObjectTypesHierarchy.containsKey(typeName)){
                 return getReturnObject(this.configStorage.domainObjectTypesHierarchy.get(typeName), String[].class);
+            } else {
+                return getReturnObject(configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName), String[].class);
             }
-            List <String> typesHierarchy = new ArrayList<>();
-            buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
-            Collections.reverse(typesHierarchy);
-            String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
-            this.configStorage.domainObjectTypesHierarchy.putIfAbsent(typeName, types);
-            return getReturnObject(types, String[].class);
         } finally {
             readLock.unlock();
         }
@@ -545,30 +469,10 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
         writeLock.lock();
         try {
             TopLevelConfig oldConfig = getConfig(config.getClass(), config.getName());
-            notifyObservers(new ConfigurationUpdate(oldConfig, config));
+            applicationEventPublisher.publishEvent(new ConfigurationUpdateEvent(this, configStorage, oldConfig, config));
         } finally {
             writeLock.unlock();
         }
-    }
-
-    /**
-     * Получение типа, на который ссылается атрибут известного типа
-     * @param matrixReferenceFieldName
-     * @param domainObjectTypeConfig
-     * @return
-     */
-    private String getParentTypeNameFromMatrixReference(String matrixReferenceFieldName,
-                                                        DomainObjectTypeConfig domainObjectTypeConfig) {
-
-        String result = null;
-        if (matrixReferenceFieldName.indexOf(".") > 0){
-            // TODO здесь надо добавить обработку backlink
-            throw new UnsupportedOperationException("Not implemented access referencing using backlink.");
-        }else{
-            ReferenceFieldConfig fieldConfig =  (ReferenceFieldConfig)getFieldConfig(domainObjectTypeConfig.getName(), matrixReferenceFieldName);
-            result = fieldConfig.getType();
-        }
-        return result;
     }
 
     private <T> T getReturnObject(Object source, Class<T> tClass) {
@@ -577,21 +481,8 @@ public class ConfigurationExplorerImpl extends Observable implements Configurati
         return (T) source;
     }
 
-    private void buildDomainObjectTypesHierarchy(List<String> typesHierarchy, String typeName) {
-        DomainObjectTypeConfig domainObjectTypeConfig = getDomainObjectTypeConfig(typeName);
-        if (domainObjectTypeConfig != null) {
-            String parentType = domainObjectTypeConfig.getExtendsAttribute();
-            if (parentType != null && parentType.trim().length() > 0) {
-                if (typesHierarchy.contains(parentType)) {
-                    throw new ConfigurationException("Loop in the hierarchy, typeName: " + typeName);
-                }
-                typesHierarchy.add(parentType);
-                buildDomainObjectTypesHierarchy(typesHierarchy, parentType);
-            }
-        }
-    }
-
-    void setConfigurationStorage(ConfigurationStorage config) {
-        this.configStorage = config;
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 }

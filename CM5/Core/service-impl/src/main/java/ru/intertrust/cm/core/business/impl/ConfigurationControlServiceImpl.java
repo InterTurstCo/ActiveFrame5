@@ -68,7 +68,11 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         this.domainObjectTypeIdDao = domainObjectTypeIdDao;
     }
 
-    public void loadConfiguration(String configurationString) throws ConfigurationException {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateConfiguration(String configurationString) throws ConfigurationException {
         Configuration configuration;
         try {
             configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString);

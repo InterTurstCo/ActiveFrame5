@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <act:tool-bar plugin="collection.plugin">
+        <act:action-ref actionId="aRefresh"/>
+        <act:action-separator order="300"/>
+    </act:tool-bar>
+
+</configuration>

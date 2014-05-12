@@ -37,4 +37,9 @@
           class="ru.intertrust.cm.core.config.NavigationPanelLogicalValidator"/>
 
 
+    <bean id="topLevelConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.TopLevelConfigUpdateHandler"/>
+    <bean id="collectionViewConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.CollectionViewConfigUpdateHandler"/>
+    <bean id="toolBarConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.ToolBarConfigUpdateHandler"/>
+    <bean id="dynamicGroupConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.DynamicGroupConfigUpdateHandler"/>
+
 </beans>

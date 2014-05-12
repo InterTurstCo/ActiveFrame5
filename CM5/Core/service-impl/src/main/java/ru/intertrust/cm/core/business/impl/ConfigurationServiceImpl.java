@@ -80,6 +80,16 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
+    public DomainObjectTypeConfig getDomainObjectTypeConfig(String typeName) {
+        try {
+            return configurationExplorer.getDomainObjectTypeConfig(typeName);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getConfig", "type:" + typeName, ex);
+        }
+    }
+
+    @Override
     public <T> Collection<T> getConfigs(Class<T> type) {
         try {
             return configurationExplorer.getConfigs(type);

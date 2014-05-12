@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
@@ -12,9 +11,10 @@ import ru.intertrust.cm.core.model.FatalException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-class ConfigurationStorageBuilder {
+public class ConfigurationStorageBuilder {
 
     private static final String ALL_STATUSES_SIGN = "*";
     private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
@@ -22,16 +22,16 @@ class ConfigurationStorageBuilder {
     private ConfigurationExplorer configurationExplorer;
     private ConfigurationStorage configurationStorage;
 
-    ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage) {
+    public ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage) {
         this.configurationExplorer = configurationExplorer;
         this.configurationStorage = configurationStorage;
     }
 
-    void buildConfigurationStorage() {
+    public void buildConfigurationStorage() {
         initConfigurationMaps();
     }
 
-    void fillTopLevelConfigMap(TopLevelConfig config) {
+    public void fillTopLevelConfigMap(TopLevelConfig config) {
         CaseInsensitiveMap<TopLevelConfig> typeMap = configurationStorage.topLevelConfigMap.get(config.getClass());
         if (typeMap == null) {
             typeMap = new CaseInsensitiveMap<>();
@@ -40,14 +40,14 @@ class ConfigurationStorageBuilder {
         typeMap.put(config.getName(), config);
     }
 
-    void fillGlobalSettingsCache(TopLevelConfig config) {
+    public void fillGlobalSettingsCache(TopLevelConfig config) {
         if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
             configurationStorage.globalSettings = (GlobalSettingsConfig) config;
             configurationStorage.sqlTrace = configurationStorage.globalSettings.getSqlTrace();
         }
     }
 
-    void fillCollectionColumnConfigMap(CollectionViewConfig collectionViewConfig) {
+    public void fillCollectionColumnConfigMap(CollectionViewConfig collectionViewConfig) {
         if (collectionViewConfig.getCollectionDisplayConfig() != null) {
             for (CollectionColumnConfig columnConfig : collectionViewConfig.getCollectionDisplayConfig().
                     getColumnConfig()) {
@@ -58,7 +58,7 @@ class ConfigurationStorageBuilder {
         }
     }
 
-    void updateCollectionColumnConfigMap(CollectionViewConfig oldConfig, CollectionViewConfig newConfig) {
+    public void updateCollectionColumnConfigMap(CollectionViewConfig oldConfig, CollectionViewConfig newConfig) {
         if (oldConfig != null && oldConfig.getCollectionDisplayConfig() != null) {
             for (CollectionColumnConfig columnConfig : oldConfig.getCollectionDisplayConfig().getColumnConfig()) {
                 FieldConfigKey fieldConfigKey = new FieldConfigKey(oldConfig.getName(), columnConfig.getField());
@@ -69,7 +69,7 @@ class ConfigurationStorageBuilder {
         fillCollectionColumnConfigMap(newConfig);
     }
 
-    void updateToolbarConfigByPluginMap(ToolBarConfig oldConfig, ToolBarConfig newConfig) {
+    public void updateToolbarConfigByPluginMap(ToolBarConfig oldConfig, ToolBarConfig newConfig) {
         if (oldConfig != null) {
             configurationStorage.toolbarConfigByPluginMap.remove(oldConfig.getPlugin());
         }
@@ -77,10 +77,139 @@ class ConfigurationStorageBuilder {
         fillToolbarConfigByPluginMap(newConfig);
     }
 
-    void fillToolbarConfigByPluginMap(ToolBarConfig toolBarConfig) {
+    public void fillToolbarConfigByPluginMap(ToolBarConfig toolBarConfig) {
         if (configurationStorage.toolbarConfigByPluginMap.get(toolBarConfig.getPlugin()) == null) {
             configurationStorage.toolbarConfigByPluginMap.put(toolBarConfig.getPlugin(), toolBarConfig);
         }
+    }
+
+    public List<DynamicGroupConfig> fillDynamicGroupConfigContextMap(String domainObjectType) {
+        List<DynamicGroupConfig> dynamicGroups = new ArrayList<>();
+
+        Collection<DynamicGroupConfig> dynamicGroupConfigs = configurationExplorer.getConfigs(DynamicGroupConfig.class);
+        for (DynamicGroupConfig dynamicGroup : dynamicGroupConfigs) {
+            if (dynamicGroup.getContext() != null && dynamicGroup.getContext().getDomainObject() != null) {
+                String objectType = dynamicGroup.getContext().getDomainObject().getType();
+
+                if (objectType.equals(domainObjectType)) {
+                    dynamicGroups.add(dynamicGroup);
+                }
+            }
+        }
+
+        configurationStorage.dynamicGroupConfigByContextMap.put(domainObjectType, dynamicGroups);
+        return dynamicGroups;
+    }
+
+    public List<DynamicGroupConfig> fillDynamicGroupConfigsByTrackDOMap(String trackDOTypeName, String status) {
+        List<DynamicGroupConfig> resultList = new ArrayList<>();
+        Collection<DynamicGroupConfig> dynamicGroups = configurationExplorer.getConfigs(DynamicGroupConfig.class);
+
+        for (DynamicGroupConfig dynamicGroup : dynamicGroups) {
+            if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
+                List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs =
+                        dynamicGroup.getMembers().getTrackDomainObjects();
+                for (DynamicGroupTrackDomainObjectsConfig trackDomainObjectConfig : trackDomainObjectConfigs) {
+                    String configuredStatus = trackDomainObjectConfig.getStatus();
+                    String configuredType = trackDomainObjectConfig.getType();
+                    if (trackDOTypeName.equalsIgnoreCase(configuredType)) {
+                        if (configuredStatus == null || configuredStatus.equals(status)) {
+                            resultList.add(dynamicGroup);
+                        }
+                    }
+                }
+            }
+        }
+
+        configurationStorage.dynamicGroupConfigsByTrackDOMap.put(new FieldConfigKey(trackDOTypeName, status), resultList);
+        return resultList;
+    }
+
+    public AccessMatrixStatusConfig fillAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
+        if (status == null) {
+            status = "*";
+        }
+
+        AccessMatrixStatusConfig result = null;
+
+        //Получение конфигурации матрицы
+        AccessMatrixConfig accessMatrixConfig = configurationExplorer.getConfig(AccessMatrixConfig.class, domainObjectType);
+        if (accessMatrixConfig != null && accessMatrixConfig.getStatus() != null) {
+            //Получаем все статусы
+            for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
+                //Если статус в конфигурации звезда то не проверяем статусы на соответствие, а возвращаем текущий
+                if (accessStatusConfig.getName().equals("*")){
+                    result = accessStatusConfig;
+                    break;
+                } else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
+                    result = accessStatusConfig;
+                    break;
+                }
+            }
+        }
+
+        configurationStorage.accessMatrixByObjectTypeAndStatusMap.put(new FieldConfigKey(domainObjectType, status), result);
+        return result;
+    }
+
+    public String fillMatrixReferenceTypeNameMap(String childTypeName) {
+        //Получаем матрицу и смотрим атрибут matrix_reference_field
+        AccessMatrixConfig matrixConfig = null;
+        DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childTypeName);
+
+        String result = null;
+
+        //Ищим матрицу для типа с учетом иерархии типов
+        while((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
+                && childDomainObjectTypeConfig.getExtendsAttribute() != null){
+            childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
+        }
+
+        if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
+            //Получаем имя типа на которого ссылается martix-reference-field
+            String parentTypeName = getParentTypeNameFromMatrixReference(matrixConfig.getMatrixReference(), childDomainObjectTypeConfig);
+            //Вызываем рекурсивно метод для родительского типа, на случай если в родительской матрице так же заполнено поле martix-reference-field
+            result = configurationExplorer.getMatrixReferenceTypeName(parentTypeName);
+            //В случае если у родителя не заполнен атрибут martix-reference-field то возвращаем имя родителя
+            if (result == null){
+                result = parentTypeName;
+            }
+        }
+
+        if (result != null) {
+            configurationStorage.matrixReferenceTypeNameMap.put(childTypeName, result);
+        }
+
+        return result;
+    }
+
+    public String[] fillDomainObjectTypesHierarchyMap(String typeName) {
+        List <String> typesHierarchy = new ArrayList<>();
+        buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
+        Collections.reverse(typesHierarchy);
+        String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
+        configurationStorage.domainObjectTypesHierarchy.put(typeName, types);
+        return types;
+    }
+
+    /**
+     * Получение типа, на который ссылается атрибут известного типа
+     * @param matrixReferenceFieldName
+     * @param domainObjectTypeConfig
+     * @return
+     */
+    private String getParentTypeNameFromMatrixReference(String matrixReferenceFieldName,
+                                                        DomainObjectTypeConfig domainObjectTypeConfig) {
+
+        String result = null;
+        if (matrixReferenceFieldName.indexOf(".") > 0) {
+            // TODO здесь надо добавить обработку backlink
+            throw new UnsupportedOperationException("Not implemented access referencing using backlink.");
+        } else {
+            ReferenceFieldConfig fieldConfig =  (ReferenceFieldConfig) configurationExplorer.getFieldConfig(domainObjectTypeConfig.getName(), matrixReferenceFieldName);
+            result = fieldConfig.getType();
+        }
+        return result;
     }
 
     private void initConfigurationMaps() {
@@ -112,42 +241,8 @@ class ConfigurationStorageBuilder {
             }
         }
 
-        initDynamicGroupConfigContextMap();
-
         initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
         initConfigurationMapOfChildDomainObjectTypes();
-    }
-
-    private void initDynamicGroupConfigContextMap() {
-        Collection<DynamicGroupConfig> dynamicGroupConfigs = configurationExplorer.getConfigs(DynamicGroupConfig.class);
-        for (DynamicGroupConfig dynamicGroup : dynamicGroupConfigs) {
-            if (dynamicGroup.getContext() != null && dynamicGroup.getContext().getDomainObject() != null) {
-                String objectType = dynamicGroup.getContext().getDomainObject().getType();
-
-                if (configurationStorage.dynamicGroupConfigByContextMap.get(objectType) != null) {
-                    continue;
-                }
-
-                initDynamicGroupConfigContextMap(objectType);
-            }
-        }
-    }
-
-    private void initDynamicGroupConfigContextMap(String domainObjectType) {
-        List<DynamicGroupConfig> dynamicGroups = new ArrayList<>();
-
-        Collection<DynamicGroupConfig> dynamicGroupConfigs = configurationExplorer.getConfigs(DynamicGroupConfig.class);
-        for (DynamicGroupConfig dynamicGroup : dynamicGroupConfigs) {
-            if (dynamicGroup.getContext() != null && dynamicGroup.getContext().getDomainObject() != null) {
-                String objectType = dynamicGroup.getContext().getDomainObject().getType();
-
-                if (objectType.equals(domainObjectType)) {
-                    dynamicGroups.add(dynamicGroup);
-                }
-            }
-        }
-
-        configurationStorage.dynamicGroupConfigByContextMap.put(domainObjectType, dynamicGroups);
     }
 
     private void initConfigurationMapOfChildDomainObjectTypes() {
@@ -224,6 +319,20 @@ class ConfigurationStorageBuilder {
             throw new ConfigurationException(e);
         } catch (ClassNotFoundException e) {
             throw new ConfigurationException(e);
+        }
+    }
+
+    private void buildDomainObjectTypesHierarchy(List<String> typesHierarchy, String typeName) {
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(typeName);
+        if (domainObjectTypeConfig != null) {
+            String parentType = domainObjectTypeConfig.getExtendsAttribute();
+            if (parentType != null && parentType.trim().length() > 0) {
+                if (typesHierarchy.contains(parentType)) {
+                    throw new ConfigurationException("Loop in the hierarchy, typeName: " + typeName);
+                }
+                typesHierarchy.add(parentType);
+                buildDomainObjectTypesHierarchy(typesHierarchy, parentType);
+            }
         }
     }
 

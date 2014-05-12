@@ -37,6 +37,13 @@ public interface ConfigurationService {
     <T> T getConfig(Class<T> type, String name);
 
     /**
+     * Возвращает конфигурацию типа доменного объекта
+     * @param typeName имя типа доменного объекта
+     * @return тип доменного объекта или null, если ничего не найдено
+     */
+    DomainObjectTypeConfig getDomainObjectTypeConfig(String typeName);
+
+    /**
      * Возвращает все конфигурации верхнего уровня данного типа type
      * Важно: метод возвращает ссылки на непосредственно объекты конфигурации.
      * Изменение данных объектов недопустимо и напрямую приводит к некорректной работе приложения
