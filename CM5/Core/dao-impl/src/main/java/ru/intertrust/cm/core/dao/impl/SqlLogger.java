@@ -12,14 +12,10 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.SqlTrace;
 
 /**
  * @author vmatsukevich
@@ -32,15 +28,18 @@ public class SqlLogger {
 
     private static final Logger logger = LoggerFactory.getLogger(SqlLogger.class);
 
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
+    @org.springframework.beans.factory.annotation.Value("${sql.trace.warn.minTime}")
+    private Long minWarnTime;
+    @org.springframework.beans.factory.annotation.Value("${sql.trace.warn.minRows}")
+    private Long minRowsNum;
+    @org.springframework.beans.factory.annotation.Value("${sql.trace.resolveParams}")
+    private Boolean resolveParams;
 
     @Around("(this(org.springframework.jdbc.core.JdbcOperations) || " +
                 "this(org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations)) && " +
                 "execution(* *(String, ..))")
     public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
-        SqlTrace configuration = configurationExplorer.getSqlTraceConfiguration();
-        if (!configuration.isEnable()) {
+        if (!logger.isTraceEnabled() && !logger.isWarnEnabled()) {
             return joinPoint.proceed();
         }
 
@@ -49,10 +48,6 @@ public class SqlLogger {
         long timing = System.currentTimeMillis() - startTime;
 
         String query = joinPoint.getArgs()[0].toString();
-
-        if (timing < configuration.getMinTime()){
-            return returnValue;
-        }
 
         int rows = -1;
 
@@ -72,11 +67,7 @@ public class SqlLogger {
             rows = 1;
         }
 
-        if (rows < configuration.getMinRows()){
-            return returnValue;
-        }
-
-        if (configuration.isResolveParameters()) {
+        if (resolveParams) {
             if (joinPoint.getThis() instanceof JdbcOperations) {
                 Object[] parameters = getParametersArray(joinPoint.getArgs());
                 query = (parameters == null ? query : fillParameters(query, parameters));
@@ -93,7 +84,13 @@ public class SqlLogger {
         String format = "SQL Trace: %1$6s %2$7s: %3$s";
         formatter.format(format, timing, "[" + rows + "]", query);
 
-        System.out.println(traceStringBuilder.toString());
+        boolean logWarn = timing >= minWarnTime && rows >= minRowsNum;
+        if (logWarn && logger.isWarnEnabled()) {
+            logger.warn(traceStringBuilder.toString());
+        } else {
+            logger.trace(traceStringBuilder.toString());
+        }
+
         return returnValue;
     }
 
