@@ -83,6 +83,7 @@ public class LinkedFormDialogBoxBuilder {
             throw new IllegalArgumentException("Id or objectTypeName should be set");
         }
         this.formPlugin = buildLinkedFormPlugin(linkedFormPluginConfig);
+        final PluginPanel formPluginPanel = new PluginPanel();
         this.formPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
@@ -92,7 +93,7 @@ public class LinkedFormDialogBoxBuilder {
                 }
             }
         });
-        PluginPanel formPluginPanel = new PluginPanel();
+
         formPluginPanel.open(this.formPlugin);
         return buildLinkedFormDialogBox(formPluginPanel);
     }

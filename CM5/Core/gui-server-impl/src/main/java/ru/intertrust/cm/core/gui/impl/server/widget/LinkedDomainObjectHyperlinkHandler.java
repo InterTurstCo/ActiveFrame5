@@ -4,22 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkUpdateRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkUpdateResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -55,9 +52,8 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     }
 
     private String buildStringRepresentation(DomainObject domainObject, String selectionPattern) {
-        Pattern pattern = createDefaultRegexPattern();
-        Matcher matcher = pattern.matcher(selectionPattern);
-        String representation = format(domainObject, matcher);
+        Matcher matcher = FormatHandler.pattern.matcher(selectionPattern);
+        String representation = formatHandler.format(domainObject, matcher);
         return representation;
     }
 
@@ -68,19 +64,6 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         return formConfig;
     }
 
-    private Pattern createDefaultRegexPattern() {
-        return Pattern.compile("\\{\\w+\\}");
-    }
-
-    public HyperlinkUpdateResponse updateHyperlink(Dto inputParams){
-        HyperlinkUpdateRequest request = (HyperlinkUpdateRequest)inputParams;
-        Id id = request.getId();
-        DomainObject domainObject = crudService.find(id);
-        String selectionPattern = request.getPattern();
-        String representation = buildStringRepresentation(domainObject,selectionPattern);
-        HyperlinkUpdateResponse response = new HyperlinkUpdateResponse(id, representation);
-        return response;
-    }
 
     @Override
     public Value getValue(WidgetState state) {

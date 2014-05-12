@@ -870,14 +870,14 @@
                 <text>Связать с организацией:</text>
             </label>
              <linked-domain-objects-table id="add" delete-linked-objects="true">
-                 <field-path value="SS_ModuleOrg^module.organization"/>
-                 <linked-form name="SO_OrgSystem_newForm" inline="true"/>
+                 <field-path value="SS_ModuleOrg^module"/>
+                 <linked-form name="SS_ModuleOrg_Form" inline="true"/>
                  <summary-table>
                      <!-- <summary-table-column header="Заголовок" widget-id="3">
                           <pattern value="{Title}"/>
                       </summary-table-column>-->
                      <summary-table-column header="Название организации" widget-id="5">
-                         <pattern value="{ShortName}"/>
+                         <pattern value="{organization.shortname}"/>
                      </summary-table-column>
                  </summary-table>
              </linked-domain-objects-table>

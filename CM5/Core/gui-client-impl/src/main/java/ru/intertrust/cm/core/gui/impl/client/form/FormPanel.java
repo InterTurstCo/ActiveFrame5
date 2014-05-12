@@ -54,6 +54,7 @@ public class FormPanel implements IsWidget {
         this.eventBus = eventBus;
         this.toggleEdit = toggleEdit;
         panel = new FlowPanel();
+        build();
 
     }
 
@@ -64,7 +65,7 @@ public class FormPanel implements IsWidget {
     @Override
     public Widget asWidget() {
 
-        return build();
+        return panel;
     }
 
     public List<BaseWidget> getWidgets() {

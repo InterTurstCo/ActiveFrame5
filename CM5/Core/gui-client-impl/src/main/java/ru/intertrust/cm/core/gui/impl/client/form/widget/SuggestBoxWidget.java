@@ -105,12 +105,14 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     }
 
     private void updateHyperlink(Id id) {
-        HyperlinkUpdateRequest request = new HyperlinkUpdateRequest(id, selectionPattern);
-        Command command = new Command("updateHyperlink", "linked-domain-object-hyperlink", request);
+        List<Id> ids = new ArrayList<Id>();
+        ids.add(id);
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, false);
+        Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
-                HyperlinkUpdateResponse response = (HyperlinkUpdateResponse) result;
+                RepresentationResponse response = (RepresentationResponse) result;
                 Id id = response.getId();
                 String representation = response.getRepresentation();
                 SuggestBoxState state = createNewState();

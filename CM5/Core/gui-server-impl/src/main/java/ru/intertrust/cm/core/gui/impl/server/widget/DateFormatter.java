@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,14 +11,19 @@ import java.util.Date;
  */
 class DateFormatter implements FieldFormatter {
     private DataExtractor dataExtractor;
+    private DomainObject domainObject;
 
     public DateFormatter(DataExtractor dataExtractor) {
         this.dataExtractor = dataExtractor;
     }
 
+    DateFormatter(DomainObject domainObject) {
+        this.domainObject = domainObject;
+    }
+
     @Override
     public String format(String fieldName, String formatPattern) {
-        DateTimeValue timestamp = (DateTimeValue) dataExtractor.getValue(fieldName);
+        DateTimeValue timestamp = domainObject.getValue(fieldName);
         if (timestamp != null) {
             return formatWithDatePattern(timestamp.get(), formatPattern);
         }

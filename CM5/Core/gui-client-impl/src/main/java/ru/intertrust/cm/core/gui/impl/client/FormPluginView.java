@@ -50,14 +50,12 @@ public class FormPluginView extends PluginView {
         formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), pluginState.isToggleEdit(), eventBus);
         formPanel.setOwner(plugin);
 
-
     }
 
     @Override
     public IsWidget getViewWidget() {
         return formPanel;
     }
-
 
     public Map<String, WidgetState> getWidgetsState(IWidgetStateFilter widgetStateFilter) {
         List<BaseWidget> widgets = formPanel.getWidgets();

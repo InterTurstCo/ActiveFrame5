@@ -4,7 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
 
@@ -113,7 +113,7 @@ class RowItemMapper {
     }
 
     private Matcher fieldPatternMatcher(String pattern) {
-        Pattern fieldPlaceholderPattern = Pattern.compile(WidgetHandler.FIELD_PLACEHOLDER_PATTERN);
+        Pattern fieldPlaceholderPattern = Pattern.compile(FormatHandler.FIELD_PLACEHOLDER_PATTERN);
         return fieldPlaceholderPattern.matcher(pattern);
     }
 

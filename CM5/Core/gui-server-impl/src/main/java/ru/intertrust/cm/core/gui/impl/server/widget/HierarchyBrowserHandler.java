@@ -8,16 +8,19 @@ import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
 
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -36,8 +39,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         HierarchyBrowserConfig widgetConfig = context.getWidgetConfig();
         NodeCollectionDefConfig nodeConfig = widgetConfig.getNodeCollectionDefConfig();
         SelectionPatternConfig selectionPatternConfig = nodeConfig.getSelectionPatternConfig();
-        Pattern pattern = createDefaultRegexPattern();
-        Matcher selectionMatcher = pattern.matcher(selectionPatternConfig.getValue());
+        Matcher selectionMatcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
         Map<String, NodeCollectionDefConfig> collectionNameNodeMap = new HashMap<>();
@@ -79,7 +81,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                                                             IdentifiableObject identifiableObject, Matcher matcher) {
         HierarchyBrowserItem item = new HierarchyBrowserItem();
         item.setId(identifiableObject.getId());
-        item.setStringRepresentation(format(identifiableObject, matcher));
+        item.setStringRepresentation(formatHandler.format(identifiableObject, matcher));
         item.setNodeCollectionName(collectionName);
         return item;
     }
@@ -98,8 +100,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         for (NodeCollectionDefConfig nodeCollectionDefConfig : nodeCollectionDefConfigs) {
             domainObjectTypes.add(nodeCollectionDefConfig.getDomainObjectType());
             String collectionName = nodeCollectionDefConfig.getCollection();
-            Pattern pattern = createDefaultRegexPattern();
-            Matcher selectionMatcher = pattern.matcher(nodeCollectionDefConfig.getSelectionPatternConfig().getValue());
+            Matcher selectionMatcher = FormatHandler.pattern.matcher(nodeCollectionDefConfig.getSelectionPatternConfig().getValue());
             List<Filter> filters = new ArrayList<Filter>();
             if (parentId != null) {
                 filters = addParentFilter(parentId, nodeCollectionDefConfig.getParentFilter(), filters);
@@ -117,7 +118,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                 HierarchyBrowserItem item = new HierarchyBrowserItem();
                 Id id = identifiableObject.getId();
                 item.setId(id);
-                item.setStringRepresentation(format(identifiableObject, selectionMatcher));
+                item.setStringRepresentation(formatHandler.format(identifiableObject, selectionMatcher));
                 item.setNodeCollectionName(collectionName);
                 if (chosenIds.contains(id)) {
                     item.setChosen(true);
@@ -133,10 +134,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         nodeContent.setSelective(nodeContentRequest.isSelective());
         nodeContent.setParentId(parentId);
         return nodeContent;
-    }
-
-    private Pattern createDefaultRegexPattern() {
-        return Pattern.compile("\\{\\w+\\}");
     }
 
     private List<Filter> addParentFilter(Id parentId, String filterByParentName, List<Filter> filters) {

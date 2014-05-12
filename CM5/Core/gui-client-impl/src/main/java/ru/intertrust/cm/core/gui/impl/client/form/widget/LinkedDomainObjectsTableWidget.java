@@ -2,16 +2,19 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
@@ -19,9 +22,11 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.IWidgetStateFilter;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -292,6 +297,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                     if (number != null) {
                         item.setValueByKey(summaryTableColumnConfig.getWidgetId(), number.toString());
                     }
+                }  else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)){
+                    LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
+                    List<Id> ids = linkEditingWidgetState.getIds();
+                    String selectionPattern = summaryTableColumnConfig.getPatternConfig().getValue();
+                    getRepresentation(item, summaryTableColumnConfig.getWidgetId(), ids, selectionPattern);
                 }
             }
         }
@@ -300,6 +310,25 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     @Override
     public Component createNew() {
         return new LinkedDomainObjectsTableWidget();
+    }
+
+    private void getRepresentation(final RowItem item, final String widgetId, List<Id> ids,String selectionPattern) {
+        RepresentationRequest request = new RepresentationRequest(ids,selectionPattern, true);
+        Command command = new Command("getRepresentation", "representation-updater", request);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                RepresentationResponse response = (RepresentationResponse) result;
+                String representation = response.getRepresentation();
+                item.setValueByKey(widgetId, representation);
+                model.refresh();
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining hyperlink");
+            }
+        });
     }
 
 }

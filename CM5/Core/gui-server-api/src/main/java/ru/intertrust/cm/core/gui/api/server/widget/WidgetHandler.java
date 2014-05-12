@@ -1,23 +1,20 @@
 package ru.intertrust.cm.core.gui.api.server.widget;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
+import ru.intertrust.cm.core.gui.impl.server.widget.RepresentationFormatHandler;
+import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.inject.Inject;
-
-import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
-import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -28,25 +25,29 @@ public abstract class WidgetHandler implements ComponentHandler {
 
     @Inject
     protected ConfigurationService configurationService;
+    @Autowired
+    protected FormatHandler formatHandler;
+/*
 
 
     public static final String FIELD_PLACEHOLDER_PATTERN = "\\{\\w+\\}";
+    public static final Pattern pattern = Pattern.compile(FIELD_PLACEHOLDER_PATTERN);*/
 
     public abstract <T extends WidgetState> T getInitialState(WidgetContext context);
 
     public abstract Value getValue(WidgetState state);
 
     protected ArrayList<String> format(List<DomainObject> listToDisplay, String displayPattern) {
-        Pattern pattern = Pattern.compile(FIELD_PLACEHOLDER_PATTERN);
+        Pattern pattern = Pattern.compile(FormatHandler.FIELD_PLACEHOLDER_PATTERN);
         Matcher matcher = pattern.matcher(displayPattern);
         ArrayList<String> displayValues = new ArrayList<>(listToDisplay.size());
         for (DomainObject domainObject : listToDisplay) {
-            displayValues.add(format(domainObject, matcher));
+            displayValues.add(formatHandler.format(domainObject, matcher));
         }
         return displayValues;
     }
 
-    protected String format(DomainObject domainObject, Matcher matcher) {
+   /* protected String format(DomainObject domainObject, Matcher matcher) {
         return format((IdentifiableObject) domainObject, matcher);
     }
 
@@ -77,7 +78,7 @@ public abstract class WidgetHandler implements ComponentHandler {
         matcher.appendTail(replacement);
         matcher.reset();
         return replacement.toString();
-    }
+    }*/
 
     protected void appendDisplayMappings(List<DomainObject> listToDisplay, String displayPattern,
                                          Map<Id, String> idDisplayMapping) {

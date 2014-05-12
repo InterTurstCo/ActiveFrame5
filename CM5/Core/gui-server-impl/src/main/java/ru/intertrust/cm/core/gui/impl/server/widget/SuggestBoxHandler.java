@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
@@ -18,7 +19,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.SuggestionRequest;
 
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created with IntelliJ IDEA.
@@ -52,10 +52,9 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
         if (domainObjects != null) {
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
-        Pattern pattern = createDefaultRegexPattern();
-        Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
+        Matcher matcher = formatHandler.pattern.matcher(selectionPatternConfig.getValue());
         for (IdentifiableObject domainObject : domainObjects) {
-            objects.put(domainObject.getId(), format(domainObject, matcher));
+            objects.put(domainObject.getId(), formatHandler.format(domainObject, matcher));
         }
 
         }
@@ -79,15 +78,15 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
         IdentifiableObjectCollection collection = collectionsService.findCollection(suggestionRequest.getCollectionName(),
                 sortOrder, filters);
-        Pattern pattern = createDefaultRegexPattern();
-        Matcher dropDownMatcher = pattern.matcher(suggestionRequest.getDropdownPattern());
-        Matcher selectionMatcher = pattern.matcher(suggestionRequest.getSelectionPattern());
+        Matcher dropDownMatcher = FormatHandler.pattern.matcher(suggestionRequest.getDropdownPattern());
+        Matcher selectionMatcher = FormatHandler.pattern.matcher(suggestionRequest.getSelectionPattern());
 
         ArrayList<SuggestionItem> suggestionItems = new ArrayList<>();
 
         for (IdentifiableObject identifiableObject : collection) {
             SuggestionItem suggestionItem = new SuggestionItem(identifiableObject.getId(),
-                    format(identifiableObject, dropDownMatcher), format(identifiableObject, selectionMatcher));
+                    formatHandler.format(identifiableObject, dropDownMatcher),
+                    formatHandler.format(identifiableObject, selectionMatcher));
             suggestionItems.add(suggestionItem);
         }
         SuggestionList suggestionList = new SuggestionList();
@@ -106,10 +105,5 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         }
         return textFilter;
     }
-
-    private Pattern createDefaultRegexPattern() {
-        return Pattern.compile("\\{\\w+\\}");
-    }
-
 
 }

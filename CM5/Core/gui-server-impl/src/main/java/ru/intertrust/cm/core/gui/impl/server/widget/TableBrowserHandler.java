@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -52,13 +52,11 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
                     findCollection(collectionName, sortOrder, filters, 0, NUMBER_OF_ITEMS);
         ArrayList<TableBrowserItem> items = new ArrayList<TableBrowserItem>();
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
-        Pattern pattern = createDefaultRegexPattern();
-        Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
-
+        Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
         for (IdentifiableObject collectionObject : collection) {
             TableBrowserItem item = new TableBrowserItem();
             item.setId(collectionObject.getId());
-            item.setStringRepresentation(format(collectionObject, matcher));
+            item.setStringRepresentation(formatHandler.format(collectionObject, matcher));
             items.add(item);
         }
         state.setTableBrowserItems(items);
@@ -81,26 +79,18 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
         IdentifiableObjectCollection collection = collectionsService.
                 findCollection(collectionName, sortOrder, filters, 0, NUMBER_OF_ITEMS);
-
-        Pattern pattern = createDefaultRegexPattern();
-
-        Matcher selectionMatcher = pattern.matcher(formatRowsRequest.getSelectionPattern());
-
+        Matcher selectionMatcher = formatHandler.pattern.matcher(formatRowsRequest.getSelectionPattern());
         ArrayList<TableBrowserItem> items = new ArrayList<>();
 
         for (IdentifiableObject collectionObject : collection) {
             TableBrowserItem item = new TableBrowserItem();
             item.setId(collectionObject.getId());
-            item.setStringRepresentation(format(collectionObject, selectionMatcher));
+            item.setStringRepresentation(formatHandler.format(collectionObject, selectionMatcher));
             items.add(item);
         }
         ParsedRowsList parsedRows = new ParsedRowsList();
         parsedRows.setFilteredRows(items);
         return parsedRows;
-    }
-
-    private Pattern createDefaultRegexPattern() {
-        return Pattern.compile("\\{\\w+\\}");
     }
 
 }

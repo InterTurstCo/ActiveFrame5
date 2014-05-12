@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
@@ -22,6 +22,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @ComponentName("linked-domain-objects-table")
 public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
@@ -40,12 +42,11 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         SingleChoiceConfig singleChoiceConfig = domainObjectsTableConfig.getSingleChoiceConfig();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         state.setSingleChoice(singleChoiceFromConfig);
-
         List<DomainObject> domainObjects = new ArrayList<>();
-        if (context.getAllObjectIds() != null && !context.getAllObjectIds().isEmpty()) {
-            domainObjects = crudService.find(context.getAllObjectIds());
+        List<Id> ids = context.getAllObjectIds();
+        if (!ids.isEmpty()) {
+            domainObjects = crudService.find(ids);
         }
-
         String linkedFormName = domainObjectsTableConfig.getLinkedFormConfig().getName();
         if (linkedFormName != null && !linkedFormName.isEmpty()) {
             FormConfig formConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
@@ -58,7 +59,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
         for (DomainObject domainObject : domainObjects) {
             RowItem rowItem;
-            rowItem = new RowItemMapper(domainObject, summaryTableColumnConfigs).map();
+            rowItem = map(domainObject, summaryTableColumnConfigs);
             rowItem.setObjectId(domainObject.getId());
             rowItems.add(rowItem);
         }
@@ -111,4 +112,88 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
         return ((LinkedDomainObjectsTableConfig) config).isDeleteLinkedObjects();
     }
+
+    public RowItem map(DomainObject domainObject, List<SummaryTableColumnConfig> summaryTableColumnConfigs) {
+        RowItem rowItem = new RowItem();
+        for (SummaryTableColumnConfig columnConfig : summaryTableColumnConfigs) {
+            PatternConfig patternConfig = columnConfig.getPatternConfig();
+            String columnPattern = patternConfig.getValue();
+
+            List<String> fieldsInPattern = takeFieldNamesFromPattern(columnPattern);
+            FormattingConfig formattingConfig = columnConfig.getFormattingConfig();
+
+            Map<String, String> formattedFields = new HashMap<>();
+
+            if (formattingConfig != null) {
+                NumberFormatConfig numberFormatConfig = formattingConfig.getNumberFormatConfig();
+                if (numberFormatConfig != null) {
+                    formatFields(new NumberFormatter(domainObject), formattedFields, numberFormatConfig.getPattern(),
+                            numberFormatConfig.getFieldsPathConfig());
+                }
+                DateFormatConfig dateFormatConfig = formattingConfig.getDateFormatConfig();
+                if (dateFormatConfig != null) {
+                    formatFields(new DateFormatter(domainObject), formattedFields, dateFormatConfig.getPattern(),
+                            dateFormatConfig.getFieldsPathConfig());
+                }
+            }
+            for (String fieldName : fieldsInPattern) {
+                String displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern));
+                formattedFields.put(fieldName, displayValue);
+
+            }
+
+            String columnValue = applyColumnPattern(columnPattern, formattedFields);
+            rowItem.setValueByKey(columnConfig.getWidgetId(), columnValue);
+        }
+        return rowItem;
+    }
+
+    private List<String> takeFieldNamesFromPattern(String columnPattern) {
+        Matcher matcher = fieldPatternMatcher(columnPattern);
+        List<String> fieldNames = new ArrayList<>();
+        while (matcher.find()) {
+            String fieldName = takeFieldNameFromMatchedSequence(matcher);
+            fieldNames.add(fieldName);
+        }
+        return fieldNames;
+    }
+
+    private void formatFields(FieldFormatter fieldFormatter, Map<String, String> formattedFields, String formatPattern,
+                              FieldPathsConfig fieldsPathConfig) {
+        for (FieldPathConfig fieldPathConfig : fieldsPathConfig
+                .getFieldPathConfigsList()) {
+            String fieldName = fieldPathConfig.getValue();
+            if (formatPattern != null) {
+                formattedFields.put(fieldName, fieldFormatter.format(fieldName, formatPattern));
+            }
+        }
+    }
+
+    private String applyColumnPattern(String columnPattern, Map<String, String> formattedFields) {
+        Matcher matcher = fieldPatternMatcher(columnPattern);
+        StringBuffer result = new StringBuffer();
+
+        while (matcher.find()) {
+            String fieldName = takeFieldNameFromMatchedSequence(matcher);
+            String replacement = formattedFields.get(fieldName);
+            if (replacement != null) {
+                matcher.appendReplacement(result, replacement);
+            }
+        }
+
+        matcher.appendTail(result);
+        return result.toString();
+    }
+
+    private String takeFieldNameFromMatchedSequence(Matcher matcher) {
+        String group = matcher.group();
+        return group.substring(1, group.length() - 1);
+    }
+
+    private Matcher fieldPatternMatcher(String pattern) {
+        Pattern fieldPlaceholderPattern = Pattern.compile(FormatHandler.FIELD_PLACEHOLDER_PATTERN);
+        return fieldPlaceholderPattern.matcher(pattern);
+    }
+
 }
+

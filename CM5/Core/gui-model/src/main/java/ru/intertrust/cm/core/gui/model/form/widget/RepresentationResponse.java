@@ -8,14 +8,18 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  *         Date: 03.01.14
  *         Time: 13:15
  */
-public class HyperlinkUpdateResponse implements Dto {
+public class RepresentationResponse implements Dto {
     private Id id;
     private String representation;
 
-    public HyperlinkUpdateResponse() {
+    public RepresentationResponse() {
     }
 
-    public HyperlinkUpdateResponse(Id id, String representation) {
+    public RepresentationResponse(String representation) {
+        this.representation = representation;
+    }
+
+    public RepresentationResponse(Id id, String representation) {
         this.id = id;
         this.representation = representation;
     }
@@ -35,4 +39,5 @@ public class HyperlinkUpdateResponse implements Dto {
     public void setRepresentation(String representation) {
         this.representation = representation;
     }
+
 }
