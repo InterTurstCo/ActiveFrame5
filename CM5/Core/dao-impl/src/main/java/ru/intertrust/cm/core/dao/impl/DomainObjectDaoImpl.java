@@ -622,7 +622,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             List<Id> idsOfSingleType = idSorterByType.getIdsOfType(domainObjectType);
             String doTypeName = domainObjectTypeIdCache
                     .getName(domainObjectType);
-            allDomainObjects.addAll(findSingleTypeDomainObjects(
+            allDomainObjects.addAll(findDomainObjects(doTypeName,
                     idsOfSingleType, accessToken, doTypeName));
         }
 
@@ -630,7 +630,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     /**
-     * Поиск доменных объектов одного типа.
+     * Поиск доменных объектов одного типа, учитывая наследование.
      *
      * @param ids
      *            идентификаторы доменных объектов
@@ -640,8 +640,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      *            тип доменного объекта
      * @return список доменных объектов
      */
-    private List<DomainObject> findSingleTypeDomainObjects(List<Id> ids,
-            AccessToken accessToken, String domainObjectType) {
+    private List<DomainObject> findDomainObjects(String typeName, List<Id> ids,
+                                                 AccessToken accessToken, String domainObjectType) {
         List<DomainObject> cachedDomainObjects = domainObjectCacheService
                 .getObjectToCache(ids);
         if (cachedDomainObjects != null
@@ -655,7 +655,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 idsToRead.remove(domainObject.getId());
             }
         }
-
+        String tableAlias = getSqlAlias(typeName);
         StringBuilder query = new StringBuilder();
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
@@ -675,8 +675,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             aclParameters = getAclParameters(accessToken);             
 
         } else {
-            query.append("select * from ").append(wrap(getSqlName(domainObjectType)))
-                    .append(" where ").append(wrap(ID_COLUMN)).append(" in (:object_ids) ");
+            query.append("select ");
+            appendColumnsQueryPart(query, typeName);
+            query.append(" from ");
+            appendTableNameQueryPart(query, typeName);
+            query.append(" where ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("in (:object_ids) ");
         }
 
         Map<String, Object> parameters = new HashMap<>();
