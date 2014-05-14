@@ -16,6 +16,7 @@ public enum FieldType {
     DATETIME(DateTimeValue.class),
     TIMELESSDATE(TimelessDateValue.class),
     REFERENCE(ReferenceValue.class),
+    @Deprecated
     PASSWORD(StringValue.class);
 
     private Class<? extends Value> valueClass;

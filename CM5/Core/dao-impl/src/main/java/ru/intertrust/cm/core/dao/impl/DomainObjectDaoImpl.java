@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.util.MD5Utils;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.access.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
@@ -1254,8 +1255,37 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 continue;
             }
 
+            // хэшируем Encrypted строки
+            if (fieldConfig instanceof StringFieldConfig){
+                StringFieldConfig stringFieldConfig = (StringFieldConfig) fieldConfig;
+                if (stringFieldConfig.getEncrypted() != null
+                        && stringFieldConfig.getEncrypted()){
+                    String str = (String) value.get();
+                    if (wasUpdated(domainObject, stringFieldConfig, str)){
+                        value = new StringValue(MD5Utils.getMD5(str));
+                    }
+                }
+            }
+
             setParameter(parameterName, value, parameters);
         }
+    }
+
+    private boolean wasUpdated(DomainObject domainObject, StringFieldConfig stringFieldConfig, String str) {
+
+        if (domainObject.isNew()) return true;
+
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("DomainObjectDaoImpl");
+        DomainObject originalDomainObject = find(domainObject.getId(), accessToken);
+        if (originalDomainObject == null) return true;
+
+        String originalString = originalDomainObject.getString(stringFieldConfig.getName());
+
+        if (str == null) return originalString != null;
+
+        return !str.equals(originalString);
+
     }
 
     protected String buildFindChildrenQuery(String linkedType, String linkedField, int offset,
@@ -1635,7 +1665,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     
     /**
      * Получение идентификатора объекта в разрезе которого получаются права на сохраняемый доменный объект
-     * @param domainObjectTypeConfig
+     * @param domainObject
      * @return
      */
     private Id getAccessObjectId(DomainObject domainObject) {
