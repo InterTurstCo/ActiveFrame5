@@ -5,6 +5,9 @@ import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationStorage;
 import ru.intertrust.cm.core.config.DynamicGroupConfig;
 
+/**
+ * Обработчик изменения конфигурации {@link AccessMatrixConfigUpdateHandler}
+ */
 public class AccessMatrixConfigUpdateHandler extends ConfigurationUpdateHandler<AccessMatrixConfig> {
 
     @Override

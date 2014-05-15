@@ -5,6 +5,9 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationStorage;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
+/**
+ * Событие обновления конфигурации
+ */
 public class ConfigurationUpdateEvent extends ApplicationEvent {
 
     private ConfigurationExplorer configurationExplorer;
@@ -35,15 +38,7 @@ public class ConfigurationUpdateEvent extends ApplicationEvent {
         return configurationExplorer;
     }
 
-    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
-        this.configurationExplorer = configurationExplorer;
-    }
-
     public ConfigurationStorage getConfigurationStorage() {
         return configurationStorage;
-    }
-
-    public void setConfigurationStorage(ConfigurationStorage configurationStorage) {
-        this.configurationStorage = configurationStorage;
     }
 }

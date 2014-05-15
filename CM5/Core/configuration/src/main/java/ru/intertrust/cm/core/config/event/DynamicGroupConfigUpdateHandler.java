@@ -4,6 +4,9 @@ package ru.intertrust.cm.core.config.event;
 import ru.intertrust.cm.core.config.ConfigurationStorage;
 import ru.intertrust.cm.core.config.DynamicGroupConfig;
 
+/**
+ * Обработчик изменения конфигурации {@link DynamicGroupConfig}
+ */
 public class DynamicGroupConfigUpdateHandler extends ConfigurationUpdateHandler<DynamicGroupConfig> {
 
     @Override
@@ -11,7 +14,7 @@ public class DynamicGroupConfigUpdateHandler extends ConfigurationUpdateHandler<
         ConfigurationStorage configStorage = configurationUpdateEvent.getConfigurationStorage();
         DynamicGroupConfig oldConfig = (DynamicGroupConfig) configurationUpdateEvent.getOldConfig();
 
-        if (oldConfig.getContext().getDomainObject() != null && oldConfig.getContext().getDomainObject() != null) {
+        if (oldConfig != null && oldConfig.getContext() != null && oldConfig.getContext().getDomainObject() != null) {
             configStorage.dynamicGroupConfigByContextMap.remove(oldConfig.getContext().getDomainObject().getType());
         }
 

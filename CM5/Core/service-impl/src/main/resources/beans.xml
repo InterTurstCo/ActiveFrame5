@@ -20,8 +20,8 @@
     <bean id="initialDataLoader" class="ru.intertrust.cm.core.business.impl.InitialDataLoader" init-method="load"
           depends-on="configurationLoader" p:dataSource-ref="dataSource"/>
 
-    <bean id="configurationControlService"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationControlServiceImpl"/>
+    <bean id="configurationLoadService"
+          class="ru.intertrust.cm.core.business.impl.ConfigurationLoadServiceImpl"/>
 
     <jee:local-slsb id="crudService"
                     jndi-name="java:module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
@@ -41,6 +41,9 @@
     <jee:local-slsb id="configurationService"
                     jndi-name="java:module/ConfigurationServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationService"
                     business-interface="ru.intertrust.cm.core.business.api.ConfigurationService"/>
+    <jee:local-slsb id="configurationControlService"
+                    jndi-name="java:module/ConfigurationControlServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationControlService"
+                    business-interface="ru.intertrust.cm.core.business.api.ConfigurationControlService"/>
     <jee:local-slsb id="localAttachmentService"
                     jndi-name="java:module/LocalAttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService"
                     business-interface="ru.intertrust.cm.core.business.api.AttachmentService"/>

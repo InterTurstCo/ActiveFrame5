@@ -6,6 +6,10 @@ import ru.intertrust.cm.core.config.ConfigurationStorage;
 import ru.intertrust.cm.core.config.ConfigurationStorageBuilder;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
+/**
+ * Обработчик изменения конфигурации {@link TopLevelConfig}.
+ * Выполняет действия по обновлению конфигурации, общие для всех видов конигурации.
+ */
 public class TopLevelConfigUpdateHandler extends ConfigurationUpdateHandler<TopLevelConfig> {
 
     @Override

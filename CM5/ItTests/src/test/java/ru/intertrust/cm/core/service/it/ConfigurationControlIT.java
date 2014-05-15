@@ -1,57 +1,43 @@
 package ru.intertrust.cm.core.service.it;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.jboss.arquillian.junit.Arquillian;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import ru.intertrust.cm.core.business.api.ConfigurationControlService;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionSeparatorConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 
+import javax.ejb.EJB;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import javax.ejb.EJB;
-import javax.security.auth.login.LoginException;
-
-import org.jboss.arquillian.junit.Arquillian;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
-
-import ru.intertrust.cm.core.business.api.ConfigurationControlService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.base.CollectionConfig;
-import ru.intertrust.cm.webcontext.ApplicationContextProvider;
+import static org.junit.Assert.*;
 
 /**
- * Иитеграционный тест для {@link ru.intertrust.cm.core.business.api.ConfigurationService} и {@link ru.intertrust.cm.core.business.api.ConfigurationControlService}
+ * Иитеграционный тест для {@link ru.intertrust.cm.core.business.api.ConfigurationControlService}
  * Created by vmatsukevich on 2/4/14.
  *
  */
-//@RunWith(Arquillian.class)
+@RunWith(Arquillian.class)
 public class ConfigurationControlIT extends IntegrationTestBase {
 
-    private ConfigurationControlService configurationControlService;
+    @EJB
+    private ConfigurationControlService.Remote configurationControlService;
 
-//    @EJB
+    @EJB
     private ConfigurationService.Remote configurationService;
 
-//    @Before
-    public void init() throws IOException, LoginException {
-        initializeSpringBeans();        
-    }
-    private void initializeSpringBeans() {
-        ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
-        configurationControlService = applicationContext.getBean(ConfigurationControlService.class);
-    }
-    
-//    @Test
+    @Test
     public void testConfigurationLoaded() throws IOException {
-        byte[] fileBytes = Files.readAllBytes(Paths.get("test-data/configuration-test.xml"));
+        byte[] fileBytes = readFile("test-data/configuration-test.xml");
         String configuration = new String(fileBytes);
         configurationControlService.updateConfiguration(configuration);
 
-        fileBytes = Files.readAllBytes(Paths.get("test-data/actions-test.xml"));
+        fileBytes = readFile("test-data/actions-test.xml");
         String toolBarConfiguration = new String(fileBytes);
         configurationControlService.updateConfiguration(toolBarConfiguration);
 
@@ -73,8 +59,21 @@ public class ConfigurationControlIT extends IntegrationTestBase {
         // Check that new collection view config is loaded
         assertNotNull(configurationService.getCollectionColumnConfig("NewCollectionView12345", "independence_day"));
 
-        // Check that existing collection view is updated
+        // Check that existing collection view config is updated
         assertNull(configurationService.getCollectionColumnConfig("countries_default_view", "independence_day"));
         assertNotNull(configurationService.getCollectionColumnConfig("countries_default_view", "id"));
+
+        // Check that access matrix config is updated
+        assertNotNull(configurationService.getAccessMatrixByObjectTypeAndStatus("Outgoing_Document", "Active"));
+
+        // Check that new dynamic group config is added
+        assertNotNull(configurationService.getDynamicGroupConfigsByContextType("NewDynamicGroup12345"));
+        // Check that existing dynamic group config is updated
+        assertNotNull(configurationService.getDynamicGroupConfigsByTrackDO("Person", "Draft"));
+
+        // Check that toolbar config is updated
+        ToolBarConfig toolBarConfig = configurationService.getDefaultToolbarConfig("collection.plugin");
+        ActionSeparatorConfig actionSeparatorConfig = (ActionSeparatorConfig) toolBarConfig.getActions().get(1);
+        assertEquals(Integer.valueOf(300), actionSeparatorConfig.getOrder());
     }
 }

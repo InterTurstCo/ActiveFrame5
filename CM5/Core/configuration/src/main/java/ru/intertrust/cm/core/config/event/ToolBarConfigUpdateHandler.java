@@ -6,6 +6,9 @@ import ru.intertrust.cm.core.config.ConfigurationStorage;
 import ru.intertrust.cm.core.config.ConfigurationStorageBuilder;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 
+/**
+ * Обработчик изменения конфигурации {@link ToolBarConfig}
+ */
 public class ToolBarConfigUpdateHandler extends ConfigurationUpdateHandler<ToolBarConfig> {
 
     @Override

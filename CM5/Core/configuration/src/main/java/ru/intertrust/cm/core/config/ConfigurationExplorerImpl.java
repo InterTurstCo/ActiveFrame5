@@ -243,7 +243,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         try {
             FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionViewName, columnConfigName);
             CollectionColumnConfig collectionColumnConfig = configStorage.collectionColumnConfigMap.get(collectionColumnConfigKey);
-            return getReturnObject(collectionColumnConfig, collectionColumnConfig.getClass());
+            return getReturnObject(collectionColumnConfig, CollectionColumnConfig.class);
         } finally {
             readLock.unlock();
         }

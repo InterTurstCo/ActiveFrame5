@@ -54,6 +54,11 @@ public class IntegrationTestBase extends IntegrationTestSuit {
      * @throws IOException
      */
     protected void importTestData(String filePath) throws IOException {
+        byte[] bytes = readFile(filePath);
+        importService.importData(bytes);
+    }
+
+    protected byte[] readFile(String filePath) throws IOException {
         URL fileUrl = Thread.currentThread().getContextClassLoader().getResource(filePath);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         InputStream input = null;
@@ -65,7 +70,7 @@ public class IntegrationTestBase extends IntegrationTestSuit {
                 out.write(buffer, 0, read);
             }
 
-            importService.importData(out.toByteArray());
+            return out.toByteArray();
         } finally {
             try {
                 input.close();

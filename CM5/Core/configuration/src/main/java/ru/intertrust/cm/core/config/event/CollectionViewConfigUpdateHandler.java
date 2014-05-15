@@ -6,6 +6,9 @@ import ru.intertrust.cm.core.config.ConfigurationStorage;
 import ru.intertrust.cm.core.config.ConfigurationStorageBuilder;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 
+/**
+ * Обработчик изменения конфигурации {@link CollectionViewConfig}
+ */
 public class CollectionViewConfigUpdateHandler extends ConfigurationUpdateHandler<CollectionViewConfig> {
 
     @Override

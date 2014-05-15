@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import ru.intertrust.cm.core.business.api.ConfigurationControlService;
+import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
@@ -25,7 +25,7 @@ import ru.intertrust.cm.core.dao.exception.DaoException;
 public class ConfigurationLoader implements ApplicationContextAware {
 
     @Autowired
-    private ConfigurationControlService configurationControlService;
+    private ConfigurationLoadService configurationLoadService;
     
     private ApplicationContext context;
 
@@ -42,14 +42,14 @@ public class ConfigurationLoader implements ApplicationContextAware {
     }
 
     /**
-     * Устанавливает {@link #configurationControlService}
+     * Устанавливает {@link #configurationLoadService}
      * 
-     * @param configurationControlService
+     * @param configurationLoadService
      *            сервис для работы с конфигурацией доменных объектов
      */
-    public void setConfigurationControlService(
-            ConfigurationControlService configurationControlService) {
-        this.configurationControlService = configurationControlService;
+    public void setConfigurationLoadService(
+            ConfigurationLoadService configurationLoadService) {
+        this.configurationLoadService = configurationLoadService;
     }
 
     /**
@@ -60,7 +60,7 @@ public class ConfigurationLoader implements ApplicationContextAware {
      * @throws Exception
      */
     public void load() throws Exception {
-        configurationControlService.loadConfiguration();
+        configurationLoadService.loadConfiguration();
 
         // Вызов точки расширения
         if (context != null) {

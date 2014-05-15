@@ -6,6 +6,7 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
 /**
@@ -156,4 +157,13 @@ public interface ConfigurationService {
      * @return конфигурация логирования sql-запросов
      */
     SqlTrace getSqlTraceConfiguration();
+
+    /**
+     * Returns default toolbar for plugin.
+     * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
+     * Изменение данного объекта недопустимо и напрямую приводит к некорректной работе приложения
+     * @param pluginName componentName of plugin.
+     * @return default toolbar of plugin. Can be NULL if toolbar not defined.
+     */
+    ToolBarConfig getDefaultToolbarConfig(String pluginName);
 }

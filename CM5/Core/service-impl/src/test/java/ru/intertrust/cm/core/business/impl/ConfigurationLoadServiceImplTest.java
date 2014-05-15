@@ -26,10 +26,10 @@ import static org.mockito.Mockito.*;
  *         Time: 5:25 PM
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ConfigurationControlServiceImplTest {
+public class ConfigurationLoadServiceImplTest {
 
     @InjectMocks
-    private ConfigurationControlServiceImpl configurationService = new ConfigurationControlServiceImpl();
+    private ConfigurationLoadServiceImpl configurationService = new ConfigurationLoadServiceImpl();
     @Mock
     private DataStructureDao dataStructureDao;
     @Mock

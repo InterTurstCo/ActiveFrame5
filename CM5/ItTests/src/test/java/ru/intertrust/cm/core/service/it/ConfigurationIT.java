@@ -14,7 +14,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -24,7 +23,7 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 
 /**
- * Иитеграционный тест для {@link ConfigurationService} и {@link ConfigurationControlService}
+ * Иитеграционный тест для {@link ConfigurationService} и {@link ru.intertrust.cm.core.business.api.ConfigurationLoadService}
  * Created by vmatsukevich on 2/4/14.
  *
  */

@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
@@ -202,6 +203,19 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             logger.error(ex.getMessage());
             throw new UnexpectedException("ConfigurationService", "isAttachmentType",
                     "domainObjectType:" + domainObjectType, ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
+        try {
+            return configurationExplorer.getDefaultToolbarConfig(pluginName);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getDefaultToolbarConfig",
+                    "pluginName:" + pluginName, ex);
         }
     }
 }

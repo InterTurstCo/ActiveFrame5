@@ -10,18 +10,16 @@ import ru.intertrust.cm.core.config.ConfigurationException;
  */
 public interface ConfigurationControlService {
 
+    public interface Remote extends ConfigurationControlService {
+    }
+
     /**
      * Обновляет конфигурацию системы фрагментом конфигурации {@code configurationString}.
      * Обновляются только те части конфигурации, изменение которых не требует изменений структуры базы данных.
      * Например, изменения конфигурации доменных объектов будут проигнорированны,
      * а изменения конфигурации коллекций будут обработаны.
      * @param configurationString обновляемый фрагмент конфигурации
-     * @throws ConfigurationException
+     * @throws ru.intertrust.cm.core.config.ConfigurationException
      */
     void updateConfiguration(String configurationString) throws ConfigurationException;
-
-    /**
-     * Загрузка конфигурации
-     */
-    void loadConfiguration();
 }
