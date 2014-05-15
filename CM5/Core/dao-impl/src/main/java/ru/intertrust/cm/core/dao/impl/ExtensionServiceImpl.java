@@ -32,7 +32,7 @@ import ru.intertrust.cm.core.model.ExtensionPointException;
  * @author larin
  * 
  */
-public class ExtensionServiceImpl implements ExtensionService, ApplicationContextAware {
+public class ExtensionServiceImpl implements ExtensionService{
     private static final Logger logger = LoggerFactory.getLogger(ExtensionServiceImpl.class);
     /**
      * Реестр точек расширения
@@ -42,6 +42,7 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
     /**
      * Спринг контекст
      */
+    @Autowired
     private ApplicationContext localApplicationContext;
 
     @Autowired
@@ -137,7 +138,7 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                                                 .getAutowireCapableBeanFactory().createBean(
                                                                         extentionPointClass,
                                                                         AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
-                                                                        false);
+                                                                        true);
 
                                                 ((ConfigurableApplicationContext) applicationContext)
                                                         .getBeanFactory().registerSingleton(
@@ -245,14 +246,5 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
         return result;
     }
 
-    /**
-     * Установка spring контекста
-     */
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.localApplicationContext = applicationContext;
-        List<String> basePackages = getUniqueBasePackages();
-        init(ExtensionService.PLATFORM_CONTEXT, applicationContext, basePackages);
-    }
 
 }
