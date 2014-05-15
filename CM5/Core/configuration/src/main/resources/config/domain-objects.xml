@@ -160,6 +160,14 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="org_middle"  >
+        <fields>
+
+            <string name="name" length="20"/>
+            <reference name="organization" type="Organization"/>
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="Tst_Employee" extends="Person" audit-log="true" initial-status="Active">
         <fields>
             <reference name="Department" type="*" not-null="true"/>
