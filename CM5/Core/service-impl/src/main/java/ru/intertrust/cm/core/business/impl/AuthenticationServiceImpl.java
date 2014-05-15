@@ -58,22 +58,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     /**
-     * Добавляет пользователя в базу. Кодирует пароль, использую MD5 алгоритм. В
-     * базу сохраняется MD5 хеш значение пароля.
+     * Добавляет пользователя в базу. 
      * @param authenticationInfo
      *            {@link AuthenticationInfoAndRole}
      */
     @Override
     public void insertAuthenticationInfoAndRole(AuthenticationInfoAndRole authenticationInfo) {
-        String passwordHash = md5Service.getMD5(authenticationInfo.getPassword());
-
 
         GenericDomainObject authInfo = new GenericDomainObject();
         authInfo.setTypeName("Authentication_Info");
         Date currentDate = new Date();
         authInfo.setCreatedDate(currentDate);
         authInfo.setModifiedDate(currentDate);
-        StringValue password = new StringValue(passwordHash);
+        StringValue password = new StringValue(authenticationInfo.getPassword());
         authInfo.setValue("Password", password);
         authInfo.setValue("User_Uid", new StringValue(authenticationInfo.getUserUid()));
 
