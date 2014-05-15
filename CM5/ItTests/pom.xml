@@ -13,9 +13,17 @@
 
     <properties>
         <spring.version>3.2.4.RELEASE</spring.version>
+        <jboss.version>7.1.1.Final</jboss.version>
     </properties>
     
     <dependencies>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>ear</artifactId>
+            <version>${project.version}</version>
+            <type>ear</type>
+        </dependency>        
+
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>service-api</artifactId>
@@ -64,7 +72,339 @@
             <artifactId>jboss-javaee-6.0</artifactId>
             <type>pom</type>
             <scope>provided</scope>
-        </dependency>        
-        
+        </dependency>
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.2-1002.jdbc4</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/resources</directory>
+                <includes>
+                    <include>arquillian.xml</include>
+                </includes>
+                <filtering>true</filtering>
+            </testResource>
+            <testResource>
+                <directory>${basedir}/src/test/resources</directory>
+                <excludes>
+                    <exclude>arquillian.xml</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+    </build>
+        
+    <profiles>
+        <profile>
+            <id>integration-test</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.as</groupId>
+                    <artifactId>jboss-as-arquillian-container-remote</artifactId>
+                    <version>7.1.1.Final</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.protocol</groupId>
+                    <artifactId>arquillian-protocol-servlet</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <threadCount>1</threadCount>
+                            <perCoreThreadCount>false</perCoreThreadCount>
+                            <systemProperties>
+                                <arquillian.launch>jbossas-remote</arquillian.launch>
+                            </systemProperties>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-tests</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>integration-test-jbossas-managed</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jboss.spec</groupId>
+                    <artifactId>jboss-javaee-6.0</artifactId>
+                    <version>1.0.0.Final</version>
+                    <type>pom</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.as</groupId>
+                    <artifactId>jboss-as-arquillian-container-managed</artifactId>
+                    <version>7.1.1.Final</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.arquillian.protocol</groupId>
+                    <artifactId>arquillian-protocol-servlet</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <jboss.version>${jboss.version}</jboss.version>
+                                <jboss_home>c:/Projects/Intertrust/workspace/CM5/CM5/ItTests/target/jboss-as-7.1.1.Final</jboss_home>                                
+                            </systemPropertyVariables>
+                            <skip>false</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.jboss.as</groupId>
+                                            <artifactId>jboss-as-dist</artifactId>
+                                            <version>${jboss.version}</version>
+                                            <type>zip</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${basedir}/../deploy.properties</file>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <threadCount>1</threadCount>
+                            <perCoreThreadCount>false</perCoreThreadCount>
+                            <systemProperties>
+                                <arquillian.launch>jbossas-managed</arquillian.launch>
+                            </systemProperties>
+                        </configuration>
+                         <executions>
+                            <execution>
+                                <id>integration-tests</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>                    
+                    <plugin>
+                        <groupId>ru.intertrust.dev</groupId>
+                        <artifactId>maven-plugin-jboss-as-ex</artifactId>
+                        <version>0.0.3</version>
+                        <configuration>
+                            <hostname>localhost</hostname>
+                            <groupId>postgresql</groupId>
+                            <artifactId>postgresql</artifactId>
+                            <name>postgresql-jdbc4.jar</name>
+                            <port>9998</port>
+                            <jvmArgs>
+                                -Djboss.management.native.port=9998 -Xms64m -Xmx1024m -XX:MaxPermSize=512m -Djava.net.preferIPv4Stack=true -Dorg.jboss.resolver.warning=true -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000
+                            </jvmArgs>
+                            <jbossHome>${project.build.directory}/jboss-as-${jboss.version}</jbossHome>
+                            
+                            <force>true</force>
+                            <resources>
+                                <resource>
+                                    <address>subsystem=datasources,data-source=CM5</address>
+                                    <enableResource>true</enableResource>
+                                    <properties>
+                                        <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
+                                        <connection-url>${db.connection.url}</connection-url>
+                                        <jndi-name>java:jboss/datasources/CM5</jndi-name>
+                                        <enabled>true</enabled>
+                                        <enable>true</enable>
+                                        <pool-name>${datasource.pool.name}</pool-name>
+                                        <user-name>${db.user}</user-name>
+                                        <password>${db.password}</password>
+                                        <driver-name>postgresql-jdbc4.jar</driver-name>
+                                        <use-ccm>false</use-ccm>
+                                    </properties>
+                                </resource>
+                                <resource>
+                                    <address>subsystem=security,security-domain=CM5</address>
+                                    <properties>
+                                        <cache-type>default</cache-type>
+                                    </properties>
+                                    <resources>
+                                        <resource>
+                                            <address>authentication=classic</address>
+                                            <properties>
+                                                <login-modules>
+                                                                <![CDATA[
+                                                                    !![
+                                                                    {"code"=>"org.jboss.security.ClientLoginModule","flag"=>"optional"},
+                                                                    {"code"=>"Remoting","flag"=>"optional","module-options"=>[("password-stacking"=>"useFirstPass")]},
+                                                                    {"code"=>"Database","flag"=>"required","module-options"=>[
+                                                                        ("dsJndiName"=>"java:jboss/datasources/CM5"),
+                                                                        ("principalsQuery"=>"SELECT info.password from authentication_info info where info.user_uid = ?"),
+                                                                        ("rolesQuery"=>"SELECT 'cm_user', 'Roles' from authentication_info where user_uid = ?"),
+                                                                        ("hashAlgorithm"=>"MD5"),
+                                                                        ("hashEncoding"=>"hex")
+                                                                    ]}]
+                                                                    ]]>
+                                                </login-modules>
+                                            </properties>
+                                        </resource>
+                                    </resources>
+                                </resource>
+                            </resources>
+                
+                            <execute-commands>
+                                <batch>true</batch>
+                                <ignoreException>true</ignoreException>
+                                <commands>
+                                    <command>
+                                        /subsystem=deployment-scanner/scanner=default:write-attribute(name=deployment-timeout, value=6000)
+                                    </command>
+                                    <command>
+                                        /subsystem=transactions/coordinator-environment=:write-attribute(name=default-timeout, value=4000)
+                                    </command>
+                                    <command>
+                                        /subsystem=logging/logger=ru.intertrust:add(level=DEBUG)
+                                    </command>
+                                    <command>
+                                        /subsystem=logging/logger=org.springframework:add(level=DEBUG)
+                                    </command>
+                                    <command>
+                                        /subsystem=logging/logger=org.springframework.core.io.support.PathMatchingResourcePatternResolver:add(level=INFO)
+                                    </command>
+                                    <command>
+                                        /subsystem=logging/logger=org.hibernate.engine.StatefulPersistenceContext:add(level=ERROR)
+                                    </command>
+                
+                                    <command>
+                                        /core-service=management/security-realm=ApplicationRealm/authentication=properties:remove
+                                    </command>
+                                    <command>
+                                        /core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove
+                                    </command>
+                                    <command>
+                                        /core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")
+                                    </command>
+                
+                                    <command>
+                                        /system-property=server.properties.location:add(value=${server.properties.location})
+                                    </command>
+                                    <command>
+                                        /system-property=server.properties.location:write-attribute(name=value,
+                                        value=${server.properties.location})
+                                    </command>
+                                    <command>
+                                        /system-property=spring.profiles.active:add(value=${spring.profiles.active})
+                                    </command>
+                                    <command>/system-property=spring.profiles.active:write-attribute(name=value,
+                                        value=${spring.profiles.active})
+                                    </command>
+                
+                                    <command>
+                                        /system-property=org.apache.catalina.connector.URI_ENCODING:add(value=UTF-8)
+                                    </command>
+                                    <command>
+                                        /system-property=org.apache.catalina.connector.URI_ENCODING:write-attribute(name=value, value=UTF-8)
+                                    </command>
+                                    <command>
+                                        /system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:add(value=true)
+                                    </command>
+                                    <command>
+                                        /system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:write-attribute(name=value,value=true)
+                                    </command>
+                
+                                    <!-- Настройка JMS -->
+                                    <command>
+                                        /extension=org.jboss.as.messaging:add
+                                    </command>
+                                    <command>
+                                        /subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="RemoteConnectionFactory")
+                                    </command>
+                                    <command>
+                                        /subsystem=ejb3:write-attribute(name="default-mdb-instance-pool", value="mdb-strict-max-pool")
+                                    </command>
+                                    <command>
+                                        <![CDATA[
+                                        /:composite(steps=[{"operation"=>"add","address"=>[("socket-binding-group"=>"standard-sockets"),("socket-binding"=>"messaging")],"port"=>5445}])
+                                        ]]>
+                                    </command>
+                                    <command>
+                                        <![CDATA[
+                                        /:composite(steps=[{"operation"=>"add","address"=>[("subsystem"=>"messaging")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default")],"persistence-enabled"=>"true","security-enabled"=>"false","journal-file-size"=>102400L,"journal-min-files"=>2},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("address-setting"=>"#")],"address-full-policy"=>"BLOCK","dead-letter-address"=>"jms.queue.DLQ","expiry-address"=>"jms.queue.ExpiryQueue","max-size-bytes"=>10485760,"message-counter-history-day-limit"=>10,"redelivery-delay"=>0},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("pooled-connection-factory"=>"RemoteConnectionFactory")],"connector"=>{"in-vm"=>undefined},"entries"=>["java:/RemoteConnectionFactory","java:jboss/exported/jms/RemoteConnectionFactory"],"transaction"=>"xa"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("connection-factory"=>"LocalConnectionFactory")],"connector"=>{"netty"=>undefined},"entries"=>["java:/LocalConnectionFactory","java:jboss/exported/jms/LocalConnectionFactory"]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-connector"=>"in-vm")],"server-id"=>0},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-connector"=>"netty")],"socket-binding"=>"messaging"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#"),("role"=>"guest")],"consume"=>true,"create-durable-queue"=>false,"create-non-durable-queue"=>true,"delete-durable-queue"=>false,"delete-non-durable-queue"=>true,"manage"=>false,"send"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-acceptor"=>"in-vm")],"server-id"=>0,"started"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-acceptor"=>"netty")],"socket-binding"=>"messaging","started"=>true}])                                    
+                                        ]]>
+                                    </command>
+                                    <command>
+                                        jms-queue add --queue-address=cmjBusinessQueue
+                                        --entries=queue/cmjBusinessQueue,java:jboss/exported/jms/queue/cmjBusinessQueue
+                                    </command>
+                
+                                </commands>
+                            </execute-commands>
+                        </configuration>
+                            <executions>
+                            <execution>
+                                <id>config-jboss</id>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                    <goal>deploy-artifact</goal>
+                                    <goal>add-resource</goal>
+                                    <goal>execute-commands-ex</goal>
+                                    <goal>shutdown</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>                                
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
 </project>

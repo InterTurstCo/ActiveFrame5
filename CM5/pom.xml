@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,7 +38,7 @@
         <root.basedir>${basedir}</root.basedir>
         
         <opencsv.version>2.0</opencsv.version>
-
+        <jboss.version>7.1.1.Final</jboss.version>
     </properties>
 
     <inceptionYear>2013</inceptionYear>
@@ -360,7 +360,7 @@
                         </archive>
                     </configuration>
                 </plugin>
-
+                                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
@@ -444,7 +444,7 @@
                         <skip>true</skip>
                     </configuration>
                 </plugin>
-
+                
             </plugins>
         </pluginManagement>
 
@@ -499,6 +499,7 @@
                         <test.cnf.testOutDir>${project.build.testOutputDirectory}</test.cnf.testOutDir>
                         <test.cnf.pathXml>${project.build.testOutputDirectory}/../../../configuration/target/test-classes</test.cnf.pathXml>
                         <test.cnf.portRmi>55555</test.cnf.portRmi>
+
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -506,41 +507,7 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>integration-test</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.jboss.as</groupId>
-                    <artifactId>jboss-as-arquillian-container-remote</artifactId>
-                    <version>7.1.1.Final</version>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.jboss.arquillian.protocol</groupId>
-                    <artifactId>arquillian-protocol-servlet</artifactId>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>integration-tests</id>
-                                <phase>integration-test</phase>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>            
-                </plugins>
-            </build>
-        </profile>
+    <profiles>
     </profiles>
 
     <reporting>
