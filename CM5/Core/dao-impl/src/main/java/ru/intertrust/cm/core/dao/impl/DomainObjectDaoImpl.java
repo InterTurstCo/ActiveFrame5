@@ -254,6 +254,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         GenericDomainObject updatedObject = update(domainObject, isUpdateStatus, changedFields);
 
+        domainObjectCacheService.putObjectToCache(updatedObject);
+
         return updatedObject;
 
     }
@@ -304,8 +306,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         updatedObject.setModifiedDate(currentDate);
         updatedObject.resetDirty();
-
-        domainObjectCacheService.putObjectToCache(updatedObject);
 
         if (isUpdateStatus) {
             Id statusValue = updatedObject.getReference(STATUS_FIELD_NAME);
