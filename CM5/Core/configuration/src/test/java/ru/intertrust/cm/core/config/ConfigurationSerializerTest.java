@@ -71,12 +71,12 @@ public class ConfigurationSerializerTest {
 
         String deserializedConfiguration = readTextFile(SERIALIZED_CONFIGURATION_PATH);
         Configuration testConfiguration =
-                configurationSerializer.deserializeTrustedConfiguration(deserializedConfiguration);
+                configurationSerializer.deserializeTrustedConfiguration(deserializedConfiguration, false);
         assertNotNull(testConfiguration);
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        assertEquals(testConfiguration, configuration);
+        assertEquals(configuration, testConfiguration);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ConfigurationSerializerTest {
         expectedException.expectMessage("Failed to serialize configuration from String");
 
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
-        configurationSerializer.deserializeTrustedConfiguration(serializedConfiguration);
+        configurationSerializer.deserializeTrustedConfiguration(serializedConfiguration, false);
     }
 
     @Test

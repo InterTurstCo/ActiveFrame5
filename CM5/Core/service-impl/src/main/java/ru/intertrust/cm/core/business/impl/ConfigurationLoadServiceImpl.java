@@ -88,7 +88,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService {
 
         Configuration oldConfiguration;
         try {
-            oldConfiguration = configurationSerializer.deserializeTrustedConfiguration(oldConfigurationString);
+            oldConfiguration = configurationSerializer.deserializeTrustedConfiguration(oldConfigurationString, false);
             if (oldConfiguration == null) {
                 throw new ConfigurationException();
             }

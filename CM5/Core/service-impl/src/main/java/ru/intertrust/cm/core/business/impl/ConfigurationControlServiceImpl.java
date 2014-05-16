@@ -36,7 +36,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     public void updateConfiguration(String configurationString) throws ConfigurationException {
         Configuration configuration;
         try {
-            configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString);
+            configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString, false);
             if (configuration == null) {
                 throw new ConfigurationException();
             }

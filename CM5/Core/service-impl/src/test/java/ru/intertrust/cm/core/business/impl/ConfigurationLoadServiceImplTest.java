@@ -76,7 +76,7 @@ public class ConfigurationLoadServiceImplTest {
 
         String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
-        when(configurationSerializer.deserializeTrustedConfiguration(configurationString)).thenReturn(configuration);
+        when(configurationSerializer.deserializeTrustedConfiguration(configurationString, false)).thenReturn(configuration);
 
         Configuration updatedConfiguration = createConfiguration();
         configExplorer = new ConfigurationExplorerImpl(updatedConfiguration);
@@ -120,7 +120,7 @@ public class ConfigurationLoadServiceImplTest {
 
         String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
-        when(configurationSerializer.deserializeTrustedConfiguration(configurationString)).thenReturn(configuration);
+        when(configurationSerializer.deserializeTrustedConfiguration(configurationString, false)).thenReturn(configuration);
 
         configurationService.loadConfiguration();
 

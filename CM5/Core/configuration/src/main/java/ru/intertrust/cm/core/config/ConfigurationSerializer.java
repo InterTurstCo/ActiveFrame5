@@ -14,6 +14,7 @@ import org.simpleframework.xml.strategy.Strategy;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.ErrorIgnoringConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
@@ -58,10 +59,14 @@ public class ConfigurationSerializer {
      * @throws ConfigurationException
      *             в случае ошибки десериализации
      */
-    public Configuration deserializeTrustedConfiguration(String configurationString) throws
+    public Configuration deserializeTrustedConfiguration(String configurationString, boolean ignoreErrors) throws
             ConfigurationException {
         try {
-            return createSerializerInstance().read(Configuration.class, configurationString);
+            if (ignoreErrors) {
+                return createSerializerInstance().read(ErrorIgnoringConfiguration.class, configurationString);
+            } else {
+                return createSerializerInstance().read(Configuration.class, configurationString);
+            }
         } catch (Exception e) {
             throw new ConfigurationException("Failed to serialize configuration from String", e);
         }

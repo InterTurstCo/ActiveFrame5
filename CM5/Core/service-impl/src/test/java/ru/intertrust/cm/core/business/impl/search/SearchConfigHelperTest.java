@@ -55,7 +55,7 @@ public class SearchConfigHelperTest {
         }
         ConfigurationClassesCache.getInstance().build();
         ConfigurationSerializer serializer = new ConfigurationSerializer();
-        Configuration config = serializer.deserializeTrustedConfiguration(xml.toString());
+        Configuration config = serializer.deserializeTrustedConfiguration(xml.toString(), false);
         ConfigurationExplorer explorer = new ConfigurationExplorerImpl(config);
 
         initMocks(testee);
