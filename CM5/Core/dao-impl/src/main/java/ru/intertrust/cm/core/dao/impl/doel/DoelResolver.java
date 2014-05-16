@@ -261,13 +261,14 @@ public class DoelResolver implements DoelEvaluator {
             if (!check.isCorrect()) {
                 return Collections.emptyList();
             }
-            //DoelValidator.DoelTypes.Link type = check.getTypeChain();
             ArrayList<T> result = new ArrayList<>();
-            evaluateBranch(expression, check.getTypeChain(), Collections.singletonList(id), result);
+            for (DoelValidator.DoelTypes.Link type : check.getTypeChains()) {
+                evaluateBranch(expression, type, Collections.singletonList(id), result);
+            }
             return result;
         } catch (Exception ex) {
-            throw new DoelException("Error evaluate doel expression \"" + expression + "\" on type \"" + domainObjectTypeIdCache.getName(sourceObjectId)
-                    + "\".", ex);
+            throw new DoelException("Error evaluate doel expression \"" + expression + "\" on type \""
+                    + domainObjectTypeIdCache.getName(sourceObjectId) + "\".", ex);
         }
 /*
         //TODO: Реализовать выборку объекта из транзакционного кэша, если он там есть, вместо обращения к БД

@@ -4,7 +4,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeFieldConfig;
@@ -19,8 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 //@ContextConfiguration(locations = {"classpath*:/beans.xml"})
 //@RunWith(SpringJUnit4ClassRunner.class)
@@ -48,12 +50,14 @@ public class DoelValidatorTest {
     private ApplicationContext context;
 
     /* Схема тестовых типов, полей и связей:
-     *   -> B -> D *   F -> H
-     * A         v       /
-     *   -> C -> E --> G -> I
+     *   -> B -> D *  -> F -> H
+     * A         v   |     /
+     *   -> C -> E --+-> G -> I
+     *       Ca -----
      * A: toB toC
      * B: toD bString
      * C: toE cString
+     * Ca:toF caDate (extends C)
      * D: toE toAny
      * E: toG
      * F: toH fString fgLong
@@ -72,6 +76,7 @@ public class DoelValidatorTest {
         when(config.getFieldConfig("A", "toC")).thenReturn(referenceFieldConfig("toC", "C"));
         when(config.getFieldConfig("B", "toD")).thenReturn(referenceFieldConfig("toD", "D"));
         when(config.getFieldConfig("C", "toE")).thenReturn(referenceFieldConfig("toE", "E"));
+        when(config.getFieldConfig("Ca", "toF")).thenReturn(referenceFieldConfig("toF", "F"));
         when(config.getFieldConfig("D", "toE")).thenReturn(referenceFieldConfig("toE", "E"));
         when(config.getFieldConfig("D", "toAny")).thenReturn(referenceFieldConfig("toAny", "*"));
         when(config.getFieldConfig("E", "toG")).thenReturn(referenceFieldConfig("toG", "G"));
@@ -79,9 +84,17 @@ public class DoelValidatorTest {
         when(config.getFieldConfig("G", "toH")).thenReturn(referenceFieldConfig("toH", "H"));
         when(config.getFieldConfig("F", "toI")).thenReturn(referenceFieldConfig("toI", "I"));
 
-        // ============== Другие поля ==============
+        when(config.getDomainObjectRootType(anyString())).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                return (String) invocation.getArguments()[0];
+            }
+        });
+
+                // ============== Другие поля ==============
         when(config.getFieldConfig("B", "bString")).thenReturn(fieldConfig(StringFieldConfig.class, "bString"));
         when(config.getFieldConfig("C", "cString")).thenReturn(fieldConfig(StringFieldConfig.class, "cString"));
+        when(config.getFieldConfig("Ca", "caDate")).thenReturn(fieldConfig(DateTimeFieldConfig.class, "caDate"));
         when(config.getFieldConfig("F", "fString")).thenReturn(fieldConfig(StringFieldConfig.class, "fString"));
         when(config.getFieldConfig("G", "gString")).thenReturn(fieldConfig(StringFieldConfig.class, "gString"));
         when(config.getFieldConfig("F", "fgLong")).thenReturn(fieldConfig(LongFieldConfig.class, "fgLong"));
@@ -94,6 +107,7 @@ public class DoelValidatorTest {
         types.add(typeConfigMock("A"));
         types.add(typeConfigMock("B"));
         types.add(typeConfigMock("C"));
+        types.add(typeConfigMock("Ca"));
         types.add(typeConfigMock("D"));
         types.add(typeConfigMock("E"));
         types.add(typeConfigMock("F"));
@@ -170,17 +184,18 @@ public class DoelValidatorTest {
         checkTypes(result, new String[] { "I", "F" });
     }
 
-    /*@Test
+    @Test
     public void testMultiTypeLinkExpression() {
         DoelExpression expr = DoelExpression.parse("toD.toAny.fgLong");
         DoelValidator.Processor proc = new DoelValidator.Processor(expr, "B");
         DoelValidator.DoelTypes result = proc.process();
-        assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
+        assertTrue("Выражение должно быть корректным", result.isCorrect());
+        assertFalse("Выражение должно быть частично корректным", result.isAlwaysCorrect());
         assertTrue("Тип результата выражения должен быть числовым",
                 result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.LONG));
         assertTrue("Выражение должно возвращать единственный результат", result.isSingleResult());
         assertNull("Выражение не должно возвращать доменные объекты", result.getResultObjectTypes());
-    }*/
+    }
 
     @Test
     public void testPartialCorrectExpression() {
@@ -188,7 +203,7 @@ public class DoelValidatorTest {
         DoelValidator.Processor proc = new DoelValidator.Processor(expr, "D");
         DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect());
-        assertTrue("Выражение должно быть всегда корректным", result.isAlwaysCorrect());
+        assertFalse("Выражение не должно быть всегда корректным", result.isAlwaysCorrect());
         assertTrue("Тип результата выражения должен быть датой",
                 result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.DATETIME));
         assertTrue("Выражение должно возвращать единственный результат", result.isSingleResult());
@@ -203,7 +218,7 @@ public class DoelValidatorTest {
         assertFalse("Выражение не должно быть корректным", result.isCorrect());
         assertFalse("Выражение не должно быть корректным", result.isAlwaysCorrect());
         assertNull("Выражение не должно возвращать результат", result.getResultTypes());
-        checkTypes(result, new String[] { "A", "B", "D" });
+        assertNull("Не должно существовать правильных цепочек типов", result.getTypeChain());
     }
 
     @Test
@@ -214,7 +229,7 @@ public class DoelValidatorTest {
         assertFalse("Выражение не должно быть корректным", result.isCorrect());
         assertFalse("Выражение не должно быть корректным", result.isAlwaysCorrect());
         assertNull("Выражение не должно возвращать результат", result.getResultTypes());
-        checkTypes(result, new String[] { "A", "C", "E" });
+        //checkTypes(result, new String[] { "A", "C", "E" });
     }
 
     @Test
@@ -225,7 +240,7 @@ public class DoelValidatorTest {
         assertFalse("Выражение не должно быть корректным", result.isCorrect());
         assertFalse("Выражение не должно быть корректным", result.isAlwaysCorrect());
         assertNull("Выражение не должно возвращать результат", result.getResultTypes());
-        checkTypes(result, new String[] { "A", "C" });
+        //checkTypes(result, new String[] { "A", "C" });
     }
 
     private void checkTypes(DoelValidator.DoelTypes result, Object[] expectedTypes) {

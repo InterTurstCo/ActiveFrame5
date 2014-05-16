@@ -9,6 +9,9 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Контейнер статических методов, осуществляющих проверку DOEL-выражений.
  * Создание экземпляров данного класса не имеет смысла.
@@ -17,6 +20,8 @@ import java.util.*;
  */
 public class DoelValidator {
 
+    private static final Logger logger = LoggerFactory.getLogger(DoelValidator.class);
+
     /**
      * Хранилище информации о типах проверенного DOEL-выражения.
      * Экземпляры этого класса возвращаются методом {@link DoelValidator#validateTypes(DoelExpression, String)}.
@@ -24,7 +29,7 @@ public class DoelValidator {
      * @author apirozhkov
      */
     public static class DoelTypes {
-        private Link typeChain;
+        private List<Link> typeChains;
         private boolean brokenPaths = false;
         private boolean singleResult = true;
         private Set<FieldType> resultTypes;
@@ -37,6 +42,7 @@ public class DoelValidator {
          */
         public static class Link {
             private String type;
+            private FieldConfig fieldConfig;
             private List<Link> next;
 
             /**
@@ -58,6 +64,10 @@ public class DoelValidator {
             public List<Link> getNext() {
                 return next;
             }
+
+            public FieldConfig getFieldConfig() {
+                return fieldConfig;
+            }
         }
 
         /**
@@ -70,8 +80,17 @@ public class DoelValidator {
          *
          * @return Корень дерева типов выражения
          */
+        @Deprecated
         public Link getTypeChain() {
-            return typeChain;
+            if (typeChains.size() > 1) {
+                logger.warn("Deprecated method call caused loss of possible results for DOEL expression");
+            }
+            return typeChains.isEmpty() ? null : typeChains.get(0);
+        }
+
+        //TODO Дописать JavaDoc
+        public List<Link> getTypeChains() {
+            return typeChains;
         }
 
         /**
@@ -158,14 +177,99 @@ public class DoelValidator {
         public DoelTypes process() {
             if (result == null) {
                 result = new DoelTypes();
-                result.typeChain = new DoelTypes.Link();
-                result.typeChain.type = sourceType;
-                processStep(0, result.typeChain);
+                //result.typeChain = new DoelTypes.Link();
+                //result.typeChain.type = sourceType;
+                //processStep(0, result.typeChain);
+                result.typeChains = processStep(0, sourceType);
             }
             return result;
         }
 
-        private void processStep(int step, DoelTypes.Link currentType) {
+        private List<DoelTypes.Link> processStep(int step, String currentType) {
+            DoelExpression.Element exprElem = expression.getElements()[step];
+
+            // Попытка расщепить выражение на несколько ветвей, если тип неизвестен или не содержит указанное поле
+            List<String> typeVariants = Collections.singletonList(currentType);
+            if (DoelExpression.ElementType.FIELD == exprElem.getElementType()) {
+                DoelExpression.Field fieldElem = (DoelExpression.Field) exprElem;
+                if (ReferenceFieldConfig.ANY_TYPE.equals(currentType)) {
+                    typeVariants = findAllTypesHavingField(fieldElem.name);
+                } else {
+                    FieldConfig fieldConfig = config.getFieldConfig(currentType, fieldElem.getName());
+                    if (fieldConfig == null) {
+                        typeVariants = findAllChildTypesHavingField(fieldElem.name, currentType);
+                    }
+                }
+            }
+
+            if (typeVariants.size() == 0) {
+                result.brokenPaths = true;
+                return Collections.emptyList();
+            }
+            ArrayList<DoelTypes.Link> branches = new ArrayList<>(typeVariants.size());
+            for (String type : typeVariants) {
+                String nextType = null;
+                FieldConfig fieldConfig = null;
+                // Поиск поля в конфигурации и проверка допустимости его использования
+                switch (exprElem.getElementType()) {
+                    case FIELD:
+                        DoelExpression.Field fieldElem = (DoelExpression.Field) exprElem;
+                        fieldConfig = config.getFieldConfig(type, fieldElem.getName());
+                        if (fieldConfig instanceof ReferenceFieldConfig) {
+                            ReferenceFieldConfig refFieldConfig = (ReferenceFieldConfig) fieldConfig;
+                            nextType = refFieldConfig.getType();
+                        }
+                        break;
+                    case CHILDREN:
+                        DoelExpression.Children childrenElem = (DoelExpression.Children) exprElem;
+                        fieldConfig = config.getFieldConfig(childrenElem.getChildType(), childrenElem.getParentLink());
+                        if (fieldConfig instanceof ReferenceFieldConfig) {
+                            ReferenceFieldConfig refFieldConfig = (ReferenceFieldConfig) fieldConfig;
+                            if (checkTypesCompatibility(type, refFieldConfig.getType())) {
+                                nextType = childrenElem.getChildType();
+                            }
+                            //TODO Добавить проверку наличия ключа уникальности = единственной ссылки
+                            result.singleResult = false;
+                        }
+                        break;
+                    case SUBEXPRESSION:
+                        throw new UnsupportedOperationException("Subexpressions not implemented yet");
+                }
+
+                DoelTypes.Link branch = new DoelTypes.Link();
+                branch.type = type;
+                branch.fieldConfig = fieldConfig;
+                boolean lastStep = step == expression.getElements().length - 1;
+                if (!lastStep) {
+                    // Рекурсивное вычисление последующих типов
+                    if (nextType == null) {
+                        result.brokenPaths = true;
+                    } else {
+                        List<DoelTypes.Link> subbranches = processStep(step + 1, nextType);
+                        if (subbranches != null && subbranches.size() > 0) {
+                            branch.next = subbranches;
+                            branches.add(branch);
+                        }
+                    }
+                } else {
+                    // Определение типов, возвращаемых выражением
+                    if (result.resultTypes == null) {
+                        result.resultTypes = new HashSet<>();
+                    }
+                    result.resultTypes.add(fieldConfig.getFieldType());
+                    if (FieldType.REFERENCE == fieldConfig.getFieldType()) {
+                        if (result.resultObjectTypes == null) {
+                            result.resultObjectTypes = new HashSet<>();
+                        }
+                        result.resultObjectTypes.add(nextType);
+                    }
+                    branches.add(branch);
+                }
+            }
+            return branches;
+        }
+
+        private void old_processStep(int step, DoelTypes.Link currentType) {
             DoelExpression.Element exprElem = expression.getElements()[step];
             FieldConfig fieldConfig;
             List<String> nextTypes = Collections.emptyList();
@@ -173,7 +277,7 @@ public class DoelValidator {
             if (DoelExpression.ElementType.FIELD == exprElem.getElementType()) {
                 DoelExpression.Field fieldElem = (DoelExpression.Field) exprElem;
                 fieldConfig = config.getFieldConfig(currentType.type, fieldElem.getName());
-                if (fieldConfig != null && fieldConfig instanceof ReferenceFieldConfig) {
+                if (fieldConfig instanceof ReferenceFieldConfig) {
                     ReferenceFieldConfig refFieldConfig = (ReferenceFieldConfig) fieldConfig;
                     if (ReferenceFieldConfig.ANY_TYPE.equals(refFieldConfig.getType()) &&
                             step < expression.getElements().length - 1) {
@@ -232,7 +336,7 @@ public class DoelValidator {
                     DoelTypes.Link link = new DoelTypes.Link();
                     link.type = type;
                     currentType.next.add(link);
-                    processStep(step + 1, link);
+                    old_processStep(step + 1, link);
                 }
             } else {
                 //TODO: Поле не является ссылкой
@@ -245,9 +349,35 @@ public class DoelValidator {
             for (DomainObjectTypeConfig type : config.getConfigs(DomainObjectTypeConfig.class)) {
                 if (config.getFieldConfig(type.getName(), fieldName) != null) {
                     types.add(type.getName());
+                } else {
+                    result.brokenPaths = true;
                 }
             }
             return types;
+        }
+
+        private List<String> findAllChildTypesHavingField(String fieldName, String rootType) {
+            ArrayList<String> types = new ArrayList<>();
+            for (DomainObjectTypeConfig type : config.findChildDomainObjectTypes(rootType, false)) {
+                if (config.getFieldConfig(type.getName(), fieldName) != null) {
+                    types.add(type.getName());
+                } else {
+                    List<String> childTypes = findAllChildTypesHavingField(fieldName, type.getName());
+                    if (childTypes.size() > 0) {
+                        types.addAll(childTypes);
+                    } else {
+                        result.brokenPaths = true;
+                    }
+                }
+            }
+            return types;
+        }
+
+        private boolean checkTypesCompatibility(String type1, String type2) {
+            if (ReferenceFieldConfig.ANY_TYPE.equals(type2) || ReferenceFieldConfig.ANY_TYPE.equals(type1)) {
+                return true;
+            }
+            return config.getDomainObjectRootType(type1).equals(config.getDomainObjectRootType(type2));
         }
     }
 

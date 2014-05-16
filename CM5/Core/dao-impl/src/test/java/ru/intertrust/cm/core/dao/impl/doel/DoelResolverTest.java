@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -8,7 +9,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -89,8 +92,7 @@ public class DoelResolverTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testEvaluationWithInheritance() {
-
+    public void testEvaluationWithInheritedField() {
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department.Name");
         doelResolver.evaluate(expr, docId);
 
@@ -101,6 +103,21 @@ public class DoelResolverTest {
                 "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" " +
                 "join \"unit\" t3 on t2.\"department\" = t3.\"id\" " +
                 "where t0.\"parent\" = 105";
+        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testEvaluationWithExtendedField() {
+        DoelExpression expr = DoelExpression.parse("parent.Addressee.Name");
+        doelResolver.evaluate(expr, comm1Id);
+
+        String correctSql =
+                "select t2.\"name\" " +
+                "from \"commission\" t0 " +
+                "join \"incomingdocument\" t1 on t0.\"parent\" = t1.\"id\" " +
+                "join \"person\" t2 on t1.\"addressee\" = t2.\"id\" " +
+                "where t0.\"id\" = 11";
         verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
     }
 
@@ -124,28 +141,50 @@ public class DoelResolverTest {
         when(context.getBean(ConfigurationExplorer.class)).thenReturn(configurationExplorer);
 
         when(domainObjectTypeIdCache.getName(docId)).thenReturn("Document");
+        when(domainObjectTypeIdCache.getName(comm1Id)).thenReturn("Commission");
+        when(domainObjectTypeIdCache.getName(comm2Id)).thenReturn("Commission");
         when(domainObjectCacheService.getObjectToCache(any(Id.class), Matchers.<String>anyVararg())).thenReturn(null);
+        when(configurationExplorer.getDomainObjectRootType("Document")).thenReturn("Document");
+
+        DomainObjectTypeConfig incomingDocConfig = new DomainObjectTypeConfig();
+        incomingDocConfig.setName("IncomingDocument");
+        incomingDocConfig.setExtendsAttribute("Document");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "IncomingDocument")).thenReturn(incomingDocConfig);
+        when(configurationExplorer.getDomainObjectRootType("IncomingDocument")).thenReturn("Document");
+        when(configurationExplorer.findChildDomainObjectTypes("Document", false)).thenReturn(Arrays.asList(incomingDocConfig));
 
         DomainObjectTypeConfig commissionConfig = new DomainObjectTypeConfig();
         commissionConfig.setName("Commission");
         when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Commission")).thenReturn(commissionConfig);
+        when(configurationExplorer.getDomainObjectRootType("Commission")).thenReturn("Commission");
 
         DomainObjectTypeConfig jobConfig = new DomainObjectTypeConfig();
         jobConfig.setName("Job");
         when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Job")).thenReturn(jobConfig);
+        when(configurationExplorer.getDomainObjectRootType("Job")).thenReturn("Job");
 
         DomainObjectTypeConfig personConfig = new DomainObjectTypeConfig();
         personConfig.setName("Person");
         when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person")).thenReturn(personConfig);
+        when(configurationExplorer.getDomainObjectRootType("Person")).thenReturn("Person");
 
         DomainObjectTypeConfig unitConfig = new DomainObjectTypeConfig();
         unitConfig.setName("Unit");
         when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Unit")).thenReturn(unitConfig);
+        when(configurationExplorer.getDomainObjectRootType("Unit")).thenReturn("Unit");
 
         DomainObjectTypeConfig departmentConfig = new DomainObjectTypeConfig();
         departmentConfig.setName("Department");
         departmentConfig.setExtendsAttribute("Unit");
         when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Department")).thenReturn(departmentConfig);
+        when(configurationExplorer.getDomainObjectRootType("Department")).thenReturn("Unit");
+        when(configurationExplorer.findChildDomainObjectTypes("Unit", false)).thenReturn(Arrays.asList(departmentConfig));
+
+        ReferenceFieldConfig documentAddresseeConfig = new ReferenceFieldConfig();
+        documentAddresseeConfig.setName("Addressee");
+        documentAddresseeConfig.setType("Person");
+        when(configurationExplorer.getFieldConfig("IncomingDocument", "Addressee")).thenReturn(documentAddresseeConfig);
+        when(configurationExplorer.getFieldConfig("IncomingDocument", "Addressee", false)).thenReturn(documentAddresseeConfig);
 
         ReferenceFieldConfig commissionParentConfig = new ReferenceFieldConfig();
         commissionParentConfig.setName("parent");
@@ -173,6 +212,8 @@ public class DoelResolverTest {
 
         StringFieldConfig unitNameConfig = new StringFieldConfig();
         unitNameConfig.setName("Name");
+        when(configurationExplorer.getFieldConfig("Person", "Name")).thenReturn(unitNameConfig);
+        when(configurationExplorer.getFieldConfig("Person", "Name", false)).thenReturn(unitNameConfig);
         when(configurationExplorer.getFieldConfig("Unit", "Name")).thenReturn(unitNameConfig);
         when(configurationExplorer.getFieldConfig("Unit", "Name", false)).thenReturn(unitNameConfig);
         when(configurationExplorer.getFieldConfig("Department", "Name")).thenReturn(unitNameConfig);
