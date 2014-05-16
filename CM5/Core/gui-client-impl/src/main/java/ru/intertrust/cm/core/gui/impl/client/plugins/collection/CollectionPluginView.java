@@ -66,7 +66,7 @@ public class CollectionPluginView extends PluginView {
     private String simpleSearchQuery = "";
     private String searchArea = "";
     private CollectionColumnHeaderController headerController;
-    private int lastScrollPos;
+    private int lastScrollPos = -1;
     // локальная шина событий
     private EventBus eventBus;
     private CollectionCsvController csvController;
@@ -106,7 +106,7 @@ public class CollectionPluginView extends PluginView {
             selectionModel.setSelected(items.get(index), true);
         }
         root.addStyleName("collection-plugin-view-container");
-
+        addHandlers();
         return root;
     }
 
@@ -116,7 +116,7 @@ public class CollectionPluginView extends PluginView {
         applySelectionModel();
         insertRows(items);
         applyBodyTableStyle();
-        addHandlers();
+
         csvController = new CollectionCsvController(root);
 
     }
@@ -406,13 +406,10 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void insertMoreRows(List<CollectionRowItem> list) {
+        items.addAll(list);
+        tableBody.setRowData(items);
 
-        Set<CollectionRowItem> itemsSet = new LinkedHashSet<CollectionRowItem>(items);
-        itemsSet.addAll(list);
-        List<CollectionRowItem> itemList = new ArrayList<CollectionRowItem>(itemsSet);
-        tableBody.setRowData(itemList);
-        items = itemList;
-        listCount = itemList.size();
+        listCount = items.size();
 
     }
 
@@ -471,8 +468,8 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void collectionRowRequestCommand(CollectionRowsRequest collectionRowsRequest) {
-        scrollHandlerRegistration.removeHandler();
         lastScrollPos = 0;
+        scrollHandlerRegistration.removeHandler();
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -488,7 +485,7 @@ public class CollectionPluginView extends PluginView {
                 headerController.saveFilterValues();
                 insertMoreRows(collectionRowItems);
                 tableBody.flush();
-                ScrollPanel scroll = tableBody.getScrollPanel();
+                final ScrollPanel scroll = tableBody.getScrollPanel();
                 scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
                 headerController.setFocus();
                 headerController.updateFilterValues();
@@ -565,9 +562,11 @@ public class CollectionPluginView extends PluginView {
 
     private class ScrollLazyLoadHandler implements ScrollHandler {
         private ScrollPanel scroll;
+        int previousScrollMaxVerticalPosition;
 
         private ScrollLazyLoadHandler() {
             this.scroll = tableBody.getScrollPanel();
+            previousScrollMaxVerticalPosition = scroll.getMaximumVerticalScrollPosition();
         }
 
         @Override
@@ -587,8 +586,9 @@ public class CollectionPluginView extends PluginView {
                 return;
             }
             //Height of grid contents (including outside the viewable area) - height of the scroll panel
-            int maxScrollTop = scroll.getWidget().getOffsetHeight() - scroll.getOffsetHeight();
-            if (lastScrollPos >= maxScrollTop) {
+           // int maxScrollTop = scroll.getWidget().getOffsetHeight() - scroll.getOffsetHeight();
+            int maxScrollTop = scroll.getMaximumVerticalScrollPosition();
+            if (lastScrollPos >= maxScrollTop && maxScrollTop > previousScrollMaxVerticalPosition) {
                 if (sortCollectionState != null) {
                     sortCollectionState.setResetCollection(false);
                 }

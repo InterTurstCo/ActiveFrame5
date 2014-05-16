@@ -44,19 +44,31 @@ public class  CollectionRowItem implements Dto{
     }
 
     @Override
-    public int hashCode() {
-        return getId() == null ? System.identityHashCode(this) : getId().hashCode();
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CollectionRowItem that = (CollectionRowItem) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+        if (row != null ? !row.equals(that.row) : that.row != null) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if(obj == this) {
-            return true;
-        }
-        if(obj == null || !(getClass() == obj.getClass())) {
-            return false;
-        }
-        CollectionRowItem other = (CollectionRowItem) obj;
-        return (getId() == null ? other.getId() == null : getId().equals(other.getId()));
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (row != null ? row.hashCode() : 0);
+        return result;
     }
+
 }
