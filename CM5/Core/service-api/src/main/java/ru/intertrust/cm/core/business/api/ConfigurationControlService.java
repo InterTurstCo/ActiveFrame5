@@ -11,8 +11,8 @@ import ru.intertrust.cm.core.config.ConfigurationException;
 public interface ConfigurationControlService {
 
     public interface Remote extends ConfigurationControlService {
-    }
 
+    }
     /**
      * Обновляет конфигурацию системы фрагментом конфигурации {@code configurationString}.
      * Обновляются только те части конфигурации, изменение которых не требует изменений структуры базы данных.
@@ -22,4 +22,11 @@ public interface ConfigurationControlService {
      * @throws ru.intertrust.cm.core.config.ConfigurationException
      */
     void updateConfiguration(String configurationString) throws ConfigurationException;
+
+    /**
+     * Проверяет требуется ли рестарт приложения для полного апдейта конфигурации
+     * @param configurationString строка конфигурации
+     * @return true, если требуется перезагрузка, false - в противном случае
+     */
+    boolean restartRequiredForFullUpdate(String configurationString);
 }

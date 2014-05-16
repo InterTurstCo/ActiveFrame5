@@ -34,15 +34,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
      */
     @Override
     public void updateConfiguration(String configurationString) throws ConfigurationException {
-        Configuration configuration;
-        try {
-            configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString, false);
-            if (configuration == null) {
-                throw new ConfigurationException();
-            }
-        } catch (ConfigurationException e) {
-            throw new ConfigurationException("Configuration loading aborted: failed to deserialize configuration", e);
-        }
+        Configuration configuration = deserializeConfiguration(configurationString);
 
         for (TopLevelConfig config : configuration.getConfigurationList()) {
             if (DomainObjectTypeConfig.class.equals(config.getClass())) {
@@ -55,4 +47,35 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             }
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean restartRequiredForFullUpdate(String configurationString) {
+        Configuration configuration = deserializeConfiguration(configurationString);
+
+        for (TopLevelConfig config : configuration.getConfigurationList()) {
+            if (DomainObjectTypeConfig.class.equals(config.getClass())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Configuration deserializeConfiguration(String configurationString) {
+        Configuration configuration;
+        try {
+            configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString, false);
+            if (configuration == null) {
+                throw new ConfigurationException();
+            }
+        } catch (ConfigurationException e) {
+            throw new ConfigurationException("Configuration loading aborted: failed to deserialize configuration", e);
+        }
+
+        return configuration;
+    }
+
 }
