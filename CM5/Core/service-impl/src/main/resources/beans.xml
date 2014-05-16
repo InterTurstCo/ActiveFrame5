@@ -92,6 +92,7 @@
                 <property name="attachmentService">
                     <bean class="ru.intertrust.cm.core.business.impl.LocalAttachmentServiceImpl">
                         <property name="crudService">
+                            <!-- todo EJB should not be defined as Spring bean -->
                             <bean class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"/>
                         </property>
                     </bean>

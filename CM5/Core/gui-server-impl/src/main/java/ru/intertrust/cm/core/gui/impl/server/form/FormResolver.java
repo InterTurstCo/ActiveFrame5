@@ -3,8 +3,10 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.RoleConfig;
@@ -30,11 +32,18 @@ public class FormResolver {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    private CrudService crudService;
+
     private FormsCache editingFormsCache;
     private FormsCache searchFormsCache;
     private FormsCache reportFormsCache;
 
     public FormResolver() {
+    }
+
+    public FormConfig findEditingFormConfig(Id rootId, String userUid) {
+        return findFormConfig(crudService.getDomainObjectType(rootId), FormConfig.TYPE_EDIT, userUid);
     }
 
     public FormConfig findEditingFormConfig(DomainObject root, String userUid) {

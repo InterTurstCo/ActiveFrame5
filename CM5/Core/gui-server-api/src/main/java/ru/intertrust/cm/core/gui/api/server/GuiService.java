@@ -55,7 +55,7 @@ public interface GuiService {
 
     DomainObject saveForm(FormState formState, UserInfo userInfo);
 
-    SessionContext getSessionContext();
+    String getUserUid();
 
     FormConfig getFormConfig(String typeName, String searchType);
 

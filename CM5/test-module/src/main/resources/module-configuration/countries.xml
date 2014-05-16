@@ -4,6 +4,7 @@
     <domain-object-type name="country" initial-status="Active">
         <fields>
             <string name="name" length="128"/>
+            <string name="short_name" length="128"/>
             <timelessDate name="independence_day"/>
             <long name="population"/>
             <boolean name="is_country_rich"/>
@@ -403,10 +404,10 @@
             </text-box>-->
 
             <label id="best_friend_label">
-                <text>Название столицы:</text>
+                <text>Краткое название:</text>
             </label>
             <text-box id="best_friend">
-                <field-path value="capital.name"/>
+                <field-path value="short_name"/>
             </text-box>
 
             <label id="best_desc_label">

@@ -32,6 +32,10 @@
         <constructor-arg value=""/>
     </bean>
 
+    <bean id="formObjectsRemover" class="ru.intertrust.cm.core.gui.impl.server.form.FormObjectsRemover" scope="prototype">
+        <constructor-arg value=""/>
+    </bean>
+
     <bean id="formResolver" class="ru.intertrust.cm.core.gui.impl.server.form.FormResolver" scope="singleton"
           lazy-init="true"/>
 

@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
+import ru.intertrust.cm.core.gui.impl.server.form.FormObjectsRemover;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -22,8 +24,8 @@ public class DeleteActionHandler extends ActionHandler {
 
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
-
-        crudService.delete(context.getRootObjectId());
+        final FormObjectsRemover remover = (FormObjectsRemover) applicationContext.getBean("formObjectsRemover", guiService.getUserUid());
+        remover.deleteForm(context.getRootObjectId());
 
         DeleteActionData result = new DeleteActionData();
         result.setId(context.getRootObjectId());

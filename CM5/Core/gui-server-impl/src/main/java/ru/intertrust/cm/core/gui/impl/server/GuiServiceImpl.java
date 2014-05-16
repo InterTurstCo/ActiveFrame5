@@ -131,21 +131,21 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    public SessionContext getSessionContext(){
-            return sessionContext;
+    public String getUserUid() {
+            return sessionContext.getCallerPrincipal().getName();
     }
 
     @Override
     public FormConfig getFormConfig(String typeName, String formType) {
         FormResolver formResolver = (FormResolver) applicationContext.getBean("formResolver");
-        return formResolver.findFormConfig(typeName, formType, sessionContext.getCallerPrincipal().getName());
+        return formResolver.findFormConfig(typeName, formType, getUserUid());
     }
 
     private FormRetriever getFormRetriever(UserInfo userInfo) {
         final GuiContext guiCtx = GuiContext.get();
         guiCtx.setUserInfo(userInfo);
         FormRetriever formRetriever = (FormRetriever)
-                applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
+                applicationContext.getBean("formRetriever", getUserUid());
         return formRetriever;
     }
 

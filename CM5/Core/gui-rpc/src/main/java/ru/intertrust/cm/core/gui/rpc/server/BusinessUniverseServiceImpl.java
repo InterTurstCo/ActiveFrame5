@@ -77,7 +77,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     public BusinessUniverseInitialization addInformationToInitializationObject(
             BusinessUniverseInitialization businessUniverseInitialization) {
-        final String currentLogin = guiService.getSessionContext().getCallerPrincipal().getName();
+        final String currentLogin = guiService.getUserUid();
         final DomainObject person = personService.findPersonByLogin(currentLogin);
         businessUniverseInitialization.setCurrentLogin(currentLogin);
         businessUniverseInitialization.setFirstName(person.getString("FirstName"));

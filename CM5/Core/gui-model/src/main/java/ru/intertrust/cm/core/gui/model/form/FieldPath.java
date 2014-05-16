@@ -98,7 +98,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         return getLastElement() instanceof ManyToManyReference;
     }
 
-    public boolean isBackReference() {
+    public boolean isMultiBackReference() {
         return getLastElement() instanceof MultiBackReference;
     }
 
