@@ -60,6 +60,7 @@ public abstract class Plugin extends BaseComponent {
     }
 
     public void onDataLoadFailure() {
+        Application.getInstance().hideLoadingIndicator();
         Window.alert("Ошибка инициализации плагина " + this.getName());
     }
 
