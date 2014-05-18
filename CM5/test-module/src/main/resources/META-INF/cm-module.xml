@@ -37,6 +37,14 @@
         <configuration-path>module-configuration/form-mechanism-3.xml</configuration-path>
     </configuration-paths>
     <import-files rewrite="true">
+        <import-file>importdata/f1.csv</import-file>
+        <import-file>importdata/d1.csv</import-file>
+        <import-file>importdata/c1.csv</import-file>
+        <import-file>importdata/b1.csv</import-file>
+        <import-file>importdata/a1.csv</import-file>
+        <import-file>importdata/e1.csv</import-file>
+        <import-file>importdata/a1_f1.csv</import-file>
+
         <import-file>importdata/import-organization.csv</import-file>
         <import-file>importdata/import-department.csv</import-file>
         <import-file rewrite="false">importdata/import-employee.csv</import-file>

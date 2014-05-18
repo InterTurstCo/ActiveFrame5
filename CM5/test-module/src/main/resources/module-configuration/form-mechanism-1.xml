@@ -45,6 +45,34 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="e1">
+        <fields>
+            <reference name="a1" type="a1"/>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="f1">
+        <fields>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="a1_f1">
+        <fields>
+            <reference name="a1" type="a1"/>
+            <reference name="f1" type="f1"/>
+        </fields>
+    </domain-object-type>
+
     <form name="a1_form" domain-object-type="a1" is-default="true">
         <markup>
             <header>
@@ -118,6 +146,30 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="Связанные">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="e1_1:N_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="e1_1:N"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="f1_N:M_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="f1_N:M"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -180,6 +232,114 @@
             <text-box id="c_name2">
                 <field-path value="b1.c1.name2"/>
             </text-box>
+
+            <label id="e1_1:N_label">
+                <field-path/>
+                <text>E1 (1:N):</text>
+            </label>
+            <suggest-box id="e1_1:N">
+                <field-path value="e1^a1"/>
+
+                <collection-ref name="e1_collection"/>
+
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{e_name1} {e_name2}"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{e_name1} {e_name2}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byName1"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <clear-all-button text="Очистить"/>
+                <default-sort-criteria column-field="name1" order="asc"/>
+            </suggest-box>
+
+            <label id="f1_N:M_label">
+                <field-path/>
+                <text>F1 (N:M):</text>
+            </label>
+            <linked-domain-objects-table id="f1_N:M" modal-width="500px" modal-height="300px">
+                <field-path value="a1_f1^a1.f1"/>
+                <linked-form name="f1_form" inline="true"/>
+                <summary-table>
+                    <summary-table-column header="F1 Name 1" widget-id="1">
+                        <pattern value="{name1}"/>
+                        <!-- пути задаются относительно базового field-path (correspondent) -->
+                        <!--<formatting>
+                            <number-format pattern="###.####">
+                                <field-paths> &lt;!&ndash; описание путей к полям, к которым применяется форматирование &ndash;&gt;
+                                    <field-path value="age"/>
+                                </field-paths>
+                            </number-format>
+                            <date-format pattern="dd-mm-yyyy" style="short">
+                                <field-paths>
+                                    <field-path value="date_of_birth"/>
+                                </field-paths>
+                            </date-format>
+                        </formatting>-->
+                    </summary-table-column>
+                    <summary-table-column header="F1 Name 1" widget-id="2">
+                        <pattern value="{name2}"/>
+                    </summary-table-column>
+                </summary-table>
+                <single-choice value="false"/>
+            </linked-domain-objects-table>
+        </widget-config>
+    </form>
+
+    <form name="f1_form" domain-object-type="f1" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="righ">
+                            <widget id="f_name1_label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="f_name1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="f_name2_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="f_name2"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="f_name1_label">
+                <field-path/>
+                <text>F. Name 1:</text>
+            </label>
+            <text-box id="f_name1">
+                <field-path value="name1"/>
+            </text-box>
+
+            <label id="f_name2_label">
+                <field-path/>
+                <text>F. Name 2:</text>
+            </label>
+            <text-box id="f_name2">
+                <field-path value="name2"/>
+            </text-box>
         </widget-config>
     </form>
 
@@ -198,7 +358,45 @@
         </prototype>
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
         <counting-prototype>
-            select count(*) from country co ::from-clause WHERE 1=1 ::where-clause
+            select count(*) from e1 ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+
+    <collection name="e1_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select e1.id, e1.name1 e_name1, e1.name2 e_name2
+                from e1
+
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from e1 ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        <filter name="byName1">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e1.name1 like {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="f1_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select f1.id, f1.name1 f_name1, f1.name2 f_name2
+                from f1
+
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from f1 ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
     </collection>
 
@@ -213,6 +411,22 @@
             <column field="c_name2" name="c_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
             <column field="d_name1" name="d_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
             <column field="d_name2" name="d_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+        </display>
+    </collection-view>
+
+    <collection-view name="e1_collection_default_view" collection="e1_collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
+            <column field="e_name1" name="a_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="e_name2" name="a_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+        </display>
+    </collection-view>
+
+    <collection-view name="f1_collection_default_view" collection="f1_collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
+            <column field="f_name1" name="a_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="f_name2" name="a_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
         </display>
     </collection-view>
 </configuration>

@@ -1,0 +1,5 @@
+TYPE_NAME=c1;KEYS=name1;;
+name1;name2;d1
+c1_1;c1_1;"name1=""d1_1"""
+c1_2;c1_2;"name1=""d1_2"""
+c1_3;c1_3;"name1=""d1_3"""

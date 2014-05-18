@@ -198,7 +198,7 @@
         </prototype>
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
         <counting-prototype>
-            select count(*) from country co ::from-clause WHERE 1=1 ::where-clause
+            select count(*) from a2 ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
     </collection>
 
