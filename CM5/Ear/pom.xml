@@ -297,6 +297,7 @@
                                                         <properties>
                                                             <login-modules>
                                                             !![
+                                                            {"code"=>"org.jboss.security.ClientLoginModule","flag"=>"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
                                                             {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
@@ -438,6 +439,7 @@
                                                     <properties>
                                                         <login-modules>
                                                             !![
+                                                            {"code"=>"org.jboss.security.ClientLoginModule","flag"=>"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
                                                             {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
