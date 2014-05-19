@@ -33,9 +33,27 @@ public class ListBoxWidget extends BaseWidget {
     }
 
     @Override
-    protected WidgetState createNewState() {
-        final WidgetState state = getStateHandler().getState(impl, (ListBoxState) getInitialData(), idMap);
+    protected ListBoxState createNewState() {
+        final ListBoxState state = getStateHandler().getState(impl, (ListBoxState) getInitialData(), idMap);
         return state;
+    }
+
+    @Override
+    public WidgetState getFullClientStateCopy() {
+        if (!isEditable()) {
+            return super.getFullClientStateCopy();
+        }
+        ListBoxState state = new ListBoxState();
+        ListBoxState newState = createNewState();
+        state.setSelectedIds(newState.getSelectedIds());
+        ListBoxState initialState = getInitialData();
+        state.setListValues(initialState.getListValues());
+        state.setIdFieldPathIndexMapping(initialState.getIdFieldPathIndexMapping());
+        state.setFieldPaths(initialState.getFieldPaths());
+        state.setConstraints(initialState.getConstraints());
+        state.setWidgetProperties(initialState.getWidgetProperties());
+        return state;
+
     }
 
     @Override
@@ -62,14 +80,15 @@ public class ListBoxWidget extends BaseWidget {
     }
 
     private interface StateHandler<T extends Widget> {
-        WidgetState getState(T widget, ListBoxState initialState, HashMap<String, Id> idMap);
+        ListBoxState getState(T widget, ListBoxState initialState, HashMap<String, Id> idMap);
+
         HashMap<String, Id> setState(T widget, ListBoxState state);
     }
 
     @Override
     public Object getValue() {
         if (isEditable()) {
-            ListBox listBox = (ListBox)impl;
+            ListBox listBox = (ListBox) impl;
             int index = listBox.getSelectedIndex();
             if (index != -1) {
                 return listBox.getValue(index);
@@ -80,7 +99,7 @@ public class ListBoxWidget extends BaseWidget {
 
     private static class LabelStateHandler implements StateHandler<Label> {
         @Override
-        public WidgetState getState(Label widget, ListBoxState initialState, HashMap<String, Id> idMap) {
+        public ListBoxState getState(Label widget, ListBoxState initialState, HashMap<String, Id> idMap) {
             return initialState;
         }
 
@@ -103,7 +122,7 @@ public class ListBoxWidget extends BaseWidget {
 
     private static class ListBoxStateHandler implements StateHandler<ListBox> {
         @Override
-        public WidgetState getState(
+        public ListBoxState getState(
                 final ListBox listBox, final ListBoxState initialState, final HashMap<String, Id> idMap) {
             final ListBoxState result = new ListBoxState();
             if (listBox.getItemCount() == 0) {
@@ -129,7 +148,7 @@ public class ListBoxWidget extends BaseWidget {
             boolean singleChoice = state.isSingleChoice();
             listBox.setMultipleSelect(!singleChoice);
             final HashSet<Id> selectedIdsSet = state.getSelectedIdsSet();
-            final LinkedHashMap<Id,String> listValues = state.getListValues();
+            final LinkedHashMap<Id, String> listValues = state.getListValues();
 
             final HashMap<String, Id> idMap = new HashMap<String, Id>(listValues.size());
             listBox.clear();

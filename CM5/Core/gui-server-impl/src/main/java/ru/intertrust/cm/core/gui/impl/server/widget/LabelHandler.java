@@ -1,33 +1,27 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
+import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-
-import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
-import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
-import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.api.server.GuiContext;
-import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
-import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -42,6 +36,9 @@ public class LabelHandler extends ValueEditingWidgetHandler {
 
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private FormatHandler formatHandler;
 
     @Override
     public LabelState getInitialState(WidgetContext context) {
@@ -78,51 +75,11 @@ public class LabelHandler extends ValueEditingWidgetHandler {
     }
 
     private String format(String configPattern, FieldPath[] fieldPaths, WidgetContext context, String allValuesEmpty ) {
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
         String displayPattern = configPattern == null ? buildDefaultPattern(fieldPaths) : configPattern;
         Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
         Matcher matcher = pattern.matcher(displayPattern);
-        StringBuffer replacement = new StringBuffer();
-        boolean allEmpty = true;
-        while (matcher.find()) {
-            String group = matcher.group();
-            FieldPath fieldPath = new FieldPath(group.substring(1, group.length() - 1));
-            Value value = context.getValue(fieldPath);
-            String displayValueUnescaped = "";
-            if (value != null) {
-                Object primitiveValue = value.get();
-                if (primitiveValue == null) {
-                    if (value instanceof LongValue || value instanceof DecimalValue) {
-                        displayValueUnescaped = "0";
-                    }
-                } else {
-                    allEmpty = false;
-                    if (value instanceof DateTimeValue) {
-                        displayValueUnescaped = dateFormatter.format(primitiveValue);
-                    } else if (value instanceof TimelessDateValue) {
-                        final TimelessDate timelessDate = ((TimelessDateValue) value).get();
-                        final TimeZone timeZone = TimeZone.getTimeZone(GuiContext.get().getUserInfo().getTimeZoneId());
-                        final Calendar calendar = GuiServerHelper.timelessDateToCalendar(timelessDate, timeZone);
-                        displayValueUnescaped = dateFormatter.format(calendar.getTime());
-                    } else if (value instanceof DateTimeWithTimeZoneValue) {
-                        final DateTimeWithTimeZone withTimeZone = ((DateTimeWithTimeZoneValue) value).get();
-                        final Calendar calendar = GuiServerHelper.dateTimeWithTimezoneToCalendar(withTimeZone);
-                        displayValueUnescaped = dateFormatter.format(calendar.getTime());
-                    } else {
-                        displayValueUnescaped = primitiveValue.toString();
-                    }
-                }
-            }
-            String displayValue = displayValueUnescaped.replaceAll( "\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
-            matcher.appendReplacement(replacement, displayValue);
-        }
-        if (allEmpty) {
-            return allValuesEmpty;
-        }
-
-        matcher.appendTail(replacement);
-        matcher.reset();
-        return replacement.toString();
+        String replacement = formatHandler.format(context, matcher, allValuesEmpty);
+        return replacement;
     }
 
     private String buildDefaultPattern(FieldPath[] fieldPaths) {
@@ -137,11 +94,11 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         return pattern.toString();
     }
     private boolean isAsteriskRequired(WidgetContext context, LabelConfig labelConfig) {
-        return isForceRequiredAsterisk(context, labelConfig) || isRelatedFieldRequired(context, labelConfig);
+        return isForceRequiredAsterisk(labelConfig) || isRelatedFieldRequired(context, labelConfig);
 
     }
 
-    private boolean isForceRequiredAsterisk(WidgetContext context, LabelConfig labelConfig) {
+    private boolean isForceRequiredAsterisk(LabelConfig labelConfig) {
         ForceRequiredAsteriskConfig forceRequiredAsteriskConfig = labelConfig.getForceRequiredAsterisk();
         if(forceRequiredAsteriskConfig == null){
             return false;

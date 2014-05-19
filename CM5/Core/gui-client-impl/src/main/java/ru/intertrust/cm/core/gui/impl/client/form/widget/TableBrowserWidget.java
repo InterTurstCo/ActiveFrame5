@@ -86,7 +86,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
 
         if (displayHyperlinks()) {
             for (TableBrowserItem item : tableBrowserItems) {
-               displayHyperlink(item, noneEditablePanel);
+                displayHyperlink(item, noneEditablePanel);
             }
         } else {
             for (TableBrowserItem tableBrowserItem : tableBrowserItems) {
@@ -98,13 +98,32 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
 
     @Override
     protected TableBrowserState createNewState() {
+        TableBrowserState state = new TableBrowserState();
         if (isEditable()) {
-            TableBrowserState state = new TableBrowserState();
             state.setTableBrowserItems(facebookStyleView.getChosenItems());
-            return state;
+
         } else {
-            return getInitialData();
+            ArrayList<TableBrowserItem> chosenItems = ((TableBrowserState) getInitialData()).getTableBrowserItems();
+            state.setTableBrowserItems(chosenItems);
         }
+        return state;
+    }
+
+    @Override
+    public WidgetState getFullClientStateCopy() {
+        if (!isEditable()) {
+            return super.getFullClientStateCopy();
+        }
+        TableBrowserState stateWithItems = createNewState();
+        TableBrowserState fullClientState = new TableBrowserState();
+        fullClientState.setTableBrowserItems(stateWithItems.getTableBrowserItems());
+        TableBrowserState initialState = getInitialData();
+        fullClientState.setSingleChoice(initialState.isSingleChoice());
+        fullClientState.setTableBrowserConfig(initialState.getTableBrowserConfig());
+        fullClientState.setDomainFieldOnColumnNameMap(initialState.getDomainFieldOnColumnNameMap());
+        fullClientState.setWidgetProperties(initialState.getWidgetProperties());
+        fullClientState.setConstraints(initialState.getConstraints());
+        return fullClientState;
     }
 
     @Override
@@ -118,7 +137,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     protected Widget asNonEditableWidget(WidgetState state) {
         commonInitialization(state);
         SelectionStyleConfig selectionStyleConfig = tableBrowserConfig.getSelectionStyleConfig();
-        return new SimpleNoneEditablePanelWithHyperlinks(selectionStyleConfig,localEventBus);
+        return new SimpleNoneEditablePanelWithHyperlinks(selectionStyleConfig, localEventBus);
 
     }
 
@@ -420,7 +439,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         });
     }
 
-    private void displayHyperlink(TableBrowserItem item, SimpleNoneEditablePanelWithHyperlinks noneEditablePanel){
+    private void displayHyperlink(TableBrowserItem item, SimpleNoneEditablePanelWithHyperlinks noneEditablePanel) {
         Id itemId = item.getId();
         String itemRepresentation = item.getStringRepresentation();
         noneEditablePanel.displayHyperlink(itemId, itemRepresentation);

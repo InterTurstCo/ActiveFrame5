@@ -75,7 +75,7 @@ public class RadioButtonWidget extends BaseWidget {
     }
 
     @Override
-    protected WidgetState createNewState() {
+    protected RadioButtonState createNewState() {
         RadioButtonState state = new RadioButtonState();
         state.setLayout(layout);
         if (!isEditable()) {
@@ -94,6 +94,23 @@ public class RadioButtonWidget extends BaseWidget {
             }
         }
         return state;
+    }
+
+    @Override
+    public WidgetState getFullClientStateCopy() {
+        if (!isEditable()) {
+        return super.getFullClientStateCopy();
+        }
+        RadioButtonState stateWithSelectedId = createNewState();
+        RadioButtonState fullClientState = new RadioButtonState();
+        fullClientState.setSelectedId(stateWithSelectedId.getSelectedId());
+        RadioButtonState initialState = getInitialData();
+        fullClientState.setListValues(initialState.getListValues());
+        fullClientState.setLayout(initialState.getLayout());
+        fullClientState.setWidgetProperties(initialState.getWidgetProperties());
+        fullClientState.setConstraints(initialState.getConstraints());
+        return fullClientState;
+
     }
 
     private List<RadioButton> getRadioButtons(Panel panel) {

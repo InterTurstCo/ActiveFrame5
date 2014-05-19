@@ -7,20 +7,10 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
-import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
-import ru.intertrust.cm.core.gui.model.validation.CanBeValidated;
-import ru.intertrust.cm.core.gui.model.validation.DateRangeValidator;
-import ru.intertrust.cm.core.gui.model.validation.DecimalRangeValidator;
-import ru.intertrust.cm.core.gui.model.validation.IntRangeValidator;
-import ru.intertrust.cm.core.gui.model.validation.LengthValidator;
-import ru.intertrust.cm.core.gui.model.validation.ScaleAndPrecisionValidator;
-import ru.intertrust.cm.core.gui.model.validation.SimpleValidator;
-import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
-import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
-import ru.intertrust.cm.core.gui.model.validation.Validator;
+import ru.intertrust.cm.core.gui.model.validation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -173,6 +163,13 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         WidgetState state = createNewState();
         state.setConstraints(getInitialData().getConstraints());
         return state;
+    }
+    /**
+     * Получения промежуточного состояния виджета, когда он еще не сохранен, но может быть отредактирован.
+     * Используется для LinkedDomainObjectsTableWidget.
+     * */
+    public WidgetState getFullClientStateCopy(){
+        return getCurrentState();
     }
 
     protected abstract WidgetState createNewState();

@@ -57,7 +57,7 @@ public class ComboBoxWidget extends BaseWidget {
     }
 
     @Override
-    protected WidgetState createNewState() {
+    protected ComboBoxState createNewState() {
         ComboBoxState state = new ComboBoxState();
         if (!isEditable()) {
             state.setSelectedId(nonEditableId);
@@ -69,6 +69,21 @@ public class ComboBoxWidget extends BaseWidget {
         }
         state.setSelectedId(idMap.get(listBox.getValue(listBox.getSelectedIndex())));
         return state;
+    }
+
+    @Override
+    public WidgetState getFullClientStateCopy() {
+        if (!isEditable()) {
+            return  super.getFullClientStateCopy();
+        }
+        ComboBoxState stateWithSelectedIds = createNewState();
+        ComboBoxState fullClientState = new ComboBoxState();
+        fullClientState.setSelectedId(stateWithSelectedIds.getSelectedId());
+        ComboBoxState initialState = getInitialData();
+        fullClientState.setListValues(initialState.getListValues());
+        fullClientState.setConstraints(initialState.getConstraints());
+        fullClientState.setWidgetProperties(initialState.getWidgetProperties());
+        return fullClientState;
     }
 
     @Override

@@ -53,6 +53,10 @@ public class ListBoxState extends ListWidgetState {
         this.idFieldPathIndexMapping = idFieldPathIndexMapping;
     }
 
+    public HashMap<Id, Integer> getIdFieldPathIndexMapping() {
+        return idFieldPathIndexMapping;
+    }
+
     public Integer getFieldPathIndex(Id id) {
         return idFieldPathIndexMapping.get(id);
     }

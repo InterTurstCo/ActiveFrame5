@@ -55,12 +55,12 @@ public class HierarchyBrowserMainPopup {
         this.chosenItems = chosenItems;
     }
 
-    public void handleAddingChosenItem(HierarchyBrowserItem item, boolean singleChoice) {
-        popupChosenContent.handleAddingChosenItem(item, singleChoice);
+    public void handleAddingItem(HierarchyBrowserItem item, boolean singleChoice) {
+        popupChosenContent.handleAddingItem(item, singleChoice);
     }
 
-    public void handleRemovingChosenItem(HierarchyBrowserItem item) {
-        popupChosenContent.handleRemovingChosenItem(item);
+    public void handleRemovingItem(HierarchyBrowserItem item) {
+        popupChosenContent.handleRemovingItem(item);
 
     }
     public void handleReplacingChosenItem(HierarchyBrowserItem item) {

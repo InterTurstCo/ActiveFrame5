@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
  */
 
 public abstract class ListWidgetState extends LinkEditingWidgetState {
-    private LinkedHashMap<Id, String> listValues; //declared as LinkedHashMap (rather than Map) intentionally, to emphasize that items order is important
+    private LinkedHashMap<Id, String> listValues = new LinkedHashMap<Id, String>(5); //declared as LinkedHashMap (rather than Map) intentionally, to emphasize that items order is important
 
     public LinkedHashMap<Id, String> getListValues() {
         return listValues;
@@ -22,4 +22,5 @@ public abstract class ListWidgetState extends LinkEditingWidgetState {
     public void setListValues(LinkedHashMap<Id, String> listValues) {
         this.listValues = listValues;
     }
+
 }

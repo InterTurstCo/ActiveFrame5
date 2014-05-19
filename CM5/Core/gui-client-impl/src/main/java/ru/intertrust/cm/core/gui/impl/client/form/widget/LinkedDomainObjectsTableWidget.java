@@ -114,20 +114,18 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                 DialogBoxAction saveAction = new DialogBoxAction() {
                     @Override
                     public void execute(FormPlugin formPlugin) {
-                        String stateKey = object.getParameter(STATE_KEY);
                         FormState formState = formPlugin.getFormState(new IWidgetStateFilter() {
                             @Override
                             public boolean exclude(BaseWidget widget) {
                                 return false;
                             }
-                        });
+                        }, true);
                         convertFormStateAndFillRowItem(formState, object);
-                        if (stateKey != null) {
-                            currentState.putEditedFormState(stateKey, formState);
-                            object.setParameter(STATE_KEY, stateKey);
-                        } else {
-                            currentState.putEditedFormState(object.getObjectId().toStringRepresentation(), formState);
-                            object.setParameter(STATE_KEY, object.getObjectId().toStringRepresentation());
+                        Id id = object.getObjectId();
+                        if (id != null) {
+                            currentState.putEditedFormState(id.toStringRepresentation(), formState);
+                            object.setParameter(STATE_KEY, id.toStringRepresentation());
+
                         }
                         model.getList().set(index, object);
                     }
@@ -141,12 +139,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                 String pooledFormStateKey = object.getParameter(STATE_KEY);
                 DialogBox db;
                 if (pooledFormStateKey != null) {
-                    FormState pooledEditedFormState = currentState.getFromEditedStates(pooledFormStateKey);
-                    if (pooledEditedFormState == null) {
-                        pooledEditedFormState = currentState.getFromNewStates(pooledFormStateKey);
-                        currentState.putEditedFormState(pooledFormStateKey, pooledEditedFormState);
-                        currentState.removeNewObjectState(pooledFormStateKey);
-                    }
+                    FormState pooledEditedFormState = currentState.getFromNewStates(pooledFormStateKey);
                     db = new LinkedFormDialogBoxBuilder()
                             .setSaveAction(saveAction)
                             .setCancelAction(cancelAction)
@@ -252,7 +245,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                     public boolean exclude(BaseWidget widget) {
                         return false;
                     }
-                });
+                }, true);
                 String stateKey = currentState.addNewFormState(formState);
                 RowItem rowItem = new RowItem();
                 convertFormStateAndFillRowItem(formState, rowItem);

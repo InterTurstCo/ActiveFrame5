@@ -549,6 +549,9 @@
                                     <td width="100%">
                                         <widget id="5"/>
                                     </td>
+                                    <td width="100%">
+                                        <widget id="attachment"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -580,16 +583,65 @@
             <label id="4">
                 <text>Организация:</text>
             </label>
-            <suggest-box id="5">
+            <attachment-box id="attachment">
+                <field-path value="org_attachment^SS_ModuleOrg"/>
+                <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
+                <attachment-type-ref name="org_attachment"/>
+                <scanner enabled="true"/>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+                <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
+            </attachment-box>
+
+            <!-- <table-browser id="5">
+                 <field-path value="Organization"/>
+
+                 <collection-ref name="SO_OrgSystem_Collection"/>
+
+                 <collection-view-ref name="SO_OrgSystem_Default_View"/>
+
+                 <selection-pattern value="{fullname}"/>
+                 <input-text-filter name="byName"/>
+                 <page-size>30</page-size>
+                 <display-chosen-values value="false"/>
+                 <selection-style name="inline"/>
+                 <single-choice value="true"/>
+                 <clear-all-button  text="Очистить"/>
+                 <add-button image="..." text="..."/>
+                 <default-sort-criteria column-field="shortname" order="desc"/>
+                 <display-values-as-links value="true"/>
+             </table-browser>-->
+            <hierarchy-browser id="5">
                 <field-path value="Organization"/>
+
+
+                <node-collection-def collection="SO_OrgSystem_Collection" domain-object-type="SO_OrgSystem">
+
+                    <input-text-filter name="byName"/>
+
+                    <selection-pattern value="{shortname}"/>
+                    <default-sort-criteria column-field="shortname" order="asc"/>
+
+                </node-collection-def>
+
+
+                <page-size>10</page-size>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="..."/>
+                <display-values-as-links value="true"/>
+            </hierarchy-browser>
+          <!--  <radio-button id="5">
+                <field-path value="Organization"/>
+                <pattern value="{ShortName}"/>
+                &lt;!&ndash;<single-choice value="true"/>
                 <collection-ref name="SO_OrgSystem_Collection"/>
                 <drop-down-pattern value="{ShortName}"/>
                 <selection-pattern value="{ShortName}"/>
                 <input-text-filter name="byText"/>
                 <page-size>30</page-size>
-                <selection-style name="inline"/>
-                <single-choice value="true"/>
-            </suggest-box>
+                <selection-style name="inline"/>&ndash;&gt;
+            </radio-button>-->
         </widget-config>
     </form>
     <!--SS_ModuleType-->
@@ -1015,6 +1067,9 @@
             <reference name="Module" type="SS_Module" not-null="true"/>
             <reference name="Organization" type="SO_OrgSystem" not-null="true"/>
         </fields>
+        <attachment-types>
+            <attachment-type name="org_attachment"/>
+        </attachment-types>
     </domain-object-type>
 
     <form-mappings name="SO_Department_Mapping">
@@ -1151,7 +1206,7 @@
             select count(*) from so_parent_su ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
     </collection>
-    <collection name="SS_Module_Collection" idField="id">
+  <!--  <collection name="SS_Module_Collection" idField="id">
         <prototype>
             <![CDATA[
                select
@@ -1167,6 +1222,27 @@
                ::from-clause
                where 1 = 1
                ::where-clause
+           ]]>
+        </prototype>
+    </collection>-->
+    <collection name="SS_Module_Collection" idField="id">
+        <prototype>
+            <![CDATA[
+               SELECT
+                  m.id,
+                  m.title,
+                  m.complect,
+                  m.filename,
+                  su.shortname as orgName,
+                  mt.name as typeName,
+                  m.isnamed
+               FROM SS_Module m
+                  JOIN SS_ModuleOrg mo ON m.id = mo.module
+                  JOIN SO_StructureUnit su ON mo.organization = su.id
+                  JOIN SS_ModuleType mt ON m.type = mt.id
+                  ::from-clause
+               where 1 = 1
+                  ::where-clause
            ]]>
         </prototype>
     </collection>

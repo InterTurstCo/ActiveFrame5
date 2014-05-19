@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
@@ -43,7 +44,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     private boolean singleChoice;
     private Map<String, NodeCollectionDefConfig> collectionNameNodeMap;
     private EventBus localEventBus = new SimpleEventBus();
-
+    private HandlerRegistration handlerRegistration;
     @Override
     public Component createNew() {
         HierarchyBrowserWidget widget = new HierarchyBrowserWidget();
@@ -62,6 +63,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     private void setCurrentStateForEditableWidget(HierarchyBrowserWidgetState state) {
         final HierarchyBrowserView view = (HierarchyBrowserView) impl;
+
         view.initClearButtonIfItIs(hierarchyBrowserConfig.getClearAllButtonConfig());
         view.initAddButton(hierarchyBrowserConfig.getAddButtonConfig());
         collectionNameNodeMap = state.getCollectionNameNodeMap();
@@ -79,7 +81,10 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final boolean displayAsHyperlinks = displayHyperlinks();
         view.displayBaseWidget(displayConfig.getWidth(), displayConfig.getHeight());
         final ArrayList<HierarchyBrowserItem> copyOfItems = getCopyOfChosenItems(chosenItems);
-        view.addButtonClickHandler(new ClickHandler() {
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
+        }
+         handlerRegistration = view.addButtonClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 mainPopup = new HierarchyBrowserMainPopup(localEventBus, copyOfItems, popupWidth, popupHeight, null, displayAsHyperlinks);
@@ -136,16 +141,32 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     protected HierarchyBrowserWidgetState createNewState() {
+        HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
         if (isEditable()) {
-            HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
             HierarchyBrowserView view = (HierarchyBrowserView) impl;
             state.setChosenItems(view.getChosenItems());
-            state.setConstraints(getInitialData().getConstraints());
-            return state;
         } else {
-            return getInitialData();
+            ArrayList<HierarchyBrowserItem> chosenItems = ((HierarchyBrowserWidgetState)getInitialData()).getChosenItems();
+            state.setChosenItems(chosenItems);
         }
+        return state;
+    }
 
+    @Override
+    public WidgetState getFullClientStateCopy() {
+        if (!isEditable()) {
+        return super.getFullClientStateCopy();
+        }
+        HierarchyBrowserWidgetState stateWithItems = createNewState();
+        HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
+        state.setChosenItems(stateWithItems.getChosenItems());
+        HierarchyBrowserWidgetState initialState = new HierarchyBrowserWidgetState();
+        state.setSingleChoice(initialState.isSingleChoice());
+        state.setCollectionNameNodeMap(initialState.getCollectionNameNodeMap());
+        state.setHierarchyBrowserConfig(initialState.getHierarchyBrowserConfig());
+        state.setConstraints(initialState.getConstraints());
+        state.setWidgetProperties(initialState.getWidgetProperties());
+        return state;
     }
 
     @Override
@@ -190,9 +211,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserItem item = event.getItem();
         boolean chosen = item.isChosen();
         if (chosen) {
-            mainPopup.handleAddingChosenItem(event.getItem(), singleChoice);
+            mainPopup.handleAddingItem(event.getItem(), singleChoice);
         } else {
-            mainPopup.handleRemovingChosenItem(item);
+            mainPopup.handleRemovingItem(item);
 
         }
 

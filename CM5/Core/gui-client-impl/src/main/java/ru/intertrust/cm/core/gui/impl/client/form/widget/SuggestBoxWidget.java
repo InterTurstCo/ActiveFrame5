@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.*;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -39,6 +40,8 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     private boolean displayAsHyperlinks;
     private String selectionPattern;
     private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
+    private LinkedHashMap<Id, String> stateListValues = new LinkedHashMap<>(); //used for temporary state
+
     CmjDefaultSuggestionDisplay display;
 
     public SuggestBoxWidget() {
@@ -74,12 +77,34 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
 
     @Override
     protected SuggestBoxState createNewState() {
-        SuggestBoxState state = getInitialData();
+        SuggestBoxState state = new SuggestBoxState();
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
             state.setSelectedIds(new ArrayList<Id>(presenter.getSelectedKeys()));
+        } else {
+            final SuggestBoxState initialState = getInitialData();
+            state.setSelectedIds(initialState.getSelectedIds());
         }
         return state;
+    }
+
+    @Override
+    public WidgetState getFullClientStateCopy() {
+        if (!isEditable()) {
+            return super.getFullClientStateCopy();
+        }
+        SuggestBoxState initialState = getInitialData();
+        SuggestBoxState state = new SuggestBoxState();
+        state.setListValues(stateListValues);
+        SuggestPresenter presenter = (SuggestPresenter) impl;
+        state.setSelectedIds(new ArrayList<Id>(presenter.getSelectedKeys()));
+        state.getListValues().putAll(initialState.getListValues());
+        state.setSingleChoice(initialState.isSingleChoice());
+        state.setSuggestBoxConfig(initialState.getSuggestBoxConfig());
+        state.setWidgetProperties(initialState.getWidgetProperties());
+        state.setConstraints(initialState.getConstraints());
+        return state;
+
     }
 
     @Override
@@ -116,7 +141,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 Id id = response.getId();
                 String representation = response.getRepresentation();
                 SuggestBoxState state = createNewState();
-                state.getListValues().put(id, representation);
+                stateListValues.put(id, representation);
                 setCurrentState(state);
             }
 
@@ -140,14 +165,11 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     }
 
     @Override
-    protected Widget asEditableWidget(WidgetState state) {
-        SuggestBoxState suggestBoxState = (SuggestBoxState) state;
+    protected Widget asEditableWidget(final WidgetState state) {
+        final SuggestBoxState suggestBoxState = (SuggestBoxState) state;
         commonInitialization(suggestBoxState);
         final SuggestPresenter presenter = new SuggestPresenter();
-        //presenter.setSuggestMaxDropDownWidth(suggestMaxDropDownWidth);
-
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
-        //suggestBox = new SuggestBox(oracle);
         suggestBox = new SuggestBox(oracle, new TextBox(), new CmjDefaultSuggestionDisplay());
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
 
@@ -155,16 +177,14 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 final MultiWordIdentifiableSuggestion selectedItem =
                         (MultiWordIdentifiableSuggestion) event.getSelectedItem();
                 final String replacementString = selectedItem.getReplacementString();
-                presenter.insert(selectedItem.getId(), replacementString);
+                Id id = selectedItem.getId();
+                presenter.insert(id, replacementString);
+                stateListValues.put(id, replacementString);
                 SuggestBox sourceObject = (SuggestBox) event.getSource();
                 sourceObject.setText("");
                 sourceObject.setFocus(true);
             }
         });
-
-//        SuggestBox.DefaultSuggestionDisplay display = (SuggestBox.DefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
-//        display.setPositionRelativeTo(presenter);
-
         Event.sinkEvents(suggestBox.getElement(), Event.ONBLUR);
         suggestBox.addHandler(new BlurHandler() {
             @Override
@@ -174,15 +194,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         }, BlurEvent.getType());
 
         display = (CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
-
         display.setPositionRelativeTo(presenter);
-//+------------------------------------------------------
-//|.gwt-SuggestBoxPopup
-//+------------------------------------------------------
-//        display.getSuggestionPopup().getElement().getStyle().setWidth(700, Style.Unit.PX);
-//        display.getSuggestionPopup().getElement().getStyle().setHeight(100, Style.Unit.PX);
-
-
         display.getSuggestionPopup().getElement().getStyle().setZIndex(999999999);
 
         return presenter;
@@ -273,18 +285,13 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
             DOM.appendChild(getBody(), row);
             arrowBtn = DOM.createTD();
             arrowBtn.setClassName("suggest-container-arrow-btn");
-            //       DOM.appendChild(row, arrowBtn);
             DOM.setEventListener(arrowBtn, new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
                     final CmjDefaultSuggestionDisplay display = (CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
-
-
-                    Element e = (Element) display.getSuggestionPopup().getElement().getFirstChild().getFirstChild().getFirstChild().getChild(1).getChild(1).getFirstChild();
-
-
+                    Element e = (Element) display.getSuggestionPopup().getElement().getFirstChild().getFirstChild().
+                            getFirstChild().getChild(1).getChild(1).getFirstChild();
                     suggestBox.setText("*");
-                    //suggestBox.showSuggestionList();
                     //max-width drop down suggest
                     if (getMaxDropDownWidth() != null) {
                         e.getStyle().setWidth(getMaxDropDownWidth(), Style.Unit.PX);
@@ -299,14 +306,6 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                         e.getStyle().setHeight(getMaxDropDownHeight(), Style.Unit.PX);
                         e.getStyle().setOverflowY(Style.Overflow.SCROLL);
                     } else {
-//                        //если вверху
-//                        suggestBox.showSuggestionList();
-//                        if(suggestBox.getAbsoluteTop() < ((CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay()).getSuggestionPopup().getAbsoluteTop()){
-//
-//                            e.getStyle().setHeight(suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight(), Style.Unit.PX);
-//                            e.getStyle().setOverflowY(Style.Overflow.SCROLL);
-//                        }
-//                        //если внизу
                         suggestBox.showSuggestionList();
                         e.getStyle().setHeight(Window.getClientHeight() - suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - 25, Style.Unit.PX);
                         e.getStyle().setOverflowY(Style.Overflow.SCROLL);
@@ -422,11 +421,12 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         public void insert(final Id itemId, final String itemName) {
             final SelectedItemComposite itemComposite = new SelectedItemComposite(itemId, itemName);
             itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
-            if(displayAsHyperlinks){
+            if (displayAsHyperlinks) {
                 itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
             }
             if (singleChoice) {
                 selectedSuggestions.clear();
+                stateListValues.clear();
                 for (Iterator<Widget> it = getChildren().iterator(); it.hasNext(); ) {
                     final Widget widget = it.next();
                     if (widget instanceof SelectedItemComposite) {
@@ -445,7 +445,9 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 @Override
                 public void onBrowserEvent(Event event) {
                     remove(itemComposite);
-                    selectedSuggestions.remove(itemComposite.getItemId());
+                    Id id = itemComposite.getItemId();
+                    selectedSuggestions.remove(id);
+                    stateListValues.remove(id);
                     suggestBox.setFocus(true);
 
                 }
@@ -477,7 +479,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
             label = DOM.createSpan();
             label.setInnerText(itemName);
             label.addClassName("facebook-label");
-            label.addClassName("facebook-none-clickable-label") ;
+            label.addClassName("facebook-none-clickable-label");
             DOM.appendChild(wrapper.getElement(), label);
             closeBtn = DOM.createSpan();
             closeBtn.setClassName("suggest-choose-close");

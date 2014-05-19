@@ -57,7 +57,7 @@ public class FormPluginView extends PluginView {
         return formPanel;
     }
 
-    public Map<String, WidgetState> getWidgetsState(IWidgetStateFilter widgetStateFilter) {
+    public Map<String, WidgetState> getWidgetsState(IWidgetStateFilter widgetStateFilter, boolean deepClone) {
         List<BaseWidget> widgets = formPanel.getWidgets();
         HashMap<String, WidgetState> result = new HashMap<String, WidgetState>(widgets.size());
         IWidgetStateFilter filter = defaultWidgetStateFilter;
@@ -72,7 +72,7 @@ public class FormPluginView extends PluginView {
             if (widget.isEditable()) {
 
                 try {
-                    WidgetState state = widget.getCurrentState();
+                    WidgetState state = deepClone ? widget.getFullClientStateCopy() : widget.getCurrentState();
                     result.put(id, state);
                 } catch (GuiException e) {
                     Window.alert(e.getMessage()); // todo something more interesting

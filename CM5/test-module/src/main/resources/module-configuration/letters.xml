@@ -320,6 +320,7 @@
                                     <td h-align="left">
                                         <widget id="label_empty_values"/>
                                     </td>
+
                                 </tr>
                             </table>
                         </tab-group>
@@ -434,7 +435,13 @@
                             <widget id="Name-Label"/>
                         </td>
                         <td width="100%" h-align="left">
-                            <widget id="Name"/>
+                        <widget id="Name"/>
+                    </td>
+                        <td width="100%" h-align="left">
+                        <widget id="backRef"/>
+                    </td>
+                        <td width="100%" h-align="left">
+                            <widget id="backRefLabel"/>
                         </td>
                         <!-- text-box (Название) -->
                     </tr>
@@ -452,6 +459,15 @@
             <text-box id="Name">
                 <field-path value="Name"/>
             </text-box>
+            <label id="backRefLabel">
+
+                <text>BackRef</text>
+            </label>
+            <linked-domain-object-hyperlink id = "backRef">
+                <field-path value="org_middle^organization"/>
+                <linked-form name="org_middle_form" />
+                <pattern value="{org_middle|organization.name}"/>
+            </linked-domain-object-hyperlink>
         </widget-config>
     </form>
 

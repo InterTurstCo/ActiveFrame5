@@ -39,8 +39,6 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         TableBrowserState state = new TableBrowserState();
         TableBrowserConfig widgetConfig = context.getWidgetConfig();
         state.setTableBrowserConfig(widgetConfig);
-        Id rootId = context.getFormObjects().getRootNode().getDomainObject().getId();
-        state.setRootId(rootId);
         List<Id> selectedIds = context.getAllObjectIds();
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
         Filter includeIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);

@@ -12,18 +12,9 @@ import java.util.LinkedHashMap;
  *         Time: 16:15
  */
 public class TableBrowserState extends LinkEditingWidgetState {
-    private Id rootId;
     private ArrayList<TableBrowserItem> tableBrowserItems;
     private LinkedHashMap<String, String> domainFieldOnColumnNameMap;
     private TableBrowserConfig tableBrowserConfig;
-
-    public Id getRootId() {
-        return rootId;
-    }
-
-    public void setRootId(Id rootId) {
-        this.rootId = rootId;
-    }
 
     public ArrayList<TableBrowserItem> getTableBrowserItems() {
         return tableBrowserItems;

@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
@@ -73,8 +73,8 @@ public class HierarchyBrowserView extends Composite {
         return widgetContainer;
     }
 
-    public void addButtonClickHandler(ClickHandler openButtonClickHandler) {
-        openPopupButton.addClickHandler(openButtonClickHandler);
+    public HandlerRegistration addButtonClickHandler(ClickHandler openButtonClickHandler) {
+       return openPopupButton.addClickHandler(openButtonClickHandler);
     }
 
     public void displayBaseWidget(String width, String height) {
