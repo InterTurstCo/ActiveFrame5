@@ -16,12 +16,10 @@ import ru.intertrust.cm.core.config.converter.FieldPathOnDeleteActionConverter;
 public class FieldPathConfig implements Dto {
     public static final String CASCADE_STRING = "cascade";
     public static final String UNLINK_STRING = "unlink";
-    public static final String CASCADE_1_TO_1_BACK_LINKS_STRING = "cascade 1:1 back-links";
 
     public static enum OnDeleteAction {
         CASCADE(CASCADE_STRING),
-        UNLINK(UNLINK_STRING),
-        CASCADE_1_TO_1_BACKLINKS(CASCADE_1_TO_1_BACK_LINKS_STRING);
+        UNLINK(UNLINK_STRING);
 
         private final String string;
 
@@ -43,8 +41,6 @@ public class FieldPathConfig implements Dto {
                     return CASCADE;
                 case UNLINK_STRING:
                     return UNLINK;
-                case CASCADE_1_TO_1_BACK_LINKS_STRING:
-                    return CASCADE_1_TO_1_BACKLINKS;
             }
             return null;
         }

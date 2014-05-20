@@ -13,45 +13,41 @@ import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.model.form.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
+ * Primary scenarios:
+ * a.b.c.d.e - primary scenario - delete all linked objects
+ * b|a - delete linked object b
+ * b|a.d|b - delete 2 linked objects (b, d)
+ * a.b|a - unlink "root->a" (do not delete a)
+ * b|a.d - delete b, direct links further - do not delete
+ *
+ * b^a - delete b (default)
+ * b^a.c - unlink (default)
+ *
+ * Modifiers for removal:
+ * "cascade" - all linked objects in field path will be deleted
+ * "unlink" -> first child will be unlinked
+ *
+ * "cascade" -> a.b.c.d.e - objects a,b,c,d will be deleted (by default)
+ *              b|a - delete b
+ *              b|a.d|b - delete b, delete d
+ *              a.b|a.c.d - a, b, c will be deleted (d - field)
+ *              b|a.d|b - default behavior -> b, d will be deleted
+ * "unlink" -> a.b.c.d.e (nothing will be deleted)
+ *             b|a - b will be unlinked
+ *             b|a.d|b - b (only) will be unlinked
+ *             a.b|a (default -> nothing will be deleted)
+ *             b|a.d - b (only) will be unlinked
+ *
+ * <field-path on-delete="cascade/unlink" - modifies default behavior/>
+ *
  * @author Denis Mitavskiy
  *         Date: 05.05.14
  *         Time: 13:06
  */
 public class FormObjectsRemover {
-    /**
-     * Primary scenarios:
-     * a.b.c.d.e - primary scenario - delete all linked objects
-     * b|a - delete linked object b
-     * b|a.d|b - delete 2 linked objects (b, d)
-     * a.b|a - unlink "root->a" (do not delete a)
-     * b|a.d - delete b, direct links further - do not delete
-     *
-     * b^a - delete b (default)
-     * b^a.c - unlink (default)
-     *
-     * Modifiers for removal:
-     * "cascade" - all linked objects in field path will be deleted
-     * "cascade 1:1 back-links" - all 1:1 back-links will be deleted until the first direct link
-     * "unlink" -> first child will be unlinked
-     *
-     * "cascade" -> a.b.c.d.e - objects a,b,c,d will be deleted (by default)
-     *              b|a - delete b
-     *              b|a.d|b - delete b, delete d
-     *              a.b|a.c.d - a, b, c will be deleted (d - field)
-     *              b|a.d|b - default behavior -> b, d will be deleted
-     * "unlink" -> a.b.c.d.e (default -> nothing will be deleted)
-     *             b|a - b will be unlinked
-     *             b|a.d|b - b (only) will be unlinked
-     *             a.b|a (default -> nothing will be deleted)
-     *             b|a.d - b (only) will be unlinked
-     *
-     * <field-path on-delete="cascade/unlink" - modifies default behavior/>
-     */
     @Autowired
     protected ApplicationContext applicationContext;
     @Autowired
@@ -70,12 +66,14 @@ public class FormObjectsRemover {
     private FormState initialFormState;
     private FormObjects formObjects;
     private HashMap<FieldPath, ObjectWithReferences> rootAndOneToOneToDelete;
-
+    private HashSet<FieldPath> oneToOneToUnlink;
+    private HashMap<FieldPath, FieldPathConfig> fieldPathConfigs;
     private String userUid;
 
     public FormObjectsRemover(String userUid) {
         this.userUid = userUid;
         this.rootAndOneToOneToDelete = new HashMap<>();
+        this.oneToOneToUnlink = new HashSet<>();
     }
 
     public void deleteForm(FormState initialFormState) {
@@ -91,11 +89,28 @@ public class FormObjectsRemover {
         deleteForm();
     }
 
-    public void deleteForm() {
-        List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+    private void deleteForm() {
+        buildCaches();
 
+        ArrayList<FieldPath> multiBackReferencesToDelete = new ArrayList<>();
+        for (FieldPath fieldPath : fieldPathConfigs.keySet()) {
+            if (fieldPath.isMultiBackReference()) {
+                multiBackReferencesToDelete.add(fieldPath);
+                continue;
+            }
+
+            // delete chain
+            findDeleteOperationsForChain(new ObjectWithReferences(fieldPath.getParentPath()), fieldPathConfigs.get(fieldPath).getOnDelete());
+        }
+
+        deleteMultiBackReferences(multiBackReferencesToDelete);
+        deleteRootWithOneToOneChain();
+    }
+
+    private void buildCaches() {
+        fieldPathConfigs = new HashMap<>();
+        List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         for (WidgetConfig config : widgetConfigs) {
-            String widgetId = config.getId();
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
             if (fieldPathConfig == null || fieldPathConfig.getValue() == null || config instanceof LabelConfig) {
                 continue;
@@ -103,21 +118,13 @@ public class FormObjectsRemover {
 
             // field path config can point to multiple paths
             FieldPath[] fieldPaths = FieldPath.createPaths(fieldPathConfig.getValue());
-            FieldPath firstFieldPath = fieldPaths[0];
-            if (firstFieldPath.isMultiBackReference()) {
-                continue; // todo delete
-            }
-
-            // delete chain
             for (FieldPath fieldPath : fieldPaths) {
-                findDeleteOperationsForChain(new ObjectWithReferences(fieldPath.getParentPath()));
+                fieldPathConfigs.put(fieldPath, fieldPathConfig);
             }
         }
-
-        deleteRootWithOneToOneChain();
     }
 
-    private void findDeleteOperationsForChain(ObjectWithReferences toDelete) {//FieldPath objectPath, Pair<String, FieldPath> reference) {
+    private void findDeleteOperationsForChain(ObjectWithReferences toDelete, FieldPathConfig.OnDeleteAction onDeleteAction) {
         ObjectWithReferences checkedObject = rootAndOneToOneToDelete.get(toDelete.path);
         if (checkedObject != null) {
             checkedObject.addReferencesFrom(toDelete);
@@ -125,25 +132,109 @@ public class FormObjectsRemover {
         }
 
         toDelete.fillParentReference();
-        rootAndOneToOneToDelete.put(toDelete.path, toDelete);
+
+        if (onDeleteAction == null || onDeleteAction == FieldPathConfig.OnDeleteAction.CASCADE) { // default behavior is cascading
+            rootAndOneToOneToDelete.put(toDelete.path, toDelete);
+        } else {
+            oneToOneToUnlink.add(toDelete.path);
+            return;
+        }
 
         if (!toDelete.path.isRoot()) { // recursive call for parent objects; passing this object reference in case parent references it directly
-            findDeleteOperationsForChain(toDelete.getParentReferencingThis());
+            findDeleteOperationsForChain(toDelete.getParentReferencingThis(), FieldPathConfig.OnDeleteAction.CASCADE);
         }
     }
 
     private void deleteRootWithOneToOneChain() {
+        ObjectWithReferences rootReference = rootAndOneToOneToDelete.get(FieldPath.ROOT);
+        if (rootReference == null) {
+            rootAndOneToOneToDelete.put(FieldPath.ROOT, new ObjectWithReferences(FieldPath.ROOT));
+        }
+
+        // unlink operation at first
+        for (FieldPath fieldPath : oneToOneToUnlink) {
+            final FieldPath firstChildPath = fieldPath.childrenIterator().next();
+            if (!firstChildPath.isOneToOneBackReference()) {
+                continue;
+            }
+
+            String refFieldName = firstChildPath.getLinkToParentName();
+            String refType = firstChildPath.getReferenceType();
+            List<DomainObject> linkedDomainObjects = crudService.findLinkedDomainObjects(formObjects.getRootDomainObject().getId(), refType, refFieldName);
+            if (!linkedDomainObjects.isEmpty()) { // one-to-one, so the object should be the only
+                final DomainObject domainObject = linkedDomainObjects.get(0);
+                domainObject.setReference(refFieldName, (Id) null);
+                crudService.save(domainObject);
+            }
+        }
+
         ArrayList<ObjectWithReferences> toDelete = new ArrayList<>(rootAndOneToOneToDelete.values());
         toDelete = ObjectWithReferences.sortForSave(toDelete);
         for (int i = toDelete.size() - 1; i >= 0; --i) {
             delete(toDelete.get(i));
         }
+
     }
 
     private void delete(ObjectWithReferences object) {
         final DomainObject domainObject = getSingleDomainObject(object.path);
         if (domainObject != null) {
-            crudService.delete(domainObject.getId());
+            crudService.delete(domainObject.getId()); // todo: change to delete by DO - to support optimistic locking
+        }
+    }
+
+    private void deleteMultiBackReferences(List<FieldPath> fieldPathsWithBackReferences) {
+        for (FieldPath fieldPath : fieldPathsWithBackReferences) {
+            if (fieldPath.isOneToManyReference()) {
+                deleteOneToManyReferences(fieldPath);
+            } else {
+                deleteManyToManyReferences(fieldPath);
+            }
+        }
+    }
+
+    private void deleteOneToManyReferences(FieldPath fieldPath) {
+        String refFieldName = fieldPath.getLinkToParentName();
+        String refType = fieldPath.getReferenceType();
+        if (configurationExplorer.isAttachmentType(refType)) {
+            deleteAttachments();
+            return;
+        }
+
+        List<DomainObject> linkedDomainObjects = crudService.findLinkedDomainObjects(formObjects.getRootDomainObject().getId(), refType, refFieldName);
+        FieldPathConfig.OnDeleteAction action = fieldPathConfigs.get(fieldPath).getOnDelete();
+        for (DomainObject object : linkedDomainObjects) {
+            if (action == null || action == FieldPathConfig.OnDeleteAction.CASCADE) {
+                crudService.delete(object.getId());
+                continue;
+            }
+
+            if (action == FieldPathConfig.OnDeleteAction.UNLINK) {
+                object.setReference(refFieldName, (Id) null);
+                crudService.save(object);
+            }
+        }
+    }
+
+    private void deleteAttachments() {
+        final List<DomainObject> attachments = attachmentService.findAttachmentDomainObjectsFor(formObjects.getRootDomainObject().getId());
+        for (DomainObject attachment : attachments) {
+            attachmentService.deleteAttachment(attachment.getId());
+        }
+    }
+
+    private void deleteManyToManyReferences(FieldPath fieldPath) {
+        String refFieldName = fieldPath.getLinkToParentName();
+        String refType = fieldPath.getReferenceType();
+        String linkToChildrenName = fieldPath.getLinkToChildrenName();
+        final List<DomainObject> intermediateDomainObjects = crudService.findLinkedDomainObjects(formObjects.getRootDomainObject().getId(), refType, refFieldName);
+        FieldPathConfig.OnDeleteAction action = fieldPathConfigs.get(fieldPath).getOnDelete();
+        for (DomainObject intermediateObject : intermediateDomainObjects) {
+            crudService.delete(intermediateObject.getId()); // unlinking
+            if (action == FieldPathConfig.OnDeleteAction.CASCADE) { // default behavior is unlink only
+                final DomainObject domainObject = crudService.find(intermediateObject.getReference(linkToChildrenName));
+                crudService.delete(domainObject.getId());
+            }
         }
     }
 
