@@ -17,6 +17,9 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
     @Element(name = "pattern")
     private PatternConfig patternConfig;
 
+    @Element(name = "selection-style", required = false)
+    private SelectionStyleConfig selectionStyleConfig;
+
     @Element(name = "summary-table", required = false)
     private SummaryTableConfig summaryTableConfig;
 
@@ -44,6 +47,14 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
         this.summaryTableConfig = summaryTableConfig;
     }
 
+    public SelectionStyleConfig getSelectionStyleConfig() {
+        return selectionStyleConfig;
+    }
+
+    public void setSelectionStyleConfig(SelectionStyleConfig selectionStyleConfig) {
+        this.selectionStyleConfig = selectionStyleConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -68,6 +79,10 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
                 summaryTableConfig != null) {
             return false;
         }
+        if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) :
+                that.selectionStyleConfig != null) {
+            return false;
+        }
 
         return true;
     }
@@ -78,6 +93,7 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
         result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
         result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
+        result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         return result;
     }
 

@@ -11,11 +11,13 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkItem;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 
 /**
@@ -37,17 +39,22 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         if (!selectedIds.isEmpty()) {
             Id id = selectedIds.get(0);
-            DomainObject domainObject = crudService.find(id);
             FormPluginConfig config = getFormPluginConfig(id);
-            String selectionPattern = widgetConfig.getPatternConfig().getValue();
-            state.setSelectionPattern(selectionPattern);
-            String representation = buildStringRepresentation(domainObject, selectionPattern);
-            state.setId(id);
-            state.setStringRepresentation(representation);
             state.setConfig(config);
-            state.setDomainObjectType(domainObject.getTypeName());
-        }
+            DomainObject firstDomainObject = crudService.find(id);
+            state.setDomainObjectType(firstDomainObject.getTypeName());
+            List<HyperlinkItem> hyperlinkItems = new ArrayList<>();
+            for (Id selectedId : selectedIds) {
+                DomainObject domainObject = crudService.find(selectedId);
+                String selectionPattern = widgetConfig.getPatternConfig().getValue();
+                state.setSelectionPattern(selectionPattern);
+                String representation = buildStringRepresentation(domainObject, selectionPattern);
+                HyperlinkItem hyperlinkItem = new HyperlinkItem(selectedId, representation);
+                hyperlinkItems.add(hyperlinkItem);
 
+            }
+            state.setHyperlinkItems(hyperlinkItems);
+        }
         return state;
     }
 

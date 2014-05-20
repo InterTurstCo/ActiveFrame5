@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -11,26 +13,12 @@ import java.util.ArrayList;
  *         Time: 10:25
  */
 public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
-    private String stringRepresentation;
-    private Id id;
+
     private FormPluginConfig config;
     private String domainObjectType;
     private String selectionPattern;
-    public String getStringRepresentation() {
-        return stringRepresentation;
-    }
-
-    public void setStringRepresentation(String stringRepresentation) {
-        this.stringRepresentation = stringRepresentation;
-    }
-
-    public Id getId() {
-        return id;
-    }
-
-    public void setId(Id id) {
-        this.id = id;
-    }
+    private SelectionStyleConfig selectionStyleConfig;
+    private List<HyperlinkItem> hyperlinkItems;
 
     public FormPluginConfig getConfig() {
         return config;
@@ -54,6 +42,22 @@ public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
 
     public void setSelectionPattern(String selectionPattern) {
         this.selectionPattern = selectionPattern;
+    }
+
+    public SelectionStyleConfig getSelectionStyleConfig() {
+        return selectionStyleConfig;
+    }
+
+    public void setSelectionStyleConfig(SelectionStyleConfig selectionStyleConfig) {
+        this.selectionStyleConfig = selectionStyleConfig;
+    }
+
+    public List<HyperlinkItem> getHyperlinkItems() {
+        return hyperlinkItems;
+    }
+
+    public void setHyperlinkItems(List<HyperlinkItem> hyperlinkItems) {
+        this.hyperlinkItems = hyperlinkItems;
     }
 
     @Override

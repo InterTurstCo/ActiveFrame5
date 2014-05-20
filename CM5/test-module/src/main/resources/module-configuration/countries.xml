@@ -288,8 +288,9 @@
         </markup>
         <widget-config>
             <label id="1">
-                <field-path/>
-                <text>Название:</text>
+                <field-path value="id"/>
+               <pattern value="{id}"/>
+                <all-values-empty-message value="empty"/>
             </label>
             <text-box id="2">
                 <field-path value="name"/>
@@ -475,22 +476,26 @@
                 <single-choice value="true"/>
                 <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
             </attachment-box>
-
-            <table-browser id="17a">
+            <linked-domain-object-hyperlink id="17a"> <!-- для единичного связанного объекта -->
+                <field-path value="city^country"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
+                <linked-form name="city_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
+                <pattern value="{name}"/> <!-- в паттерне ссылки задаются относительно field-path -->
+            </linked-domain-object-hyperlink>
+          <!--  <table-browser id="17a">
                 <field-path value="city^country"/>
 
                 <collection-ref name="Cities"/>
 
                 <collection-view-ref name="cities_view"/>
 
-                <!-- паттерн отображения уже выбранных значений -->
+                &lt;!&ndash; паттерн отображения уже выбранных значений &ndash;&gt;
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
-                <!-- название фильтра по тексту, введённому пользователем -->
+                &lt;!&ndash; название фильтра по тексту, введённому пользователем &ndash;&gt;
                 <input-text-filter name="byText"/>
 
-                <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
-                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
+                &lt;!&ndash; количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
+                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) &ndash;&gt;
                 <page-size>30</page-size>
                 <display-chosen-values value="false"/>
                 <selection-style name="inline"/>
@@ -499,7 +504,7 @@
                 <add-button image="..." text="..."/>
                 <default-sort-criteria column-field="name" order="desc"/>
                 <display-values-as-links value="true"/>
-            </table-browser>
+            </table-browser>-->
             <!--<linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">-->
             <linked-domain-objects-table id="city_table" modal-width="500px" modal-height="300px">
                 <field-path value="country_most_famous_city^country.city"/>
@@ -767,6 +772,7 @@
             <column field="square" name="Площадь" type="string" editable="false" sortable="true"/>
         </display>
     </collection-view>
+
     <collection-view name="cities_view" collection="Cities" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>
