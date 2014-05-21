@@ -70,7 +70,7 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
         return deleteLinkedObjects;
     }
 
-    public void setDeleteLinkedObjects(boolean deleteLinkedObjects) {
+    public void setDeleteLinkedObjects(Boolean deleteLinkedObjects) {
         this.deleteLinkedObjects = deleteLinkedObjects;
     }
 
