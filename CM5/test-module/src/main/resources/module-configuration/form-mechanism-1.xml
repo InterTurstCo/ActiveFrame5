@@ -263,7 +263,7 @@
                 <text>F1 (N:M):</text>
             </label>
             <linked-domain-objects-table id="f1_N:M" modal-width="500px" modal-height="300px">
-                <field-path value="a1_f1^a1.f1" on-root-delete="unlink" on-child-unlink="delete/unlink"/>
+                <field-path value="a1_f1^a1.f1" on-root-delete="unlink"/>
                 <linked-form name="f1_form" inline="true"/>
                 <summary-table>
                     <summary-table-column header="F1 Name 1" widget-id="1">

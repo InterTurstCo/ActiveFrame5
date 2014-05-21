@@ -110,7 +110,23 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     @Override
     public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
-        return ((LinkedDomainObjectsTableConfig) config).isDeleteLinkedObjects();
+        final Boolean deleteLinkedObjects = ((LinkedDomainObjectsTableConfig) config).isDeleteLinkedObjects();
+        if (deleteLinkedObjects == Boolean.TRUE) {
+            return true;
+        } else if (deleteLinkedObjects == Boolean.FALSE) {
+            return false;
+        }
+        // null - unknown behavior
+        final FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
+        final FieldPathConfig.OnDeleteAction onRootDelete = fieldPathConfig.getOnRootDelete();
+        if (onRootDelete == FieldPathConfig.OnDeleteAction.CASCADE) {
+            return true;
+        } else if (onRootDelete == FieldPathConfig.OnDeleteAction.UNLINK) {
+            return false;
+        }
+
+        // when nothing is defined - delete objects in case it's a one-to-many reference - it's the common scenario
+        return FieldPath.createPaths(fieldPathConfig.getValue())[0].isOneToManyReference();
     }
 
     public RowItem map(DomainObject domainObject, List<SummaryTableColumnConfig> summaryTableColumnConfigs) {
