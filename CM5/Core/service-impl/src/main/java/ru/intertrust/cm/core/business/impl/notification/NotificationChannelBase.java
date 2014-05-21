@@ -1,11 +1,16 @@
 package ru.intertrust.cm.core.business.impl.notification;
 
+import javax.inject.Inject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.NotificationTextFormer;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
@@ -30,6 +35,15 @@ public class NotificationChannelBase {
 
     @Autowired
     protected CollectionsService collectionService;
+    
+    @Autowired
+    protected IdService idService;
+    
+    @Autowired
+    protected ConfigurationExplorer configurationExplorer;
+    
+    @Inject
+    protected AttachmentService attachmentService;    
 
     public void setMailSender(MailSenderWrapper mailSenderWrapper) {
         this.mailSenderWrapper = mailSenderWrapper;

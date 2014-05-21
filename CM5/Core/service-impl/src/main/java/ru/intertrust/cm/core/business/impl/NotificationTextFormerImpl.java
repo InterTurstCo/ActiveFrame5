@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.NotificationTextFormer;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -120,6 +121,21 @@ public class NotificationTextFormerImpl implements NotificationTextFormer{
             Object bean = applicationContext.getBean(beanDefinitionName);
             model.put(beanDefinitionName, bean);
         }
+    }
+
+    @Override
+    public boolean contains(String notificationType, String notificationPart, Id locale, String channel) {
+        IdentifiableObjectCollection collection = findNotificationTextCollection(notificationType, locale, channel);
+        boolean result = false;
+        for (int i = 0; i < collection.size(); i++){
+            IdentifiableObject notificationDo = collection.get(i);
+            String part = notificationDo.getString("notification_part");
+            if (part.equals(notificationPart)){
+                result = true;
+                break;
+            }
+        }        
+        return result;
     }
 
 }

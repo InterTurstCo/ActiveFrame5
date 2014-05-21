@@ -158,6 +158,8 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             //Сохраняем результат как вложение вложения
             DomainObject reportAttachment =
                     attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
+            reportAttachment.setString("name", "report");
+            
             ByteArrayInputStream bis = new ByteArrayInputStream(readFile(result));
             SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
 
@@ -169,6 +171,8 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             if (params != null){
                 DomainObject paramAttachment =
                         attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
+                paramAttachment.setString("name", "params");
+
                 bis = new ByteArrayInputStream(getParametersAsByteArray(params));
                 simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
     

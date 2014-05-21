@@ -73,6 +73,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 parameter = new DateTimeValue(new Date(((Timestamp)value).getTime()));
             } else if (value instanceof Date) {
                 parameter = new DateTimeValue((Date)value);
+            } else if (value instanceof Id) {
+                parameter = new ReferenceValue((Id)value);
             } else {
                 parameter = new StringValue(value.toString());
             } 
@@ -201,9 +203,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setObject(int parameterIndex, Object x) throws SQLException {
-        throw new UnsupportedOperationException();
-
+    public void setObject(int parameterIndex, Object value) throws SQLException {
+        addParameter(parameterIndex, value);
     }
 
     @Override

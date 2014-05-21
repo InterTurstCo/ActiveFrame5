@@ -268,8 +268,11 @@ public class DomainObjectAccessor implements Dto {
         return getDomainObjectDao().save(statusDO, accessToken);
     }
 
-
-
-
-
+    /**
+     * Возвращает строковое представление идентификатора доменного объекта
+     * @return
+     */
+    public String getIdAsString(){
+        return domainObject.getId().toStringRepresentation();
+    }
 }

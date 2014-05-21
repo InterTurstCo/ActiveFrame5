@@ -18,8 +18,9 @@ public interface NotificationTextFormer {
      * @param notificationType
      *            тип сообщения
      * @param notificationPart
-     *            имя фрагмента сообщения. Используется если сообщение состоит из нескольких частей, например почтовое
-     *            сообщение состоит из заголовка и тела сообщения
+     *            имя фрагмента сообщения. Используется если сообщение состоит
+     *            из нескольких частей, например почтовое сообщение состоит из
+     *            заголовка и тела сообщения
      * @param addressee
      *            адресат сообщения
      * @param locale
@@ -49,4 +50,18 @@ public interface NotificationTextFormer {
      */
     List<NotificationText> format(String notificationType, Id addressee, Id locale, String channel,
             NotificationContext context);
+
+    /**
+     * Проверка наличия конфигурации для типа сообщения и фрагмента сообщения
+     * @param notificationType
+     *            тип сообщения
+     * @param notificationPart
+     *            имя фрагмента сообщения
+     * @param locale
+     *            Локаль сообщения
+     * @param channel
+     *            канал доставки
+     * @return
+     */
+    boolean contains(String notificationType, String notificationPart, Id locale, String channel);
 }

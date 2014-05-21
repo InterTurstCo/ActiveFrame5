@@ -10,5 +10,6 @@ TEST_NOTIFICATION_SCHEDULE_TASK;subject;"name=""EN""";InboxNotificationChannel;T
 TEST_NOTIFICATION_SCHEDULE_TASK;body;"name=""EN""";InboxNotificationChannel;"Hello ${addressee.get(""lastname"")}. Document changed: ${document.get(""name"")}"
 PERIODIC_REPORT;subject;"name=""EN""";MailNotificationChannel;Сформирован отчет
 PERIODIC_REPORT;body;"name=""EN""";MailNotificationChannel;"Сформирован отчет ${report.get(""name"")}"
+PERIODIC_REPORT;attachment;"name=""EN""";MailNotificationChannel;"${report.get(""name"")};${report.getIdAsString()};report"
 PERIODIC_REPORT;subject;"name=""EN""";InboxNotificationChannel;Сформирован отчет
 PERIODIC_REPORT;body;"name=""EN""";InboxNotificationChannel;"Сформирован отчет ${report.get(""name"")}"

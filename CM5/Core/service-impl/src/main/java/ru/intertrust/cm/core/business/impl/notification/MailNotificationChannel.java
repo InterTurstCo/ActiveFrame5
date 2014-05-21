@@ -1,20 +1,36 @@
 package ru.intertrust.cm.core.business.impl.notification;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+
+import ru.intertrust.cm.core.business.api.IdService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannel;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle;
+import ru.intertrust.cm.core.config.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.MailNotificationException;
+import ru.intertrust.cm.core.model.ReportServiceException;
 
 /**
  * 
@@ -29,6 +45,8 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
     private static final String BODY_MAIL_PART = "body";
 
     private static final String SUBJECT_MAIL_PART = "subject";
+    
+    private static final String ATTACHMENT_MAIL_PART = "attachment";
 
     private static final String EMAIL_FIELD = "email";
 
@@ -75,16 +93,65 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
                         MAIL_NOTIFICATION_CHANNEL, context);
         String body =
                 notificationTextFormer.format(notificationType, BODY_MAIL_PART, addresseeId, locale,
-                        MAIL_NOTIFICATION_CHANNEL,
-                        context);
+                        MAIL_NOTIFICATION_CHANNEL, context);
 
         MimeMessage mimeMessage = mailSenderWrapper.createMimeMessage();
-        MimeMessageHelper message = new MimeMessageHelper(mimeMessage, "UTF-8");
+        MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         message.setTo(addresseMail);
         message.setFrom(senderMail);
         message.setSubject(subject);
         message.setText(body);
+
+        //Проверяем наличие конфигурации вложения
+        if (notificationTextFormer.contains(notificationType, ATTACHMENT_MAIL_PART, locale, MAIL_NOTIFICATION_CHANNEL)){
+            //Получаем вложение
+            String attachment =
+                notificationTextFormer.format(notificationType, ATTACHMENT_MAIL_PART, addresseeId, locale,
+                        MAIL_NOTIFICATION_CHANNEL, context);
+        
+            //В attachment должна находиться строка в формате имя_фйла,идентификатор_объекта_с_вложением,имя_вложения      
+            String[] attachmentInfo = attachment.split(";"); 
+            //Получаем объект к которому приаттачено вложение
+            Id documentWithAttachmentId = idService.createId(attachmentInfo[1]);
+            DomainObject documentWithAttachment = domainObjectDao.find(documentWithAttachmentId, systemAccessToken);
+            DomainObjectTypeConfig documentWithAttachmentTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, documentWithAttachment.getTypeName());
+            
+            //Получаем тип вложения к данному типу документа
+            for (AttachmentTypeConfig attachmentTypeConfig : documentWithAttachmentTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+                List<DomainObject> linkedAttachments = domainObjectDao.findLinkedDomainObjects(documentWithAttachmentId, attachmentTypeConfig.getName(), documentWithAttachment.getTypeName(), systemAccessToken);
+                for (DomainObject attachmentObject : linkedAttachments) {
+                    if (attachmentObject.getString("name").equalsIgnoreCase(attachmentInfo[2])){
+                        ByteArrayResource streamSource = new ByteArrayResource(getAttachmentContent(attachmentObject)); 
+                        message.addAttachment(attachmentInfo[0],  streamSource);
+                    }
+                }
+            }
+        }
         return mimeMessage;
     }
-
+    
+    private byte[] getAttachmentContent(DomainObject attachment) {
+        InputStream contentStream = null;
+        RemoteInputStream inputStream = null;
+        try {
+            inputStream = attachmentService.loadAttachment(attachment.getId());
+            contentStream = RemoteInputStreamClient.wrap(inputStream);
+            ByteArrayOutputStream attachmentBytes = new ByteArrayOutputStream();
+            
+            int read = 0;
+            byte[] buffer = new byte[1024];
+            while ((read = contentStream.read(buffer)) > 0){
+                attachmentBytes.write(buffer, 0, read);
+            }
+            return attachmentBytes.toByteArray();
+        } catch (Exception ex) {
+            throw new ReportServiceException("Error on get attachment body", ex);
+        } finally {
+            try {
+                contentStream.close();
+                inputStream.close(true);
+            } catch (IOException ignoreEx) {
+            }
+        }
+    }
 }

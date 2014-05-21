@@ -8,9 +8,13 @@
 	<parameter name="REL_DATE" class="java.util.Date"/>
 	<parameter name="QUERY_PARAM" class="java.lang.Object"/>
 	<queryString language="SQL">
-		<![CDATA[select * from user_group]]>
+		<![CDATA[select id, login, firstname, lastname, email from person where id = $P{QUERY_PARAM}]]>
 	</queryString>
 	<field name="id" class="java.lang.Object"/>
+	<field name="login" class="java.lang.String"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="firstname" class="java.lang.String"/>
+	<field name="lastname" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -44,16 +48,48 @@
 	<columnHeader>
 		<band height="30" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="0" width="70" height="30" uuid="257a1bbd-893c-4856-bd15-267e2569fd2b"/>
+				<reportElement x="0" y="0" width="140" height="30" uuid="257a1bbd-893c-4856-bd15-267e2569fd2b"/>
 				<text><![CDATA[id]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="140" y="0" width="70" height="30" uuid="d79ab855-754e-47c2-b072-2897fb0a69e1"/>
+				<text><![CDATA[login]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="210" y="0" width="160" height="30" uuid="49208711-5f5a-463c-a296-e8708d948530"/>
+				<text><![CDATA[firstname]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="370" y="0" width="70" height="30" uuid="2834e6c5-dcb4-4d65-8e5d-88c7ec84afa6"/>
+				<text><![CDATA[lastname]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="0" width="114" height="30" uuid="933cc54e-9f13-4fc6-b796-6f734a66fea4"/>
+				<text><![CDATA[email]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
 		<band height="30" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="0" width="70" height="30" uuid="941deb14-65f9-4bbb-b560-b9b626a9887d"/>
+				<reportElement x="0" y="0" width="140" height="30" uuid="941deb14-65f9-4bbb-b560-b9b626a9887d"/>
 				<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="140" y="0" width="70" height="30" uuid="c0bdd891-6056-4fc0-829f-b5f7ba6ee1e1"/>
+				<textFieldExpression><![CDATA[$F{login}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="210" y="0" width="160" height="30" uuid="56defb0b-1dd7-4a1c-8d43-e912002eac2b"/>
+				<textFieldExpression><![CDATA[$F{firstname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="370" y="0" width="70" height="30" uuid="42829d0f-510c-4b1c-b5bf-0eeda4a00f91"/>
+				<textFieldExpression><![CDATA[$F{lastname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="440" y="0" width="114" height="30" uuid="ae532f1f-6a02-487c-bda0-ef30cf0f57d8"/>
+				<textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
