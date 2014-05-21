@@ -39,6 +39,8 @@ public class ConfigurationExplorerImplTest {
     private static final String EMPLOYEES_CONFIG_NAME = "Employees";
     private static final String E_MAIL_CONFIG_NAME = "EMail";
     private static final String GLOBAL_XML_PATH = "config/global-test.xml";
+    private static final String ACCESS_CONFIG_PATH = "config/access-test.xml";
+
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -97,6 +99,17 @@ public class ConfigurationExplorerImplTest {
         }
     }
 
+    @Test
+    public void testIsReadPermittedToEverybodyCaseInsensistive() throws Exception {
+        String type = "Outgoing_Document";
+        assertTrue(configExplorer.isReadPermittedToEverybody(type));
+        type = "outgoing_document";
+        assertTrue(configExplorer.isReadPermittedToEverybody(type));
+        type = "OUTGOING_DOCUMENT";
+        assertTrue(configExplorer.isReadPermittedToEverybody(type));
+
+    }
+    
     @Test
     public void testGetCollectionConfigs() throws Exception {
         Collection<CollectionConfig> collectionConfigs = configExplorer.getConfigs(CollectionConfig.class);
@@ -224,6 +237,7 @@ public class ConfigurationExplorerImplTest {
         confCore.getConfigurationPaths().add(configPath);
         confCore.getConfigurationPaths().add(COLLECTIONS_CONFIG_PATH);
         confCore.getConfigurationPaths().add(GLOBAL_XML_PATH);
+        confCore.getConfigurationPaths().add(ACCESS_CONFIG_PATH);        
         confCore.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
         confCore.setModuleUrl(moduleUrl);
 

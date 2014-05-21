@@ -1,17 +1,15 @@
 package ru.intertrust.cm.core.config;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class ConfigurationStorage {
 
@@ -37,7 +35,7 @@ public class ConfigurationStorage {
 
     public CaseInsensitiveMap<String> matrixReferenceTypeNameMap = new CaseInsensitiveMap<>();
 
-    public Map<String, Boolean> readPermittedToEverybodyMap = new HashMap<>();
+    public CaseInsensitiveMap<Boolean> readPermittedToEverybodyMap = new CaseInsensitiveMap<>();
 
     public GlobalSettingsConfig globalSettings;
     public SqlTrace sqlTrace;

@@ -230,12 +230,12 @@
     </context-role>
 
     <!-- Матрицы доступа -->
-    <access-matrix type="Outgoing_Document">
+    <access-matrix type="Outgoing_Document" read-everybody="true">
         <status name="Draft">
-            <read>
+<!--             <read>
                 <permit-role name="DocumentAuthor" />
             </read>
-            <write>
+ -->            <write>
                 <permit-role name="DocumentAuthor" />
             </write>
             <delete>
