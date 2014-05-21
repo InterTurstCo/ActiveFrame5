@@ -53,6 +53,9 @@ public class RelativeDate implements Dto{
 	public void setBaseDate(RelativeDateBase baseDate) {
 		this.baseDate = baseDate;
 	}
-	
-	
+    @Override
+    public String toString() {
+        return "RelativeDate [offsetMin=" + offsetMin + ", offsetHour=" + offsetHour + ", offsetDay=" + offsetDay + ", offsetMonth=" + offsetMonth
+                + ", offsetYear=" + offsetYear + ", baseDate=" + baseDate + "]";
+    }
 }

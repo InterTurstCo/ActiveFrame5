@@ -169,44 +169,45 @@ public class ReportShcedule implements ScheduleTaskHandle {
                 calendar.set(Calendar.MILLISECOND, 0);
                 if (relativeDateParam.getBaseDate() != null) {
                     if (relativeDateParam.getBaseDate().equals(RelativeDateBase.START_DAY)) {
-                        calendar.set(Calendar.HOUR, 0);
+                        calendar.set(Calendar.HOUR_OF_DAY, 0);
                         calendar.set(Calendar.MINUTE, 0);
                         calendar.set(Calendar.SECOND, 0);
                     } else if (relativeDateParam.getBaseDate().equals(RelativeDateBase.END_DAY)) {
-                        calendar.set(Calendar.HOUR, 23);
+                        calendar.set(Calendar.HOUR_OF_DAY, 23);
                         calendar.set(Calendar.MINUTE, 59);
                         calendar.set(Calendar.SECOND, 59);
                     } else if (relativeDateParam.getBaseDate().equals(RelativeDateBase.START_WEEK)) {
-                        calendar.set(Calendar.HOUR, 0);
+                        calendar.set(Calendar.HOUR_OF_DAY, 0);
                         calendar.set(Calendar.MINUTE, 0);
                         calendar.set(Calendar.SECOND, 0);
-                        calendar.set(Calendar.DAY_OF_WEEK, 0);
+                        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
                     } else if (relativeDateParam.getBaseDate().equals(RelativeDateBase.END_WEEK)) {
-                        calendar.set(Calendar.HOUR, 23);
+                        calendar.set(Calendar.HOUR_OF_DAY, 23);
                         calendar.set(Calendar.MINUTE, 59);
                         calendar.set(Calendar.SECOND, 59);
-                        calendar.set(Calendar.DAY_OF_WEEK, 6);
+                        calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+                        calendar.add(Calendar.DAY_OF_MONTH, 6);
                     } else if (relativeDateParam.getBaseDate().equals(RelativeDateBase.START_MONTH)) {
-                        calendar.set(Calendar.HOUR, 0);
+                        calendar.set(Calendar.HOUR_OF_DAY, 0);
                         calendar.set(Calendar.MINUTE, 0);
                         calendar.set(Calendar.SECOND, 0);
                         calendar.set(Calendar.DAY_OF_MONTH, 1);
                     } else if (relativeDateParam.getBaseDate().equals(RelativeDateBase.END_MONTH)) {
-                        calendar.set(Calendar.HOUR, 23);
+                        calendar.set(Calendar.HOUR_OF_DAY, 23);
                         calendar.set(Calendar.MINUTE, 59);
                         calendar.set(Calendar.SECOND, 59);
                         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
                     } else if (relativeDateParam.getBaseDate().equals(RelativeDateBase.START_YEAR)) {
-                        calendar.set(Calendar.HOUR, 0);
+                        calendar.set(Calendar.HOUR_OF_DAY, 0);
                         calendar.set(Calendar.MINUTE, 0);
                         calendar.set(Calendar.SECOND, 0);
                         calendar.set(Calendar.DAY_OF_MONTH, 1);
-                        calendar.set(Calendar.MONTH, 1);
+                        calendar.set(Calendar.MONTH, 0);
                     } else if (relativeDateParam.getBaseDate().equals(RelativeDateBase.END_YEAR)) {
-                        calendar.set(Calendar.HOUR, 23);
+                        calendar.set(Calendar.HOUR_OF_DAY, 23);
                         calendar.set(Calendar.MINUTE, 59);
                         calendar.set(Calendar.SECOND, 59);
-                        calendar.set(Calendar.MONTH, 12);
+                        calendar.set(Calendar.MONTH, 11);
                         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
                     }
                 }
@@ -216,7 +217,7 @@ public class ReportShcedule implements ScheduleTaskHandle {
                     calendar.add(Calendar.MINUTE, relativeDateParam.getOffsetMin());
                 }
                 if (relativeDateParam.getOffsetHour() != null) {
-                    calendar.add(Calendar.HOUR, relativeDateParam.getOffsetHour());
+                    calendar.add(Calendar.HOUR_OF_DAY, relativeDateParam.getOffsetHour());
                 }
                 if (relativeDateParam.getOffsetDay() != null) {
                     calendar.add(Calendar.DAY_OF_MONTH, relativeDateParam.getOffsetDay());

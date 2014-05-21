@@ -81,10 +81,16 @@
 			</textField>
 			<textField>
 				<reportElement x="210" y="0" width="160" height="30" uuid="56defb0b-1dd7-4a1c-8d43-e912002eac2b"/>
+				<textElement>
+					<font pdfFontName="DejaVuSans.ttf" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{firstname}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="370" y="0" width="70" height="30" uuid="42829d0f-510c-4b1c-b5bf-0eeda4a00f91"/>
+				<textElement>
+					<font pdfFontName="DejaVuSans.ttf" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{lastname}]]></textFieldExpression>
 			</textField>
 			<textField>
