@@ -193,7 +193,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
     }
 
-    private void compileJasper(File fileName) throws JRException {
+    private void compileJasper(File fileName){
         ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             ScriptletClassLoader scriptletClassLoader =
@@ -202,6 +202,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             logger.debug("Compile template " + fileName);
             String jasperLocation = fileName.getPath().replace(".jrxml", ".jasper");
             JasperCompileManager.compileReportToFile(fileName.getPath(), jasperLocation);
+        }catch(Exception ex){
+            throw new ReportServiceException("Error compile " + fileName, ex);
         } finally {
             Thread.currentThread().setContextClassLoader(defaultClassLoader);
         }

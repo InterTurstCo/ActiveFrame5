@@ -1,7 +1,11 @@
 package ru.intertrust.cm.core.business.impl.notification;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import org.apache.log4j.Logger;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -39,7 +43,7 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         try {
             //В случае если в конфигурации не указан host то канал отключаем
             if (mailSenderWrapper.getHost() != null) {
-                SimpleMailMessage message = createMailMesssage(notificationType, senderId, addresseeId, context);
+                MimeMessage message = createMailMesssage(notificationType, senderId, addresseeId, context);
                 mailSenderWrapper.send(message);
                 logger.info("Notification sent by MailNotificationChannel notificationType=" + notificationType
                         + "; senderId="
@@ -50,8 +54,8 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         }
     }
 
-    private SimpleMailMessage createMailMesssage(String notificationType, Id senderId, Id addresseeId,
-            NotificationContext context) {
+    private MimeMessage createMailMesssage(String notificationType, Id senderId, Id addresseeId,
+            NotificationContext context) throws MessagingException {
         AccessToken systemAccessToken = accessControlService.createSystemAccessToken(MAIL_NOTIFICATION_CHANNEL);
         String senderMail = null;
         if (senderId != null) {
@@ -74,12 +78,13 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
                         MAIL_NOTIFICATION_CHANNEL,
                         context);
 
-        SimpleMailMessage message = new SimpleMailMessage();
+        MimeMessage mimeMessage = mailSenderWrapper.createMimeMessage();
+        MimeMessageHelper message = new MimeMessageHelper(mimeMessage, "UTF-8");
         message.setTo(addresseMail);
         message.setFrom(senderMail);
         message.setSubject(subject);
         message.setText(body);
-        return message;
+        return mimeMessage;
     }
 
 }

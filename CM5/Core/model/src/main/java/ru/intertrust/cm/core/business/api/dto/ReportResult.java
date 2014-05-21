@@ -6,9 +6,11 @@ package ru.intertrust.cm.core.business.api.dto;
  *
  */
 public class ReportResult implements Dto{
-    private String templateName;
+	private static final long serialVersionUID = -4038466874703422858L;
+	private String templateName;
     private String fileName;
     private byte[] report;
+    private Id resultId;
     
     public String getTemplateName() {
         return templateName;
@@ -28,4 +30,10 @@ public class ReportResult implements Dto{
     public void setReport(byte[] report) {
         this.report = report;
     }
+	public Id getResultId() {
+		return resultId;
+	}
+	public void setResultId(Id resultId) {
+		this.resultId = resultId;
+	}
 }

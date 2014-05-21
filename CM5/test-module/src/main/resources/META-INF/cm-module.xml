@@ -45,6 +45,11 @@
         <import-file>importdata/e1.csv</import-file>
         <import-file>importdata/a1_f1.csv</import-file>
 
+
+        <import-file>importdata/import-system-profile.csv</import-file>
+        <import-file>importdata/import-person-profile.csv</import-file>
+        <import-file>importdata/import-string-value.csv</import-file>
+
         <import-file>importdata/import-organization.csv</import-file>
         <import-file>importdata/import-department.csv</import-file>
         <import-file rewrite="false">importdata/import-employee.csv</import-file>
@@ -94,6 +99,11 @@
             <template-file>reports/employee-groups/employee-groups.jrxml</template-file>
             <template-file>reports/employee-groups/employee_groups_subreport.jasper</template-file>
             <template-file>reports/employee-groups/employee_groups_subreport.jrxml</template-file>
+        </report-template>
+
+        <report-template>
+            <template-file>reports/test-periodic-report/template.xml</template-file>
+            <template-file>reports/test-periodic-report/test-periodic-report.jrxml</template-file>
         </report-template>
     </import-reports>
 

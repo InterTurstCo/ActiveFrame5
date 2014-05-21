@@ -46,6 +46,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.config.model.ReportParameterData;
@@ -89,11 +90,16 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
     @Resource
     private EJBContext ejbContext;
 
+    @Override
+    public ReportResult generate(String name, Map<String, Object> parameters) {
+        return generate(name, parameters, null);
+    }
+    
     /**
      * Формирование отчета
      */
     @Override
-    public ReportResult generate(String name, Map<String, Object> parameters) {
+    public ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays) {
         try {
             // Получение доменного объекта шаблона отчета
             DomainObject reportTemplate = getReportTemplateObject(name);
@@ -109,13 +115,14 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             File result = generateReport(reportMetadata, templateFolder, parameters);
 
             //Сохранеие результата в хранилище
-            saveResult(reportMetadata, result, reportTemplate, parameters);
+            Id resultId = saveResult(reportMetadata, result, reportTemplate, parameters, keepDays);
 
             //Формироание результата
             ReportResult reportResult = new ReportResult();
             reportResult.setFileName(result.getName());
             reportResult.setReport(readFile(result));
             reportResult.setTemplateName(name);
+            reportResult.setResultId(resultId);
 
             //Удаляем временный файл
             result.delete();
@@ -127,9 +134,10 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
         }
     }
 
-    private void saveResult(ReportMetadataConfig reportMetadata, File result, DomainObject template,
-            Map<String, Object> params) throws Exception {
-        if (reportMetadata.getKeepDays() != null && reportMetadata.getKeepDays() > 0) {
+    private Id saveResult(ReportMetadataConfig reportMetadata, File result, DomainObject template,
+            Map<String, Object> params, Integer keepDays) throws Exception {
+    	Id resultId = null;
+        if ((keepDays != null && keepDays > 0) || (reportMetadata.getKeepDays() != null && reportMetadata.getKeepDays() > 0)) {
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
             //Создаем объект
@@ -138,13 +146,18 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             reportResult.setReference("template_id", template.getId());
             reportResult.setReference("owner", currentUserAccessor.getCurrentUserId());
             Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.DAY_OF_MONTH, reportMetadata.getKeepDays());
-            reportResult.setTimestamp("keep_to", null);
-            domainObjectDao.save(reportResult, accessToken);
+            if (keepDays != null && keepDays > 0){
+                calendar.add(Calendar.DAY_OF_MONTH, keepDays);
+            }else{
+                calendar.add(Calendar.DAY_OF_MONTH, reportMetadata.getKeepDays());
+            }
+            reportResult.setTimestamp("keep_to", calendar.getTime());
+            reportResult = domainObjectDao.save(reportResult, accessToken);
+            resultId = reportResult.getId();
 
             //Сохраняем результат как вложение вложения
             DomainObject reportAttachment =
-                    attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "Attachment");
+                    attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
             ByteArrayInputStream bis = new ByteArrayInputStream(readFile(result));
             SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
 
@@ -153,14 +166,17 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             attachmentService.saveAttachment(remoteInputStream, reportAttachment);
 
             //Сохраняем параметры как вложение
-            DomainObject paramAttachment =
-                    attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "Attachment");
-            bis = new ByteArrayInputStream(getParametersAsByteArray(params));
-            simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
-
-            remoteInputStream = simpleRemoteInputStream.export();
-            attachmentService.saveAttachment(remoteInputStream, paramAttachment);
+            if (params != null){
+                DomainObject paramAttachment =
+                        attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
+                bis = new ByteArrayInputStream(getParametersAsByteArray(params));
+                simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
+    
+                remoteInputStream = simpleRemoteInputStream.export();
+                attachmentService.saveAttachment(remoteInputStream, paramAttachment);
+            }
         }
+        return resultId;
     }
 
     private byte[] getParametersAsByteArray(Map<String, Object> params) throws Exception {
@@ -355,4 +371,5 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
         // Получение соединения с базой данных
         return DriverManager.getConnection(connectionString);
     }
+
 }

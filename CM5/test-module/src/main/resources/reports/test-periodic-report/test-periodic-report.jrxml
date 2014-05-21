@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version last-->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="test-periodic-report" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1072154e-64cb-4b3a-9032-0c74573dc4fc">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="STRING_PARAM" class="java.lang.String"/>
+	<parameter name="LONG_PARAM" class="java.lang.Long"/>
+	<parameter name="DATE_PARAM" class="java.util.Date"/>
+	<parameter name="REL_DATE" class="java.util.Date"/>
+	<parameter name="QUERY_PARAM" class="java.lang.Object"/>
+	<queryString language="SQL">
+		<![CDATA[select * from user_group]]>
+	</queryString>
+	<field name="id" class="java.lang.Object"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="150" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="180" height="30" uuid="07d08732-0a8e-4afc-a9e9-1e941fed8a14"/>
+				<textFieldExpression><![CDATA[$P{STRING_PARAM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="30" width="180" height="30" uuid="64aa76d1-5173-4350-92e5-8888bf0c2fc3"/>
+				<textFieldExpression><![CDATA[$P{LONG_PARAM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="60" width="180" height="30" uuid="9e7c42b0-bbbf-4a0a-ab3e-66d404bcf3af"/>
+				<textFieldExpression><![CDATA[$P{DATE_PARAM}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="90" width="180" height="30" uuid="e7cef081-3c22-469b-b97d-0bda1e7ad376"/>
+				<textFieldExpression><![CDATA[$P{REL_DATE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="120" width="180" height="30" uuid="e79eae18-3382-4179-a3a7-71b1b1e88133"/>
+				<textFieldExpression><![CDATA[$P{QUERY_PARAM}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="70" height="30" uuid="257a1bbd-893c-4856-bd15-267e2569fd2b"/>
+				<text><![CDATA[id]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="70" height="30" uuid="941deb14-65f9-4bbb-b560-b9b626a9887d"/>
+				<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

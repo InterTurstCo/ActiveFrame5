@@ -30,10 +30,19 @@ public interface ReportService {
     ReportResult generate(String name, Map<String, Object> parameters);
     
     /**
+     * Синхронная генерация отчета с принудительным сохранением сформированного отчета
+     * @param name
+     * @param parameters
+     * @param keepDays
+     * @return
+     */
+    ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays);
+    
+    /**
      * Асинхронная генерация отчета
      * @param name
      * @param parameters
      * @return
      */
-    Future<ReportResult> generateAsync(String name, Map<String, Object> parameters);
+    Future<ReportResult> generateAsync(String name, Map<String, Object> parameters); 
 }

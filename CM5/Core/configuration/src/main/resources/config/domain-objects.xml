@@ -343,7 +343,7 @@
             <string name="minute" length="8" not-null="true" />
             <long name="timeout" not-null="true" />
             <long name="priority" not-null="true" />
-            <string name="parameters" length="1024" not-null="false" />
+            <text name="parameters" not-null="false" />
             <long name="last_result" not-null="false"/>
             <text name="last_result_description" not-null="false"/>
             <boolean name="active" not-null="true"/>

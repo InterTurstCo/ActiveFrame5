@@ -1,0 +1,3 @@
+TYPE_NAME=profile_value_string;KEYS=profile,key;;
+profile;key;value;readonly
+select id from system_profile where name='default_system_profile';NOTIFICATION.*;LOW;false
