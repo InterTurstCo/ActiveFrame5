@@ -66,6 +66,9 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
         updateHyperlink(id);
     }
     private void displayHyperlinks(List<HyperlinkItem> hyperlinkItems) {
+        if (hyperlinkItems == null) {
+            return;
+        }
         SimpleNoneEditablePanelWithHyperlinks panel = (SimpleNoneEditablePanelWithHyperlinks) impl;
         panel.cleanPanel();
         for (HyperlinkItem hyperlinkItem : hyperlinkItems) {
