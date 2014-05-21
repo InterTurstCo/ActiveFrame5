@@ -49,8 +49,8 @@ public class FieldPathConfig implements Dto {
     @Attribute(name = "value", required = false)
     private String value;
 
-    @Attribute(name="on-delete", required = false)
-    private OnDeleteAction onDelete;
+    @Attribute(name="on-root-delete", required = false)
+    private OnDeleteAction onRootDelete;
 
     public String getValue() {
         return value;
@@ -60,12 +60,12 @@ public class FieldPathConfig implements Dto {
         this.value = value;
     }
 
-    public OnDeleteAction getOnDelete() {
-        return onDelete;
+    public OnDeleteAction getOnRootDelete() {
+        return onRootDelete;
     }
 
-    public void setOnDelete(OnDeleteAction onDelete) {
-        this.onDelete = onDelete;
+    public void setOnRootDelete(OnDeleteAction onRootDelete) {
+        this.onRootDelete = onRootDelete;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class FieldPathConfig implements Dto {
 
         FieldPathConfig that = (FieldPathConfig) o;
 
-        if (onDelete != that.onDelete) {
+        if (onRootDelete != that.onRootDelete) {
             return false;
         }
         if (value != null ? !value.equals(that.value) : that.value != null) {
@@ -92,7 +92,7 @@ public class FieldPathConfig implements Dto {
     @Override
     public int hashCode() {
         int result = value != null ? value.hashCode() : 0;
-        result = 31 * result + (onDelete != null ? onDelete.hashCode() : 0);
+        result = 31 * result + (onRootDelete != null ? onRootDelete.hashCode() : 0);
         return result;
     }
 }

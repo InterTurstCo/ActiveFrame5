@@ -84,9 +84,14 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         return newFormStates;
     }
 
-    public LinkedHashMap<String, FormState> getEditedFormStates() {
+    public LinkedHashMap<String, FormState> getEditedNestedFormStates() {
         filterLabelStates(editedFormStates);
         return editedFormStates;
+    }
+
+    @Override
+    public boolean mayContainNestedFormStates() {
+        return true;
     }
 
     private void filterLabelStates(LinkedHashMap<String, FormState> newFormStates) {

@@ -18,7 +18,6 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import javax.annotation.PostConstruct;
@@ -84,11 +83,10 @@ public class FormSaver {
         }
         for (WidgetConfig widgetConfig : widgetConfigs) {
             WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
-            if (widgetState instanceof LinkedDomainObjectsTableState) {
+            if (widgetState.mayContainNestedFormStates()) {
                 // process nested form states of already created objects which has been edited
                 // new objects are processed in method saveNewLinkedObjects();
-                LinkedDomainObjectsTableState linkedDomainObjectsTableState = (LinkedDomainObjectsTableState) widgetState;
-                LinkedHashMap<String, FormState> nestedFormStates = linkedDomainObjectsTableState.getEditedFormStates();
+                LinkedHashMap<String, FormState> nestedFormStates = widgetState.getEditedNestedFormStates();
                 Set<Map.Entry<String, FormState>> entries = nestedFormStates.entrySet();
                 for (Map.Entry<String, FormState> entry : entries) {
                     FormState nestedFormState = entry.getValue();
@@ -101,6 +99,8 @@ public class FormSaver {
             FieldPath firstFieldPath = fieldPaths[0];
             WidgetHandler handler = getWidgetHandler(widgetConfig);
             if (firstFieldPath.isMultiBackReference()) {
+                // todo get rid of deleteEntriesOnLinkDrop - substitute with field-path config on-delete
+                // what about single choice in widgets???
                 boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop(widgetConfig) || isParentReferencedByNotNullField(fieldPaths);
                 HashMap<FieldPath, ArrayList<Id>> fieldPathsIds
                         = getBackReferenceFieldPathsIds(fieldPaths, (LinkEditingWidgetState) widgetState);

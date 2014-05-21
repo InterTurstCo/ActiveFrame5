@@ -2,9 +2,11 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -25,6 +27,14 @@ public abstract class WidgetState implements Dto {
 
     public void setEditable(boolean editable) {
         this.editable = editable;
+    }
+
+    public boolean mayContainNestedFormStates() {
+        return false;
+    }
+
+    public LinkedHashMap<String, FormState> getEditedNestedFormStates() {
+        return null;
     }
 
     public HashMap<String, Object> getWidgetProperties() {

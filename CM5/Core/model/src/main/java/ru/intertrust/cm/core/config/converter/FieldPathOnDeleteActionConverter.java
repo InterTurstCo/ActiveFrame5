@@ -13,12 +13,12 @@ public final class FieldPathOnDeleteActionConverter implements org.simpleframewo
     @Override
     public FieldPathConfig read(InputNode node) throws Exception {
         final InputNode valueAttribute = node.getAttribute("value");
-        final InputNode onDelete = node.getAttribute("on-delete");
+        final InputNode onDelete = node.getAttribute("on-root-delete");
         final String value = valueAttribute == null ? null : valueAttribute.getValue();
         FieldPathConfig.OnDeleteAction onDeleteAction = onDelete == null ? null : FieldPathConfig.OnDeleteAction.getEnum(onDelete.getValue());
         FieldPathConfig result = new FieldPathConfig();
         result.setValue(value);
-        result.setOnDelete(onDeleteAction);
+        result.setOnRootDelete(onDeleteAction);
         return result;
     }
 
@@ -29,9 +29,9 @@ public final class FieldPathOnDeleteActionConverter implements org.simpleframewo
             node.setAttribute("value", value);
         }
 
-        final FieldPathConfig.OnDeleteAction onDelete = fieldPathConfig.getOnDelete();
+        final FieldPathConfig.OnDeleteAction onDelete = fieldPathConfig.getOnRootDelete();
         if (onDelete != null) {
-            node.setAttribute("on-delete", onDelete.getString());
+            node.setAttribute("on-root-delete", onDelete.getString());
         }
     }
 }
