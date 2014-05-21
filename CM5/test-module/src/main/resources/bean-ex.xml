@@ -26,6 +26,6 @@
         </constructor-arg>
     </bean>
 
-    <bean id="test-bean" class="ru.intertrast.testmodule.spring.TestSpringBeanInSecondContext" />
+    <bean id="test-bean" class="ru.intertrust.testmodule.spring.TestSpringBeanInSecondContext" />
 
 </beans>

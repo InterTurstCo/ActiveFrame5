@@ -10,6 +10,8 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -28,6 +30,8 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskConfig;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskDefaultParameters;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.business.api.schedule.SheduleType;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -40,8 +44,8 @@ import ru.intertrust.cm.core.model.ScheduleException;
  * 
  */
 public class SheduleTaskLoader implements ApplicationContextAware {
+    private static final Logger logger = LoggerFactory.getLogger(SheduleTaskLoader.class);
     private ApplicationContext applicationContext;
-    private String basePackage;
     private Hashtable<String, SheduleTaskReestrItem> reestr = new Hashtable<String, SheduleTaskReestrItem>();
 
     @Autowired
@@ -53,14 +57,8 @@ public class SheduleTaskLoader implements ApplicationContextAware {
     @Autowired
     private AccessControlService accessControlService;
 
-    /**
-     * Установка базовового пакета, в котором производится поиск точек расширения
-     * 
-     * @param basePackage
-     */
-    public void setBasePackage(String basePackage) {
-        this.basePackage = basePackage;
-    }
+    @Autowired
+    private ModuleService moduleService;
 
     /**
      * Установка spring контекста
@@ -176,29 +174,37 @@ public class SheduleTaskLoader implements ApplicationContextAware {
      */
     private void initReestr() {
         try {
-            // Сканирование класспаса
-            ClassPathScanningCandidateComponentProvider scanner =
-                    new ClassPathScanningCandidateComponentProvider(false);
-            scanner.addIncludeFilter(new AnnotationTypeFilter(ScheduleTask.class));
-            // Цикл по найденным классам
-            for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
-                String className = bd.getBeanClassName();
-                // Получение найденного класса
-                Class<?> scheduleTaskClass = Class.forName(className);
-                // Получение анотации ExtensionPoint
-                ScheduleTask annatation = (ScheduleTask) scheduleTaskClass
-                        .getAnnotation(ScheduleTask.class);
+            //Получение всех пакетов
+            List<String> basePackages = getUniqueBasePackages();
 
-                // Проверка наличия анотации в классе
-                if (annatation != null) {
+            for (String basePackage : basePackages) {
 
-                    if (ScheduleTaskHandle.class.isAssignableFrom(scheduleTaskClass)) {
+                // Сканирование класспаса
+                ClassPathScanningCandidateComponentProvider scanner =
+                        new ClassPathScanningCandidateComponentProvider(false);
+                scanner.addIncludeFilter(new AnnotationTypeFilter(ScheduleTask.class));
+                
+                // Цикл по найденным классам
+                for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
+                    String className = bd.getBeanClassName();
+                    // Получение найденного класса
+                    Class<?> scheduleTaskClass = Class.forName(className);
+                    // Получение анотации ScheduleTask
+                    ScheduleTask annatation = (ScheduleTask) scheduleTaskClass
+                            .getAnnotation(ScheduleTask.class);
 
-                        // создаем экземпляр класса Добавляем класс как спринговый бин с поддержкой autowire
-                        ScheduleTaskHandle scheduleTask = (ScheduleTaskHandle) applicationContext
-                                .getAutowireCapableBeanFactory().createBean(scheduleTaskClass,
-                                        AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
-                        reestr.put(scheduleTaskClass.getName(), new SheduleTaskReestrItem(scheduleTask, annatation));
+                    // Проверка наличия анотации в классе
+                    if (annatation != null) {
+
+                        if (ScheduleTaskHandle.class.isAssignableFrom(scheduleTaskClass)) {
+
+                            // создаем экземпляр класса Добавляем класс как спринговый бин с поддержкой autowire
+                            ScheduleTaskHandle scheduleTask = (ScheduleTaskHandle) applicationContext
+                                    .getAutowireCapableBeanFactory().createBean(scheduleTaskClass,
+                                            AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
+                            reestr.put(scheduleTaskClass.getName(), new SheduleTaskReestrItem(scheduleTask, annatation));
+                            logger.info("Register ScheduleTaskHandle=" + scheduleTaskClass.getName());
+                        }
                     }
                 }
             }
@@ -206,6 +212,25 @@ public class SheduleTaskLoader implements ApplicationContextAware {
             throw new ScheduleException("Error on init schedule task classes", ex);
         }
 
+    }
+
+    /**
+     * Получение не повторяющегося списка пакетов из описания всех модулей
+     * @return
+     */
+    private List<String> getUniqueBasePackages() {
+
+        List<String> result = new ArrayList<String>();
+        for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
+            if (moduleConfiguration.getExtensionPointsPackages() != null) {
+                for (String extensionPointsPackage : moduleConfiguration.getExtensionPointsPackages()) {
+                    if (!result.contains(extensionPointsPackage)) {
+                        result.add(extensionPointsPackage);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     /**

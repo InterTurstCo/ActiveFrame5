@@ -79,9 +79,7 @@
 
     <bean id="attachmentCleaner" class="ru.intertrust.cm.core.business.impl.AttachmentCleaner"/>
 
-    <bean id="sheduleTaskLoader" class="ru.intertrust.cm.core.business.shedule.SheduleTaskLoader">
-        <property name="basePackage" value="ru/intertrust/cm"/>
-    </bean>
+    <bean id="sheduleTaskLoader" class="ru.intertrust.cm.core.business.shedule.SheduleTaskLoader"/>
 
     <bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData" init-method="onLoad"/>
 

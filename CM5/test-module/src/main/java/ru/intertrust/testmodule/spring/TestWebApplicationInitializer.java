@@ -1,4 +1,4 @@
-package ru.intertrast.testmodule.spring;
+package ru.intertrust.testmodule.spring;
 
 import javax.servlet.ServletContext;
 
