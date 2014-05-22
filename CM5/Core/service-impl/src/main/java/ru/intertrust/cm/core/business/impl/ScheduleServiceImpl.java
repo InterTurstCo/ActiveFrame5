@@ -12,7 +12,9 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
+import org.simpleframework.xml.strategy.Strategy;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
@@ -149,7 +151,8 @@ public class ScheduleServiceImpl implements ScheduleService {
         try {
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
             DomainObject task = domainObjectDao.find(taskId, accessToken);
-            Serializer serializer = new Persister();
+            Strategy strategy = new AnnotationStrategy();
+            Serializer serializer = new Persister(strategy);
             ScheduleTaskParameters result = null;
             if (task.getString(SCHEDULE_PARAMETERS) != null) {
                 inputStream =
@@ -178,7 +181,8 @@ public class ScheduleServiceImpl implements ScheduleService {
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
             DomainObject task = domainObjectDao.find(taskId, accessToken);
 
-            Serializer serializer = new Persister();
+            Strategy strategy = new AnnotationStrategy();
+            Serializer serializer = new Persister(strategy);
             out = new ByteArrayOutputStream();
             
             ScheduleTaskConfig config = new ScheduleTaskConfig();

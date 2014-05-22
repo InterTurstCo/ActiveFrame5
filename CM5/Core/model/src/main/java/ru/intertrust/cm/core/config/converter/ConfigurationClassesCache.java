@@ -85,8 +85,15 @@ public class ConfigurationClassesCache {
 
             Class clazz = classLoader.loadClass(metadataReader.getClassMetadata().getClassName());
             Root rootAnnotation =  (Root) clazz.getAnnotation(Root.class);
-            if (rootAnnotation != null && rootAnnotation.name() != null && !rootAnnotation.name().isEmpty()) {
-                tagToClassMap.put(rootAnnotation.name(), clazz);
+            if (rootAnnotation != null) {
+                if (rootAnnotation.name() != null && !rootAnnotation.name().isEmpty()){
+                    tagToClassMap.put(rootAnnotation.name(), clazz);
+                }else{
+                    String defaultTagName = clazz.getSimpleName();
+                    char first = Character.toLowerCase(defaultTagName.charAt(0));
+                    defaultTagName = first + defaultTagName.substring(1);
+                    tagToClassMap.put(defaultTagName, clazz);
+                }
             }
         } catch (ClassNotFoundException e) {
             throw new FatalException("Class '" + resource + "' was found by ResourcePatternResolver but was " +

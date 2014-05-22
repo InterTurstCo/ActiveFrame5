@@ -114,9 +114,9 @@ public class TestScheduler extends ClientBase {
             assertTrue("Chech chenge task schedule timeout", newTimeout == task6.getLong(ScheduleService.SCHEDULE_TIMEOUT));
 
             //Проверка загрузки параметров
-            /*TestScheduleParameters loadParams = (TestScheduleParameters) schedulerService.getTaskParams(task2.getId());
+            TestScheduleParameters loadParams = (TestScheduleParameters) schedulerService.getTaskParams(task2.getId());
             log("parent param: " + loadParams.getResult());
-            assertTrue("Load params", loadParams != null);*/
+            assertTrue("Load params", loadParams != null);
 
             //Установка параметров задаче
             TestScheduleParameters testparam2 = new TestScheduleParameters();

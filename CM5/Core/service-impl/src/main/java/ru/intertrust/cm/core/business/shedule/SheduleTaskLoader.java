@@ -114,7 +114,7 @@ public class SheduleTaskLoader implements ApplicationContextAware {
         return domainObjectDao.save(task, accessToken);
     }
 
-    private String getDefaultParameters(ScheduleTask configuration) {
+    protected String getDefaultParameters(ScheduleTask configuration) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             Strategy strategy = new AnnotationStrategy();
