@@ -138,7 +138,7 @@ public class ImportData {
                     //Имена полей
                     List<String> fieldList = new ArrayList<String>();
                     for (int i = 0; i < readLine.length; i++) {
-                        if (readLine[i].trim().length() > 0){
+                        if (readLine[i].trim().length() > 0) {
                             fieldList.add(readLine[i].trim());
                         }
                         fields = fieldList.toArray(new String[fieldList.size()]);
@@ -258,8 +258,7 @@ public class ImportData {
                             //В остальных случаях считаем строкой
                             if (fieldValues[i].length() == 0) {
                                 newValue = null;
-                            } else if ((emptyStringSymbol == null && fieldValues[i].equals("_"))
-                                    || (emptyStringSymbol != null && fieldValues[i].equals(emptyStringSymbol))) {
+                            } else if (isEmptySimvol(fieldValues[i])) {
                                 //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
                                 newValue = new StringValue("");
                             } else {
@@ -298,6 +297,11 @@ public class ImportData {
         }
     }
 
+    private boolean isEmptySimvol(String testString){
+        //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
+        return (emptyStringSymbol == null && testString.equals("_")) || (emptyStringSymbol != null && testString.equals(emptyStringSymbol));
+    }
+    
     /**
      * Создание вложения для переданного доменного объекта
      * @param domainObject
@@ -481,8 +485,8 @@ public class ImportData {
             result = value.trim();
         }
         return result;
-    }    
-    
+    }
+
     /**
      * Получение ссылки с помощью запроса
      * @param query
@@ -550,10 +554,17 @@ public class ImportData {
             for (FieldConfig fieldConfig : config.getFieldConfigs()) {
                 for (int i = 0; i < confitionFields.length; i++) {
                     if (confitionFields[i].equalsIgnoreCase(fieldConfig.getName())) {
-                        if (where == null) {
-                            where = " where t" + typeNo + ".\"" + fieldConfig.getName() + "\" = " + conditionValues[i];
+                        String conditionValue = null;
+                        if (conditionValues[i] == null) {
+                            conditionValue = " is null";
                         } else {
-                            where += " and t" + typeNo + ".\"" + fieldConfig.getName() + "\" = " + conditionValues[i];
+                            conditionValue = " = " + conditionValues[i];
+                        }
+
+                        if (where == null) {
+                            where = " where t" + typeNo + ".\"" + fieldConfig.getName() + "\" " + conditionValue;
+                        } else {
+                            where += " and t" + typeNo + ".\"" + fieldConfig.getName() + "\" " + conditionValue;
                         }
                     }
                 }
@@ -596,21 +607,28 @@ public class ImportData {
         }
 
         //Получение значения поля
-        String valueAsString = fieldValues[fieldIndex.get(fieldName)];
-        //Получение конфигурации поля
-        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
-        //Пока поддерживаем только строки и Long Вряд ли что то другое будет ключем
         String result = null;
-        if (fieldConfig.getFieldType() == FieldType.LONG) {
-            result = valueAsString;
-        } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
-            Id referenceValue = getReference(fieldName, valueAsString);
-            if (referenceValue != null){
-                result = String.valueOf(((RdbmsId) referenceValue).getId());
+        String valueAsString = fieldValues[fieldIndex.get(fieldName)];
+
+        if (valueAsString.length() > 0) {
+            //Получение конфигурации поля
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
+            //Пока поддерживаем только строки и Long Вряд ли что то другое будет ключем
+            if (fieldConfig.getFieldType() == FieldType.LONG) {
+                result = valueAsString;
+            } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
+                Id referenceValue = getReference(fieldName, valueAsString);
+                if (referenceValue != null) {
+                    result = String.valueOf(((RdbmsId) referenceValue).getId());
+                }
+            } else {
+                if (isEmptySimvol(valueAsString)){
+                    result = "''";
+                }else{
+                    valueAsString = valueAsString.replace("'", "''");
+                    result = "'" + valueAsString + "'";
+                }
             }
-        } else {
-            valueAsString = valueAsString.replace("'", "''");
-            result = "'" + valueAsString + "'";
         }
         return result;
     }

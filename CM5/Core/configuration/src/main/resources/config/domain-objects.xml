@@ -203,6 +203,8 @@
     <domain-object-type name="Organization" audit-log="true">
         <fields>
             <string name="Name" length="128" not-null="true" />
+            <string name="Description" length="128" />
+            <string name="www" length="128" />
             <reference name="Boss" type="Employee"/>
         </fields>
     </domain-object-type>
