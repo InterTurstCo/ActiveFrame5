@@ -211,12 +211,16 @@ public class CollectionsDaoImplTest {
 
         DomainObjectTypeConfig employee = new DomainObjectTypeConfig();
         employee.setName("employee");
+
+        DomainObjectTypeConfig departmnet = new DomainObjectTypeConfig();
+        departmnet.setName("department");
         
         Configuration configuration = new Configuration();
         configuration.getConfigurationList().add(doTypeConfig);
         configuration.getConfigurationList().add(internalEmployee);
         configuration.getConfigurationList().add(externalEmployee);
         configuration.getConfigurationList().add(employee);
+        configuration.getConfigurationList().add(departmnet);
 
         collectionConfig = createEmployeesCollectionConfig();
         configuration.getConfigurationList().add(collectionConfig);
