@@ -175,6 +175,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
             } catch (Exception ex) {
                 throw new FatalException("cannot instantiate system field config class");
             }
+            if (ReferenceFieldConfig.class.equals(fieldConfigClass)) {
+                ((ReferenceFieldConfig) systemFieldConfig).setType(systemField.getReferenceType());
+            }
             systemFieldConfig.setName(systemField.name());
             SYSTEM_FIELDS.add(systemFieldConfig);
         }

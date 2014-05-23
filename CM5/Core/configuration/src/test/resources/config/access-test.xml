@@ -235,7 +235,7 @@
 <!--             <read>
                 <permit-role name="DocumentAuthor" />
             </read>
- -->            <write>
+ -->         <write>
                 <permit-role name="DocumentAuthor" />
             </write>
             <delete>

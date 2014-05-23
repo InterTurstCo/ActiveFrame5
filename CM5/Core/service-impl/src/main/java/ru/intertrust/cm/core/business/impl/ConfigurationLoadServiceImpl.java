@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.IndexConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.SystemField;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
@@ -385,25 +386,34 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService {
             }
 
 
-            if (canHaveStatusColumn(config)) {
-                createStatusForeignKey(config);
+            if (hasSystemFields(config)) {
+                createSystemFieldsForeignKey(config);
             }
         }
 
-        private boolean canHaveStatusColumn(DomainObjectTypeConfig config) {
+        private boolean hasSystemFields(DomainObjectTypeConfig config) {
             return config.getExtendsAttribute() == null
                     && (!config.isTemplate());
         }
 
-        private void createStatusForeignKey(DomainObjectTypeConfig config) {
+        /**
+         * Создает внешние ключи для ссылочных системных полей.
+         * @param config
+         */
+        private void createSystemFieldsForeignKey(DomainObjectTypeConfig config) {
             List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
             List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
-            ReferenceFieldConfig referenceStatusField = new ReferenceFieldConfig();
-            referenceStatusField.setName(GenericDomainObject.STATUS_FIELD_NAME);
-            referenceStatusField.setType(GenericDomainObject.STATUS_DO);
 
-            referenceFieldConfigs.add(referenceStatusField);
+            for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
+                if (fieldConfig instanceof ReferenceFieldConfig) {
+                    // для id создается первичный ключ
+                    if (SystemField.id.name().equals(fieldConfig.getName())) {
+                        continue;
+                    }
+                    referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
 
+                }
+            }
             dataStructureDao.createForeignKeyAndUniqueConstraints(config, referenceFieldConfigs,
                     uniqueKeyConfigs);
         }
