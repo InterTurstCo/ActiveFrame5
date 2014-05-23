@@ -67,7 +67,8 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
                 FromItem joinItem = join.getRightItem();
                 if (joinItem instanceof Table) {
                     Table table = (Table) joinItem;
-                    if (!configurationExplorer.isReadPermittedToEverybody(table.getName())) {
+                    if (!configurationExplorer.isReadPermittedToEverybody(table.getName()) 
+                            && configurationExplorer.getMatrixReferenceTypeName(table.getName()) == null) {
                         SubSelect replace = createAclSubQuery(table.getName());
                         if (table.getAlias() == null) {
                             replace.setAlias(new Alias(table.getName()));
