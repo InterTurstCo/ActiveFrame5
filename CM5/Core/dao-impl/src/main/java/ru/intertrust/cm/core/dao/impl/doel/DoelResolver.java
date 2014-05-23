@@ -449,7 +449,7 @@ public class DoelResolver implements DoelEvaluator {
         return createReverseExpression(expr.cutByCount(count), sourceType);
     }
 
-    private class DoelResolverRowMapper<T extends Value<?>> extends ValueReader implements RowMapper<T> {
+    private class DoelResolverRowMapper<T extends Value> extends ValueReader implements RowMapper<T> {
 
         private String columnName;
         private FieldConfig fieldConfig;
