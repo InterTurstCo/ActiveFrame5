@@ -28,11 +28,11 @@ public class SqlLogger {
 
     private static final Logger logger = LoggerFactory.getLogger(SqlLogger.class);
 
-    @org.springframework.beans.factory.annotation.Value("${sql.trace.warn.minTime}")
+    @org.springframework.beans.factory.annotation.Value("${sql.trace.warn.minTime:100}")
     private Long minWarnTime;
-    @org.springframework.beans.factory.annotation.Value("${sql.trace.warn.minRows}")
+    @org.springframework.beans.factory.annotation.Value("${sql.trace.warn.minRows:1}")
     private Long minRowsNum;
-    @org.springframework.beans.factory.annotation.Value("${sql.trace.resolveParams}")
+    @org.springframework.beans.factory.annotation.Value("${sql.trace.resolveParams:false}")
     private Boolean resolveParams;
 
     @Around("(this(org.springframework.jdbc.core.JdbcOperations) || " +
@@ -67,6 +67,19 @@ public class SqlLogger {
             rows = 1;
         }
 
+        boolean logWarn = timing >= minWarnTime || rows >= minRowsNum;
+        if (logWarn && logger.isWarnEnabled()) {
+            query = resolveParameters(query, joinPoint);
+            logger.warn(formatLogEntry(query, timing, rows));
+        } else if (logger.isTraceEnabled()){
+            query = resolveParameters(query, joinPoint);
+            logger.trace(formatLogEntry(query, timing, rows));
+        }
+
+        return returnValue;
+    }
+
+    private String resolveParameters(String query, ProceedingJoinPoint joinPoint) {
         if (resolveParams) {
             if (joinPoint.getThis() instanceof JdbcOperations) {
                 Object[] parameters = getParametersArray(joinPoint.getArgs());
@@ -79,19 +92,16 @@ public class SqlLogger {
             }
         }
 
+        return query;
+    }
+
+    private String formatLogEntry(String query, long timing, int rows) {
         StringBuilder traceStringBuilder = new StringBuilder();
         Formatter formatter = new Formatter(traceStringBuilder);
         String format = "SQL Trace: %1$6s %2$7s: %3$s";
         formatter.format(format, timing, "[" + rows + "]", query);
 
-        boolean logWarn = timing >= minWarnTime && rows >= minRowsNum;
-        if (logWarn && logger.isWarnEnabled()) {
-            logger.warn(traceStringBuilder.toString());
-        } else {
-            logger.trace(traceStringBuilder.toString());
-        }
-
-        return returnValue;
+        return traceStringBuilder.toString();
     }
 
     private Map<String, Object> getParametersMap(Object[] methodArgs) {
