@@ -9,7 +9,9 @@ public enum SystemField {
     id(ReferenceFieldConfig.class),
     created_date(DateTimeFieldConfig.class),
     updated_date(DateTimeFieldConfig.class),
-    status(ReferenceFieldConfig.class);
+    status(ReferenceFieldConfig.class),
+    created_by(ReferenceFieldConfig.class),
+    updated_by(ReferenceFieldConfig.class);
 
     private Class<? extends FieldConfig> fieldConfigClass;
 

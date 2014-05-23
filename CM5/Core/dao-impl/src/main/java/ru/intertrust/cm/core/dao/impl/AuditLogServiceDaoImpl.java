@@ -176,6 +176,8 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(TYPE_COLUMN)).append(", ");
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(OPERATION_COLUMN)).append(", ");
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(UPDATED_DATE_COLUMN)).append(", ");
+        query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(UPDATED_BY)).append(", ");
+        query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(UPDATED_BY_TYPE_COLUMN)).append(", ");        
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(DOMAIN_OBJECT_ID_COLUMN)).append(", ");
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(COMPONENT_COLUMN)).append(", ");
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(IP_ADDRESS_COLUMN)).append(", ");

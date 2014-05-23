@@ -103,7 +103,8 @@ public class PostgreSqlQueryHelperTest {
     @Test
     public void testGenerateCreateTableQueryWithoutExtendsAttribute() throws Exception {
         String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, \"" + TYPE_COLUMN + "\" integer, " +
-                "\"created_date\" timestamp not null, " + "\"updated_date\" timestamp not null, \"status\" bigint, " +
+                "\"created_date\" timestamp not null, " + "\"updated_date\" timestamp not null, \"created_by\" bigint, " +
+                		"\"created_by_type\" integer, \"updated_by\" bigint, \"updated_by_type\" integer, \"status\" bigint, " +
                 "\"status_type\" integer, \"access_object_id\" bigint, " +
                 "\"registration_number\" varchar(128), \"registration_date\" timestamp, \"author\" bigint, " +
                 "\"author_type\" integer, " +

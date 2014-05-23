@@ -111,11 +111,18 @@ public class ConfigurationSerializerTest {
             if (configurationItem.getClass().equals(GlobalSettingsConfig.class)) {
                 continue;
             }
-            String name = DomainObjectTypeConfig.class.equals(configurationItem.getClass()) ?
-                    ((DomainObjectTypeConfig) configurationItem).getName() :
-                    ((CollectionConfig) configurationItem).getName();
-            assertTrue(configurationNames.contains(name));
-            configurationNames.remove(name);
+            String name = null;
+            if(configurationItem instanceof DomainObjectTypeConfig){
+                name = ((DomainObjectTypeConfig) configurationItem).getName();
+            }else if(configurationItem instanceof CollectionConfig){
+                name = ((CollectionConfig) configurationItem).getName();
+            }
+            
+            if(name!= null){
+                assertTrue(configurationNames.contains(name));
+                configurationNames.remove(name);
+                
+            }
         }
     }
 

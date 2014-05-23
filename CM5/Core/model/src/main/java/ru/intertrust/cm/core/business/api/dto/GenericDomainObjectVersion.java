@@ -39,6 +39,9 @@ public class GenericDomainObjectVersion extends GenericIdentifiableObject implem
      */
     private String ipAddress;
 
+    /**
+     * Идентификатор персоны, инициировавшей изменения ДО.
+     */
     private Id modifier;
 
     @Override
@@ -48,7 +51,7 @@ public class GenericDomainObjectVersion extends GenericIdentifiableObject implem
 
     public void setDomainObjectId(Id domainObjectId){
         this.domainObjectId = domainObjectId;
-    }
+    }        
     
     @Override
     public String getVersionInfo() {

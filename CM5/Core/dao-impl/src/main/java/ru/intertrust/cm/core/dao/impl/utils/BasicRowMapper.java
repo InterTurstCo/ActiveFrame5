@@ -187,6 +187,10 @@ public class BasicRowMapper extends ValueReader {
         object.setId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.ID_COLUMN)));
         object.setDomainObjectId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.DOMAIN_OBJECT_ID_COLUMN)));
         object.setModifiedDate(rs.getTimestamp(UPDATED_DATE_COLUMN));
+
+        ReferenceValue updatedByRef = readReferenceValue(rs, DomainObjectDao.UPDATED_BY, null);
+        object.setModifier(updatedByRef.get());
+
         object.setVersionInfo(rs.getString(DomainObjectDao.INFO_COLUMN));
         object.setIpAddress(rs.getString(DomainObjectDao.IP_ADDRESS_COLUMN));
         object.setComponent(rs.getString(DomainObjectDao.COMPONENT_COLUMN));

@@ -1,12 +1,54 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_FIELD_NAME;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.access.*;
+import ru.intertrust.cm.core.config.AccessMatrixConfig;
+import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.DynamicGroupService;
+import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
+import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -17,21 +59,17 @@ import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
-import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
-import ru.intertrust.cm.core.dao.impl.utils.*;
-
-import java.util.*;
-
-import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
-import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_FIELD_NAME;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
+import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
 /**
  * Класс реализации работы с доменным объектом
@@ -66,6 +104,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Autowired
     private PermissionServiceDao permissionService;
 
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+    
     @Autowired
     public void setDomainObjectCacheService(
             DomainObjectCacheServiceImpl domainObjectCacheService) {
@@ -122,7 +163,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         accessControlService.verifySystemAccessToken(accessToken);
         DomainObject domainObject = find(objectId, accessToken);
         ((GenericDomainObject) domainObject).setStatus(status);
-        DomainObject result = update(domainObject, true, null);
+        DomainObject result = update(domainObject, accessToken, true, null);
 
         refreshDynamiGroupsAndAclForUpdate(result, null, null);
 
@@ -137,7 +178,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String initialStatus = getInitialStatus(domainObject);
 
         DomainObject createdObject = create(domainObject,
-                domainObjectTypeIdCache.getId(domainObject.getTypeName()), initialStatus);
+                domainObjectTypeIdCache.getId(domainObject.getTypeName()), accessToken, initialStatus);
         domainObjectCacheService.putObjectToCache(createdObject);
 
         refreshDynamiGroupsAndAclForCreate(createdObject);
@@ -216,7 +257,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         // Запись в auditLog
         createAuditLog(result, result.getTypeName(),
-                domainObjectTypeIdCache.getId(domainObject.getTypeName()),
+                domainObjectTypeIdCache.getId(domainObject.getTypeName()), accessToken,
                 operation);
 
         // Вызов точки расширения после сохранения
@@ -252,7 +293,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         boolean isUpdateStatus = false;
 
-        GenericDomainObject updatedObject = update(domainObject, isUpdateStatus, changedFields);
+        GenericDomainObject updatedObject = update(domainObject, accessToken, isUpdateStatus, changedFields);
 
         domainObjectCacheService.putObjectToCache(updatedObject);
 
@@ -260,7 +301,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     }
 
-    private GenericDomainObject update(DomainObject domainObject, boolean isUpdateStatus,
+    private GenericDomainObject update(DomainObject domainObject, AccessToken accessToken, boolean isUpdateStatus,
             List<FieldModification> changedFields) {
         GenericDomainObject updatedObject = new GenericDomainObject(
                 domainObject);
@@ -274,7 +315,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<Id> beforeChangeInvalidGroups =
                 dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, changedFields);
 
-        DomainObject parentDO = updateParentDO(domainObjectTypeConfig, domainObject, isUpdateStatus, changedFields);
+        DomainObject parentDO =
+                updateParentDO(domainObjectTypeConfig, domainObject, accessToken, isUpdateStatus, changedFields);
 
         String query = generateUpdateQuery(domainObjectTypeConfig, isUpdateStatus);
 
@@ -288,7 +330,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         Map<String, Object> parameters = initializeUpdateParameters(
-                updatedObject, domainObjectTypeConfig, currentDate, isUpdateStatus);
+                updatedObject, domainObjectTypeConfig, accessToken, currentDate, isUpdateStatus);
 
         int count = jdbcTemplate.update(query, parameters);
 
@@ -404,7 +446,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         // Пишем в аудит лог
         createAuditLog(deletedObject, deletedObject.getTypeName(),
-                domainObjectTypeIdCache.getId(deletedObject.getTypeName()),
+                domainObjectTypeIdCache.getId(deletedObject.getTypeName()), accessToken,
                 DomainObjectVersion.AuditLogOperation.DELETE);
 
         // Точка расширения после удаления, вызывается с установкой фильтра текущего типа и всех наследников
@@ -804,7 +846,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      */
     protected Map<String, Object> initializeCreateParameters(
             DomainObject domainObject,
-            DomainObjectTypeConfig domainObjectTypeConfig, Integer type) {
+            DomainObjectTypeConfig domainObjectTypeConfig, Integer type, AccessToken accessToken) {
 
         RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
 
@@ -816,14 +858,25 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put("updated_date",
                     getGMTDate(domainObject.getModifiedDate()));
 
+            Id currentUser = getCurrentUser(accessToken);
+
+            Long currentUserId = currentUser != null ? ((RdbmsId) currentUser).getId() : null;
+            Integer currentUserType = currentUser != null ? ((RdbmsId) currentUser).getTypeId() : null;
+
+            parameters.put("created_by", currentUserId);
+            parameters.put("created_by_type", currentUserType);
+
+            parameters.put("updated_by", currentUserId);
+            parameters.put("updated_by_type", currentUserType);
+
             Long statusId = domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getId() : null;
             Integer statusTypeId =
                     domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getTypeId() : null;
 
             parameters.put("status", statusId);
             parameters.put("status_type", statusTypeId);
-            
-            parameters.put("access_object_id", ((RdbmsId)getAccessObjectId(domainObject)).getId());
+
+            parameters.put("access_object_id", ((RdbmsId) getAccessObjectId(domainObject)).getId());
 
         }
         parameters.put("type_id", type);
@@ -836,6 +889,28 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return parameters;
     }
 
+    /**
+     * Возвращает текущего пользователя. Если вызов идет от имени системы, то возвращает null, иначе возвращается
+     * текущий пользователь из EJB контекста.
+     * @param accessToken
+     * @return
+     */
+    private Id getCurrentUser(AccessToken accessToken) {
+        if (isSystemAccessToken(accessToken)) {
+            return null;
+        } else {
+            return currentUserAccessor.getCurrentUserId();
+        }
+    }
+
+    private boolean isSystemAccessToken(AccessToken accessToken) {
+        try {
+            accessControlService.verifySystemAccessToken(accessToken);
+            return true;
+        } catch (AccessException e) {
+            return false;
+        }
+    }
     
     
     /**
@@ -952,6 +1027,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(wrap(UPDATED_DATE_COLUMN)).append("=:current_date, ");
+            query.append(wrap(UPDATED_BY)).append("=:updated_by, ");
+            query.append(wrap(UPDATED_BY_TYPE_COLUMN)).append("=:updated_by_type, ");
+            
             if (isUpdateStatus) {
                 query.append(wrap(STATUS_FIELD_NAME)).append("=:status, ");
             }
@@ -988,7 +1066,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      */
     protected Map<String, Object> initializeUpdateParameters(
             DomainObject domainObject,
-            DomainObjectTypeConfig domainObjectTypeConfig, Date currentDate, boolean isUpdateStatus) {
+            DomainObjectTypeConfig domainObjectTypeConfig, AccessToken accessToken, Date currentDate,
+            boolean isUpdateStatus) {
 
         Map<String, Object> parameters = new HashMap<String, Object>();
 
@@ -998,6 +1077,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parameters.put("current_date", getGMTDate(currentDate));
         parameters.put("updated_date",
                 getGMTDate(domainObject.getModifiedDate()));
+
+        Id currentUser = getCurrentUser(accessToken);
+     
+        Long currentUserId = currentUser != null ? ((RdbmsId) currentUser).getId() : null;
+        Integer currentUserType = currentUser != null ? ((RdbmsId) currentUser).getTypeId() : null;
+
+        parameters.put("updated_by", currentUserId);
+        parameters.put("updated_by_type", currentUserType);
+
         if (isUpdateStatus) {
             parameters.put("status", ((RdbmsId) domainObject.getStatus()).getId());
             parameters.put("status_type", ((RdbmsId) domainObject.getStatus()).getTypeId());
@@ -1037,8 +1125,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(wrap(TYPE_COLUMN));
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(", ").append(wrap(CREATED_DATE_COLUMN)).append(", ")
+            query.append(", ");
+            query.append(wrap(CREATED_DATE_COLUMN)).append(", ")
                     .append(wrap(UPDATED_DATE_COLUMN)).append(", ");
+
+            query.append(wrap(CREATED_BY)).append(", ")
+            .append(wrap(CREATED_BY_TYPE_COLUMN)).append(", ");
+
+            query.append(wrap(UPDATED_BY)).append(", ")
+            .append(wrap(UPDATED_BY_TYPE_COLUMN)).append(", ");
 
             query.append(wrap(STATUS_FIELD_NAME)).append(", ")
                     .append(wrap(STATUS_TYPE_COLUMN)).append(", ");
@@ -1053,7 +1148,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(") values (:id , :type_id");
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(", :created_date, :updated_date, :status, :status_type, :access_object_id");
+            query.append(", :created_date, :updated_date, :created_by, :created_by_type, :updated_by, :updated_by_type, :status, :status_type, :access_object_id");
         }
 
         if (commaSeparatedParameters.length() > 0) {
@@ -1093,6 +1188,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(", ").append(wrap(OPERATION_COLUMN)).append(", ");
             query.append(wrap(UPDATED_DATE_COLUMN)).append(", ");
+            query.append(wrap(UPDATED_BY)).append(", ");
+            query.append(wrap(UPDATED_BY_TYPE_COLUMN)).append(", ");
+            
             query.append(wrap(COMPONENT_COLUMN)).append(", ");
             query.append(wrap(DOMAIN_OBJECT_ID_COLUMN)).append(", ");
             query.append(wrap(INFO_COLUMN)).append(", ");
@@ -1105,7 +1203,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         query.append(") values (:").append(ID_COLUMN).append(", :").append(TYPE_COLUMN);
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(", :operation, :updated_date, :component, :domain_object_id, :info, :ip_address");
+            query.append(", :operation, :updated_date, :updated_by, :updated_by_type, :component, :domain_object_id, :info, :ip_address");
         }
 
         if (commaSeparatedParameters.length() > 0) {
@@ -1348,7 +1446,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append("where gm.person_id = :user_id and r.object_id = ").append(linkedTypeAlias).append(".").append(DaoUtils.wrap(ID_COLUMN)).append(")");
     }
 
-    private DomainObject create(DomainObject domainObject, Integer type, String initialStatus) {
+    private DomainObject create(DomainObject domainObject, Integer type, AccessToken accessToken, String initialStatus) {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
                         domainObject.getTypeName());
@@ -1356,7 +1454,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         GenericDomainObject updatedObject = new GenericDomainObject(
                 domainObject);
         DomainObject parentDo = createParentDO(domainObject,
-                domainObjectTypeConfig, type, initialStatus);
+                domainObjectTypeConfig, type, accessToken, initialStatus);
 
         if (parentDo != null) {
             updatedObject.setCreatedDate(parentDo.getCreatedDate());
@@ -1384,7 +1482,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         updatedObject.setId(doId);
 
         Map<String, Object> parameters = initializeCreateParameters(
-                updatedObject, domainObjectTypeConfig, type);
+                updatedObject, domainObjectTypeConfig, type, accessToken);
         jdbcTemplate.update(query, parameters);
 
         return updatedObject;
@@ -1454,7 +1552,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * @return
      */
     private Long createAuditLog(DomainObject domainObject, String typeName,
-            Integer type, DomainObjectVersion.AuditLogOperation operation) {
+            Integer type, AccessToken accessToken, DomainObjectVersion.AuditLogOperation operation) {
         Long id = null;
         if (typeName != null) {
             DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
@@ -1466,7 +1564,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     || !domainObject.getTypeName().equals(typeName)) {
 
                 id = createAuditLog(domainObject,
-                        domainObjectTypeConfig.getExtendsAttribute(), type,
+                        domainObjectTypeConfig.getExtendsAttribute(), type, accessToken,
                         operation);
 
                 if (id == null) {
@@ -1484,7 +1582,16 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                             operation.getOperation());
                     parameters.put(DomainObjectDao.UPDATED_DATE_COLUMN,
                             getGMTDate(domainObject.getModifiedDate()));
-                    // TODO Получение имени компонента из AcceeToken
+
+                    Id currentUser = getCurrentUser(accessToken);
+
+                    Long currentUserId = currentUser != null ? ((RdbmsId) currentUser).getId() : null;
+                    Integer currentUserType = currentUser != null ? ((RdbmsId) currentUser).getTypeId() : null;
+
+                    parameters.put(DomainObjectDao.UPDATED_BY, currentUserId);
+                    parameters.put(DomainObjectDao.UPDATED_BY_TYPE_COLUMN, currentUserType);
+
+                   // TODO Получение имени компонента из AcceeToken
                     parameters.put(DomainObjectDao.COMPONENT_COLUMN, "");
                     parameters.put(DomainObjectDao.DOMAIN_OBJECT_ID_COLUMN,
                             ((RdbmsId) domainObject.getId()).getId());
@@ -1511,17 +1618,18 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private DomainObject createParentDO(DomainObject domainObject,
-            DomainObjectTypeConfig domainObjectTypeConfig, Integer type, String initialStatus) {
+            DomainObjectTypeConfig domainObjectTypeConfig, Integer type, AccessToken accessToken, String initialStatus) {
         if (!isDerived(domainObjectTypeConfig)) {
             return null;
         }
 
         GenericDomainObject parentDO = new GenericDomainObject(domainObject);
         parentDO.setTypeName(domainObjectTypeConfig.getExtendsAttribute());
-        return create(parentDO, type, initialStatus);
+        return create(parentDO, type, accessToken, initialStatus);
     }
 
     private DomainObject updateParentDO(DomainObjectTypeConfig domainObjectTypeConfig, DomainObject domainObject,
+            AccessToken accessToken,
             boolean isUpdateStatus, List<FieldModification> changedFields) {
         RdbmsId parentId = getParentId((RdbmsId) domainObject.getId(), domainObjectTypeConfig);
         if (parentId == null) {
@@ -1532,7 +1640,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parentObject.setId(parentId);
         parentObject.setTypeName(domainObjectTypeConfig.getExtendsAttribute());
 
-        return update(parentObject, isUpdateStatus, changedFields);
+        return update(parentObject, accessToken, isUpdateStatus, changedFields);
     }
 
     private void appendTableNameQueryPart(StringBuilder query, String typeName) {
@@ -1618,6 +1726,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         } else {
             query.append(", ").append(wrap(CREATED_DATE_COLUMN));
             query.append(", ").append(wrap(UPDATED_DATE_COLUMN));
+            query.append(", ").append(wrap(CREATED_BY));
+            query.append(", ").append(wrap(CREATED_BY_TYPE_COLUMN));            
+            query.append(", ").append(wrap(UPDATED_BY));
+            query.append(", ").append(wrap(UPDATED_BY_TYPE_COLUMN));            
+
             query.append(", ").append(wrap(STATUS_FIELD_NAME));
             query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
         }

@@ -240,6 +240,9 @@ public abstract class BasicQueryHelper {
             query.append(", ");
             query.append(wrap(DomainObjectDao.OPERATION_COLUMN)).append(" int not null, ");
             query.append(wrap(DomainObjectDao.UPDATED_DATE_COLUMN)).append(" timestamp not null, ");
+            query.append(wrap(DomainObjectDao.UPDATED_BY)).append(" ").append(getIdType()).append(", ");
+            query.append(wrap(DomainObjectDao.UPDATED_BY_TYPE_COLUMN)).append(" integer , ");            
+            
             query.append(wrap(DOMAIN_OBJECT_ID_COLUMN)).append(" ").append(getIdType()).append(" not null, ");
             query.append(wrap(COMPONENT_COLUMN)).append(" varchar(512), ");
             query.append(wrap(IP_ADDRESS_COLUMN)).append(" varchar(16), ");
@@ -563,9 +566,16 @@ public abstract class BasicQueryHelper {
         if (config.getExtendsAttribute() == null) {
             query.append(", ").append(wrap(CREATED_DATE_COLUMN)).append(" timestamp not null, ");
             query.append(wrap(UPDATED_DATE_COLUMN)).append(" timestamp not null, ");
+            
+            query.append(wrap(DomainObjectDao.CREATED_BY)).append(" ").append(getIdType()).append(", ");
+            query.append(wrap(DomainObjectDao.CREATED_BY_TYPE_COLUMN)).append(" integer, ");
 
+            query.append(wrap(DomainObjectDao.UPDATED_BY)).append(" ").append(getIdType()).append(", ");
+            query.append(wrap(DomainObjectDao.UPDATED_BY_TYPE_COLUMN)).append(" integer, ");            
+            
             query.append(wrap(GenericDomainObject.STATUS_FIELD_NAME)).append(" ").append(getIdType()).append(", ");
             query.append(wrap(DomainObjectDao.STATUS_TYPE_COLUMN)).append(" integer, ");
+            
             query.append(wrap(DomainObjectDao.ACCESS_OBJECT_ID)).append(" ").append(getIdType());
         }
     }
