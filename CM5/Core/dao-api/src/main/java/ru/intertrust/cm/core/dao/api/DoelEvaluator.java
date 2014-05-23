@@ -22,7 +22,7 @@ public interface DoelEvaluator {
      * @param expression DOEL-выражение
      * @param sourceObjectId идентификатор исходного доменного объекта
      * @param accessToken маркер доступа
-     * @return
+     * @return набор значений выражения
      */
     public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken);
 }

@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -84,13 +85,6 @@ public class DoelValidatorTest {
         when(config.getFieldConfig("G", "toH")).thenReturn(referenceFieldConfig("toH", "H"));
         when(config.getFieldConfig("F", "toI")).thenReturn(referenceFieldConfig("toI", "I"));
 
-        when(config.getDomainObjectRootType(anyString())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return (String) invocation.getArguments()[0];
-            }
-        });
-
                 // ============== Другие поля ==============
         when(config.getFieldConfig("B", "bString")).thenReturn(fieldConfig(StringFieldConfig.class, "bString"));
         when(config.getFieldConfig("C", "cString")).thenReturn(fieldConfig(StringFieldConfig.class, "cString"));
@@ -103,11 +97,12 @@ public class DoelValidatorTest {
         when(config.getFieldConfig("I", "iDate")).thenReturn(fieldConfig(DateTimeFieldConfig.class, "iDate"));
 
         // ============= Доменные объекты =============
+        DomainObjectTypeConfig caConfigMock;
         ArrayList<DomainObjectTypeConfig> types = new ArrayList<>();
         types.add(typeConfigMock("A"));
         types.add(typeConfigMock("B"));
         types.add(typeConfigMock("C"));
-        types.add(typeConfigMock("Ca"));
+        types.add(caConfigMock = typeConfigMock("Ca", "C"));
         types.add(typeConfigMock("D"));
         types.add(typeConfigMock("E"));
         types.add(typeConfigMock("F"));
@@ -115,6 +110,15 @@ public class DoelValidatorTest {
         types.add(typeConfigMock("H"));
         types.add(typeConfigMock("I"));
         when(config.getConfigs(DomainObjectTypeConfig.class)).thenReturn(types);
+
+        when(config.getDomainObjectRootType(anyString())).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                return (String) invocation.getArguments()[0];
+            }
+        });
+        when(config.getDomainObjectRootType("Ca")).thenReturn("C");
+        when(config.findChildDomainObjectTypes("C", false)).thenReturn(Collections.singletonList(caConfigMock));
     }
 
     private ReferenceFieldConfig referenceFieldConfig(String name, String type) {
@@ -136,8 +140,13 @@ public class DoelValidatorTest {
     }
 
     private DomainObjectTypeConfig typeConfigMock(String name) {
+        return typeConfigMock(name, null);
+    }
+
+    private DomainObjectTypeConfig typeConfigMock(String name, String parentType) {
         DomainObjectTypeConfig mock = mock(DomainObjectTypeConfig.class);
         when(mock.getName()).thenReturn(name);
+        when(mock.getExtendsAttribute()).thenReturn(parentType);
         return mock;
     }
 
@@ -207,6 +216,21 @@ public class DoelValidatorTest {
         assertTrue("Тип результата выражения должен быть датой",
                 result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.DATETIME));
         assertTrue("Выражение должно возвращать единственный результат", result.isSingleResult());
+        assertNull("Выражение не должно возвращать доменные объекты", result.getResultObjectTypes());
+    }
+
+    @Test
+    public void testDescendantTypeFieldExpression() {
+        DoelExpression expr = DoelExpression.parse("toC.toF.fString");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
+        DoelValidator.DoelTypes result = proc.process();
+        assertTrue("Выражение должно быть корректным", result.isCorrect());
+        assertFalse("Выражение не должно быть всегда корректным", result.isAlwaysCorrect());
+        assertTrue("Тип результата выражения должен быть строковым",
+                result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.STRING));
+        assertTrue("Выражение должно возвращать единственный результат", result.isSingleResult());
+        assertNull("Выражение не должно возвращать доменные объекты", result.getResultObjectTypes());
+        checkTypes(result, new String[] { "A", "Ca", "F" });
         assertNull("Выражение не должно возвращать доменные объекты", result.getResultObjectTypes());
     }
 

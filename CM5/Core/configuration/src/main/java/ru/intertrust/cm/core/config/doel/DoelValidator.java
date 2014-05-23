@@ -197,6 +197,7 @@ public class DoelValidator {
                 } else {
                     FieldConfig fieldConfig = config.getFieldConfig(currentType, fieldElem.getName());
                     if (fieldConfig == null) {
+                        result.brokenPaths = true;
                         typeVariants = findAllChildTypesHavingField(fieldElem.name, currentType);
                     }
                 }

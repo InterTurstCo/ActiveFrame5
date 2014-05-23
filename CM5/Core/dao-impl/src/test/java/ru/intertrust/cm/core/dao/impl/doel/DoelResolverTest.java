@@ -1,17 +1,25 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -20,6 +28,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -29,11 +38,6 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.SqlStatementMatcher;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DoelResolverTest {
@@ -53,6 +57,7 @@ public class DoelResolverTest {
     RdbmsId docId = new RdbmsId(1, 105L);
     RdbmsId comm1Id = new RdbmsId(2, 11L);
     RdbmsId comm2Id = new RdbmsId(2, 12L);
+    RdbmsId linkId = new RdbmsId(10, 1514L);
 
     @Test
     @SuppressWarnings("unchecked")
@@ -122,6 +127,30 @@ public class DoelResolverTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    public void testEvaluationWithWildcardReference() {
+        DoelExpression expr = DoelExpression.parse("from.Name");
+        when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(
+                Arrays.asList(new ReferenceValue(docId), new ReferenceValue(comm1Id)),
+                Collections.emptyList());
+        doelResolver.evaluate(expr, linkId);
+
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        String correctSql1 =
+                "select t0.\"from\", t0.\"from_type\" " +
+                "from \"universallink\" t0 " +
+                "where t0.\"id\" = 1514";
+        String correctSql2 =
+                "select t0.\"name\" " +
+                "from \"document\" t0 " +
+                "where t0.\"id\" = " + docId.getId();
+        //verify(jdbcTemplate, times(2)).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
+        verify(jdbcTemplate, times(2)).query(sql.capture(), any(RowMapper.class));
+        assertThat(sql.getAllValues().get(0), new SqlStatementMatcher(correctSql1));
+        assertThat(sql.getAllValues().get(1), new SqlStatementMatcher(correctSql2));
+    }
+
+    @Test
     public void testReverseExpression() {
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
         DoelExpression exprBack = doelResolver.createReverseExpression(expr, "InternalDoc");
@@ -143,7 +172,13 @@ public class DoelResolverTest {
         when(domainObjectTypeIdCache.getName(docId)).thenReturn("Document");
         when(domainObjectTypeIdCache.getName(comm1Id)).thenReturn("Commission");
         when(domainObjectTypeIdCache.getName(comm2Id)).thenReturn("Commission");
+        when(domainObjectTypeIdCache.getName(linkId)).thenReturn("UniversalLink");
         when(domainObjectCacheService.getObjectToCache(any(Id.class), Matchers.<String>anyVararg())).thenReturn(null);
+
+        // Объекты ====================
+        DomainObjectTypeConfig documentConfig = new DomainObjectTypeConfig();
+        documentConfig.setName("Document");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Document")).thenReturn(documentConfig);
         when(configurationExplorer.getDomainObjectRootType("Document")).thenReturn("Document");
 
         DomainObjectTypeConfig incomingDocConfig = new DomainObjectTypeConfig();
@@ -180,6 +215,16 @@ public class DoelResolverTest {
         when(configurationExplorer.getDomainObjectRootType("Department")).thenReturn("Unit");
         when(configurationExplorer.findChildDomainObjectTypes("Unit", false)).thenReturn(Arrays.asList(departmentConfig));
 
+        DomainObjectTypeConfig universalLinkConfig = new DomainObjectTypeConfig();
+        universalLinkConfig.setName("UniversalLink");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "UniversalLink")).thenReturn(universalLinkConfig);
+        when(configurationExplorer.getDomainObjectRootType("UniversalLink")).thenReturn("UniversalLink");
+
+        when(configurationExplorer.getConfigs(DomainObjectTypeConfig.class)).thenReturn(Arrays.asList(
+                documentConfig, incomingDocConfig, commissionConfig, jobConfig,
+                personConfig, unitConfig, departmentConfig, universalLinkConfig));
+
+        // Поля =======================
         ReferenceFieldConfig documentAddresseeConfig = new ReferenceFieldConfig();
         documentAddresseeConfig.setName("Addressee");
         documentAddresseeConfig.setType("Person");
@@ -210,13 +255,29 @@ public class DoelResolverTest {
         when(configurationExplorer.getFieldConfig("Person", "Department")).thenReturn(personDepartmentConfig);
         when(configurationExplorer.getFieldConfig("Person", "Department", false)).thenReturn(personDepartmentConfig);
 
-        StringFieldConfig unitNameConfig = new StringFieldConfig();
-        unitNameConfig.setName("Name");
-        when(configurationExplorer.getFieldConfig("Person", "Name")).thenReturn(unitNameConfig);
-        when(configurationExplorer.getFieldConfig("Person", "Name", false)).thenReturn(unitNameConfig);
-        when(configurationExplorer.getFieldConfig("Unit", "Name")).thenReturn(unitNameConfig);
-        when(configurationExplorer.getFieldConfig("Unit", "Name", false)).thenReturn(unitNameConfig);
-        when(configurationExplorer.getFieldConfig("Department", "Name")).thenReturn(unitNameConfig);
+        ReferenceFieldConfig linkFromConfig = new ReferenceFieldConfig();
+        linkFromConfig.setName("from");
+        linkFromConfig.setType("*");
+        when(configurationExplorer.getFieldConfig("UniversalLink", "from")).thenReturn(linkFromConfig);
+        when(configurationExplorer.getFieldConfig("UniversalLink", "from", false)).thenReturn(linkFromConfig);
+
+        ReferenceFieldConfig linkToConfig = new ReferenceFieldConfig();
+        linkToConfig.setName("to");
+        linkToConfig.setType("*");
+        when(configurationExplorer.getFieldConfig("UniversalLink", "to")).thenReturn(linkToConfig);
+        when(configurationExplorer.getFieldConfig("UniversalLink", "to", false)).thenReturn(linkToConfig);
+
+        StringFieldConfig nameFieldConfig = new StringFieldConfig();
+        nameFieldConfig.setName("Name");
+        when(configurationExplorer.getFieldConfig("Document", "Name")).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Document", "Name", false)).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("IncomingDocument", "Name")).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("IncomingDocument", "Name", false)).thenReturn(null);
+        when(configurationExplorer.getFieldConfig("Person", "Name")).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Person", "Name", false)).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Unit", "Name")).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Unit", "Name", false)).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Department", "Name")).thenReturn(nameFieldConfig);
         when(configurationExplorer.getFieldConfig("Department", "Name", false)).thenReturn(null);
     }
 }

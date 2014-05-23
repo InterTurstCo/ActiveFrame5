@@ -295,8 +295,8 @@ public class DoelExpression {
 
     private int countCommonBeginning(DoelExpression other) {
         int matches = 0;
-        for (int i = 0; i < elements.length; i++) {
-            if (!elements[i].equals(other.elements[i])){
+        for (int i = 0; i < elements.length && i < other.elements.length; i++) {
+            if (!elements[i].equals(other.elements[i])) {
                 break;
             }
             ++matches;

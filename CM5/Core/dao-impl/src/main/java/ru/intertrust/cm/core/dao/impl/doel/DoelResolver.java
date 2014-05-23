@@ -94,170 +94,12 @@ public class DoelResolver implements DoelEvaluator {
         accessControlService.verifySystemAccessToken(accessToken);  //*****
         return evaluate(expression, sourceObjectId);
     }
-/*
-    private EvaluationQueryResult generateEvaluationQuery(DoelExpression expression, String sourceType) {
-        DoelExpression.Element[] doelElements = expression.getElements();
-        StringBuilder query = new StringBuilder();
-        int tableNum = 0;
-        String currentType = sourceType;
-        String fieldName = null;
-        FieldConfig resultFieldConfig = null;
-        boolean backLink = false;
-        String resultDomainObjectType = null;
-        for (DoelExpression.Element doelElem : doelElements) {
-            if (tableNum == 0) {
-                ++tableNum;
-                query.append(" FROM ")
-                     .append(DataStructureNamingHelper.getSqlName(currentType))
-                     .append(" t")
-                     .append(tableNum);
-                resultDomainObjectType = currentType;
-            } else {
-                ++tableNum;
-                query.append(" JOIN ")
-                     .append(DataStructureNamingHelper.getSqlName(currentType))
-                     .append(" t")
-                     .append(tableNum)
-                     .append(" ON t")
-                     .append(tableNum - 1)
-                     .append(".")
-                     .append(backLink ? "id" : fieldName)
-                     .append("=t")
-                     .append(tableNum)
-                     .append(".")
-                     .append(backLink ? fieldName : "id");
-            }
 
-            if (DoelExpression.ElementType.FIELD == doelElem.getElementType()) {
-                DoelExpression.Field field = (DoelExpression.Field) doelElem;
-                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(currentType, field.getName());
-                if (fieldConfig instanceof ReferenceFieldConfig) {
-                    ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
-                    currentType = refConfig.getType();
-                    fieldName = DataStructureNamingHelper.getSqlName(refConfig);
-                    resultFieldConfig = refConfig;
-                } else {
-                    fieldName = fieldConfig.getName();
-
-                }
-                resultFieldConfig = fieldConfig;
-                backLink = false;
-            } else if (DoelExpression.ElementType.CHILDREN == doelElem.getElementType()) {
-                DoelExpression.Children children = (DoelExpression.Children) doelElem;
-                currentType = children.getChildType();
-                fieldName = children.getParentLink();
-
-                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(children.getChildType(), children.getParentLink());
-                if(fieldConfig instanceof ReferenceFieldConfig) {
-                    ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
-                    //String childParentType = refConfig.getType();
-                    fieldName = DataStructureNamingHelper.getSqlName(refConfig);
-                    resultFieldConfig = refConfig;
-                }
-
-                backLink = true;
-            } else {
-                throw new RuntimeException("Unknown element type: " + doelElem.getClass().getName());
-            }
-        }
-        query.insert(0, fieldName)      //Вставляем в начало в обратном порядке, чтобы не вычислять позицию
-             .insert(0, ".")
-             .insert(0, tableNum)
-             .insert(0, "SELECT t");
-        query.append(" WHERE t1.id=:id");
-        return new EvaluationQueryResult(query.toString(), fieldName, resultFieldConfig);
-    }
-
-    /**
-     * Результат анализа Doel выражения. Содержит SQL запрос, дескриптор возвращаемого поля и название возвращаемого
-     * поля в базе (в случае ссылочных полей название поля в базе отличается от названия в дескрипторе).
-     * @author atsvetkov
-     * /
-    private class EvaluationQueryResult {
-
-        private String query;
-        private String fieldName;
-        private FieldConfig resultFieldConfig;
-
-        public EvaluationQueryResult(String query, String fieldName, FieldConfig resultFieldConfig) {
-            this.query = query;
-            this.fieldName = fieldName;
-            this.resultFieldConfig = resultFieldConfig;
-        }
-
-        public String getQuery() {
-            return query;
-        }
-
-        public String getFieldName() {
-            return fieldName;
-        }
-
-        public FieldConfig getResultFieldConfig() {
-            return resultFieldConfig;
-        }
-
-    }
-
-    private class ExpressionTypes {
-        String[] elementTypes;
-        Class<? extends Value> resultType;
-    }
-
-    private ExpressionTypes evaluateExpressionTypes(DoelExpression expr, String sourceType) {
-        ExpressionTypes types = new ExpressionTypes();
-        types.elementTypes = new String[expr.getElements().length];
-        String currentType = sourceType;
-        int i = 0;
-        for (DoelExpression.Element doelElem : expr.getElements()) {
-            if (DoelExpression.ElementType.FIELD == doelElem.getElementType()) {
-                DoelExpression.Field field = (DoelExpression.Field) doelElem;
-                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(currentType, field.getName());
-                if (fieldConfig instanceof ReferenceFieldConfig) {
-                    ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
-                    types.elementTypes[i] = currentType;
-                    currentType = refConfig.getType();
-                } else if (i == types.elementTypes.length - 1) {
-                    types.resultType = getValueClass(fieldConfig);
-                } else {
-                    //TODO: Выбрасывать ли исключение? Выбрать собственный тип или заменить на return
-                    throw new IllegalStateException();
-                }
-            } else if (DoelExpression.ElementType.CHILDREN == doelElem.getElementType()) {
-                DoelExpression.Children children = (DoelExpression.Children) doelElem;
-                currentType = children.getChildType();
-                //fieldName = children.getParentLink();
-            }
-        }
-        if (types.resultType == null) {
-            //types.resultType =
-        }
-        return types;
-    }
-
-    //TODO: Сделать публичным сервисом и перенести в более подходящее место
-    private Class<? extends Value> getValueClass(FieldConfig fieldConfig) {
-        Class<? extends FieldConfig> fieldClass = fieldConfig.getClass();
-        if (ReferenceFieldConfig.class.equals(fieldClass)) {
-            return ReferenceValue.class;
-        } else if (StringFieldConfig.class.equals(fieldClass)) {
-            return StringValue.class;
-        } else if (DateTimeFieldConfig.class.equals(fieldClass)) {
-            return TimestampValue.class;
-        } else if (LongFieldConfig.class.equals(fieldClass)) {
-            return LongValue.class;
-        } else if (DecimalFieldConfig.class.equals(fieldClass)) {
-            return DecimalValue.class;
-        } else if (BooleanFieldConfig.class.equals(fieldClass)) {
-            return BooleanValue.class;
-        }
-        throw new IllegalArgumentException("Unknown field type: " + fieldClass.getName());
-    }
-*/
     public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId) {
         try {
             RdbmsId id = (RdbmsId) sourceObjectId;
-            DoelValidator.DoelTypes check = DoelValidator.validateTypes(expression, domainObjectTypeIdCache.getName(id));
+            DoelValidator.DoelTypes check =
+                    DoelValidator.validateTypes(expression, domainObjectTypeIdCache.getName(id));
             if (!check.isCorrect()) {
                 return Collections.emptyList();
             }
@@ -270,23 +112,6 @@ public class DoelResolver implements DoelEvaluator {
             throw new DoelException("Error evaluate doel expression \"" + expression + "\" on type \""
                     + domainObjectTypeIdCache.getName(sourceObjectId) + "\".", ex);
         }
-/*
-        //TODO: Реализовать выборку объекта из транзакционного кэша, если он там есть, вместо обращения к БД
-        ArrayList<RdbmsId> currentIds = new ArrayList<>();
-        currentIds.add(id);
-
-        final EvaluationQueryResult evaluationQueryResult = generateEvaluationQuery(expression,
-                domainObjectTypeIdCache.getName(id.getTypeId()));
-        String query = evaluationQueryResult.getQuery();
-
-        Map<String, Object> filterValues = new HashMap<>();
-        filterValues.put("id", id.getId());
-
-        final FieldConfig fieldConfig = evaluationQueryResult.getResultFieldConfig();
-        final String columnName = evaluationQueryResult.getFieldName();
-
-        return jdbcTemplate.query(query, filterValues, new DoelResolverRowMapper(columnName, fieldConfig));
-*/
     }
 
     /**
@@ -308,9 +133,9 @@ public class DoelResolver implements DoelEvaluator {
      * @param result
      *            Выходной параметр - список, в который заносятся вычисленные значения выражения
      */
-    //@SuppressWarnings("unchecked")
-    private <T extends Value> void evaluateBranch(DoelExpression expr, DoelTypes.Link branch, List<RdbmsId> sourceIds,
-            List<T> result) {
+    @SuppressWarnings("unchecked")
+    private <T extends Value> void evaluateBranch(DoelExpression expr, DoelTypes.Link branch,
+            List<RdbmsId> sourceIds, List<T> result) {
         //String type = branch.getType();
 
         ArrayList<RdbmsId> nextIds = new ArrayList<>();
@@ -344,7 +169,7 @@ public class DoelResolver implements DoelEvaluator {
                         if (fieldElem.getName().equalsIgnoreCase(DomainObjectDao.ID_COLUMN)) {
                             result.add((T) new ReferenceValue(obj.getId()));
                         } else {
-                            Value value = obj.getValue(fieldElem.getName());
+                            T value = obj.getValue(fieldElem.getName());
                             if (value != null) {
                                 result.add((T) value);
                             }
@@ -497,13 +322,13 @@ public class DoelResolver implements DoelEvaluator {
         select.setSelectItems(fields);
         select.accept(new WrapAndLowerCaseSelectVisitor());
 
-        List<T> values = jdbcTemplate.query(select.toString(), new DoelResolverRowMapper(linkField, fieldConfig));
+        List<T> values = jdbcTemplate.query(select.toString(), new DoelResolverRowMapper<T>(linkField, fieldConfig));
 
         if (step < expr.getElements().length) {
             // Продолжаем обработку, если оказалось несколько ветвей
             List<DoelTypes.Link> nextTypes = branch.getNext();
             DoelExpression subExpr = expr.excludeCommonBeginning(expr.cutByCount(step));
-            Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, sourceIds);
+            Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, values);
             for (DoelTypes.Link subBranch : nextTypes) {
                 if (groupedIds.containsKey(subBranch.getType())) {
                     evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result);
@@ -527,6 +352,8 @@ public class DoelResolver implements DoelEvaluator {
                 id = (RdbmsId) item;
             } else if (item instanceof ReferenceValue) {
                 id = (RdbmsId) ((ReferenceValue) item).get();
+            } else {
+                throw new IllegalArgumentException("ids list must contain only Ids or ReferenceValues");
             }
             String type = domainObjectTypeIdCache.getName(id);
             if (typeMap.containsKey(type)) {
@@ -547,16 +374,6 @@ public class DoelResolver implements DoelEvaluator {
         return result;
     }
 
-    private boolean isDescendantType(String realType, String neededType) {
-        do {
-            if (realType.equals(neededType)) {
-                return true;
-            }
-            realType = configurationExplorer.getConfig(DomainObjectTypeConfig.class, realType).getExtendsAttribute();
-        } while (realType != null);
-        return false;
-    }
-
     private String getColumnTable(String type, String field) {
         do {
             DomainObjectTypeConfig typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type);
@@ -569,6 +386,7 @@ public class DoelResolver implements DoelEvaluator {
         throw new IllegalArgumentException("Field " + field + " not exists in type " + type);
     }
 
+    @SuppressWarnings("unused")
     private Join makeJoin(String tableName, int num, String prevField, String currentField) {
         Join join = new Join();
         Table table = new Table();
@@ -631,7 +449,7 @@ public class DoelResolver implements DoelEvaluator {
         return createReverseExpression(expr.cutByCount(count), sourceType);
     }
 
-    private class DoelResolverRowMapper<T extends Value> extends ValueReader implements RowMapper<T> {
+    private class DoelResolverRowMapper<T extends Value<?>> extends ValueReader implements RowMapper<T> {
 
         private String columnName;
         private FieldConfig fieldConfig;
