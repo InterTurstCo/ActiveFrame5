@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <global-settings>
-        <audit-log enable="false" />
+        <audit-log enable="false"/>
         <sql-trace enable="false" resolveParameters="true" minRows="1" minTime="1000"/>
         <search-languages>
             <language id="ru"/>
@@ -10,6 +10,14 @@
     </global-settings>
     <business-universe>
         <logo image="logo.gif"/>
+        <settings-popup>
+            <themes>
+                <theme display-name="Тёмная тема" component-name="dark-theme" img="images/analitika.png"
+                       default-theme="false"/>
+                <theme display-name="Основная тема" component-name="default-theme" img="images/calendar.png"
+                       default-theme="true"/>
+            </themes>
+        </settings-popup>
         <!--<plugin-action-tool-bars>
             <tool-bar plugin="form.plugin" display-mode="preview"> &lt;!&ndash; Ещё есть режим edit &ndash;&gt;
                 <menu-group name="Основные">

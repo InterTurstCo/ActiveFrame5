@@ -3,4 +3,5 @@
 <module>
     <source path="business"/>
     <source path="model"/>
+    <source path="config"/>
 </module>

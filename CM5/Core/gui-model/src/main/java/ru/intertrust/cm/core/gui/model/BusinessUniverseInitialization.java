@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.gui.model;
 
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.SettingsPopupConfig;
+
+import java.util.List;
 
 /**
  * Базовая информация, необходимая при загрузке Business Universe
@@ -16,6 +17,7 @@ public class BusinessUniverseInitialization implements Dto {
     private String lastName;
     private String eMail;
     private String logoImagePath;
+    private SettingsPopupConfig settingsPopupConfig;
     private List<String> timeZoneIds;
     private Integer collectionCountersUpdatePeriod;
     private Integer headerNotificationPeriod;
@@ -74,14 +76,19 @@ public class BusinessUniverseInitialization implements Dto {
     }
 
     public String getLogoImagePath() {
-        if (logoImagePath == null) {
-            logoImagePath = "logo.gif";
-        }
         return logoImagePath;
     }
 
     public void setLogoImagePath(String logoImagePath) {
         this.logoImagePath = logoImagePath;
+    }
+
+    public SettingsPopupConfig getSettingsPopupConfig() {
+        return settingsPopupConfig;
+    }
+
+    public void setSettingsPopupConfig(SettingsPopupConfig settingsPopupConfig) {
+        this.settingsPopupConfig = settingsPopupConfig;
     }
 
     public Integer getCollectionCountersUpdatePeriod() {

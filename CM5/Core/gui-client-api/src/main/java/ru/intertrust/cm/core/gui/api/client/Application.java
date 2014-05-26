@@ -1,13 +1,13 @@
 package ru.intertrust.cm.core.gui.api.client;
 
-import java.util.List;
 import com.google.gwt.core.shared.GWT;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
+
+import java.util.List;
 
 /**
  * Утилитный класс, который обеспечивает доступ к "глобальным" объектам приложения
@@ -27,7 +27,6 @@ public class Application {
 
         }
     };
-
 
 
     /*
@@ -112,11 +111,10 @@ public class Application {
     private void createGlassPopup(){
         glassPopupPanel.setGlassEnabled(true);
         glassPopupPanel.setGlassStyleName("glass");
+        glassPopupPanel.setStyleName("PopupPanelPreloader");
         Image image = new Image();
         image.setUrl("progressbar.gif");
         image.addStyleName("loading");
-        glassPopupPanel.getElement().getStyle().setZIndex(1000);
-        glassPopupPanel.getElement().getStyle().setBorderWidth(0, Style.Unit.PX);
         glassPopupPanel.add(image);
         glassPopupPanel.center();
 

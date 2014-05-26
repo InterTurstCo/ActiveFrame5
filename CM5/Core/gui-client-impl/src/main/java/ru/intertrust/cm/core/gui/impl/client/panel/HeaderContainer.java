@@ -7,26 +7,30 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
-import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
-import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtendedSearchPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DARK;
+import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DEFAULT;
+import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.getCurrentTheme;
 
 /**
  * Entry point classes define <code>createHeader()</code>
  */
 public class HeaderContainer extends SimplePanel {
-   FocusPanel thirdImage;
+    private FocusPanel thirdImage;
     public static final int FIRST_ROW = 0;
-    InformationDialogBox dialogBox;
-    private int centralPluginWidth;
-    private int entralPluginHeight;
-    private PluginPanel extendSearchPluginPanel;
-    private ExtendedSearchPlugin extendedSearchPlugin;
+    private InformationDialogBox dialogBox;
+    private SettingsPopupConfig settingsPopupConfig;
 
-    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath) {
+    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig) {
+        this.settingsPopupConfig = settingsPopupConfig;
         addUserInfoToDialog(currentUserInfo);
 
         this.getElement().setId("container");
@@ -38,43 +42,43 @@ public class HeaderContainer extends SimplePanel {
         headTable.setWidget(FIRST_ROW, 1, new HeaderSectionSuggestBox());
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 1, "H_td_notes");
 
-        Hyperlink userName = new Hyperlink(currentUserInfo.getFirstName() + " " + currentUserInfo.getLastName(), "login");
+        final Hyperlink userName = new Hyperlink(currentUserInfo.getFirstName() + " " + currentUserInfo.getLastName(), "login");
         userName.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                 dialogBox.show();
+                dialogBox.show();
             }
         });
 
-         thirdImage = new FocusPanel();
+        thirdImage = new FocusPanel();
         thirdImage.setStyleName("header-third-action-button");
         thirdImage.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 getExtendedSearchPanel();
             }
-        }, ClickEvent.getType())  ;
+        }, ClickEvent.getType());
 
         headTable.setWidget(FIRST_ROW, 2, thirdImage);
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
 
 
-        InlineLabel userPosition = new InlineLabel("Администратор");
+        final InlineLabel userPosition = new InlineLabel("Администратор");
         userPosition.addStyleName("HeadUserPost");
 
-        FlowPanel userInfoPanel = new FlowPanel();
+        final FlowPanel userInfoPanel = new FlowPanel();
         userInfoPanel.add(new SimplePanel(userName));
         userInfoPanel.add(new SimplePanel(userPosition));
 
         headTable.setWidget(FIRST_ROW, 3, userInfoPanel);
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 3, "H_td_user");
 
-        HorizontalPanel linksPanel = new HorizontalPanel();
-        AbsolutePanel decoratedSettings = new AbsolutePanel();
-        decoratedSettings.setStyleName("decorated-settings");
-        Anchor settings = new Anchor("Settings", "Settings");
-        decoratedSettings.add(settings);
+        final HorizontalPanel linksPanel = new HorizontalPanel();
+        final AbsolutePanel decoratedSettings = new AbsolutePanel();
+        final Image settingsImage = new Image(getCurrentTheme().settingsIm());
 
+
+        decoratedSettings.add(settingsImage);
         AbsolutePanel decoratedHelp = new AbsolutePanel();
         decoratedHelp.setStyleName("decorated-help");
         Anchor help = new Anchor("Help", "Help");
@@ -87,10 +91,20 @@ public class HeaderContainer extends SimplePanel {
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
         Hyperlink logoutLink = new Hyperlink("Выход", "logout");
         headTable.setWidget(FIRST_ROW, 5, logoutLink);
-
+        settingsImage.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                List<String> themeNames = new ArrayList<String>();
+                themeNames.add(THEME_DARK);
+                themeNames.add(THEME_DEFAULT);
+                SettingsPopup settingsPopup = new SettingsPopup(settingsPopupConfig);
+                settingsPopup.show();
+                settingsPopup.getElement().getStyle().clearLeft();
+            }
+        });
         logoutLink.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-               logout();
+                logout();
             }
         });
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 5, "H_td_logout");
@@ -99,35 +113,22 @@ public class HeaderContainer extends SimplePanel {
 
     // вызываем окно расширенного поиска
     private void getExtendedSearchPanel() {
-        /*extendSearchPluginPanel = new PluginPanel();
-        extendedSearchPlugin = ComponentRegistry.instance.get("extended.search.plugin");
-
-        extendSearchPluginPanel.open(extendedSearchPlugin);
-        extendSearchPluginPanel.setSize("800px", "400px");
-
-        PopupPanel popupPanel = new PopupPanel();
-        popupPanel.isAnimationEnabled();
-        popupPanel.add(extendSearchPluginPanel);
-        popupPanel.center();
-        popupPanel.setSize("800px", "400px");
-        popupPanel.show();
-        popupPanel.getElement().getStyle().setZIndex(9);
-        popupPanel.getElement().setAttribute("id", "search-popup");*/
 
         ExtSearchDialogBox dialog = new ExtSearchDialogBox();
         dialog.setModal(true);
         dialog.setGlassEnabled(true);
-        
         dialog.setPopupPosition(thirdImage.getAbsoluteLeft() - 545, 45);
         dialog.show();
-   }
+    }
 
-    private void logout(){
+    private void logout() {
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Window.Location.assign(GWT.getHostPageBaseURL() + BusinessUniverseConstants.LOGIN_PAGE  + Window.Location.getQueryString());
+                Window.Location.assign(GWT.getHostPageBaseURL() + BusinessUniverseConstants.LOGIN_PAGE +
+                        Window.Location.getQueryString());
             }
+
             @Override
             public void onFailure(Throwable caught) {
                 Window.alert("Error logout!");
@@ -157,8 +158,10 @@ public class HeaderContainer extends SimplePanel {
         return head;
     }
 
-    public void addUserInfoToDialog(CurrentUserInfo currentUserInfo){
+    public void addUserInfoToDialog(CurrentUserInfo currentUserInfo) {
         dialogBox = new InformationDialogBox(currentUserInfo.getCurrentLogin(), currentUserInfo.getFirstName(), currentUserInfo.getLastName(), currentUserInfo.getMail());
     }
+
+
 
 }

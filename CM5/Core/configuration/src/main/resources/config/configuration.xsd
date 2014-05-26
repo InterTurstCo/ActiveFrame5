@@ -405,7 +405,7 @@
             <xs:element name="logo" type="con:logoType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="theme" type="con:themeType"
+            <xs:element name="settings-popup" type="con:settingsPopupType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="header-notification-refresh"
@@ -422,8 +422,27 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
+    <xs:complexType name="settingsPopupType">
+        <xs:sequence minOccurs="1">
+            <xs:element name="themes"
+                        type="con:themesType"
+                        maxOccurs="1" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="themesType">
+        <xs:sequence minOccurs="1">
+            <xs:element name="theme"
+                        type="con:themeType"
+                        maxOccurs="unbounded" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="themeType">
-        <xs:attribute name="name" use="required" type="xs:string"/>
+        <xs:attribute name="display-name" use="required" type="xs:string"/>
+        <xs:attribute name="component-name" use="required" type="xs:string"/>
+        <xs:attribute name="img" use="required" type="xs:string"/>
+        <xs:attribute name="default-theme" use="optional" type="xs:boolean"/>
     </xs:complexType>
     <xs:complexType name="collectionCountRefreshType">
         <xs:attribute name="time" use="required" type="xs:integer"/>
@@ -1003,6 +1022,8 @@
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
+            <xs:element type="con:initFilterType" name="init-filter"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="displayChosenValuesType">
@@ -1637,10 +1658,16 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:displayValuesAsLinksType" name="display-values-as-links"
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                    <xs:element type="con:initFilterType" name="init-filter"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="initFilterType">
+        <xs:attribute name="name" use="required" type="xs:string"/>
     </xs:complexType>
 
     <xs:element type="con:listBoxType" name="list-box" substitutionGroup="con:widget"/>

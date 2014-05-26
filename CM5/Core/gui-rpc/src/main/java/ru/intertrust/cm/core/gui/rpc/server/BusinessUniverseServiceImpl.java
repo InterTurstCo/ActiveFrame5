@@ -1,27 +1,11 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
-import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
-import javax.ejb.EJB;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpSession;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.PersonService;
-import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.LogoConfig;
@@ -34,6 +18,12 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
+import javax.ejb.EJB;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpSession;
+import java.lang.ref.SoftReference;
+import java.util.*;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 31.07.13
@@ -43,6 +33,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
         urlPatterns = "/remote/BusinessUniverseService")
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
+    private static final String DEFAULT_THEME_NAME = "default";
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
     @EJB
     private GuiService guiService;
@@ -62,6 +53,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         final BusinessUniverseConfig businessUniverseConfig =
                 configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
         addLogoImagePath(businessUniverseConfig, initialization);
+        addSettingsPopupConfig(businessUniverseConfig, initialization);
         if (businessUniverseConfig != null) {
             initialization.setCollectionCountersUpdatePeriod(
                     businessUniverseConfig.getCollectionCountRefreshConfig() == null
@@ -117,20 +109,27 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         return uploadProgress;
     }
 
-    private BusinessUniverseInitialization addLogoImagePath(final BusinessUniverseConfig businessUniverseConfig,
+    private void addLogoImagePath(final BusinessUniverseConfig businessUniverseConfig,
                                                             BusinessUniverseInitialization businessUniverseInitialization) {
         if (businessUniverseConfig == null) {
             businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
-            return businessUniverseInitialization;
+            return;
         }
         LogoConfig logoConfig = businessUniverseConfig.getLogoConfig();
         if (logoConfig == null) {
             businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
-            return businessUniverseInitialization;
+            return;
         }
         String logoImagePath = logoConfig.getImage();
         businessUniverseInitialization.setLogoImagePath(logoImagePath);
-        return businessUniverseInitialization;
+        return;
+    }
+    private void addSettingsPopupConfig(BusinessUniverseConfig businessUniverseConfig,
+                                        BusinessUniverseInitialization businessUniverseInitialization) {
+        if (businessUniverseConfig != null) {
+                   businessUniverseInitialization.setSettingsPopupConfig(businessUniverseConfig.getSettingsPopupConfig());
+        }
+
     }
 
     private UserInfo getUserInfo() {

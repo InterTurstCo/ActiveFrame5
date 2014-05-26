@@ -2,14 +2,17 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style;
+
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
@@ -17,8 +20,11 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
+import ru.intertrust.cm.core.gui.impl.client.panel.SettingsPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -35,12 +41,10 @@ import java.util.logging.Logger;
 @ComponentName("business.universe")
 public class BusinessUniverse extends BaseComponent implements EntryPoint, NavigationTreeItemSelectedEventHandler {
     static Logger logger = Logger.getLogger("Business universe");
-    // глобальная шина событий - доступна во всем приложении
-    public static final int START_SIDEBAR_WIDTH = 130;
     private static EventBus eventBus = Application.getInstance().getEventBus();
     private CentralPluginPanel centralPluginPanel;
-    NavigationTreePlugin navigationTreePlugin;
-    PluginPanel navigationTreePanel;
+    private NavigationTreePlugin navigationTreePlugin;
+    private PluginPanel navigationTreePanel;
     private int centralPluginWidth;
     private int centralPluginHeight;
     private int stickerPluginWidth = 30;
@@ -51,21 +55,19 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private AbsolutePanel center;
     private AbsolutePanel right;
     private AbsolutePanel footer;
-    private AbsolutePanel root;
-    private AbsolutePanel cetralDivPanelTest;
-
-
-
 
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
 
     public void onModuleLoad() {
-        CustomThemeBundle.INSTANCE.css().ensureInjected();
+
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
+                SettingsPopupConfig settingsPopupConfig = result.getSettingsPopupConfig();
+                ThemesConfig themesConfig = settingsPopupConfig == null ? null : settingsPopupConfig.getThemesConfig();
+                GlobalThemesManager.initTheme(themesConfig);
                 header = new AbsolutePanel();
                 action = new AbsolutePanel();
                 left = new AbsolutePanel();
@@ -73,106 +75,59 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 center = new AbsolutePanel();
                 right = new AbsolutePanel();
                 footer = new AbsolutePanel();
-                root = new AbsolutePanel();
-                cetralDivPanelTest = new AbsolutePanel();
-
+                AbsolutePanel root = new AbsolutePanel();
+                final AbsolutePanel centralDivPanel = new AbsolutePanel();
+                centralDivPanel.setStyleName("central-div-panel-test");
+                centralDivPanel.getElement().setId(ComponentHelper.DOMAIN_ID);
+                centralDivPanel.add(right);
 
                 header.setStyleName("header-section");
                 header.getElement().setId(ComponentHelper.HEADER_ID);
-
                 action.setStyleName("action-section");
-
-
                 left.setStyleName("left-section-active");
-
                 left.getElement().setId(ComponentHelper.LEFT_ID);
-               //  left.getElement().setId(ComponentHelper.LEFT_ID);
-
-
                 centrInner.setStyleName("centr-inner-section");
-
-
                 center.setStyleName("center-section");
                 center.getElement().setId(ComponentHelper.CENTER_ID);
-
-
                 right.setStyleName("right-section");
-
-
                 footer.setStyleName("footer-section");
-
-
                 root.setStyleName("root-section");
-
-
-                //root.addStyleName("content");
-
                 root.add(header);
                 root.add(center);
                 root.add(footer);
-
-//                centrInner.add(action);
-//                centrInner.add(right);
-
-
                 center.add(left);
 
-
-                cetralDivPanelTest.setStyleName("central-div-panel-test");
-
-
-                center.add(cetralDivPanelTest);
-
-                //cetralDivPanelTest.add(centrInner);
-                //center.add(centrInner);
-
+                center.add(centralDivPanel);
                 navigationTreePanel = new PluginPanel();
                 // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
-
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 // данному плагину устанавливается глобальная шина событий
                 navigationTreePlugin.setEventBus(eventBus);
-
                 centralPluginPanel = new CentralPluginPanel();
-                //11 - отступ справа
-                //centralPluginWidth = Window.getClientWidth() - 130 - 11;
-                // header 60 ;
-                // action panel 51
-
+                centralDivPanel.add(centralPluginPanel);
                 centralPluginWidth = Window.getClientWidth() - 150;
                 centralPluginHeight = Window.getClientHeight();
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
                 eventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
-                navigationTreePanel.setVisibleWidth(START_SIDEBAR_WIDTH);
+                navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
                 navigationTreePanel.open(navigationTreePlugin);
                 String logoImagePath = result.getLogoImagePath();
                 CurrentUserInfo currentUserInfo = getUserInfo(result);
-                header.add(new HeaderContainer(currentUserInfo, logoImagePath));
-                //action.add(centralPluginPanel);
+                header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig));
                 left.add(navigationTreePanel);
 
-
-
-                cetralDivPanelTest.getElement().setId(ComponentHelper.DOMAIN_ID);
                 eventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
                     @Override
                     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
-                        //centralPluginWidth = Window.getClientWidth() - event.getSideBarWidts();
-                        //11 отступ справа
-                        //centralPluginPanel.setVisibleWidth(centralPluginWidth - 11);
-
-                        //centrInner.getElement().getStyle().setLeft(event.getSideBarWidts(), Style.Unit.PX);
-                        //60 - высота хеадера
-                        //11 - отступ снизу
 
                         left.setStyleName("left-section-active");
-                        if(event.getSideBarWidts() == START_SIDEBAR_WIDTH){
-                            cetralDivPanelTest.setStyleName("central-div-panel-test");
+                        if (event.getSideBarWidts() == BusinessUniverseConstants.START_SIDEBAR_WIDTH) {
+                            centralDivPanel.setStyleName("central-div-panel-test");
 
                         } else {
-                            cetralDivPanelTest.setStyleName("central-div-panel-test-active");
+                            centralDivPanel.setStyleName("central-div-panel-test-active");
 
                         }
 
@@ -184,7 +139,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 eventBus.addHandler(SideBarResizeEventStyle.TYPE, new SideBarResizeEventStyleHandler() {
                     @Override
                     public void sideBarSetStyleEvent(SideBarResizeEventStyle event) {
-                        //left.removeStyleName();
+
                         left.setStyleName(event.getStyleMouseOver());
                         //left.getElement().getStyle().clearWidth();
                     }
@@ -197,21 +152,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                         extendedSearchComplete(event.getDomainObjectSurferPluginData());
                     }
                 });
-
-
-
-                addStickerPanel(root);
-                //cetralDivPanelTest.add(action);
-                cetralDivPanelTest.add(right);
-
-                //center.add(centralPluginPanel);
-
-                cetralDivPanelTest.add(centralPluginPanel);
-                //centrInner.add(centralPluginPanel);
+                addStickerPanel();
                 addWindowResizeListener();
                 RootLayoutPanel.get().add(root);
                 RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
-
                 final Application application = Application.getInstance();
                 application.setTimeZoneIds(result.getTimeZoneIds());
                 application.setHeaderNotificationPeriod(result.getHeaderNotificationPeriod());
@@ -240,8 +184,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         centralPluginPanel.open(plugin);
 
 
-
     }
+
+
 
     // вывод результатов расширенного поиска
     public void extendedSearchComplete(DomainObjectSurferPluginData domainObjectSurferPluginData) {
@@ -251,19 +196,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         domainObjectSurfer.setDisplayActionToolBar(true);
 
         centralPluginPanel.open(domainObjectSurfer);
-    }
-
-    private HorizontalPanel createToolPanel() {
-        HorizontalPanel toolPanel = new HorizontalPanel();
-        toolPanel.setStyleName("content-tools");
-        //toolPanel.setWidth("100%");
-        return toolPanel;
-    }
-
-    private DockLayoutPanel createRootPanel() {
-        DockLayoutPanel rootPanel = new DockLayoutPanel(Style.Unit.PX);
-        rootPanel.setStyleName("content");
-        return rootPanel;
     }
 
     private void addWindowResizeListener() {
@@ -289,15 +221,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 centralPluginPanel.asWidget().getElement().getFirstChildElement().addClassName("central-plugin-panel-table");
                 //centrInner.getElement().getStyle().setHeight(centralPanelHeight - 11, Style.Unit.PX);
                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());
-                //centrInner.getElement().getStyle().setHeight(centralPanelHeight - 11, Style.Unit.PX);
-                //left.getElement().getStyle().setHeight(centralPanelHeight + 11, Style.Unit.PX);
-                //centrInner.getElement().getStyle().setWidth(event.getWidth() - navigationTreePanel.getVisibleWidth() - 11, Style.Unit.PX);
+
             }
         });
     }
 
 
-    private void addStickerPanel(final AbsolutePanel mainLayoutPanel) {
+    private void addStickerPanel() {
 
         final FlowPanel flowPanel = new FlowPanel();
         final ToggleButton toggleBtn = new ToggleButton("sticker");
@@ -306,11 +236,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             @Override
             public void onClick(ClickEvent event) {
                 if (toggleBtn.getValue()) {
-                    //mainLayoutPanel.setWidgetSize(focusPanel, 300);
+
                     centralPluginWidth -= 300;
                     stickerPluginWidth = 300;
                 } else {
-                    //mainLayoutPanel.setWidgetSize(focusPanel, 30);
                     centralPluginWidth += 300;
                     stickerPluginWidth = 30;
                 }
@@ -320,35 +249,20 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             }
         });
 
-
-        focusPanel.addMouseOverHandler(new MouseOverHandler() {
-            @Override
-            public void onMouseOver(MouseOverEvent event) {
-                //mainLayoutPanel.setWidgetSize(focusPanel, 300);
-            }
-        });
-
         focusPanel.addMouseOutHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {
                 if (toggleBtn.getValue()) {
                     return;
                 }
-                //mainLayoutPanel.setWidgetSize(focusPanel, 30);
-                //mainLayoutPanel.setWidgetSize(focusPanel, stickerPluginWidth);
 
             }
         });
 
         flowPanel.add(toggleBtn);
-
         focusPanel.add(flowPanel);
         focusPanel.getElement().getStyle().setBackgroundColor("white");
-
-
-        // mainLayoutPanel.addEast(focusPanel, 30);
         stickerPluginWidth = 30;
-        //mainLayoutPanel.addEast(focusPanel, stickerPluginWidth);
 
     }
 

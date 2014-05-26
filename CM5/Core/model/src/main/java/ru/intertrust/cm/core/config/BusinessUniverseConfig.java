@@ -23,6 +23,9 @@ public class BusinessUniverseConfig implements TopLevelConfig {
     @Element(name = "collection-count-cache-refresh", required = true)
     private CollectionCountCacheRefreshConfig collectionCountCacheRefreshConfig;
 
+    @Element(name = "settings-popup", required = false)
+    private SettingsPopupConfig settingsPopupConfig;
+
     public LogoConfig getLogoConfig() {
         return logoConfig;
     }
@@ -51,16 +54,38 @@ public class BusinessUniverseConfig implements TopLevelConfig {
         this.collectionCountCacheRefreshConfig = collectionCountCacheRefreshConfig;
     }
 
+    public SettingsPopupConfig getSettingsPopupConfig() {
+        return settingsPopupConfig;
+    }
+
+    public void setSettingsPopupConfig(SettingsPopupConfig settingsPopupConfig) {
+        this.settingsPopupConfig = settingsPopupConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         BusinessUniverseConfig that = (BusinessUniverseConfig) o;
 
-        if (!collectionCountCacheRefreshConfig.equals(that.collectionCountCacheRefreshConfig)) return false;
-        if (!collectionCountRefreshConfig.equals(that.collectionCountRefreshConfig)) return false;
-        if (logoConfig != null ? !logoConfig.equals(that.logoConfig) : that.logoConfig != null) return false;
+        if (!collectionCountCacheRefreshConfig.equals(that.collectionCountCacheRefreshConfig)) {
+            return false;
+        }
+        if (!collectionCountRefreshConfig.equals(that.collectionCountRefreshConfig)) {
+            return false;
+        }
+        if (logoConfig != null ? !logoConfig.equals(that.logoConfig) : that.logoConfig != null) {
+            return false;
+        }
+        if (settingsPopupConfig != null ? !settingsPopupConfig.equals(that.settingsPopupConfig) :
+                that.settingsPopupConfig != null) {
+            return false;
+        }
 
         return true;
     }
@@ -70,6 +95,7 @@ public class BusinessUniverseConfig implements TopLevelConfig {
         int result = logoConfig != null ? logoConfig.hashCode() : 0;
         result = 31 * result + collectionCountRefreshConfig.hashCode();
         result = 31 * result + collectionCountCacheRefreshConfig.hashCode();
+        result = 31 * result + settingsPopupConfig.hashCode();
         return result;
     }
 
