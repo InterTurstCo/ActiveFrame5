@@ -214,6 +214,14 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="filterNameType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="30"/>
+            <xs:pattern value="[a-zA-Z0-9_]*">
+            </xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:simpleType name="stringFieldLengthType">
         <xs:restriction base="xs:int">
             <xs:minInclusive value="1"/>
@@ -658,7 +666,7 @@
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
-        <xs:attribute type="con:fieldNameType" name="name" use="optional"/>
+        <xs:attribute type="con:filterNameType" name="name" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="filterReferenceType">
