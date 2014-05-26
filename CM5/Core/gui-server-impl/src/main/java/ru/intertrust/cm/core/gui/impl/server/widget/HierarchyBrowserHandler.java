@@ -63,6 +63,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         state.setSingleChoice(singleChoice);
         state.setHierarchyBrowserConfig(widgetConfig);
         state.setChosenItems(chosenItems);
+        state.setRootNodeLinkConfig(nodeConfig.getRootNodeLinkConfig());
         return state;
     }
 
@@ -89,16 +90,20 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     public NodeContentResponse fetchNodeContent(Dto inputParams) {
         NodeContentRequest nodeContentRequest = (NodeContentRequest) inputParams;
         ArrayList<HierarchyBrowserItem> items = new ArrayList<HierarchyBrowserItem>();
+        Id parentId = nodeContentRequest.getParentId();
         NodeCollectionDefConfig rootNodeCollectionDefConfig = nodeContentRequest.getNodeCollectionDefConfig();
         List<NodeCollectionDefConfig> nodeCollectionDefConfigs = getNodeCollectionConfigs(rootNodeCollectionDefConfig,
-                nodeContentRequest.isOpenChildren());
+                parentId);
         int numberOfItems = nodeContentRequest.getNumberOfItemsToDisplay();
         int offset = nodeContentRequest.getOffset();
         ArrayList<Id> chosenIds = nodeContentRequest.getChosenIds();
-        List<String> domainObjectTypes = new ArrayList<>();
-        Id parentId = nodeContentRequest.getParentId();
+        Map<String, String> domainObjectTypesAndTitles = new HashMap<>();
+
         for (NodeCollectionDefConfig nodeCollectionDefConfig : nodeCollectionDefConfigs) {
-            domainObjectTypes.add(nodeCollectionDefConfig.getDomainObjectType());
+            String domainObjectType = nodeCollectionDefConfig.getDomainObjectType();
+            String titleFromConfig = nodeCollectionDefConfig.getTitle();
+            String title = titleFromConfig == null ? domainObjectType : titleFromConfig;
+            domainObjectTypesAndTitles.put(domainObjectType, title);
             String collectionName = nodeCollectionDefConfig.getCollection();
             Matcher selectionMatcher = FormatHandler.pattern.matcher(nodeCollectionDefConfig.getSelectionPatternConfig().getValue());
             List<Filter> filters = new ArrayList<Filter>();
@@ -114,6 +119,9 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
             IdentifiableObjectCollection collection = collectionsService.
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
+
+            List<NodeCollectionDefConfig> children = nodeCollectionDefConfig.getNodeCollectionDefConfigs();
+            boolean mayHaveChildren  = !children.isEmpty();
             for (IdentifiableObject identifiableObject : collection) {
                 HierarchyBrowserItem item = new HierarchyBrowserItem();
                 Id id = identifiableObject.getId();
@@ -123,13 +131,14 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                 if (chosenIds.contains(id)) {
                     item.setChosen(true);
                 }
+                item.setMayHaveChildren(mayHaveChildren);
                 items.add(item);
             }
 
         }
         NodeContentResponse nodeContent = new NodeContentResponse();
         nodeContent.setNodeContent(items);
-        nodeContent.setDomainObjectTypes(domainObjectTypes);
+        nodeContent.setDomainObjectTypesAndTitles(domainObjectTypesAndTitles);
         nodeContent.setParentCollectionName(rootNodeCollectionDefConfig.getCollection());
         nodeContent.setSelective(nodeContentRequest.isSelective());
         nodeContent.setParentId(parentId);
@@ -171,9 +180,9 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     }
 
     private List<NodeCollectionDefConfig> getNodeCollectionConfigs(NodeCollectionDefConfig rootNodeCollectionDefConfig,
-                                                                   boolean openChildren) {
+                                                                   Id parentId) {
 
-        if (openChildren) {
+        if (parentId != null) {
             return rootNodeCollectionDefConfig.getNodeCollectionDefConfigs();
         } else {
             List<NodeCollectionDefConfig> nodeCollectionDefConfigs = new ArrayList<>();

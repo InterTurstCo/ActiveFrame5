@@ -31,6 +31,7 @@ public abstract class RedrawNodeContentManager extends NodeContentManager {
     protected NodeContentRequest prepareRequestDataForNodeRedraw() {
         NodeCollectionDefConfig nodeConfig = collectionNameNodeMap.get(collectionName);
         NodeContentRequest nodeContentRequest = createRequestDataFromNodeConfig(nodeConfig);
+        nodeContentRequest.setOpenChildren(false);
         return nodeContentRequest;
     }
 

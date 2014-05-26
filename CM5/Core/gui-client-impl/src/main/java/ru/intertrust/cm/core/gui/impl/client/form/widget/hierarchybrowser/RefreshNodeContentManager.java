@@ -37,8 +37,8 @@ public class RefreshNodeContentManager extends RedrawNodeContentManager {
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
-                List<String> domainObjectTypes = nodeContent.getDomainObjectTypes();
-                mainPopup.redrawNode(domainObjectTypes, items);
+                Map<String, String> domainObjectTypesAndTitles = nodeContent.getDomainObjectTypesAndTitles();
+                mainPopup.redrawNode(domainObjectTypesAndTitles.keySet(), items);
 
             }
 

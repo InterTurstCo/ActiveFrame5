@@ -42,8 +42,8 @@ public class ScrollNodeContentManager extends RedrawNodeContentManager {
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
-                List<String> domainObjectTypes = nodeContent.getDomainObjectTypes();
-                mainPopup.redrawNodeWithMoreItems(domainObjectTypes, items);
+                Map<String, String> domainObjectTypesAndTitles = nodeContent.getDomainObjectTypesAndTitles();
+                mainPopup.redrawNodeWithMoreItems(domainObjectTypesAndTitles.keySet(), items);
 
             }
 

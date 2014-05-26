@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -73,10 +74,11 @@ public class HierarchyBrowserNodeView implements IsWidget {
         return root;
     }
 
-    public void drawNode(Id parentId, String parentCollectionName, final List<HierarchyBrowserItem> items,List<String> domainObjectTypes) {
+    public void drawNode(Id parentId, String parentCollectionName, final List<HierarchyBrowserItem> items,
+                         Map<String, String> domainObjectTypesAndTitles) {
         this.items = items;
         currentNodePanel.clear();
-        drawNodeHeader(parentId, parentCollectionName,domainObjectTypes);
+        drawNodeHeader(parentId, parentCollectionName,domainObjectTypesAndTitles);
         scroll.add(currentNodePanel);
         root.add(scroll);
         for (HierarchyBrowserItem item : items) {
@@ -138,6 +140,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
             }
         });
         FocusPanel focusPanel = new FocusPanel();
+        if(item.isMayHaveChildren()){
         Label arrow = new Label("►");
         arrow.getElement().getStyle().setFloat(Style.Float.RIGHT);
         arrow.getElement().getStyle().setMarginRight(2, Style.Unit.PX);
@@ -150,7 +153,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
                 currentItemPanel.addStyleName("node-item-row-active");
                 styledActivePanel = currentItemPanel;
             }
-        });
+        });   }
         panelLeft.add(anchor);
         currentItemPanel.add(panelLeft);
         currentItemPanel.add(focusPanel);
@@ -172,14 +175,14 @@ public class HierarchyBrowserNodeView implements IsWidget {
         currentNodePanel.add(currentItemPanel);
     }
 
-    private void drawNodeHeader(Id parentId, String parentCollectionName, List<String> domainObjectTypes) {
+    private void drawNodeHeader(Id parentId, String parentCollectionName, Map<String, String> domainObjectTypesAndTitles) {
 
         AbsolutePanel searchBar = createSearchBar(parentId,parentCollectionName);
         HorizontalPanel buttonsPanel = new HorizontalPanel();
         buttonsPanel.getElement().getStyle().setMarginLeft(5, Style.Unit.PX);
 
-        for (String domainObjectType : domainObjectTypes) {
-        FocusPanel addItemPanel = createAddItemButton(parentId, parentCollectionName,domainObjectType);
+        for (Map.Entry<String, String> entry : domainObjectTypesAndTitles.entrySet()) {
+        FocusPanel addItemPanel = createAddItemButton(parentId, parentCollectionName,entry);
         buttonsPanel.add(addItemPanel);
         }
         FocusPanel refreshButton = createRefreshButton(parentId,parentCollectionName);
@@ -188,20 +191,20 @@ public class HierarchyBrowserNodeView implements IsWidget {
         root.add(buttonsPanel);
     }
 
-    private FocusPanel createAddItemButton(final Id parentId, final String parentCollectionName, final String domainObjectType) {
+    private FocusPanel createAddItemButton(final Id parentId, final String parentCollectionName, final Map.Entry<String, String> entry) {
         final FocusPanel addItemPanel = new FocusPanel();
         addItemPanel.addStyleName("light-button button-extra-style");
         AbsolutePanel buttonPanel = new AbsolutePanel();
         Image plus = new Image("images/green-plus.png");
 
-        Label text = new Label(domainObjectType);
+        Label text = new Label(entry.getValue());
         buttonPanel.add(plus);
         buttonPanel.add(text);
         addItemPanel.add(buttonPanel);
         addItemPanel.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                eventBus.fireEvent(new HierarchyBrowserAddItemClickEvent(parentId, parentCollectionName,domainObjectType));
+                eventBus.fireEvent(new HierarchyBrowserAddItemClickEvent(parentId, parentCollectionName, entry));
 
             }
         });

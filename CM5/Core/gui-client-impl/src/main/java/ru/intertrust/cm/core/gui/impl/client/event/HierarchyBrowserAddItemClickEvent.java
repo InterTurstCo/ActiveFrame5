@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.impl.client.event;
 import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
+import java.util.Map;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 26.12.13
@@ -12,11 +14,11 @@ public class HierarchyBrowserAddItemClickEvent extends GwtEvent<HierarchyBrowser
 
     public static Type<HierarchyBrowserAddItemClickEventHandler> TYPE = new Type<HierarchyBrowserAddItemClickEventHandler>();
     private Id parentId;
-    private String domainObjectType;
+    private Map.Entry<String, String> entry;
     private String parentCollectionName;
-    public HierarchyBrowserAddItemClickEvent(Id parentId, String parentCollectionName, String domainObjectType) {
+    public HierarchyBrowserAddItemClickEvent(Id parentId, String parentCollectionName, Map.Entry<String, String> entry) {
         this.parentId = parentId;
-        this.domainObjectType = domainObjectType;
+        this.entry = entry;
         this.parentCollectionName = parentCollectionName;
 
     }
@@ -35,8 +37,8 @@ public class HierarchyBrowserAddItemClickEvent extends GwtEvent<HierarchyBrowser
         return parentId;
     }
 
-    public String getDomainObjectType() {
-        return domainObjectType;
+    public Map.Entry<String, String> getEntry() {
+        return entry;
     }
 
     public String getParentCollectionName() {

@@ -61,7 +61,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         }
     }
 
-    private void setCurrentStateForEditableWidget(HierarchyBrowserWidgetState state) {
+    private void setCurrentStateForEditableWidget(final HierarchyBrowserWidgetState state) {
         final HierarchyBrowserView view = (HierarchyBrowserView) impl;
 
         view.initClearButtonIfItIs(hierarchyBrowserConfig.getClearAllButtonConfig());
@@ -87,7 +87,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
          handlerRegistration = view.addButtonClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                mainPopup = new HierarchyBrowserMainPopup(localEventBus, copyOfItems, popupWidth, popupHeight, null, displayAsHyperlinks);
+                mainPopup = new HierarchyBrowserMainPopup(localEventBus, copyOfItems, popupWidth, popupHeight, null,
+                        displayAsHyperlinks, state.getRootNodeLinkConfig());
                 mainPopup.createAndShowPopup();
                 mainPopup.addOkClickHandler(new ClickHandler() {
                     @Override
@@ -345,10 +346,11 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     public void onHierarchyBrowserAddItemClick(HierarchyBrowserAddItemClickEvent event) {
 
         final Id parentId = event.getParentId();
-        String domainObjectTypeToCreate = event.getDomainObjectType();
-        String title = "Создать " + domainObjectTypeToCreate;
+        String domainObjectTypeToCreate = event.getEntry().getKey();
+        String title = event.getEntry().getValue();
+
         final String parentCollectionName = event.getParentCollectionName();
-        NodeCollectionDefConfig collectionDefConfig = getChildConfig(parentCollectionName, domainObjectTypeToCreate);
+        NodeCollectionDefConfig collectionDefConfig = getRequiredNodeConfig(parentCollectionName, domainObjectTypeToCreate);
         FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
         config.getPluginState().setEditable(true);
@@ -435,7 +437,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         }
     }
 
-    private NodeCollectionDefConfig getChildConfig(String collectionName, String domainObjectType) {
+    private NodeCollectionDefConfig getRequiredNodeConfig(String collectionName, String domainObjectType) {
         NodeCollectionDefConfig rootNodeCollectionDefConfig = collectionNameNodeMap.get(collectionName);
         List<NodeCollectionDefConfig> nodeCollectionDefConfigs = rootNodeCollectionDefConfig.getNodeCollectionDefConfigs();
         for (NodeCollectionDefConfig nodeCollectionDefConfig : nodeCollectionDefConfigs) {
@@ -443,7 +445,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 return nodeCollectionDefConfig;
             }
         }
-        return null;
+        return rootNodeCollectionDefConfig;
     }
 
 }

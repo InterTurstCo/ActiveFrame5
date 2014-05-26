@@ -23,6 +23,9 @@ public class NodeCollectionDefConfig implements Dto {
     @Attribute(name = "parent-filter", required = false)
     private String parentFilter;
 
+    @Attribute(name = "title", required = false)
+    private String title;
+
     @Attribute(name = "selective", required = false)
     private boolean selective = true;
 
@@ -40,6 +43,9 @@ public class NodeCollectionDefConfig implements Dto {
 
     @Element(name = "fill-parent-on-add", required = false)
     private FillParentOnAddConfig fillParentOnAddConfig;
+
+    @Element(name = "root-node-link", required = false)
+    private RootNodeLinkConfig rootNodeLinkConfig;
 
     @ElementList(inline = true, name ="node-collection-def", required = false)
     private List<NodeCollectionDefConfig> nodeCollectionDefConfigs = new ArrayList<NodeCollectionDefConfig>();
@@ -116,6 +122,22 @@ public class NodeCollectionDefConfig implements Dto {
         this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public RootNodeLinkConfig getRootNodeLinkConfig() {
+        return rootNodeLinkConfig;
+    }
+
+    public void setRootNodeLinkConfig(RootNodeLinkConfig rootNodeLinkConfig) {
+        this.rootNodeLinkConfig = rootNodeLinkConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -161,6 +183,13 @@ public class NodeCollectionDefConfig implements Dto {
                 that.defaultSortCriteriaConfig != null) {
             return false;
         }
+        if (title != null ? !title.equals(that.title) : that.title != null) {
+            return false;
+        }
+        if (rootNodeLinkConfig != null ? !rootNodeLinkConfig.equals(that.rootNodeLinkConfig) :
+                that.rootNodeLinkConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -174,6 +203,8 @@ public class NodeCollectionDefConfig implements Dto {
         result = 31 * result + (collection != null ? collection.hashCode() : 0);
         result = 31 * result + (selective ? 1 : 0);
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        result = 31 * result + (rootNodeLinkConfig != null ? rootNodeLinkConfig.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         return result;
     }

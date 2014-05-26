@@ -1942,15 +1942,21 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:fillParentOnAddType" name="fill-parent-on-add" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:rootNodeLinkType" name="root-node-link" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
         <xs:attribute type="xs:string" name="collection" use="required"/>
         <xs:attribute type="xs:string" name="parent-filter" use="optional"/>
         <xs:attribute type="xs:boolean" name="selective" default="true"/>
         <xs:attribute type="xs:string" name="domain-object-type"/>
+        <xs:attribute type="xs:string" name="title" default="optional"/>
     </xs:complexType>
 
     <xs:complexType name="displayValuesAsLinksType">
         <xs:attribute type="xs:boolean" name="value"/>
+    </xs:complexType>
+    <xs:complexType name="rootNodeLinkType">
+        <xs:attribute type="xs:string" name="title"/>
     </xs:complexType>
 
     <xs:complexType name="fillParentOnAddType">

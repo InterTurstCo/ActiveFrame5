@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.RootNodeLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
@@ -18,7 +19,7 @@ import java.util.*;
  */
 public class HierarchyBrowserMainPopup {
 
-    public static final int DEFAULT_WIDTH = 900;
+    public static final int DEFAULT_WIDTH = 1000;
     public static final int DEFAULT_HEIGHT = 400;
     private HierarchyBrowserFacebookStyleView popupChosenContent;
     private HorizontalPanel nodesSection;
@@ -36,14 +37,17 @@ public class HierarchyBrowserMainPopup {
     private boolean displayAsHyperlinks;
     private Button cancelButton;
     private double nodeSectionWidth;
+    private RootNodeLinkConfig rootNodeLinkConfig;
     public HierarchyBrowserMainPopup(EventBus eventBus, ArrayList<HierarchyBrowserItem> chosenItems,
-                                     int popupWidth, int popupHeight, SelectionStyleConfig selectionStyleConfig, boolean displayAsHyperlinks) {
+                                     int popupWidth, int popupHeight, SelectionStyleConfig selectionStyleConfig,
+                                     boolean displayAsHyperlinks, RootNodeLinkConfig rootNodeLinkConfig) {
         this.eventBus = eventBus;
         this.chosenItems = chosenItems;
         this.selectionStyleConfig = selectionStyleConfig;
         this.displayAsHyperlinks = displayAsHyperlinks;
         containerMap = new HashMap<String, HierarchyBrowserNodeView>();
         nodeTypes = new ArrayList<String>();
+        this.rootNodeLinkConfig = rootNodeLinkConfig;
         setWidgetSize(popupWidth, popupHeight);
     }
 
@@ -78,7 +82,7 @@ public class HierarchyBrowserMainPopup {
         HorizontalPanel linksAndNodesSection = new HorizontalPanel();
         linksAndNodesSection.addStyleName("grey-background");
         VerticalPanel linksSection = new VerticalPanel();
-        linksSection.setWidth(0.2 * popupWidth + "px");
+        linksSection.setWidth(0.1 * popupWidth + "px");
 
         popupChosenContent = new HierarchyBrowserFacebookStyleView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         popupChosenContent.asWidget().setHeight(0.1 * popupHeight + "px");
@@ -87,11 +91,11 @@ public class HierarchyBrowserMainPopup {
         scrollPanel.addStyleName("node-section-scroll");
 //        scrollPanel.getElement().getStyle().setOverflowX(Style.Overflow.SCROLL);
         nodesSection = new HorizontalPanel();
-        nodeSectionWidth = 0.80 * popupWidth;
+        nodeSectionWidth = 0.90 * popupWidth;
         scrollPanel.setWidth(nodeSectionWidth + "px");
         nodesSection.addStyleName("node-section");
         scrollPanel.add(nodesSection);
-        addNodeLink("link", linksSection);
+        addNodeLink(linksSection);
         AbsolutePanel buttonsPanel = createFooterButtonPanel();
         linksAndNodesSection.add(linksSection);
         linksAndNodesSection.add(scrollPanel);
@@ -105,12 +109,13 @@ public class HierarchyBrowserMainPopup {
         return root;
     }
 
-    public void addNodeLink(String title, VerticalPanel linksSection) {
+    public void addNodeLink(VerticalPanel linksSection) {
         HorizontalPanel nodePanel = new HorizontalPanel();
         nodePanel.addStyleName("selected-node-link");
         linkLabel = new Hyperlink();
         linkLabel.removeStyleName("gwt-Hyperlink ");
         linkLabel.addStyleName("node-link");
+        String title = rootNodeLinkConfig == null ? "link" : rootNodeLinkConfig.getTitle();
         linkLabel.setText(title);
         linkLabel.getElement().getStyle().setColor("white");
         Image arrow = new Image("images/arrow-right.png");
@@ -154,7 +159,7 @@ public class HierarchyBrowserMainPopup {
 
         return buttonsPanel;
     }
-    private String buildNodeType(List<String> nodeTypes){
+    private String buildNodeType(Set<String> nodeTypes){
         StringBuilder sb = new StringBuilder();
         for (String nodeType : nodeTypes) {
             sb.append(nodeType);
@@ -163,8 +168,9 @@ public class HierarchyBrowserMainPopup {
         return sb.toString();
     }
 
-    public void drawNewNode(Id parentId, String parentCollectionName, List<HierarchyBrowserItem> items,boolean selective, List<String> domainObjectTypes) {
-        String nodeType = buildNodeType(domainObjectTypes);
+    public void drawNewNode(Id parentId, String parentCollectionName, List<HierarchyBrowserItem> items,boolean selective,
+                            Map<String, String> domainObjectTypesAndTitles) {
+        String nodeType = buildNodeType(domainObjectTypesAndTitles.keySet());
         if (containerMap.containsKey(nodeType)) {
             nodesSection.remove(containerMap.get(nodeType));
         }
@@ -184,20 +190,20 @@ public class HierarchyBrowserMainPopup {
         HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus, nodeHeight,
                selective);
         nodesSection.add(nodeView);
-        nodeView.drawNode(parentId, parentCollectionName, items, domainObjectTypes);
+        nodeView.drawNode(parentId, parentCollectionName, items, domainObjectTypesAndTitles);
         containerMap.put(nodeType, nodeView);
         adjustNodeWidth();
 
     }
 
-    public void redrawNodeWithMoreItems(List<String> domainObjectTypes, List<HierarchyBrowserItem> items) {
+    public void redrawNodeWithMoreItems(Set<String> domainObjectTypes, List<HierarchyBrowserItem> items) {
         String nodeType = buildNodeType(domainObjectTypes);
         HierarchyBrowserNodeView nodeView = containerMap.get(nodeType);
         nodeView.drawMoreItems(items);
 
     }
 
-    public void redrawNode(List<String> domainObjectTypes, List<HierarchyBrowserItem> items) {
+    public void redrawNode(Set<String> domainObjectTypes, List<HierarchyBrowserItem> items) {
         String nodeType = buildNodeType(domainObjectTypes);
         int index = nodeTypes.indexOf(nodeType);
         List<String> children = nodeTypes.subList(index + 1, nodeTypes.size());

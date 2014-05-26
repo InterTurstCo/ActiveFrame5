@@ -45,11 +45,11 @@ public class NewNodeContentManager extends NodeContentManager {
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
-                List<String> domainObjectTypes = nodeContent.getDomainObjectTypes();
+                Map<String, String> domainObjectTypesAndTitles = nodeContent.getDomainObjectTypesAndTitles();
                 Id parentId = nodeContent.getParentId();
                 String parentCollectionName = nodeContent.getParentCollectionName();
                 boolean selective = nodeContent.isSelective();
-                mainPopup.drawNewNode(parentId, parentCollectionName,items, selective, domainObjectTypes);
+                mainPopup.drawNewNode(parentId, parentCollectionName,items, selective, domainObjectTypesAndTitles);
 
             }
 

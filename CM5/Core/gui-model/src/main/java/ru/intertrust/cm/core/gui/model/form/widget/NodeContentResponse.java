@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -14,7 +15,7 @@ public class NodeContentResponse implements Dto {
 
     private List<HierarchyBrowserItem> nodeContent;
     private String parentCollectionName;
-    private List<String> domainObjectTypes;
+    private Map<String, String> domainObjectTypesAndTitles;
     private Id parentId;
 
     private boolean selective = true;
@@ -50,11 +51,11 @@ public class NodeContentResponse implements Dto {
         this.parentCollectionName = parentCollectionName;
     }
 
-    public List<String> getDomainObjectTypes() {
-        return domainObjectTypes;
+    public Map<String, String> getDomainObjectTypesAndTitles() {
+        return domainObjectTypesAndTitles;
     }
 
-    public void setDomainObjectTypes(List<String> domainObjectTypes) {
-        this.domainObjectTypes = domainObjectTypes;
+    public void setDomainObjectTypesAndTitles(Map<String, String> domainObjectTypesAndTitles) {
+        this.domainObjectTypesAndTitles = domainObjectTypesAndTitles;
     }
 }

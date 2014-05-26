@@ -244,7 +244,9 @@
                 <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
                 <!-- Уже выбранные элементы показываются помеченными галочками -->
                 <!-- collection - название коллекции для отображения списка значений узла -->
-                <node-collection-def collection="Organizations" domain-object-type="Organization">
+
+                <node-collection-def collection="Organizations" domain-object-type="Organization" title = "Создать Организацию">
+                    <root-node-link title = "Организации"/>
                     <!-- название фильтра по тексту, введённому пользователем -->
                     <input-text-filter name="byName"/>
                     <!-- паттерн отображения уже выбранных значений -->

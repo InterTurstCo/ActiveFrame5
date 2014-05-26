@@ -14,6 +14,7 @@ public class HierarchyBrowserItem implements Dto {
     private Id id;
     private String nodeCollectionName;
     private boolean chosen;
+    private boolean mayHaveChildren;
 
     public HierarchyBrowserItem() {
     }
@@ -32,6 +33,13 @@ public class HierarchyBrowserItem implements Dto {
 
     }
 
+    public boolean isMayHaveChildren() {
+        return mayHaveChildren;
+    }
+
+    public void setMayHaveChildren(boolean mayHaveChildren) {
+        this.mayHaveChildren = mayHaveChildren;
+    }
 
     public String getStringRepresentation() {
         return stringRepresentation;

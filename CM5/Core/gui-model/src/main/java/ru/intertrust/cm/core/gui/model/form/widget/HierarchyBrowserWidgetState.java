@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.RootNodeLinkConfig;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     public HierarchyBrowserConfig getHierarchyBrowserConfig() {
         return hierarchyBrowserConfig;
     }
-
+   private RootNodeLinkConfig rootNodeLinkConfig;
     public void setHierarchyBrowserConfig(HierarchyBrowserConfig hierarchyBrowserConfig) {
         this.hierarchyBrowserConfig = hierarchyBrowserConfig;
     }
@@ -30,6 +31,14 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
 
     public void setCollectionNameNodeMap(Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
         this.collectionNameNodeMap = collectionNameNodeMap;
+    }
+
+    public RootNodeLinkConfig getRootNodeLinkConfig() {
+        return rootNodeLinkConfig;
+    }
+
+    public void setRootNodeLinkConfig(RootNodeLinkConfig rootNodeLinkConfig) {
+        this.rootNodeLinkConfig = rootNodeLinkConfig;
     }
 
     public ArrayList<HierarchyBrowserItem> getChosenItems() {
