@@ -338,11 +338,29 @@ public class ConfigurationStorageBuilder {
 
     private void fillReadPermittedToEverybodyMap(AccessMatrixConfig accessMatrixConfig) {
         Boolean readEverybody = accessMatrixConfig.isReadEverybody();
-        if (readEverybody != null) {
-            configurationStorage.readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), readEverybody);
-        } else {
-            fillReadPermittedToEverybodyMapFromStatus(accessMatrixConfig);
+
+        if (readEverybody == null) {
+            String type = accessMatrixConfig.getType();
+            readEverybody = isReadEverybodyForSupertype(type);
         }
+        configurationStorage.readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), readEverybody);
+    }
+
+    private Boolean isReadEverybodyForSupertype(String domainObjectType) {
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+        
+        if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
+            String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
+            AccessMatrixConfig parentAccessMatrixConfig =
+                    configurationExplorer.getAccessMatrixByObjectType(parentDOType);
+            if (parentAccessMatrixConfig != null && parentAccessMatrixConfig.isReadEverybody() != null) {
+                return parentAccessMatrixConfig.isReadEverybody();
+            } else {
+                return isReadEverybodyForSupertype(parentDOType);
+            }
+        }
+        return false;
     }
 
     @Deprecated

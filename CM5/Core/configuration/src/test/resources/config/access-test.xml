@@ -229,13 +229,24 @@
         </groups>
     </context-role>
 
+    <domain-object-type name="EmployeeNew" extends="Person" initial-status="Active_Employee">
+        <fields>
+            <reference name="Department" type="Employee" not-null="true"/>
+            <string name="Name" length="64" not-null="true" />
+            <string name="Position" length="64" not-null="true" />
+            <string name="Phone" length="32" />
+            <string name="Certificate" length="4000" />
+            <string name="Fingerprint" length="128" />
+        </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation -->
+            <field name="Phone" />
+        </uniqueKey>
+    </domain-object-type>
+   
     <!-- Матрицы доступа -->
     <access-matrix type="Outgoing_Document" read-everybody="true">
         <status name="Draft">
-<!--             <read>
-                <permit-role name="DocumentAuthor" />
-            </read>
- -->         <write>
+            <write>
                 <permit-role name="DocumentAuthor" />
             </write>
             <delete>
@@ -248,12 +259,41 @@
                 <permit-role name="DocumentAuthor" />
             </execute-action>
         </status>
+    </access-matrix>   
+
+    <access-matrix type="Person" read-everybody="true">
+        <status name="Active">
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="AllPersons" />
+            </execute-action>
+        </status>
     </access-matrix>
-    <access-matrix type="country">
+
+    <access-matrix type="Employee">
         <status name="Active">
             <read>
                 <permit-group name="AllPersons" />
             </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="AllPersons" />
+            </execute-action>
+        </status>
+    </access-matrix>
+    
+    <access-matrix type="EmployeeNew" read-everybody="false">
+        <status name="Active">            
             <write>
                 <permit-group name="AllPersons" />
             </write>

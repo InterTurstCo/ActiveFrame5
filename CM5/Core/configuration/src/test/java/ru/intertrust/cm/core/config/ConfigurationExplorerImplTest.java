@@ -84,13 +84,13 @@ public class ConfigurationExplorerImplTest {
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
 
         assertNotNull(domainObjectTypeConfigs);
-        assertEquals(17, domainObjectTypeConfigs.size());
+        assertEquals(18, domainObjectTypeConfigs.size());
 
         List<String> domainObjectNames = new ArrayList<>();
         domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Department",
                 "Assignment", "Incoming_Document", "Incoming_Document2", "Attachment", "Person_Attachment",
                 "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation", "Negotiation_Card", "Organization",
-                "Internal_Document", "Delegation", "Status", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2"));
+                "Internal_Document", "Delegation", "Status", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "EmployeeNew"));
 
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
             String name = domainObjectTypeConfig.getName();
@@ -108,6 +108,21 @@ public class ConfigurationExplorerImplTest {
         type = "OUTGOING_DOCUMENT";
         assertTrue(configExplorer.isReadPermittedToEverybody(type));
 
+    }
+    
+    @Test
+    public void testIsReadPermittedToEverybody() throws Exception {
+        String type = "Person";
+        assertTrue(configExplorer.isReadPermittedToEverybody(type));
+        //test inherited read-everybody = "true"
+        type = "Employee";
+        assertTrue(configExplorer.isReadPermittedToEverybody(type));
+        //test overriden read-everybody = "true"
+        type = "EmployeeNew";
+        assertTrue(!configExplorer.isReadPermittedToEverybody(type));
+        // test default value
+        type = "Internal_Document";
+        assertTrue(!configExplorer.isReadPermittedToEverybody(type));        
     }
     
     @Test
@@ -169,7 +184,7 @@ public class ConfigurationExplorerImplTest {
     public void testFindChildDomainObjectTypes() {
         Collection<DomainObjectTypeConfig> types = configExplorer.findChildDomainObjectTypes("Person", true);
         assertTrue(types.contains(configExplorer.getConfig(DomainObjectTypeConfig.class, "Employee")));
-        assertTrue(types.size() == 1);
+        assertTrue(types.size() == 2);
     }
 
     @Test
