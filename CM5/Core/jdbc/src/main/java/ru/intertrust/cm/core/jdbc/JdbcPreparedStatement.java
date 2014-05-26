@@ -25,15 +25,14 @@ import java.util.Hashtable;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     private Hashtable<Integer, Object> parameters = new Hashtable<Integer, Object>();
     private String query;
 
-    public JdbcPreparedStatement(ConnectMode mode, String address, String login, String password, String query) {
-        super(mode, address, login, password);
+    public JdbcPreparedStatement(SochiClient client, String query) {
+        super(client);
         this.query = query;
     }
 

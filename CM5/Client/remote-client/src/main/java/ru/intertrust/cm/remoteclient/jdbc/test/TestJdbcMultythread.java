@@ -50,7 +50,7 @@ public class TestJdbcMultythread extends ClientBase {
         Class.forName(JdbcDriver.class.getName());
 
         Connection connection =
-                DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447", "admin", "admin");
+                DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", "admin");
         
         Thread t1 = new Thread(new TestJdbcRunable(connection));
         t1.start();

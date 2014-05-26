@@ -26,7 +26,6 @@
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-ejb-client-bom</artifactId>
-            <version>7.2.0.Final</version>
             <type>pom</type>
         </dependency>
         <dependency>

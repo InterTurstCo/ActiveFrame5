@@ -26,8 +26,8 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     private SochiClient client;
 
-    public JdbcDatabaseMetaData(ConnectMode mode, String address, String login, String password) {
-        client = new SochiClient(mode, address, login, password);
+    public JdbcDatabaseMetaData(SochiClient client) {
+        this.client = client;
     }
 
     @Override

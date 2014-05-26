@@ -23,16 +23,10 @@ import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcConnection implements Connection {
     private boolean closed = false;
-    private ConnectMode mode;
-    private String address;
-    private String login;
-    private String password;
+    private SochiClient client;
 
-    public JdbcConnection(ConnectMode mode, String address, String login, String password) throws SQLException {
-        this.mode = mode;
-        this.address = address;
-        this.login = login;
-        this.password = password;
+    public JdbcConnection(SochiClient client) throws SQLException {
+        this.client = client;
     }
 
     @Override
@@ -47,12 +41,12 @@ public class JdbcConnection implements Connection {
 
     @Override
     public Statement createStatement() throws SQLException {
-        return new JdbcStatement(mode, address, login, password);
+        return new JdbcStatement(client);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        return new JdbcPreparedStatement(mode, address, login, password, sql);
+        return new JdbcPreparedStatement(client, sql);
     }
 
     @Override
@@ -88,6 +82,7 @@ public class JdbcConnection implements Connection {
     @Override
     public void close() throws SQLException {
         this.closed = true;
+        client.close();
     }
 
     @Override
@@ -97,7 +92,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        return new JdbcDatabaseMetaData(mode, address, login, password);
+        return new JdbcDatabaseMetaData(client);
     }
 
     @Override

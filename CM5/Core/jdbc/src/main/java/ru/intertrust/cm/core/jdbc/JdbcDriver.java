@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.jdbc;
 
-import java.io.FileOutputStream;
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -11,15 +11,18 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 /**
- * Класс JDBC драйвера. jdbc:sochi:remoting://localhost:4447 jdbc:sochi:local
+ * Класс JDBC драйвера. 
+ * формат строки подключения: 
+ * <lo> Для remote интерфейса - jdbc:sochi:remoting://localhost:4447/app-name/module-name 
+ * <lo> Для локального интерфейса - jdbc:sochi:local
  * @author larin
  * 
  */
 public class JdbcDriver implements Driver {
 
-    private static final String DRIVER_PREFIX = "jdbc:sochi";
-    private static final String DRIVER_PREFIX_LOCAL = DRIVER_PREFIX + ":local";
-    private static final String DRIVER_PREFIX_REMOTING = DRIVER_PREFIX + ":remoting";
+    private static final String DRIVER_PREFIX = "jdbc-sochi";
+    private static final String DRIVER_PREFIX_LOCAL = DRIVER_PREFIX + "-local";
+    private static final String DRIVER_PREFIX_REMOTING = DRIVER_PREFIX + "-remoting";
     private static final String LOGIN_PROPERY = "user";
     private static final String PASSWORD_PROPERY = "password";
 
@@ -32,25 +35,50 @@ public class JdbcDriver implements Driver {
         try {
             DriverManager.registerDriver(new JdbcDriver());
         } catch (SQLException exception) {
-            //exception.printStackTrace();
             throw new RuntimeException("Error init driver", exception);
         }
     }
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
-        ConnectMode mode = ConnectMode.Local;
-        String login = null;
-        String password = null;
-        String address = null;
-        if (url.startsWith(DRIVER_PREFIX_REMOTING)) {
-            mode = ConnectMode.Remoting;
-            login = info.getProperty(LOGIN_PROPERY);
-            password = info.getProperty(PASSWORD_PROPERY);
-            address = url.split("//")[1];
+        try {
+            ConnectMode mode = ConnectMode.Local;
+            String login = null;
+            String password = null;
+            String host = null;
+            String port = null;
+            String appName = null;
+            String moduleName = null;
+
+            
+            String uriString = url.replaceFirst(":", "-");
+            uriString = uriString.replaceFirst(":", "-");
+            URI urlObject = new URI(uriString);
+
+            if (DRIVER_PREFIX_REMOTING.equals(urlObject.getScheme())) {
+                mode = ConnectMode.Remoting;
+                login = info.getProperty(LOGIN_PROPERY);
+                password = info.getProperty(PASSWORD_PROPERY);
+                host = urlObject.getHost();
+                port = String.valueOf(urlObject.getPort());
+                String[] path = urlObject.getPath().split("/");
+                if (path.length != 3){
+                    new SQLException("Connection string need contains application name and module name. Example:  ");
+                }
+                appName = path[1];
+                moduleName = path[2];
+            }else if(uriString.startsWith(DRIVER_PREFIX_LOCAL)){
+                mode = ConnectMode.Local;
+            }else{
+                new SQLException("URI schema not valid. Valid schema: jdbc:sochi:local or jdbc:sochi:remoting");
+            }
+
+            return new JdbcConnection(new SochiClient(mode, host, port, login, password, appName, moduleName));
+        } catch (SQLException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new SQLException("Error make connection", ex);
         }
-        
-        return new JdbcConnection(mode, address, login, password);
     }
 
     @Override

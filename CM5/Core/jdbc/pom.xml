@@ -18,6 +18,10 @@
             <artifactId>service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-		
+        <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-ejb-client-bom</artifactId>
+            <type>pom</type>
+        </dependency>		
     </dependencies>
 </project>

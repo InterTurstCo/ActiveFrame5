@@ -22,6 +22,11 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.jboss.ejb.client.ContextSelector;
+import org.jboss.ejb.client.EJBClientConfiguration;
+import org.jboss.ejb.client.EJBClientContext;
+import org.jboss.ejb.client.PropertiesBasedEJBClientConfiguration;
+import org.jboss.ejb.client.remoting.ConfigBasedEJBClientContextSelector;
 
 /**
  * Базовый класс для удаленного клиента. Содержит методы для парсинга командной строки, получения удаленных сервисов и вывода в лог. Для использования
@@ -148,7 +153,7 @@ public abstract class ClientBase {
         
         if (ctx == null) {
             Properties jndiProps = new Properties();
-            jndiProps.put(Context.INITIAL_CONTEXT_FACTORY,
+            /*jndiProps.put(Context.INITIAL_CONTEXT_FACTORY,
                     "org.jboss.naming.remote.client.InitialContextFactory");
             jndiProps.put(Context.PROVIDER_URL, "remote://" + address);
             jndiProps.put("jboss.naming.client.ejb.context", "true");
@@ -156,13 +161,32 @@ public abstract class ClientBase {
                     .put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT",
                             "false");
             jndiProps.put(Context.SECURITY_PRINCIPAL, login);
-            jndiProps.put(Context.SECURITY_CREDENTIALS, password);
+            jndiProps.put(Context.SECURITY_CREDENTIALS, password);*/
 
+            
+            Properties clientProperties = new Properties();
+            clientProperties.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
+            clientProperties.put("remote.connections", "default");
+            clientProperties.put("remote.connection.default.port", "4447");
+            clientProperties.put("remote.connection.default.host", "localhost");
+            clientProperties.put("remote.connection.default.username", login);
+            clientProperties.put("remote.connection.default.password", password);
+            clientProperties.put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
+            clientProperties.put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false");
+
+            EJBClientConfiguration ejbClientConfiguration = new PropertiesBasedEJBClientConfiguration(clientProperties);
+            ContextSelector<EJBClientContext> contextSelector = new ConfigBasedEJBClientContextSelector(ejbClientConfiguration);
+            EJBClientContext.setSelector(contextSelector);
+
+            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+            
+            
             ctx = new InitialContext(jndiProps);
             ctxLogin = login;
         }
 
-        Object service = ctx.lookup("cm-sochi/web-app/" + serviceName + "!" + remoteInterfaceClass.getName());
+        //Object service = ctx.lookup("cm-sochi/web-app/" + serviceName + "!" + remoteInterfaceClass.getName());
+        Object service = ctx.lookup("ejb:cm-sochi/web-app//" + serviceName + "!" + remoteInterfaceClass.getName());
         return service;
 
     }    

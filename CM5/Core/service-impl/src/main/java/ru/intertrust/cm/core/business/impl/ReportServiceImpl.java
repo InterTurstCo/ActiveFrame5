@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 import javax.annotation.Resource;
 import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -43,6 +44,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -89,11 +92,12 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
     
     @Resource
     private EJBContext ejbContext;
-
+    
     @Override
     public ReportResult generate(String name, Map<String, Object> parameters) {
         return generate(name, parameters, null);
     }
+    
     
     /**
      * Формирование отчета

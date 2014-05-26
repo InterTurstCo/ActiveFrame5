@@ -44,7 +44,7 @@ public class TestJdbc extends ClientBase {
         //Выполняем запрос с помощью JDBC
         Class.forName(JdbcDriver.class.getName());
 
-        Connection connection = DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447", "admin", "admin");
+        Connection connection = DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", "admin");
 
         String query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
         query += "from Outgoing_Document t ";

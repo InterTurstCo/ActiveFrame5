@@ -23,8 +23,8 @@ public class JdbcStatement implements Statement {
     protected SochiClient client;
     protected String sql = null;
 
-    public JdbcStatement(ConnectMode mode, String address, String login, String password) {
-        client = new SochiClient(mode, address, login, password);
+    public JdbcStatement(SochiClient client) {
+        this.client = client;
     }
 
     @Override
@@ -54,7 +54,6 @@ public class JdbcStatement implements Statement {
     @Override
     public void close() throws SQLException {
         this.closed = true;
-        client.close();
     }
 
     @Override

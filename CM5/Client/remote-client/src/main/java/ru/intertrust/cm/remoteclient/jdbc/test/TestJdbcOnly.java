@@ -22,7 +22,7 @@ public class TestJdbcOnly {
 		Class.forName(JdbcDriver.class.getName());
 
 		Connection connection = DriverManager.getConnection(
-				"jdbc:sochi:remoting://localhost:4447", "admin", "admin");
+				"jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", "admin");
 
 		String query = "select t.id, t.login, t.created_date, t.status ";
 		query += "from person t ";
