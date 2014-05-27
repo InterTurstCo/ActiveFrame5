@@ -218,4 +218,43 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     "pluginName:" + pluginName, ex);
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getDomainObjectParentType(String typeName) {
+        try {
+            return configurationExplorer.getDomainObjectParentType(typeName);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getDomainObjectParentType",
+                    "typeName:" + typeName, ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getDomainObjectRootType(String typeName) {
+        try {
+            return configurationExplorer.getDomainObjectRootType(typeName);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getDomainObjectRootType",
+                    "typeName:" + typeName, ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String[] getDomainObjectTypesHierarchy(String typeName) {
+        try {
+            return configurationExplorer.getDomainObjectTypesHierarchy(typeName);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException("ConfigurationService", "getDomainObjectTypesHierarchy",
+                    "typeName:" + typeName, ex);
+        }
+    }
 }

@@ -166,4 +166,25 @@ public interface ConfigurationService {
      * @return default toolbar of plugin. Can be NULL if toolbar not defined.
      */
     ToolBarConfig getDefaultToolbarConfig(String pluginName);
+
+    /**
+     * Возвращает родительский тип доменного объекта
+     * @param typeName имя типа доменного объекта
+     * @return тип родительского объекта; null если такой отсутствует
+     */
+    String getDomainObjectParentType(String typeName);
+
+    /**
+     * Возвращает корневой тип доменного объекта
+     * @param typeName имя типа доменного объекта
+     * @return тип корневого объекта; текущий тип, если нет иерархии
+     */
+    String getDomainObjectRootType(String typeName);
+
+    /**
+     * Нахождение иерархии наследования по цепочке от корневого типа ДО до непосредственного родителя
+     * @param typeName имя типа доменного объекта
+     * @return цепочку от корня до родителя. Если нет родителя - пустой массив.
+     */
+    String[] getDomainObjectTypesHierarchy(String typeName);
 }
