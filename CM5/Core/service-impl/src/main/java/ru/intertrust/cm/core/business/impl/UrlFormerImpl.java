@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.NotificationTextFormer;
 import ru.intertrust.cm.core.business.api.UrlFormer;
@@ -30,6 +32,9 @@ public class UrlFormerImpl implements UrlFormer{
 
     @Autowired
     private ApplicationContext applicationContext;
+    
+    @Autowired
+    private Environment environment;
 
     @Override
     public URL getUrl(String clientName, Id addressee, Id objectId) {
@@ -60,8 +65,12 @@ public class UrlFormerImpl implements UrlFormer{
     private void injectBeans(Map<String, Object> model){
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
-            Object bean = applicationContext.getBean(beanDefinitionName);
-            model.put(beanDefinitionName, bean);
+            if (applicationContext.isSingleton(beanDefinitionName)){
+                Object bean = applicationContext.getBean(beanDefinitionName);
+                model.put(beanDefinitionName, bean);
+            }
         }
+        //Добавляем переменные из server.properties
+        model.put("environment", environment);
     }
 }

@@ -275,4 +275,13 @@ public class DomainObjectAccessor implements Dto {
     public String getIdAsString(){
         return domainObject.getId().toStringRepresentation();
     }
+
+    /**
+     * Возвращает идентификатор доменного объекта
+     * @return
+     */
+    public Id getId(){
+        return domainObject.getId();
+    }
+
 }

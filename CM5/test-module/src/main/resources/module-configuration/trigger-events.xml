@@ -7,7 +7,7 @@
         <notification-type name="TestNotificationType" priority="HIGH">
             <addressee>
                 <find-person>
-                    <find-query>Select p.id, p.lastname from person p where p.login = 'person1'
+                    <find-query>Select p.id, p.lastname from person p where p.login = 'person10'
                     </find-query>
                 </find-person>
             </addressee>
@@ -35,7 +35,7 @@
         <notification-type name="TestNotificationType" priority="HIGH">
             <addressee>
                 <find-person>
-                    <find-query>Select p.id, p.lastname from person p where p.login = 'person1'
+                    <find-query>Select p.id, p.lastname from person p where p.login = 'person10'
                     </find-query>
                 </find-person>
             </addressee>
