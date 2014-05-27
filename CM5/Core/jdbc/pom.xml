@@ -22,6 +22,7 @@
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-ejb-client-bom</artifactId>
             <type>pom</type>
+            <scope>provided</scope>
         </dependency>		
     </dependencies>
 </project>
