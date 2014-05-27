@@ -88,7 +88,7 @@ public interface DomainObjectDao {
      * @param ids идентификаторы доменных объектов для удаления
      * @return количество удаленных объектов
      */
-    int delete(Collection<Id> ids, AccessToken accessToken);
+    int delete(List<Id> ids, AccessToken accessToken);
 
     /**
      * Проверяет существует ли доменный объект с переданным уникальным идентификатором.

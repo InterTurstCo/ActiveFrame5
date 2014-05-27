@@ -89,7 +89,7 @@ public class CrudServiceImplTest {
 
     @Test
     public void testDeleteManyAttachment() throws Exception {
-        Collection<Id> ids = new ArrayList<>();
+        List<Id> ids = new ArrayList<>();
         assertEquals(0, crudService.delete(ids));
 
         ids.add(new RdbmsId());

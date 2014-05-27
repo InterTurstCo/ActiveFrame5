@@ -20,10 +20,7 @@ import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -397,6 +394,25 @@ public class DomainObjectDaoImplTest {
                 "Person", accessToken);
         Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
         Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
+    }
+
+    @Test
+    public void testGroupIdsByType(){
+        List<Id>ids = Arrays.asList(new Id[] {
+                new RdbmsId(1, 1), new RdbmsId(1, 2), new RdbmsId(1, 3),
+                new RdbmsId(2, 4), new RdbmsId(2, 5),
+                new RdbmsId(1, 6),
+                new RdbmsId(3, 7), new RdbmsId(3, 8),
+                new RdbmsId(1, 9), new RdbmsId(1, 10)
+        });
+        List<List<Id>> idsByType = domainObjectDaoImpl.groupIdsByType(ids);
+
+        assertEquals(Arrays.asList(new Id[] {new RdbmsId(1, 1), new RdbmsId(1, 2), new RdbmsId(1, 3)}), idsByType.get(0));
+        assertEquals(Arrays.asList(new Id[] {new RdbmsId(2, 4), new RdbmsId(2, 5)}), idsByType.get(1));
+        assertEquals(Arrays.asList(new Id[] {new RdbmsId(1, 6)}), idsByType.get(2));
+        assertEquals(Arrays.asList(new Id[] {new RdbmsId(3, 7), new RdbmsId(3, 8)}), idsByType.get(3));
+        assertEquals(Arrays.asList(new Id[] {new RdbmsId(1, 9), new RdbmsId(1, 10)}), idsByType.get(4));
+
     }
 
 

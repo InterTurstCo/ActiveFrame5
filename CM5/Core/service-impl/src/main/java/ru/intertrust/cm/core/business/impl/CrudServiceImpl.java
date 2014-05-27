@@ -313,7 +313,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     }
 
     @Override
-    public int delete(Collection<Id> ids) {
+    public int delete(List<Id> ids) {
         try {
             if (ids == null || ids.size() == 0) {
                 return 0;

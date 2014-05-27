@@ -62,7 +62,15 @@ public class SqlLogger {
         } else if (returnValue instanceof Integer && query != null && !query.trim().toUpperCase().startsWith("SELECT")) {
             // для INSERT, DELETE, UPDATE
             rows = (Integer)returnValue;
-        } else {
+        } else if (returnValue instanceof int[] && query != null && !query.trim().toUpperCase().startsWith("SELECT")) {
+            // для batchUpdate (INSERT, DELETE, UPDATE)
+            int[] counts = (int[]) returnValue;
+            rows = 0;
+            for (int count : counts) {
+                rows += count;
+            }
+        }
+        else {
             // для прочих
             rows = 1;
         }
@@ -110,6 +118,14 @@ public class SqlLogger {
             Object argument = methodArgs[i];
             if (argument instanceof Map) {
                 parameters = (Map<String, Object>) argument;
+                break;
+            }
+            if (argument instanceof Map[]) {
+                Map[] args = (Map[]) argument;
+                if (args.length > 0) {
+                    // todo only for one string
+                    parameters = (Map<String, Object>) args[0];
+                }
                 break;
             }
         }

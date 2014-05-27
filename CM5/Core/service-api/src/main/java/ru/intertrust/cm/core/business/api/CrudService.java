@@ -141,7 +141,7 @@ public interface CrudService {
      * @return количество удалённых доменных объектов
      * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
      */
-    int delete(Collection<Id> ids);
+    int delete(List<Id> ids);
 
     /**
      * Получает список связанных доменных объектов по типу объекта и указанному полю. Если связанные объекты
