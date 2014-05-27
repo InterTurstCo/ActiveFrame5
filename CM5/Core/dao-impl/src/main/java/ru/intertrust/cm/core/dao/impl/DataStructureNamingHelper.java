@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.IndexFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * Helper для отображения имен конфигурации доменных объектов на базу данных
@@ -23,7 +24,7 @@ public class DataStructureNamingHelper {
     private static Map<String, String> sqlNameCache = new ConcurrentHashMap<>();
     private static Map<ServiceColumnKey, String> serviceColumnNameCache = new ConcurrentHashMap<>();
     
-    public static final int MAX_NAME_LENGTH = 26;
+    public static final int MAX_NAME_LENGTH = 30;
 
     /**
      * Возвращает имя доменного объекта в sql-виде
@@ -142,21 +143,19 @@ public class DataStructureNamingHelper {
         if (serviceColumnNameCache.get(serviceColumnKey) != null) {
             return serviceColumnNameCache.get(serviceColumnKey);
         } else {
-            String processedName = retreiveServiceColumnName(columnName, postfix);
+            String processedName = generateServiceColumnName(columnName, postfix);
             serviceColumnNameCache.put(serviceColumnKey, processedName);
             return processedName;
         }
     }
 
-    private static String retreiveServiceColumnName(String columnName, String postfix) {
-        String resultName;
+    private static String generateServiceColumnName(String columnName, String postfix) {
         if (columnName.length() + postfix.length() > MAX_NAME_LENGTH) {
-            resultName = columnName.substring(0, MAX_NAME_LENGTH - postfix.length() - 1) + postfix;
-        } else {
-            resultName = columnName + postfix;
+            throw new FatalException();
         }
-        String processedName = getSqlName(resultName);
-        return processedName;
+
+        String resultName = columnName + postfix;
+        return getSqlName(resultName);
     }
 
     
