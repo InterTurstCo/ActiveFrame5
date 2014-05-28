@@ -37,6 +37,12 @@ import java.util.*;
 public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
 
     /**
+     * позволяет отключить кэш
+     */
+    @org.springframework.beans.factory.annotation.Value("${cache.domainObject.enabled:true}")
+    private Boolean cacheEnabled;
+
+    /**
      * Псевдо-идентификатор для кэширования списков доменных объектов, не имеющих родителя
      */
     private static final Id GLOBAL_PSEUDO_ID = new RdbmsId(-1, -1);
@@ -162,6 +168,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
+
+        if (!isCacheEnabled()) return null;
+
         DomainObjectNode don = createDomainObjectNode(dobj.getId());
         don.setDomainObject(dobj);
         Map<String, Id> newIdParentMap = getRefIdAndFieldMap(dobj);
@@ -197,6 +206,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         if (getTxReg().getTransactionKey() == null || dobjs == null) {
             return null;
         }
+
+        if (!isCacheEnabled()) return null;
+
         List<Id> ids = new ArrayList<>();
         for (DomainObject dobj : dobjs) {
             ids.add(putObjectToCache(dobj));
@@ -220,6 +232,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
+
+        if (!isCacheEnabled()) return null;
+
         if (key == null || key.length == 0) {
             throw new DaoException("Can't find key.");
         }
@@ -241,6 +256,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      */
     @Override
     public List<Id> putObjectToCache(List<DomainObject> dobjs, String ... key) {
+
+        if (!isCacheEnabled()) return null;
+
         return putObjectToCache(GLOBAL_PSEUDO_ID, dobjs, key);
     }
 
@@ -254,6 +272,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
+
+        if (!isCacheEnabled()) return null;
+
         return isEmptyDomainObjectNode(id) ? null : createDomainObjectNode(id).getDomainObject();
     }
 
@@ -267,6 +288,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
+
+        if (!isCacheEnabled()) return null;
+
         List<DomainObject> dobjs = new ArrayList<>();
         for (Id id : ids) {
             DomainObject dobj = getObjectToCache(id);
@@ -291,6 +315,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
+
+        if (!isCacheEnabled()) return null;
+
         if (key == null || key.length == 0) {
             throw new DaoException("Can't find key.");
         }
@@ -324,6 +351,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      */
     @Override
     public List<DomainObject> getObjectToCache(String ... key) {
+
+        if (!isCacheEnabled()) return null;
+
         return getObjectToCache(GLOBAL_PSEUDO_ID, key);
     }
 
@@ -333,6 +363,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      */
     @Override
     public void removeObjectFromCache(Id id) {
+
+        if (!isCacheEnabled()) return;
+
         if (!isEmptyDomainObjectNode(id)) {
             DomainObject dobj = isEmptyDomainObjectNode(id) ? null : createDomainObjectNode(id).getDomainObject();
             if (dobj != null) {
@@ -359,5 +392,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
             }
         }
         return txReg;
+    }
+
+    private boolean isCacheEnabled() {
+        return cacheEnabled;
     }
 }
