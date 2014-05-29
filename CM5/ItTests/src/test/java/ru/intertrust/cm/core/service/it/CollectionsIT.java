@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -27,6 +26,7 @@ import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
@@ -49,6 +49,7 @@ public class CollectionsIT extends IntegrationTestBase {
     private static Logger logger = Logger.getLogger(CollectionsIT.class.getName());
     
     private static final String DEPARTMENT_TYPE = "Department";
+    private static final String PERSON_TYPE = "Person";
 
     private static final String DEPARTMENT_2 = "Подразделение 2";
 
@@ -128,12 +129,74 @@ public class CollectionsIT extends IntegrationTestBase {
         params.add(new StringValue(EMPLOYEE_1_NAME));
 
         IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
-
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
 
+
     }
 
+    @Test
+    public void testFindCollectionByQueryWithReferenceParamsInSubSubQuery() {
+
+        String query = "select p2.id, (select p3.login from person p3 where p3.id = {0}) as login " +
+        		" from (select * from person p where p.id = {1}) p2 " +
+        		" where p2.id = {2}";
+        List<Value> params = new ArrayList<Value>();
+        Integer personTypeid = domainObjectTypeIdCache.getId(PERSON_TYPE);
+
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));        
+        
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() > 0);
+
+        query = "select p2.id, (select p3.login from person p3 where p3.id = {0}) as login " +
+                "from (select * from person p where p.id = {1}) p2 " +
+                " inner join (select * from person p where p.id = {2}) p5 on p5.id = p2.id" +
+                " where p2.id in (select p4.id from person p4 where p4.id = {3}) or p2.id = {4}";
+        params = new ArrayList<Value>();
+        personTypeid = domainObjectTypeIdCache.getId(PERSON_TYPE);
+
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));        
+        
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() > 0);
+    }
+    
+    @Test
+    public void testFindCollectionWithReferenceParamsInSubSubQuery() throws LoginException {
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("id", Order.ASCENDING));
+
+        List<Filter> filterValues = new ArrayList<Filter>();
+        Filter filter = new Filter();
+        filter.setFilter("byPersonId");
+        filter.addCriterion(0, new LongValue(1));
+        filter.addCriterion(1, new LongValue(1));
+        filter.addCriterion(2, new LongValue(1));
+        filter.addCriterion(3, new LongValue(1));
+
+        filterValues.add(filter);
+
+        IdentifiableObjectCollection employeesCollection = null;
+        employeesCollection =
+                collectionService.findCollection("Person_Test", sortOrder, filterValues, 0, 0);
+
+        assertNotNull(employeesCollection);
+        assertTrue(employeesCollection.size() >= 1);
+
+    }
+
+    
     @Test
     public void testFindCollectionWithFilters() throws LoginException {
         SortOrder sortOrder = new SortOrder();
@@ -154,7 +217,7 @@ public class CollectionsIT extends IntegrationTestBase {
 
     }
 
-    @Test
+//    @Test
     public void testFindCollectionWithAcl() throws LoginException {
         createAuthenticationInfo();
         SortOrder sortOrder = new SortOrder();

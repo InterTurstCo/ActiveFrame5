@@ -1,38 +1,30 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import net.sf.jsqlparser.expression.BinaryExpression;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.SignedExpression;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.SubSelect;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getFilterParameterPrefix;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateReferenceTypeParameter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getFilterParameterPrefix;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateReferenceTypeParameter;
+import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.schema.Column;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
 
 /**
  * Заполняет ссылочные параметры фильтров в SQL запросе. Добавляет тип ссылочного поля в SQL запрос. Например, выполняет
  * следующую замену: t.id = {0} -> t.id = 1 and t.id_type = 2.
  * @author atsvetkov
  */
-public class ReferenceFilterValuesProcessingVisitor extends BaseExpressionVisitor {
+public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcessingVisitor {
 
     private Map<String, String> replaceExpressions = new HashMap<>();
 
@@ -47,45 +39,17 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseExpressionVisito
     }
 
     @Override
-    public void visit(Function function) {
-
-    }
-
-    @Override
-    public void visit(SignedExpression signedExpression) {
-
-    }
-
-    @Override
     public void visit(EqualsTo equalsTo) {
         visitBinaryExpression(equalsTo);        
         processReferenceFilterValues(equalsTo, true);
     }
 
-    @Override
-    public void visit(InExpression inExpression) {
-
-    }
 
     @Override
     public void visit(NotEqualsTo notEqualsTo) {
         visitBinaryExpression(notEqualsTo);
         processReferenceFilterValues(notEqualsTo, false);
     }
-
-    @Override
-    public void visit(Column column) {
-    }
-
-    @Override
-    public void visit(RegExpMatchOperator regExpMatchOperator) {
-
-    }
-
-    @Override
-    protected void visitSubSelect(SubSelect subSelect) {
-    }
-
 
     private void processReferenceFilterValues(BinaryExpression binaryExpression, boolean isEquals) {
         if (filterValues == null) {
@@ -142,17 +106,6 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseExpressionVisito
         typeExpression.append(binaryExpression.getRightExpression() + REFERENCE_TYPE_POSTFIX);
 
         replaceExpressions.put(binaryExpression.toString(), typeExpression.toString());
-    }
-
-    private Integer findParameterIndex(String rightExpression) {
-        int startParamNumberIndex =
-                rightExpression.indexOf(CollectionsDaoImpl.PARAM_NAME_PREFIX)
-                        + CollectionsDaoImpl.PARAM_NAME_PREFIX.length();
-        int endParamNumberIndex =
-                rightExpression.indexOf(CollectionsDaoImpl.END_PARAM_SIGN, startParamNumberIndex);
-        String paramName = rightExpression.substring(startParamNumberIndex, endParamNumberIndex);
-        Integer paramIndex = Integer.parseInt(paramName);
-        return paramIndex;
     }
 
     private BinaryExpression createComparisonExpressionForReferenceType(Column column,

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+        xmlns:act="https://cm5.intertrust.ru/config/action">
+    
+    <collection name="Person_Test" idField="id">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+
+        <prototype>
+            <![CDATA[
+            select p2.id id , p5.id id_other, 
+            (select p3.login from person p3 where p3.id = 1) as login 
+            from  person p1
+                ::from-clause
+            where 1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from person p1 ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byPersonId">
+            <reference placeholder="from-clause">
+                 <![CDATA[
+                    ,(select * from person p where p.id = 1) p2
+                    inner join (select * from person p where p.id = 1) p5 on p5.id = p2.id
+                ]]>
+            </reference>
+
+            <!-- по умолчанию and, если перед условием нет других (только ключ. слово where), то условие опускаем -->
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть несколько параметров -->
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    p2.id in 
+                    (select p4.id from person p4 where p4.id = {2}) 
+                    or 
+                    p2.id = {3}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+</configuration>

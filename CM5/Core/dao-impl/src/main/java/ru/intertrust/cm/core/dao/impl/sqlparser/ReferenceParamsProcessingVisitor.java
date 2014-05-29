@@ -1,17 +1,16 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import net.sf.jsqlparser.expression.BinaryExpression;
-import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.SignedExpression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
@@ -21,16 +20,12 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Заполняет ссылочные параметры в SQL запросе. Добавляет тип ссылочного поля в SQL запрос. Например, выполняет
  * следующую замену: t.id = {0} -> t.id = 1 and t.id_type = 2.
  * @author atsvetkov
  */
-public class ReferenceParamsProcessingVisitor extends BaseExpressionVisitor {
+public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVisitor {
 
     private Map<String, String> replaceExpressions = new HashMap<>();
 
@@ -48,43 +43,15 @@ public class ReferenceParamsProcessingVisitor extends BaseExpressionVisitor {
     }
 
     @Override
-    public void visit(Function function) {
-
-    }
-
-    @Override
-    public void visit(SignedExpression signedExpression) {
-
-    }
-
-    @Override
     public void visit(EqualsTo equalsTo) {
         visitBinaryExpression(equalsTo);        
         processReferenceParameters(equalsTo, true);
     }
 
     @Override
-    public void visit(InExpression inExpression) {
-
-    }
-
-    @Override
     public void visit(NotEqualsTo notEqualsTo) {
         visitBinaryExpression(notEqualsTo);
         processReferenceParameters(notEqualsTo, false);
-    }
-
-    @Override
-    public void visit(Column column) {
-    }
-
-    @Override
-    public void visit(RegExpMatchOperator regExpMatchOperator) {
-
-    }
-
-    @Override
-    protected void visitSubSelect(SubSelect subSelect) {
     }
 
 

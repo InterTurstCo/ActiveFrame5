@@ -156,10 +156,10 @@ public class SqlQueryModifier {
             protected void processPlainSelect(PlainSelect plainSelect) {
                 ReferenceParamsProcessingVisitor modifyReferenceFieldParameter =
                         new ReferenceParamsProcessingVisitor(params, columnToConfigMap);
-                if (plainSelect.getWhere() != null) {
-                    plainSelect.getWhere().accept(modifyReferenceFieldParameter);
-                    replaceExpressions.putAll(modifyReferenceFieldParameter.getReplaceExpressions());
-                }
+
+                plainSelect.accept(modifyReferenceFieldParameter);
+                replaceExpressions.putAll(modifyReferenceFieldParameter.getReplaceExpressions());
+
             }
         });
 
@@ -185,10 +185,10 @@ public class SqlQueryModifier {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
                 ReferenceFilterValuesProcessingVisitor visitor = new ReferenceFilterValuesProcessingVisitor(filterValues);
-                if (plainSelect.getWhere() != null) {
-                    plainSelect.getWhere().accept(visitor);
-                    replaceExpressions.putAll(visitor.getReplaceExpressions());
-                }
+
+                plainSelect.accept(visitor);
+                replaceExpressions.putAll(visitor.getReplaceExpressions());
+
             }
         });
 

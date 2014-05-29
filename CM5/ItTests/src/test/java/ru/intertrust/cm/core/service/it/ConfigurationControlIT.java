@@ -74,6 +74,6 @@ public class ConfigurationControlIT extends IntegrationTestBase {
         // Check that toolbar config is updated
         ToolBarConfig toolBarConfig = configurationService.getDefaultToolbarConfig("collection.plugin");
         ActionSeparatorConfig actionSeparatorConfig = (ActionSeparatorConfig) toolBarConfig.getActions().get(1);
-        assertEquals(Integer.valueOf(300), actionSeparatorConfig.getOrder());
+        assertEquals(Integer.valueOf(200), actionSeparatorConfig.getOrder());
     }
 }
