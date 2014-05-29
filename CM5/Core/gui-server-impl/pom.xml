@@ -36,26 +36,24 @@
         </dependency>
 
         <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>dao-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.2</version>
         </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>dao-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
