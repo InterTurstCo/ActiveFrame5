@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNull;
 import static ru.intertrust.cm.core.config.Constants.COLLECTIONS_CONFIG_PATH;
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_TEST_SERIALIZER_CONFIG_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_LOOP_IN_HIERARCHY_CONFIG_PATH;
 import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_CONFIG;
 import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_SCHEMA;
@@ -80,17 +81,20 @@ public class ConfigurationExplorerImplTest {
 
     @Test
     public void testGetDomainObjectConfigs() throws Exception {
+        ConfigurationSerializer configurationSerializer =
+                createConfigurationSerializer(DOMAIN_OBJECTS_TEST_SERIALIZER_CONFIG_PATH);
+        config = configurationSerializer.deserializeConfiguration();
+        configExplorer = new ConfigurationExplorerImpl(config);
+
         Collection<DomainObjectTypeConfig> domainObjectTypeConfigs =
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
 
         assertNotNull(domainObjectTypeConfigs);
-        assertEquals(18, domainObjectTypeConfigs.size());
+        assertEquals(7, domainObjectTypeConfigs.size());
 
         List<String> domainObjectNames = new ArrayList<>();
-        domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Department",
-                "Assignment", "Incoming_Document", "Incoming_Document2", "Attachment", "Person_Attachment",
-                "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation", "Negotiation_Card", "Organization",
-                "Internal_Document", "Delegation", "Status", "A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2", "EmployeeNew"));
+        domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Assignment",
+                "EmployeeNew", "Incoming_Document", "Incoming_Document2"));
 
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
             String name = domainObjectTypeConfig.getName();
@@ -252,7 +256,7 @@ public class ConfigurationExplorerImplTest {
         confCore.getConfigurationPaths().add(configPath);
         confCore.getConfigurationPaths().add(COLLECTIONS_CONFIG_PATH);
         confCore.getConfigurationPaths().add(GLOBAL_XML_PATH);
-        confCore.getConfigurationPaths().add(ACCESS_CONFIG_PATH);        
+        confCore.getConfigurationPaths().add(ACCESS_CONFIG_PATH);
         confCore.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
         confCore.setModuleUrl(moduleUrl);
 
