@@ -1852,7 +1852,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             return doType;
         } else {
             DomainObjectTypeConfig doTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, doType);
-            if (doTypeConfig.getExtendsAttribute() != null) {
+            if (doTypeConfig != null && doTypeConfig.getExtendsAttribute() != null) {
                 return findInHierarchyDOTypeHavingField(doTypeConfig.getExtendsAttribute(), fieldName);
             } else {
                 throw new ConfigurationException("Field '" + fieldName +
