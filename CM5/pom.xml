@@ -34,10 +34,9 @@
         <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
         <sonar.java.source>${maven.compiler.source}</sonar.java.source>
         <sonar.skippedModules>ear</sonar.skippedModules>
-        
+
         <root.basedir>${basedir}</root.basedir>
-        
-        <opencsv.version>2.0</opencsv.version>
+
         <jboss.version>7.1.1.Final</jboss.version>
     </properties>
 
@@ -74,7 +73,7 @@
         <url>https://git.inttrust.ru/git/?p=CM5SRC.git</url>
         <connection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</connection>
         <developerConnection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</developerConnection>
-        <tag>0.5</tag>
+        <tag>${project.version}</tag>
     </scm>
 
     <ciManagement>
@@ -84,13 +83,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Simple Framework (XML processing) -->
             <dependency>
                 <groupId>org.simpleframework</groupId>
                 <artifactId>simple-xml</artifactId>
                 <version>2.7</version>
             </dependency>
 
-            <!-- Spring -->
+            <!-- Spring Framework -->
 
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -129,6 +129,28 @@
             </dependency>
 
             <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- AspectJ -->
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>1.7.2</version>
+            </dependency>
+
+            <!-- Activiti (BPM) -->
+
+            <dependency>
                 <groupId>org.activiti</groupId>
                 <artifactId>activiti-engine</artifactId>
                 <version>5.13</version>
@@ -138,6 +160,8 @@
                 <artifactId>activiti-spring</artifactId>
                 <version>5.13</version>
             </dependency>
+
+            <!-- JasperReports -->
 
             <dependency>	
                 <groupId>net.sf.jasperreports</groupId>
@@ -174,12 +198,16 @@
                 <scope>provided</scope>
             </dependency>
 
+            <!-- Database driver -->
+
             <dependency>
                 <groupId>postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>9.2-1002.jdbc4</version>
                 <scope>provided</scope>
             </dependency>
+
+            <!-- Testing -->
 
             <dependency>
                 <groupId>junit</groupId>
@@ -203,30 +231,25 @@
             </dependency>
 
             <dependency>
-                <groupId>javax</groupId>
-                <artifactId>javaee-api</artifactId>
-                <version>6.0</version>
-                <scope>provided</scope>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>1.5.1</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
-                <groupId>com.healthmarketscience.rmiio</groupId>
-                <artifactId>rmiio</artifactId>
-                <version>2.0.4</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.jsqlparser</groupId>
-                <artifactId>jsqlparser</artifactId>
-                <version>0.8.9</version>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>1.5.1</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
                 <version>1.1.1.Final</version>
-                <type>pom</type>
                 <scope>import</scope>
+                <type>pom</type>
             </dependency>
             
             <dependency>
@@ -244,7 +267,9 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-            
+
+            <!-- Apache Solr (full-text search) -->
+
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
@@ -273,12 +298,83 @@
                 <type>war</type>
             </dependency>
 
+            <!-- Apache commons -->
+
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>1.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.4</version>
+            </dependency>
+
+            <!-- Google Web Toolkit -->
+
+            <dependency>
+                <groupId>com.google.gwt</groupId>
+                <artifactId>gwt-user</artifactId>
+                <version>${gwt.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.gwt</groupId>
+                <artifactId>gwt-dev</artifactId>
+                <version>${gwt.version}</version>
+            </dependency>
+
+            <!-- Miscellaneous libraries -->
+
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>2.3.20</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.healthmarketscience.rmiio</groupId>
+                <artifactId>rmiio</artifactId>
+                <version>2.0.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>0.8.9</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.esotericsoftware.kryo</groupId>
+                <artifactId>kryo</artifactId>
+                <version>2.22</version>
+            </dependency>
+
+            <!-- Java Enterprise Edition API -->
+
+            <dependency>
+                <groupId>javax</groupId>
+                <artifactId>javaee-api</artifactId>
+                <version>6.0</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- JBoss Java EE specifications -->
+
             <dependency>
                 <groupId>org.jboss.spec.javax.ejb</groupId>
                 <artifactId>jboss-ejb-api_3.1_spec</artifactId>
                 <version>1.0.2.Final</version>
                 <scope>provided</scope>
-            </dependency>        
+            </dependency>
 
             <dependency>
                 <groupId>org.jboss.spec</groupId>
@@ -287,20 +383,23 @@
                 <type>pom</type>
                 <scope>provided</scope>
             </dependency>
-            
-            <dependency>
-                <groupId>net.sf.opencsv</groupId>
-                <artifactId>opencsv</artifactId>
-                <version>${opencsv.version}</version>
-            </dependency>            
 
-	        <dependency>
-	            <groupId>org.jboss.as</groupId>
-	            <artifactId>jboss-as-ejb-client-bom</artifactId>
-	            <version>7.2.0.Final</version>
-	            <type>pom</type>
-	        </dependency>	
-                    
+            <!-- JBoss AS client -->
+
+            <dependency>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>jboss-as-ejb-client-bom</artifactId>
+                <version>7.2.0.Final</version>
+                <type>pom</type>
+            </dependency>	
+
+            <!-- JBoss AS components -->
+            <dependency>
+                <groupId>org.jboss</groupId>
+                <artifactId>jboss-vfs</artifactId>
+                <version>3.1.0.Final</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -309,16 +408,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <!-- <dependency> -->
-        <!-- <groupId>org.slf4j</groupId> -->
-        <!-- <artifactId>slf4j-log4j12</artifactId> -->
-        <!-- <exclusions> -->
-        <!-- <exclusion> -->
-        <!-- <artifactId>log4j</artifactId> -->
-        <!-- <groupId>log4j</groupId> -->
-        <!-- </exclusion> -->
-        <!-- </exclusions> -->
-        <!-- </dependency> -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
@@ -451,7 +540,7 @@
                         <skip>true</skip>
                     </configuration>
                 </plugin>
-                
+
             </plugins>
         </pluginManagement>
 
@@ -630,7 +719,7 @@
             <id>alfresco</id>
             <name>Alfresco Repository</name>
         </repository>
-        
+
         <repository>
             <id>intertrust.releases</id>
             <url>https://nexus.inttrust.ru/nexus/content/groups/public/</url>
