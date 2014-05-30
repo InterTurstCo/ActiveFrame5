@@ -14,6 +14,7 @@ import org.mockito.Mock;
 
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
+import ru.intertrust.cm.core.model.SearchException;
 
 public class TextFilterAdapterTest {
 
@@ -28,7 +29,7 @@ public class TextFilterAdapterTest {
         initMocks(this);
     }
 
-//    @Test
+    @Test
     public void testComplexStringAndTwoLanguages() {
         TextSearchFilter filter = new TextSearchFilter("TestField",
                 "find WoRdS && part* || \"whole phrase\" +required -excess escape:semicolon");
@@ -63,7 +64,7 @@ public class TextFilterAdapterTest {
         assertEquals("(cm_text_ru:(Test string) OR cm_text_en:(Test string) OR cm_text_fr:(Test string))", result);
     }
 
-//    @Test
+    @Test
     public void testSearchContent() {
         TextSearchFilter filter = new TextSearchFilter(TextSearchFilter.CONTENT, "\"Test phrase\"");
         SearchQuery query = mock(SearchQuery.class);
@@ -71,5 +72,40 @@ public class TextFilterAdapterTest {
 
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_content_uk:(\"Test phrase\")", result);
+    }
+
+    @Test
+    public void testSpecialCharacters() {
+        TextSearchFilter filter = new TextSearchFilter("TestField",
+                " ( ) [ ] { } : \" \" \\\\ \\( \\) \\[ \\] \\{ \\} \\: \\\" ");
+        SearchQuery query = mock(SearchQuery.class);
+        when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
+        when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+
+        String result = adapter.getFilterString(filter, query);
+        assertEquals("cm_t_testfield:( \\( \\) \\[ \\] \\{ \\} \\: \" \" \\\\ \\( \\) \\[ \\] \\{ \\} \\: \\\" )",
+                result);
+    }
+
+    @Test(expected = SearchException.class)
+    public void testUnpairedQuotes() {
+        TextSearchFilter filter = new TextSearchFilter("TestField", "Three \"quotes\" in a \"string");
+        SearchQuery query = mock(SearchQuery.class);
+        when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
+        when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+
+        @SuppressWarnings("unused")
+        String result = adapter.getFilterString(filter, query);
+    }
+
+    @Test(expected = SearchException.class)
+    public void testTrailingBackslash() {
+        TextSearchFilter filter = new TextSearchFilter("TestField", "Finished with backslash \\");
+        SearchQuery query = mock(SearchQuery.class);
+        when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
+        when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+
+        @SuppressWarnings("unused")
+        String result = adapter.getFilterString(filter, query);
     }
 }

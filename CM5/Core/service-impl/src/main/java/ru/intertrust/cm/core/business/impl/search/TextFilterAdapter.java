@@ -24,7 +24,7 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
             value.append(multiple ? " OR " : "")
                  .append(solrField)
                  .append(":(")
-                 .append(protectSearchString(filter.getText()))
+                 .append(SolrUtils.protectSearchString(filter.getText()))
                  .append(")");
         }
         if (multiple) {
@@ -48,9 +48,5 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
             langIds.addAll(configHelper.getSupportedLanguages(name, area));
         }
         return new TextFieldNameDecorator(langIds, name, false);
-    }
-
-    private String protectSearchString(String text) {
-        return text.replaceAll("[\\(\\)\\{\\}\\[\\]:\"\\\\]", "\\\\$0");
     }
 }
