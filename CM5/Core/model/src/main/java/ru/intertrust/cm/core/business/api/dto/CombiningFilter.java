@@ -151,4 +151,17 @@ public class CombiningFilter implements SearchFilter {
     public List<SearchFilter> getFilters() {
         return filters;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (SearchFilter filter : filters) {
+            if (result.length() > 0) {
+                result.append(" ").append(operation.name()).append(" ");
+            }
+            result.append(filter.toString());
+        }
+        result.insert(0, "(").append(")");
+        return result.toString();
+    }
 }

@@ -14,4 +14,9 @@ public class EmptyValueFilter extends SearchFilterBase {
     public EmptyValueFilter(String fieldName) {
         super(fieldName);
     }
+
+    @Override
+    public String toString() {
+        return "is empty";
+    }
 }

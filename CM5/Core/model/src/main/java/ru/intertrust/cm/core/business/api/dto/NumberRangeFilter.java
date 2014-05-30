@@ -33,4 +33,10 @@ public class NumberRangeFilter extends SearchFilterBase {
     public void setMax(Number max) {
         this.max = max;
     }
+
+    @Override
+    public String toString() {
+        return "from " + (min == null ? "minus infinity" : min)
+                + " to " + (max == null ? "plus intinity" : max);
+    }
 }

@@ -60,6 +60,16 @@ public class SearchConfigHelper {
         private String areaName;
         private String targetObjectType;
 
+        SearchAreaDetailsConfig() {
+        }
+
+        SearchAreaDetailsConfig(IndexedDomainObjectConfig objectConfig,
+                String areaName, String targetObjectType) {
+            this.objectConfig = objectConfig;
+            this.areaName = areaName;
+            this.targetObjectType = targetObjectType;
+        }
+
         public IndexedDomainObjectConfig getObjectConfig() {
             return objectConfig;
         }
@@ -70,6 +80,31 @@ public class SearchConfigHelper {
 
         public String getTargetObjectType() {
             return targetObjectType;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 58179;
+            hash += objectConfig != null ? objectConfig.hashCode() : 11;
+            hash *= 31;
+            hash += areaName.hashCode();
+            hash *= 31;
+            hash += targetObjectType.hashCode();
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            SearchAreaDetailsConfig that = (SearchAreaDetailsConfig) obj;
+            return (this.objectConfig == null ? that.objectConfig == null : this.objectConfig.equals(that.objectConfig))
+                    && this.areaName.equals(that.areaName)
+                    && this.targetObjectType.equals(that.targetObjectType);
         }
     }
 
@@ -83,6 +118,82 @@ public class SearchConfigHelper {
         /*if (languageConfigs == null) {
             languageConfigs = Collections.emptyList();
         }*/
+    }
+
+    /**
+     * Возвращает все типы объектов в заданных областях поиска.
+     * @param areaNames имена областей поиска
+     * @return множество типов объектов
+     */
+    public Set<String> findAllObjectTypes(List<String> areaNames) {
+        return findObjectTypesContainingField(null, areaNames);
+    }
+
+    /**
+     * Возвращает все типы объектов в областях поиска, содержащие поле с заданным именем.
+     * @param field имя поля; null - любое поле
+     * @param areaNames имена областей поиска
+     * @return множество типов объектов (пустой, если поле не найдено)
+     */
+    public Set<String> findObjectTypesContainingField(String field, List<String> areaNames) {
+        HashSet<String> configs = new HashSet<>();
+        for (String area : areaNames) {
+            SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
+            for (TargetDomainObjectConfig targetConfig : areaConfig.getTargetObjects()) {
+                addAllObjectTypesContainingField(field, targetConfig, configs);
+            }
+        }
+        return configs;
+    }
+
+    private void addAllObjectTypesContainingField(String field, IndexedDomainObjectConfig root, Set<String> result) {
+        for (IndexedFieldConfig fieldConfig : root.getFields()) {
+            if (field == null || field.equalsIgnoreCase(fieldConfig.getName())) {
+                result.add(root.getType());
+                break;
+            }
+        }
+        for (LinkedDomainObjectConfig linkedConfig : root.getLinkedObjects()) {
+            addAllObjectTypesContainingField(field, linkedConfig, result);
+        }
+    }
+
+    /**
+     * Возвращает все типы объектов в областях поиска, содержащие вложения.
+     * @param areaNames список имён областей поиска
+     * @return множество типов объектов (пустой, если вложения не найдены)
+     */
+    public Set<String> findObjectTypesWithContent(List<String> areaNames) {
+        return findObjectTypesWithContent(null, areaNames);
+    }
+
+    /**
+     * Возвращает все типы объектов в областях поиска, содержащие вложения заданного типа.
+     * @param type имя типа вложений; null - любой тип
+     * @param areaNames список имён областей поиска
+     * @return множество типов объектов (пустой, если вложения не найдены)
+     */
+    public Set<String> findObjectTypesWithContent(String type, List<String> areaNames) {
+        HashSet<String> configs = new HashSet<>();
+        for (String area : areaNames) {
+            SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
+            for (TargetDomainObjectConfig targetConfig : areaConfig.getTargetObjects()) {
+                addAllObjectTypesWithContent(type, targetConfig, configs);
+            }
+        }
+        return configs;
+    }
+
+    private void addAllObjectTypesWithContent(String type, IndexedDomainObjectConfig root, Set<String> result) {
+        for (IndexedContentConfig contentConfig : root.getContentObjects()) {
+            if (type == null || type.equalsIgnoreCase(contentConfig.getType())) {
+                result.add(contentConfig.getType());
+                break;
+            }
+        }
+        for (LinkedDomainObjectConfig linkedConfig : root.getLinkedObjects()) {
+            addAllObjectTypesWithContent(type, linkedConfig, result);
+        }
     }
 
     public List<IndexedFieldConfig> findIndexedFieldConfigs(String field, String area) {
@@ -146,20 +257,12 @@ public class SearchConfigHelper {
             if (object.getTypeName().equalsIgnoreCase(config.getType())) {
                 DomainObjectFilter filter = createFilter(config);
                 if (filter == null || filter.filter(object)) {
-                    SearchAreaDetailsConfig details = new SearchAreaDetailsConfig();
-                    details.objectConfig = config;
-                    details.areaName = areaName;
-                    details.targetObjectType = targetObjectType;
-                    result.add(details);
+                    result.add(new SearchAreaDetailsConfig(config, areaName, targetObjectType));
                 }
             }
             for (IndexedContentConfig contentConfig : config.getContentObjects()) {
                 if (object.getTypeName().equalsIgnoreCase(contentConfig.getType())) {
-                    SearchAreaDetailsConfig details = new SearchAreaDetailsConfig();
-                    details.objectConfig = config;
-                    details.areaName = areaName;
-                    details.targetObjectType = targetObjectType;
-                    result.add(details);
+                    result.add(new SearchAreaDetailsConfig(config, areaName, targetObjectType));
                 }
             }
             processConfigList(object, areaName, targetObjectType, config.getLinkedObjects(), result);
@@ -234,6 +337,7 @@ public class SearchConfigHelper {
             return 529 * dataType.hashCode() + (multivalued ? 31 : 887);
         }
     }
+
     /**
      * Определяет тип данных индексируемого поля, определённого в конфигурации области поиска.
      * 

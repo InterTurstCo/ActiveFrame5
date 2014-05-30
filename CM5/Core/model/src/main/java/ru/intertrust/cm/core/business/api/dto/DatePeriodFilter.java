@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -72,6 +73,13 @@ public class DatePeriodFilter extends SearchFilterBase {
      */
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    @Override
+    public String toString() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return "from " + (startDate == null ? "antiquity" : format.format(startDate))
+                + " to " + (endDate == null ? "eternity" : format.format(endDate));
     }
 
 }

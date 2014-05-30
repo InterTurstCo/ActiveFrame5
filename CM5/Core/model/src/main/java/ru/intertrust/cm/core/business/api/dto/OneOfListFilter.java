@@ -60,4 +60,9 @@ public class OneOfListFilter extends SearchFilterBase {
     public void clearValues() {
         values = new ArrayList<>();
     }
+
+    @Override
+    public String toString() {
+        return "one of list: " + values.toString();
+    }
 }

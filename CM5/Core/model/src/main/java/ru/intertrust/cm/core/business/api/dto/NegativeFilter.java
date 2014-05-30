@@ -22,4 +22,9 @@ public class NegativeFilter implements SearchFilter {
     public SearchFilter getBaseFilter() {
         return baseFilter;
     }
+
+    @Override
+    public String toString() {
+        return "NOT " + baseFilter.toString();
+    }
 }

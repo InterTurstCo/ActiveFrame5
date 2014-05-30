@@ -130,4 +130,13 @@ public class SearchQuery implements Dto {
     public void clearFilters() {
         filters = new HashMap<String, SearchFilter>();
     }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("Target type: ").append(targetObjectType);
+        result.append("; areas: ").append(areas.toString());
+        result.append("; filters: ").append(filters.toString());
+        return result.toString();
+    }
 }
