@@ -21,12 +21,15 @@ public class CollectionColumnHeaderController {
     public void changeFiltersInputsVisibility(boolean showFilter) {
         for (CollectionColumnHeader header : headers) {
             header.setSearchAreaVisibility(showFilter);
-            if(showFilter){
-                header.hideClearButton();
-                header.resetFilterValue();
-            }
+
         }
 
+    }
+    public void clearFilters() {
+        for (CollectionColumnHeader header : headers) {
+        header.hideClearButton();
+        header.resetFilterValue();
+        }
     }
 
     public void updateFilterValues() {

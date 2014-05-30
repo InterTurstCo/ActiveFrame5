@@ -5,6 +5,7 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -52,6 +53,8 @@ public class TableBrowserConfig extends WidgetConfig {
     @Element(name = "display-values-as-links", required = false)
     private DisplayValuesAsLinksConfig displayValuesAsLinksConfig;
 
+    @Element(name = "initial-filters", required = false)
+    private InitialFiltersConfig initialFiltersConfig;
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
@@ -157,6 +160,14 @@ public class TableBrowserConfig extends WidgetConfig {
         this.displayValuesAsLinksConfig = displayValuesAsLinksConfig;
     }
 
+    public InitialFiltersConfig getFilterConfig() {
+        return initialFiltersConfig;
+    }
+
+    public void setFilterConfig(InitialFiltersConfig initialFiltersConfig) {
+        this.initialFiltersConfig = initialFiltersConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -222,7 +233,11 @@ public class TableBrowserConfig extends WidgetConfig {
             return false;
         }
 
-        if (displayValuesAsLinksConfig!= null ? !displayChosenValues.equals(that.displayValuesAsLinksConfig) : that.displayValuesAsLinksConfig!= null) {
+        if (displayValuesAsLinksConfig!= null ? !displayChosenValues.equals(that.displayValuesAsLinksConfig) :
+                that.displayValuesAsLinksConfig!= null) {
+            return false;
+        }
+        if (initialFiltersConfig != null ? !initialFiltersConfig.equals(that.initialFiltersConfig) : that.initialFiltersConfig != null) {
             return false;
         }
         return true;
@@ -244,6 +259,7 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
+        result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
         return result;
     }
 

@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -67,11 +68,21 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setCollectionViewConfigName(collectionViewConfig.getName());
         collectionViewerConfig.getSearchAreaRefConfig();
         DefaultSortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getDefaultSortCriteriaConfig();
+        InitialFiltersConfig initialFiltersConfig = collectionViewerConfig.getInitialFiltersConfig();
         LinkedHashMap<String, CollectionColumnProperties> columnPropertyMap =
-                getDomainObjectFieldPropertiesMap(collectionViewConfig, sortCriteriaConfig);
+                getDomainObjectFieldPropertiesMap(collectionViewConfig, sortCriteriaConfig, initialFiltersConfig);
         pluginData.setDomainObjectFieldPropertiesMap(columnPropertyMap);
         List<Filter> filters = new ArrayList<Filter>();
+        String filterName = collectionViewerConfig.getFilterName();
+        String filterValue = collectionViewerConfig.getFilterValue();
+        if(filterName != null && filterValue.length() > 0) {
+            Filter inputFilter = prepareInputTextFilter(filterName, filterValue);
+            filters.add(inputFilter);
+        }
+        pluginData.setInitialFiltersConfig(initialFiltersConfig);
+        FilterBuilder.prepareInitialFilters(initialFiltersConfig, null,filters);
         pluginData.setDefaultSortCriteriaConfig(sortCriteriaConfig);
+        pluginData.setFilterPanelConfig(collectionViewerConfig.getFilterPanelConfig());
         CollectionDisplayConfig collectionDisplayConfig = collectionViewConfig.getCollectionDisplayConfig();
         SortOrder order = SortOrderBuilder.getInitSortOrder(sortCriteriaConfig, collectionDisplayConfig);
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
@@ -124,7 +135,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
 
         final LinkedHashMap<String, CollectionColumnProperties> map =
-                getDomainObjectFieldPropertiesMap(collectionViewConfig, null);
+                getDomainObjectFieldPropertiesMap(collectionViewConfig, null, null);
         pluginData.setDomainObjectFieldPropertiesMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
@@ -141,6 +152,20 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     }
 
+   private List<String> prepareExcludedInitialFilterNames(Set<String> userFilterNamesWithInputs,
+                                                          Map<String, CollectionColumnProperties> columnPropertiesMap){
+       List<String> filterNames = new ArrayList<>();
+       if (userFilterNamesWithInputs == null) {
+           return filterNames;
+       }
+       for (String fieldName : userFilterNamesWithInputs) {
+           CollectionColumnProperties columnProperties = columnPropertiesMap.get(fieldName);
+           String filterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+           filterNames.add(filterName);
+       }
+       return filterNames;
+
+   }
     private List<Filter> addFilterByText(CollectionViewerConfig collectionViewerConfig, List<Filter> filters) {
 
         SearchAreaRefConfig searchAreaRefConfig = collectionViewerConfig.getSearchAreaRefConfig();
@@ -182,8 +207,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         // todo: very slow
         Collection<CollectionViewConfig> collectionViewConfigs = getCollectionOfViewConfigs();
         for (CollectionViewConfig collectionViewConfig : collectionViewConfigs) {
-
-            if (collectionViewConfig.getCollection().equalsIgnoreCase(collection)) {
+            boolean isDefault = collectionViewConfig.isDefault();
+            if (collectionViewConfig.getCollection().equalsIgnoreCase(collection) && isDefault) {
                 return collectionViewConfig;
             }
         }
@@ -256,7 +281,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     }
 
     private LinkedHashMap<String, CollectionColumnProperties> getDomainObjectFieldPropertiesMap(
-            final CollectionViewConfig collectionViewConfig, DefaultSortCriteriaConfig sortCriteriaConfig) {
+            final CollectionViewConfig collectionViewConfig, DefaultSortCriteriaConfig sortCriteriaConfig,
+            InitialFiltersConfig initialFiltersConfig) {
         LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap = new LinkedHashMap<String, CollectionColumnProperties>();
         CollectionDisplayConfig collectionDisplay = collectionViewConfig.getCollectionDisplayConfig();
         if (collectionDisplay != null) {
@@ -265,7 +291,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 if (!columnConfig.isHidden()) {
                     final String field = columnConfig.getField();
                     final CollectionColumnProperties properties =
-                            GuiServerHelper.collectionColumnConfigToProperties(columnConfig, sortCriteriaConfig);
+                            GuiServerHelper.collectionColumnConfigToProperties(columnConfig, sortCriteriaConfig, initialFiltersConfig);
                     columnPropertiesMap.put(field, properties);
                 }
             }
@@ -325,6 +351,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
       //  final List<Filter> filters = transformDateFilters(collectionRowsRequest.getFilterList());
         Map<String, String> filtersMap = collectionRowsRequest.getFiltersMap();
         List<Filter> filters = prepareSearchFilters(filtersMap, properties);
+        InitialFiltersConfig initialFiltersConfig = collectionRowsRequest.getInitialFiltersConfig();
+        Set<String> userFilterNamesWithInputs = filtersMap == null ? null : filtersMap.keySet();
+        List<String> excludedInitialFilterNames = prepareExcludedInitialFilterNames(userFilterNamesWithInputs, properties);
+        FilterBuilder.prepareInitialFilters(initialFiltersConfig, excludedInitialFilterNames, filters);
         Set<Id> includedIds = collectionRowsRequest.getIncludedIds();
         if (!includedIds.isEmpty()) {
             Filter includedIdsFilter = FilterBuilder.prepareFilter(includedIds, FilterBuilder.INCLUDED_IDS_FILTER);
@@ -357,15 +387,17 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         Set<String> fieldNames = filtersMap.keySet();
         for(String fieldName : fieldNames){
             String filterValue = filtersMap.get(fieldName);
+            if (!"".equalsIgnoreCase(filterValue)) {
             CollectionColumnProperties columnProperties = properties.get(fieldName);
             Filter filter = null;
             try {
+
                 filter = FilterBuilder.prepareSearchFilter(filterValue, columnProperties);
             } catch (ParseException e) {
                 e.printStackTrace();  //for developers only
             }
             filters.add(filter);
-        }
+        }   }
         return filters;
     }
 

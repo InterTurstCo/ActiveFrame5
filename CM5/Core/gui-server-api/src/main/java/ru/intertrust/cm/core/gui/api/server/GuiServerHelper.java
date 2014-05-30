@@ -1,15 +1,19 @@
 package ru.intertrust.cm.core.gui.api.server;
 
-import java.util.Calendar;
-import java.util.TimeZone;
-
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.ParamConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
+
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * @author Sergey.Okolot
@@ -50,15 +54,16 @@ public final class GuiServerHelper {
     }
 
     public static CollectionColumnProperties collectionColumnConfigToProperties(final CollectionColumnConfig config,
-                final DefaultSortCriteriaConfig sortCriteriaConfig) {
+                final DefaultSortCriteriaConfig sortCriteriaConfig, InitialFiltersConfig initialFiltersConfig) {
         final CollectionColumnProperties properties = new CollectionColumnProperties();
         final String sortedField = getSortedField(sortCriteriaConfig);
         final String field = config.getField();
         final String columnName = config.getName();
+        String searchFilterName = config.getSearchFilter();
         properties.addProperty(CollectionColumnProperties.FIELD_NAME, field)
                 .addProperty(CollectionColumnProperties.NAME_KEY, columnName)
                 .addProperty(CollectionColumnProperties.TYPE_KEY, config.getType())
-                .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, config.getSearchFilter())
+                .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY,searchFilterName)
                 .addProperty(CollectionColumnProperties.PATTERN_KEY, config.getPattern())
                 .addProperty(CollectionColumnProperties.TIME_ZONE_ID, config.getTimeZoneId())
                 .addProperty(CollectionColumnProperties.MIN_WIDTH, config.getMinWidth())
@@ -70,11 +75,40 @@ public final class GuiServerHelper {
             properties.addProperty(
                     CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));
         }
+        if(initialFiltersConfig != null){
+            List<InitialFilterConfig> initialFilterConfigs = initialFiltersConfig.getInitialFilterConfigs();
+            String initialFilterValue = getInitialFilterValue(searchFilterName, initialFilterConfigs);
+            properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE, initialFilterValue);
+        }
         properties.setAscSortCriteriaConfig(config.getAscSortCriteriaConfig());
         properties.setDescSortCriteriaConfig(config.getDescSortCriteriaConfig());
         properties.setImageMappingsConfig(config.getImageMappingsConfig());
         properties.setRendererConfig(config.getRendererConfig());
         return properties;
+    }
+    private static List<ParamConfig> findFilterInitParams(String filterName, List<InitialFilterConfig> initialFilterConfigs) {
+         if (filterName == null || initialFilterConfigs == null) {
+             return null;
+         }
+        for (InitialFilterConfig initialFilterConfig : initialFilterConfigs) {
+              if (filterName.equalsIgnoreCase(initialFilterConfig.getName())){
+                  return initialFilterConfig.getParamConfigs();
+              }
+        }
+        return null;
+    }
+    private static String getInitialFilterValueFromParamConfigs(List<ParamConfig> paramConfigs) {
+        if(paramConfigs == null || paramConfigs.isEmpty()) {
+            return null;
+        }
+        int size = paramConfigs.size();
+        ParamConfig paramConfig = paramConfigs.get(size - 1);
+        return paramConfig.getValue();
+    }
+    private static String getInitialFilterValue(String filterName, List<InitialFilterConfig> initialFilterConfigs){
+        List<ParamConfig> paramConfigs = findFilterInitParams(filterName, initialFilterConfigs);
+        String initialFilterValue = getInitialFilterValueFromParamConfigs(paramConfigs);
+        return initialFilterValue;
     }
 
     private static String getSortedField(DefaultSortCriteriaConfig sortCriteriaConfig) {

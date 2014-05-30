@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.gui.model;
 
-import java.util.HashMap;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.collection.view.AscSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.DescSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
+
+import java.util.HashMap;
 
 /**
  * @author Sergey.Okolot
@@ -22,13 +22,14 @@ public class CollectionColumnProperties implements Dto {
     public static final String PATTERN_KEY = "pattern";
     public static final String TIME_ZONE_ID = "timeZoneId";
     public static final String NAME_KEY = "name";
-    public static final String MIN_WIDTH = "min-width";
-    public static final String MAX_WIDTH = "max-width";
+    public static final String MIN_WIDTH = "minWidth";
+    public static final String MAX_WIDTH = "maxWidth";
     public static final String RESIZABLE = "resizable";
-    public static final String TEXT_BREAK_STYLE = "text-break-style";
+    public static final String TEXT_BREAK_STYLE = "textBreakStyle";
     public static final String SORTABLE = "sortable";
     public static final String SORTED_MARKER = "sorted";
     public static final String FIELD_NAME = "field";
+    public static final String INITIAL_FILTER_VALUE = "initialFilterValue";
     private AscSortCriteriaConfig ascSortCriteriaConfig;
     private DescSortCriteriaConfig descSortCriteriaConfig;
     private HashMap<String, Object> properties = new HashMap<String, Object>();

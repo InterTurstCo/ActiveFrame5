@@ -29,11 +29,11 @@ public class HeaderWidget {
     private String title;
     private boolean showFilter;
     private String fieldName;
-    private String filterValue = EMPTY_VALUE;
+    private String filterValue;
 
    private DateTimeFormat dateTimeFormat;
 
-    public HeaderWidget(CollectionColumn column, CollectionColumnProperties columnProperties ) {
+    public HeaderWidget(CollectionColumn column, CollectionColumnProperties columnProperties, String initialFilterValue) {
 
         title = column.getDataStoreName();
         searchFilterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
@@ -41,6 +41,7 @@ public class HeaderWidget {
         fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
         id = (column.hashCode() + title).replaceAll(" ", "");
         fieldName = (String) columnProperties.getProperty(CollectionColumnProperties.FIELD_NAME);
+        this.filterValue = initialFilterValue == null ? EMPTY_VALUE : initialFilterValue.replaceAll("%", EMPTY_VALUE);
         if (datePattern != null) {
         dateTimeFormat = DateTimeFormat.getFormat(datePattern);
         }

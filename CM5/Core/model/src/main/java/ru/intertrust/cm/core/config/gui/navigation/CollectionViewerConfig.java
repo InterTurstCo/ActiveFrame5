@@ -33,9 +33,17 @@ public class CollectionViewerConfig extends PluginConfig{
 
     private List<Id> excludedIds = new ArrayList<Id>();
 
+    @Element(name = "initial-filters", required = false)
+    private InitialFiltersConfig initialFiltersConfig;
+
+    @Element(name = "filter-panel", required = false)
+    private FilterPanelConfig filterPanelConfig;
+
     private boolean displayChosenValues = true;
 
     private boolean singleChoice = true;
+    private String filterName;
+    private String filterValue;
 
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
@@ -101,6 +109,38 @@ public class CollectionViewerConfig extends PluginConfig{
         this.searchCollectionRefConfig = searchCollectionRefConfig;
     }
 
+    public InitialFiltersConfig getInitialFiltersConfig() {
+        return initialFiltersConfig;
+    }
+
+    public void setInitialFiltersConfig(InitialFiltersConfig initialFiltersConfig) {
+        this.initialFiltersConfig = initialFiltersConfig;
+    }
+
+    public FilterPanelConfig getFilterPanelConfig() {
+        return filterPanelConfig;
+    }
+
+    public void setFilterPanelConfig(FilterPanelConfig filterPanelConfig) {
+        this.filterPanelConfig = filterPanelConfig;
+    }
+
+    public String getFilterName() {
+        return filterName;
+    }
+
+    public void setFilterName(String filterName) {
+        this.filterName = filterName;
+    }
+
+    public String getFilterValue() {
+        return filterValue;
+    }
+
+    public void setFilterValue(String filterValue) {
+        this.filterValue = filterValue;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -135,6 +175,12 @@ public class CollectionViewerConfig extends PluginConfig{
                 searchCollectionRefConfig != null) {
             return false;
         }
+        if (initialFiltersConfig != null ? !initialFiltersConfig.equals(that.initialFiltersConfig) : that.initialFiltersConfig != null) {
+            return false;
+        }
+        if (filterPanelConfig != null ? !filterPanelConfig.equals(that.filterPanelConfig) : that.filterPanelConfig != null) {
+            return false;
+        }
 
         return true;
     }
@@ -146,6 +192,8 @@ public class CollectionViewerConfig extends PluginConfig{
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (searchAreaRefConfig != null ? searchAreaRefConfig.hashCode() : 0);
         result = 31 * result + (searchCollectionRefConfig != null ? searchCollectionRefConfig.hashCode() : 0);
+        result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
+        result = 31 * result + (filterPanelConfig != null ? filterPanelConfig.hashCode() : 0);
         return result;
     }
 

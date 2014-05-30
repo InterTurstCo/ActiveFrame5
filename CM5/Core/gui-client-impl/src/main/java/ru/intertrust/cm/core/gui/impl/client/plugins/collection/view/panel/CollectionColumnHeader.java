@@ -73,16 +73,23 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
         }
     }
+
     public String getFieldName() {
-        return  widget.getFieldName();
+        return widget.getFieldName();
     }
 
     public void resetFilterValue() {
         if (widget.getSearchFilterName() != null) {
             widget.setFilterValue(EMPTY_VALUE);
-            input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
-            inputFilter = InputElement.as(input);
-            inputFilter.setValue(EMPTY_VALUE);
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+                    inputFilter = InputElement.as(input);
+                    inputFilter.setValue(EMPTY_VALUE);
+
+                }
+            });
 
         }
 
@@ -133,19 +140,26 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         }
     }
 
-    public void setSearchAreaVisibility(boolean visibility) {
+    public void setSearchAreaVisibility(final boolean visibility) {
         if (widget.getSearchFilterName() == null) {
             return;
         }
         widget.setShowFilter(visibility);
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                if (visibility) {
+                    DOM.getElementById(searchAreaId).getStyle().clearDisplay();
+                } else {
+                    DOM.getElementById(searchAreaId).getStyle().setDisplay(Style.Display.NONE);
+                }
 
-        if (visibility) {
-            DOM.getElementById(searchAreaId).getStyle().clearDisplay();
-        } else {
-            DOM.getElementById(searchAreaId).getStyle().setDisplay(Style.Display.NONE);
-        }
+            }
+        });
+
     }
-    public void hideClearButton(){
+
+    public void hideClearButton() {
         if (widget.getSearchFilterName() != null) {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
@@ -223,19 +237,23 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             return null;
         }
         Element target = Element.as(event.getEventTarget());
-        NodeList<Element> buttons = Document.get().getElementById(id).getElementsByTagName("button");
+        Element  element = Document.get().getElementById(id);
+        if (element == null) {
+            return null;
+        }
+        NodeList<Element> buttons = element.getElementsByTagName("button");
         for (int i = 0; i < buttons.getLength(); i++) {
             if (buttons.getItem(i).isOrHasChild(target)) {
                 return buttons.getItem(i);
             }
         }
-        NodeList<Element> inputs = Document.get().getElementById(id).getElementsByTagName("input");
+        NodeList<Element> inputs = element.getElementsByTagName("input");
         for (int i = 0; i < inputs.getLength(); i++) {
             if (inputs.getItem(i).isOrHasChild(target)) {
                 return inputs.getItem(i);
             }
         }
-        NodeList<Element> divs = Document.get().getElementById(id).getElementsByTagName("div");
+        NodeList<Element> divs = element.getElementsByTagName("div");
         for (int i = 0; i < divs.getLength(); i++) {
             if (divs.getItem(i).isOrHasChild(target)) {
                 return divs.getItem(i);
@@ -320,6 +338,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                 } else if (!dragging && "mouseover".equals(eventType)) {
                     if (clickedElement != null) {
                         if ((searchAreaId + HEADER_INPUT_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
+                            input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+                            inputFilter = InputElement.as(input);
                             if (inputFilter.getValue().length() > 0) {
                                 clearButton.setClassName("search-box-clear-button-on");
                             }
@@ -359,10 +379,11 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             if ((searchAreaId + HEADER_INPUT_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
                 String filterValue = inputFilter.getValue();
                 if (filterValue.length() > 0) {
-
+                    clearButton = DOM.getElementById(searchAreaId + HEADER_CLEAR_BUTTON_ID_PART);
                     clearButton.setClassName("search-box-clear-button-on");
                 }
             } else if ((searchAreaId + HEADER_CLEAR_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
+                clearButton = DOM.getElementById(searchAreaId + HEADER_CLEAR_BUTTON_ID_PART);
                 clearButton.setClassName("search-box-clear-button-off");
                 inputFilter.setValue(EMPTY_VALUE);
                 widget.setFilterValue(EMPTY_VALUE);

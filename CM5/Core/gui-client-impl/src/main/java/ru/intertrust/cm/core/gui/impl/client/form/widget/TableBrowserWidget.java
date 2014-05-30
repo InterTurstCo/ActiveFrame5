@@ -10,10 +10,8 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -168,9 +166,9 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     private CollectionViewerConfig initCollectionConfig() {
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
-        SearchAreaRefConfig searchAreaRefConfig = new SearchAreaRefConfig();
-        searchAreaRefConfig.setName(tableBrowserConfig.getInputTextFilterConfig().getName());
-        searchAreaRefConfig.setValue(filterEditor.getValue());
+
+        collectionViewerConfig.setFilterName(tableBrowserConfig.getInputTextFilterConfig().getName());
+        collectionViewerConfig.setFilterValue(filterEditor.getValue());
         collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
         collectionRefConfig.setName(tableBrowserConfig.getCollectionRefConfig().getName());
@@ -178,10 +176,12 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         collectionViewerConfig.setDefaultSortCriteriaConfig(defaultSortCriteriaConfig);
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
-        collectionViewerConfig.setSearchAreaRefConfig(searchAreaRefConfig);
+
         collectionViewerConfig.setSingleChoice(singleChoice);
         collectionViewerConfig.setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues());
         collectionViewerConfig.setExcludedIds(facebookStyleView.getChosenIds());
+        InitialFiltersConfig initialFiltersConfig = tableBrowserConfig.getFilterConfig();
+        collectionViewerConfig.setInitialFiltersConfig(initialFiltersConfig);
         return collectionViewerConfig;
     }
 

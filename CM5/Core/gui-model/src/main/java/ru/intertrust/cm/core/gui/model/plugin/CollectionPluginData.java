@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
@@ -25,7 +27,8 @@ public class CollectionPluginData extends ActivePluginData {
     private List<Id> chosenIds = new ArrayList<Id>();
     private String searchArea;
     private String collectionViewConfigName;
-
+    private InitialFiltersConfig initialFiltersConfig;
+    private FilterPanelConfig filterPanelConfig;
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<String, CollectionColumnProperties>();
     }
@@ -109,5 +112,21 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setCollectionViewConfigName(String collectionViewConfigName) {
         this.collectionViewConfigName = collectionViewConfigName;
+    }
+
+    public InitialFiltersConfig getInitialFiltersConfig() {
+        return initialFiltersConfig;
+    }
+
+    public void setInitialFiltersConfig(InitialFiltersConfig initialFiltersConfig) {
+        this.initialFiltersConfig = initialFiltersConfig;
+    }
+
+    public FilterPanelConfig getFilterPanelConfig() {
+        return filterPanelConfig;
+    }
+
+    public void setFilterPanelConfig(FilterPanelConfig filterPanelConfig) {
+        this.filterPanelConfig = filterPanelConfig;
     }
 }

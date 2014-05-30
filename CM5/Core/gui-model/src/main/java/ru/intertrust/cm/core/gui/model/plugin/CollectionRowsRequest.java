@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
@@ -26,7 +27,7 @@ public class CollectionRowsRequest implements Dto {
     private String columnName;
     private boolean sortable;
     private String sortedField;
-
+    private InitialFiltersConfig initialFiltersConfig;
     private String simpleSearchQuery;
     private String searchArea;
     private SortCriteriaConfig sortCriteriaConfig;
@@ -164,5 +165,13 @@ public class CollectionRowsRequest implements Dto {
 
     public void setFiltersMap(Map<String, String> filtersMap) {
         this.filtersMap = filtersMap;
+    }
+
+    public InitialFiltersConfig getInitialFiltersConfig() {
+        return initialFiltersConfig;
+    }
+
+    public void setInitialFiltersConfig(InitialFiltersConfig initialFiltersConfig) {
+        this.initialFiltersConfig = initialFiltersConfig;
     }
 }

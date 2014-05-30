@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonCsvRequest;
+import ru.intertrust.cm.core.gui.model.csv.JsonInitialFilters;
 import ru.intertrust.cm.core.gui.model.csv.JsonSortCriteria;
 
 import javax.servlet.ServletException;
@@ -71,7 +72,8 @@ public class JsonExportToCsv {
         }
         List<JsonColumnProperties> columnParams = csvRequest.getColumnProperties();
         Map<String, CollectionColumnProperties> columnPropertiesMap = JsonUtil.convertToColumnPropertiesMap(columnParams);
-        List<Filter> filters = JsonUtil.prepareFilters(columnParams, columnPropertiesMap);
+        JsonInitialFilters jsonInitialFilters = csvRequest.getJsonInitialFilters();
+        List<Filter> filters = JsonUtil.prepareFilters(columnParams, columnPropertiesMap, jsonInitialFilters);
         IdentifiableObjectCollection collections;
         int rowCount = csvRequest.getRowCount();
         if (simpleSearchQuery.isEmpty()){

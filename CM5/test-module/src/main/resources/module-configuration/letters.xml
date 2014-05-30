@@ -261,7 +261,7 @@
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
 
                     </node-collection-def>
-                    <node-collection-def collection="OrganizationsDepartmentsEmployees" parent-filter="byDepartmentAndOrganization" domain-object-type="Employee" >
+                    <node-collection-def collection="OrganizationsDepartmentsEmployees" parent-filter="byDepAndOrg" domain-object-type="Employee" >
                         <!-- название фильтра по тексту, введённому пользователем -->
                         <fill-parent-on-add field-to-fill="org_middle" collection="org_middle_collection"  filter-by-parent-id="byId"/>
                         <input-text-filter name="byNameAndPosition"/>

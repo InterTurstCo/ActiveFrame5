@@ -1,12 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
-import ru.intertrust.cm.core.gui.model.csv.JsonSortCriteria;
-import ru.intertrust.cm.core.gui.model.csv.JsonSortCriterion;
+import ru.intertrust.cm.core.gui.model.csv.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -21,20 +18,31 @@ import java.util.Map;
  */
 public class JsonUtil {
     public static List<Filter> prepareFilters(List<JsonColumnProperties> jsonPropertiesList,
-                                              Map<String, CollectionColumnProperties> columnPropertiesMap) throws ParseException {
+                                              Map<String, CollectionColumnProperties> columnPropertiesMap,
+                                              JsonInitialFilters jsonInitialFilters) throws ParseException {
         List<Filter> filters = new ArrayList<>();
+        List<String> excludedFilterFields = new ArrayList<>();
+
         for (JsonColumnProperties jsonProperties : jsonPropertiesList) {
             String filterValue = jsonProperties.getFilterValue();
-            if (filterValue != null){
             String fieldName = jsonProperties.getFieldName();
             CollectionColumnProperties columnProperties = columnPropertiesMap.get(fieldName);
-
-            Filter filter = FilterBuilder.prepareSearchFilter(filterValue, columnProperties);
-            filters.add(filter);
+            if (filterValue != null && filterValue.length() > 0) {
+                Filter filter = FilterBuilder.prepareSearchFilter(filterValue, columnProperties);
+                filters.add(filter);
+                excludedFilterFields.add(fieldName);
+            } else {
+                String initialFilterValue = (String) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE);
+                if (initialFilterValue != null) {
+                    excludedFilterFields.add(fieldName);
+                }
             }
         }
+        InitialFiltersConfig initialFiltersConfig = convertToInitialFiltersConfig(jsonInitialFilters);
+        FilterBuilder.prepareInitialFilters(initialFiltersConfig, excludedFilterFields, filters);
         return filters;
     }
+
 
     private static CollectionColumnProperties convertToColumnProperties(JsonColumnProperties jsonProperties) {
         CollectionColumnProperties properties = new CollectionColumnProperties();
@@ -50,13 +58,15 @@ public class JsonUtil {
         properties.addProperty(CollectionColumnProperties.PATTERN_KEY, pattern);
         String columnName = jsonProperties.getColumnName();
         properties.addProperty(CollectionColumnProperties.NAME_KEY, columnName);
+        String initialFilterValue = jsonProperties.getInitialFilterValue();
+        properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE, initialFilterValue);
         return properties;
 
     }
 
     public static Map<String, CollectionColumnProperties> convertToColumnPropertiesMap(
-            List<JsonColumnProperties> jsonPropertiesList){
-        Map<String, CollectionColumnProperties> columnPropertiesMap =   new LinkedHashMap<String, CollectionColumnProperties>();
+            List<JsonColumnProperties> jsonPropertiesList) {
+        Map<String, CollectionColumnProperties> columnPropertiesMap = new LinkedHashMap<String, CollectionColumnProperties>();
         for (JsonColumnProperties params : jsonPropertiesList) {
             CollectionColumnProperties properties = convertToColumnProperties(params);
             String fieldName = params.getFieldName();
@@ -66,7 +76,7 @@ public class JsonUtil {
     }
 
     public static SortCriteriaConfig convertToSortCriteriaConfig(JsonSortCriteria sortCriteria) {
-        if(sortCriteria == null) {
+        if (sortCriteria == null) {
             return null;
         }
         List<JsonSortCriterion> jsonSortCriterions = sortCriteria.getCriterions();
@@ -85,4 +95,39 @@ public class JsonUtil {
 
     }
 
+    private static InitialFiltersConfig convertToInitialFiltersConfig(JsonInitialFilters jsonInitialFilters) {
+        if (jsonInitialFilters == null) {
+            return null;
+        }
+        InitialFiltersConfig initialFiltersConfig = new InitialFiltersConfig();
+        String panelState = jsonInitialFilters.getPanelState();
+        initialFiltersConfig.setPanelState(panelState);
+        List<JsonInitialFilter> initialFilters = jsonInitialFilters.getJsonInitialFilters();
+        List<InitialFilterConfig> initialFilterConfigs = new ArrayList<>();
+        for (JsonInitialFilter initialFilter : initialFilters) {
+            InitialFilterConfig initialFilterConfig = convertToInitialFilterConfig(initialFilter);
+            initialFilterConfigs.add(initialFilterConfig);
+        }
+        initialFiltersConfig.setInitialFilterConfigs(initialFilterConfigs);
+        return initialFiltersConfig;
+
+    }
+
+    private static InitialFilterConfig convertToInitialFilterConfig(JsonInitialFilter initialFilter) {
+        InitialFilterConfig initialFilterConfig = new InitialFilterConfig();
+        String filterName = initialFilter.getName();
+        initialFilterConfig.setName(filterName);
+        List<JsonFilterParam> jsonFilterParams = initialFilter.getFilterParams();
+        if (jsonFilterParams != null && !jsonFilterParams.isEmpty()) {
+            List<ParamConfig> paramConfigs = new ArrayList<>();
+            for (JsonFilterParam jsonFilterParam : jsonFilterParams) {
+                ParamConfig paramConfig = new ParamConfig();
+                paramConfig.setName(jsonFilterParam.getName());
+                paramConfig.setValue(jsonFilterParam.getValue());
+                paramConfigs.add(paramConfig);
+            }
+            initialFilterConfig.setParamConfigs(paramConfigs);
+        }
+        return initialFilterConfig;
+    }
 }

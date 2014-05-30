@@ -14,7 +14,7 @@ import java.util.List;
 @Root(name = "themes")
 public class ThemesConfig implements Dto {
     @ElementList(inline = true, name ="theme", required = true)
-    List<ThemeConfig> themes;
+    private List<ThemeConfig> themes;
 
     public List<ThemeConfig> getThemes() {
         return themes;

@@ -16,7 +16,7 @@ public class JsonCsvRequest {
     private boolean ascend;
     private List<JsonColumnProperties> columnProperties;
     private JsonSortCriteria sortCriteria;
-
+    private JsonInitialFilters jsonInitialFilters;
     public JsonCsvRequest() {
     }
 
@@ -82,5 +82,13 @@ public class JsonCsvRequest {
 
     public void setRowCount(Integer rowCount) {
         this.rowCount = rowCount;
+    }
+
+    public JsonInitialFilters getJsonInitialFilters() {
+        return jsonInitialFilters;
+    }
+
+    public void setJsonInitialFilters(JsonInitialFilters jsonInitialFilters) {
+        this.jsonInitialFilters = jsonInitialFilters;
     }
 }

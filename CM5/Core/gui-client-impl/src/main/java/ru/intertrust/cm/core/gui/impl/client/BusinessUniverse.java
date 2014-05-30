@@ -180,13 +180,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         plugin.setConfig(pluginConfig);
 
         plugin.setDisplayActionToolBar(true);
-
         centralPluginPanel.open(plugin);
-
-
     }
-
-
 
     // вывод результатов расширенного поиска
     public void extendedSearchComplete(DomainObjectSurferPluginData domainObjectSurferPluginData) {

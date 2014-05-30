@@ -19,6 +19,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
@@ -55,7 +57,7 @@ public class CollectionPluginView extends PluginView {
     private LinkedHashMap<String, CollectionColumnProperties> fieldPropertiesMap;
     private VerticalPanel root = new VerticalPanel();
     private String collectionName;
-
+    private InitialFiltersConfig initialFiltersConfig;
     private int listCount;
     private int tableWidth;
     private boolean singleChoice = true;
@@ -72,6 +74,7 @@ public class CollectionPluginView extends PluginView {
     private CollectionCsvController csvController;
     private CollectionColumn<CollectionRowItem, Boolean> checkColumn;
     private SetSelectionModel<CollectionRowItem> selectionModel;
+    private FilterPanelConfig filterPanelConfig;
     /**
      * Создание стилей для ящеек таблицы
      */
@@ -92,14 +95,20 @@ public class CollectionPluginView extends PluginView {
 
     }
 
+    public CollectionColumnHeaderController getHeaderController() {
+        return headerController;
+    }
+
     @Override
     public IsWidget getViewWidget() {
         CollectionPluginData collectionPluginData = plugin.getInitialData();
+        initialFiltersConfig = collectionPluginData.getInitialFiltersConfig();
         collectionName = collectionPluginData.getCollectionName();
         fieldPropertiesMap = collectionPluginData.getDomainObjectFieldPropertiesMap();
-        items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
         searchArea = collectionPluginData.getSearchArea();
+        items = collectionPluginData.getItems();
+        filterPanelConfig = collectionPluginData.getFilterPanelConfig();
         init();
         final List<Integer> selectedIndexes = collectionPluginData.getIndexesOfSelectedItems();
         for (int index : selectedIndexes) {
@@ -116,7 +125,6 @@ public class CollectionPluginView extends PluginView {
         applySelectionModel();
         insertRows(items);
         applyBodyTableStyle();
-
         csvController = new CollectionCsvController(root);
 
     }
@@ -141,7 +149,6 @@ public class CollectionPluginView extends PluginView {
     public void onPluginPanelResize() {
         updateSizes();
 
-
     }
 
     private void addHandlers() {
@@ -149,7 +156,6 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(CollectionPluginResizeBySplitterEvent.TYPE, new CollectionPluginResizeBySplitterEventHandler() {
             @Override
             public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
-
                 tableBody.redraw();
                 headerController.setFocus();
                 headerController.updateFilterValues();
@@ -197,13 +203,11 @@ public class CollectionPluginView extends PluginView {
                 items.clear();
                 if (!event.isTypeButton()) {
                     filtersMap.clear();
-
                     simpleSearchQuery = "";
                 } else {
                     simpleSearchQuery = event.getText();
 
                 }
-
                 createCollectionData();
             }
         });
@@ -240,6 +244,7 @@ public class CollectionPluginView extends PluginView {
                 JsonUtil.prepareJsonAttributes(requestObj, collectionName, simpleSearchQuery, searchArea, rowCount);
                 JsonUtil.prepareJsonSortCriteria(requestObj, fieldPropertiesMap, sortCollectionState);
                 JsonUtil.prepareJsonColumnProperties(requestObj, fieldPropertiesMap, filtersMap);
+                JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig);
                 csvController.doPostRequest(requestObj.toString());
 
             }
@@ -251,7 +256,7 @@ public class CollectionPluginView extends PluginView {
         filtersMap.clear();
         for (CollectionColumnHeader header : headerController.getHeaders()) {
             String filterValue = header.getFilterValue();
-            if (filterValue != null && filterValue.length() > 0) {
+            if (filterValue != null) {
                 filtersMap.put(header.getFieldName(), filterValue);
 
             }
@@ -261,7 +266,9 @@ public class CollectionPluginView extends PluginView {
 
     private void onKeyEscapePressed() {
         filterButton.setValue(false);
+        headerController.clearFilters();
         headerController.changeFiltersInputsVisibility(false);
+
         filtersMap.clear();
         clearAllTableData();
 
@@ -374,6 +381,8 @@ public class CollectionPluginView extends PluginView {
         checkColumn.setDataStoreName(CHECK_BOX_COLUMN_NAME);
         createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap);
     }
+    
+
 
     private void createTableColumnsWithoutCheckBoxes(
             LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap) {
@@ -381,7 +390,8 @@ public class CollectionPluginView extends PluginView {
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
             CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
-            HeaderWidget headerWidget = new HeaderWidget(column, columnProperties);
+            String initialFilterValue = (String) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE);
+            HeaderWidget headerWidget = new HeaderWidget(column, columnProperties, initialFilterValue);
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             headers.add(collectionColumnHeader);
             tableBody.addColumn(column, collectionColumnHeader);
@@ -397,6 +407,25 @@ public class CollectionPluginView extends PluginView {
         }
         headerController.setHeaders(headers);
         CollectionDataGridUtils.addjustColumnsWidth(tableWidth, tableBody);
+                String panelStatus = getPanelState();
+                if (panelStatus.equalsIgnoreCase(OPEN)) {
+                    headerController.changeFiltersInputsVisibility(true);
+                    filterButton.setValue(true);
+                    headerController.updateFilterValues();
+                }
+
+
+    }
+    private String getPanelState() {
+        if(filterPanelConfig == null && initialFiltersConfig == null) {
+            return CLOSED;
+        } else if (filterPanelConfig == null && initialFiltersConfig != null) {
+            String rawPanelState = initialFiltersConfig.getPanelState();
+            String panelState = rawPanelState == null ? CLOSED : rawPanelState;
+            return panelState;
+        }
+        return filterPanelConfig.getPanelState();
+
     }
 
     public void insertRows(List<CollectionRowItem> list) {
@@ -439,6 +468,7 @@ public class CollectionPluginView extends PluginView {
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, FETCHED_ROW_COUNT, collectionName,
                 fieldPropertiesMap, simpleSearchQuery, searchArea);
         collectionRowsRequest.setFiltersMap(filtersMap);
+        collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         collectionRowRequestCommand(collectionRowsRequest);
     }
 
@@ -463,6 +493,7 @@ public class CollectionPluginView extends PluginView {
                 : collectionColumnProperties.getDescSortCriteriaConfig();
         collectionRowsRequest.setSortCriteriaConfig(sortCriteriaConfig);
         collectionRowsRequest.setFiltersMap(filtersMap);
+        collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         collectionRowRequestCommand(collectionRowsRequest);
 
     }
@@ -586,7 +617,7 @@ public class CollectionPluginView extends PluginView {
                 return;
             }
             //Height of grid contents (including outside the viewable area) - height of the scroll panel
-           // int maxScrollTop = scroll.getWidget().getOffsetHeight() - scroll.getOffsetHeight();
+            // int maxScrollTop = scroll.getWidget().getOffsetHeight() - scroll.getOffsetHeight();
             int maxScrollTop = scroll.getMaximumVerticalScrollPosition();
             if (lastScrollPos >= maxScrollTop && maxScrollTop > previousScrollMaxVerticalPosition) {
                 if (sortCollectionState != null) {

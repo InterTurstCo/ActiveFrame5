@@ -1,29 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.DatePeriodFilter;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
-import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
-import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -46,22 +28,10 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
-import ru.intertrust.cm.core.gui.model.form.widget.TextState;
-import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
-import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
-import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.plugin.*;
+
+import java.util.*;
 
 /**
  * User: IPetrov
@@ -310,7 +280,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         final LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap = new LinkedHashMap<>();
         for (CollectionColumnConfig ccConfig : targetViewConfig.getCollectionDisplayConfig().getColumnConfig()) {
             final CollectionColumnProperties properties =
-                    GuiServerHelper.collectionColumnConfigToProperties(ccConfig, null);
+                    GuiServerHelper.collectionColumnConfigToProperties(ccConfig, null, null);
             columnPropertiesMap.put(ccConfig.getField(), properties);
         }
         IdentifiableObjectCollection collection = extendedSearch(extendedSearchData);

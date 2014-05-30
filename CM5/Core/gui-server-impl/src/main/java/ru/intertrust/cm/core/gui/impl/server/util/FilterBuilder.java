@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.ParamConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
@@ -145,4 +148,35 @@ public class FilterBuilder {
         filter.addCriterion(0, currentDateTimeWithTimeZoneValue);
     }
 
+    public static void prepareInitialFilters(InitialFiltersConfig initialFiltersConfig, List<String> excludedInitialFilterNames,
+                                   List<Filter> filters) {
+        if(initialFiltersConfig == null) {
+            return;
+        }
+        List<InitialFilterConfig> initialFilterConfigs = initialFiltersConfig.getInitialFilterConfigs();
+        for (InitialFilterConfig initialFilterConfig : initialFilterConfigs) {
+            String filterName = initialFilterConfig.getName();
+            if(excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)){
+                Filter initialFilter = prepareInitialFilter(initialFilterConfig);
+                filters.add(initialFilter);
+            }
+        }
+
+    }
+
+    private static Filter prepareInitialFilter(InitialFilterConfig initialFilterConfig) {
+        String filterName = initialFilterConfig.getName();
+        Filter initFilter = new Filter();
+        initFilter.setFilter(filterName);
+        List<ParamConfig> paramConfigs = initialFilterConfig.getParamConfigs();
+        if(paramConfigs != null && !paramConfigs.isEmpty()) {
+            for (ParamConfig paramConfig : paramConfigs) {
+                Integer name = paramConfig.getName();
+                String value = paramConfig.getValue();
+                initFilter.addCriterion(name, new StringValue(value));
+            }
+
+        }
+        return initFilter;
+    }
 }

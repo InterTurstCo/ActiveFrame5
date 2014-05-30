@@ -476,26 +476,26 @@
                 <single-choice value="true"/>
                 <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
             </attachment-box>
-            <linked-domain-object-hyperlink id="17a"> <!-- для единичного связанного объекта -->
-                <field-path value="city^country"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="city_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
-                <pattern value="{name}"/> <!-- в паттерне ссылки задаются относительно field-path -->
-            </linked-domain-object-hyperlink>
-          <!--  <table-browser id="17a">
+
+            <table-browser id="17a">
                 <field-path value="city^country"/>
-
                 <collection-ref name="Cities"/>
+                <initial-filters panel-state="open">
+                    <initial-filter name="withoutCountry"></initial-filter>
+                    <initial-filter name="byText">
+                        <param name="0" value="Дре%"/>
+                    </initial-filter>
+                </initial-filters>
+                <collection-view-ref name="cities_default_view"/>
 
-                <collection-view-ref name="cities_view"/>
-
-                &lt;!&ndash; паттерн отображения уже выбранных значений &ndash;&gt;
+                <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
-                &lt;!&ndash; название фильтра по тексту, введённому пользователем &ndash;&gt;
-                <input-text-filter name="byText"/>
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byNameforTableBrowser"/>
 
-                &lt;!&ndash; количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
-                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) &ndash;&gt;
+                <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
+                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
                 <page-size>30</page-size>
                 <display-chosen-values value="false"/>
                 <selection-style name="inline"/>
@@ -504,7 +504,7 @@
                 <add-button image="..." text="..."/>
                 <default-sort-criteria column-field="name" order="desc"/>
                 <display-values-as-links value="true"/>
-            </table-browser>-->
+            </table-browser>
             <!--<linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">-->
             <linked-domain-objects-table id="city_table" modal-width="500px" modal-height="300px">
                 <field-path value="country_most_famous_city^country.city"/>
@@ -755,7 +755,7 @@
     <collection-view name="cities_default_view" collection="Cities" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="name" name="Название" editable="false" type="string" sortable="true"/>
+            <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byText"/>
             <column field="population" name="Популяция" type="string" editable="false" sortable="true">
                 <asc-sort-criteria>
                     <sort-criterion field="population" order="asc"/>
@@ -765,20 +765,6 @@
                     <sort-criterion field="population" order="desc"/>
                     <sort-criterion field="name" order="asc"/>
                 </desc-sort-criteria>
-            </column>
-            <column field="year_of_foundation" name="Год основания " type="integer" editable="false" sortable="true"/>
-            <column field="latitude" name="Широта" type="string" editable="false" sortable="true"/>
-            <column field="longitude" name="Долгота" type="string" editable="false" sortable="true"/>
-            <column field="square" name="Площадь" type="string" editable="false" sortable="true"/>
-        </display>
-    </collection-view>
-
-    <collection-view name="cities_view" collection="Cities" is-default="true">
-        <display>
-            <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="name" name="Имя" editable="false" type="string" sortable="true">
-            </column>
-            <column field="population" name="Население" type="string" editable="false" sortable="true">
             </column>
             <column field="year_of_foundation" name="Год основания " type="integer" editable="false" sortable="true"/>
             <column field="latitude" name="Широта" type="string" editable="false" sortable="true"/>
