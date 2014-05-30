@@ -232,9 +232,6 @@ public class ConfigurationStorageBuilder {
             } else if (CollectionViewConfig.class.equals(config.getClass())) {
                 CollectionViewConfig collectionViewConfig = (CollectionViewConfig) config;
                 fillCollectionColumnConfigMap(collectionViewConfig);
-            } else if (AccessMatrixConfig.class.equals(config.getClass())) {
-                AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) config;
-                fillReadPermittedToEverybodyMap(accessMatrixConfig);
             } else if (ToolBarConfig.class.equals(config.getClass())) {
                 ToolBarConfig toolBarConfig = (ToolBarConfig) config;
                 fillToolbarConfigByPluginMap(toolBarConfig);
@@ -243,6 +240,8 @@ public class ConfigurationStorageBuilder {
 
         initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
         initConfigurationMapOfChildDomainObjectTypes();
+        //Заполнение таблицы read-evrybody. Вынесено сюда, потому что не для всех типов существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
+        fillReadPermittedToEverybodyMap();
     }
 
     private void initConfigurationMapOfChildDomainObjectTypes() {
@@ -336,31 +335,30 @@ public class ConfigurationStorageBuilder {
         }
     }
 
-    private void fillReadPermittedToEverybodyMap(AccessMatrixConfig accessMatrixConfig) {
-        Boolean readEverybody = accessMatrixConfig.isReadEverybody();
-
-        if (readEverybody == null) {
-            String type = accessMatrixConfig.getType();
-            readEverybody = isReadEverybodyForSupertype(type);
+    private void fillReadPermittedToEverybodyMap() {
+        for (TopLevelConfig config : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
+            boolean readEverybody = isReadEverybodyForType(config.getName());
+            configurationStorage.readPermittedToEverybodyMap.put(config.getName(), readEverybody);
         }
-        configurationStorage.readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), readEverybody);
     }
 
-    private Boolean isReadEverybodyForSupertype(String domainObjectType) {
-        DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+    private boolean isReadEverybodyForType(String domainObjectType) {
+        boolean result = false;
         
-        if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
-            String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
-            AccessMatrixConfig parentAccessMatrixConfig =
-                    configurationExplorer.getAccessMatrixByObjectType(parentDOType);
-            if (parentAccessMatrixConfig != null && parentAccessMatrixConfig.isReadEverybody() != null) {
-                return parentAccessMatrixConfig.isReadEverybody();
-            } else {
-                return isReadEverybodyForSupertype(parentDOType);
+        AccessMatrixConfig accessMatrixConfig =
+                configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
+        
+        if (accessMatrixConfig != null && accessMatrixConfig.isReadEverybody() != null){
+            result = accessMatrixConfig.isReadEverybody();
+        }else{
+            DomainObjectTypeConfig domainObjectTypeConfig =
+                    configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+            if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
+                String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
+                result = isReadEverybodyForType(parentDOType);
             }
         }
-        return false;
+        return result;
     }
 
     @Deprecated

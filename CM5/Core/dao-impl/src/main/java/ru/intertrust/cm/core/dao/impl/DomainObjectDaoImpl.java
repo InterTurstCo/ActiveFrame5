@@ -1079,21 +1079,28 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if (matrixRefType != null){
                 permissionType = matrixRefType;
             }
-            //Таблица с правами на read получается с учетом наследования типов
-            String aclReadTable = AccessControlUtility
-                    .getAclReadTableName(configurationExplorer, permissionType);
-            String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, typeName));
-
-            query.append(" and exists (select a.object_id from ").append(aclReadTable).append(" a ");
-            query.append(" inner join ").append(wrap("group_group")).append(" gg on a.")
-                    .append(wrap("group_id")).append(" = gg.").append(wrap("parent_group_id"));
-            query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
-                    .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
-            //обавляем в связи с появлением функциональности замещения прав
-            query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
-            .append(DaoUtils.wrap("access_object_id")).
-            append(" = a.").append(DaoUtils.wrap("object_id"));
-            query.append(") where gm.person_id = :user_id and o.id = :id)");
+            
+            //Получаем матрицу для permissionType
+            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(permissionType);
+            //В полученной матрице получаем флаг read-evrybody и если его нет то добавляем подзапрос с правами
+            if (accessMatrixConfig == null || accessMatrixConfig.isReadEverybody() == null || !accessMatrixConfig.isReadEverybody()){
+            
+                //Таблица с правами на read получается с учетом наследования типов
+                String aclReadTable = AccessControlUtility
+                        .getAclReadTableName(configurationExplorer, permissionType);
+                String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, typeName));
+    
+                query.append(" and exists (select a.object_id from ").append(aclReadTable).append(" a ");
+                query.append(" inner join ").append(wrap("group_group")).append(" gg on a.")
+                        .append(wrap("group_id")).append(" = gg.").append(wrap("parent_group_id"));
+                query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
+                        .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
+                //обавляем в связи с появлением функциональности замещения прав
+                query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
+                .append(DaoUtils.wrap("access_object_id")).
+                append(" = a.").append(DaoUtils.wrap("object_id"));
+                query.append(") where gm.person_id = :user_id and o.id = :id)");
+            }
 
         }
 
