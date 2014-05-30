@@ -83,8 +83,9 @@ public class AttachmentBoxWidget extends BaseWidget {
     protected Widget asEditableWidget(WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
-        AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView(selectionStyleConfig, attachmentBoxState.getActionLinkConfig(), this
-        );
+        AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView(selectionStyleConfig,
+                attachmentBoxState.getActionLinkConfig(), this);
+
         attachmentUploaderView.addFormSubmitCompleteHandler(new FormSubmitCompleteHandler());
         attachmentUploaderView.addFormSubmitHandler(new FormSubmitHandler());
         return attachmentUploaderView;
@@ -156,7 +157,9 @@ public class AttachmentBoxWidget extends BaseWidget {
                 };
                 elapsedTimer.scheduleRepeating(100);
            // }
+
         }
+
     }
 
     private class FormSubmitCompleteHandler implements FormPanel.SubmitCompleteHandler {

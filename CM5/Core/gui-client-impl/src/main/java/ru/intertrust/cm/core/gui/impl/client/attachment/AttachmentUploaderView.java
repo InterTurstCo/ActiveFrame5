@@ -130,12 +130,14 @@ public class AttachmentUploaderView extends Composite {
         final AbsolutePanel element = new AbsolutePanel();
 
         element.setStyleName("facebook-element");
+        element.addStyleName("loading-attachment");
         Label label = new Label(item.getName());
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
         progressbar = new Image();
         progressbar.setUrl("CMJSpinner.gif");
         percentage = new Label("0%");
+        percentage.addStyleName("loading-attachment");
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
         delBtn.getElement().getStyle().setPadding(2, Style.Unit.PX);
@@ -212,9 +214,11 @@ public class AttachmentUploaderView extends Composite {
                 if (singleChoice && !attachments.isEmpty()) {
                     showDialogBox();
                 } else {
-                    submitForm.submit();
                     InputElement inputElement = fileUpload.getElement().cast();
-                    inputElement.setValue("");
+                    String filename = inputElement.getValue();
+                    if(filename.length() > 0) {
+                        submitForm.submit();
+                    }
                 }
 
             }
@@ -257,9 +261,13 @@ public class AttachmentUploaderView extends Composite {
             public void onClick(ClickEvent event) {
                 mainBoxPanel.clear();
                 attachments.clear();
-                submitForm.submit();
                 InputElement inputElement = fileUpload.getElement().cast();
-                inputElement.setValue("");
+                String filename = inputElement.getValue();
+                if(filename.length() > 0) {
+                    submitForm.submit();
+                }
+
+               /* */
                 dialogBox.hide();
             }
         });

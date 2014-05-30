@@ -473,7 +473,7 @@
                 <attachment-type-ref name="country_attachment"/>
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
-                <single-choice value="true"/>
+                <single-choice value="false"/>
                 <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
             </attachment-box>
 

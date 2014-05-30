@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -48,7 +48,17 @@ public class AttachmentDownloader {
         RemoteInputStream remoteFileData = attachmentService.loadAttachment(rdmsId);
         try (
                 InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);) {
-            response.setHeader("Content-Disposition", "attachment; filename=" + domainObject.getString("Name"));
+
+            String filename = domainObject.getString("Name");
+            filename = URLEncoder.encode(filename, "UTF-8");
+
+            response.setCharacterEncoding("UTF-8");
+
+                response.setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
+
+
+
+
             response.setContentType(mimeType);
             stream(fileData, response.getOutputStream());
         }

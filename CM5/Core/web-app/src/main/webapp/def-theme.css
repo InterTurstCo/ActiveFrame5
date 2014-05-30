@@ -2568,3 +2568,6 @@ td.datePickerMonth {
     right: 100px !important;
     top: 55px !important;
 }
+.loading-attachment{
+    display: inline-block;
+}
