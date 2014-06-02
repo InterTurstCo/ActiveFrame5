@@ -565,8 +565,8 @@ public class SqlQueryModifier {
                     return getDOTypeName(plainSubSelect, column, true);
                 } else if(join.getRightItem() instanceof Table){
                     Table joinTable = (Table) join.getRightItem();
-                    if (joinTable.getAlias() != null && column.getTable().getName().equals(joinTable.getAlias().getName()) ||
-                            column.getTable().getName().equals(joinTable.getName())) {
+                    if (joinTable.getAlias() != null && column.getTable().getName().equalsIgnoreCase(joinTable.getAlias().getName()) ||
+                            column.getTable().getName().equalsIgnoreCase(joinTable.getName())) {
                         return DaoUtils.unwrap(joinTable.getName());
                     }
                     
