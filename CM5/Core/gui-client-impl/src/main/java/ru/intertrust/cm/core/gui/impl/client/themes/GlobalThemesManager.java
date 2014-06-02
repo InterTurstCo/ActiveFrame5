@@ -1,10 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.client.themes;
 
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.storage.client.Storage;
+import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import ru.intertrust.cm.core.config.ThemeConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 import java.util.HashMap;
@@ -35,18 +38,18 @@ public class GlobalThemesManager {
         Storage stockStore = Storage.getLocalStorageIfSupported();
         String defaultThemeComponent = findDefaultTheme(themesConfig);
         if (stockStore != null) {
-            String themeName = stockStore.getItem(BusinessUniverseConstants.USER_THEME_NAME);
-            bundleWrapper = (BundleWrapper) (themeName == null ? ComponentRegistry.instance.get(defaultThemeComponent)
-                    : ComponentRegistry.instance.get(themeName));
+            String themeComponent = stockStore.getItem(BusinessUniverseConstants.USER_THEME_NAME);
+            bundleWrapper = (BundleWrapper) (themeComponent == null ? ComponentRegistry.instance.get(defaultThemeComponent)
+                    : ComponentRegistry.instance.get(themeComponent));
 
-            if (themeName != null) {
-                RootLayoutPanel.get().setStyleName(themeName);
+            if (themeComponent != null) {
+                RootLayoutPanel.get().setStyleName(themeComponent);
             }
         } else {
             bundleWrapper = ComponentRegistry.instance.get(defaultThemeComponent);
         }
 
-        bundleWrapper.getThemeBundle().css().ensureInjected();
+        bundleWrapper.getMainCss().ensureInjected();
     }
 
     private static String findDefaultTheme(ThemesConfig themesConfig) {
@@ -75,5 +78,17 @@ public class GlobalThemesManager {
 
     public static Map<String, ThemeConfig> getThemeNameImageMap() {
         return themeNameImageMap;
+    }
+
+    public static DataGrid.Resources getDataGridResources() {
+        return bundleWrapper.getDataGridResources();
+    }
+
+    public static SplitterStyles getSplitterStyles() {
+        return bundleWrapper.getSplitterStyles();
+    }
+
+    public static CssResource getNavigationTreeStyles() {
+        return bundleWrapper.getNavigationTreeCss();
     }
 }

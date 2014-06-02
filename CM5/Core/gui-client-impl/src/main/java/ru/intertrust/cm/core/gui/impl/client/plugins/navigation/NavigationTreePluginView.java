@@ -24,6 +24,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyle;
 import ru.intertrust.cm.core.gui.impl.client.panel.RootNodeButton;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
 import ru.intertrust.cm.core.gui.impl.client.panel.SystemTreeStyles;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
@@ -82,7 +83,7 @@ public class NavigationTreePluginView extends PluginView {
         final FocusPanel focusContainer = new FocusPanel();
         focusContainer.addStyleName("focusContainer");
 
-        SystemTreeStyles.I.styles().ensureInjected();
+        GlobalThemesManager.getNavigationTreeStyles().ensureInjected();
         VerticalPanel rootLinksPanel = new VerticalPanel();
         decorateRootlinksPanel(rootLinksPanel);
         List<LinkConfig> linkConfigList = navigationTreePluginData.getNavigationConfig().getLinkConfigList();

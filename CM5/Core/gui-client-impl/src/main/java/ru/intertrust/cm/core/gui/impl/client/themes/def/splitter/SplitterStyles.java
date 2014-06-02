@@ -5,14 +5,14 @@
  *
  * Visit our web-site: www.intertrust.ru.
  */
-package ru.intertrust.cm.core.gui.impl.client.splitter.resources;
+package ru.intertrust.cm.core.gui.impl.client.themes.def.splitter;
 
 import com.google.gwt.resources.client.CssResource;
 
 /**
- * TODO Описание (от Nick Gritsenko)
- * @author Nick Gritsenko
- * @since 4.1
+ * @author Yaroslav Bondarchuk
+ *         Date: 19.05.14
+ *         Time: 17:15
  */
 
 public interface SplitterStyles extends CssResource {
@@ -106,5 +106,6 @@ public interface SplitterStyles extends CssResource {
 
   @ClassName("touch-dummy-splitter")
   String touchDummySplitter();
+
 
 }

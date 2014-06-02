@@ -11,6 +11,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
+import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -28,8 +29,8 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.Check
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CollectionColumnHeaderController;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.HeaderWidget;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DataGridResourceAdapter;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DataGridResources;
+
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -75,16 +76,13 @@ public class CollectionPluginView extends PluginView {
     private CollectionColumn<CollectionRowItem, Boolean> checkColumn;
     private SetSelectionModel<CollectionRowItem> selectionModel;
     private FilterPanelConfig filterPanelConfig;
-    /**
-     * Создание стилей для ящеек таблицы
-     */
-    private final DataGridResourceAdapter adapter;
+
 
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
         this.eventBus = plugin.getLocalEventBus();
-        adapter = new DataGridResourceAdapter(DataGridResources.I);
-        tableBody = new CollectionDataGrid(15, adapter.getResources(), eventBus);
+        DataGrid.Resources resources = GlobalThemesManager.getDataGridResources();
+        tableBody = new CollectionDataGrid(15, resources, eventBus);
         tableWidth = plugin.getOwner().getVisibleWidth();
 
     }

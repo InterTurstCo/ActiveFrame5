@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.themes;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
+import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -10,6 +11,12 @@ import com.google.gwt.resources.client.ImageResource;
  *         Time: 17:15
  */
 public interface ThemeBundle extends ClientBundle {
-    CssResource css();
+    public CssResource mainCss();
+
+    public CssResource navigationTreeCss();
+
+    SplitterStyles splitterCss();
+
     ImageResource settingsIm();
+
 }

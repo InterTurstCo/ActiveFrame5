@@ -14,15 +14,14 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
-import ru.intertrust.cm.core.gui.impl.client.splitter.resources.SplitterResources;
-import ru.intertrust.cm.core.gui.impl.client.splitter.resources.SplitterStyles;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
 
 
 public class SplitterEx extends DockLayoutPanel {
 
-    protected static SplitterStyles style = SplitterResources.INST.styles();
+   
     protected boolean splitType;
     protected int sizeFromInsert;
 
@@ -31,10 +30,10 @@ public class SplitterEx extends DockLayoutPanel {
             super(target, reverse);
 
             getElement().getStyle().setPropertyPx("width", splitterSize);
-            leftArrow.setStyleName(style.splitterArrow() + " " + style.leftArrowVert());
-            rightArrow.setStyleName(style.splitterArrow() + " " + style.rightArrowVert());
-            centralDummy.setStyleName(style.centralPanelVertDots());
-            changeModeButton.setStyleName(style.changeModeVertButton());
+            leftArrow.setStyleName(GlobalThemesManager.getSplitterStyles().splitterArrow() + " " + GlobalThemesManager.getSplitterStyles().leftArrowVert());
+            rightArrow.setStyleName(GlobalThemesManager.getSplitterStyles().splitterArrow() + " " + GlobalThemesManager.getSplitterStyles().rightArrowVert());
+            centralDummy.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelVertDots());
+            changeModeButton.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeVertButton());
             splitType = true;
 
 
@@ -80,23 +79,23 @@ public class SplitterEx extends DockLayoutPanel {
 
         @Override
         protected void changeCentralPanel() {
-            centralPanel.setStyleName(style.centralPanelVert());
-            changeModePanel.setStyleName(style.changeModeVert());
-            setStyleName(style.horizontalBar());
+            centralPanel.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelVert());
+            changeModePanel.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeVert());
+            setStyleName(GlobalThemesManager.getSplitterStyles().horizontalBar());
         }
 
         @Override
         protected void changeFullLeftPosition() {
-            centralPanel.setStyleName(style.centralPanelVertLeft());
-            changeModePanel.setStyleName(style.changeModeVertLeft());
-            setStyleName(style.horizontalBarLeft());
+            centralPanel.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelVertLeft());
+            changeModePanel.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeVertLeft());
+            setStyleName(GlobalThemesManager.getSplitterStyles().horizontalBarLeft());
         }
 
         @Override
         protected void changeFullRightPosition() {
-            centralPanel.setStyleName(style.centralPanelVertRight());
-            changeModePanel.setStyleName(style.changeModeVertRight());
-            setStyleName(style.horizontalBarRight());
+            centralPanel.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelVertRight());
+            changeModePanel.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeVertRight());
+            setStyleName(GlobalThemesManager.getSplitterStyles().horizontalBarRight());
         }
 
     }
@@ -131,17 +130,17 @@ public class SplitterEx extends DockLayoutPanel {
         private double lastClick = 0;
 
         public Splitter(Widget target, boolean reverse) {
-            style.ensureInjected();
+            GlobalThemesManager.getSplitterStyles().ensureInjected();
             this.target = target;
             target.getElement().addClassName("target-target");
             target.getElement().getParentElement().addClassName("before-target-target");
             this.reverse = reverse;
             target.getElement().getStyle().setOverflow(Style.Overflow.VISIBLE);
 
-            dummyLeftPanel.setStyleName(style.touchDummyButton());
-            dummyLeftButton.setStyleName(style.touchDummyButton());
-            dummyRightButton.setStyleName(style.touchDummyButton());
-            dummySplitter.setStyleName(style.touchDummySplitter());
+            dummyLeftPanel.setStyleName(GlobalThemesManager.getSplitterStyles().touchDummyButton());
+            dummyLeftButton.setStyleName(GlobalThemesManager.getSplitterStyles().touchDummyButton());
+            dummyRightButton.setStyleName(GlobalThemesManager.getSplitterStyles().touchDummyButton());
+            dummySplitter.setStyleName(GlobalThemesManager.getSplitterStyles().touchDummySplitter());
 
             leftArrow.add(dummyLeftButton);
             rightArrow.add(dummyRightButton);
@@ -439,10 +438,10 @@ public class SplitterEx extends DockLayoutPanel {
         public VSplitter(Widget target, boolean reverse, int size) {
             super(target, reverse);
             getElement().getStyle().setPropertyPx("height", splitterSize);
-            leftArrow.setStyleName(style.splitterArrow() + " " + style.leftArrowHoriz());
-            rightArrow.setStyleName(style.splitterArrow() + " " + style.rightArrowHoriz());
-            centralDummy.setStyleName(style.centralPanelHorizDots());
-            changeModeButton.setStyleName(style.changeModeHorizButton());
+            leftArrow.setStyleName(GlobalThemesManager.getSplitterStyles().splitterArrow() + " " + GlobalThemesManager.getSplitterStyles().leftArrowHoriz());
+            rightArrow.setStyleName(GlobalThemesManager.getSplitterStyles().splitterArrow() + " " + GlobalThemesManager.getSplitterStyles().rightArrowHoriz());
+            centralDummy.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelHorizDots());
+            changeModeButton.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeHorizButton());
             splitType = false;
             if (size == (0/*-splitterSize*/)){
                 changeFullLeftPosition();
@@ -487,25 +486,25 @@ public class SplitterEx extends DockLayoutPanel {
 
         @Override
         protected void changeCentralPanel() {
-            centralPanel.setStyleName(style.centralPanelHoriz());
-            changeModePanel.setStyleName(style.changeModeHoriz());
+            centralPanel.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelHoriz());
+            changeModePanel.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeHoriz());
             getElement().getStyle().setOverflow(Style.Overflow.VISIBLE);
-            setStyleName(style.verticalBar());
+            setStyleName(GlobalThemesManager.getSplitterStyles().verticalBar());
 
         }
 
         @Override
         protected void changeFullLeftPosition() {
-            centralPanel.setStyleName(style.centralPanelHorizTop());
-            changeModePanel.setStyleName(style.changeModeHorizTop());
-            setStyleName(style.verticalBarTop());
+            centralPanel.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelHorizTop());
+            changeModePanel.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeHorizTop());
+            setStyleName(GlobalThemesManager.getSplitterStyles().verticalBarTop());
         }
 
         @Override
         protected void changeFullRightPosition() {
-            centralPanel.setStyleName(style.centralPanelHorizBottom());
-            changeModePanel.setStyleName(style.changeModeHorizBottom());
-            setStyleName(style.verticalBarBottom());
+            centralPanel.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelHorizBottom());
+            changeModePanel.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeHorizBottom());
+            setStyleName(GlobalThemesManager.getSplitterStyles().verticalBarBottom());
         }
 
     }

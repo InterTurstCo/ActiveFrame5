@@ -9,12 +9,21 @@ package ru.intertrust.cm.core.gui.impl.client.themes.def;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
+import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
 
 public interface DefaultThemeBundle extends ThemeBundle{
 
     @Source("custom-theme.css")
     @CssResource.NotStrict
-    public CssResource css();
+    public CssResource mainCss();
+
+    @Source("navigation/navigation-tree.css")
+    @CssResource.NotStrict
+    public CssResource navigationTreeCss();
+
+    @CssResource.NotStrict
+    @Source("splitter/splitter.css")
+    SplitterStyles splitterCss();
 
     @Source("images/settings.png")
     public ImageResource settingsIm();

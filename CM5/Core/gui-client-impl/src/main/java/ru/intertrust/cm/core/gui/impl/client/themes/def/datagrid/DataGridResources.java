@@ -1,7 +1,5 @@
-package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources;
+package ru.intertrust.cm.core.gui.impl.client.themes.def.datagrid;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.CssResource.ImportedWithPrefix;
 import com.google.gwt.resources.client.ImageResource;
@@ -14,8 +12,6 @@ import com.google.gwt.user.cellview.client.DataGrid.Style;
  *         Time: 12:05 PM
  */
 public interface DataGridResources extends DataGrid.Resources {
-
-    public DataGridResources I = GWT.create(DataGridResources.class);
 
     String CSS_FILE = "CellTableCommon.css";
 
@@ -178,6 +174,6 @@ public interface DataGridResources extends DataGrid.Resources {
 
     @Override
     @CssResource.NotStrict
-    @ClientBundle.Source(CSS_FILE)
+    @Source(CSS_FILE)
     Style dataGridStyle();
 }

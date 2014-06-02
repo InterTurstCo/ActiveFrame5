@@ -1,0 +1,312 @@
+#content-tree {
+	position: absolute;
+	top: 0px;
+	left: 0;
+	bottom: 0;
+	width: 220px;
+	/* overflow-x: hidden; 
+	overflow-y: auto;  */
+	overflow: auto;
+}
+
+#content-tree-wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	/* overflow-x: hidden; 
+	overflow-y: auto;  */
+	overflow: auto;
+}
+
+#content-tree.hidden {
+	display: none;
+}
+
+#content-tree a {
+	color: #fff;
+}
+
+#content-tree a:hover {
+	color: #72CCFF;
+}
+
+#content-tree .fl-selected a {
+	color: #fff;
+}
+
+#content-tree .fl-selected a:hover {
+	color: #72CCFF;
+}
+
+.folder-list,.folder-list * {
+	font-size: 9pt;
+	font-weight: bold;
+}
+
+.folder-list {
+	/* margin: 10px 10px 10px 20px; */
+	margin: 10px 0px 0px 120px;
+	padding: 0 0 10px 0;
+}
+
+.folder-list li {
+	margin: 0;
+	padding: 0 0 0 0px;
+	list-style: none;
+	position: relative;
+	font-weight: bold;
+}
+
+.folder-list li li {
+	font-weight: normal;
+}
+
+.folder-list ul {
+	margin: 0 0 0 16px;
+	padding: 0;
+}
+
+.folder-list ul li {
+	margin: 0;
+	padding: 0;
+}
+
+.fl-item {
+	position: relative;
+	padding: 6px 6px 6px 20px;
+	white-space: nowrap;
+	overflow: hidden;
+	line-height: 15px;
+}
+
+.fl-icon {
+	position: absolute;
+	left: 0;
+	width: 16px;
+	height: 16px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-position: center center;
+	top: 0.5em;
+	top: 0.5em;
+}
+
+.fl-icon-color {
+	width: 8px;
+	height: 8px;
+	top: 0.3em;
+	left: 6px;
+}
+
+.fl-setup {
+	margin: 0;
+	padding: 6px 7px ! important;
+	width: 14px;
+	height: 14px;
+	background-image: url("images/ico-setup.gif")
+		/*tpa=http://intertrust/f/icons/ico-setup.gif*/;
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+}
+
+.fl-expand {
+	cursor: hand;
+	cursor: pointer;
+	color: #fff;
+	top: 0.6em;
+}
+
+.fl-expand:hover {
+	color: #aaa;
+}
+
+.fl-counter {
+	display: inline-block;
+	font-size: 85%;
+	margin-left: 0.4em;
+	color: #fff;
+	position: relative;
+	top: -3px;
+	position: absolute;
+	display: inline;
+	zoom: 1;
+	top: 2px;
+}
+
+.fl-open ul {
+	display: block;
+}
+
+.fl-closed ul {
+	display: none;
+}
+
+.fl-selected {
+	position: relative;
+	display: inline-block;
+	background-repeat: repeat-x;
+	background-position: 15px 0;
+	text-decoration: underline;
+}
+
+.fl-selected .fl-icon {
+	background-image: none;
+}
+
+.fl-arrow-left,.fl-arrow-right {
+	display: none;
+	padding: 0;
+	margin: 0;
+	top: -5px;
+}
+
+.folder-list .fl-selected .fl-arrow-left {
+	display: block;
+	position: absolute;
+	height: 25px;
+	background: url("images/folder-list-selected-bg.png")
+		/*tpa=http://intertrust/f/bgs/images/folder-list-selected-bg.png*/  
+		left top no-repeat;
+	left: -10px;
+	right: 0;
+}
+
+.folder-list ul .fl-selected .fl-arrow-left {
+	display: block;
+	position: absolute;
+	height: 25px;
+	background: url("images/folder-list-selected-bg.png")
+		/*tpa=http://intertrust/f/bgs/images/folder-list-selected-bg.png*/  
+		left top no-repeat;
+	left: -16px;
+	right: 0;
+}
+
+.fl-selected .fl-arrow-right {
+	display: block;
+	position: absolute;
+	width: 27px;
+	height: 25px;
+	background: url("images/folder-list-selected-bg.png")
+		/*tpa=http://intertrust/f/bgs/images/folder-list-selected-bg.png*/  
+		right top no-repeat;
+	right: -27px;
+}
+
+.fl-bordered {
+	border-bottom: 1px solid #9eafbf;
+}
+
+.fl-color-grey,.fl-color-grey * {
+	color: #b2b2b2 ! important;
+}
+
+.fl-color-grey .fl-icon-color {
+	background-color: #b2b2b2;
+}
+
+.fl-color-red,.fl-color-red * {
+	color: #ef4140 ! important;
+}
+
+.fl-color-red .fl-icon-color {
+	background-color: #ef4140;
+}
+
+.fl-color-blue,.fl-color-blue * {
+	color: #272a71 ! important;
+}
+
+.fl-color-blue .fl-icon-color {
+	background-color: #272a71;
+}
+
+.fl-color-green,.fl-color-green * {
+	color: #5ba100 ! important;
+}
+
+.fl-color-green .fl-icon-color {
+	background-color: #5ba100;
+}
+
+.fl-color-magenta,.fl-color-magenta * {
+	color: #ff00fe ! important;
+}
+
+.fl-color-magenta .fl-icon-color {
+	background-color: #ff00fe;
+}
+
+.fl-color-orange,.fl-color-orange * {
+	color: #ff8e01 ! important;
+}
+
+.fl-color-orange .fl-icon-color {
+	background-color: #ff8e01;
+}
+
+.roles li {
+	padding: 7px 6px 7px 20px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	-o-text-overflow: ellipsis;
+}
+
+.roles .selected {
+	border: 2px solid #297FBA;
+	background: #E2EAED;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	box-shadow: inset 0px -5px 21px #bbb;
+	font-weight: bold;
+	margin-right: -10px;
+	padding-right: 10px;
+}
+
+.roles .selected a {
+	color: #1260A0 !important;
+	text-decoration: none;
+}
+
+.fl-group .add {
+	position: relative;
+	top: auto;
+	left: auto;
+	top: 4px;
+	left: 5px;
+	top: 1px;
+}
+
+.tree-cell {
+	color: #fff;
+	cursor: hand;
+	cursor: pointer;
+	text-decoration: underline;
+	margin: 0;
+	padding: 0 0 0 0px;
+	list-style: none;
+	position: relative;
+}
+
+.tree-cell :hover {
+	color: #72CCFF;
+	text-decoration: underline;
+}
+
+.synchronized {
+	color: #72CCFF;
+	text-decoration: underline;
+}
+
+.tree-cell-link {
+	font-weight: normal;
+	text-decoration: underline;
+}
+
+.tree-cell-link :hover {
+	color: #72CCFF;
+}

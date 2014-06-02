@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.def.DefaultThemeBundle;
 public interface DarkThemeBundle extends DefaultThemeBundle {
     @Source("dark-theme.css")
     @CssResource.NotStrict
-    public abstract CssResource css();
+    public abstract CssResource mainCss();
     @Source("images/help.png")
     public abstract ImageResource settingsIm();
 

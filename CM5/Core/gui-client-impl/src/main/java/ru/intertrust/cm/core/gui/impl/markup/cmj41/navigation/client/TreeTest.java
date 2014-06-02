@@ -120,7 +120,7 @@ public class TreeTest {//implements EntryPoint {
 
     @SuppressWarnings("deprecation")
     private void createTree() {
-        SystemTreeStyles.I.styles().ensureInjected();
+        NavigationTreeStyles.I.styles().ensureInjected();
         @SuppressWarnings("deprecation")
         TreeImages images = GWT.create(MyTreeImages.class);
         
