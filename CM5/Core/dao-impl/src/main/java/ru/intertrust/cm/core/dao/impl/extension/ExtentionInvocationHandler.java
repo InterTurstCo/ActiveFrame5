@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.dao.impl.extension;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
 import ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * Обработчик вызова точки расширения. Производит поиск всех точек расширения в
@@ -32,13 +34,17 @@ public class ExtentionInvocationHandler implements InvocationHandler {
     @SuppressWarnings("unchecked")
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
-        List<ExtensionPointHandler> interfaceClass = extensionService.getExtentionPointList(
-                (Class<? extends ExtensionPointHandler>) proxy.getClass().getInterfaces()[0], filter);
+        try {
+            List<ExtensionPointHandler> interfaceClass = extensionService.getExtentionPointList(
+                    (Class<? extends ExtensionPointHandler>) proxy.getClass().getInterfaces()[0], filter);
 
-        for (ExtensionPointHandler extentionPointBase : interfaceClass) {
-            method.invoke(extentionPointBase, args);
+            for (ExtensionPointHandler extentionPointBase : interfaceClass) {
+                method.invoke(extentionPointBase, args);
+            }
+            return null;
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
         }
-        return null;
     }
 
 }
