@@ -56,7 +56,7 @@ public class TestReportService {
         checkParam(relDateParam, dateFormatter.parse("01-" + (month + 1) + "-" + year + " 00:00:00"));
 
         relDateParam.setBaseDate(RelativeDateBase.END_MONTH);
-        checkParam(relDateParam, dateFormatter.parse(calendar.getMaximum(Calendar.DAY_OF_MONTH) + "-" + (month + 1) + "-" + year + " 23:59:59"));
+        checkParam(relDateParam, dateFormatter.parse(calendar.getActualMaximum(Calendar.DAY_OF_MONTH) + "-" + (month + 1) + "-" + year + " 23:59:59"));
     
         relDateParam.setBaseDate(RelativeDateBase.START_YEAR);
         checkParam(relDateParam, dateFormatter.parse("01-01-" + year + " 00:00:00"));
