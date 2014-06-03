@@ -266,13 +266,9 @@ public class SqlQueryModifier {
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
 
             if (selectExpressionItem.getExpression() instanceof Column) {
-                Column column = (Column) selectExpressionItem.getExpression();
-                FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
-
-                if (fieldConfig instanceof ReferenceFieldConfig) {
-                    selectItems.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
-                } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
-                    selectItems.add(createTimeZoneIdSelectItem(selectExpressionItem));
+                SelectExpressionItem serviceExpressionItem = getServiceExpression(plainSelect, selectExpressionItem);
+                if (serviceExpressionItem != null) {
+                    selectItems.add(serviceExpressionItem);
                 }
             } else if (selectExpressionItem.getExpression() instanceof CaseExpression) {
                 CaseExpression caseExpression = (CaseExpression) selectExpressionItem.getExpression();
@@ -346,6 +342,68 @@ public class SqlQueryModifier {
         }
 
         plainSelect.setSelectItems(selectItems);
+
+        if (plainSelect.getGroupByColumnReferences() != null ) {
+            List groupByExpressions = new ArrayList(plainSelect.getGroupByColumnReferences().size());
+            for (Expression expression : plainSelect.getGroupByColumnReferences()) {
+                groupByExpressions.add(expression);
+
+                if (! (expression instanceof Column)) {
+                    continue;
+                }
+
+                SelectExpressionItem selectExpressionItem = new SelectExpressionItem(expression);
+                SelectExpressionItem serviceExpressionItem = getServiceExpression(plainSelect, selectExpressionItem);
+
+                if (serviceExpressionItem == null) {
+                    selectExpressionItem = findSelectExpressionItemByAlias(plainSelect, ((Column) expression).getColumnName());
+                    if (selectExpressionItem != null) {
+                        serviceExpressionItem = getServiceExpression(plainSelect, selectExpressionItem);
+                    }
+                }
+                if (serviceExpressionItem != null) {
+                    if (serviceExpressionItem.getAlias() != null && serviceExpressionItem.getAlias().getName() != null &&
+                            !serviceExpressionItem.getAlias().getName().isEmpty()) {
+                        groupByExpressions.add(new Column(new Table(), serviceExpressionItem.getAlias().getName()));
+                    } else {
+                        groupByExpressions.add(serviceExpressionItem.getExpression());
+                    }
+                }
+            }
+
+            plainSelect.setGroupByColumnReferences(groupByExpressions);
+        }
+    }
+
+    private SelectExpressionItem findSelectExpressionItemByAlias(PlainSelect plainSelect, String alias) {
+        for (Object selectItem : plainSelect.getSelectItems()) {
+            if (!(selectItem instanceof SelectExpressionItem)) {
+                continue;
+            }
+
+            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+            if (selectExpressionItem.getAlias() != null && alias.equals(selectExpressionItem.getAlias().getName())) {
+                return selectExpressionItem;
+            }
+        }
+
+        return null;
+    }
+
+    private SelectExpressionItem getServiceExpression(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
+        if (! (selectExpressionItem.getExpression() instanceof Column)) {
+            return null;
+        }
+
+        FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
+
+        if (fieldConfig instanceof ReferenceFieldConfig) {
+            return createReferenceFieldTypeSelectItem(selectExpressionItem);
+        } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+            return createTimeZoneIdSelectItem(selectExpressionItem);
+        }
+
+        return null;
     }
 
     private boolean containsExpressionInPlainselect(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
@@ -671,19 +729,16 @@ public class SqlQueryModifier {
     private SelectExpressionItem generateServiceColumnExpression(SelectExpressionItem selectExpressionItem, String postfix) {
         Column column = (Column) selectExpressionItem.getExpression();
 
-        StringBuilder referenceColumnExpression = new StringBuilder();
-        if (column.getTable() != null && column.getTable().getName() != null) {
-            referenceColumnExpression.append(column.getTable().getName()).append(".");
-        }
-        referenceColumnExpression.append(getServiceColumnName(DaoUtils.unwrap(column.getColumnName()), postfix));
+        SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
 
         if (selectExpressionItem.getAlias() != null) {
-            referenceColumnExpression.append(" as ")
-                    .append(getServiceColumnName(selectExpressionItem.getAlias().getName(), postfix));
+            referenceFieldTypeItem.setAlias(new Alias(getServiceColumnName(selectExpressionItem.getAlias().getName(), postfix), false));
         }
 
-        SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-        referenceFieldTypeItem.setExpression(new Column(new Table(), referenceColumnExpression.toString()));
+        String tableName = column.getTable() != null && column.getTable().getName() != null ? column.getTable().getName() : "";
+        String columnName = getServiceColumnName(DaoUtils.unwrap(column.getColumnName()), postfix);
+        referenceFieldTypeItem.setExpression(new Column(new Table(tableName), columnName));
+
         return referenceFieldTypeItem;
     }
 
