@@ -12,6 +12,7 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,7 +158,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         accessControlService.verifySystemAccessToken(accessToken);
         DomainObject domainObject = find(objectId, accessToken);
         ((GenericDomainObject) domainObject).setStatus(status);
-        GenericDomainObject[] result = update(new DomainObject[]{domainObject}, accessToken, true, null);
+        List<FieldModification>[] fieldModification = new ArrayList[1];
+        fieldModification[0] = new ArrayList<FieldModification>();
+        GenericDomainObject[] result = update(new DomainObject[]{domainObject}, accessToken, true, fieldModification);
 
         refreshDynamiGroupsAndAclForUpdate(result[0], null, null);
 
