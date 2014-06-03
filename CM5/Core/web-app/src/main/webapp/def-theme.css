@@ -59,7 +59,6 @@ h1 {
     width: 100%;
     background-color: #ffffff;
     height: 60px;
-    box-shadow: 0 4px 10px #2d5b7d;
     z-index: 5;
 }
 
@@ -155,22 +154,17 @@ h1 {
 }
 
 .section-suggest-box {
-    border-bottom: solid;
-    border-width: 1px;
-    border-color: #FFF1CA #FFEDBE #FFEDBE;
     display: inline-block;
     position: absolute;
     right: 0;
     left: 30px;
 }
 
-.section-suggest-item:hover {
+.decorated-list-suggest-box:hover {
     background: #faf8eb;
-    border-radius: 5px;
 }
 
 .header-notification-style {
-    background: #fffdf0;
 }
 
 .cross-button {
@@ -331,7 +325,7 @@ h1 {
     display: inline-block;
     overflow: hidden;
     margin: 5px 0 0 0;
-    width: 125px;
+    width: 150px;
 }
 
 .search-box:focus,
@@ -345,7 +339,8 @@ h1 {
     outline: 0;
 }
 
-.search-box, .search-data-box {
+.search-box,
+.search-data-box {
     border: 1px solid #8D97A5;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 5px;
@@ -356,7 +351,7 @@ h1 {
     margin: 0;
     padding: 3px;
     vertical-align: middle;
-    width: 97px;
+    width: 120px;
 }
 
 .search-box-clear-button-off {
@@ -2552,9 +2547,14 @@ td.datePickerMonth {
     float: left;
 }
 
+.theme-list tbody span:hover {
+    cursor: pointer;
+}
+
 .preview-panel {
     display: inline-block;
     float: right;
+    margin: 0 0 10px 15px;
 }
 
 .button-panel {
@@ -2565,9 +2565,10 @@ td.datePickerMonth {
 }
 
 .setting-popup-panel {
-    right: 100px !important;
+    right: 105px !important;
     top: 55px !important;
 }
-.loading-attachment{
-    display: inline-block;
+
+.settings-item .gwt-Label {
+    cursor: pointer;
 }
