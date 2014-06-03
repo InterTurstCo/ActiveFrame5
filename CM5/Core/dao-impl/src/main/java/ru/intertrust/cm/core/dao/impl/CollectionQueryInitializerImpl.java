@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterCriteriaConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
@@ -261,6 +262,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         for (String placeholder : referencePlaceHolderCollector.getPlaceholders()) {
             String placeholderValue = referencePlaceHolderCollector.getPlaceholderValue(placeholder);
+            checkPlaceholderExist(PLACEHOLDER_PREFIX + placeholder, prototypeQuery);
             prototypeQuery = prototypeQuery.replace(PLACEHOLDER_PREFIX + placeholder, placeholderValue);
         }
 
@@ -270,12 +272,26 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
                 placeholderValue = EMPTY_STRING;
             }
 
+            checkPlaceholderExist(PLACEHOLDER_PREFIX + placeholder, prototypeQuery);
             prototypeQuery = prototypeQuery.replace(PLACEHOLDER_PREFIX + placeholder, placeholderValue);
         }
 
         prototypeQuery = removeUnFilledPlaceholders(prototypeQuery);
 
         return prototypeQuery;
+    }
+
+    /**
+     * Проверяет наличие placeholder в теле основного запроса
+     * если отсутствует - выбрасываем исключение
+     * @param placeholder
+     * @param prototypeQuery
+     */
+    private void checkPlaceholderExist(String placeholder, String prototypeQuery) {
+        if (!prototypeQuery.contains(placeholder)){
+            throw new CollectionQueryException("The collection query \"" + prototypeQuery +
+                    "\" has no placeholder \"" + placeholder + "\"");
+        }
     }
 
     /**

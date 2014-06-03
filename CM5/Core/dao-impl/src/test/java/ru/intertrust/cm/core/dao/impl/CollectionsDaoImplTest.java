@@ -236,7 +236,6 @@ public class CollectionsDaoImplTest {
         complexCollectionConfig.getFilters().add(byDepartmentFilterConfig);
 
         byDepartmentComplexFilterConfig = createByDepartmentComplexFilterConfig();
-        collectionConfig.getFilters().add(byDepartmentComplexFilterConfig);
         complexCollectionConfig.getFilters().add(byDepartmentComplexFilterConfig);
 
         byNameFilterConfig = createByNameFilterConfig();
