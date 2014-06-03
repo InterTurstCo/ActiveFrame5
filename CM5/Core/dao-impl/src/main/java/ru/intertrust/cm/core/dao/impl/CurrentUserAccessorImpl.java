@@ -1,13 +1,12 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -21,6 +20,8 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
  *
  */
 public class CurrentUserAccessorImpl implements CurrentUserAccessor {
+
+    final static Logger logger = LoggerFactory.getLogger(CurrentUserAccessorImpl.class);
 
     private EJBContext ejbContext;
 
@@ -37,29 +38,49 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
         return ejbContext;
     }    
 
+    /**
+     * Возвращает логин текущего пользователя. Если пользователя нет в EJB контексте и в случае возникновения исключений
+     * выозвращает null.
+     * @return логин текущего пользователя
+     */
     public String getCurrentUser() {
         String result = null;
-        //В случае если вызов идет изнутри представившись как system то подставляем пользователя admin, 
-        //возможно понадобится иметь иного системного пользователя
-        //TODO разобратся почему не устанавливается роль
-        if (getEjbContext().isCallerInRole("system") || getEjbContext().getCallerPrincipal().getName().equals("anonymous")){
-            //TODO возможно стоит подумать над иным пользователем, например system
-            result = "admin";
-        }else{
-            result = getEjbContext().getCallerPrincipal().getName();
+        try {
+            // В случае если вызов идет изнутри представившись как system то подставляем пользователя admin,
+            // возможно понадобится иметь иного системного пользователя
+            // TODO разобратся почему не устанавливается роль
+            if (getEjbContext().isCallerInRole("system")
+                    || getEjbContext().getCallerPrincipal().getName().equals("anonymous")) {
+                // TODO возможно стоит подумать над иным пользователем, например system
+                result = "admin";
+            } else {
+                result = getEjbContext().getCallerPrincipal().getName();
+            }
+        } catch (Exception e) {
+            result = null;
+            logger.error("Error getting current user: " + e.getMessage());
         }
+
         return result;
-    }
+   }
     
+    /**
+     * Возвращает идентификатор текущего пользователя. Возвращает null, если невозможно получить пользователя из EJB
+     * контекста.
+     * @return идентификатор текущего пользователя.
+     */
     public Id getCurrentUserId() {
         String login = getCurrentUser();
-        return getPersonServiceDao().findPersonByLogin(login).getId();
+        if (login != null) {
+            return getPersonServiceDao().findPersonByLogin(login).getId();
+        } else {
+            return null;
+        }
     }
     
     private PersonServiceDao getPersonServiceDao() {
         ApplicationContext ctx = SpringApplicationContext.getContext();
         return ctx.getBean(PersonServiceDao.class);
     }
-
     
 }

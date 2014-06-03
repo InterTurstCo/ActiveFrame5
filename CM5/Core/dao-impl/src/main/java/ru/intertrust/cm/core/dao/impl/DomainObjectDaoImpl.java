@@ -1042,22 +1042,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * @return
      */
     private Id getCurrentUser(AccessToken accessToken) {
-        if (isSystemAccessToken(accessToken)) {
-            return null;
-        } else {
-            return currentUserAccessor.getCurrentUserId();
-        }
+        return currentUserAccessor.getCurrentUserId();
     }
-
-    private boolean isSystemAccessToken(AccessToken accessToken) {
-        try {
-            accessControlService.verifySystemAccessToken(accessToken);
-            return true;
-        } catch (AccessException e) {
-            return false;
-        }
-    }
-
 
     /**
      * Создает SQL запрос для нахождения доменного объекта
