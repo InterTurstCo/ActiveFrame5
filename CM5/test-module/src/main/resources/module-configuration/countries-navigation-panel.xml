@@ -15,11 +15,11 @@
                                 <search-area-ref name="Countries-Search-Area"/>
                                 <search-collection-ref name="Countries"/>
                                 <filter-panel panel-state="open"/>
-                                <initial-filters>
-                                    <initial-filter name="byName">
-                                        <param name="0" value="Яп%"/>
-                                    </initial-filter>
-                                </initial-filters>
+                                <!--<initial-filters>-->
+                                    <!--<initial-filter name="byName">-->
+                                        <!--<param name="0" value="Яп%"/>-->
+                                    <!--</initial-filter>-->
+                                <!--</initial-filters>-->
                             </collection-viewer>
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>

@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ public class GlobalThemesManager {
     private static BundleWrapper bundleWrapper;
     public static final String THEME_DEFAULT = "default-theme";
     public static final String THEME_DARK = "dark-theme";
+    public static final String THEME_LIGHT = "light-theme";
     private static Map<String, ThemeConfig> themeNameImageMap;
 
     public static String getCurrentThemeComponentName(){
@@ -41,10 +43,6 @@ public class GlobalThemesManager {
             String themeComponent = stockStore.getItem(BusinessUniverseConstants.USER_THEME_NAME);
             bundleWrapper = (BundleWrapper) (themeComponent == null ? ComponentRegistry.instance.get(defaultThemeComponent)
                     : ComponentRegistry.instance.get(themeComponent));
-
-            if (themeComponent != null) {
-                RootLayoutPanel.get().setStyleName(themeComponent);
-            }
         } else {
             bundleWrapper = ComponentRegistry.instance.get(defaultThemeComponent);
         }
@@ -68,7 +66,7 @@ public class GlobalThemesManager {
         if (themesConfig == null) {
             return null;
         }
-        Map<String, ThemeConfig> themeNameImageMap = new HashMap<String, ThemeConfig>();
+        Map<String, ThemeConfig> themeNameImageMap = new LinkedHashMap<String, ThemeConfig>();
         List<ThemeConfig> themeConfigList = themesConfig.getThemes();
         for (ThemeConfig themeConfig : themeConfigList) {
             themeNameImageMap.put(themeConfig.getComponentName(), themeConfig);

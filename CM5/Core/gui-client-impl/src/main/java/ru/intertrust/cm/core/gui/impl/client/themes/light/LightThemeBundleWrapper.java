@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client.themes.dark;
+package ru.intertrust.cm.core.gui.impl.client.themes.light;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.CssResource;
@@ -6,28 +6,27 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.themes.BundleWrapper;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.datagrid.DataGridResources;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 /**
- * @author Yaroslav Bondarchuk
- *         Date: 19.05.14
- *         Time: 17:15
+ * @author user
+ *         Date: 30.05.14
+ *         Time: 18:27
  */
-@ComponentName(GlobalThemesManager.THEME_DARK)
-    public class DarkThemeBundleWrapper implements BundleWrapper {
-    private static final DarkThemeBundle themeBundle = GWT.create(DarkThemeBundle.class);
+@ComponentName(GlobalThemesManager.THEME_LIGHT)
+    public class LightThemeBundleWrapper implements BundleWrapper {
+    private static final LightThemeBundle themeBundle = GWT.create(LightThemeBundle.class);
     private static final DataGridResources dataGridResources = GWT.create(DataGridResources.class);
 
     @Override
     public Component createNew() {
-        return new DarkThemeBundleWrapper();
+        return new LightThemeBundleWrapper();
     }
 
     @Override
     public String getName() {
-        return GlobalThemesManager.THEME_DARK;
+        return GlobalThemesManager.THEME_LIGHT;
     }
 
     @Override
@@ -36,7 +35,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
     }
 
     @Override
-    public ThemeBundle getThemeBundle() {
+    public  LightThemeBundle getThemeBundle() {
         return themeBundle;
     }
 
@@ -45,6 +44,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
         return dataGridResources;
     }
 
+    @Override
     public SplitterStyles getSplitterStyles() {
         return themeBundle.splitterCss();
     }

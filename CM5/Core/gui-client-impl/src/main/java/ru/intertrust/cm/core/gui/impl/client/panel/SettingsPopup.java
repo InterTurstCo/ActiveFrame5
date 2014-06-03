@@ -22,7 +22,7 @@ public class SettingsPopup extends PopupPanel{
     }
     private void initPopup(SettingsPopupConfig settingsPopupConfig) {
         if (settingsPopupConfig != null) {
-            this.addStyleName("setting-popup-panel");
+            this.setStyleName("setting-popup-panel");
 
             AbsolutePanel header = new AbsolutePanel();
             header.setStyleName("srch-corner");
