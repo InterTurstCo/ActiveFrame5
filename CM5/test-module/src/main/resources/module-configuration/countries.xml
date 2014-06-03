@@ -358,7 +358,7 @@
                 <clear-all-button  text="Очистить"/>
                 <display-values-as-links value="true"/>
             </suggest-box>-->
-            <suggest-box id="suggest_capital">
+            <suggest-box id="suggest_capital" read-only="true">
                 <field-path value="capital"/>
 
                 <collection-ref name="Cities"/>
@@ -477,7 +477,7 @@
                 <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
             </attachment-box>
 
-            <table-browser id="17a">
+            <table-browser id="17a" read-only="true">
                 <field-path value="city^country"/>
                 <collection-ref name="Cities"/>
                 <initial-filters panel-state="open">
@@ -643,7 +643,7 @@
             <label id="5">
                 <text>Год основания:</text>
             </label>
-            <integer-box id="6">
+            <integer-box id="6" read-only="true">
                 <field-path value="year_of_foundation"/>
             </integer-box>
 

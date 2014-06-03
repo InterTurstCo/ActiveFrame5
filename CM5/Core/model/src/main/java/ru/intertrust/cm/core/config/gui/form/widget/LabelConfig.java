@@ -38,6 +38,11 @@ public class LabelConfig extends WidgetConfig implements Dto {
     @Element(name = "force-required-asterisk", required = false)
     private ForceRequiredAsteriskConfig forceRequiredAsterisk;
 
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
+
     public String getText() {
         return text;
     }

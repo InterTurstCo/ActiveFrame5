@@ -15,7 +15,11 @@
     </xs:element>
 
     <xs:element name="widget" type="con:abstractWidgetType"/>
-    <xs:complexType name="abstractWidgetType" abstract="true"/>
+    <xs:complexType name="abstractWidgetType" abstract="true">
+        <xs:attribute name="read-only" use="optional" type="xs:boolean"/>
+    </xs:complexType>
+
+
 
     <xs:element name="pluginConfig" type="con:abstractPluginConfigType"/>
     <xs:complexType name="abstractPluginConfigType" abstract="true"/>

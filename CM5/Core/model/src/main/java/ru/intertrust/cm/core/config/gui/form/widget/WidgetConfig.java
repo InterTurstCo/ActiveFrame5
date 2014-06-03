@@ -11,7 +11,8 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 public abstract class WidgetConfig implements Dto {
     @Attribute(name = "id", required = false)
     protected String id;
-
+    @Attribute(name = "read-only", required = false)
+    protected boolean readOnly;
     @Element(name = "field-path", required = false)
     protected FieldPathConfig fieldPathConfig;
 
@@ -27,9 +28,14 @@ public abstract class WidgetConfig implements Dto {
         return fieldPathConfig;
     }
 
-    public void setFieldPathConfig(FieldPathConfig fieldPathConfig) {
-        this.fieldPathConfig = fieldPathConfig;
+    public boolean isReadOnly() {
+        return readOnly;
     }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -41,6 +47,9 @@ public abstract class WidgetConfig implements Dto {
 
         WidgetConfig that = (WidgetConfig) o;
 
+        if (readOnly != that.readOnly) {
+            return false;
+        }
         if (fieldPathConfig != null ? !fieldPathConfig.equals(that.fieldPathConfig) : that.fieldPathConfig != null) {
             return false;
         }
@@ -54,6 +63,7 @@ public abstract class WidgetConfig implements Dto {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (readOnly ? 1 : 0);
         result = 31 * result + (fieldPathConfig != null ? fieldPathConfig.hashCode() : 0);
         return result;
     }

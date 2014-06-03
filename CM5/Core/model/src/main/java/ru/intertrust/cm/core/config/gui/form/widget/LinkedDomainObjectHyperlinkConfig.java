@@ -23,6 +23,11 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
     @Element(name = "summary-table", required = false)
     private SummaryTableConfig summaryTableConfig;
 
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
+
     public LinkedFormConfig getLinkedFormConfig() {
         return linkedFormConfig;
     }

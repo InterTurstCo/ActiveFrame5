@@ -145,8 +145,8 @@ public class FormRetriever {
             List<Constraint> constraints = buildConstraints(context);
             initialState.setConstraints(constraints);
             initialState.setWidgetProperties(buildWidgetProps(widgetContext, constraints));
-
-            initialState.setEditable(true);
+            boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
+            initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
         }
         return widgetStateMap;
@@ -188,6 +188,8 @@ public class FormRetriever {
                 WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
                 WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
                 WidgetState initialState = componentHandler.getInitialState(widgetContext);
+                boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
+                initialState.setEditable(!readOnly);
                 widgetStateMap.put(widgetId, initialState);
                 widgetComponents.put(widgetId, config.getComponentName());
                 continue;
@@ -224,8 +226,8 @@ public class FormRetriever {
             List<Constraint> constraints = buildConstraints(widgetContext);
             initialState.setConstraints(constraints);
             initialState.setWidgetProperties(buildWidgetProps(widgetContext, constraints));
-
-            initialState.setEditable(true);
+            boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
+            initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
         }

@@ -10,12 +10,17 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
-import ru.intertrust.cm.core.gui.model.form.*;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Primary scenarios:
@@ -119,7 +124,7 @@ public class FormObjectsRemover {
         fieldPathStates = new HashMap<>(widgetConfigs.size());
         for (WidgetConfig config : widgetConfigs) {
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
-            if (fieldPathConfig == null || fieldPathConfig.getValue() == null || config instanceof LabelConfig) {
+            if (fieldPathConfig == null || fieldPathConfig.getValue() == null || config.isReadOnly()) {
                 continue;
             }
 
