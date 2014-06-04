@@ -55,7 +55,6 @@ import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.WrapAndLowerCaseSelectVisitor;
 import ru.intertrust.cm.core.dao.impl.utils.ValueReader;
-import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.DoelException;
 
 public class DoelResolver implements DoelEvaluator {

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -84,7 +85,7 @@ public class DoelResolverTest {
                 "join \"job\" t1 on t0.\"id\" = t1.\"parent\" " +
                 "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" " +
                 "where t0.\"parent\" = 105";
-        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
+        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(Map.class), any(RowMapper.class));
     }
 
     @Test
@@ -106,7 +107,7 @@ public class DoelResolverTest {
                 "from \"job\" t0 " +
                 "join \"person\" t1 on t0.\"assignee\" = t1.\"id\" " +
                 "where t0.\"parent\" in (11, 12)";
-        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
+        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(Map.class), any(RowMapper.class));
     }
 
     @Test
@@ -123,7 +124,7 @@ public class DoelResolverTest {
                 "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" " +
                 "join \"unit\" t3 on t2.\"department\" = t3.\"id\" " +
                 "where t0.\"parent\" = 105";
-        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
+        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(Map.class), any(RowMapper.class));
     }
 
     @Test
@@ -139,7 +140,7 @@ public class DoelResolverTest {
                 "join \"incomingdocument\" t1 on t0.\"parent\" = t1.\"id\" " +
                 "join \"person\" t2 on t1.\"addressee\" = t2.\"id\" " +
                 "where t0.\"id\" = 11";
-        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
+        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(Map.class), any(RowMapper.class));
     }
 
     @Test
@@ -162,9 +163,9 @@ public class DoelResolverTest {
                 "from \"document\" t0 " +
                 "where t0.\"id\" = " + docId.getId();
         //verify(jdbcTemplate, times(2)).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
-        verify(jdbcTemplate, times(2)).query(sql.capture(), any(RowMapper.class));
+        verify(jdbcTemplate, times(1)).query(sql.capture(), any(Map.class), any(RowMapper.class));
         assertThat(sql.getAllValues().get(0), new SqlStatementMatcher(correctSql1));
-        assertThat(sql.getAllValues().get(1), new SqlStatementMatcher(correctSql2));
+//        assertThat(sql.getAllValues().get(1), new SqlStatementMatcher(correctSql2));
     }
 
     @Test
