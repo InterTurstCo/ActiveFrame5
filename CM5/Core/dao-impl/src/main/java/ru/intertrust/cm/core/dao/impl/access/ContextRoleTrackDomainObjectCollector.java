@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.CollectorSettings;
 import ru.intertrust.cm.core.config.ContextRoleConfig;
 import ru.intertrust.cm.core.config.TrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.ContextRoleCollector;
 
 public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServiceImpl implements ContextRoleCollector {
@@ -25,7 +26,8 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
         List<Id> contextGroupOwner = new ArrayList<Id>();
         if (trackDomainObjects.getGetGroup().getDoel() != null) {
             DoelExpression expr = DoelExpression.parse(trackDomainObjects.getGetGroup().getDoel());
-            List<Value> contextIds = doelResolver.evaluate(expr, contextId);
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            List<Value> contextIds = doelResolver.evaluate(expr, contextId, accessToken);
             contextGroupOwner.addAll(getIdList(contextIds));
         } else {
             contextGroupOwner.add(contextId);
@@ -67,11 +69,13 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
             if (trackDomainObjects.getStatus() != null && trackDomainObjects.getStatus().length() > 0) {
                 String status = getStatusFor(domainObject.getId());
                 if (trackDomainObjects.getStatus().equals(status)) {
-                    List<Value> contextIds = doelResolver.evaluate(expr, domainObject.getId());
+                    AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+                    List<Value> contextIds = doelResolver.evaluate(expr, domainObject.getId(), accessToken);
                     result.addAll(getIdList(contextIds));
                 }
             } else {
-                List<Value> contextIds = doelResolver.evaluate(expr, domainObject.getId());
+                AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+                List<Value> contextIds = doelResolver.evaluate(expr, domainObject.getId(), accessToken);
                 result.addAll(getIdList(contextIds));
             }
 

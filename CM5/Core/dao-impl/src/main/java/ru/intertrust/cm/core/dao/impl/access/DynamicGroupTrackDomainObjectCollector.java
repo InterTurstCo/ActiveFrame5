@@ -70,11 +70,15 @@ public class DynamicGroupTrackDomainObjectCollector extends BaseDynamicGroupServ
                 if (trackDomainObjects.getStatus() != null) {
                     String status = getStatusFor(domainObject.getId());
                     if (trackDomainObjects.getStatus().equals(status)) {
-                        List<Value> invalidContexts = doelResolver.evaluate(expression, domainObject.getId());
+                        AccessToken accessToken =
+                                accessControlService.createSystemAccessToken(this.getClass().getName());
+                        List<Value> invalidContexts =
+                                doelResolver.evaluate(expression, domainObject.getId(), accessToken);
                         result = getIdList(invalidContexts);
                     }
                 } else {
-                    List<Value> invalidContexts = doelResolver.evaluate(expression, domainObject.getId());
+                    AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+                    List<Value> invalidContexts = doelResolver.evaluate(expression, domainObject.getId(), accessToken);
                     result = getIdList(invalidContexts);
                 }
             } else {
@@ -134,8 +138,7 @@ public class DynamicGroupTrackDomainObjectCollector extends BaseDynamicGroupServ
         if (doel != null) {
             DoelExpression getMemberExpr = DoelExpression
                     .parse(doel);
-            List<Value> valueList = doelResolver.evaluate(getMemberExpr,
-                    contextObjectid);
+            List<Value> valueList = doelResolver.evaluate(getMemberExpr, contextObjectid, accessToken);
             result.addAll(getIdList(valueList));
 
             if (groups) {

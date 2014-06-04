@@ -1,5 +1,19 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getColumnNames;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
@@ -18,7 +32,11 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -28,27 +46,17 @@ import ru.intertrust.cm.core.config.doel.DoelValidator;
 import ru.intertrust.cm.core.config.doel.DoelValidator.DoelTypes;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.SystemSubject;
+import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
+import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.WrapAndLowerCaseSelectVisitor;
 import ru.intertrust.cm.core.dao.impl.utils.ValueReader;
-import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.DoelException;
-
-import javax.sql.DataSource;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getColumnNames;
 
 public class DoelResolver implements DoelEvaluator {
 
@@ -88,14 +96,18 @@ public class DoelResolver implements DoelEvaluator {
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
+    
+    public AccessControlService getAccessControlService() {
+        return accessControlService;
+    }
 
     @Override
     public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken) {
-        accessControlService.verifySystemAccessToken(accessToken);  //*****
-        return evaluate(expression, sourceObjectId);
+        return evaluateInternal(expression, sourceObjectId, accessToken);
     }
 
-    public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId) {
+    public <T extends Value> List<T> evaluateInternal(DoelExpression expression, Id sourceObjectId,
+            AccessToken accessToken) {
         try {
             RdbmsId id = (RdbmsId) sourceObjectId;
             DoelValidator.DoelTypes check =
@@ -105,7 +117,7 @@ public class DoelResolver implements DoelEvaluator {
             }
             ArrayList<T> result = new ArrayList<>();
             for (DoelValidator.DoelTypes.Link type : check.getTypeChains()) {
-                evaluateBranch(expression, type, Collections.singletonList(id), result);
+                evaluateBranch(expression, type, Collections.singletonList(id), result, accessToken);
             }
             return result;
         } catch (Exception ex) {
@@ -135,7 +147,7 @@ public class DoelResolver implements DoelEvaluator {
      */
     @SuppressWarnings("unchecked")
     private <T extends Value> void evaluateBranch(DoelExpression expr, DoelTypes.Link branch,
-            List<RdbmsId> sourceIds, List<T> result) {
+            List<RdbmsId> sourceIds, List<T> result, AccessToken accessToken) {
         //String type = branch.getType();
 
         ArrayList<RdbmsId> nextIds = new ArrayList<>();
@@ -230,7 +242,7 @@ public class DoelResolver implements DoelEvaluator {
                 Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, sourceIds);
                 for (DoelTypes.Link subBranch : nextTypes) {
                     if (groupedIds.containsKey(subBranch.getType())) {
-                        evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result);
+                        evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result, accessToken);
                     }
                 }
                 return;
@@ -321,8 +333,14 @@ public class DoelResolver implements DoelEvaluator {
         }
         select.setSelectItems(fields);
         select.accept(new WrapAndLowerCaseSelectVisitor());
+        
+        String query = applyAcl(select, accessToken);
 
-        List<T> values = jdbcTemplate.query(select.toString(), new DoelResolverRowMapper<T>(linkField, fieldConfig));
+        Map<String, Object> parameters = new HashMap<String, Object>();
+
+        applyAclParameters(parameters, accessToken);
+
+        List<T> values = jdbcTemplate.query(query, parameters, new DoelResolverRowMapper<T>(linkField, fieldConfig));
 
         if (step < expr.getElements().length) {
             // Продолжаем обработку, если оказалось несколько ветвей
@@ -331,12 +349,46 @@ public class DoelResolver implements DoelEvaluator {
             Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, values);
             for (DoelTypes.Link subBranch : nextTypes) {
                 if (groupedIds.containsKey(subBranch.getType())) {
-                    evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result);
+                    evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result, accessToken);
                 }
             }
         } else {
             result.addAll(values);
         }
+    }
+
+    private boolean isSystemAccessToken(AccessToken accessToken) {
+        return accessToken.getSubject() instanceof SystemSubject;
+    }
+
+    private int getUserId(AccessToken accessToken) {
+        return ((UserSubject) accessToken.getSubject()).getUserId();
+    }
+
+    private void applyAclParameters(Map<String, Object> parameters, AccessToken accessToken) {
+        if (!isSystemAccessToken(accessToken)) {
+            int userId = getUserId(accessToken);
+            parameters.put("user_id", userId);
+
+        }
+    }
+
+    /**
+     * Добавляет проверки ACL, если маркер доступа не системный
+     * @param select изначальный запрос
+     * @param accessToken маркер доступа
+     * @return измененный SQL запрос
+     */
+    private String applyAcl(PlainSelect select, AccessToken accessToken) {
+        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
+
+        String query = null;
+        if (!isSystemAccessToken(accessToken)) {
+            query = sqlQueryModifier.addAclQuery(select.toString());
+        } else {
+            query = select.toString();
+        }
+        return query;
     }
 
     private Map<String, List<RdbmsId>> groupByType(List<DoelTypes.Link> types, List<?> ids) {

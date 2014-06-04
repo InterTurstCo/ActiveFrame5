@@ -34,9 +34,12 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.SqlStatementMatcher;
+import ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,16 +57,26 @@ public class DoelResolverTest {
     @Mock
     private ApplicationContext context;
 
+    private AccessControlService accessControlService = new AccessControlServiceImpl();
+
     RdbmsId docId = new RdbmsId(1, 105L);
     RdbmsId comm1Id = new RdbmsId(2, 11L);
     RdbmsId comm2Id = new RdbmsId(2, 12L);
     RdbmsId linkId = new RdbmsId(10, 1514L);
 
+    @Before
+    public void setUp(){
+        if (doelResolver.getAccessControlService() == null) {
+            doelResolver.setAccessControlService(accessControlService);
+        }
+    }
+    
     @Test
     @SuppressWarnings("unchecked")
     public void testEvaluation() {
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
-        doelResolver.evaluate(expr, docId);
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        doelResolver.evaluate(expr, docId, accessToken);
 
         String correctSql =
                 "select t2.\"department\", t2.\"department_type\" " +
@@ -84,8 +97,9 @@ public class DoelResolverTest {
         when(domainObjectCacheService.getObjectToCache(docId, "Commission", "parent", "0", "0"))
                 .thenReturn(Arrays.asList((DomainObject) comm1, comm2));
 
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
-        doelResolver.evaluate(expr, docId);
+        doelResolver.evaluate(expr, docId, accessToken);
 
         String correctSql =
                 "select t1.\"department\", t1.\"department_type\" " +
@@ -98,8 +112,9 @@ public class DoelResolverTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testEvaluationWithInheritedField() {
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department.Name");
-        doelResolver.evaluate(expr, docId);
+        doelResolver.evaluate(expr, docId, accessToken);
 
         String correctSql =
                 "select t3.\"name\" " +
@@ -115,7 +130,8 @@ public class DoelResolverTest {
     @SuppressWarnings("unchecked")
     public void testEvaluationWithExtendedField() {
         DoelExpression expr = DoelExpression.parse("parent.Addressee.Name");
-        doelResolver.evaluate(expr, comm1Id);
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        doelResolver.evaluate(expr, comm1Id, accessToken);
 
         String correctSql =
                 "select t2.\"name\" " +
@@ -133,7 +149,8 @@ public class DoelResolverTest {
         when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(
                 Arrays.asList(new ReferenceValue(docId), new ReferenceValue(comm1Id)),
                 Collections.emptyList());
-        doelResolver.evaluate(expr, linkId);
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        doelResolver.evaluate(expr, linkId, accessToken);
 
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
         String correctSql1 =
