@@ -400,7 +400,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
 
     @Override
     public void visit(CastExpression cast) {
-        cast.accept(this);
+        cast.getLeftExpression().accept(this);
     }
 
     @Override
