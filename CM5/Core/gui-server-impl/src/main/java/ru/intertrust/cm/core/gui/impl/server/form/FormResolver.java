@@ -46,8 +46,8 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
 
     @Override
     public void onApplicationEvent(ConfigurationUpdateEvent event) {
-        if(event.getNewConfig() instanceof FormConfig) {
-            initCaches(); // todo: optimize - remove only this form config from cache
+        if (event.getNewConfig() instanceof FormConfig) {
+            resetCaches();
         }
     }
 
@@ -71,8 +71,11 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         // находится форма для данного контекста, учитывая факт того, переопределена ли форма для пользователя/роли,
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
+        if (editingFormsCache == null || searchFormsCache == null || reportFormsCache == null) {
+            initCaches();
+        }
         final FormsCache cache;
-        switch(formType) {
+        switch (formType) {
             case FormConfig.TYPE_EDIT:
                 cache = editingFormsCache;
                 break;
@@ -85,6 +88,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
             default:
                 cache = editingFormsCache;
         }
+
         List<FormConfig> userFormConfigs = cache.getUserFormConfigs(userUid, targetTypeName);
         if (userFormConfigs != null && userFormConfigs.size() != 0) {
             if (userFormConfigs.size() > 1) {
@@ -116,10 +120,16 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
     }
 
     @PostConstruct
-    private void initCaches() {
+    private synchronized void initCaches() {
         editingFormsCache = new FormsCache(FormConfig.TYPE_EDIT);
         searchFormsCache = new FormsCache(FormConfig.TYPE_SEARCH);
         reportFormsCache = new FormsCache(FormConfig.TYPE_REPORT);
+    }
+
+    private synchronized void resetCaches() {
+         editingFormsCache = null;
+        searchFormsCache = null;
+        reportFormsCache = null;
     }
 
     private class FormsCache {
