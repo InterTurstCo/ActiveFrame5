@@ -617,7 +617,7 @@ public class CollectionPluginView extends PluginView {
             //Height of grid contents (including outside the viewable area) - height of the scroll panel
             // int maxScrollTop = scroll.getWidget().getOffsetHeight() - scroll.getOffsetHeight();
             int maxScrollTop = scroll.getMaximumVerticalScrollPosition();
-            if (lastScrollPos >= maxScrollTop && maxScrollTop > previousScrollMaxVerticalPosition) {
+            if (lastScrollPos >= maxScrollTop && maxScrollTop >= previousScrollMaxVerticalPosition) {
                 if (sortCollectionState != null) {
                     sortCollectionState.setResetCollection(false);
                 }
