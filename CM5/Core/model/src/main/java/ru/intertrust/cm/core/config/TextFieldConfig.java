@@ -11,6 +11,6 @@ public class TextFieldConfig extends FieldConfig {
 
     @Override
     public FieldType getFieldType() {
-        return FieldType.TIMELESSDATE;
+        return FieldType.TEXT;
     }
 }

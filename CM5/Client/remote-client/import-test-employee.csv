@@ -1,6 +1,6 @@
 TYPE_NAME=Tst_Employee;KEYS=Login,Name;EMPTY_STRING_SYMBOL=0;;;;;;
-Login;FirstName;LastName;EMail;Name;Department;Position;Phone;DateOn
-person20;Иван;Иванов;;Сотрудник 1;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-01;16.04.2014 19:19:19
+Login;FirstName;LastName;EMail;Name;Department;Position;Phone;DateOn;description
+person20;Иван;Иванов;;Сотрудник 1;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-01;16.04.2014 19:19:19;xxxxxxxxxxxxxxxx xxxxxxxxxxxxxx xxxxxxxxxxxxxx
 person21;Петр;Петров;;Сотрудник 2;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-02;16.04.2014 20:35:48
 person22;Сидор;Сидоров;;Сотрудник 3;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-03;
 person23;Егор;Егоров;;Сотрудник 4;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-04;
