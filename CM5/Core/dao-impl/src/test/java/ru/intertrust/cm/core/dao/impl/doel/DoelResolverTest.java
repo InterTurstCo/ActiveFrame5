@@ -147,7 +147,7 @@ public class DoelResolverTest {
     @SuppressWarnings("unchecked")
     public void testEvaluationWithWildcardReference() {
         DoelExpression expr = DoelExpression.parse("from.Name");
-        when(jdbcTemplate.query(anyString(), any(RowMapper.class))).thenReturn(
+        when(jdbcTemplate.query(anyString(), any(Map.class), any(RowMapper.class))).thenReturn(
                 Arrays.asList(new ReferenceValue(docId), new ReferenceValue(comm1Id)),
                 Collections.emptyList());
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
@@ -163,9 +163,9 @@ public class DoelResolverTest {
                 "from \"document\" t0 " +
                 "where t0.\"id\" = " + docId.getId();
         //verify(jdbcTemplate, times(2)).query(argThat(new SqlStatementMatcher(correctSql)), any(RowMapper.class));
-        verify(jdbcTemplate, times(1)).query(sql.capture(), any(Map.class), any(RowMapper.class));
+        verify(jdbcTemplate, times(2)).query(sql.capture(), any(Map.class), any(RowMapper.class));
         assertThat(sql.getAllValues().get(0), new SqlStatementMatcher(correctSql1));
-//        assertThat(sql.getAllValues().get(1), new SqlStatementMatcher(correctSql2));
+        assertThat(sql.getAllValues().get(1), new SqlStatementMatcher(correctSql2));
     }
 
     @Test
