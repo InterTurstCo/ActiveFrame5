@@ -18,6 +18,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.TimeZone;
 
 import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
@@ -68,7 +69,7 @@ public class ImportData {
     private DomainObjectDao domainObjectDao;
     private AttachmentContentDao attachmentContentDao;
     private SimpleDateFormat dateFofmat = new SimpleDateFormat("dd.MM.yyyy");
-    private SimpleDateFormat timeFofmat = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
+    private SimpleDateFormat timeFofmat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     private AccessControlService accessService;
     private String login;
     private Hashtable<String, Integer> fieldIndex;
@@ -229,13 +230,13 @@ public class ImportData {
                                 Date date = timeFofmat.parse(fieldValues[i]);
                                 Calendar calendar = Calendar.getInstance();
                                 calendar.setTime(date);
-                                DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(
+                                DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(TimeZone.getDefault().getID(),
                                         calendar.get(Calendar.YEAR),
                                         calendar.get(Calendar.MONTH),
                                         calendar.get(Calendar.DAY_OF_MONTH),
                                         calendar.get(Calendar.HOUR),
                                         calendar.get(Calendar.MINUTE),
-                                        calendar.get(Calendar.SECOND)
+                                        calendar.get(Calendar.SECOND), 0
                                         );
                                 newValue = new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
                             }
@@ -447,7 +448,7 @@ public class ImportData {
         FieldConfig refFieldConfig = configurationExplorer.getFieldConfig(typeName, refFieldName);
         String[] field = null;
         //Проверяем наличие точки до равно
-        if (referenceValueAsString.matches("[a-zA-Z1-9]+\\.[a-zA-Z1-9]+=.+")) {
+        if (referenceValueAsString.matches("[_a-zA-Z1-9]+\\.[_a-zA-Z1-9]+=.+")) {
             //Есть точка, значит в имени поля есть тип, получаем его
             String[] typeAndField = referenceValueAsString.split("\\.");
             type = typeAndField[0];

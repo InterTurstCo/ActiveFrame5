@@ -24,6 +24,7 @@ public class TestImportData extends ClientBase {
 
             importDataService.importData(readFile(new File("import-organization.csv")), null, true);
             importDataService.importData(readFile(new File("import-department.csv")), null, true);
+            importDataService.importData(readFile(new File("import-test-employee.csv")), null, true);            
             importDataService.importData(readFile(new File("import-employee.csv")), null, true);
             importDataService.importData(readFile(new File("set-organization-boss.csv")), null, true);
             importDataService.importData(readFile(new File("import-profile.csv")), null, true);
