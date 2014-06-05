@@ -19,8 +19,6 @@
         <xs:attribute name="read-only" use="optional" type="xs:boolean"/>
     </xs:complexType>
 
-
-
     <xs:element name="pluginConfig" type="con:abstractPluginConfigType"/>
     <xs:complexType name="abstractPluginConfigType" abstract="true"/>
 
@@ -2017,12 +2015,27 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:actionLinkType" name="action-link"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:acceptedTypesType" name="accepted-types"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required"/>
             </xs:extension>
         </xs:complexContent>
+        </xs:complexType>
 
-    </xs:complexType>
+        <xs:complexType name="acceptedTypesType">
+            <xs:sequence minOccurs="1">
+                <xs:element name="accepted-type"
+                            type="con:acceptedTypeType"
+                            maxOccurs="unbounded" minOccurs="1"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:complexType name="acceptedTypeType">
+            <xs:attribute name="extensions" use="required" type="xs:string"/>
+            <xs:attribute name="mime-type" use="required" type="xs:string"/>
+        </xs:complexType>
+
     <xs:complexType name="scannerType">
         <xs:simpleContent>
             <xs:extension base="xs:string">

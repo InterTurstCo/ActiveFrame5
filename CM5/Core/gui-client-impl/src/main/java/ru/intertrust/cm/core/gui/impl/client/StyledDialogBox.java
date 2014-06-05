@@ -11,10 +11,14 @@ import com.google.gwt.user.client.ui.*;
 public class StyledDialogBox extends DialogBox {
     private Button okButton;
     private Button cancelButton;
+    boolean hideCancelButton;
     public StyledDialogBox(String text){
          init(text);
     }
-
+    public StyledDialogBox(String text, boolean hideCancelButton){
+        this.hideCancelButton = hideCancelButton;
+        init(text);
+    }
     private void init(String text){
         // Enable animation.
         this.setAnimationEnabled(true);
@@ -23,12 +27,10 @@ public class StyledDialogBox extends DialogBox {
         this.removeStyleName("gwt-DialogBox");
         // DialogBox is a SimplePanel, so you have to set its widget
         // property to whatever you want its contents to be.
-        okButton= new Button("Да");
+        okButton= new Button("ОК");
         okButton.addStyleName("dark-button");
         okButton.removeStyleName("gwt-Button");
-        cancelButton = new Button("Нет");
-        cancelButton.addStyleName("light-button");
-        cancelButton.removeStyleName("gwt-Button");
+
         Label label = new Label(text);
         label.addStyleName("dialog-box-message");
         label.removeStyleName("gwt-Label");
@@ -43,7 +45,12 @@ public class StyledDialogBox extends DialogBox {
         buttonsPanel.addStyleName("attachments-buttons-panel");
         buttonsPanel.getElement().getStyle().clearPosition();
         buttonsPanel.add(okButton);
+        if(!hideCancelButton){
+        cancelButton = new Button("Нет");
+        cancelButton.addStyleName("light-button");
+        cancelButton.removeStyleName("gwt-Button");
         buttonsPanel.add(cancelButton);
+        }
         panel.add(buttonsPanel);
         this.add(panel);
     }
@@ -55,7 +62,8 @@ public class StyledDialogBox extends DialogBox {
         okButton.addClickHandler(okClickHandler);
     }
     public void addCancelButtonClickHandler(ClickHandler cancelClickHandler){
-
+        if(!hideCancelButton) {
         cancelButton.addClickHandler(cancelClickHandler);
+        }
     }
 }

@@ -3,9 +3,11 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.gui.UserConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
@@ -17,7 +19,7 @@ import java.util.*;
  * Created by IPetrov on 05.03.14.
  * Класс для определения конфигурации навигационной панели
  */
-public class NavigationTreeResolver {
+public class NavigationTreeResolver implements ApplicationListener<ConfigurationUpdateEvent> {
     private static Logger log = LoggerFactory.getLogger(NavigationTreeResolver.class);
 
     @Autowired
@@ -34,6 +36,13 @@ public class NavigationTreeResolver {
     @PostConstruct
     private void initCaches() {
         navigationPanelsCache = new NavigationPanelsCache();
+    }
+
+    @Override
+    public void onApplicationEvent(ConfigurationUpdateEvent event) {
+       if(event.getNewConfig() instanceof NavigationConfig) {
+           initCaches();
+       }
     }
 
     private class NavigationPanelsCache {

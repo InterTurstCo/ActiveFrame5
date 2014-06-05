@@ -9,6 +9,8 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypeConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -20,6 +22,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandl
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,10 +44,13 @@ public class AttachmentUploaderView extends Composite {
     private List<AttachmentItem> attachments;
     private ActionLinkConfig actionLinkConfig;
     private AttachmentBoxWidget owner;
-
-    public AttachmentUploaderView(SelectionStyleConfig selectionStyleConfig, ActionLinkConfig actionLinkConfig, AttachmentBoxWidget owner) {
+    private AcceptedTypesConfig acceptedTypesConfig;
+    private ExtensionValidator extensionValidator;
+    public AttachmentUploaderView(SelectionStyleConfig selectionStyleConfig, ActionLinkConfig actionLinkConfig,
+                                  AttachmentBoxWidget owner, AcceptedTypesConfig acceptedTypesConfig) {
         this.actionLinkConfig = actionLinkConfig;
         this.owner = owner;
+        this.acceptedTypesConfig = acceptedTypesConfig;
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         init();
     }
@@ -208,6 +214,9 @@ public class AttachmentUploaderView extends Composite {
         style.setPosition(Style.Position.ABSOLUTE);
         style.setTop(-1000, Style.Unit.PX);
         style.setLeft(-1000, Style.Unit.PX);
+        extensionValidator = new ExtensionValidator(acceptedTypesConfig);
+        extensionValidator.setMimeType(fileUpload.getElement());
+      //  fileUpload.getElement().setAttribute("accept", "application/xml");
         fileUpload.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
@@ -216,8 +225,17 @@ public class AttachmentUploaderView extends Composite {
                 } else {
                     InputElement inputElement = fileUpload.getElement().cast();
                     String filename = inputElement.getValue();
-                    if(filename.length() > 0) {
+                    if(filename.length() > 0 && extensionValidator.isFilesExtensionValid(filename)) {
                         submitForm.submit();
+                    } else {
+                        final StyledDialogBox alert = new StyledDialogBox("Выбраный файл не поддерживается!", true);
+                        alert.addOkButtonClickHandler(new ClickHandler() {
+                            @Override
+                            public void onClick(ClickEvent event) {
+                                alert.hide();
+                            }
+                        });
+                        alert.center();
                     }
                 }
 
@@ -259,16 +277,26 @@ public class AttachmentUploaderView extends Composite {
         final StyledDialogBox dialogBox = new StyledDialogBox("Текущее прикрепление будет перезаписано. \nПродолжить?");
         dialogBox.addOkButtonClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
+                dialogBox.hide();
                 mainBoxPanel.clear();
                 attachments.clear();
                 InputElement inputElement = fileUpload.getElement().cast();
-                String filename = inputElement.getValue();
-                if(filename.length() > 0) {
+                String fileNames = inputElement.getValue();
+                if(fileNames.length() > 0 && extensionValidator.isFilesExtensionValid(fileNames)) {
                     submitForm.submit();
-                }
+                }   else {
+                final StyledDialogBox alert = new StyledDialogBox("Выбраный файл не поддерживается!", true);
+                alert.addOkButtonClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        alert.hide();
+                    }
+                });
+                alert.center();
+            }
 
                /* */
-                dialogBox.hide();
+
             }
         });
 

@@ -19,4 +19,10 @@ public interface ThemeBundle extends ClientBundle {
 
     ImageResource settingsIm();
 
+    ImageResource doneIm();
+
+    ImageResource failedIm();
+
+    ImageResource restartRequiredIm();
+
 }

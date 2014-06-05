@@ -69,6 +69,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         state.setAttachments(savedAttachments);
         SelectionStyleConfig selectionStyleConfig = widgetConfig.getSelectionStyle();
         state.setSelectionStyleConfig(selectionStyleConfig);
+        state.setAcceptedTypesConfig(widgetConfig.getAcceptedTypesConfig());
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);

@@ -20,12 +20,14 @@ public class AttachmentBoxConfig extends WidgetConfig {
     @Element(name = "selection-style")
     private SelectionStyleConfig selectionStyle;
 
-
     @Element(name = "single-choice", required = false)
     private SingleChoiceConfig singleChoice;
 
     @Element(name = "action-link", required = false)
     private ActionLinkConfig actionLinkConfig;
+
+    @Element(name = "accepted-types", required = false)
+    private AcceptedTypesConfig acceptedTypesConfig;
 
     public AttachmentBoxConfig() {
         singleChoice = new SingleChoiceConfig();
@@ -72,6 +74,14 @@ public class AttachmentBoxConfig extends WidgetConfig {
         this.actionLinkConfig = actionLinkConfig;
     }
 
+    public AcceptedTypesConfig getAcceptedTypesConfig() {
+        return acceptedTypesConfig;
+    }
+
+    public void setAcceptedTypesConfig(AcceptedTypesConfig acceptedTypesConfig) {
+        this.acceptedTypesConfig = acceptedTypesConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -87,7 +97,10 @@ public class AttachmentBoxConfig extends WidgetConfig {
         if (selectionStyle != null ? !selectionStyle.equals(that.selectionStyle) : that.selectionStyle != null)
             return false;
         if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) return false;
-
+        if (acceptedTypesConfig != null ? !acceptedTypesConfig.equals(that.acceptedTypesConfig) : that.
+                acceptedTypesConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -99,6 +112,7 @@ public class AttachmentBoxConfig extends WidgetConfig {
         result = 31 * result + (selectionStyle != null ? selectionStyle.hashCode() : 0);
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (actionLinkConfig != null ? actionLinkConfig.hashCode() : 0);
+        result = 31 * result + (acceptedTypesConfig != null ? acceptedTypesConfig.hashCode() : 0);
         return result;
     }
 

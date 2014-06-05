@@ -8,6 +8,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
+import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.attachment.AttachmentUploaderView;
@@ -83,8 +84,9 @@ public class AttachmentBoxWidget extends BaseWidget {
     protected Widget asEditableWidget(WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
+        AcceptedTypesConfig acceptedTypesConfig = attachmentBoxState.getAcceptedTypesConfig();
         AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView(selectionStyleConfig,
-                attachmentBoxState.getActionLinkConfig(), this);
+                attachmentBoxState.getActionLinkConfig(), this, acceptedTypesConfig);
 
         attachmentUploaderView.addFormSubmitCompleteHandler(new FormSubmitCompleteHandler());
         attachmentUploaderView.addFormSubmitHandler(new FormSubmitHandler());

@@ -358,7 +358,7 @@
                 <clear-all-button  text="Очистить"/>
                 <display-values-as-links value="true"/>
             </suggest-box>-->
-            <suggest-box id="suggest_capital" read-only="true">
+            <suggest-box id="suggest_capital">
                 <field-path value="capital"/>
 
                 <collection-ref name="Cities"/>

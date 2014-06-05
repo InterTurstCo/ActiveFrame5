@@ -28,5 +28,15 @@ public interface DefaultThemeBundle extends ThemeBundle{
     @Source("images/settings.png")
     public ImageResource settingsIm();
 
+    @Override
+    @Source("images/cancel.png")
+    ImageResource failedIm();
 
+    @Override
+    @Source("images/refresh.png")
+    ImageResource restartRequiredIm();
+
+    @Override
+    @Source("images/confirm.png")
+    ImageResource doneIm();
 }

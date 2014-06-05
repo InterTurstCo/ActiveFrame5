@@ -15,11 +15,7 @@
                                 <search-area-ref name="Countries-Search-Area"/>
                                 <search-collection-ref name="Countries"/>
                                 <filter-panel panel-state="open"/>
-                                <!--<initial-filters>-->
-                                    <!--<initial-filter name="byName">-->
-                                        <!--<param name="0" value="Яп%"/>-->
-                                    <!--</initial-filter>-->
-                                <!--</initial-filters>-->
+                               
                             </collection-viewer>
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
@@ -202,6 +198,11 @@
                 <link name="Report_upload" display-text="Загрузка шаблонов отчетов">
                     <plugin>
                         <custom name="report.upload.plugin"/>
+                    </plugin>
+                </link>
+                <link name="Configuration_upload" display-text="Загрузка конфигурации">
+                    <plugin>
+                        <custom name="configuration.deployer.plugin"/>
                     </plugin>
                 </link>
             </child-links>
