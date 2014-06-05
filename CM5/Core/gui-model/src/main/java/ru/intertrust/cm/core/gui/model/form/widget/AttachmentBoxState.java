@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 
@@ -16,7 +17,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
     private SelectionStyleConfig selectionStyleConfig;
     private List<AttachmentItem> attachments = new ArrayList<AttachmentItem>();
     private ActionLinkConfig actionLinkConfig;
-
+    private AcceptedTypesConfig acceptedTypesConfig;
     public SelectionStyleConfig getSelectionStyleConfig() {
         return selectionStyleConfig;
     }
@@ -31,6 +32,14 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
 
     public void setAttachments(List<AttachmentItem> attachments) {
         this.attachments = attachments;
+    }
+
+    public AcceptedTypesConfig getAcceptedTypesConfig() {
+        return acceptedTypesConfig;
+    }
+
+    public void setAcceptedTypesConfig(AcceptedTypesConfig acceptedTypesConfig) {
+        this.acceptedTypesConfig = acceptedTypesConfig;
     }
 
     @Override

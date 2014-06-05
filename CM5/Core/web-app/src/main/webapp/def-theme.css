@@ -168,7 +168,7 @@ h1 {
 }
 
 .cross-button {
-    background: url("icons/filter-clear-button.png") no-repeat 0 0;
+    background: url(icons/filter-clear-button.png) no-repeat 0 0;
     border: 0;
     cursor: pointer;
     display: inline-block;
@@ -179,15 +179,15 @@ h1 {
 }
 
 .cross-button:hover {
-    background: url("icons/filter-clear-button.png") no-repeat -16px 0;
+    background: url(icons/filter-clear-button.png) no-repeat -16px 0;
 }
 
 .cross-button:active {
-    background: url("icons/filter-clear-button.png") no-repeat -33px 0;
+    background: url(icons/filter-clear-button.png) no-repeat -33px 0;
 }
 
 .cross-button-first {
-    background: url("icons/filter-clear-button.png") no-repeat 0 0;
+    background: url(icons/filter-clear-button.png) no-repeat 0 0;
     border: 0;
     cursor: pointer;
     display: inline-block;
@@ -242,7 +242,7 @@ h1 {
 
 .H_td_logout a {
     padding: 3px 0 3px 20px;
-    background: url("/f/logout.gif") no-repeat 0 50%;
+    background: url(/f/logout.gif) no-repeat 0 50%;
     font: 15px Arial;
     color: #000;
 }
@@ -267,7 +267,7 @@ h1 {
     /* Opera11.10+ */
     background: -ms-linear-gradient(top, #2a5371 0%, #3a5f96 38%, #2d4178 100%);
     /* IE10+ */
-    background: #242566 url("css/bgs/content-tools-bg.png") left top repeat-x;
+    background: #242566 url(css/bgs/content-tools-bg.png) left top repeat-x;
     background: linear-gradient(top, #2a5371 0%, #3a5f96 38%, #2d4178 100%);
     /* W3C */
     /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2a5371', endColorstr='#2d4178',GradientType=0 ); IE6-9 */
@@ -359,7 +359,7 @@ h1 {
 }
 
 .search-box-clear-button-on {
-    background: url("icons/filter-clear-button.png") no-repeat 0 0;
+    background: url(icons/filter-clear-button.png) no-repeat 0 0;
     border: 0;
     cursor: pointer;
     display: inline-block;
@@ -370,11 +370,11 @@ h1 {
 }
 
 .search-box-clear-button-on:hover {
-    background: url("icons/filter-clear-button.png") no-repeat -16px 0;
+    background: url(icons/filter-clear-button.png) no-repeat -16px 0;
 }
 
 .search-box-clear-button-on:active {
-    background: url("icons/filter-clear-button.png") no-repeat -32px 0;
+    background: url(icons/filter-clear-button.png) no-repeat -32px 0;
 }
 
 .dummy {
@@ -452,7 +452,7 @@ h1 {
     width: 23px;
     height: 23px;
     background-color: #f0f4ff;
-    background-image: url("css/filter-btn.png");
+    background-image: url(css/filter-btn.png);
     background-repeat: no-repeat;
     background-position: 50% 50%;
     border: 1px solid #c0c4cf !important;
@@ -474,7 +474,7 @@ h1 {
 }
 
 .date-select {
-    background: url("css/icon-datepicker.png") no-repeat;
+    background: url(css/icon-datepicker.png) no-repeat;
     cursor: pointer;
     border: 0 none;
     box-shadow: none;
@@ -490,14 +490,14 @@ h1 {
 }
 
 .flush-serch:hover {
-    background: url("css/icons1.png") no-repeat scroll -48px top transparent;
+    background: url(css/icons1.png) no-repeat scroll -48px top transparent;
 }
 
 .search-button {
     height: 23px;
     width: 23px;
     background-color: #f0f4ff;
-    background-image: url("css/filter-btn.png");
+    background-image: url(css/filter-btn.png);
     background-repeat: no-repeat;
     background-position: 50% 50%;
     position: relative;
@@ -570,7 +570,7 @@ h1 {
 .datePickerDayIsToday {
     padding: 3px;
     color: #ffffff;
-    background: url("css/images/hborderN.png") repeat-x 0px -2607px;
+    background: url(css/images/hborderN.png) repeat-x 0px -2607px;
 }
 
 .datePickerMonthSelector {
@@ -613,7 +613,7 @@ td.datePickerMonth {
 }
 
 .simple-search-button {
-    background: url("css/loupe.png") no-repeat;
+    background: url(css/loupe.png) no-repeat;
     width: 18px;
     height: 18px;
     border: 0;
@@ -642,7 +642,7 @@ td.datePickerMonth {
 }
 
 .flush-button {
-    background: url("css/icons1.png") no-repeat scroll -32px top transparent;
+    background: url(css/icons1.png) no-repeat scroll -32px top transparent;
     cursor: pointer;
     border: 0 none;
     box-shadow: none;
@@ -660,7 +660,7 @@ td.datePickerMonth {
 }
 
 .flush-button:hover {
-    background: url("css/icons1.png") no-repeat scroll -48px top transparent;
+    background: url(css/icons1.png) no-repeat scroll -48px top transparent;
 }
 
 .simple-search-container {
@@ -1088,7 +1088,7 @@ td.datePickerMonth {
 }
 
 .suggest-container-arrow-btn {
-    background: url("images/arrow-down.png") no-repeat center transparent;
+    background: url(images/arrow-down.png) no-repeat center transparent;
     cursor: pointer;
     display: inline-block;
     height: 30px;
@@ -1191,7 +1191,7 @@ td.datePickerMonth {
     background-attachment: scroll;
     background-clip: border-box;
     background-color: rgba(0, 0, 0, 0) !important;
-    background-image: url("css/icons/icons.png");
+    background-image: url(css/icons/icons.png);
     background-origin: padding-box;
     background-position: left top;
     background-repeat: no-repeat;
@@ -1338,7 +1338,7 @@ td.datePickerMonth {
 }
 
 #sidebar .selected {
-    background: transparent url("css/images/sidebar-selected.png") left top no-repeat;
+    background: transparent url(css/images/sidebar-selected.png) left top no-repeat;
     width: 129px;
     height: 83px;
     z-index: 3;
@@ -1403,7 +1403,7 @@ td.datePickerMonth {
     cursor: pointer;
     position: relative;
     margin: 0;
-    background: url("css/icons/icon-sidebar-buttons.png") no-repeat;
+    background: url(css/icons/icon-sidebar-buttons.png) no-repeat;
 }
 
 #sidebar .arr:hover {
@@ -1674,43 +1674,43 @@ td.datePickerMonth {
 }
 
 .Ca_refresh i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 0;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 0;
 }
 
 .Ca_add i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -15px;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 -15px;
 }
 
 .Ca_send i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -30px;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 -30px;
 }
 
 .Ca_folder i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -45px;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 -45px;
 }
 
 .Ca_edit i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -60px;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 -60px;
 }
 
 .Ca_control i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -75px;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 -75px;
 }
 
 .Ca_save i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -90px;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 -90px;
 }
 
 .Ca_delete i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -105px;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 -105px;
 }
 
 .Ca_close i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -120px;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 -120px;
 }
 
 .Ca_plan i {
-    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -135px;
+    background: url(css/actionbar/toolbar_icons.png) no-repeat 0 -135px;
 }
 
 a:hover .icon.back {
@@ -1722,7 +1722,7 @@ a:active .icon.back {
 }
 
 .icon.remove {
-    background: url("css/icons/icons.png") left top no-repeat;
+    background: url(css/icons/icons.png) left top no-repeat;
     top: 0;
     cursor: pointer;
 }
@@ -1736,7 +1736,7 @@ a:active .icon.back {
 }
 
 .icon.remove-small {
-    background: url("css/icons/icons.png") -32px top no-repeat;
+    background: url(css/icons/icons.png) -32px top no-repeat;
     top: 5px;
     left: -3px;
     cursor: pointer;
@@ -1753,7 +1753,7 @@ a:active .icon.back {
 .icon.add {
     height: 16px;
     width: 16px;
-    background: url("css/icons/icon-add.png") center center no-repeat;
+    background: url(css/icons/icon-add.png) center center no-repeat;
     cursor: pointer;
 }
 
@@ -1768,32 +1768,32 @@ a:active .icon.back {
 }
 
 .icon.under-control {
-    background: url("css/icons/icons-status.png") -32px 0px no-repeat;
+    background: url(css/icons/icons-status.png) -32px 0px no-repeat;
     height: 16px;
     width: 16px;
 }
 
 .icon.di-progress {
-    background-image: url("css/icons/ico-progress.gif");
+    background-image: url(css/icons/ico-progress.gif);
 }
 
 .icon .reload {
-    background-image: url("css/icons/icon-reload.png");
+    background-image: url(css/icons/icon-reload.png);
     margin-right: -2px;
 }
 
 .icon.save {
-    background-image: url("css/icons/icon-save.png");
+    background-image: url(css/icons/icon-save.png);
     margin-right: 1px;
 }
 
 .icon.new {
-    background-image: url("css/icons/icon-new.png");
+    background-image: url(css/icons/icon-new.png);
     margin-right: -1px;
 }
 
 .icon.complete {
-    background-image: url("css/icons/icon-complete.png");
+    background-image: url(css/icons/icon-complete.png);
     /* margin-right:-3px; */
     margin-right: 3px; /* by Vipovskiy */
 }
@@ -1801,24 +1801,24 @@ a:active .icon.back {
 .icon.icon-cert-big {
     width: 24px;
     height: 24px;
-    background-image: url("css/icons/icon-cert-big.png");
+    background-image: url(css/icons/icon-cert-big.png);
     top: 5px;
 }
 
 .icon.cert {
-    background-image: url("css/icons/icon-cert2.png");
+    background-image: url(css/icons/icon-cert2.png);
 }
 
 .icon.close {
-    background: url("css/icons/icon-close.png") left top no-repeat;
+    background: url(css/icons/icon-close.png) left top no-repeat;
 }
 
 .icon.close:hover {
-    background: url("css/icons/icon-close.png") -16px top no-repeat;
+    background: url(css/icons/icon-close.png) -16px top no-repeat;
 }
 
 .icon.pause {
-    background-image: url("css/icons/icon-pause.png");
+    background-image: url(css/icons/icon-pause.png);
     margin-right: -3px;
     top: 0;
 }
@@ -1829,38 +1829,38 @@ a:active .icon.back {
 }
 
 .icon.wait {
-    background-image: url("css/icons/icon-wait.png");
+    background-image: url(css/icons/icon-wait.png);
     /* margin-right:-3px; */
     margin-right: 3px; /* by Vipovskiy */
 }
 
 .icon.skip {
-    background-image: url("css/icons/icon-skip.png");
+    background-image: url(css/icons/icon-skip.png);
     margin-right: 0; /* by Vipovskiy */
     top: 3px;
 }
 
 .icon.comment {
-    background-image: url("css/i/icon-comment.png");
+    background-image: url(css/i/icon-comment.png);
     top: 5px;
 }
 
 .icon.answer {
-    background: url("css/icons/icons-cross.png") no-repeat scroll -119px -38px transparent;
+    background: url(css/icons/icons-cross.png) no-repeat scroll -119px -38px transparent;
     top: 0;
 }
 
 .icon.edit {
-    background-image: url("css/icons/icon-edit.png");
+    background-image: url(css/icons/icon-edit.png);
     left: 20px; /* by Vipovskiy */
 }
 
 .icon-edit-sticker-title {
-    background-image: url("css/icons/icon-edit-sticker-title.png");
+    background-image: url(css/icons/icon-edit-sticker-title.png);
 }
 
 .icon-change-sticker-color {
-    background-image: url("css/icons/icon-change-sticker-color.png");
+    background-image: url(css/icons/icon-change-sticker-color.png);
 }
 
 .icon.icon-pdf {
@@ -1868,7 +1868,7 @@ a:active .icon.back {
 }
 
 .icon-pdf {
-    background-image: url("css/icons/ico-pdf.gif");
+    background-image: url(css/icons/ico-pdf.gif);
     width: 24px;
 }
 
@@ -1877,7 +1877,7 @@ a:active .icon.back {
     margin: -0.1em 0 0 0;
     cursor: pointer;
     cursor: hand;
-    background-image: url("css/icons/list-open.gif");
+    background-image: url(css/icons/list-open.gif);
 }
 
 .icon-toolbar-dropdown {
@@ -1885,7 +1885,7 @@ a:active .icon.back {
     margin: 0 0 0 0;
     cursor: pointer;
     cursor: hand;
-    background-image: url("css/icons/toolbar-dropdown.gif");
+    background-image: url(css/icons/toolbar-dropdown.gif);
 }
 
 .with-icon .arr {
@@ -1893,7 +1893,7 @@ a:active .icon.back {
 }
 
 .icon.important {
-    background-image: url("css/icons/icon-excl.png");
+    background-image: url(css/icons/icon-excl.png);
 }
 
 .icon.red-square, .icon.blue-square, .icon.green-square, .icon.orange-square, .icon.grey-square, .icon.red-square, .icon.red-square {
@@ -1923,7 +1923,7 @@ a:active .icon.back {
 }
 
 .icon.folder {
-    background-image: url("css/icons/icon-folder.png");
+    background-image: url(css/icons/icon-folder.png);
 }
 
 .pseudo .folder {
@@ -1931,7 +1931,7 @@ a:active .icon.back {
 }
 
 .icon.placeholder {
-    background-image: url("css/icons/icon-placeholder.png");
+    background-image: url(css/icons/icon-placeholder.png);
 }
 
 .pseudo .placeholder {
@@ -1939,20 +1939,20 @@ a:active .icon.back {
 }
 
 .icon.ordinary {
-    background-image: url("css/icons/icon-ordinary.png");
+    background-image: url(css/icons/icon-ordinary.png);
 }
 
 .icon.attach {
-    background-image: url("css/icons/icon-attach.png");
+    background-image: url(css/icons/icon-attach.png);
 }
 
 .icon.more {
-    background-image: url("css/icons/toolbar-more.gif");
+    background-image: url(css/icons/toolbar-more.gif);
     cursor: pointer;
 }
 
 .icon.more-back {
-    background-image: url("css/icons/toolbar-more-back.gif");
+    background-image: url(css/icons/toolbar-more-back.gif);
     cursor: pointer;
 }
 
@@ -1979,154 +1979,154 @@ a:active .icon.back {
 }
 
 .icon-close {
-    background-image: url("css/icons/ico-close.gif");
+    background-image: url(css/icons/ico-close.gif);
 }
 
 .icon-progress {
-    background-image: url("css/icons/ico-progress.gif");
+    background-image: url(css/icons/ico-progress.gif);
 }
 
 .icon-dot {
-    background-image: url("css/icons/ico-dot.gif");
+    background-image: url(css/icons/ico-dot.gif);
 }
 
 .icon-flag {
-    background-image: url("css/icons/icon-flag.png");
+    background-image: url(css/icons/icon-flag.png);
 }
 
 .icon-flag-off {
-    background: url("css/iplan/pcontrol.png");
+    background: url(css/iplan/pcontrol.png);
 }
 
 .icon-cert {
-    background-image: url("css/icons/ico-cert.gif");
+    background-image: url(css/icons/ico-cert.gif);
 }
 
 .icon-clockring {
-    background-image: url("css/icons/clokring.png");
+    background-image: url(css/icons/clokring.png);
 }
 
 .icon-excl {
-    background-image: url("css/icons/icon-excl.png");
+    background-image: url(css/icons/icon-excl.png);
 }
 
 .icon-star {
-    background-image: url("css/icons/icon-star.png");
+    background-image: url(css/icons/icon-star.png);
 }
 
 .icon-nostar {
-    background-image: url("css/icons/ico-nostar.gif");
+    background-image: url(css/icons/ico-nostar.gif);
 }
 
 .icon-reload {
-    background-image: url("css/icons/ico-reload.gif");
+    background-image: url(css/icons/ico-reload.gif);
 }
 
 .icon-setup {
-    background-image: url("css/icons/ico-setup.gif");
+    background-image: url(css/icons/ico-setup.gif);
 }
 
 .icon-setup-grey {
-    background-image: url("css/icons/ico-setup-grey.gif");
+    background-image: url(css/icons/ico-setup-grey.gif);
 }
 
 .icon-edit {
-    background-image: url("css/icons/ico-edit.gif");
+    background-image: url(css/icons/ico-edit.gif);
 }
 
 .icon-help {
-    background-image: url("css/icons/icon-help.png");
+    background-image: url(css/icons/icon-help.png);
 }
 
 .icon-create {
-    background-image: url("css/icons/icon-create.png");
+    background-image: url(css/icons/icon-create.png);
 }
 
 .icon-send {
-    background-image: url("css/icons/icon-send.png");
+    background-image: url(css/icons/icon-send.png);
 }
 
 .icon-ok {
-    background-image: url("css/icons/ico-ok.gif");
+    background-image: url(css/icons/ico-ok.gif);
 }
 
 .icon-unlink {
-    background-image: url("css/icons/ico-unlink.gif");
+    background-image: url(css/icons/ico-unlink.gif);
 }
 
 .icon-talk {
-    background-image: url("css/icons/ico-talk.gif");
+    background-image: url(css/icons/ico-talk.gif);
 }
 
 .icon-zoomin {
-    background-image: url("css/icons/ico-zoomin.gif");
+    background-image: url(css/icons/ico-zoomin.gif);
 }
 
 .icon-zoomout {
-    background-image: url("css/icons/ico-zoomout.gif");
+    background-image: url(css/icons/ico-zoomout.gif);
 }
 
 .icon-print {
-    background-image: url("css/icons/ico-print.gif");
+    background-image: url(css/icons/ico-print.gif);
 }
 
 .icon-up {
-    background-image: url("css/icons/ico-up.gif");
+    background-image: url(css/icons/ico-up.gif);
 }
 
 .icon-down {
-    background-image: url("css/icons/ico-down.gif");
+    background-image: url(css/icons/ico-down.gif);
 }
 
 .icon-plan-task {
-    background-image: url("css/icons/icon-datepicker2.png");
+    background-image: url(css/icons/icon-datepicker2.png);
 }
 
 .icon-btn-dropdown {
-    background-image: url("css/icons/ico-btn-dropdown.gif");
+    background-image: url(css/icons/ico-btn-dropdown.gif);
 }
 
 .icon-attach {
-    background-image: url("css/icons/ico-attach.gif");
+    background-image: url(css/icons/ico-attach.gif);
 }
 
 .icon-showblock {
-    background-image: url("css/icons/ico-showblock.gif");
+    background-image: url(css/icons/ico-showblock.gif);
     cursor: pointer;
     cursor: hand;
 }
 
 .icon-hideblock {
-    background-image: url("css/icons/ico-hideblock.gif");
+    background-image: url(css/icons/ico-hideblock.gif);
     cursor: pointer;
     cursor: hand;
 }
 
 .icon-folder {
-    background-image: url("css/icons/ico-folder.gif");
+    background-image: url(css/icons/ico-folder.gif);
 }
 
 .icon-save {
-    background-image: url("css/icons/ico-save.gif");
+    background-image: url(css/icons/ico-save.gif);
 }
 
 .icon-delete {
-    background-image: url("css/icons/ico-delete.gif");
+    background-image: url(css/icons/ico-delete.gif);
 }
 
 .icon-find {
-    background-image: url("css/i/loupe.png");
+    background-image: url(css/i/loupe.png);
 }
 
 .icon-switch {
-    background-image: url("css/icons/icon-switch.png");
+    background-image: url(css/icons/icon-switch.png);
     height: 18px;
     width: 21px;
     cursor: pointer;
 }
 
 .icon-locker {
-    background-image: url("css/icons/icon_locker.png");
+    background-image: url(css/icons/icon_locker.png);
 }
 
 .suggest-box-panel {
@@ -2138,25 +2138,25 @@ a:active .icon.back {
 }
 
 .icon.pin-pressed {
-    background-image: url("css/icons/pin-pressed.png");
+    background-image: url(css/icons/pin-pressed.png);
     cursor: pointer;
     left: 5px;
 }
 
 .icon.pin-normal {
-    background-image: url("css/icons/pin-normal.png");
+    background-image: url(css/icons/pin-normal.png);
     cursor: pointer;
     left: 5px;
 }
 
 .icon.pin-pressed:hover {
-    background-image: url("css/icons/pin-pressed-hover.png");
+    background-image: url(css/icons/pin-pressed-hover.png);
     cursor: pointer;
     left: 5px;
 }
 
 .icon.pin-normal:hover {
-    background-image: url("css/icons/pin-normal-hover.png");
+    background-image: url(css/icons/pin-normal-hover.png);
     cursor: pointer;
     left: 5px;
 }
@@ -2173,7 +2173,7 @@ a:active .icon.back {
 }
 
 .flush-serch {
-    background: url("css/icons1.png") no-repeat scroll -32px top transparent;
+    background: url(css/icons1.png) no-repeat scroll -32px top transparent;
     cursor: pointer;
     border: 0 none;
     box-shadow: none;
@@ -2189,7 +2189,7 @@ a:active .icon.back {
 }
 
 .date-select {
-    background: url("css/icon-datepicker.png") no-repeat;
+    background: url(css/icon-datepicker.png) no-repeat;
     cursor: pointer;
     border: 0 none;
     box-shadow: none;
@@ -2205,7 +2205,7 @@ a:active .icon.back {
 }
 
 .search-container .date-select {
-    background: url("css/icon-datepicker.png") no-repeat;
+    background: url(css/icon-datepicker.png) no-repeat;
     cursor: pointer;
     border: 0 none;
     box-shadow: none;
@@ -2220,11 +2220,11 @@ a:active .icon.back {
 }
 
 .flush-serch:hover {
-    background: url("css/icons1.png") no-repeat scroll -48px top transparent;
+    background: url(css/icons1.png) no-repeat scroll -48px top transparent;
 }
 
 .flush-serch-hide {
-    background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;
+    background: url(css/icons1.png) no-repeat scroll -100px top transparent !important;
     cursor: default !important;
 }
 
@@ -2232,7 +2232,7 @@ a:active .icon.back {
     height: 23px;
     width: 23px;
     background-color: #f0f4ff;
-    background-image: url("css/filter-btn.png");
+    background-image: url(css/filter-btn.png);
     background-repeat: no-repeat;
     background-position: 50% 50%;
     position: relative;
@@ -2305,7 +2305,7 @@ a:active .icon.back {
 .datePickerDayIsToday {
     padding: 3px;
     color: #ffffff;
-    background: url("images/hborderN.png") repeat-x 0px -2607px;
+    background: url(images/hborderN.png) repeat-x 0 -2607px;
 }
 
 .datePickerMonthSelector {
@@ -2567,6 +2567,18 @@ td.datePickerMonth {
 .setting-popup-panel {
     right: 105px !important;
     top: 55px !important;
+}
+.loading-attachment{
+    display: inline-block;
+}
+.configuration-deployed-item div,
+.configuration-deployed-item img {
+    display: inline-block;
+}
+
+.configuration-deployed-item img {
+    height: 24px;
+    width: 24px;
 }
 
 .settings-item .gwt-Label {
