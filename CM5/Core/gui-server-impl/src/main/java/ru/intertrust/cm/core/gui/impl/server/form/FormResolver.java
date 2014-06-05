@@ -3,12 +3,14 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.gui.RoleConfig;
 import ru.intertrust.cm.core.config.gui.RolesConfig;
 import ru.intertrust.cm.core.config.gui.UserConfig;
@@ -26,7 +28,7 @@ import java.util.*;
  *         Date: 21.10.13
  *         Time: 19:49
  */
-public class FormResolver {
+public class FormResolver implements ApplicationListener<ConfigurationUpdateEvent> {
     private static Logger log = LoggerFactory.getLogger(FormResolver.class);
 
     @Autowired
@@ -40,6 +42,14 @@ public class FormResolver {
     private FormsCache reportFormsCache;
 
     public FormResolver() {
+    }
+
+    @Override
+    public void onApplicationEvent(ConfigurationUpdateEvent event) {
+        if(event.getNewConfig() instanceof FormConfig) {
+            System.out.println("WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOW");
+            initCaches();
+        }
     }
 
     public FormConfig findEditingFormConfig(Id rootId, String userUid) {
