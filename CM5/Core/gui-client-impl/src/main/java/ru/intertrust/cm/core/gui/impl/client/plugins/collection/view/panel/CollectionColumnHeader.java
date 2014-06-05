@@ -67,6 +67,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     public String getFilterValue() {
         if (widget.getSearchFilterName() != null) {
+            input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+            inputFilter = InputElement.as(input);
             return inputFilter.getValue();
         } else {
             return EMPTY_VALUE;
