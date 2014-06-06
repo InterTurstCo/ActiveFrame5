@@ -26,6 +26,20 @@ public class EmptyValueFilterAdapterTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    public void testStringField() {
+        SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.STRING);
+        when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(Collections.singleton(type));
+        when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+        SearchQuery query = mock(SearchQuery.class);
+        when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
+
+        EmptyValueFilter filter = new EmptyValueFilter("TestField");
+        String result = adapter.getFilterString(filter, query);
+        assertEquals("-cm_t_testfield:[\"\" TO *]", result);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void testLongField() {
         SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.LONG);
         when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(Collections.singleton(type));
@@ -33,7 +47,7 @@ public class EmptyValueFilterAdapterTest {
 
         EmptyValueFilter filter = new EmptyValueFilter("TestField");
         String result = adapter.getFilterString(filter, query);
-        assertEquals("-cm_l_testfield:[\"\" TO *]", result);
+        assertEquals("-cm_l_testfield:[* TO *]", result);
     }
 
     @Test
@@ -54,8 +68,9 @@ public class EmptyValueFilterAdapterTest {
         EmptyValueFilter filter = new EmptyValueFilter("TestField");
         String result = adapter.getFilterString(filter, query);
         assertTrue("Поисковый запрос должен иметь вид NOT (zzzz OR zzzz ...),"
-                + " где каждый zzzz - выражение вида cm_xx_testfield:[\"\" TO *]", result.matches(
-                "NOT \\((cm_[a-z]+_testfield:\\[\"\" TO \\*\\] OR ){7}cm_[a-z]+_testfield:\\[\"\" TO \\*\\]\\)"));
+                + " где каждый zzzz - выражение вида cm_xx_testfield:[* TO *] или cm_t_testfield:[\"\" TO *]",
+                result.matches("-\\((cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\] OR ){7}"
+                + "cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\]\\)"));
         assertTrue(result.contains("cm_r_testfield:"));
         assertTrue(result.contains("cm_dts_testfield:"));
         assertTrue(result.contains("cm_t_testfield:"));
