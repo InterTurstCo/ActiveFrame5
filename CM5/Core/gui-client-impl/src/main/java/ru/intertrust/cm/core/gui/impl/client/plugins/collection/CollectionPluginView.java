@@ -266,7 +266,7 @@ public class CollectionPluginView extends PluginView {
         filterButton.setValue(false);
         headerController.clearFilters();
         headerController.changeFiltersInputsVisibility(false);
-
+        lastScrollPos = 0;
         filtersMap.clear();
         clearAllTableData();
 
@@ -379,7 +379,6 @@ public class CollectionPluginView extends PluginView {
         checkColumn.setDataStoreName(CHECK_BOX_COLUMN_NAME);
         createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap);
     }
-    
 
 
     private void createTableColumnsWithoutCheckBoxes(
@@ -405,17 +404,18 @@ public class CollectionPluginView extends PluginView {
         }
         headerController.setHeaders(headers);
         CollectionDataGridUtils.addjustColumnsWidth(tableWidth, tableBody);
-                String panelStatus = getPanelState();
-                if (panelStatus.equalsIgnoreCase(OPEN)) {
-                    headerController.changeFiltersInputsVisibility(true);
-                    filterButton.setValue(true);
-                    headerController.updateFilterValues();
-                }
+        String panelStatus = getPanelState();
+        if (panelStatus.equalsIgnoreCase(OPEN)) {
+            headerController.changeFiltersInputsVisibility(true);
+            filterButton.setValue(true);
+            headerController.updateFilterValues();
+        }
 
 
     }
+
     private String getPanelState() {
-        if(filterPanelConfig == null && initialFiltersConfig == null) {
+        if (filterPanelConfig == null && initialFiltersConfig == null) {
             return CLOSED;
         } else if (filterPanelConfig == null && initialFiltersConfig != null) {
             String rawPanelState = initialFiltersConfig.getPanelState();
@@ -481,7 +481,7 @@ public class CollectionPluginView extends PluginView {
                     sortCollectionState.isAscend(), sortCollectionState.getColumnName(), field);
             sortCollectionState.setResetCollection(false);
             listCount = 0;
-            lastScrollPos = 0;
+
         } else {
             collectionRowsRequest = new CollectionRowsRequest(listCount, FETCHED_ROW_COUNT, collectionName, fieldPropertiesMap, ascending,
                     sortCollectionState.getColumnName(), sortCollectionState.getField());
@@ -591,33 +591,29 @@ public class CollectionPluginView extends PluginView {
 
     private class ScrollLazyLoadHandler implements ScrollHandler {
         private ScrollPanel scroll;
-        int previousScrollMaxVerticalPosition;
 
         private ScrollLazyLoadHandler() {
             this.scroll = tableBody.getScrollPanel();
-            previousScrollMaxVerticalPosition = scroll.getMaximumVerticalScrollPosition();
         }
 
         @Override
         public void onScroll(ScrollEvent event) {
-
             int oldScrollPos = lastScrollPos;
             lastScrollPos = scroll.getVerticalScrollPosition();
+            int maxScrollTop = scroll.getMaximumVerticalScrollPosition();
             if (oldScrollPos == 0) {
-
                 return;
             }
+
             // If scrolling up, ignore the event.
-            if (oldScrollPos == scroll.getMaximumVerticalScrollPosition()) {
+            if (oldScrollPos == maxScrollTop) {
 
             }
             if (oldScrollPos >= lastScrollPos) {
                 return;
             }
-            //Height of grid contents (including outside the viewable area) - height of the scroll panel
-            // int maxScrollTop = scroll.getWidget().getOffsetHeight() - scroll.getOffsetHeight();
-            int maxScrollTop = scroll.getMaximumVerticalScrollPosition();
-            if (lastScrollPos >= maxScrollTop && maxScrollTop >= previousScrollMaxVerticalPosition) {
+
+            if (lastScrollPos >= maxScrollTop) {
                 if (sortCollectionState != null) {
                     sortCollectionState.setResetCollection(false);
                 }
