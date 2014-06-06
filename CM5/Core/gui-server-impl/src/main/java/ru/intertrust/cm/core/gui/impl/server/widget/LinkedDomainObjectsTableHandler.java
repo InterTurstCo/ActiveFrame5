@@ -153,7 +153,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 }
             }
             for (String fieldName : fieldsInPattern) {
-                String displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern));
+                String displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig);
                 formattedFields.put(fieldName, displayValue);
 
             }

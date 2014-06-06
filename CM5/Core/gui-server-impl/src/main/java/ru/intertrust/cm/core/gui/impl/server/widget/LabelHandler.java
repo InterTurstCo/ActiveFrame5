@@ -3,11 +3,9 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
-import ru.intertrust.cm.core.gui.api.server.GuiContext;
-import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
@@ -17,9 +15,6 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,7 +55,8 @@ public class LabelHandler extends ValueEditingWidgetHandler {
             } else {
             AllValuesEmptyMessageConfig allValuesEmptyMessage = labelConfig.getAllValuesEmptyMessage();
             String allValuesEmpty = allValuesEmptyMessage == null ? "" : allValuesEmptyMessage.getValue();
-            String formattedString = format(labelConfig.getPattern().getValue(), fieldPaths, context, allValuesEmpty);
+            FormattingConfig formattingConfig = labelConfig.getFormattingConfig();
+            String formattedString = format(labelConfig.getPattern().getValue(), fieldPaths, context, allValuesEmpty, formattingConfig);
             state.setLabel(formattedString);
             }
 
@@ -74,11 +70,12 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         return null;
     }
 
-    private String format(String configPattern, FieldPath[] fieldPaths, WidgetContext context, String allValuesEmpty ) {
+    private String format(String configPattern, FieldPath[] fieldPaths, WidgetContext context, String allValuesEmpty,
+                          FormattingConfig formattingConfig ) {
         String displayPattern = configPattern == null ? buildDefaultPattern(fieldPaths) : configPattern;
         Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
         Matcher matcher = pattern.matcher(displayPattern);
-        String replacement = formatHandler.format(context, matcher, allValuesEmpty);
+        String replacement = formatHandler.format(context, matcher, allValuesEmpty, formattingConfig);
         return replacement;
     }
 

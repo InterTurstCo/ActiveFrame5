@@ -3,20 +3,23 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathsConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.NumberFormatConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
-import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 
 
@@ -41,7 +44,7 @@ public class RepresentationFormatHandler implements FormatHandler {
         while (iterator.hasNext()) {
             Id id = iterator.next();
             DomainObject domainObject = crudService.find(id);
-            String representation = formatWithSplit(domainObject, matcher);
+            String representation = formatWithSplit(domainObject, matcher, null);
 
             sb.append(representation);
             if (iterator.hasNext()) {
@@ -55,23 +58,24 @@ public class RepresentationFormatHandler implements FormatHandler {
     public RepresentationResponse getRepresentationForOneItem(Dto inputParams) {
         RepresentationRequest request = (RepresentationRequest) inputParams;
         String selectionPattern = request.getPattern();
+        FormattingConfig formattingConfig = request.getFormattingConfig();
         Matcher matcher = pattern.matcher(selectionPattern);
         List<Id> ids = request.getIds();
         Id id = ids.get(0);
         DomainObject domainObject = crudService.find(id);
-        String representation = format(domainObject, matcher);
+        String representation = format(domainObject, matcher, formattingConfig);
         RepresentationResponse response = new RepresentationResponse(id, representation);
         return response;
     }
 
-    private String formatWithSplit(IdentifiableObject identifiableObject, Matcher matcher) {
+    private String formatWithSplit(IdentifiableObject identifiableObject, Matcher matcher, FormattingConfig formattingConfig) {
         StringBuffer replacement = new StringBuffer();
 
         while (matcher.find()) {
             String group = matcher.group();
             String fieldName = group.substring(1, group.length() - 1);
-            String displayValue = fieldName.contains(".") || fieldName.contains("|") ? getFormattedReferenceValueByFieldPath(fieldName, identifiableObject, true) :
-                    getDisplayValue(fieldName, identifiableObject);
+            String displayValue = fieldName.contains(".") || fieldName.contains("|") ? getFormattedReferenceValueByFieldPath(fieldName, identifiableObject, true, formattingConfig) :
+                    getDisplayValue(fieldName, identifiableObject, formattingConfig);
             matcher.appendReplacement(replacement, displayValue);
         }
         matcher.appendTail(replacement);
@@ -79,21 +83,23 @@ public class RepresentationFormatHandler implements FormatHandler {
         return replacement.toString();
     }
 
-    public String format(DomainObject domainObject, Matcher matcher) {
-        return format((IdentifiableObject) domainObject, matcher);
+    public String format(DomainObject domainObject, Matcher matcher, FormattingConfig formattingConfig) {
+        return format((IdentifiableObject) domainObject, matcher, formattingConfig);
     }
 
+
     @Override
-    public String format(WidgetContext context, Matcher matcher, String allValuesEmpty) {
+    public String format(WidgetContext context, Matcher matcher, String allValuesEmpty,FormattingConfig formattingConfig) {
         StringBuffer replacement = new StringBuffer();
         while (matcher.find()) {
-        String group = matcher.group();
-        FieldPath fieldPath = new FieldPath(group.substring(1, group.length() - 1));
-        Value value = context.getValue(fieldPath);
-        String displayValueUnescaped = getDisplayValue(value);
+            String group = matcher.group();
 
-        String displayValue = displayValueUnescaped.replaceAll( "\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
-        matcher.appendReplacement(replacement, displayValue);
+            FieldPath fieldPath = new FieldPath(group.substring(1, group.length() - 1));
+            Value value = context.getValue(fieldPath);
+            String displayValueUnescaped = getDisplayValue(fieldPath.getFieldName(), value, formattingConfig);
+
+            String displayValue = displayValueUnescaped.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
+            matcher.appendReplacement(replacement, displayValue);
         }
 
         matcher.appendTail(replacement);
@@ -101,7 +107,7 @@ public class RepresentationFormatHandler implements FormatHandler {
         return replacement.length() == 0 ? allValuesEmpty : replacement.toString();
     }
 
-    public String format(IdentifiableObject identifiableObject, Matcher matcher) {
+    public String format(IdentifiableObject identifiableObject, Matcher matcher, FormattingConfig formattingConfig) {
 
         StringBuffer replacement = new StringBuffer();
 
@@ -109,8 +115,8 @@ public class RepresentationFormatHandler implements FormatHandler {
             String group = matcher.group();
             String fieldName = group.substring(1, group.length() - 1);
             String displayValue = fieldName.contains(".") || fieldName.contains("|")
-                    ? getFormattedReferenceValueByFieldPath(fieldName, identifiableObject, false)
-                    : getDisplayValue(fieldName, identifiableObject);
+                    ? getFormattedReferenceValueByFieldPath(fieldName, identifiableObject, false, formattingConfig)
+                    : getDisplayValue(fieldName, identifiableObject, formattingConfig);
 
             matcher.appendReplacement(replacement, displayValue);
         }
@@ -120,7 +126,7 @@ public class RepresentationFormatHandler implements FormatHandler {
     }
 
     private String getFormattedReferenceValueByFieldPath(String fieldName, IdentifiableObject identifiableObject,
-                                                         boolean skipFirstElement) {
+                                                         boolean skipFirstElement, FormattingConfig formattingConfig) {
         StringBuilder displayValue = new StringBuilder();
         IdentifiableObject tempIdentifiableObject = identifiableObject;
         PatternIterator iterator = new PatternIterator(fieldName);
@@ -131,7 +137,7 @@ public class RepresentationFormatHandler implements FormatHandler {
             PatternIterator.ReferenceType type = iterator.getType();
             switch (type) {
                 case FIELD:
-                    return getDisplayValue(iterator.getValue(), tempIdentifiableObject);
+                    return getDisplayValue(iterator.getValue(), tempIdentifiableObject, formattingConfig);
                 case DIRECT_REFERENCE:
                     tempIdentifiableObject = crudService.find(tempIdentifiableObject.
                             getReference(iterator.getValue()));
@@ -152,27 +158,33 @@ public class RepresentationFormatHandler implements FormatHandler {
         return displayValue.toString();
     }
 
-    private String getDisplayValue(Value value) {
+    private String getDisplayValue(String field, Value value, FormattingConfig formattingConfig) {
         StringBuilder displayValue = new StringBuilder();
         if (value != null) {
             Object primitiveValue = value.get();
-            if (primitiveValue == null) {
-                if (value instanceof LongValue || value instanceof DecimalValue) {
-                    displayValue.append("0");
-                }
-            } else {
-                SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+
+
+            if (value instanceof LongValue || value instanceof DecimalValue) {
+                displayValue.append(getNumberDisplayValue(field, primitiveValue, formattingConfig));
+            } else if (primitiveValue != null) {
+                SimpleDateFormat dateFormatter = prepareSimpleDateFormat(field, formattingConfig);
                 if (value instanceof DateTimeValue) {
-                    displayValue.append(dateFormatter.format(primitiveValue));
+                    DateValueConverter<DateTimeValue> dateTimeValueDateValueConverter = new DateTimeValueConverter();
+                    String timeZoneId = getTimeZoneId(field, formattingConfig);
+                    DateTimeContext dateTimeContext = dateTimeValueDateValueConverter.valueToContext((DateTimeValue)value, timeZoneId,dateFormatter);
+                    displayValue.append(dateTimeContext.getDateTime());
                 } else if (value instanceof TimelessDateValue) {
-                    TimelessDate timelessDate = ((TimelessDateValue) value).get();
-                    TimeZone timeZone = TimeZone.getTimeZone(GuiContext.get().getUserInfo().getTimeZoneId());
-                    Calendar calendar = GuiServerHelper.timelessDateToCalendar(timelessDate, timeZone);
-                    displayValue.append(dateFormatter.format(calendar.getTime()));
+
+                    DateValueConverter<TimelessDateValue> dateValueConverter = new TimelessDateValueConverter();
+                    String timeZoneId = getTimeZoneId(field, formattingConfig);
+                    DateTimeContext dateTimeContext = dateValueConverter.valueToContext((TimelessDateValue)value, timeZoneId, dateFormatter);
+                    displayValue.append(dateTimeContext.getDateTime());
                 } else if (value instanceof DateTimeWithTimeZoneValue) {
-                    DateTimeWithTimeZone withTimeZone = ((DateTimeWithTimeZoneValue) value).get();
-                    Calendar calendar = GuiServerHelper.dateTimeWithTimezoneToCalendar(withTimeZone);
-                    displayValue.append(dateFormatter.format(calendar.getTime()));
+                    DateValueConverter<DateTimeWithTimeZoneValue> dateValueConverter = new DateTimeWithTimezoneValueConverter();
+                    String timeZoneId = getTimeZoneId(field, formattingConfig);
+                    DateTimeContext dateTimeContext = dateValueConverter.valueToContext((DateTimeWithTimeZoneValue)value, timeZoneId, dateFormatter);
+                    displayValue.append(dateTimeContext.getDateTime());
+
                 } else {
                     displayValue.append(primitiveValue.toString());
                 }
@@ -182,11 +194,62 @@ public class RepresentationFormatHandler implements FormatHandler {
         return displayValue.toString();
     }
 
+    private String getTimeZoneId(String field, FormattingConfig formattingConfig){
+        if(formattingConfig == null || formattingConfig.getDateFormatConfig() == null || !
+                isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
+            return  GuiContext.get().getUserInfo().getTimeZoneId();
+        }
+        return formattingConfig.getDateFormatConfig().getTimeZoneConfig().getId();
+    }
 
-    private String getDisplayValue(String fieldName, IdentifiableObject identifiableObject) {
+    private SimpleDateFormat prepareSimpleDateFormat(String field, FormattingConfig formattingConfig) {
+        if(formattingConfig != null && formattingConfig.getDateFormatConfig() != null &&
+                isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
+          return new SimpleDateFormat(formattingConfig.getDateFormatConfig().getPattern());
+        }
+        return new SimpleDateFormat("dd.MM.yyyy");
+    }
+
+    private String getNumberDisplayValue(String field, Object primitiveValue, FormattingConfig formattingConfig) {
+        String value = formattingConfig == null ? getNumberDisplayWithoutFormatter(primitiveValue)
+                : getNumberDisplayValueProbablyWithFormatting(field, primitiveValue, formattingConfig.getNumberFormatConfig());
+        return value;
+
+    }
+
+    private String getNumberDisplayValueProbablyWithFormatting(String field, Object primitiveValue,
+                                                               NumberFormatConfig numberFormatConfig) {
+       String value = isFormatterUsedForCurrentField(field, numberFormatConfig.getFieldsPathConfig()) ?
+               getNumberDisplayWithFormatting(primitiveValue, numberFormatConfig) :
+               getNumberDisplayWithoutFormatter(primitiveValue);
+       return value;
+    }
+
+    private String getNumberDisplayWithoutFormatter(Object primitiveValue) {
+        String value = primitiveValue == null ? "0" : primitiveValue.toString();
+        return value;
+    }
+
+    private String getNumberDisplayWithFormatting(Object primitiveValue, NumberFormatConfig numberFormatConfig) {
+        DecimalFormat decimalFormat = new DecimalFormat(numberFormatConfig.getPattern());
+        String value = primitiveValue == null ? decimalFormat.format(0) : decimalFormat.format(primitiveValue);
+        return value;
+    }
+
+    private boolean isFormatterUsedForCurrentField(String field, FieldPathsConfig fieldPathsConfig) {
+        List<FieldPathConfig> fieldPathConfigs = fieldPathsConfig.getFieldPathConfigsList();
+        for (FieldPathConfig fieldPathConfig : fieldPathConfigs) {
+            if (fieldPathConfig.getValue().equalsIgnoreCase(field)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getDisplayValue(String fieldName, IdentifiableObject identifiableObject, FormattingConfig formattingConfig) {
 
         Value value = identifiableObject.getValue(fieldName);
-        return getDisplayValue(value);
+        return getDisplayValue(fieldName, value, formattingConfig);
 
     }
 }

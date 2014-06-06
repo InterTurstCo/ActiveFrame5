@@ -1,33 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.OlsonTimeZoneContext;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DateBoxConfig;
-import ru.intertrust.cm.core.gui.api.server.GuiContext;
-import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.impl.server.util.DateUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * @author Denis Mitavskiy
@@ -47,7 +33,8 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
                 && fieldType == FieldType.DATETIMEWITHTIMEZONE;
         state.setDisplayTimeZoneChoice(displayTimeZoneChoice);
         final DateValueConverter converter = getConverter(fieldType);
-        final DateTimeContext context = converter.valueToContext(widgetContext.getValue(), config);
+        final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
+        final DateTimeContext context = converter.valueToContext(widgetContext.getValue(), config.getTimeZoneId(), dateFormat);
         context.setTimeZoneId(config.getTimeZoneId());
         state.setDateTimeContext(context);
         return state;
@@ -58,7 +45,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         final DateBoxState dateBoxState = (DateBoxState) state;
         final FieldType fieldType = FieldType.values()[dateBoxState.getDateTimeContext().getOrdinalFieldType()];
         final DateValueConverter converter = getConverter(fieldType);
-        final Value value = converter.contextToValue(dateBoxState.getDateTimeContext());
+        final Value value = (Value) converter.contextToValue(dateBoxState.getDateTimeContext());
         return value;
     }
 
@@ -93,7 +80,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         }
     }
 
-    private interface DateValueConverter<T extends Value> {
+   /* private interface DateValueConverter<T extends Value> {
 
         DateTimeContext valueToContext(T value, DateBoxConfig config);
 
@@ -233,5 +220,5 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
             return new DateTimeWithTimeZoneValue();
         }
 
-    }
+    }*/
 }

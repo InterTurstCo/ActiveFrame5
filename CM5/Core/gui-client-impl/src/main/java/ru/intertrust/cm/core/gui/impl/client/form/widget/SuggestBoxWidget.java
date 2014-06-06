@@ -19,6 +19,7 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DisplayValuesAsLinksConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -41,7 +42,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     private String selectionPattern;
     private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
     private LinkedHashMap<Id, String> stateListValues = new LinkedHashMap<>(); //used for temporary state
-
+    private FormattingConfig formattingConfig;
     CmjDefaultSuggestionDisplay display;
 
     public SuggestBoxWidget() {
@@ -50,6 +51,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     @Override
     public void setCurrentState(WidgetState currentState) {
         final SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
+        formattingConfig = suggestBoxState.getSuggestBoxConfig().getFormattingConfig();
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
             presenter.initModel(suggestBoxState);
@@ -132,7 +134,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     private void updateHyperlink(Id id) {
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, false);
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, formattingConfig);
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -247,7 +249,8 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                         ArrayList<Suggestion> suggestions = new ArrayList<Suggestion>();
                         allSuggestions.clear();
                         for (SuggestionItem suggestionItem : list.getSuggestions()) {
-                            suggestions.add(new MultiWordIdentifiableSuggestion(suggestionItem.getId(), suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
+                            suggestions.add(new MultiWordIdentifiableSuggestion(suggestionItem.getId(),
+                                    suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
                             allSuggestions.put(suggestionItem.getId(), suggestionItem.getDisplayText());
                         }
                         Response response = new Response();

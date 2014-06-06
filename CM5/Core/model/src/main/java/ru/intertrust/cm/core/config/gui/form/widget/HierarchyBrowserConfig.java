@@ -35,6 +35,9 @@ public class HierarchyBrowserConfig extends WidgetConfig {
     @Element (name = "dialog-window", required = false)
     private DialogWindowConfig dialogWindowConfig;
 
+    @Element(name = "formatting", required = false)
+    private FormattingConfig formattingConfig;
+
     public NodeCollectionDefConfig getNodeCollectionDefConfig() {
         return nodeCollectionDefConfig;
     }
@@ -99,6 +102,14 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         this.dialogWindowConfig = dialogWindowConfig;
     }
 
+    public FormattingConfig getFormattingConfig() {
+        return formattingConfig;
+    }
+
+    public void setFormattingConfig(FormattingConfig formattingConfig) {
+        this.formattingConfig = formattingConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -147,7 +158,9 @@ public class HierarchyBrowserConfig extends WidgetConfig {
                 that.dialogWindowConfig != null) {
             return false;
         }
-
+        if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -162,6 +175,7 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
+        result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         return result;
     }
 

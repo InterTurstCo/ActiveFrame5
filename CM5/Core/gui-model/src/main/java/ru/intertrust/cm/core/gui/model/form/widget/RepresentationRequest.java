@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
 
 import java.util.List;
 
@@ -13,14 +15,21 @@ import java.util.List;
 public class RepresentationRequest implements Dto {
     private List<Id> ids;
     private String pattern;
-    private boolean useSplit;
+    private FormattingConfig formattingConfig;
+    private SummaryTableConfig summaryTableConfig;
     public RepresentationRequest() {
     }
 
-    public RepresentationRequest(List<Id> ids, String pattern, boolean useSplit) {
+    public RepresentationRequest(List<Id> ids, String pattern, FormattingConfig formattingConfig) {
         this.ids = ids;
         this.pattern = pattern;
-        this.useSplit = useSplit;
+        this.formattingConfig = formattingConfig;
+    }
+
+    public RepresentationRequest(List<Id> ids, String pattern, SummaryTableConfig summaryTableConfig) {
+        this.ids = ids;
+        this.pattern = pattern;
+        this.summaryTableConfig = summaryTableConfig;
     }
 
     public List<Id> getIds() {
@@ -39,11 +48,19 @@ public class RepresentationRequest implements Dto {
         this.pattern = pattern;
     }
 
-    public boolean isUseSplit() {
-        return useSplit;
+    public FormattingConfig getFormattingConfig() {
+        return formattingConfig;
     }
 
-    public void setUseSplit(boolean useSplit) {
-        this.useSplit = useSplit;
+    public void setFormattingConfig(FormattingConfig formattingConfig) {
+        this.formattingConfig = formattingConfig;
+    }
+
+    public SummaryTableConfig getSummaryTableConfig() {
+        return summaryTableConfig;
+    }
+
+    public void setSummaryTableConfig(SummaryTableConfig summaryTableConfig) {
+        this.summaryTableConfig = summaryTableConfig;
     }
 }

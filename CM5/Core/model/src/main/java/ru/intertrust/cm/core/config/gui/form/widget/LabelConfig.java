@@ -38,6 +38,9 @@ public class LabelConfig extends WidgetConfig implements Dto {
     @Element(name = "force-required-asterisk", required = false)
     private ForceRequiredAsteriskConfig forceRequiredAsterisk;
 
+    @Element(name = "formatting", required = false)
+    private FormattingConfig formattingConfig;
+
     @Override
     public boolean isReadOnly() {
         return true;
@@ -115,6 +118,14 @@ public class LabelConfig extends WidgetConfig implements Dto {
         this.forceRequiredAsterisk = forceRequiredAsterisk;
     }
 
+    public FormattingConfig getFormattingConfig() {
+        return formattingConfig;
+    }
+
+    public void setFormattingConfig(FormattingConfig formattingConfig) {
+        this.formattingConfig = formattingConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -158,6 +169,9 @@ public class LabelConfig extends WidgetConfig implements Dto {
                 forceRequiredAsterisk != null) {
             return false;
         }
+        if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -173,6 +187,7 @@ public class LabelConfig extends WidgetConfig implements Dto {
         result = 31 * result + (fontStyle != null ? fontStyle.hashCode() : 0);
         result = 31 * result + (fontSize != null ? fontSize.hashCode() : 0);
         result = 31 * result + (forceRequiredAsterisk != null ? forceRequiredAsterisk.hashCode() : 0);
+        result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         return result;
     }
 

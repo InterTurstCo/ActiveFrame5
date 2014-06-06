@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
@@ -51,10 +52,11 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<TableBrowserItem> items = new ArrayList<TableBrowserItem>();
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
         Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
+        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
         for (IdentifiableObject collectionObject : collection) {
             TableBrowserItem item = new TableBrowserItem();
             item.setId(collectionObject.getId());
-            item.setStringRepresentation(formatHandler.format(collectionObject, matcher));
+            item.setStringRepresentation(formatHandler.format(collectionObject, matcher, formattingConfig));
             items.add(item);
         }
         state.setTableBrowserItems(items);
@@ -79,11 +81,11 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
                 findCollection(collectionName, sortOrder, filters, 0, NUMBER_OF_ITEMS);
         Matcher selectionMatcher = formatHandler.pattern.matcher(formatRowsRequest.getSelectionPattern());
         ArrayList<TableBrowserItem> items = new ArrayList<>();
-
+        FormattingConfig formattingConfig = formatRowsRequest.getFormattingConfig();
         for (IdentifiableObject collectionObject : collection) {
             TableBrowserItem item = new TableBrowserItem();
             item.setId(collectionObject.getId());
-            item.setStringRepresentation(formatHandler.format(collectionObject, selectionMatcher));
+            item.setStringRepresentation(formatHandler.format(collectionObject, selectionMatcher, formattingConfig));
             items.add(item);
         }
         ParsedRowsList parsedRows = new ParsedRowsList();

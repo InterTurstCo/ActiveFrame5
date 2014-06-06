@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 
 import java.util.regex.Matcher;
@@ -15,8 +16,8 @@ import java.util.regex.Pattern;
 public interface FormatHandler extends ComponentHandler {
     public static final String FIELD_PLACEHOLDER_PATTERN = "\\{[\\w+\\.*+\\|*+\\w+]+\\}";
     public static final Pattern pattern = Pattern.compile(FIELD_PLACEHOLDER_PATTERN);
-    public String format(IdentifiableObject identifiableObject, Matcher matcher);
-    public String format(DomainObject domainObject, Matcher matcher);
-    public String format(WidgetContext context, Matcher matcher, String allValuesEmpty);
+    public String format(IdentifiableObject identifiableObject, Matcher matcher, FormattingConfig formattingConfig);
+    public String format(DomainObject domainObject, Matcher matcher, FormattingConfig formattingConfig);
+    public String format(WidgetContext context, Matcher matcher, String allValuesEmpty, FormattingConfig formattingConfig);
 
 }

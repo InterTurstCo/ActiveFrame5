@@ -11,10 +11,10 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root(name = "formatting")
 public class FormattingConfig implements Dto {
-    @Element(name = "date-format")
+    @Element(name = "date-format", required = false)
     private DateFormatConfig dateFormatConfig;
 
-    @Element(name = "number-format")
+    @Element(name = "number-format", required = false)
     private NumberFormatConfig numberFormatConfig;
 
     public DateFormatConfig getDateFormatConfig() {

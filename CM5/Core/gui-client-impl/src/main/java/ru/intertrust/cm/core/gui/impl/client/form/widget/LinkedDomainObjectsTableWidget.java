@@ -306,7 +306,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     }
 
     private void getRepresentation(final RowItem item, final String widgetId, List<Id> ids,String selectionPattern) {
-        RepresentationRequest request = new RepresentationRequest(ids,selectionPattern, true);
+        SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
+        RepresentationRequest request = new RepresentationRequest(ids,selectionPattern, summaryTableConfig);
         Command command = new Command("getRepresentation", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

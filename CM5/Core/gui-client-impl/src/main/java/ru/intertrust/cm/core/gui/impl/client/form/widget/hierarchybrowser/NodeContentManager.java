@@ -35,6 +35,7 @@ public abstract class NodeContentManager {
         nodeContentRequest.setChosenIds(chosenIds);
         nodeContentRequest.setParentId(parentId);
         nodeContentRequest.setNodeCollectionDefConfig(nodeConfig);
+        nodeContentRequest.setFormattingConfig(config.getFormattingConfig());
         return nodeContentRequest;
     }
     public abstract void fetchNodeContent();

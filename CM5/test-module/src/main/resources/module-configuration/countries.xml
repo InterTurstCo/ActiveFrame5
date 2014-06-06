@@ -289,8 +289,17 @@
         <widget-config>
             <label id="1">
                 <field-path value="id"/>
-               <pattern value="{id}"/>
+               <pattern value="{created_date}"/>
                 <all-values-empty-message value="empty"/>
+                <formatting>
+
+                    <date-format pattern="dd-mm-yyyy HH:mm:ss" style="short">
+                        <time-zone id="Europe/Kiev"/>
+                        <field-paths>
+                            <field-path value="created_date"/>
+                        </field-paths>
+                    </date-format>
+                </formatting>
             </label>
             <text-box id="2">
                 <field-path value="name"/>

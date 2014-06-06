@@ -3,10 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
@@ -46,12 +43,13 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         String firstCollectionName = nodeConfig.getCollection();
         collectionNameNodeMap.put(firstCollectionName, nodeConfig);
         fillCollectionNameNodeMap(nodeConfig, collectionNameNodeMap);
+        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
         if (!selectedIds.isEmpty()) {
             List<Filter> filters = new ArrayList<Filter>();
             filters = addIncludeIdsFilter(selectedIds, filters);
             Set<String> collectionNames = collectionNameNodeMap.keySet();
             for (String collectionName : collectionNames) {
-                generateChosenItemsForCollection(collectionName, filters, selectionMatcher, chosenItems);
+                generateChosenItemsForCollection(collectionName, filters, selectionMatcher, chosenItems, formattingConfig);
             }
 
         }
@@ -68,21 +66,23 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     }
 
     private void generateChosenItemsForCollection(String collectionName, List<Filter> filters,
-                                                  Matcher matcher, ArrayList<HierarchyBrowserItem> items) {
+                                                  Matcher matcher, ArrayList<HierarchyBrowserItem> items,
+                                                  FormattingConfig formattingConfig) {
         IdentifiableObjectCollection collectionForFacebookStyleItems = collectionsService.
                 findCollection(collectionName, null, filters, 0, 0);
         for (IdentifiableObject identifiableObject : collectionForFacebookStyleItems) {
-            HierarchyBrowserItem item = createHierarchyBrowserItem(collectionName, identifiableObject, matcher);
+            HierarchyBrowserItem item = createHierarchyBrowserItem(collectionName, identifiableObject, matcher, formattingConfig);
             items.add(item);
         }
 
     }
 
     private HierarchyBrowserItem createHierarchyBrowserItem(String collectionName,
-                                                            IdentifiableObject identifiableObject, Matcher matcher) {
+                                                            IdentifiableObject identifiableObject,
+                                                            Matcher matcher, FormattingConfig formattingConfig) {
         HierarchyBrowserItem item = new HierarchyBrowserItem();
         item.setId(identifiableObject.getId());
-        item.setStringRepresentation(formatHandler.format(identifiableObject, matcher));
+        item.setStringRepresentation(formatHandler.format(identifiableObject, matcher, formattingConfig));
         item.setNodeCollectionName(collectionName);
         return item;
     }
@@ -122,11 +122,12 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
             List<NodeCollectionDefConfig> children = nodeCollectionDefConfig.getNodeCollectionDefConfigs();
             boolean mayHaveChildren  = !children.isEmpty();
+            FormattingConfig formattingConfig = nodeContentRequest.getFormattingConfig();
             for (IdentifiableObject identifiableObject : collection) {
                 HierarchyBrowserItem item = new HierarchyBrowserItem();
                 Id id = identifiableObject.getId();
                 item.setId(id);
-                item.setStringRepresentation(formatHandler.format(identifiableObject, selectionMatcher));
+                item.setStringRepresentation(formatHandler.format(identifiableObject, selectionMatcher, formattingConfig));
                 item.setNodeCollectionName(collectionName);
                 if (chosenIds.contains(id)) {
                     item.setChosen(true);

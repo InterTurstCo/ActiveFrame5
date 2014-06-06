@@ -52,6 +52,9 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     @Element(name = "display-values-as-links", required = false)
     private DisplayValuesAsLinksConfig displayValuesAsLinksConfig;
 
+    @Element(name = "formatting", required = false)
+    private FormattingConfig formattingConfig;
+
     @Override
     public String getComponentName() {
         return "suggest-box";
@@ -153,6 +156,14 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         this.displayValuesAsLinksConfig = displayValuesAsLinksConfig;
     }
 
+    public FormattingConfig getFormattingConfig() {
+        return formattingConfig;
+    }
+
+    public void setFormattingConfig(FormattingConfig formattingConfig) {
+        this.formattingConfig = formattingConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -220,6 +231,9 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         if (displayValuesAsLinksConfig != null ? !displayValuesAsLinksConfig.equals(that.displayValuesAsLinksConfig) : that.displayValuesAsLinksConfig != null) {
             return false;
         }
+        if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -238,6 +252,7 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         result = 31 * result + (maxDropDownHeight != null ? maxDropDownHeight.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
+        result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         return result;
     }
 }

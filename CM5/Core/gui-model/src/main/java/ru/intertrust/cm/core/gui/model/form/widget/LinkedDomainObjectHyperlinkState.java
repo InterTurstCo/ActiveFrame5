@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
@@ -19,7 +20,7 @@ public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
     private String selectionPattern;
     private SelectionStyleConfig selectionStyleConfig;
     private List<HyperlinkItem> hyperlinkItems;
-
+    private FormattingConfig formattingConfig;
     public FormPluginConfig getConfig() {
         return config;
     }
@@ -58,6 +59,14 @@ public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
 
     public void setHyperlinkItems(List<HyperlinkItem> hyperlinkItems) {
         this.hyperlinkItems = hyperlinkItems;
+    }
+
+    public FormattingConfig getFormattingConfig() {
+        return formattingConfig;
+    }
+
+    public void setFormattingConfig(FormattingConfig formattingConfig) {
+        this.formattingConfig = formattingConfig;
     }
 
     @Override

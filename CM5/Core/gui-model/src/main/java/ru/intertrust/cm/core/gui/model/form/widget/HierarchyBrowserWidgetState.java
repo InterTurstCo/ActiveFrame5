@@ -20,7 +20,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     public HierarchyBrowserConfig getHierarchyBrowserConfig() {
         return hierarchyBrowserConfig;
     }
-   private RootNodeLinkConfig rootNodeLinkConfig;
+    private RootNodeLinkConfig rootNodeLinkConfig;
     public void setHierarchyBrowserConfig(HierarchyBrowserConfig hierarchyBrowserConfig) {
         this.hierarchyBrowserConfig = hierarchyBrowserConfig;
     }

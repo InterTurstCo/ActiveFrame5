@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
 import java.util.LinkedHashSet;
@@ -23,7 +24,7 @@ public class SuggestionRequest implements Dto {
     private String idsExclusionFilterName;
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     private LinkedHashSet<Id> excludeIds = new LinkedHashSet<Id>();
-
+    private FormattingConfig formattingConfig;
     public String getText() {
         return text;
     }
@@ -86,5 +87,13 @@ public class SuggestionRequest implements Dto {
 
     public void setIdsExclusionFilterName(String idsExclusionFilterName) {
         this.idsExclusionFilterName = idsExclusionFilterName;
+    }
+
+    public FormattingConfig getFormattingConfig() {
+        return formattingConfig;
+    }
+
+    public void setFormattingConfig(FormattingConfig formattingConfig) {
+        this.formattingConfig = formattingConfig;
     }
 }

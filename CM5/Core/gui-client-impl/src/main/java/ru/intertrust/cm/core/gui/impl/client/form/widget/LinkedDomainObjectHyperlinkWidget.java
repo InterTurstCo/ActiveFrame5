@@ -7,6 +7,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
@@ -28,7 +29,7 @@ import java.util.List;
 public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements HyperlinkStateChangedEventHandler {
     private EventBus localEventBus = new SimpleEventBus();
     private String selectionPattern;
-
+    private FormattingConfig formattingConfig;
     @Override
     public Component createNew() {
         return new LinkedDomainObjectHyperlinkWidget();
@@ -37,6 +38,7 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
     public void setCurrentState(WidgetState currentState) {
         final LinkedDomainObjectHyperlinkState state = (LinkedDomainObjectHyperlinkState) currentState;
         selectionPattern = state.getSelectionPattern();
+        formattingConfig = state.getFormattingConfig();
         List<HyperlinkItem> hyperlinkItems = state.getHyperlinkItems();
         displayHyperlinks(hyperlinkItems);
     }
@@ -65,6 +67,7 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
         Id id = event.getId();
         updateHyperlink(id);
     }
+
     private void displayHyperlinks(List<HyperlinkItem> hyperlinkItems) {
         if (hyperlinkItems == null) {
             return;
@@ -93,7 +96,7 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
     private void updateHyperlink(Id id) {
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, false);
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, formattingConfig);
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

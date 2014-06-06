@@ -1,0 +1,16 @@
+package ru.intertrust.cm.core.gui.impl.server.widget;
+
+import ru.intertrust.cm.core.gui.model.DateTimeContext;
+
+import java.text.DateFormat;
+
+/**
+ * @author Yaroslav Bondarchuk
+ *         Date: 19.05.14
+ *         Time: 17:15
+ */
+public interface DateValueConverter<T> {
+    DateTimeContext valueToContext(T value, String timeZoneId, DateFormat dateFormat);
+
+    T contextToValue(DateTimeContext dateTimeContext);
+}

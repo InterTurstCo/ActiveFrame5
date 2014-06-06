@@ -382,6 +382,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         formatRowsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
         formatRowsRequest.setIdsShouldBeFormatted(chosenIds);
         formatRowsRequest.setCollectionName(tableBrowserConfig.getCollectionRefConfig().getName());
+        formatRowsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
         formatRowsRequest.setDefaultSortCriteriaConfig(tableBrowserConfig.getDefaultSortCriteriaConfig());
         Command command = new Command("fetchParsedRows", getName(), formatRowsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
@@ -409,7 +410,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     private void updateHyperlink(Id id, String selectionPattern) {
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, false);
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, tableBrowserConfig.getFormattingConfig());
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

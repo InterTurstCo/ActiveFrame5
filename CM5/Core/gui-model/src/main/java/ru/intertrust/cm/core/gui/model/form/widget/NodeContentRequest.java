@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class NodeContentRequest implements Dto {
     private Id parentId;
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
     private boolean openChildren = true;
+    private FormattingConfig formattingConfig;
     public int getNumberOfItemsToDisplay() {
         return numberOfItemsToDisplay;
     }
@@ -83,5 +85,13 @@ public class NodeContentRequest implements Dto {
 
     public void setParentId(Id parentId) {
         this.parentId = parentId;
+    }
+
+    public FormattingConfig getFormattingConfig() {
+        return formattingConfig;
+    }
+
+    public void setFormattingConfig(FormattingConfig formattingConfig) {
+        this.formattingConfig = formattingConfig;
     }
 }

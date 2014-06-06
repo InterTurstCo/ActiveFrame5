@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -37,6 +38,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         LinkedDomainObjectHyperlinkConfig widgetConfig = context.getWidgetConfig();
         LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
         ArrayList<Id> selectedIds = context.getAllObjectIds();
+        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
         if (!selectedIds.isEmpty()) {
             Id id = selectedIds.get(0);
             FormPluginConfig config = getFormPluginConfig(id);
@@ -48,7 +50,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
                 DomainObject domainObject = crudService.find(selectedId);
                 String selectionPattern = widgetConfig.getPatternConfig().getValue();
                 state.setSelectionPattern(selectionPattern);
-                String representation = buildStringRepresentation(domainObject, selectionPattern);
+                String representation = buildStringRepresentation(domainObject, selectionPattern, formattingConfig);
                 HyperlinkItem hyperlinkItem = new HyperlinkItem(selectedId, representation);
                 hyperlinkItems.add(hyperlinkItem);
 
@@ -58,9 +60,10 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         return state;
     }
 
-    private String buildStringRepresentation(DomainObject domainObject, String selectionPattern) {
+    private String buildStringRepresentation(DomainObject domainObject, String selectionPattern,
+                                             FormattingConfig formattingConfig ) {
         Matcher matcher = FormatHandler.pattern.matcher(selectionPattern);
-        String representation = formatHandler.format(domainObject, matcher);
+        String representation = formatHandler.format(domainObject, matcher, formattingConfig);
         return representation;
     }
 

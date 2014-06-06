@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
@@ -53,8 +54,9 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         if (domainObjects != null) {
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
         Matcher matcher = formatHandler.pattern.matcher(selectionPatternConfig.getValue());
+        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
         for (IdentifiableObject domainObject : domainObjects) {
-            objects.put(domainObject.getId(), formatHandler.format(domainObject, matcher));
+            objects.put(domainObject.getId(), formatHandler.format(domainObject, matcher, formattingConfig));
         }
 
         }
@@ -82,11 +84,11 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         Matcher selectionMatcher = FormatHandler.pattern.matcher(suggestionRequest.getSelectionPattern());
 
         ArrayList<SuggestionItem> suggestionItems = new ArrayList<>();
-
+        FormattingConfig formattingConfig = suggestionRequest.getFormattingConfig();
         for (IdentifiableObject identifiableObject : collection) {
             SuggestionItem suggestionItem = new SuggestionItem(identifiableObject.getId(),
-                    formatHandler.format(identifiableObject, dropDownMatcher),
-                    formatHandler.format(identifiableObject, selectionMatcher));
+                    formatHandler.format(identifiableObject, dropDownMatcher, formattingConfig),
+                    formatHandler.format(identifiableObject, selectionMatcher, formattingConfig));
             suggestionItems.add(suggestionItem);
         }
         SuggestionList suggestionList = new SuggestionList();

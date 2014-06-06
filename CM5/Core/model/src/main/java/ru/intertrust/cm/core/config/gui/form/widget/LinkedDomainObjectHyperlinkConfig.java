@@ -20,8 +20,8 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
     @Element(name = "selection-style", required = false)
     private SelectionStyleConfig selectionStyleConfig;
 
-    @Element(name = "summary-table", required = false)
-    private SummaryTableConfig summaryTableConfig;
+    @Element(name = "formatting", required = false)
+    private FormattingConfig formattingConfig;
 
     @Override
     public boolean isReadOnly() {
@@ -44,12 +44,12 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
         this.patternConfig = patternConfig;
     }
 
-    public SummaryTableConfig getSummaryTableConfig() {
-        return summaryTableConfig;
+    public FormattingConfig getFormattingConfig() {
+        return formattingConfig;
     }
 
-    public void setSummaryTableConfig(SummaryTableConfig summaryTableConfig) {
-        this.summaryTableConfig = summaryTableConfig;
+    public void setFormattingConfig(FormattingConfig formattingConfig) {
+        this.formattingConfig = formattingConfig;
     }
 
     public SelectionStyleConfig getSelectionStyleConfig() {
@@ -80,8 +80,7 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
         if (patternConfig != null ? !patternConfig.equals(that.patternConfig) : that.patternConfig != null) {
             return false;
         }
-        if (summaryTableConfig != null ? !summaryTableConfig.equals(that.patternConfig) : that.
-                summaryTableConfig != null) {
+        if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
             return false;
         }
         if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) :
@@ -97,7 +96,7 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
         int result = super.hashCode();
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
         result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
-        result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
+        result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         return result;
     }

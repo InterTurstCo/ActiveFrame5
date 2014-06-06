@@ -39,7 +39,7 @@ public class NoneEditableHierarchyBrowserHyperlinkContentManager extends Hierarc
         String selectionPattern = nodeConfig.getSelectionPatternConfig().getValue();
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, false);
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, config.getFormattingConfig());
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
 
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {

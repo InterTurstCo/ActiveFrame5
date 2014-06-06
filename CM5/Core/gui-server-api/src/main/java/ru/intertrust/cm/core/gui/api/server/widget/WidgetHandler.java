@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
@@ -36,12 +37,12 @@ public abstract class WidgetHandler implements ComponentHandler {
 
     public abstract Value getValue(WidgetState state);
 
-    protected ArrayList<String> format(List<DomainObject> listToDisplay, String displayPattern) {
+    protected ArrayList<String> format(List<DomainObject> listToDisplay, String displayPattern, FormattingConfig formattingConfig) {
         Pattern pattern = Pattern.compile(FormatHandler.FIELD_PLACEHOLDER_PATTERN);
         Matcher matcher = pattern.matcher(displayPattern);
         ArrayList<String> displayValues = new ArrayList<>(listToDisplay.size());
         for (DomainObject domainObject : listToDisplay) {
-            displayValues.add(formatHandler.format(domainObject, matcher));
+            displayValues.add(formatHandler.format(domainObject, matcher, formattingConfig));
         }
         return displayValues;
     }
@@ -81,7 +82,7 @@ public abstract class WidgetHandler implements ComponentHandler {
 
     protected void appendDisplayMappings(List<DomainObject> listToDisplay, String displayPattern,
                                          Map<Id, String> idDisplayMapping) {
-        ArrayList<String> displayValues = format(listToDisplay, displayPattern);
+        ArrayList<String> displayValues = format(listToDisplay, displayPattern, null);
         for (int i = 0; i < listToDisplay.size(); i++) {
             DomainObject domainObject = listToDisplay.get(i);
             idDisplayMapping.put(domainObject.getId(), displayValues.get(i));

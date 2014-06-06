@@ -56,6 +56,9 @@ public class TableBrowserConfig extends WidgetConfig {
     @Element(name = "initial-filters", required = false)
     private InitialFiltersConfig initialFiltersConfig;
 
+    @Element(name = "formatting", required = false)
+    private FormattingConfig formattingConfig;
+
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
     }
@@ -168,6 +171,14 @@ public class TableBrowserConfig extends WidgetConfig {
         this.initialFiltersConfig = initialFiltersConfig;
     }
 
+    public FormattingConfig getFormattingConfig() {
+        return formattingConfig;
+    }
+
+    public void setFormattingConfig(FormattingConfig formattingConfig) {
+        this.formattingConfig = formattingConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -240,6 +251,9 @@ public class TableBrowserConfig extends WidgetConfig {
         if (initialFiltersConfig != null ? !initialFiltersConfig.equals(that.initialFiltersConfig) : that.initialFiltersConfig != null) {
             return false;
         }
+        if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -259,6 +273,7 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
+        result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
         return result;
     }
