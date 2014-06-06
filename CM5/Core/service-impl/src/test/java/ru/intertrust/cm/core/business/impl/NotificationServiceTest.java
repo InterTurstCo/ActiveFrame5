@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddressee;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeContextRole;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeDynamicGroup;

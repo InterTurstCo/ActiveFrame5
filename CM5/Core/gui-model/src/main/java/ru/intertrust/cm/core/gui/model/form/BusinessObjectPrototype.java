@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
 import java.math.BigDecimal;
 import java.util.*;

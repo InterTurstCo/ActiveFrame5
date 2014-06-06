@@ -9,7 +9,7 @@ package ru.intertrust.cm.core.business.api.dto;
 public interface Id extends Dto {
     /**
      * Создаёт идентификатор доменного объекта на основе его строкового представления. Строковое представление
-     * идентификатора генерируется методом {@link ru.intertrust.cm.core.business.api.dto.RdbmsId#toString()}
+     * идентификатора генерируется методом {@link ru.intertrust.cm.core.business.api.dto.impl.RdbmsId#toString()}
      * @param stringRep строковое представление индентификатора
      * @throws NullPointerException если строковое представление есть null
      * @throws IllegalArgumentException если строковое представление не может быть декодировано

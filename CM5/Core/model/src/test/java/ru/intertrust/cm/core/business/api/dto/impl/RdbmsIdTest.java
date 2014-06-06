@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.api.dto;
+package ru.intertrust.cm.core.business.api.dto.impl;
 
 import org.junit.Rule;
 import org.junit.Test;

@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.business.api.impl;
 import org.springframework.stereotype.Service;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
 /**
  * {@inheritDoc}

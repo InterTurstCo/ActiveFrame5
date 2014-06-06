@@ -1,13 +1,13 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;

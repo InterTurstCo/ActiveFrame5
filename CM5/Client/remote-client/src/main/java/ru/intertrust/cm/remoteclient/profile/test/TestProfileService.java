@@ -1,18 +1,10 @@
 package ru.intertrust.cm.remoteclient.profile.test;
 
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProfileService;
-import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
-import ru.intertrust.cm.core.business.api.dto.notification.NotificationTaskMode;
-import ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig;
-import ru.intertrust.cm.core.config.FindObjectsConfig;
-import ru.intertrust.cm.core.config.FindObjectsQueryConfig;
-import ru.intertrust.cm.core.model.ProfileException;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
-import java.util.Calendar;
 import java.util.Date;
 
 public class TestProfileService extends ClientBase {

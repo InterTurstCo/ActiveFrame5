@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.api.dto;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
 import java.math.BigDecimal;
 import java.util.Calendar;

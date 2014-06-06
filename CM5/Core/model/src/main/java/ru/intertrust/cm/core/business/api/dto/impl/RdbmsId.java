@@ -1,5 +1,6 @@
-package ru.intertrust.cm.core.business.api.dto;
+package ru.intertrust.cm.core.business.api.dto.impl;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
@@ -28,7 +29,7 @@ public class RdbmsId implements Id {
 
     /**
      * Создаёт идентификатор доменного объекта на основе его строкового представления. Строковое представление
-     * идентификатора генерируется методом {@link ru.intertrust.cm.core.business.api.dto.RdbmsId#toString()}
+     * идентификатора генерируется методом {@link RdbmsId#toString()}
      * @param stringRep строковое представление индентификатора
      * @throws NullPointerException если строковое представление есть null
      * @throws IllegalArgumentException если строковое представление не может быть декодировано
@@ -39,7 +40,7 @@ public class RdbmsId implements Id {
 
     /**
      * Создаёт идентификатор доменного объекта на основе его строкового представления. Строковое представление
-     * идентификатора генерируется методом {@link ru.intertrust.cm.core.business.api.dto.RdbmsId#toString()}
+     * идентификатора генерируется методом {@link RdbmsId#toString()}
      * @param stringRep строковое представление индентификатора
      * @throws NullPointerException если строковое представление есть null
      * @throws IllegalArgumentException если строковое представление не может быть декодировано

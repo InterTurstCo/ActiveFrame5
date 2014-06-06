@@ -26,7 +26,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
 import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
 import ru.intertrust.cm.core.config.BasePermit;

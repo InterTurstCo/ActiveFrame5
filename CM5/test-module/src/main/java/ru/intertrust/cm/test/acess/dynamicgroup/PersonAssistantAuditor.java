@@ -6,7 +6,7 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.CollectorSettings;
 import ru.intertrust.cm.core.config.DynamicGroupConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;

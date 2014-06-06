@@ -12,7 +12,7 @@ public interface IdService {
      * Создает идентификатор
      *
      * @param stringRep строковое представление индентификатора
-     * @return идентификатор {@link ru.intertrust.cm.core.business.api.dto.RdbmsId}
+     * @return идентификатор {@link ru.intertrust.cm.core.business.api.dto.impl.RdbmsId}
      */
     Id createId(String stringRep);
 }

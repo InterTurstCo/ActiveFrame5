@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;

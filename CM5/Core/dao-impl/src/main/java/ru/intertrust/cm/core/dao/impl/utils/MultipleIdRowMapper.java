@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.dao.impl.utils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

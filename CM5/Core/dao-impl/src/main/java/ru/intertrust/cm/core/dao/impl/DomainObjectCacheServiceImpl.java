@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.SerializationUtils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 

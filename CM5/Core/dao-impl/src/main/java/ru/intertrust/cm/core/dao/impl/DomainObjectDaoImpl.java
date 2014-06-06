@@ -12,7 +12,6 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
@@ -62,7 +61,6 @@ import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
-import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
