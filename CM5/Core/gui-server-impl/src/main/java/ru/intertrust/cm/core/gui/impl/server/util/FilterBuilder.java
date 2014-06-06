@@ -114,12 +114,21 @@ public class FilterBuilder {
         format.setTimeZone(timeZone);
         DateTimeValue selectedDateTimeValue = new DateTimeValue();
         Date selectedDate = format.parse(filterValue);
-        selectedDateTimeValue.setValue(selectedDate);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(selectedDate);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date rangeStart = cal.getTime();
+        selectedDateTimeValue.setValue(rangeStart);
         filter.addCriterion(0, selectedDateTimeValue);
-
-        Calendar currentCalendar = Calendar.getInstance(timeZone);
-        Date currentDate = currentCalendar.getTime();
-        DateTimeValue currentDateTimeValue = new DateTimeValue(currentDate);
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 999);
+        Date rangeEnd = cal.getTime();
+        DateTimeValue currentDateTimeValue = new DateTimeValue(rangeEnd);
         filter.addCriterion(1, currentDateTimeValue);
 
     }
