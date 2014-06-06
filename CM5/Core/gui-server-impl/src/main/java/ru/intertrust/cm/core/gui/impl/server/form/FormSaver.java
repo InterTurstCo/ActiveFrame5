@@ -64,7 +64,7 @@ public class FormSaver {
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         widgetConfigs = new ArrayList<>(widgetConfigurationConfig.getWidgetConfigList().size() / 2);
         for (WidgetConfig config : widgetConfigurationConfig.getWidgetConfigList()) {
-            if (formState.getWidgetState(config.getId()) != null) { // ignore empty - such data shouldn't be saved
+            if (formState.getWidgetState(config.getId()) != null && !config.isReadOnly()) { // ignore empty - such data shouldn't be saved
                 widgetConfigs.add(config);
             }
         }
