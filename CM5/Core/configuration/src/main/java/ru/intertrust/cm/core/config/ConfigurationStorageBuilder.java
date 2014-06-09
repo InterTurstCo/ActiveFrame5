@@ -134,7 +134,13 @@ public class ConfigurationStorageBuilder {
 
         //Получение конфигурации матрицы
         AccessMatrixConfig accessMatrixConfig = configurationExplorer.getConfig(AccessMatrixConfig.class, domainObjectType);
-        if (accessMatrixConfig != null && accessMatrixConfig.getStatus() != null) {
+        if (accessMatrixConfig == null){
+            //Если матрица не найдена то ищем матрицу для родительского типа
+            DomainObjectTypeConfig doConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
+            if (doConfig.getExtendsAttribute() != null){
+                result = fillAccessMatrixByObjectTypeAndStatus(doConfig.getExtendsAttribute(), status);
+            }
+        }else if (accessMatrixConfig.getStatus() != null) {
             //Получаем все статусы
             for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
                 //Если статус в конфигурации звезда то не проверяем статусы на соответствие, а возвращаем текущий

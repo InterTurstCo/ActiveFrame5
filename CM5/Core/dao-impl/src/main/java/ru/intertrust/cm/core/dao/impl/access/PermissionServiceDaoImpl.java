@@ -491,16 +491,27 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private void validateRoleContextType(String domainObjectType, ContextRoleConfig contextRoleConfig) {
+        //Переделать проверку чтобы учитывалось наследование типов
         String roleContextType = null;
         if (contextRoleConfig.getContext() != null && contextRoleConfig.getContext().getDomainObject() != null) {
-            roleContextType = contextRoleConfig.getContext().getDomainObject().getType();
+            roleContextType = contextRoleConfig.getContext().getDomainObject().getType().toLowerCase();
+        }
+        
+        //Получение всех вышестоящих типов
+        List<String> parentTypeList = new ArrayList<String>();
+        String parentType = domainObjectType;
+        while (parentType != null){
+            parentTypeList.add(parentType.toLowerCase());
+            parentType = configurationExplorer.getDomainObjectParentType(parentType);
         }
 
-        if (!domainObjectType.equalsIgnoreCase(roleContextType)) {
+        //Проверка наличие типа в списке родительских типов
+        if (!parentTypeList.contains(roleContextType)) {
             throw new ConfigurationException("Context type for context role : " + contextRoleConfig.getName()
                     + " does not match the domain object type in access matrix configuration for: "
                     + domainObjectType);
         }
+        
     }
 
     @Override
