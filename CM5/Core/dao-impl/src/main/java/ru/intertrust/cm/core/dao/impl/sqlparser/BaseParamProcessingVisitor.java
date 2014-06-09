@@ -29,7 +29,7 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
-public abstract class BaseReferenceProcessingVisitor extends BaseExpressionVisitor implements  SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
+public abstract class BaseParamProcessingVisitor extends BaseExpressionVisitor implements  SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
     @Override
     protected void visitSubSelect(SubSelect subSelect) {

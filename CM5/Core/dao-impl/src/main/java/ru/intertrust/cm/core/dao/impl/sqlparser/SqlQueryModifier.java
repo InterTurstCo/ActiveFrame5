@@ -110,6 +110,7 @@ public class SqlQueryModifier {
     public Map<String, FieldConfig> buildColumnToConfigMap(String query) {
         final Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
 
+        //TODO перенести всю логику поиска конфигурации колонок в CollectingColumnConfigVisitor
         processQuery(query, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
@@ -120,19 +121,18 @@ public class SqlQueryModifier {
         processQuery(query, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
-                buildColumnToConfigMapInWhereClause(plainSelect, columnToTableMapping);
+                buildColumnToConfigMap(plainSelect, columnToTableMapping);
             }
         });
         
         return columnToTableMapping;
     }
 
-    private void buildColumnToConfigMapInWhereClause(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {
-        CollectingWhereColumnConfigVisitor collectWhereColumnConfigVisitor = new CollectingWhereColumnConfigVisitor(configurationExplorer, plainSelect);
-        if (plainSelect.getWhere() != null) {
-            plainSelect.getWhere().accept(collectWhereColumnConfigVisitor);
-        }
+    private void buildColumnToConfigMap(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {
+        CollectingColumnConfigVisitor collectWhereColumnConfigVisitor = new CollectingColumnConfigVisitor(configurationExplorer, plainSelect);        
 
+        plainSelect.accept(collectWhereColumnConfigVisitor);
+        
         for (String column : collectWhereColumnConfigVisitor.getWhereColumnToConfigMapping().keySet()) {
             FieldConfig fieldConfig = collectWhereColumnConfigVisitor.getWhereColumnToConfigMapping().get(column);
             if (fieldConfig != null) {
@@ -440,7 +440,7 @@ public class SqlQueryModifier {
 
         return false;
     }
-
+    
     private void buildColumnToConfigMapInPlainSelect(PlainSelect plainSelect,
                                                             Map<String, FieldConfig> columnToConfigMap) {
         for (Object selectItem : plainSelect.getSelectItems()) {

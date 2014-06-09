@@ -120,6 +120,27 @@ public class CollectionsIT extends IntegrationTestBase {
         assertTrue(collection.size() >= 1);
     }
 
+//    @Test
+    public void testFindCollectionByQueryWithCastExpression() throws LoginException {
+        String query = "select c.id,  cast (c.name as char(3))  from country c";
+        List<Value> params = new ArrayList<Value>();
+
+        IdentifiableObjectCollection collection = null;
+        LoginContext lc = login(PERSON_2_LOGIN, PERSON_2_PASSWORD);
+        lc.login();
+        try {
+            collection = collectionService.findCollectionByQuery(query, params);
+
+        } finally {
+            lc.logout();
+        }
+
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
+
+
+    }
+    
     @Test
     public void testFindCollectionByQueryWithParams() {
         String query = "select * from Employee e where e.department = {0} and name = {1}";
@@ -170,6 +191,31 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
         assertTrue(collection.size() > 0);
+        
+        query = "select distinct year from (select year from schedule where created_by = {0}) t";
+        
+        params = new ArrayList<Value>();
+        personTypeid = domainObjectTypeIdCache.getId(PERSON_TYPE);
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        
+        query = "select t.year from (select id, year, created_by from schedule where created_by = {0}) t " +
+        		"inner join (select * from schedule p where created_by = {1}) t2 on " +
+        		"t2.created_by = t.created_by " +
+        		"where t2.created_by in (select t4.created_by from schedule t4 where t4.created_by = {2}) or " +
+        		"t2.created_by = {3}";
+        
+        params = new ArrayList<Value>();
+        personTypeid = domainObjectTypeIdCache.getId(PERSON_TYPE);
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        
+        collection = collectionService.findCollectionByQuery(query, params);
+
     }
     
     @Test
