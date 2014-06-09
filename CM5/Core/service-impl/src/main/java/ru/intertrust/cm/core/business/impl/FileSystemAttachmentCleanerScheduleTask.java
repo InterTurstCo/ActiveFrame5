@@ -53,7 +53,7 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
             String absolutePath = file.getAbsolutePath();
             String relativePath = absolutePath.substring(storageDirAbsolutePath.length());
 
-            if (!isLinkedInDo(relativePath)){
+            if (!isLinkedInDo(file.getName())){
                 if (file.delete()){
                     logger.info("File " + relativePath + " has not linked from Domain Objects and was deleted");
                 } else {
@@ -67,15 +67,15 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
         return "COMPLETE";
     }
 
-    private boolean isLinkedInDo(String relativePath) {
+    private boolean isLinkedInDo(String name) {
 
         List<Value> params = new ArrayList<>();
-        Value value = new StringValue(relativePath);
+        Value value = new StringValue("%" + name);
         params.add(value);
 
         for (String attachmentType : attachmentTypes) {
             IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(
-                    "select t.id from " + attachmentType + " t where t.path = {0}", params);
+                    "select t.id from " + attachmentType + " t where t.path like {0}", params);
             if (collection != null && collection.size() > 0) {
                 return true;
             }
