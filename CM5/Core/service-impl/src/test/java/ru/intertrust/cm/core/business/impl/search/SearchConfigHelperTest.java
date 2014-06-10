@@ -92,9 +92,7 @@ public class SearchConfigHelperTest {
 
     @Test
     public void testFindEffectiveConfigs_Once() {
-        DomainObject object = mock(DomainObject.class);
-        when(object.getTypeName()).thenReturn("Type_A");
-        List<SearchConfigHelper.SearchAreaDetailsConfig> configs = testee.findEffectiveConfigs(object);
+        List<SearchConfigHelper.SearchAreaDetailsConfig> configs = testee.findEffectiveConfigs("Type_A");
         assertTrue("Объект Type_A должен индексироваться 1 раз, а не " + configs.size(), configs.size() == 1);
         assertTrue("Объект Type_A должен индексироваться в Area_A, а не в " + configs.get(0).getAreaName(),
                 "Area_A".equalsIgnoreCase(configs.get(0).getAreaName()));
@@ -105,9 +103,7 @@ public class SearchConfigHelperTest {
 
     @Test
     public void testFindEffectiveConfigs_TwiceDifferentAreas() {
-        DomainObject object = mock(DomainObject.class);
-        when(object.getTypeName()).thenReturn("Type_B");
-        List<SearchConfigHelper.SearchAreaDetailsConfig> configs = testee.findEffectiveConfigs(object);
+        List<SearchConfigHelper.SearchAreaDetailsConfig> configs = testee.findEffectiveConfigs("Type_B");
         assertTrue("Объект Type_B должен индексироваться 3 раза, а не " + configs.size(), configs.size() == 3);
         assertTrue("Объект Type_B должен индексироваться в Area_A, а не в " + configs.get(0).getAreaName(),
                 "Area_A".equalsIgnoreCase(configs.get(0).getAreaName()));
@@ -123,9 +119,7 @@ public class SearchConfigHelperTest {
 
     @Test
     public void testFindEffectiveConfigs_TwiceSameArea() {
-        DomainObject object = mock(DomainObject.class);
-        when(object.getTypeName()).thenReturn("Type_D");
-        List<SearchConfigHelper.SearchAreaDetailsConfig> configs = testee.findEffectiveConfigs(object);
+        List<SearchConfigHelper.SearchAreaDetailsConfig> configs = testee.findEffectiveConfigs("Type_D");
         assertTrue("Объект Type_D должен индексироваться 2 раза, а не " + configs.size(), configs.size() == 2);
         assertTrue("Объект Type_D должен индексироваться в Area_A, а не в " + configs.get(0).getAreaName(),
                 "Area_A".equalsIgnoreCase(configs.get(0).getAreaName()));
@@ -141,15 +135,31 @@ public class SearchConfigHelperTest {
 
     @Test
     public void testFindEffectiveConfigs_Attachment() {
-        DomainObject object = mock(DomainObject.class);
-        when(object.getTypeName()).thenReturn("Attach_C");
-        List<SearchConfigHelper.SearchAreaDetailsConfig> configs = testee.findEffectiveConfigs(object);
+        List<SearchConfigHelper.SearchAreaDetailsConfig> configs = testee.findEffectiveConfigs("Attach_C");
         assertTrue("Объект Attach_C должен индексироваться 1 раз, а не " + configs.size(), configs.size() == 1);
         assertTrue("Объект Attach_C должен индексироваться в Area_A, а не в " + configs.get(0).getAreaName(),
                 "Area_A".equalsIgnoreCase(configs.get(0).getAreaName()));
         assertTrue("Объект Attach_C должен индексироваться для поиска по Type_D, а не по "
                 + configs.get(0).getTargetObjectType(),
                 "Type_D".equalsIgnoreCase(configs.get(0).getTargetObjectType()));
+    }
+
+    @Test
+    public void testIsSuitableType_Same() {
+        boolean result = testee.isSuitableType("Type_A", "Type_A");
+        assertTrue(result);
+    }
+
+    @Test
+    public void testIsSuitableType_Successor() {
+        boolean result = testee.isSuitableType("Type_D", "Type_Da");
+        assertTrue(result);
+    }
+
+    @Test
+    public void testIsSuitableType_Independant() {
+        boolean result = testee.isSuitableType("Type_A", "Type_Ca");
+        assertFalse(result);
     }
 
     @Test

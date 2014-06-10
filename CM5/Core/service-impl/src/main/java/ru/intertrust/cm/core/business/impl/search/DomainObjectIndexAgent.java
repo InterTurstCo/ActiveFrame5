@@ -8,6 +8,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -19,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.ScriptService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
@@ -69,6 +73,9 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     private DoelEvaluator doelEvaluator;
 
     @Autowired
+    private CrudService crudService;
+
+    @Autowired
     private AccessControlService accessControlService;
     
     @Autowired
@@ -81,7 +88,8 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
 
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
-        List<SearchConfigHelper.SearchAreaDetailsConfig> configs = configHelper.findEffectiveConfigs(domainObject);
+        List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
+                configHelper.findEffectiveConfigs(domainObject.getTypeName());
         if (configs.size() == 0) {
             return;
         }
@@ -91,41 +99,40 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
                 sendAttachment(domainObject, config);
                 continue;
             }
-            Id mainId = calculateMainObject(domainObject.getId(), config.getObjectConfig());
-            if (mainId == null) {
-                // Объект не имеет главного; индексация в данной области не нужна
-                continue;
-            }
-            SolrInputDocument doc = new SolrInputDocument();
-            doc.addField(SolrFields.OBJECT_ID, domainObject.getId().toStringRepresentation());
-            doc.addField(SolrFields.AREA, config.getAreaName());
-            doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
-            doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
-            doc.addField(SolrFields.MODIFIED, domainObject.getModifiedDate());
-            for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                Object value = calculateField(domainObject, fieldConfig);
-                SearchConfigHelper.FieldDataType type =
-                        configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType(), value);
-                //test this area
-                if (isTextField(type.getDataType())) {
-                    List<String> languages =
-                            configHelper.getSupportedLanguages(fieldConfig.getName(), config.getAreaName());
-                    /*for (String name : getSolrTextFieldNames(fieldConfig.getName(), type.isMultivalued(), languages)) {
-                        doc.addField(name, value);
-                    }*/
-                    for (String name : new TextFieldNameDecorator(languages, fieldConfig.getName(), type.isMultivalued())) {
-                        doc.addField(name, value);
-                    }
-                } else {
-                    StringBuilder fieldName = new StringBuilder()
+            List<Id> mainIds = calculateMainObjects(domainObject.getId(), config.getObjectConfigChain());
+            for (Id mainId : mainIds) {
+                SolrInputDocument doc = new SolrInputDocument();
+                doc.addField(SolrFields.OBJECT_ID, domainObject.getId().toStringRepresentation());
+                doc.addField(SolrFields.AREA, config.getAreaName());
+                doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
+                doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+                doc.addField(SolrFields.MODIFIED, domainObject.getModifiedDate());
+                for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
+                    Object value = calculateField(domainObject, fieldConfig);
+                    SearchConfigHelper.FieldDataType type =
+                            configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType(), value);
+                    //test this area
+                    if (isTextField(type.getDataType())) {
+                        List<String> languages =
+                                configHelper.getSupportedLanguages(fieldConfig.getName(), config.getAreaName());
+                        /*for (String name : getSolrTextFieldNames(fieldConfig.getName(), type.isMultivalued(), languages)) {
+                            doc.addField(name, value);
+                        }*/
+                        for (String name : new TextFieldNameDecorator(languages, fieldConfig.getName(),
+                                type.isMultivalued())) {
+                            doc.addField(name, value);
+                        }
+                    } else {
+                        StringBuilder fieldName = new StringBuilder()
                             .append(SolrFields.FIELD_PREFIX)
                             .append(SearchFieldType.getFieldType(type.getDataType(), type.isMultivalued()).getInfix())
                             .append(fieldConfig.getName().toLowerCase());
-                    doc.addField(fieldName.toString(), value);
+                        doc.addField(fieldName.toString(), value);
+                    }
                 }
+                doc.addField("id", createUniqueId(domainObject, config));
+                solrDocs.add(doc);
             }
-            doc.addField("id", createUniqueId(domainObject, config));
-            solrDocs.add(doc);
         }
         if (solrDocs.size() == 0) {
             return;
@@ -139,27 +146,25 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     private void sendAttachment(DomainObject object, SearchConfigHelper.SearchAreaDetailsConfig config) {
         String linkName = configHelper.getAttachmentParentLinkName(object.getTypeName(),
                 config.getObjectConfig().getType());
-        Id mainId = calculateMainObject(object.getReference(linkName), config.getObjectConfig());
-        if (mainId == null) {
-            // Объект не имеет главного; индексация в данной области не нужна
-            return;
-        }
-        ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
-        request.addContentStream(new SolrAttachmentFeeder(object));
-        request.setParam("literal." + SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
-        request.setParam("literal." + SolrFields.AREA, config.getAreaName());
-        request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
-        request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
-        request.setParam("literal." + SolrFields.MODIFIED, dateFormatter.format(object.getModifiedDate()));
-        addFieldToContentRequest(request, object, BaseAttachmentService.NAME, SearchFieldType.TEXT);
-        addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION, SearchFieldType.TEXT);
-        addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH, SearchFieldType.LONG);
-        request.setParam("literal.id", createUniqueId(object, config));
-        request.setParam("uprefix", "cm_c_");
-        request.setParam("fmap.content", SolrFields.CONTENT);
-        //request.setParam("extractOnly", "true");
+        List<Id> mainIds = calculateMainObjects(object.getReference(linkName), config.getObjectConfigChain());
+        for (Id mainId : mainIds) {
+            ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
+            request.addContentStream(new SolrAttachmentFeeder(object));
+            request.setParam("literal." + SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
+            request.setParam("literal." + SolrFields.AREA, config.getAreaName());
+            request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
+            request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+            request.setParam("literal." + SolrFields.MODIFIED, dateFormatter.format(object.getModifiedDate()));
+            addFieldToContentRequest(request, object, BaseAttachmentService.NAME, SearchFieldType.TEXT);
+            addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION, SearchFieldType.TEXT);
+            addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH, SearchFieldType.LONG);
+            request.setParam("literal.id", createUniqueId(object, config));
+            request.setParam("uprefix", "cm_c_");
+            request.setParam("fmap.content", SolrFields.CONTENT);
+            //request.setParam("extractOnly", "true");
 
-        requestQueue.addRequest(request);
+            requestQueue.addRequest(request);
+        }
         if (log.isInfoEnabled()) {
             log.info("Attachment queued for indexing");
         }
@@ -204,15 +209,47 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         return convertValue(value);
     }
 
-    private Id calculateMainObject(Id objectId, IndexedDomainObjectConfig config) {
-        if (!LinkedDomainObjectConfig.class.isAssignableFrom(config.getClass())) {
-            return objectId;
-        }
-        ParentLinkConfig parentConfig = ((LinkedDomainObjectConfig) config).getParentLink();
+    private List<Id> calculateMainObjects(Id objectId, IndexedDomainObjectConfig[] configChain) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
-        List<? extends Value> values = doelEvaluator.evaluate(
-                DoelExpression.parse(parentConfig.getDoel()), objectId, accessToken);
-        if (values.size() == 0) {
+        ArrayList<Id> ids = new ArrayList<>();
+        ids.add(objectId);
+        for (IndexedDomainObjectConfig config : configChain) {
+            ParentLinkConfig parentConfig = null;
+            if (LinkedDomainObjectConfig.class.isAssignableFrom(config.getClass())) {
+                parentConfig = ((LinkedDomainObjectConfig) config).getParentLink();
+            }
+            ArrayList<ReferenceValue> refs = new ArrayList<>();
+            for (Iterator<Id> itr = ids.iterator(); itr.hasNext(); ) {
+                Id id = itr.next();
+                DomainObject object = crudService.find(id);
+                if (!configHelper.isSuitableType(config.getType(), object.getTypeName())) {
+                    itr.remove();
+                    continue;
+                }
+                DomainObjectFilter filter = configHelper.createFilter(config);
+                if (filter != null && !filter.filter(object)) {
+                    itr.remove();
+                    continue;
+                }
+                if (parentConfig != null) {
+                    List<ReferenceValue> values = doelEvaluator.evaluate(
+                            DoelExpression.parse(parentConfig.getDoel()), objectId, accessToken);
+                    refs.addAll(values);
+                }
+            }
+            if (parentConfig == null) {
+                return ids;
+            }
+            if (refs.size() == 0) {
+                return Collections.emptyList();
+            }
+            ids = new ArrayList<>(refs.size());
+            for (ReferenceValue ref : refs) {
+                ids.add(ref.get());
+            }
+        }
+        return ids;
+        /*if (values.size() == 0) {
             return null;
         }
         if (values.size() != 1) {
@@ -225,7 +262,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
                     " by expression: " + parentConfig.getDoel());
             return null;
         }
-        return ((ReferenceValue) value).get();
+        return ((ReferenceValue) value).get();*/
     }
 
     private Object convertValue(Value value) {

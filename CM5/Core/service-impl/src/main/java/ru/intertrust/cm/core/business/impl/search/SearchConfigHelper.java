@@ -1,14 +1,11 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.text.DateFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -54,30 +51,58 @@ public class SearchConfigHelper {
 
     private List<SearchLanguageConfig> languageConfigs;
 
+    /**
+     * Класс, созданный для удобства работы с конфигурацией областей поиска.
+     * Строится вокруг конфигурации одного доменного объекта внутри области поиска, но содержит также
+     * информацию, полученную из вышестоящих элементов конфигурации, полезную для работы с этим доменным объектом.
+     */
     public static class SearchAreaDetailsConfig {
 
-        private IndexedDomainObjectConfig objectConfig;
+        private IndexedDomainObjectConfig[] objectConfigChain;
         private String areaName;
         private String targetObjectType;
 
         SearchAreaDetailsConfig() {
         }
 
-        SearchAreaDetailsConfig(IndexedDomainObjectConfig objectConfig,
+        SearchAreaDetailsConfig(List<IndexedDomainObjectConfig> objectConfigChain,
                 String areaName, String targetObjectType) {
-            this.objectConfig = objectConfig;
+            this.objectConfigChain = objectConfigChain.toArray(new IndexedDomainObjectConfig[objectConfigChain.size()]);
             this.areaName = areaName;
             this.targetObjectType = targetObjectType;
         }
 
+        /**
+         * Возвращает конфигурацию одного доменного объекта внутри области поиска -
+         * главный элемент, вокруг которого был созданный данный объект.
+         * Возвращаемое значение не должно быть null.
+         */
         public IndexedDomainObjectConfig getObjectConfig() {
-            return objectConfig;
+            return objectConfigChain[0];
         }
 
+        /**
+         * Возвращает массив, содержащий цепочку включаемых элементов конфигурации снизу вверх (от частного к общему).
+         * Первым элементом массива является исходный элемент конфигурации (тот же, что возвращается методом
+         * {@link #getObjectConfig()}, последним - конфигурация содержащего его целевого объекта.
+         * Это может быть один и тот же элемент, если исходный объект - {@link TargetDomainObjectConfig}.
+         * Все элементы массива, кроме последнего, (если они есть) имеют тип {@link LinkedDomainObjectConfig}.
+         */
+        public IndexedDomainObjectConfig[] getObjectConfigChain() {
+            return objectConfigChain;
+        }
+
+        /**
+         * Возвращает имя области поиска, содержащей исходный элемент конфигурации.
+         */
         public String getAreaName() {
             return areaName;
         }
 
+        /**
+         * Возвращает имя типа целевого доменного объекта, содержащего исходный элемент конфигурации.
+         * @return
+         */
         public String getTargetObjectType() {
             return targetObjectType;
         }
@@ -85,7 +110,7 @@ public class SearchConfigHelper {
         @Override
         public int hashCode() {
             int hash = 58179;
-            hash += objectConfig != null ? objectConfig.hashCode() : 11;
+            hash += objectConfigChain.hashCode();
             hash *= 31;
             hash += areaName.hashCode();
             hash *= 31;
@@ -102,9 +127,17 @@ public class SearchConfigHelper {
                 return false;
             }
             SearchAreaDetailsConfig that = (SearchAreaDetailsConfig) obj;
-            return (this.objectConfig == null ? that.objectConfig == null : this.objectConfig.equals(that.objectConfig))
-                    && this.areaName.equals(that.areaName)
-                    && this.targetObjectType.equals(that.targetObjectType);
+            if (!this.areaName.equals(that.areaName) ||
+                    !this.targetObjectType.equals(that.targetObjectType) ||
+                    this.objectConfigChain.length != that.objectConfigChain.length) {
+                return false;
+            }
+            for (int i = 0; i < objectConfigChain.length; i++) {
+                if (!this.objectConfigChain[i].equals(that.objectConfigChain[i])) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -196,6 +229,15 @@ public class SearchConfigHelper {
         }
     }
 
+    /**
+     * Возвращает все конфигурации полей с заданным именем в заданной области поиска.
+     * Поля с одинаковым именем могут присутствовать в конфигурации области поиска у разных целевых объектов.
+     * 
+     * @param field имя поля
+     * @param area имя области поиска
+     * @return список конфигураций (пустой, если поле не найдено в этой области)
+     * @throws IllegalArgumentException если область поиска с заданным именем отсутствует в конфигурации
+     */
     public List<IndexedFieldConfig> findIndexedFieldConfigs(String field, String area) {
         SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
         if (areaConfig == null) {
@@ -211,6 +253,17 @@ public class SearchConfigHelper {
         return result;
     }
 
+    /**
+     * Возвращает конфигурацию поля с заданным именем у заданного целевого объекта в заданной области поиска.
+     * Уникальность поля в заданных условиях должен обеспечивать компонент валидации конфигурации.
+     * 
+     * @param field имя поля
+     * @param area имя области поиска
+     * @param targetType имя типа целевого объекта
+     * @return конфигурация поля или null, если поле не найдено
+     * @throws IllegalArgumentException если область поиска с заданным именем отсутствует в конфигурации
+     *          или не содержит заданный целевой объект
+     */
     public IndexedFieldConfig findIndexedFieldConfig(String field, String area, String targetType) {
         SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
         if (areaConfig == null) {
@@ -239,41 +292,75 @@ public class SearchConfigHelper {
         return null;
     }
 
-    public List<SearchAreaDetailsConfig> findEffectiveConfigs(DomainObject object) {
+    /**
+     * Возвращает элементы конфигураци областей поиска, соответствующие заданному типу объекта.
+     * 
+     * @param objectType имя типа объекта
+     * @return список элементов конфигурации (пустой, если заданный тип не сконфигурирован для поиска)
+     */
+    public List<SearchAreaDetailsConfig> findEffectiveConfigs(String objectType) {
         ArrayList<SearchAreaDetailsConfig> result = new ArrayList<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
-            processConfigList(object, area.getName(), null, area.getTargetObjects(), result);
+            processConfigList(objectType, area.getName(), null, area.getTargetObjects(),
+                    new LinkedList<IndexedDomainObjectConfig>(), result);
         }
         return result;
     }
 
-    private void processConfigList(DomainObject object, String areaName, String targetObjectType,
-            Collection<? extends IndexedDomainObjectConfig> list, ArrayList<SearchAreaDetailsConfig> result) {
+    private void processConfigList(String objectType, String areaName, String targetObjectType,
+            Collection<? extends IndexedDomainObjectConfig> list, LinkedList<IndexedDomainObjectConfig> parents,
+            ArrayList<SearchAreaDetailsConfig> result) {
         for (IndexedDomainObjectConfig config : list) {
             if (config instanceof TargetDomainObjectConfig) {
                 targetObjectType = config.getType();
             }
-            if (object.getTypeName().equalsIgnoreCase(config.getType())) {
-                DomainObjectFilter filter = createFilter(config);
-                if (filter == null || filter.filter(object)) {
-                    result.add(new SearchAreaDetailsConfig(config, areaName, targetObjectType));
-                }
+            parents.addFirst(config);
+            //if (object.getTypeName().equalsIgnoreCase(config.getType())) {
+            if (isSuitableType(config.getType(), objectType)) {
+                /*DomainObjectFilter filter = createFilter(config);
+                if (filter == null || filter.filter(object)) {*/
+                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType));
+                //}
             }
             for (IndexedContentConfig contentConfig : config.getContentObjects()) {
-                if (object.getTypeName().equalsIgnoreCase(contentConfig.getType())) {
-                    result.add(new SearchAreaDetailsConfig(config, areaName, targetObjectType));
+                //if (object.getTypeName().equalsIgnoreCase(contentConfig.getType())) {
+                if (isSuitableType(contentConfig.getType(), objectType)) {
+                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType));
                 }
             }
-            processConfigList(object, areaName, targetObjectType, config.getLinkedObjects(), result);
+            processConfigList(objectType, areaName, targetObjectType, config.getLinkedObjects(), parents, result);
+            parents.removeFirst();
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private DomainObjectFilter createFilter(IndexedDomainObjectConfig config) {
-        
+    /**
+     * Определяет, подходит ли действительный тип объекта к типу, описанному в конфигурации (с учётом наследования).
+     * Тип считается подходящим, если он совпадает с требуемым или является его наследником (в т.ч. косвенным).
+     * 
+     * @param neededType имя требуемого типа
+     * @param realType имя действительного типа
+     * @return true, если действительный тип объекта подходит к требуемому
+     */
+    public boolean isSuitableType(String neededType, String realType) {
+        do {
+            if (realType.equalsIgnoreCase(neededType)) {
+                return true;
+            }
+            realType = configurationExplorer.getDomainObjectParentType(realType);
+        } while(realType != null);
+        return false;
+    }
+
+    /**
+     * Создаёт фильтр, описанный в конфигурации доменного объекта в области поиска.
+     * 
+     * @param config конфигурация доменного объекта в области поиска
+     * @return объект фильтра или null, если фильтр не определён в конфигурации
+     */
+    public DomainObjectFilter createFilter(IndexedDomainObjectConfig config) {
         ApplicationContext ctx = SpringApplicationContext.getContext();
-        
+
         DomainObjectFilterConfig filterConfig = config.getFilter();
         if (filterConfig == null) {
             return null;
@@ -296,7 +383,7 @@ public class SearchConfigHelper {
             return conditionsScriptDomainObjectFilter;
 
         }
-        return null;    //*****
+        throw new IllegalStateException("Wrong filter configuration");
     }
 
     public static class FieldDataType {
