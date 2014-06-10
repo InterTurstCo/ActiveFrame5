@@ -38,6 +38,8 @@ public interface DaoFactory {
      */
     DomainObjectDao createDomainObjectDao();
 
+    InitializationLockDao createInitializationLockDao();
+
     /**
      * Создаёт PersonManagementServiceDao
      * @return PersonManagementServiceDao

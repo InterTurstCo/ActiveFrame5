@@ -71,6 +71,8 @@
 
     <bean id="domainObjectDao" factory-bean="daoFactory" factory-method="createDomainObjectDao"/>
 
+    <bean id="initializationLockDao" factory-bean="daoFactory" factory-method="createInitializationLockDao"/>
+
     <bean id="collectionsDao" factory-bean="daoFactory" factory-method="createCollectionsDao"/>
 
     <bean id="statusDao" factory-bean="daoFactory" factory-method="createStatusDao"/>

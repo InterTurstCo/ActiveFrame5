@@ -2,27 +2,22 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.config.ConfigurationException;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.IndexConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.SystemField;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
+import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
+import javax.transaction.*;
 import java.util.*;
 
 /**
@@ -41,6 +36,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     private static final String COMMON_ERROR_MESSAGE = "It's only allowed to add some new configuration " +
             "but not to modify or delete the existing one.";
 
+    private static final long serverId = new Random().nextLong();
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
@@ -48,32 +45,17 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Autowired
+    private InitializationLockDao initializationLockDao;
+    @Autowired
     private ConfigurationDao configurationDao;
     @Autowired
     private ConfigurationSerializer configurationSerializer;
 
-    /**
-     * Устанавливает  {@link #dataStructureDao}
-     * @param dataStructureDao DataStructureDao
-     */
-    public void setDataStructureDao(DataStructureDao dataStructureDao) {
-        this.dataStructureDao = dataStructureDao;
-    }
-
-    public void setConfigurationDao(ConfigurationDao configurationDao) {
-        this.configurationDao = configurationDao;
-    }
+    @Resource
+    private EJBContext ejbContext;
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
-    }
-
-    public void setConfigurationSerializer(ConfigurationSerializer configurationSerializer) {
-        this.configurationSerializer = configurationSerializer;
-    }
-
-    public void setDomainObjectTypeIdDao(DomainObjectTypeIdDao domainObjectTypeIdDao) {
-        this.domainObjectTypeIdDao = domainObjectTypeIdDao;
     }
 
     /**
@@ -81,38 +63,113 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
      */
     @Override
     public void loadConfiguration() throws ConfigurationException {
-        if (!isConfigurationLoaded()) {
-            RecursiveLoader recursiveLoader = new RecursiveLoader();
-            recursiveLoader.load();
-
-            saveConfiguration();
-            return;
-        }
-
-        String oldConfigurationString = configurationDao.readLastSavedConfiguration();
-        if (oldConfigurationString == null) {
-            throw new ConfigurationException("Configuration loading aborted: configuration was previously " +
-                    "loaded but wasn't saved");
-        }
-
-        Configuration oldConfiguration;
+        UserTransaction userTransaction = null;
         try {
-            oldConfiguration = configurationSerializer.deserializeTrustedConfiguration(oldConfigurationString, false);
-            if (oldConfiguration == null) {
-                throw new ConfigurationException();
+            if (!isConfigurationLoaded()) {
+                try {
+                    initializationLockDao.createInitializationLockTable();
+                } catch (DataAccessException e) {
+                    try {
+                        Thread.currentThread().sleep(1000);
+                    } catch (InterruptedException e1) {
+                        throw new ConfigurationException(e1);
+                    }
+
+                    loadConfiguration();
+                }
+
+                userTransaction = startTransaction();
+                initializationLockDao.createLockRecord(serverId);
+                userTransaction.commit();
+
+                RecursiveLoader recursiveLoader = new RecursiveLoader();
+                recursiveLoader.load();
+
+                saveConfiguration();
+
+                userTransaction = startTransaction();
+                initializationLockDao.unlock(serverId);
+                userTransaction.commit();
+
+                return;
             }
+
+            userTransaction = startTransaction();
+
+            Boolean isLockRecordCreated = null;
+            while(true) {
+                if (userTransaction == null) {
+                    userTransaction = startTransaction();
+                }
+
+                if (isLockRecordCreated == null || !isLockRecordCreated) {
+                    isLockRecordCreated = initializationLockDao.isLockRecordCreated();
+                }
+
+                if (isLockRecordCreated && !initializationLockDao.isLocked()) {
+                    break;
+                }
+
+                userTransaction.commit();
+                userTransaction = null;
+
+                try {
+                    Thread.currentThread().sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new FatalException(e);
+                }
+            }
+
+            initializationLockDao.lock(serverId);
+            userTransaction.commit();
+
+            String oldConfigurationString = configurationDao.readLastSavedConfiguration();
+            if (oldConfigurationString == null) {
+                throw new ConfigurationException("Configuration loading aborted: configuration was previously " +
+                        "loaded but wasn't saved");
+            }
+
+            Configuration oldConfiguration;
+            try {
+                oldConfiguration = configurationSerializer.deserializeTrustedConfiguration(oldConfigurationString, false);
+                if (oldConfiguration == null) {
+                    throw new ConfigurationException();
+                }
+            } catch (ConfigurationException e) {
+                throw new ConfigurationException("Configuration loading aborted: failed to deserialize last loaded " +
+                        "configuration. This may mean that configuration structure has changed since last configuration load", e);
+            }
+
+            if (configurationExplorer.getConfiguration().equals(oldConfiguration)) {
+                return;
+            }
+
+            RecursiveMerger recursiveMerger = new RecursiveMerger(oldConfiguration);
+            recursiveMerger.merge();
+            saveConfiguration();
+
+            userTransaction = startTransaction();
+            initializationLockDao.unlock(serverId);
+            userTransaction.commit();
         } catch (ConfigurationException e) {
-            throw new ConfigurationException("Configuration loading aborted: failed to deserialize last loaded " +
-                    "configuration. This may mean that configuration structure has changed since last configuration load", e);
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedException("ConfigurationLoadService", "loadConfiguration", "", e);
+        } finally {
+            try {
+                if (userTransaction != null && Status.STATUS_ACTIVE == userTransaction.getStatus()) {
+                    userTransaction.commit();
+                }
+            } catch (Exception e) {
+                throw new UnexpectedException("ConfigurationLoadService", "loadConfiguration", "", e);
+            }
         }
+    }
 
-        if (configurationExplorer.getConfiguration().equals(oldConfiguration)) {
-            return;
-        }
-
-        RecursiveMerger recursiveMerger = new RecursiveMerger(oldConfiguration);
-        recursiveMerger.merge();
-        saveConfiguration();
+    UserTransaction startTransaction() throws SystemException, NotSupportedException {
+        UserTransaction userTransaction = ejbContext.getUserTransaction();
+        userTransaction.begin();
+        return userTransaction;
     }
 
     private void saveConfiguration() {

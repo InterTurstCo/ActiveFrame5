@@ -16,6 +16,9 @@ import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.InitializationLockDao;
+
+import javax.ejb.EJBContext;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -35,11 +38,15 @@ public class ConfigurationLoadServiceImplTest {
     @Mock
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Mock
+    private InitializationLockDao initializationLockDao;
+    @Mock
     private ConfigurationDao configurationDao;
     @Mock
     private AuthenticationService authenticationService;
     @Mock
     private ConfigurationSerializer configurationSerializer;
+    @Mock
+    private EJBContext ejbContext;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -56,6 +63,8 @@ public class ConfigurationLoadServiceImplTest {
 
         configuration = createConfiguration();
         configurationService.setConfigurationExplorer(new ConfigurationExplorerImpl(configuration));
+        when(ejbContext.getUserTransaction()).thenReturn(new MockUserTransaction());
+        when(initializationLockDao.isLockRecordCreated()).thenReturn(true);
     }
 
     @Test

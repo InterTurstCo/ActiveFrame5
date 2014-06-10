@@ -33,6 +33,11 @@ public abstract class AbstractDaoFactory implements DaoFactory {
     }
 
     @Override
+    public InitializationLockDao createInitializationLockDao() {
+        return new InitializationLockDaoImpl();
+    }
+
+    @Override
     public PersonManagementServiceDao createPersonManagementServiceDao() {
         return new PersonManagementServiceDaoImpl();
     }

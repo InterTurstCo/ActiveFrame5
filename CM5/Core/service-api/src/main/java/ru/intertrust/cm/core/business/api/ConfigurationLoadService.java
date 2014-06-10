@@ -12,6 +12,9 @@ public interface ConfigurationLoadService {
     public interface Remote extends ConfigurationLoadService {
     }
 
+    interface Remote extends ConfigurationLoadService {
+    }
+
     /**
      * Загрузка конфигурации
      */
