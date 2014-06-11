@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+<!--  Consumer -->
+    
+    <!--Состояние записи-->
+    <domain-object-type name="record_state" initial-status="Active">
+        <fields>
+            <long name="ordinal" not-null="true"/>  <!--Описание: 0-действует; 1-анулирована-->
+            <string name="description" length="128"/>
+        </fields>
+    </domain-object-type>
+
+    <!--Тип потребителя-->
+    <domain-object-type name="consumer_type" initial-status="Active">
+        <fields>
+            <!-- <long name="code"/> --><!--код типа-->
+            <string name="description" length="1024"/><!--Описание-->
+        </fields>
+    </domain-object-type>
+
+    <!--Агент СЭД-->
+    <domain-object-type name="agent_esd" initial-status="Active">
+        <fields>
+            <!-- <long name="code"/> --><!--код клиента-->
+            <string name="name" length="128"/><!--Наименование-->
+            <string name="identifier" length="128"/><!--Идентификатор Агента-->
+            <string name="password" length="128"/><!--пароль-->         
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+        </uniqueKey>
+        <uniqueKey>
+            <field name="identifier"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <!--Потребитель сервиса-->
+    <domain-object-type name="service_consumer" initial-status="Active">
+        <fields>
+            <!-- <long name="code"/> --><!--код потребителя-->
+            <string name="name" length="128"/><!--Наименование-->
+            <string name="identifier" length="128"/><!--Идентификатор клиента-->
+            <string name="guid" length="128"/><!--GUID-->
+            <string name="description" length="128"/><!--Описание-->
+            <reference name="record_state" type="record_state"/><!--Состояние записи-->
+            <reference name="consumer_type" type="consumer_type"/><!--Тип потребителя-->
+            <reference name="agent_esd" type="agent_esd"/><!--Агент СЭД-->
+        </fields>
+    </domain-object-type>
+
+    <!--Контактное лицо-->
+    <domain-object-type name="contact_name" initial-status="Active">
+        <fields>
+            <!-- <long name="code"/> --><!--код контактЛица-->
+            <string name="name" length="128"/><!--Наименование-->
+            <string name="description" length="1024"/><!--Описание-->
+            <reference name="record_state" type="record_state"/><!--Состояние записи-->
+            <reference name="service_consumer" type="service_consumer"/> <!--Потребитель сервиса-->
+        </fields>
+    </domain-object-type>
+
+    <!--Потребитель сервиса : Контактное лицо
+    <domain-object-type name="consumer_contact">
+        <fields>
+            <reference name="contact_name" type="contact_name"/>
+            <reference name="service_consumer" type="service_consumer"/>
+        </fields>
+    </domain-object-type>-->
+
+    <!--Контактное лицо : Адрес
+    <domain-object-type name="contact_address">
+        <fields>
+            <reference name="contact_name" type="contact_name"/>
+            <reference name="address" type="address"/>
+        </fields>
+    </domain-object-type>  -->
+
+    <!--Тип и назначение-->
+    <domain-object-type name="type_destination" initial-status="Active">
+        <fields>
+            <!-- <long name="code"/> --><!--Код типаАдреса-->
+            <string name="name" length="128"/><!--Наименование 1.эл.почта; 2.телефон; 3.сайт-->
+        </fields>
+    </domain-object-type>
+
+    <!--Адрес-->
+    <domain-object-type name="address" initial-status="Active">
+        <fields>
+            <!-- <long name="code"/> --><!--код адреса-->
+            <string name="content" length="1024"/><!--содержание-->
+            <reference name="record_state" type="record_state"/><!--Состояние записи-->
+            <reference name="contact_name" type="contact_name"/><!--Контактное лицо-->
+            <reference name="type_destination" type="type_destination"/><!--Тип и назначение-->
+        </fields>
+    </domain-object-type>
+    
+    <!--Агенты для пользователя-->
+    <domain-object-type name="agent_person" initial-status="Active">
+        <fields>                    
+            <reference name="agent_esd" type="agent_esd"/><!--Агент СЭД-->
+            <reference name="person" type="person"/><!--пользователи  -->
+            <boolean name = "is_read_only"/><!--только чтение  -->          
+        </fields>
+    </domain-object-type>
+
+    <!-- Event  -->
+
+    <!--Инициатор события-->    
+    <domain-object-type name="initiator" initial-status="Active">
+        <fields>   
+            <!-- <long name="code"/> --><!--код инициатора-->
+            <string name="name" length="128"/><!--имя-->
+        </fields>
+    </domain-object-type>
+    
+    <!--Тип события-->  
+    <domain-object-type name="event_type" initial-status="Active">
+        <fields>   
+          <!--   <long name="code"/> --><!--код типа события-->
+            <string name="name" length="128"/><!--Наименование (Регистрация,Обработка,Доставка,Отправка)-->
+        </fields>
+    </domain-object-type>
+    
+    <!--Файлы хранилища-->      
+    <domain-object-type name="storage_files" initial-status="Active">
+        <fields>   
+           <!--  <long name="code"/> --><!--Код файла-->
+            <string name="filename" length="128"/><!--имя файла-->
+            <string name="path" length="1024"/><!--Путь к хранилищу-->
+            <reference name="esd" type="esd"/><!--ЭСД-->            
+        </fields>
+        <attachment-types>
+            <attachment-type name="attachment"/>
+        </attachment-types>  
+    </domain-object-type>   
+
+    <!--ЭСД-->
+    <domain-object-type name="esd" initial-status="Active">
+        <fields>    
+            <!-- <long name="code"/> --><!--код ЭСД-->
+            <string name="identifier" length="128"/><!--Идентификатор ЭСД-->
+            <string name="foldername" length="128"/><!--Имя папки-->                
+            <string name="theme" length="128"/><!--Тема-->
+            <boolean name = "is_encryption"/><!--шифрование-->
+            <boolean name = "is_eds"/><!--ЭЦП-->                    
+            <reference name="service_consumer" type="service_consumer"/><!--Потребитель сервиса Отправитель-->          
+        </fields>
+    </domain-object-type>       
+    
+    <!--Получатель ЭСД-->   
+    <domain-object-type name="esd_recipient" initial-status="Active">
+        <fields>                    
+            <reference name="esd" type="esd"/>
+            <reference name="service_consumer" type="service_consumer"/>            
+        </fields>
+    </domain-object-type>
+    
+    <!--Файлы ЭСД   
+    <domain-object-type name="esd_files" initial-status="Active">
+        <fields>        
+            <reference name="storage_files" type="storage_files"/><!-Файлы хранилища->
+            <reference name="esd" type="esd"/><!-ЭСД->
+        </fields>
+    </domain-object-type>-->    
+    
+    
+    <!--Журнал событий-->
+    <domain-object-type name="event_log" initial-status="Active">
+        <fields>    
+            <!-- <long name="code"/> --><!--Код события-->
+            <!-- <date-time name="date_event"/> --><!--Дата-->
+            <string name="description" length="1024"/><!--описание-->
+            <!-- <long name="element_code"/> -->    <!--код элемента из инициатора событий-->
+            <reference name="initiator" type="initiator"/><!--Инициатор события-->
+            <reference name="agent_esd" type="agent_esd"/><!--Агент СЭД-->
+            <reference name="event_type" type="event_type"/><!--Тип события-->
+            <reference name="esd" type="esd"/><!--ЭСД-->            
+        </fields>
+    </domain-object-type>       
+
+<!-- Link  -->
+
+<!--Транспорт канала связи-->
+    <domain-object-type name="transport_link" initial-status="Active">
+        <fields>
+            <!-- <long name="code"/> --><!--код транспорта-->
+            <string name="name" length="128"/><!--наименование-->
+        </fields>
+    </domain-object-type>
+
+    <!--Канал связи-->
+    <domain-object-type name="channel_link" initial-status="Active">
+        <fields>
+            <!-- <long name="code"/> --><!--код канала-->
+            <date-time name="date_rent"/><!--Срок аренды-->
+            <reference name="transport_link" type="transport_link"/><!--Транспорт канала связи-->
+            <reference name="agent_esd_recipient" type="agent_esd"/><!--Агент СЭД получатель-->
+            <reference name="agent_esd_sender" type="agent_esd"/><!--Агент СЭД отправитель-->
+            <reference name="esd" type="esd"/><!--ЭСД-->
+        </fields>
+    </domain-object-type>
+
+    <!--Виды состояний -->
+    <domain-object-type name="state_list" initial-status="Active">
+        <fields>
+            <long name="ordinal" not-null="true"/><!--код ВидаСостояния 0-Зарегистрирован,1-Опубликован,2-Передан,3-Доставлен,4-Деактивирован -->
+            <string name="name" length="1024"/><!--Описание-->
+        </fields>
+    </domain-object-type>
+
+    <!--Состаяние Канала связи-->
+    <domain-object-type name="link_state" initial-status="Active">
+        <fields>
+           <!--  <long name="code"/> --><!--код состаяния -->
+            <!-- <date-time name="date"/> --><!--Дата-->
+            <reference name="event_log" type="event_log"/><!--Журнал событий-->
+            <reference name="channel_link" type="channel_link"/><!--Канал связи-->
+            <reference name="state_list" type="state_list"/><!--Виды состояний-->
+        </fields>
+    </domain-object-type>
+    
+    <!-- Агент СЭД Collection -->
+    <collection name="col_agent_esd" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                 res.id, res.name, res.identifier 
+                from
+                    agent_esd res
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from agent_esd res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byIdentifier">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.identifier) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <!-- Collection View -->
+    <collection-view name="agent_esd_default_view" collection="col_agent_esd" is-default="true">
+        <display>
+            <column field="name" name="Наименование" type="string" sortable="true" search-filter="byText" />
+            <column field="identifier" name="Идентификатор Агента" type="string" sortable="true" search-filter="byIdentifier" />
+            <column field="id" name="Код клиента" type="integer" sortable="true" />
+        </display>
+    </collection-view>
+
+    <!--Журнал событий col_event_log -->
+     <collection name="col_event_log" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                    res.id, res.created_date, res.description, i.name as initiator , et.name as event_type, esd.theme as esd , a.name as agent_esd
+                from
+                    event_log res
+                    left join initiator i  on (res.initiator = i.id)    
+                    left join event_type et  on (res.event_type = et.id)
+                    left join esd esd  on (res.esd = esd.id)
+                    left join agent_esd a  on (res.agent_esd = a.id)
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+                group by res.id, res.created_date, res.description, i.name, et.name, esd.theme, a.name
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from event_log res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype> 
+        
+         <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>         
+        <filter name="byDate">
+            <criteria placeholder="where-clause">
+                <![CDATA[                                     
+                     res.created_date between {0} and {1}
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byInitiator">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(i.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byEvent_type">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(et.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byEsd">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(esd.theme) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byAgent_esd"> <!-- agent_esd -->
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(a.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>  
+                 
+    </collection>
+    
+    <collection-view name="event_log_default_view" collection="col_event_log" is-default="true">
+        <display>            
+            <column field="created_date" name="Дата" type="datetime" sortable="true" pattern="dd.MM.yyyy HH:mm:ss" search-filter="byDate"/>
+            <column field="description" name="Описание" type="string" sortable="true" search-filter="byText"/>            
+            <column field="initiator" name="Инициатор события" type="string" sortable="true" search-filter="byInitiator"/>
+            <column field="event_type" name="Тип события" type="string" sortable="true" search-filter="byEvent_type"/>
+            <column field="esd" name="ЭСД" type="string" sortable="true" search-filter="byEsd"/>
+            <column field="agent_esd" name="Агент СЭД" type="string" sortable="true" search-filter="byAgent_esd"/>
+            <column field="id" name="Код" type="integer" sortable="true"/>                                                                         
+        </display>
+    </collection-view>          
+    
+    <collection name="col_event_log_sb" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                    res.id, res.created_date, res.description, i.name as initiator , et.name as event_type
+                from
+                    event_log res
+                    left join initiator i  on (res.initiator = i.id)    
+                    left join event_type et  on (res.event_type = et.id)                    
+                     ::from-clause
+                where
+                    1=1 ::where-clause 
+                group by res.id, res.created_date, res.description, i.name, et.name                
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from event_log res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype> 
+        
+         <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>  
+        
+        <filter name="byDate">
+            <criteria placeholder="where-clause">
+                <![CDATA[                                     
+                    ic.created_date between {0} and {1}
+                ]]>
+            </criteria>
+        </filter>  
+                 
+    </collection>
+    
+   <!--  <collection-view name="col_event_log_sb_view" collection="col_event_log_sb" is-default="true">
+        <display>
+            <column field="id" name="Код" type="integer" sortable="false"/>
+            <column field="created_date" name="Дата" type="datetime" sortable="true" search-filter="byDate"/>
+            <column field="description" name="Описание" type="string" sortable="true"/>                                                                                               
+        </display>
+    </collection-view> -->
+    
+    <!-- Агент СЭД Collection View -->
+    <form name="agent_esd_form" domain-object-type="agent_esd" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <!-- <tr> <td width="30%" h-align="right"> <widget id="code-Label"/> </td> <td width="70%" 
+                                    h-align="left"> <widget width="96%" id="code"/> </td> </tr> -->
+
+                                <tr>
+                                    <td width="30%" h-align="right">
+                                        <widget id="name-Label" />
+                                    </td>
+                                    <td width="70%" h-align="left">
+                                        <widget width="96%" id="name" />
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="identifier-Label" />
+                                    </td>
+                                    <td h-align="left">
+                                        <widget width="96%" id="identifier" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Потребитель">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget width="100%" id="hierarchy_service_consumer" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Журнал событий">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget width="100%" id="table_event_log" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="blank">
+                <field-path />
+                <text>&#xA0;</text>
+            </label>
+            <label id="header">
+                <field-path />
+                <text>Агент СЭД</text>
+            </label>
+
+            <!-- <label id="code-Label"> <field-path/> <text>Код клиента:</text> </label> <integer-box id="code"> <field-path 
+                value="code"/> </integer-box> -->
+
+            <label id="name-Label">
+                <field-path />
+                <text>Наименование:</text>
+            </label>
+            <text-box id="name">
+                <field-path value="name" />
+            </text-box>
+
+            <label id="identifier-Label">
+                <field-path />
+                <text>Идентификатор&#xA0;агента:</text>
+            </label>
+            <text-box id="identifier">
+                <field-path value="identifier" />
+            </text-box>
+
+            <table-browser id="table_event_log">
+                <field-path value="event_log^agent_esd" />
+                <collection-ref name="col_event_log" />
+                <collection-view-ref name="event_log_default_view" />
+                <selection-pattern value="{created_date} {description}" />
+                <input-text-filter name="byText" />
+                <page-size>30</page-size>
+                <display-chosen-values value="false" />
+                <selection-style name="table" />
+                <single-choice value="false" />
+                <clear-all-button text="Очистить" />
+                <add-button image="..." text="..." />
+                <default-sort-criteria column-field="created_date" order="desc" />
+                <display-values-as-links value="true" />
+            </table-browser>
+
+            <label id="service_consumer-Label">
+                <field-path />
+                <text>Потребитель&#xA0;Сервиса:</text>
+            </label>
+            <hierarchy-browser id="hierarchy_service_consumer">
+                <field-path value="service_consumer^agent_esd" />
+                <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
+                <!-- Уже выбранные элементы показываются помеченными галочками -->
+                <!-- collection - название коллекции для отображения списка значений узла -->
+                <node-collection-def collection="col_service_consumer_act" domain-object-type="service_consumer"
+                    title="Создать потребителя">
+                    <root-node-link title="Потребители" />
+                    <!-- название фильтра по тексту, введённому пользователем -->
+                    <input-text-filter name="byText" />
+                    <fill-parent-on-add field-to-fill="service_consumer" />
+                    <selection-pattern value="{name}" />
+                    <default-sort-criteria column-field="name" order="asc" />
+                </node-collection-def>
+
+                <!-- количество элементов, показываемых в данном узле дерева изначально -->
+                <page-size>10</page-size>
+                <selection-style name="table" />
+                <single-choice value="true" />
+                <clear-all-button text="Очистить" />
+                <add-button image="..." text="..." />
+                <display-values-as-links value="true" />
+            </hierarchy-browser>
+        </widget-config>
+    </form>
+
+    <form-mappings name="agent_esd_mappings">
+        <form-mapping domain-object-type="agent_esd" form="agent_esd_form">
+            <users>
+                <user uid="admin" />
+            </users>
+            <roles>
+                <role name="Agent_Esd_Editor" />
+            </roles>
+        </form-mapping>
+    </form-mappings>
+
+</configuration>

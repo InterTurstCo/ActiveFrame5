@@ -184,6 +184,17 @@
                         <collection-counter />
                     </decorations>
                 </link>
+                <link name="link_agent_esd" display-text="Агент СЭД">
+                    <plugin>                        
+                        <domain-object-surfer domain-object-type-to-create="agent_esd">
+                            <collection-viewer>
+                                <collection-ref name="col_agent_esd"/>
+                                <default-sort-criteria column-field="name" order="asc"/>                                                                                           
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
             <!--    <link name="Custom_Plugin" display-text="Плагин">
                     <plugin>
                         <custom name="some.plugin">
