@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
@@ -890,7 +891,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private class RecalcAclSynchronization implements Synchronization {
-        private List<Id> contextIds = new ArrayList<Id>();
+        private List<Id> contextIds = new CopyOnWriteArrayList<Id>();
 
         public RecalcAclSynchronization() {
         }
