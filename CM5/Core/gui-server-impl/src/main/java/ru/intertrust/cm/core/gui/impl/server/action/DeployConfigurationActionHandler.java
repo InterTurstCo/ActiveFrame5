@@ -26,7 +26,8 @@ import java.util.List;
  *         Time: 17:15
  */
 @ComponentName("deploy.configuration.action")
-public class DeployConfigurationActionHandler extends ActionHandler {
+public class DeployConfigurationActionHandler
+        extends ActionHandler<DeployConfigurationActionContext, DeployConfigurationActionData> {
     @Autowired
     private ConfigurationControlService configurationControlService;
 
@@ -36,8 +37,7 @@ public class DeployConfigurationActionHandler extends ActionHandler {
     private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
 
     @Override
-    public DeployConfigurationActionData executeAction(ActionContext context) {
-        DeployConfigurationActionContext deployContext = (DeployConfigurationActionContext)context;
+    public DeployConfigurationActionData executeAction(DeployConfigurationActionContext deployContext) {
 
         List<AttachmentItem> attachmentItems = deployContext.getAttachmentItems();
         List<ConfigurationDeployedItem> configurationDeployedItems = new ArrayList<>();
@@ -67,19 +67,24 @@ public class DeployConfigurationActionHandler extends ActionHandler {
         return deployConfigurationActionData;
     }
 
+    @Override
+    public DeployConfigurationActionContext getActionContext() {
+        return new DeployConfigurationActionContext();
+    }
+
     /*private String readFileAsString(String filePath) throws IOException {
-        StringBuilder fileData = new StringBuilder();
-        BufferedReader reader = new BufferedReader(
-                new FileReader(filePath));
-        char[] buf = new char[1024];
-        int numRead=0;
-        while((numRead=reader.read(buf)) != -1){
-            String readData = String.valueOf(buf, 0, numRead);
-            fileData.append(readData);
-        }
-        reader.close();
-        return fileData.toString();
-    }*/
+            StringBuilder fileData = new StringBuilder();
+            BufferedReader reader = new BufferedReader(
+                    new FileReader(filePath));
+            char[] buf = new char[1024];
+            int numRead=0;
+            while((numRead=reader.read(buf)) != -1){
+                String readData = String.valueOf(buf, 0, numRead);
+                fileData.append(readData);
+            }
+            reader.close();
+            return fileData.toString();
+        }*/
     private String readFileAsString(String path, Charset encoding)
             throws IOException
     {
