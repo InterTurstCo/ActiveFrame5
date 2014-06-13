@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.model.action;
 
-import ru.intertrust.cm.core.config.gui.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 
 /**
  * @author Sergey.Okolot

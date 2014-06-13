@@ -1,14 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.form.FormObjectsRemover;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
+import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 
 /**
  * User: IPetrov
@@ -17,20 +14,35 @@ import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
  * обработчик удаления элемента коллекции, удаляется в GUI из таблицы и соответственно на сервере
  */
 @ComponentName("delete.action")
-public class DeleteActionHandler extends ActionHandler {
-
-    @Autowired
-    private CrudService crudService;
+public class DeleteActionHandler extends ActionHandler<ActionContext, DeleteActionData> {
 
     @Override
-    public <T extends ActionData> T executeAction(ActionContext context) {
-        final FormObjectsRemover remover = (FormObjectsRemover) applicationContext.getBean("formObjectsRemover", guiService.getUserUid());
+    public DeleteActionData executeAction(ActionContext context) {
+        final FormObjectsRemover remover = (FormObjectsRemover) applicationContext.getBean("formObjectsRemover",
+                guiService.getUserUid());
         remover.deleteForm(context.getRootObjectId());
 
         DeleteActionData result = new DeleteActionData();
         result.setId(context.getRootObjectId());
 
-        return (T) result;
+        return result;
+    }
+
+    @Override
+    public ActionContext getActionContext() {
+        return new SaveActionContext();
+    }
+
+    @Override
+    public HandlerStatusData getCheckStatusData() {
+        return new FormPluginHandlerStatusData();
+    }
+
+    @Override
+    public Status getHandlerStatus(String conditionExpression, HandlerStatusData condition) {
+        conditionExpression = conditionExpression.replaceAll(TOGGLE_EDIT_ATTR, TOGGLE_EDIT_KEY);
+        final boolean result = evaluateExpression(conditionExpression, condition);
+        return result ? Status.SUCCESSFUL : Status.SKIPPED;
     }
 }
 

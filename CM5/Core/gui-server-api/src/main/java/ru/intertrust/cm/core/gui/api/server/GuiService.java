@@ -11,7 +11,6 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
-import javax.ejb.SessionContext;
 import java.util.HashSet;
 
 /**

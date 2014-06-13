@@ -6,9 +6,9 @@
     <xs:element name="menu-bar" type="act:menuBarType"/>
     <xs:element name="tool-bar" type="act:toolBarType"/>
     <xs:element name="action-context" type="act:actionContextType"/>
-    <xs:element name="action-entry" type="act:actionEntryType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action-ref" type="act:actionRefType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action-separator" type="act:actionSeparatorType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="action" type="act:actionEntryType" substitutionGroup="act:abstract-action"/>
 
     <xs:element name="abstract-action" type="act:abstractActionType" abstract="true"/>
 
@@ -18,7 +18,7 @@
         <xs:attribute name="style" type="xs:string"/>
         <xs:attribute name="styleClass" type="xs:string"/>
         <xs:attribute name="addStyleClass" type="xs:string"/>
-        <xs:attribute name="rendered" type="xs:boolean" default="true"/>
+        <xs:attribute name="rendered" type="xs:string" default="true"/>
     </xs:attributeGroup>
 
     <xs:attributeGroup name="activeAttributeGroup">
@@ -35,7 +35,7 @@
     <xs:simpleType name="componentNameType">
         <xs:restriction base="xs:string">
             <xs:minLength value="1"/>
-            <xs:pattern value="[\w.]*"/>
+            <xs:pattern value="[\w.-]*"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -62,6 +62,7 @@
                 </xs:sequence>
                 <xs:attributeGroup ref="act:actionAttributeGroup"/>
                 <xs:attributeGroup ref="act:activeAttributeGroup"/>
+                <xs:attribute name="name" type="xs:string" use="optional"/>
                 <xs:attribute name="componentName" type="act:componentNameType" use="required" />
                 <xs:attribute name="text" type="xs:string" />
                 <xs:attribute name="image" type="xs:string" />
@@ -70,6 +71,7 @@
                 <xs:attribute name="action" type="xs:string" />
                 <xs:attribute name="display" type="act:displayType"/>
                 <xs:attribute name="type" type="act:actionType" default="perform"/>
+                <xs:attribute name="weight" type="xs:positiveInteger"/>
                 <xs:attribute name="groupId" type="xs:string" />
                 <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
             </xs:extension>
@@ -148,7 +150,7 @@
     </xs:simpleType>
 
     <xs:complexType name="messageType">
-        <xs:attribute name="text" use="required"/>
+        <xs:attribute name="text" type="xs:string" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="beforeExecutionType">
@@ -199,5 +201,4 @@
             <xs:attribute name="id" type="xs:string" use="required" />
         </xs:complexType>
     </xs:element>
-
 </xs:schema>

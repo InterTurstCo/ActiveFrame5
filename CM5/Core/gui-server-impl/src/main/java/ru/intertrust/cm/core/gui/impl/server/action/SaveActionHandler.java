@@ -4,23 +4,14 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.validation.CustomValidatorFactory;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.DateRangeValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.DecimalRangeValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.IntRangeValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.LengthValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.ScaleAndPrecisionValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.ServerValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.SimpleValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -41,23 +32,40 @@ import java.util.Map;
  *         Time: 13:18
  */
 @ComponentName("save.action")
-public class SaveActionHandler extends ActionHandler {
+public class SaveActionHandler extends ActionHandler<SaveActionContext, SaveActionData> {
 
     @Override
-    public <T extends ActionData> T executeAction(ActionContext context) {
+    public SaveActionData executeAction(SaveActionContext context) {
         List<String> errorMessages = doServerSideValidation(context);
         if (!errorMessages.isEmpty()) {
             throw new ValidationException("Server-side validation failed", errorMessages);
         }
 
         final UserInfo userInfo = GuiContext.get().getUserInfo();
-        DomainObject rootDomainObject = guiService.saveForm(((SaveActionContext) context).getFormState(), userInfo);
+        DomainObject rootDomainObject = guiService.saveForm(context.getFormState(), userInfo);
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(rootDomainObject.getId());
-        config.setPluginState(((SaveActionContext) context).getPluginState());
+        config.setPluginState(context.getPluginState());
         SaveActionData result = new SaveActionData();
         result.setFormPluginData(handler.initialize(config));
-        return (T) result;
+        return result;
+    }
+
+    @Override
+    public SaveActionContext getActionContext() {
+        return new SaveActionContext();
+    }
+
+    @Override
+    public HandlerStatusData getCheckStatusData() {
+        return new FormPluginHandlerStatusData();
+    }
+
+    @Override
+    public Status getHandlerStatus(String conditionExpression, HandlerStatusData condition) {
+        conditionExpression = conditionExpression.replaceAll(TOGGLE_EDIT_ATTR, TOGGLE_EDIT_KEY);
+        final boolean result = evaluateExpression(conditionExpression, condition);
+        return result ? Status.SUCCESSFUL : Status.SKIPPED;
     }
 
     private List<String> doServerSideValidation(ActionContext context) {
@@ -81,20 +89,20 @@ public class SaveActionHandler extends ActionHandler {
             }
         }
         // Custom Server Validation
-        if (context.getActionConfig() != null) {
-            for (ValidatorConfig config : context.getActionConfig().getValidatorConfigs()) {
-                String widgetId = config.getWidgetId();
-                ServerValidator customValidator = CustomValidatorFactory.createInstance(config.getClassName(), widgetId);
-                if (customValidator != null) {
-                    WidgetState state = formState.getWidgetState(widgetId);
-                    customValidator.init(context);
-                    ValidationResult validationResult = customValidator.validate(state);
-                    if (validationResult.hasErrors()) {
-                        errorMessages.addAll(getMessages(validationResult, null));
-                    }
-                }
-            }
-        }
+//        if (context.getActionConfig() != null) {
+//            for (ValidatorConfig config : context.getActionConfig().getValidatorConfigs()) {
+//                String widgetId = config.getWidgetId();
+//                ServerValidator customValidator = CustomValidatorFactory.createInstance(config.getClassName(), widgetId);
+//                if (customValidator != null) {
+//                    WidgetState state = formState.getWidgetState(widgetId);
+//                    customValidator.init(context);
+//                    ValidationResult validationResult = customValidator.validate(state);
+//                    if (validationResult.hasErrors()) {
+//                        errorMessages.addAll(getMessages(validationResult, null));
+//                    }
+//                }
+//            }
+//        }
         return errorMessages;
     }
 

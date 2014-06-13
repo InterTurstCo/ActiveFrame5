@@ -6,8 +6,8 @@
         <sql-trace enable="true" resolveParameters="true" minTime="0" minRows="0"/>
     </global-settings>
 
-    <act:action-entry id="id_value" styleClass="styleClass_value" componentName="action.test">
-        <act:action-entry componentName="action.child.test1" id="act_2">
+    <act:action id="id_value" styleClass="styleClass_value" componentName="action.test">
+        <act:action componentName="action.child.test1" id="act_2">
             <act:before-execution>
                 <act:confirmation-message text="confirmation" />
             </act:before-execution>
@@ -16,15 +16,15 @@
             </act:after-execution>
             <act:action-ref actionId="act1" />
             <act:action-separator />
-        </act:action-entry>
-    </act:action-entry>
-    <act:action-entry componentName="test.perform" id="act1" order="100"/>
+        </act:action>
+    </act:action>
+    <act:action componentName="test.perform" id="act1" order="100"/>
 
     <act:tool-bar plugin="form.plugin" id="1">
-        <act:action-entry componentName="test.perform" id="t1"/>
+        <act:action componentName="test.perform" id="t1"/>
         <act:action-separator/>
         <act:action-ref actionId="id_value"/>
-        <act:action-entry componentName="sjhdfkjhs" groupId="t10"/>
+        <act:action componentName="sjhdfkjhs" groupId="t10"/>
     </act:tool-bar>
 
 </configuration>

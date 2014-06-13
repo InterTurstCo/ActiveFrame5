@@ -8,21 +8,8 @@ import org.simpleframework.xml.Element;
  *         Created on 15.04.2014 12:00.
  */
 @Element(name = "action-separator")
-public class ActionSeparatorConfig extends AbstractActionEntryConfig {
-    @Attribute(required = false)
-    private String id;
-
-    @Attribute(required = false)
-    private String style;
-
-    @Attribute(required = false)
-    private String styleClass;
-
-    @Attribute(required = false)
-    private boolean rendered = true;
-
-    @Attribute(required = false)
-    private Integer order;
+public class ActionSeparatorConfig extends AbstractActionConfig {
+    private static final String DEFAULT_COMPONENT_NAME = "action.separator";
 
     @Attribute(required = false)
     private boolean merged = false;
@@ -31,45 +18,11 @@ public class ActionSeparatorConfig extends AbstractActionEntryConfig {
     private String componentName;
 
     @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public String getGroupId() {
-        return null;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getStyle() {
-        return style;
-    }
-
-    public String getStyleClass() {
-        return styleClass;
-    }
-
-    public boolean isRendered() {
-        return rendered;
-    }
-
-    @Override
-    public Integer getOrder() {
-        return order;
-    }
-
-    public void setOrder(Integer order) {
-        this.order = order;
-    }
-
     public boolean isMerged() {
         return merged;
     }
 
     public String getComponentName() {
-        return componentName;
+        return componentName == null ? DEFAULT_COMPONENT_NAME : componentName;
     }
 }

@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.model.action;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 
 /**
  * @author Denis Mitavskiy
@@ -12,14 +12,14 @@ import ru.intertrust.cm.core.config.gui.ActionConfig;
 public class ActionContext implements Dto {
     private Id rootObjectId;
 
-    private ActionConfig actionConfig;
+    private AbstractActionConfig actionConfig;
 
     /**
      * Default constructor.
      */
     public ActionContext(){}
 
-    public ActionContext(final ActionConfig actionConfig) {
+    public ActionContext(final AbstractActionConfig actionConfig) {
         this.actionConfig = actionConfig;
     }
 
@@ -31,11 +31,11 @@ public class ActionContext implements Dto {
         this.rootObjectId = rootObjectId;
     }
 
-    public ActionConfig getActionConfig() {
-        return actionConfig;
+    public <T extends AbstractActionConfig> T getActionConfig() {
+        return (T) actionConfig;
     }
 
-    public void setActionConfig(ActionConfig actionConfig) {
+    public void setActionConfig(AbstractActionConfig actionConfig) {
         this.actionConfig = actionConfig;
     }
 }

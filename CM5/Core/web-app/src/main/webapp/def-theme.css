@@ -773,6 +773,7 @@ td.datePickerMonth {
     float: left;
     margin: 6px 0 0 10px;
     cursor: pointer;
+    height: 25px;
 }
 
 .decorated-action-link {

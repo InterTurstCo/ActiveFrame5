@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -17,14 +17,13 @@ import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
  *         Time: 15:18
  */
 @ComponentName("complete.task.action")
-public class CompleteTaskActionHandler extends ActionHandler {
+public class CompleteTaskActionHandler extends ActionHandler<CompleteTaskActionContext, ActionData> {
 
     @Autowired
-    private ProcessService processservice;    
-    
+    private ProcessService processservice;
+
     @Override
-    public <T extends ActionData> T executeAction(ActionContext context) {
-        CompleteTaskActionContext completeTaskActionContext = (CompleteTaskActionContext) context;
+    public ActionData executeAction(CompleteTaskActionContext completeTaskActionContext) {
         Id domainObjectId = completeTaskActionContext.getRootObjectId();
         if (domainObjectId == null) {
             throw new GuiException("Объект ещё не сохранён");
@@ -35,5 +34,10 @@ public class CompleteTaskActionHandler extends ActionHandler {
         processservice.completeTask(completeTaskActionContext.getTaskId(), null, completeTaskActionContext.getTaskAction());
         
         return null;
+    }
+
+    @Override
+    public CompleteTaskActionContext getActionContext() {
+        return new CompleteTaskActionContext();
     }
 }

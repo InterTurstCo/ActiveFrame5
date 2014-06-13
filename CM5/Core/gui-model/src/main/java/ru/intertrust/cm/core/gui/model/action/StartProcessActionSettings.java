@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.model.action;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
-import ru.intertrust.cm.core.config.gui.ActionSettings;
+import ru.intertrust.cm.core.config.gui.action.ActionSettings;
 
 @Root(name="start-process-action-settings")
 public class StartProcessActionSettings implements ActionSettings {

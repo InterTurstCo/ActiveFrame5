@@ -32,6 +32,8 @@
         <constructor-arg value=""/>
     </bean>
 
+    <bean id="actionConfigBuilder" class="ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder" scope="prototype"/>
+
     <bean id="formObjectsRemover" class="ru.intertrust.cm.core.gui.impl.server.form.FormObjectsRemover" scope="prototype">
         <constructor-arg value=""/>
     </bean>

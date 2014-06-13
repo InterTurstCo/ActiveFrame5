@@ -7,11 +7,9 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
-import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.GenerateReportActionContext;
 import ru.intertrust.cm.core.gui.model.action.GenerateReportActionData;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
@@ -28,24 +26,25 @@ import java.util.Map;
  *         Time: 15:05
  */
 @ComponentName("generate-report.action")
-public class GenerateReportActionHandler extends ActionHandler {
-
-    @Autowired
-    private GuiService guiService;
+public class GenerateReportActionHandler extends ActionHandler<GenerateReportActionContext, GenerateReportActionData> {
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
     @Override
-    public GenerateReportActionData executeAction(ActionContext context) {
-        GenerateReportActionContext reportContext = (GenerateReportActionContext) context;
-        FormState formState = reportContext.getFormState();
+    public GenerateReportActionData executeAction(GenerateReportActionContext context) {
+        FormState formState = context.getFormState();
 
         GenerateReportActionData actionData = new GenerateReportActionData();
-        actionData.setReportName(reportContext.getReportName());
+        actionData.setReportName(context.getReportName());
         actionData.setParams(buildParamsString(formState));
         return actionData;
+    }
+
+    @Override
+    public GenerateReportActionContext getActionContext() {
+        return new GenerateReportActionContext();
     }
 
     private Map<String, Value> buildParamsString(FormState formState) {

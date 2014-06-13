@@ -26,7 +26,7 @@ import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.*;
@@ -311,7 +311,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         formPluginConfig.setPluginState(fpState);
 
         FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
-        List<ActionContext> actionContexts = formPluginHandler.initialize(formPluginConfig).getActionContexts();
+        final ToolbarContext toolbarContext = formPluginHandler.initialize(formPluginConfig).getToolbarContext();
 
         // нужно получить инициализацию формы поиска
         //ExtendedSearchFormPluginHandler extendedSearchFormPluginHandler = (ExtendedSearchFormPluginHandler)
@@ -319,7 +319,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
         FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
         formPluginData.setPluginState(formPluginConfig.getPluginState());
-        formPluginData.setActionContexts(actionContexts);
+        formPluginData.setToolbarContext(toolbarContext);
 
         DomainObjectSurferPluginData result = new DomainObjectSurferPluginData();
         DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
@@ -336,7 +336,6 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         result.setDomainObjectSurferConfig(domainObjectSurferConfig);
         result.setCollectionPluginData(collectionPluginData);
         result.setFormPluginData(formPluginData);
-        result.setActionContexts(actionContexts);
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(true);
         result.setPluginState(dosState);

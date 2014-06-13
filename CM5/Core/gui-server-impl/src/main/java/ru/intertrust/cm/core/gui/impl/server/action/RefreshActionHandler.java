@@ -4,15 +4,13 @@ import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.SendProcessEventActionContext;
 
 /**
- * @author Denis Mitavskiy
- *         Date: 23.10.13
- *         Time: 15:19
+ * @author Sergey.Okolot
+ *         Created on 09.06.2014 13:42.
  */
-@ComponentName("send.process.event.action")
-public class SendProcessEventActionHandler extends ActionHandler<ActionContext, ActionData> {
+@ComponentName("refresh.action")
+public class RefreshActionHandler extends ActionHandler<ActionContext, ActionData> {
 
     @Override
     public ActionData executeAction(ActionContext context) {
@@ -21,6 +19,6 @@ public class SendProcessEventActionHandler extends ActionHandler<ActionContext, 
 
     @Override
     public ActionContext getActionContext() {
-        return new SendProcessEventActionContext();
+        return new ActionContext();
     }
 }

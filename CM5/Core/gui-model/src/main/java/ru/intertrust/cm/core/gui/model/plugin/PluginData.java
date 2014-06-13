@@ -9,4 +9,14 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public abstract class PluginData implements Dto {
 
+    private PluginState pluginState;
+
+    public PluginState getPluginState() {
+        return pluginState;
+    }
+
+    public void setPluginState(PluginState pluginState) {
+        this.pluginState = pluginState;
+    }
+
 }

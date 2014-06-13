@@ -1,10 +1,11 @@
 package ru.intertrust.cm.core.gui.api.server;
 
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+
+import java.util.List;
 
 /**
  * Данный сервис отдает доступные действия для текущего контекста (типа
@@ -34,4 +35,5 @@ public interface ActionService {
      */
     ToolBarConfig getDefaultToolbarConfig(String pluginName);
 
+    ActionConfig getActionConfig(String name);
 }

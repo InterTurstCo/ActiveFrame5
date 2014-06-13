@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -48,8 +49,8 @@ public abstract class Action extends BaseComponent {
      * Возвращает конфигурацию данного действия
      * @return конфигурация данного действия
      */
-    public ActionContext getInitialContext() {
-        return initialContext;
+    public <T extends ActionContext> T getInitialContext() {
+        return (T) initialContext;
     }
 
     /**
@@ -63,7 +64,9 @@ public abstract class Action extends BaseComponent {
     public abstract void execute();
 
     public boolean shouldBeValidated() {
-        return initialContext.getActionConfig() != null && initialContext.getActionConfig().isValidate();
+        ActionConfig config =
+                initialContext.getActionConfig() == null ? null : (ActionConfig) initialContext.getActionConfig();
+        return config != null && !config.isImmediate();
     }
 
     public boolean isValid() {

@@ -23,7 +23,6 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
-import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.api.server.plugin;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;

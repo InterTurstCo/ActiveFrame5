@@ -3,27 +3,27 @@
               xmlns:act="https://cm5.intertrust.ru/config/action">
 
 
-    <act:action-entry componentName="action.navigation.one" type="navigable"/>
-    <act:action-entry componentName="action.workflow.one" type="workflow"/>
-    <act:action-entry componentName="action.navigation.two" type="navigable"/>
-    <act:action-entry componentName="action.perform.two" type="perform"/>
+    <act:action componentName="action.navigation.one" type="navigable"/>
+    <act:action componentName="action.workflow.one" type="workflow"/>
+    <act:action componentName="action.navigation.two" type="navigable"/>
+    <act:action componentName="action.perform.two" type="perform"/>
     <act:action-ref actionId="actionIdOne"/>
     <act:action-separator/>
 
-    <act:action-entry componentName="action.navigation.three" type="workflow">
-        <act:action-entry componentName="action.navigation.three.one" type="navigable"/>
+    <act:action componentName="action.navigation.three" type="workflow">
+        <act:action componentName="action.navigation.three.one" type="navigable"/>
         <act:action-separator  />
-        <act:action-entry componentName="action.workflow.one"/>
-        <act:action-entry componentName="action.navigation.three.two" type="perform"/>
-        <act:action-entry componentName="action.perform.two" type="perform"/>
-    </act:action-entry>
+        <act:action componentName="action.workflow.one"/>
+        <act:action componentName="action.navigation.three.two" type="perform"/>
+        <act:action componentName="action.perform.two" type="perform"/>
+    </act:action>
 
     <act:facet name="right">
-        <act:action-entry componentName="action.navigable.one"/>
-        <act:action-entry componentName="action.navigable.two">
-            <act:action-entry componentName="action.navigable.two.one"/>
+        <act:action componentName="action.navigable.one"/>
+        <act:action componentName="action.navigable.two">
+            <act:action componentName="action.navigable.two.one"/>
             <act:action-separator/>
-            <act:action-entry componentName="action.navigable.two.two"/>
-        </act:action-entry>
+            <act:action componentName="action.navigable.two.two"/>
+        </act:action>
     </act:facet>
 </act:tool-bar>

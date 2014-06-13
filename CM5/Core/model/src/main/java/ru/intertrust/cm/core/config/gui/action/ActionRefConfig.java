@@ -8,7 +8,7 @@ import org.simpleframework.xml.Element;
  *         Created on 15.04.2014 12:28.
  */
 @Element(name = "action-ref")
-public class ActionRefConfig extends AbstractActionEntryConfig {
+public class ActionRefConfig extends AbstractActionConfig {
 
     @Attribute(name = "actionId")
     private String actionId;
@@ -18,9 +18,6 @@ public class ActionRefConfig extends AbstractActionEntryConfig {
 
     @Attribute(name = "showImage", required = false)
     private boolean showImage = true;
-
-    @Attribute(name = "order", required = false)
-    private Integer order;
 
     public String getActionId() {
         return actionId;
@@ -35,22 +32,9 @@ public class ActionRefConfig extends AbstractActionEntryConfig {
     }
 
     @Override
-    public Integer getOrder() {
-        return order;
-    }
-
-    @Override
-    public boolean isRendered() {
-        return true;
-    }
-
-    @Override
-    public String getId() {
-        return null;
-    }
-
-    @Override
-    public String getGroupId() {
-        return null;
+    public String toString() {
+        return new StringBuilder(ActionRefConfig.class.getSimpleName())
+                .append(": actionId=").append(actionId)
+                .toString();
     }
 }
