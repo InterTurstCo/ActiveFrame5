@@ -1,8 +1,26 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.InputStream;
@@ -23,7 +41,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
@@ -41,15 +58,18 @@ import ru.intertrust.cm.core.config.search.ParentLinkConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 public class DomainObjectIndexAgentTest {
 
     @Mock private SolrUpdateRequestQueue requestQueue;
     @Mock private SearchConfigHelper configHelper;
     @Mock private DoelEvaluator doelEvaluator;
-    @Mock private CrudService crudService;
+    @Mock private DomainObjectDao domainObjectDao;
+    
     @Mock private AccessControlService accessControlService;
     @Mock private AttachmentContentDao attachmentContentDao;
 
@@ -57,6 +77,18 @@ public class DomainObjectIndexAgentTest {
     DomainObjectIndexAgent testee = new DomainObjectIndexAgent();
 
     @Captor ArgumentCaptor<Collection<SolrInputDocument>> documents;// = ArgumentCaptor.forClass(Collection.class);
+
+    AccessToken mockToken = new AccessToken() {
+        @Override
+        public Subject getSubject() {
+            return null;
+        }
+
+        @Override
+        public boolean isDeferred() {
+            return false;
+        }
+    };
 
     @Before
     public void init() {
@@ -114,7 +146,8 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.getSupportedLanguages(eq("RuStringField"), anyString())).thenReturn(Arrays.asList("ru"));
         when(configHelper.getSupportedLanguages(eq("RuEnGeTextField"), anyString())).thenReturn(
                 Arrays.asList("ru", "en", "ge"));
-        when(accessControlService.createSystemAccessToken(anyString())).thenAnswer(RETURNS_MOCKS);
+
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
         // Модель сохраняемого объекта и его изменений
         DomainObject object = mock(DomainObject.class);
@@ -133,7 +166,8 @@ public class DomainObjectIndexAgentTest {
         when(doelEvaluator.evaluate(eq(DoelExpression.parse("doel^multiple.strings")), same(id),
                 Mockito.any(AccessToken.class))).thenReturn(Arrays.asList(
                         (Value) new StringValue("String 1"), new StringValue("String 2"), new StringValue("String 3")));
-        when(crudService.find(id)).thenReturn(object);
+        
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
 
         // Вызов тестируемого метода
         testee.onAfterSave(object, Arrays.asList(modMock, modMock, modMock));
@@ -191,7 +225,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.getFieldType(same(stringField), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(accessControlService.createSystemAccessToken(anyString())).thenAnswer(RETURNS_MOCKS);
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
         // Модель сохраняемого объекта и его изменений
         DomainObject object = mock(DomainObject.class);
@@ -206,8 +240,8 @@ public class DomainObjectIndexAgentTest {
         when(parent.getTypeName()).thenReturn("TargetType");
         when(doelEvaluator.evaluate(eq(DoelExpression.parse("doel.parent.link")), same(id),
                 Mockito.any(AccessToken.class))).thenReturn(Arrays.asList((Value) new ReferenceValue(parentId)));
-        when(crudService.find(id)).thenReturn(object);
-        when(crudService.find(parentId)).thenReturn(parent);
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
+        when(domainObjectDao.find(parentId, mockToken)).thenReturn(parent);
 
         // Вызов тестируемого метода
         testee.onAfterSave(object, Arrays.asList(modMock));
@@ -252,7 +286,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.getFieldType(same(stringField), anyString()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(accessControlService.createSystemAccessToken(anyString())).thenAnswer(RETURNS_MOCKS);
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
         // Модель сохраняемого объекта и его изменений
         DomainObject object = mock(DomainObject.class);
@@ -264,7 +298,7 @@ public class DomainObjectIndexAgentTest {
         when(modMock.getName()).thenReturn("TestField");
         when(doelEvaluator.evaluate(eq(DoelExpression.parse("doel.parent.link")), same(id),
                 Mockito.any(AccessToken.class))).thenReturn(Arrays.asList(new Value[0]));
-        when(crudService.find(id)).thenReturn(object);
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
 
         // Вызов тестируемого метода
         testee.onAfterSave(object, Arrays.asList(modMock));
@@ -317,7 +351,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.isSuitableType("ParentNotFit", "ParentType")).thenReturn(false);
         when(configHelper.getFieldType(same(field), anyString(), any()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.LONG));
-        when(accessControlService.createSystemAccessToken(anyString())).thenAnswer(RETURNS_MOCKS);
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
         // Модель сохраняемого объекта и его изменений
         DomainObject object = mock(DomainObject.class);
@@ -332,8 +366,8 @@ public class DomainObjectIndexAgentTest {
         Id parentId = idMock("ParentId");
         when(doelEvaluator.evaluate(eq(DoelExpression.parse("doel.parent.link")), same(id),
                 Mockito.any(AccessToken.class))).thenReturn(Arrays.asList((Value) new ReferenceValue(parentId)));
-        when(crudService.find(id)).thenReturn(object);
-        when(crudService.find(parentId)).thenReturn(parentObject);
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
+        when(domainObjectDao.find(parentId, mockToken)).thenReturn(parentObject);
 
         // Вызов тестируемого метода
         testee.onAfterSave(object, Arrays.asList(modMock));
@@ -412,7 +446,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.getFieldType(Mockito.any(IndexedFieldConfig.class), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(accessControlService.createSystemAccessToken(anyString())).thenAnswer(RETURNS_MOCKS);
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
         // Модель сохраняемого объекта и его изменений
         DomainObject object = mock(DomainObject.class);
@@ -430,8 +464,8 @@ public class DomainObjectIndexAgentTest {
         when(parentObject.getTypeName()).thenReturn("ParentType");
         when(doelEvaluator.evaluate(eq(DoelExpression.parse("doel.parent.link")), same(id),
                 Mockito.any(AccessToken.class))).thenReturn(Arrays.asList((Value) new ReferenceValue(parentId)));
-        when(crudService.find(id)).thenReturn(object);
-        when(crudService.find(parentId)).thenReturn(parentObject);
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
+        when(domainObjectDao.find(parentId, mockToken)).thenReturn(parentObject);
 
         // Вызов тестируемого метода
         testee.onAfterSave(object, Arrays.asList(modMock));
@@ -501,7 +535,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(true);
         when(configHelper.isSuitableType("TargetType", "TargetType")).thenReturn(true);
         when(configHelper.getAttachmentParentLinkName("TestType", "TargetType")).thenReturn("ParentLink");
-        when(accessControlService.createSystemAccessToken(anyString())).thenAnswer(RETURNS_MOCKS);
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
         // Модель сохраняемого объекта и его изменений
         DomainObject object = mock(DomainObject.class);
@@ -516,11 +550,14 @@ public class DomainObjectIndexAgentTest {
         when(object.getReference("ParentLink")).thenReturn(parentId);
         DomainObject parent = mock(DomainObject.class);
         when(parent.getTypeName()).thenReturn("TargetType");
+        
         FieldModification modMock = mock(FieldModification.class);
         when(modMock.getName()).thenReturn(BaseAttachmentService.NAME);
         InputStream contentMock = mock(InputStream.class);
         when(attachmentContentDao.loadContent(Mockito.any(DomainObject.class))).thenReturn(contentMock);
-        when(crudService.find(parentId)).thenReturn(parent);
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
+        when(domainObjectDao.find(parentId, mockToken)).thenReturn(parent);
+        
 
         // Вызов тестируемого метода
         testee.onAfterSave(object, Arrays.asList(modMock));
