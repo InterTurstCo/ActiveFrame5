@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.ScriptService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
@@ -43,6 +42,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
@@ -73,8 +73,8 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     private DoelEvaluator doelEvaluator;
 
     @Autowired
-    private CrudService crudService;
-
+    private DomainObjectDao domainObjectDao;
+    
     @Autowired
     private AccessControlService accessControlService;
     
@@ -221,7 +221,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             ArrayList<ReferenceValue> refs = new ArrayList<>();
             for (Iterator<Id> itr = ids.iterator(); itr.hasNext(); ) {
                 Id id = itr.next();
-                DomainObject object = crudService.find(id);
+                DomainObject object = domainObjectDao.find(id, accessToken);
                 if (!configHelper.isSuitableType(config.getType(), object.getTypeName())) {
                     itr.remove();
                     continue;
