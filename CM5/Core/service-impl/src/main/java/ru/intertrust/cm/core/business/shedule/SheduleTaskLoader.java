@@ -66,6 +66,9 @@ public class SheduleTaskLoader implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    public void initialize() {
         initReestr();
         initStorage();
     }

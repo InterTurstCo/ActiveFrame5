@@ -93,8 +93,7 @@
           class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl" />
 
     <bean id="domainObjectTypeIdCache"
-          class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdCacheImpl"
-          init-method="build" depends-on="configurationLoader" />
+          class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdCacheImpl" />
 
     <bean id="domainObjectCacheService"
           class="ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl" />

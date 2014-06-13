@@ -14,14 +14,15 @@
 
     <aop:aspectj-autoproxy/>
 
-    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"
+    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader"
           depends-on="springApplicationContext"/>
 
-    <bean id="initialDataLoader" class="ru.intertrust.cm.core.business.impl.InitialDataLoader" init-method="load"
+    <bean id="initialDataLoader" class="ru.intertrust.cm.core.business.impl.InitialDataLoader"
           depends-on="configurationLoader" p:dataSource-ref="dataSource"/>
 
-    <bean id="configurationLoadService"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationLoadServiceImpl"/>
+    <jee:local-slsb id="configurationLoadService"
+                    jndi-name="java:module/ConfigurationLoadServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationLoadService"
+                    business-interface="ru.intertrust.cm.core.business.api.ConfigurationLoadService"/>
 
     <jee:local-slsb id="crudService"
                     jndi-name="java:module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
@@ -81,9 +82,9 @@
 
     <bean id="sheduleTaskLoader" class="ru.intertrust.cm.core.business.shedule.SheduleTaskLoader"/>
 
-    <bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData" init-method="onLoad"/>
+    <bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData"/>
 
-    <bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData" init-method="onLoad">
+    <bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData">
         <property name="reportServiceAdmin">
             <bean id="reportServiceAdmin"
                   class="ru.intertrust.cm.core.business.impl.ReportServiceAdminImpl">

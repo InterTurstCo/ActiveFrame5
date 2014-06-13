@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationException;
@@ -20,6 +21,8 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.model.FatalException;
 
+import javax.ejb.*;
+import javax.interceptor.Interceptors;
 import java.util.*;
 
 /**
@@ -28,7 +31,12 @@ import java.util.*;
  *         Date: 5/15/13
  *         Time: 4:32 PM
  */
-public class ConfigurationLoadServiceImpl implements ConfigurationLoadService {
+@Stateless
+@Local(ConfigurationLoadService.class)
+@Remote(ConfigurationLoadService.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
+@TransactionManagement(TransactionManagementType.BEAN)
+public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, ConfigurationLoadService.Remote {
 
     private static final String COMMON_ERROR_MESSAGE = "It's only allowed to add some new configuration " +
             "but not to modify or delete the existing one.";
