@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.model.action;
 
 import org.simpleframework.xml.Attribute;
 
-import ru.intertrust.cm.core.config.gui.ActionSettings;
+import ru.intertrust.cm.core.config.gui.action.ActionSettings;
 
 public class CompleteTaskActionSettings implements ActionSettings {
 

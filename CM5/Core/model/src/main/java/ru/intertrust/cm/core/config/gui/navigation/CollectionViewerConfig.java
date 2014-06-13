@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchCollectionRefConfig;
 
@@ -15,7 +16,7 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 @Root(name = "collection-viewer")
-public class CollectionViewerConfig extends PluginConfig{
+public class CollectionViewerConfig extends PluginConfig {
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
 
@@ -38,6 +39,9 @@ public class CollectionViewerConfig extends PluginConfig{
 
     @Element(name = "filter-panel", required = false)
     private FilterPanelConfig filterPanelConfig;
+
+    @Element(name = "tool-bar", required = false)
+    private ToolBarConfig toolBarConfig;
 
     private boolean displayChosenValues = true;
 
@@ -139,6 +143,10 @@ public class CollectionViewerConfig extends PluginConfig{
 
     public void setFilterValue(String filterValue) {
         this.filterValue = filterValue;
+    }
+
+    public ToolBarConfig getToolBarConfig() {
+        return toolBarConfig;
     }
 
     @Override

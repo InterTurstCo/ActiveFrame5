@@ -1,14 +1,10 @@
 package ru.intertrust.cm.core.config.gui.action;
 
+import org.simpleframework.xml.*;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
+
 import java.util.Collections;
 import java.util.List;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.ElementListUnion;
-import org.simpleframework.xml.Root;
-
-import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 /**
  * @author Sergey.Okolot
@@ -27,11 +23,11 @@ public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig
     private boolean useDefault = true;
 
     @ElementListUnion({
-            @ElementList(entry = "action-entry", type = ActionEntryConfig.class, inline = true, required = false),
+            @ElementList(entry = "action", type = ActionConfig.class, inline = true, required = false),
             @ElementList(entry = "action-ref", type = ActionRefConfig.class, inline = true, required = false),
             @ElementList(entry = "action-separator", type = ActionSeparatorConfig.class, inline = true, required = false)
     })
-    private List<AbstractActionEntryConfig> actions;
+    private List<AbstractActionConfig> actions;
 
     @Element(name = "facet", required = false)
     private ToolbarRightFacetConfig rightFacetConfig;
@@ -56,15 +52,11 @@ public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig
         return useDefault;
     }
 
-    public void setUseDefault(boolean useDefault) {
-        this.useDefault = useDefault;
-    }
-
-    public List<AbstractActionEntryConfig> getActions() {
+    public List<AbstractActionConfig> getActions() {
         return actions == null ? Collections.EMPTY_LIST : actions;
     }
 
-    public void setActions(List<AbstractActionEntryConfig> actions) {
+    public void setActions(List<AbstractActionConfig> actions) {
         this.actions = actions;
     }
 
@@ -74,6 +66,10 @@ public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig
 
     public void setRightFacetConfig(ToolbarRightFacetConfig rightFacetConfig) {
         this.rightFacetConfig = rightFacetConfig;
+    }
+
+    public boolean isRendered() {
+        return Boolean.valueOf(getRendered());
     }
 
     @Override

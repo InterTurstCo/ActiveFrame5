@@ -19,21 +19,21 @@ public class ToolbarRightFacetConfig implements Serializable {
     private String name;
 
     @ElementListUnion({
-            @ElementList(entry = "action-entry", type = ActionEntryConfig.class, inline = true, required = false),
+            @ElementList(entry = "action", type = ActionConfig.class, inline = true, required = false),
             @ElementList(entry = "action-ref", type = ActionRefConfig.class, inline = true, required = false),
             @ElementList(entry = "action-separator", type = ActionSeparatorConfig.class, inline = true, required = false)
     })
-    private List<AbstractActionEntryConfig> actions;
+    private List<AbstractActionConfig> actions;
 
     public String getName() {
         return name;
     }
 
-    public List<AbstractActionEntryConfig> getActions() {
+    public List<AbstractActionConfig> getActions() {
         return actions == null ? Collections.EMPTY_LIST : actions;
     }
 
-    public void setActions(List<AbstractActionEntryConfig> actions) {
+    public void setActions(List<AbstractActionConfig> actions) {
         this.actions = actions;
     }
 }

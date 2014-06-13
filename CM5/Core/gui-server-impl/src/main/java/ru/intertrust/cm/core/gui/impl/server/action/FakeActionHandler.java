@@ -1,19 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
-import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.SendProcessEventActionContext;
 
 /**
- * @author Denis Mitavskiy
- *         Date: 23.10.13
- *         Time: 15:19
+ * @author Sergey.Okolot
+ *         Created on 11.06.2014 9:08.
  */
-@ComponentName("send.process.event.action")
-public class SendProcessEventActionHandler extends ActionHandler<ActionContext, ActionData> {
-
+public class FakeActionHandler extends ActionHandler<ActionContext, ActionData> {
     @Override
     public ActionData executeAction(ActionContext context) {
         return null;
@@ -21,6 +16,11 @@ public class SendProcessEventActionHandler extends ActionHandler<ActionContext, 
 
     @Override
     public ActionContext getActionContext() {
-        return new SendProcessEventActionContext();
+        return new ActionContext();
+    }
+
+    @Override
+    public HandlerStatusData getCheckStatusData() {
+        return null;
     }
 }

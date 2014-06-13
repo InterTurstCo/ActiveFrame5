@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<configuration xmlns="https://cm5.intertrust.ru/config">
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
 
     <collection name="Tasks" idField="mainattachment">
         <prototype>
@@ -441,11 +442,11 @@
         </widget-config>
     </form>
 
-    <action name="start-internal-document-process" component="start.process.action"
+    <act:action name="start-internal-document-process" componentName="start.process.action"
         text="Отправить на согласование" image="sign.png">
-        <before-execution>
+        <act:before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
-            <confirmation-message text="Отправить на согласование?" />
+            <act:confirmation-message text="Отправить на согласование?" />
 
             <!-- Доменный объект, который требуется создать перед выполнением 
                 данного действия. При этом перед выполнением открывается форма редактирования 
@@ -458,23 +459,23 @@
                 требуется ли сохранять доменный объект контекста действия (открытый доменный 
                 объект) перед выполнением -->
             <!-- save-context value="false" /-->
-        </before-execution>
+        </act:before-execution>
 
-        <after-execution>
+        <act:after-execution>
             <!-- Текст-подтверждение после выполнения данного действия -->
-            <on-success-message text="Документ подписан" />
-        </after-execution>
-        <action-settings>
-            <start-process-action-settings process-name="InternalDocument" />
-        </action-settings>
-    </action>
+            <act:on-success-message text="Документ подписан" />
+        </act:after-execution>
+        <act:action-settings>
+            <act:start-process-action-settings process-name="InternalDocument" />
+        </act:action-settings>
+    </act:action>
 
-    <action-context name="start-internal-document-process-context">
-        <domain-object-context>
-            <type>Internal_Document</type>
-            <status>Draft</status>
-        </domain-object-context>
-        <action name="start-internal-document-process" />
-    </action-context>
+    <act:action-context name="start-internal-document-process-context">
+        <act:domain-object-context>
+            <act:type>Internal_Document</act:type>
+            <act:status>Draft</act:status>
+        </act:domain-object-context>
+        <act:action name="start-internal-document-process" />
+    </act:action-context>
 
 </configuration>

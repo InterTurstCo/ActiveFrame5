@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -192,8 +192,8 @@ public abstract class Plugin extends BaseComponent {
         }
     }
 
-    public void setActionContexts(List<ActionContext> actionContexts) {
-        ((ActivePluginData) this.initialData).setActionContexts(actionContexts);
+    public void setToolbarContext(ToolbarContext context) {
+        ((ActivePluginData) this.initialData).setToolbarContext(context);
         getView().updateActionToolBar();
     }
 

@@ -49,7 +49,7 @@ public class SaveAction extends SimpleServerAction {
         Plugin plugin = getPlugin();
         if (plugin.getLocalEventBus() != null) {
             ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
-            plugin.setActionContexts(formPluginData.getActionContexts());
+            plugin.setToolbarContext(formPluginData.getToolbarContext());
             // вызываем событие обновления коллекции
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));

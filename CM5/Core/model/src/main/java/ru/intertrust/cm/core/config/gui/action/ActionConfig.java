@@ -1,25 +1,21 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import java.util.Collections;
-import java.util.List;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.ElementListUnion;
-import org.simpleframework.xml.ElementUnion;
-import org.simpleframework.xml.Root;
+import org.simpleframework.xml.*;
 import org.simpleframework.xml.convert.Convert;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ActionDisplayTypeConverter;
 import ru.intertrust.cm.core.config.converter.ActionTypeConverter;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
- * @author Sergey.Okolot
- *         Created on 14.04.2014 17:21.
+ * @author Denis Mitavskiy
+ *         Date: 22.08.13
+ *         Time: 16:02
  */
-@Root(name = "action-entry")
-public class ActionEntryConfig extends AbstractActionEntryConfig implements TopLevelConfig, Cloneable {
+@Root(name="action")
+public class ActionConfig extends AbstractActionConfig implements TopLevelConfig {
 
     @Element(name = "before-execution", required = false)
     private BeforeActionExecutionConfig beforeConfig;
@@ -27,29 +23,21 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
     @Element(name = "after-execution", required = false)
     private AfterActionExecutionConfig afterConfig;
 
-    @Attribute(required = false)
-    private String id;
+    @Element(name="action-settings", required = false)
+    @Convert(ActionSettingsConverter.class)
+    private ActionSettings actionSettings;
 
     @Attribute(required = false)
-    private String style;
-
-    @Attribute(required = false)
-    private String styleClass;
-
-    @Attribute(required = false)
-    private String addStyleClass;
-
-    @Attribute(required = false)
-    private boolean rendered = true;
-
-    @Attribute(required = false)
-    private Integer order;
+    private int weight;
 
     @Attribute(required = false)
     private boolean merged = false;
 
-    @Element(required = false)
+    @Attribute(required = false)
     private boolean disabled = false;
+
+    @Attribute(name = "name", required = false)
+    private String name;
 
     @Attribute(name = "componentName")
     private String componentName;
@@ -57,8 +45,8 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
     @Attribute(required = false)
     private String text;
 
-    @Attribute(required = false)
-    private String image;
+    @Attribute(name = "image", required = false)
+    private String imageUrl;
 
     @Attribute(required = false)
     private String tooltip;
@@ -84,11 +72,25 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
     private boolean dirtySensitivity = true;
 
     @ElementListUnion({
-            @ElementList(entry = "action-entry", type = ActionEntryConfig.class, inline = true, required = false),
+            @ElementList(entry = "action", type = ActionConfig.class, inline = true, required = false),
             @ElementList(entry = "action-ref", type = ActionRefConfig.class, inline = true, required = false),
             @ElementList(entry = "action-separator", type = ActionSeparatorConfig.class, inline = true, required = false)
     })
-    private List<AbstractActionEntryConfig> children;
+    private List<AbstractActionConfig> children;
+
+    /**
+     * Default constructor to support GWT serialization
+     */
+    public ActionConfig() {}
+
+    public ActionConfig(final String componentName) {
+        this(componentName, null);
+    }
+
+    public ActionConfig(final String componentName, final String name) {
+        this.componentName = componentName;
+        this.name = name;
+    }
 
     public BeforeActionExecutionConfig getBeforeConfig() {
         return beforeConfig;
@@ -98,42 +100,27 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
         return afterConfig;
     }
 
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public String getStyle() {
-        return style;
-    }
-
-    public String getStyleClass() {
-        return styleClass;
-    }
-
-    public String getAddStyleClass() {
-        return addStyleClass;
-    }
-
-    public boolean isRendered() {
-        return rendered;
+    public ActionSettings getActionSettings() {
+        return actionSettings;
     }
 
     @Override
-    public Integer getOrder() {
-        return order;
+    public int getWeight() {
+        return weight;
     }
 
-    public void setOrder(final Integer order) {
-        this.order = order;
-    }
-
+    @Override
     public boolean isMerged() {
         return merged;
     }
 
     public boolean isDisabled() {
         return disabled;
+    }
+
+    @Override
+    public String getName() {
+        return name == null ? getId() : name;
     }
 
     public String getComponentName() {
@@ -144,20 +131,24 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
         return text;
     }
 
-    public void clearText() {
-        text = null;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void clearImage() {
-        image = null;
+    public void setImageUrl(final String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getTooltip() {
-        return tooltip;
+        return tooltip == null ? text : tooltip;
+    }
+
+    public void setTooltip(String tooltip) {
+        this.tooltip = tooltip;
     }
 
     public boolean isImmediate() {
@@ -172,11 +163,14 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
         return display;
     }
 
+    public void setDisplay(ActionDisplayType display) {
+        this.display = display;
+    }
+
     public ActionType getType() {
         return type;
     }
 
-    @Override
     public String getGroupId() {
         return groupId;
     }
@@ -185,22 +179,7 @@ public class ActionEntryConfig extends AbstractActionEntryConfig implements TopL
         return dirtySensitivity;
     }
 
-    public List<AbstractActionEntryConfig> getChildren() {
+    public List<AbstractActionConfig> getChildren() {
         return children == null ? Collections.EMPTY_LIST : children;
-    }
-
-    @Override
-    public String getName() {
-        return id;
-    }
-
-    @Override
-    public ActionEntryConfig clone() {
-        try {
-            final ActionEntryConfig result = (ActionEntryConfig) super.clone();
-            return result;
-        } catch (CloneNotSupportedException cnse) {
-            throw new RuntimeException(cnse);
-        }
     }
 }

@@ -5,14 +5,15 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
+import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
@@ -21,8 +22,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.SaveToCSVContext;
+import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
@@ -38,8 +38,9 @@ import java.util.*;
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
-@ComponentName("collection.plugin")
+@ComponentName(CollectionPluginHandler.COMPONENT_NAME)
 public class CollectionPluginHandler extends ActivePluginHandler {
+    static final String COMPONENT_NAME = "collection.plugin";
 
     private static final int INIT_ROWS_NUMBER = 25;
 
@@ -53,7 +54,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     SearchService searchService;
 
     @Autowired
+    private GuiService guiService;
+
+    @Autowired
     DefaultImageMapperImpl defaultImageMapper;
+    @Autowired
+    private ActionConfigBuilder actionConfigBuilder;
 
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
@@ -112,10 +118,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         } else {
             pluginData.setSearchArea("");
         }
-        List<ActionContext> activeContexts = new ArrayList<ActionContext>();
-        activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig(
-                "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-csv_download.png")));
-        pluginData.setActionContexts(activeContexts);
+        pluginData.setToolbarContext(getToolbarContext(collectionViewerConfig));
         return pluginData;
     }
 
@@ -139,11 +142,32 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setDomainObjectFieldPropertiesMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
-        List<ActionContext> activeContexts = new ArrayList<ActionContext>();
-        activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig(
-                "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-csv_download.png")));
-        pluginData.setActionContexts(activeContexts);
+        pluginData.setToolbarContext(getToolbarContext(collectionViewerConfig));
         return pluginData;
+    }
+
+    private ToolbarContext getToolbarContext(final CollectionViewerConfig viewerConfig) {
+        final Map<String, Object> collectionParams = new HashMap<>();
+        final ToolBarConfig toolbarConfig =
+                viewerConfig.getToolBarConfig() == null ? new ToolBarConfig() : viewerConfig.getToolBarConfig();
+        ToolBarConfig defaultToolbarConfig;
+        if (toolbarConfig.isRendered() && toolbarConfig.isUseDefault()) {
+            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME);
+        } else {
+            defaultToolbarConfig = null;
+        }
+        if (defaultToolbarConfig == null) {
+            defaultToolbarConfig = new ToolBarConfig();
+        }
+        final ToolbarContext result = new ToolbarContext();
+        actionConfigBuilder.appendConfigs(defaultToolbarConfig.getActions(), collectionParams);
+        actionConfigBuilder.appendConfigs(toolbarConfig.getActions(), collectionParams);
+        result.setContexts(actionConfigBuilder.getActionContexts(), ToolbarContext.FacetName.LEFT);
+        actionConfigBuilder.clear();
+        actionConfigBuilder.appendConfigs(defaultToolbarConfig.getRightFacetConfig().getActions(), collectionParams);
+        actionConfigBuilder.appendConfigs(toolbarConfig.getRightFacetConfig().getActions(), collectionParams);
+        result.setContexts(actionConfigBuilder.getActionContexts(), ToolbarContext.FacetName.RIGHT);
+        return result;
     }
 
     private Collection<CollectionViewConfig> getCollectionOfViewConfigs() {

@@ -47,5 +47,4 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         result.setPluginState(dosState);
         return result;
     }
-
 }

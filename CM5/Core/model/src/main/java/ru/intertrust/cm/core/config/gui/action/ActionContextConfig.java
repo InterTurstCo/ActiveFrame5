@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.gui;
+package ru.intertrust.cm.core.config.gui.action;
 
 import java.util.List;
 
@@ -7,6 +7,7 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
 
 @Root(name="action-context")
 public class ActionContextConfig implements TopLevelConfig{

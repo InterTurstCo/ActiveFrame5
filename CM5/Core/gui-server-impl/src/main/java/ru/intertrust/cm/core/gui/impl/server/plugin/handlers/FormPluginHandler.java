@@ -3,46 +3,50 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.gui.ValidatorConfig;
-import ru.intertrust.cm.core.config.gui.action.AbstractActionEntryConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
-import ru.intertrust.cm.core.config.gui.action.ToolbarRightFacetConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.PluginActionEntryContext;
-import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
+ * Возможные состояния формы
+ * full-screen
+ * toggle-edit
+ * preview
+ *
  * @author Denis Mitavskiy
  *         Date: 23.08.13
  *         Time: 13:22
  */
 @ComponentName(FormPluginHandler.COMPONENT_NAME)
 public class FormPluginHandler extends ActivePluginHandler {
-    protected static final String COMPONENT_NAME = "form.plugin";
+    static final String COMPONENT_NAME = "form.plugin";
     @Autowired
     private GuiService guiService;
+    @Autowired
+    private ActionConfigBuilder actionConfigBuilder;
+
 
     public FormPluginData initialize(Dto initialData) {
-        FormPluginConfig config = (FormPluginConfig) initialData;
-        FormDisplayData form = getFormDisplayData(config) ;
+        final FormPluginConfig formPluginConfig = (FormPluginConfig) initialData;
+        FormDisplayData form = getFormDisplayData(formPluginConfig) ;
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
-        pluginData.setPluginState(config.getPluginState());
-        pluginData.setActionContexts(getActions(config));
-        PluginActionEntryContext actionEntryContext = getPluginActionEntryContext(form);
+        pluginData.setPluginState(formPluginConfig.getPluginState());
+        ToolbarContext toolbarContext = getActionContexts(formPluginConfig, form);
+        pluginData.setToolbarContext(toolbarContext);
         return pluginData;
     }
 
@@ -62,8 +66,8 @@ public class FormPluginHandler extends ActivePluginHandler {
 
     }
 
-    private List<ActionContext> getActions(FormPluginConfig config) {
-        final List<ActionContext> actions = getActionContexts(config.getPluginState());
+    private ToolbarContext getActionContexts(final FormPluginConfig config, final FormDisplayData form) {
+        final ToolbarContext toolbarContext = getToolbarContexts(config.getPluginState(), form);
 
         final List<ActionContext> otherActions;
         if (config.getDomainObjectId() != null) {
@@ -72,80 +76,35 @@ public class FormPluginHandler extends ActivePluginHandler {
             otherActions = actionService.getActions(config.getDomainObjectTypeToCreate());
         }
         if (otherActions != null && !otherActions.isEmpty()) {
-            actions.addAll(otherActions);
+            toolbarContext.addContexts(otherActions, ToolbarContext.FacetName.LEFT);
         }
-        return actions;
+        return toolbarContext;
     }
 
-    private PluginActionEntryContext getPluginActionEntryContext(final FormDisplayData formData) {
-        final ToolBarConfig toolbarConfig = formData.getToolBarConfig();
-        if (toolbarConfig == null || toolbarConfig.isUseDefault()) {
-            final ToolBarConfig defaultToolbar = actionService.getDefaultToolbarConfig(COMPONENT_NAME);
+    private ToolbarContext getToolbarContexts(final FormPluginState pluginState, final FormDisplayData formData) {
+        final Map<String, Object> formParams = new HashMap<>();
+        formParams.put("pluginIsCentralPanel", pluginState.isInCentralPanel());
+        formParams.put("toggleEdit", pluginState.isToggleEdit());
+        formParams.put("preview", !pluginState.isEditable());
+        final ToolBarConfig toolbarConfig =
+                formData.getToolBarConfig() == null ? new ToolBarConfig() : formData.getToolBarConfig();
+        ToolBarConfig defaultToolbarConfig;
+        if (toolbarConfig.isRendered() && toolbarConfig.isUseDefault()) {
+            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME);
+        } else {
+            defaultToolbarConfig = null;
         }
-
-        final PluginActionEntryContext ctx = new PluginActionEntryContext();
-
-
-        return ctx;
-    }
-
-    private ToolBarConfig mergeToolBar(final ToolBarConfig master, final ToolBarConfig slave) {
-        final ToolBarConfig result = new ToolBarConfig();
-        result.setPlugin(master.getPlugin());
-        final List<AbstractActionEntryConfig> actions = new ArrayList<>();
-        actions.addAll(master.getActions());
-        actions.addAll(slave.getActions());
-        result.setActions(actions);
-        final ToolbarRightFacetConfig facet = result.getRightFacetConfig();
-        final List<AbstractActionEntryConfig> facetActions = new ArrayList<>();
-        facetActions.addAll(master.getRightFacetConfig().getActions());
-        facetActions.addAll(slave.getRightFacetConfig().getActions());
-        facet.setActions(facetActions);
-        // todo handle action list
+        if (defaultToolbarConfig == null) {
+            defaultToolbarConfig = new ToolBarConfig();
+        }
+        final ToolbarContext result = new ToolbarContext();
+        actionConfigBuilder.appendConfigs(defaultToolbarConfig.getActions(), formParams);
+        actionConfigBuilder.appendConfigs(toolbarConfig.getActions(), formParams);
+        result.setContexts(actionConfigBuilder.getActionContexts(), ToolbarContext.FacetName.LEFT);
+        actionConfigBuilder.clear();
+        actionConfigBuilder.appendConfigs(defaultToolbarConfig.getRightFacetConfig().getActions(), formParams);
+        actionConfigBuilder.appendConfigs(toolbarConfig.getRightFacetConfig().getActions(), formParams);
+        result.setContexts(actionConfigBuilder.getActionContexts(), ToolbarContext.FacetName.RIGHT);
         return result;
     }
-
-    private static List<ActionContext> getActionContexts(final FormPluginState pluginState) {
-        final List<ActionContext> contexts = new ArrayList<>();
-        boolean pluginIsCentralPanel = pluginState.isInCentralPanel();
-        boolean toggleEdit = pluginState.isToggleEdit();
-        boolean editable = pluginState.isEditable();
-        if (pluginIsCentralPanel || (toggleEdit && editable)) {
-            contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig("close.in.central.panel.action",
-                    "close.in.central.panel.action", "Закрыть", "icons/icon-edit-close.png")));
-        }
-        if (toggleEdit) {
-            if (editable) {
-                contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
-                        "save.action", "save.action", "Сохранить", "icons/icon-save.png",
-                        Collections.singletonList(new ValidatorConfig(
-                                "ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator",
-                                "suggest_capital")), true
-                )));
-            } else {
-                contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig(
-                        "create.new.object.action", "create.new.object.action",
-                        "Создать новый", "icons/icon-create.png")));
-                contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig(
-                        "toggle.edit.on.action", "toggle.edit.on.action", "Редактировать", "icons/icon-edit.png")));
-                contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
-                        "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
-            }
-
-        } else {
-            contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig("create.new.object.action",
-                    "create.new.object.action", "Создать новый", "icons/icon-create.png")));
-            contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
-                    "save.action", "save.action", "Сохранить", "icons/icon-save.png",
-                    Collections.singletonList(new ValidatorConfig(
-                            "ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator",
-                            "suggest_capital")), true
-            )));
-            contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
-                    "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
-
-        }
-        return contexts;
-    }
-
 }

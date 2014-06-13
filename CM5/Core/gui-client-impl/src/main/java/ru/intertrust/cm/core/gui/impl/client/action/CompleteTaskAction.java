@@ -38,7 +38,7 @@ public class CompleteTaskAction extends SimpleServerAction {
         FormPluginData formPluginData = ((SaveActionData) result).getFormPluginData();
         Plugin plugin = getPlugin();
         ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
-        plugin.setActionContexts(formPluginData.getActionContexts());
+        plugin.setToolbarContext(formPluginData.getToolbarContext());
         Window.alert("Task Completed!!!");
     }
 }

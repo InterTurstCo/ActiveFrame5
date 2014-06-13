@@ -5,15 +5,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionSeparatorConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 
 import javax.ejb.EJB;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
 
@@ -74,6 +72,6 @@ public class ConfigurationControlIT extends IntegrationTestBase {
         // Check that toolbar config is updated
         ToolBarConfig toolBarConfig = configurationService.getDefaultToolbarConfig("collection.plugin");
         ActionSeparatorConfig actionSeparatorConfig = (ActionSeparatorConfig) toolBarConfig.getActions().get(1);
-        assertEquals(Integer.valueOf(200), actionSeparatorConfig.getOrder());
+        assertEquals(Integer.valueOf(200), (Integer) actionSeparatorConfig.getOrder());
     }
 }

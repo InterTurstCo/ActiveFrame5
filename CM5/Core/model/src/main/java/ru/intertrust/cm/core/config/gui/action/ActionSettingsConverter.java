@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.gui;
+package ru.intertrust.cm.core.config.gui.action;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.AnnotationStrategy;

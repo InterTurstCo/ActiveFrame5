@@ -7,7 +7,6 @@ import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.DeployReportActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -15,9 +14,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -26,7 +23,7 @@ import java.util.List;
  *         Time: 15:20
  */
 @ComponentName("deploy-report.action")
-public class DeployReportActionHandler extends ActionHandler {
+public class DeployReportActionHandler extends ActionHandler<DeployReportActionContext, ActionData> {
 
     @Autowired
     private ReportServiceAdmin reportServiceAdmin;
@@ -37,9 +34,7 @@ public class DeployReportActionHandler extends ActionHandler {
     private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
 
     @Override
-    public <T extends ActionData> T executeAction(ActionContext context) {
-        DeployReportActionContext deployContext = (DeployReportActionContext)context;
-
+    public ActionData executeAction(DeployReportActionContext deployContext) {
         List<AttachmentItem> attachmentItems = deployContext.getAttachmentItems();
         DeployReportData deployData = new DeployReportData();
         for (AttachmentItem attachmentItem : attachmentItems) {
@@ -59,6 +54,11 @@ public class DeployReportActionHandler extends ActionHandler {
         reportServiceAdmin.deploy(deployData);
 
         return null;
+    }
+
+    @Override
+    public DeployReportActionContext getActionContext() {
+        return new DeployReportActionContext();
     }
 
     protected byte[] readFile(File file) throws IOException {

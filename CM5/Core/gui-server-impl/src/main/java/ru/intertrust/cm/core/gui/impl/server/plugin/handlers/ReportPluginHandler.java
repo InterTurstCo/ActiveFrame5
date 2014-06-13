@@ -6,10 +6,11 @@ import ru.intertrust.cm.core.config.gui.navigation.ReportPluginConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.GenerateReportActionContext;
+import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.ReportPluginData;
@@ -35,11 +36,12 @@ public class ReportPluginHandler extends PluginHandler {
         FormDisplayData formDisplayData = guiService.getReportForm(reportName, GuiContext.get().getUserInfo());
         ReportPluginData pluginData = new ReportPluginData(reportName, formDisplayData);
 
-        List<ActionContext> activeContexts = new ArrayList<ActionContext>();
-        activeContexts.add(new GenerateReportActionContext(ActionConfigBuilder.createActionConfig(
+        List<ActionContext> activeContexts = new ArrayList<>();
+        activeContexts.add(new GenerateReportActionContext(PluginHelper.createActionConfig(
                 "generate-report.action", "generate-report.action", "Создать Отчет", "icons/favorite-panel-off.png")));
-        pluginData.setActionContexts(activeContexts);
-
+        final ToolbarContext toolbarContext = new ToolbarContext();
+        toolbarContext.setContexts(activeContexts, ToolbarContext.FacetName.LEFT);
+        pluginData.setToolbarContext(toolbarContext);
         return pluginData;
     }
 }

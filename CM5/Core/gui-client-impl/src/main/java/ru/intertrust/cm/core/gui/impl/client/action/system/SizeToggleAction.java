@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.ComponentHelper;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 
 /**
  * @author Sergey.Okolot
@@ -19,20 +20,17 @@ public class SizeToggleAction extends ToggleAction {
     @Override
     public void execute() {
         final CompactModeState compactModeState = Application.getInstance().getCompactModeState();
-        final String imageUrl;
-        if (compactModeState.isExpanded()) {
-            imageUrl = getInitialContext().getActionConfig().getImageUrl().replace(IMAGE_SUFFIX, ON_SUFFIX);
-        } else {
+        final ToggleActionContext actionContext = getInitialContext();
+        if (!compactModeState.isExpanded()) {
             final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
             final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
             compactModeState.setTopOffset(header.getOffsetHeight());
             compactModeState.setLeftOffset(left.getOffsetWidth());
             compactModeState.setLeft(getPlugin().getView().asWidget().getParent().getParent()
                     .getElement().getOffsetLeft());
-            imageUrl = getInitialContext().getActionConfig().getImageUrl().replace(IMAGE_SUFFIX, OFF_SUFFIX);
         }
         compactModeState.setExpanded(!compactModeState.isExpanded());
-        getImage().setUrl(imageUrl);
+        actionContext.setPushed(compactModeState.isExpanded());
         updateSize(compactModeState);
     }
 
@@ -49,15 +47,11 @@ public class SizeToggleAction extends ToggleAction {
             header.getStyle().setDisplay(Style.Display.BLOCK);
             left.getStyle().setDisplay(Style.Display.BLOCK);
             center.replaceClassName("central-div-panel-test-full", "central-div-panel-test");
-
         }
-
     }
 
     @Override
     public Component createNew() {
         return new SizeToggleAction();
     }
-
-
 }

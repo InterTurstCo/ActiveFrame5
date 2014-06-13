@@ -37,7 +37,7 @@ public class StartProcessAction extends SimpleServerAction {
         FormPluginData formPluginData = ((StartProcessActionData) result).getFormPluginData();
         Plugin plugin = getPlugin();
         ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
-        plugin.setActionContexts(formPluginData.getActionContexts());
+        plugin.setToolbarContext(formPluginData.getToolbarContext());
         Window.alert("Process Started!!!");
     }
 }
