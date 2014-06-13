@@ -23,10 +23,8 @@ import java.util.Map;
  */
 public class ActionConfigBuilder {
 
-    @Autowired
-    private ApplicationContext applicationContext;
-    @Autowired
-    private ActionService actionService;
+    @Autowired private ApplicationContext applicationContext;
+    @Autowired private ActionService actionService;
     private final Map<String, ActionConfig> referenceMap = new HashMap<>();
     private final ActionContextList contextList = new ActionContextList();
 
@@ -87,6 +85,12 @@ public class ActionConfigBuilder {
         }
         if (actionRefConfig.getOrder() < Integer.MAX_VALUE) {
             result.setOrder(actionRefConfig.getOrder());
+        }
+        if (actionRefConfig.getRendered() != null) {
+            result.setRendered(actionRefConfig.getRendered());
+        }
+        if (actionRefConfig.getMerged() != null) {
+            result.setMerged(actionRefConfig.getMerged());
         }
         return result;
     }

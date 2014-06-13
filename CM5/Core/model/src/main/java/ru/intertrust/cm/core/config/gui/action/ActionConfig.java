@@ -114,6 +114,10 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
         return merged;
     }
 
+    public void setMerged(boolean merged) {
+        this.merged = merged;
+    }
+
     public boolean isDisabled() {
         return disabled;
     }

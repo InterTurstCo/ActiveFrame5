@@ -24,7 +24,7 @@ public class BaseAttributeConfig implements Dto {
     private String addStyleClass;
 
     @Attribute(required = false)
-    private String rendered;
+    protected String rendered;
 
     public String getId() {
         return id;
@@ -44,6 +44,10 @@ public class BaseAttributeConfig implements Dto {
 
     public String getRendered() {
         return rendered == null ?  Boolean.TRUE.toString() : rendered;
+    }
+
+    public void setRendered(final String rendered) {
+        this.rendered = rendered;
     }
 
     @Override

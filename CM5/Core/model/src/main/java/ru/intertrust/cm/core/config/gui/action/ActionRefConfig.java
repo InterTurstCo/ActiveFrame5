@@ -19,6 +19,9 @@ public class ActionRefConfig extends AbstractActionConfig {
     @Attribute(name = "showImage", required = false)
     private boolean showImage = true;
 
+    @Attribute(name = "merged", required = false)
+    private Boolean merged;
+
     public String getActionId() {
         return actionId;
     }
@@ -29,6 +32,14 @@ public class ActionRefConfig extends AbstractActionConfig {
 
     public boolean isShowImage() {
         return showImage;
+    }
+
+    public String getRendered() {
+        return rendered;
+    }
+
+    public Boolean getMerged() {
+        return merged;
     }
 
     @Override

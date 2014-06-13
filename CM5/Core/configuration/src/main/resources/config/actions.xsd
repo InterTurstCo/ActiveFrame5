@@ -85,6 +85,8 @@
                 <xs:attribute name="showText" type="xs:boolean" default="true"/>
                 <xs:attribute name="showImage" type="xs:boolean" default="true"/>
                 <xs:attribute name="order" type="xs:positiveInteger" />
+                <xs:attribute name="rendered" type="xs:string" default="true"/>
+                <xs:attribute name="merged" type="xs:boolean" default="false" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
