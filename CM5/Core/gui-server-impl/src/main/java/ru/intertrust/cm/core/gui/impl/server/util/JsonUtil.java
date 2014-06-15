@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.*;
@@ -103,12 +105,12 @@ public class JsonUtil {
         String panelState = jsonInitialFilters.getPanelState();
         initialFiltersConfig.setPanelState(panelState);
         List<JsonInitialFilter> initialFilters = jsonInitialFilters.getJsonInitialFilters();
-        List<InitialFilterConfig> initialFilterConfigs = new ArrayList<>();
+        List<AbstractFilterConfig> initialFilterConfigs = new ArrayList<>();
         for (JsonInitialFilter initialFilter : initialFilters) {
             InitialFilterConfig initialFilterConfig = convertToInitialFilterConfig(initialFilter);
             initialFilterConfigs.add(initialFilterConfig);
         }
-        initialFiltersConfig.setInitialFilterConfigs(initialFilterConfigs);
+        initialFiltersConfig.setAbstractFilterConfigs(initialFilterConfigs);
         return initialFiltersConfig;
 
     }

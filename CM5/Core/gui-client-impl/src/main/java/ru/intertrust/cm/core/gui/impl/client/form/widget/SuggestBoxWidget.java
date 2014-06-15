@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.DisplayValuesAsLinksConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
@@ -42,7 +43,8 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     private String selectionPattern;
     private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
     private LinkedHashMap<Id, String> stateListValues = new LinkedHashMap<>(); //used for temporary state
-    private FormattingConfig formattingConfig;
+    private SuggestBoxConfig suggestBoxConfig;
+
     CmjDefaultSuggestionDisplay display;
 
     public SuggestBoxWidget() {
@@ -51,7 +53,8 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     @Override
     public void setCurrentState(WidgetState currentState) {
         final SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
-        formattingConfig = suggestBoxState.getSuggestBoxConfig().getFormattingConfig();
+        suggestBoxConfig = suggestBoxState.getSuggestBoxConfig();
+
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
             presenter.initModel(suggestBoxState);
@@ -134,7 +137,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     private void updateHyperlink(Id id) {
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, formattingConfig);
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, suggestBoxConfig.getFormattingConfig());
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -241,6 +244,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 suggestionRequest.setExcludeIds(new LinkedHashSet<Id>(presenter.getSelectedKeys()));
                 suggestionRequest.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
                 suggestionRequest.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
+                suggestionRequest.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
                 Command command = new Command("obtainSuggestions", SuggestBoxWidget.this.getName(), suggestionRequest);
                 BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                     @Override

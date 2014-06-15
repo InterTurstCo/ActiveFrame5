@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -30,6 +32,12 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
 
     @Element(name = "single-choice", required = false)
     private SingleChoiceConfig singleChoiceConfig;
+
+    @Element(name = "selection-filters", required = false)
+    private SelectionFiltersConfig selectionFiltersConfig;
+
+    @Element(name = "collection-ref", required = false)
+    private CollectionRefConfig collectionRefConfig;
 
     public LinkedFormConfig getLinkedFormConfig() {
         return linkedFormConfig;
@@ -86,6 +94,22 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
         this.singleChoiceConfig = singleChoiceConfig;
     }
 
+    public SelectionFiltersConfig getSelectionFiltersConfig() {
+        return selectionFiltersConfig;
+    }
+
+    public void setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
+        this.selectionFiltersConfig = selectionFiltersConfig;
+    }
+
+    public CollectionRefConfig getCollectionRefConfig() {
+        return collectionRefConfig;
+    }
+
+    public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
+        this.collectionRefConfig = collectionRefConfig;
+    }
+
     @Override
     public String getComponentName() {
         return "linked-domain-objects-table";  //To change body of implemented methods use File | Settings | File Templates.
@@ -126,10 +150,17 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
         if (deleteLinkedObjects != null ? !deleteLinkedObjects.equals(that.deleteLinkedObjects) : that.deleteLinkedObjects != null) {
             return false;
         }
+        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) :
+                that.selectionFiltersConfig != null) {
+            return false;
+        }
+        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.collectionRefConfig) :
+                that.collectionRefConfig != null) {
+            return false;
+        }
 
         return true;
     }
-
 
     @Override
     public int hashCode() {
@@ -141,6 +172,8 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
         result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
         result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
         result = 31 * result + (singleChoiceConfig != null ? singleChoiceConfig.hashCode() : 0);
+        result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
+        result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
         return result;
     }
 }

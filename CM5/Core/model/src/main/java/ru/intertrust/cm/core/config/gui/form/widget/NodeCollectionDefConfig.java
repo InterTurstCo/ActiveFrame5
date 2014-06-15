@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
 import java.util.ArrayList;
@@ -46,6 +47,9 @@ public class NodeCollectionDefConfig implements Dto {
 
     @Element(name = "root-node-link", required = false)
     private RootNodeLinkConfig rootNodeLinkConfig;
+
+    @Element(name = "selection-filters", required = false)
+    private SelectionFiltersConfig selectionFiltersConfig;
 
     @ElementList(inline = true, name ="node-collection-def", required = false)
     private List<NodeCollectionDefConfig> nodeCollectionDefConfigs = new ArrayList<NodeCollectionDefConfig>();
@@ -138,6 +142,14 @@ public class NodeCollectionDefConfig implements Dto {
         this.rootNodeLinkConfig = rootNodeLinkConfig;
     }
 
+    public SelectionFiltersConfig getSelectionFiltersConfig() {
+        return selectionFiltersConfig;
+    }
+
+    public void setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
+        this.selectionFiltersConfig = selectionFiltersConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -190,6 +202,10 @@ public class NodeCollectionDefConfig implements Dto {
                 that.rootNodeLinkConfig != null) {
             return false;
         }
+        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) :
+                that.selectionFiltersConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -206,6 +222,7 @@ public class NodeCollectionDefConfig implements Dto {
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (rootNodeLinkConfig != null ? rootNodeLinkConfig.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         return result;
     }
 }

@@ -31,4 +31,5 @@ public class HierarchyBrowserCheckBoxUpdateEvent extends GwtEvent<HierarchyBrows
     public HierarchyBrowserItem getItem() {
         return item;
     }
+
 }

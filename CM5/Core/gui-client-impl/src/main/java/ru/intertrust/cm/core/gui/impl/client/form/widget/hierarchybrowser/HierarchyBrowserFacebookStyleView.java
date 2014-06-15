@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -24,17 +25,22 @@ public class HierarchyBrowserFacebookStyleView implements IsWidget {
     private AbsolutePanel mainBoxPanel;
     private EventBus eventBus;
     private ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
-
+    private ArrayList<Id> selectedIds;
     private Style.Display displayStyle;
     private boolean displayAsHyperlinks;
     public HierarchyBrowserFacebookStyleView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlink) {
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlink;
+
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         mainBoxPanel.getElement().getStyle().clearOverflowY();
 
+    }
+
+    public ArrayList<Id> getSelectedIds() {
+        return selectedIds;
     }
 
     public ArrayList<HierarchyBrowserItem> getChosenItems() {
@@ -67,6 +73,7 @@ public class HierarchyBrowserFacebookStyleView implements IsWidget {
                 chosenItems.remove(item);
                 element.removeFromParent();
                 item.setChosen(false);
+                selectedIds.remove(item.getId());
                 eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item));
             }
         });
@@ -95,16 +102,19 @@ public class HierarchyBrowserFacebookStyleView implements IsWidget {
             mainBoxPanel.clear();
         }
         chosenItems.add(item);
+        selectedIds.add(item.getId());
         displayChosenItem(item);
     }
 
     public void handleRemovingItem(HierarchyBrowserItem item) {
         chosenItems.remove(item);
+        selectedIds.remove(item.getId());
         displayChosenItems();
     }
 
-    public void handleAddingChosenItems(ArrayList<HierarchyBrowserItem> chosenItems) {
+    public void handleAddingChosenItems(ArrayList<HierarchyBrowserItem> chosenItems, ArrayList<Id> selectedIds) {
         this.chosenItems = chosenItems;
+        this.selectedIds = selectedIds;
         displayChosenItems();
     }
 

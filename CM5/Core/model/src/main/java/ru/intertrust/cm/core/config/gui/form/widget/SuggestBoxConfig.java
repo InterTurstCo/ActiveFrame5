@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
@@ -54,6 +55,9 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
 
     @Element(name = "formatting", required = false)
     private FormattingConfig formattingConfig;
+
+    @Element(name = "selection-filters", required = false)
+    private SelectionFiltersConfig selectionFiltersConfig;
 
     @Override
     public String getComponentName() {
@@ -164,6 +168,14 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         this.formattingConfig = formattingConfig;
     }
 
+    public SelectionFiltersConfig getSelectionFiltersConfig() {
+        return selectionFiltersConfig;
+    }
+
+    public void setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
+        this.selectionFiltersConfig = selectionFiltersConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -234,6 +246,10 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
             return false;
         }
+        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) :
+                that.selectionFiltersConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -253,6 +269,7 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
+        result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         return result;
     }
 }

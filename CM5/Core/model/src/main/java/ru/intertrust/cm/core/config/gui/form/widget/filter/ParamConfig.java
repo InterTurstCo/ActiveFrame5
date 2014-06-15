@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.gui.navigation;
+package ru.intertrust.cm.core.config.gui.form.widget.filter;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;

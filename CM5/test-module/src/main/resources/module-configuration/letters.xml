@@ -252,6 +252,11 @@
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
+                    <selection-filters>
+                       <selection-filter name="byName">
+                          <param name="0" value="Организация 1"/>
+                       </selection-filter>
+                    </selection-filters>
                     <node-collection-def collection="Departments" parent-filter="byOrganization" domain-object-type="Department"  >
                         <!-- название фильтра по тексту, введённому пользователем -->
                         <fill-parent-on-add field-to-fill="organization"/>
@@ -456,6 +461,16 @@
                         </td>
                         <!-- text-box (Название) -->
                     </tr>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="departmentsLabel"/>
+                        </td>
+
+                        <td width="100%" h-align="left">
+                            <widget id="hyperlink"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
                 </table>
             </header>
             <body display-single-tab="false">
@@ -478,6 +493,30 @@
                 <field-path value="org_middle^organization"/>
                 <linked-form name="org_middle_form" />
                 <pattern value="{org_middle|organization.name}"/>
+            </linked-domain-object-hyperlink>
+            <label id="departmentsLabel">
+
+                <text>Departments: </text>
+            </label>
+            <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
+                <field-path value="department^organization"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
+                <linked-form name="organization_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
+                <pattern value="{name} {created_date}"/> <!-- в паттерне ссылки задаются относительно field-path -->
+                <formatting>
+
+                    <date-format pattern="dd-mm-yyyy HH:mm:ss" style="short">
+                        <time-zone id="Europe/Kiev"/>
+                        <field-paths>
+                            <field-path value="created_date"/>
+                        </field-paths>
+                    </date-format>
+                </formatting>
+                <collection-ref name="Departments"/>
+                <selection-filters>
+                    <selection-filter name="byName">
+                        <param name="0" value="Подразделение 4"/>
+                    </selection-filter>
+                </selection-filters>
             </linked-domain-object-hyperlink>
         </widget-config>
     </form>

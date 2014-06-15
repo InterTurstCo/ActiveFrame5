@@ -4,10 +4,11 @@ import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.ParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
 
@@ -76,8 +77,8 @@ public final class GuiServerHelper {
                     CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));
         }
         if(initialFiltersConfig != null){
-            List<InitialFilterConfig> initialFilterConfigs = initialFiltersConfig.getInitialFilterConfigs();
-            String initialFilterValue = getInitialFilterValue(searchFilterName, initialFilterConfigs);
+            List<AbstractFilterConfig> abstractFilterConfigs = (List<AbstractFilterConfig>) initialFiltersConfig.getAbstractFilterConfigs();
+            String initialFilterValue = getInitialFilterValue(searchFilterName, abstractFilterConfigs);
             properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE, initialFilterValue);
         }
         properties.setAscSortCriteriaConfig(config.getAscSortCriteriaConfig());
@@ -86,13 +87,13 @@ public final class GuiServerHelper {
         properties.setRendererConfig(config.getRendererConfig());
         return properties;
     }
-    private static List<ParamConfig> findFilterInitParams(String filterName, List<InitialFilterConfig> initialFilterConfigs) {
-         if (filterName == null || initialFilterConfigs == null) {
+    private static List<ParamConfig> findFilterInitParams(String filterName, List<AbstractFilterConfig> abstractFilterConfigs) {
+         if (filterName == null || abstractFilterConfigs == null) {
              return null;
          }
-        for (InitialFilterConfig initialFilterConfig : initialFilterConfigs) {
-              if (filterName.equalsIgnoreCase(initialFilterConfig.getName())){
-                  return initialFilterConfig.getParamConfigs();
+        for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
+              if (filterName.equalsIgnoreCase(abstractFilterConfig.getName())){
+                  return abstractFilterConfig.getParamConfigs();
               }
         }
         return null;
@@ -105,8 +106,8 @@ public final class GuiServerHelper {
         ParamConfig paramConfig = paramConfigs.get(size - 1);
         return paramConfig.getValue();
     }
-    private static String getInitialFilterValue(String filterName, List<InitialFilterConfig> initialFilterConfigs){
-        List<ParamConfig> paramConfigs = findFilterInitParams(filterName, initialFilterConfigs);
+    private static String getInitialFilterValue(String filterName, List<AbstractFilterConfig> abstractFilterConfigs){
+        List<ParamConfig> paramConfigs = findFilterInitParams(filterName, abstractFilterConfigs);
         String initialFilterValue = getInitialFilterValueFromParamConfigs(paramConfigs);
         return initialFilterValue;
     }

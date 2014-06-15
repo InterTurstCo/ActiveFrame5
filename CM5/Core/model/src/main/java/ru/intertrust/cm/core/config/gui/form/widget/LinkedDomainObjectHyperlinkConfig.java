@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -22,6 +24,12 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
 
     @Element(name = "formatting", required = false)
     private FormattingConfig formattingConfig;
+
+    @Element(name = "selection-filters", required = false)
+    private SelectionFiltersConfig selectionFiltersConfig;
+
+    @Element(name = "collection-ref", required = false)
+    private CollectionRefConfig collectionRefConfig;
 
     @Override
     public boolean isReadOnly() {
@@ -60,6 +68,22 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
         this.selectionStyleConfig = selectionStyleConfig;
     }
 
+    public SelectionFiltersConfig getSelectionFiltersConfig() {
+        return selectionFiltersConfig;
+    }
+
+    public void setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
+        this.selectionFiltersConfig = selectionFiltersConfig;
+    }
+
+    public CollectionRefConfig getCollectionRefConfig() {
+        return collectionRefConfig;
+    }
+
+    public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
+        this.collectionRefConfig = collectionRefConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -87,7 +111,14 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
                 that.selectionStyleConfig != null) {
             return false;
         }
-
+        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) :
+                that.selectionFiltersConfig != null) {
+            return false;
+        }
+        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.collectionRefConfig) :
+                that.collectionRefConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -98,6 +129,8 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
         result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
         result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
+        result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
+        result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
         return result;
     }
 

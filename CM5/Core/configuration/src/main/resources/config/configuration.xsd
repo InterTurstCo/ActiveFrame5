@@ -1424,7 +1424,7 @@
     <xs:complexType name="linkedDomainObjectsTableType">
         <xs:complexContent>
             <xs:extension base="con:abstractWidgetType">
-                <xs:sequence>
+                <xs:choice maxOccurs="unbounded">
                     <xs:element type="con:fieldPathType" name="field-path"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:linkedFormType" name="linked-form"
@@ -1433,7 +1433,11 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:singleChoiceType" name="single-choice"
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-                </xs:sequence>
+                    <xs:element type="con:selectionFiltersType" name="selection-filters"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+                    <xs:element type="con:collectionRefType" name="collection-ref"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+                </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required"/>
                 <xs:attribute type="xs:string" name="modal-width"/>
                 <xs:attribute type="xs:string" name="modal-height"/>
@@ -1601,6 +1605,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                     <xs:element type="con:formattingType" name="formatting"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionFiltersType" name="selection-filters"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -1631,6 +1637,22 @@
         </xs:sequence>
         <xs:attribute name="panel-state" type="con:panelStateAttr" default="closed"/>
     </xs:complexType>
+
+    <xs:complexType name="selectionFiltersType">
+        <xs:sequence maxOccurs="unbounded" minOccurs="1">
+            <xs:element type="con:selectionFilterType" name="selection-filter"  maxOccurs="unbounded" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+
+    </xs:complexType>
+    <xs:complexType name="selectionFilterType">
+        <xs:sequence>
+            <xs:element type="con:paramType" name="param" minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required" type="xs:string"/>
+    </xs:complexType>
+
 
     <xs:element type="con:listBoxType" name="list-box" substitutionGroup="con:widget"/>
     <xs:complexType name="listBoxType">
@@ -1737,6 +1759,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                     <xs:element type="con:formattingType" name="formatting"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionFiltersType" name="selection-filters"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -1759,7 +1783,10 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:formattingType" name="formatting"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
-
+                    <xs:element type="con:selectionFiltersType" name="selection-filters"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:collectionRefType" name="collection-ref"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required"/>
             </xs:extension>
@@ -1891,6 +1918,7 @@
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                     <xs:element type="con:formattingType" name="formatting"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -1910,6 +1938,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:rootNodeLinkType" name="root-node-link" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:selectionFiltersType" name="selection-filters"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
         <xs:attribute type="xs:string" name="collection" use="required"/>
         <xs:attribute type="xs:string" name="parent-filter" use="optional"/>

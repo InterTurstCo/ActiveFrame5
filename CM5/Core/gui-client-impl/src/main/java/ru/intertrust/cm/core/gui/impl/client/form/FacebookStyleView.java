@@ -13,6 +13,8 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserItem;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -23,6 +25,7 @@ public class FacebookStyleView implements IsWidget {
     private AbsolutePanel mainBoxPanel;
     private Style.Display displayStyle;
     private ArrayList<TableBrowserItem> chosenItems;
+    private Set<Id> selectedIds = new HashSet<Id>();
     private EventBus eventBus;
     public FacebookStyleView(SelectionStyleConfig selectionStyleConfig) {
         mainBoxPanel = new AbsolutePanel();
@@ -40,12 +43,13 @@ public class FacebookStyleView implements IsWidget {
         this.eventBus = eventBus;
     }
 
-    public ArrayList<Id> getChosenIds() {
-        ArrayList<Id> chosenIds = new ArrayList<Id>();
-        for (TableBrowserItem rowItem : chosenItems) {
-            chosenIds.add(rowItem.getId());
-        }
-        return chosenIds;
+
+    public Set<Id> getSelectedIds() {
+        return selectedIds;
+    }
+
+    public void setSelectedIds(Set<Id> selectedIds) {
+        this.selectedIds = selectedIds;
     }
 
     public int removeChosenItem(Id id) {
@@ -112,6 +116,7 @@ public class FacebookStyleView implements IsWidget {
         delBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                selectedIds.remove(rowItem.getId());
                 chosenItems.remove(rowItem);
                 element.removeFromParent();
             }

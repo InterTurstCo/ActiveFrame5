@@ -486,15 +486,13 @@
                 <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
             </attachment-box>
 
-            <table-browser id="17a" read-only="true">
+            <table-browser id="17a" read-only="false">
                 <field-path value="city^country"/>
                 <collection-ref name="Cities"/>
-                <initial-filters panel-state="open">
-                    <initial-filter name="withoutCountry"></initial-filter>
-                    <initial-filter name="byText">
-                        <param name="0" value="Дре%"/>
-                    </initial-filter>
-                </initial-filters>
+                <selection-filters>
+                    <selection-filter name="withoutCountry"></selection-filter>
+
+                </selection-filters>
                 <collection-view-ref name="cities_default_view"/>
 
                 <!-- паттерн отображения уже выбранных значений -->
@@ -540,6 +538,7 @@
                     </summary-table-column>
                 </summary-table>
                 <single-choice value="false"/>
+
             </linked-domain-objects-table>
         </widget-config>
     </form>

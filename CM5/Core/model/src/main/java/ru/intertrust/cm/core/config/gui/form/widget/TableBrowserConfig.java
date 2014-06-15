@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
@@ -58,6 +59,9 @@ public class TableBrowserConfig extends WidgetConfig {
 
     @Element(name = "formatting", required = false)
     private FormattingConfig formattingConfig;
+
+    @Element(name = "selection-filters", required = false)
+    private SelectionFiltersConfig selectionFiltersConfig;
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
@@ -163,11 +167,11 @@ public class TableBrowserConfig extends WidgetConfig {
         this.displayValuesAsLinksConfig = displayValuesAsLinksConfig;
     }
 
-    public InitialFiltersConfig getFilterConfig() {
+    public InitialFiltersConfig getInitialFiltersConfig() {
         return initialFiltersConfig;
     }
 
-    public void setFilterConfig(InitialFiltersConfig initialFiltersConfig) {
+    public void setInitialFiltersConfig(InitialFiltersConfig initialFiltersConfig) {
         this.initialFiltersConfig = initialFiltersConfig;
     }
 
@@ -177,6 +181,14 @@ public class TableBrowserConfig extends WidgetConfig {
 
     public void setFormattingConfig(FormattingConfig formattingConfig) {
         this.formattingConfig = formattingConfig;
+    }
+
+    public SelectionFiltersConfig getSelectionFiltersConfig() {
+        return selectionFiltersConfig;
+    }
+
+    public void setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
+        this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
     @Override
@@ -254,6 +266,9 @@ public class TableBrowserConfig extends WidgetConfig {
         if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
             return false;
         }
+        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) : that.selectionFiltersConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -275,6 +290,7 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
+        result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         return result;
     }
 

@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.ParamConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
@@ -36,20 +38,6 @@ public class FilterBuilder {
         return filter;
     }
 
-    private static Filter createRequiredFilter(List<ReferenceValue> idsCriterion, String type) {
-        if (EXCLUDED_IDS_FILTER.equalsIgnoreCase(type)) {
-            Filter filter = new IdsExcludedFilter(idsCriterion);
-            filter.setFilter(EXCLUDED_IDS_FILTER + (int) (65 * Math.random()));
-            return filter;
-        }
-        if (INCLUDED_IDS_FILTER.equalsIgnoreCase(type)) {
-            Filter filter = new IdsIncludedFilter(idsCriterion);
-            filter.setFilter(INCLUDED_IDS_FILTER + (int) (65 * Math.random()));
-            return filter;
-        }
-        return null;
-    }
-
     public static Filter prepareReferenceFilter(Id parentId, String filterByParentName) {
         Filter referenceFilter = new Filter();
         referenceFilter.setFilter(filterByParentName);
@@ -80,6 +68,31 @@ public class FilterBuilder {
         }
 
         return filter;
+    }
+
+    public static void prepareInitialFilters(InitialFiltersConfig initialFiltersConfig, List<String> excludedInitialFilterNames,
+                                             List<Filter> filters) {
+        prepareInitialOrSelectionFilters(initialFiltersConfig, excludedInitialFilterNames, filters);
+    }
+
+    public static void prepareSelectionFilters(SelectionFiltersConfig selectionFiltersConfig, List<String> excludedInitialFilterNames,
+                                               List<Filter> filters) {
+        prepareInitialOrSelectionFilters(selectionFiltersConfig, excludedInitialFilterNames, filters);
+    }
+
+
+    private static Filter createRequiredFilter(List<ReferenceValue> idsCriterion, String type) {
+        if (EXCLUDED_IDS_FILTER.equalsIgnoreCase(type)) {
+            Filter filter = new IdsExcludedFilter(idsCriterion);
+            filter.setFilter(EXCLUDED_IDS_FILTER + (int) (65 * Math.random()));
+            return filter;
+        }
+        if (INCLUDED_IDS_FILTER.equalsIgnoreCase(type)) {
+            Filter filter = new IdsIncludedFilter(idsCriterion);
+            filter.setFilter(INCLUDED_IDS_FILTER + (int) (65 * Math.random()));
+            return filter;
+        }
+        return null;
     }
 
     private static void prepareTimelessDateFilter(Filter filter, String filterValue,
@@ -157,27 +170,27 @@ public class FilterBuilder {
         filter.addCriterion(0, currentDateTimeWithTimeZoneValue);
     }
 
-    public static void prepareInitialFilters(InitialFiltersConfig initialFiltersConfig, List<String> excludedInitialFilterNames,
-                                   List<Filter> filters) {
-        if(initialFiltersConfig == null) {
+    private static void prepareInitialOrSelectionFilters(AbstractFiltersConfig abstractFiltersConfig, List<String> excludedInitialFilterNames,
+                                                         List<Filter> filters) {
+        if(abstractFiltersConfig == null) {
             return;
         }
-        List<InitialFilterConfig> initialFilterConfigs = initialFiltersConfig.getInitialFilterConfigs();
-        for (InitialFilterConfig initialFilterConfig : initialFilterConfigs) {
-            String filterName = initialFilterConfig.getName();
+        List<AbstractFilterConfig> abstractFilterConfigs = abstractFiltersConfig.getAbstractFilterConfigs();
+        for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
+            String filterName = abstractFilterConfig.getName();
             if(excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)){
-                Filter initialFilter = prepareInitialFilter(initialFilterConfig);
+                Filter initialFilter = prepareInitialOrSelectionFilter(abstractFilterConfig);
                 filters.add(initialFilter);
             }
         }
 
     }
 
-    private static Filter prepareInitialFilter(InitialFilterConfig initialFilterConfig) {
-        String filterName = initialFilterConfig.getName();
+    private static Filter prepareInitialOrSelectionFilter(AbstractFilterConfig abstractFilterConfig) {
+        String filterName = abstractFilterConfig.getName();
         Filter initFilter = new Filter();
         initFilter.setFilter(filterName);
-        List<ParamConfig> paramConfigs = initialFilterConfig.getParamConfigs();
+        List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
         if(paramConfigs != null && !paramConfigs.isEmpty()) {
             for (ParamConfig paramConfig : paramConfigs) {
                 Integer name = paramConfig.getName();

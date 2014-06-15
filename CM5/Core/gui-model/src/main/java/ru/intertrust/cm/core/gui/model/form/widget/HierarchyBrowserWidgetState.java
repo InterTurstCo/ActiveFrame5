@@ -17,10 +17,11 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     private HierarchyBrowserConfig hierarchyBrowserConfig;
     private ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
     private Map<String, NodeCollectionDefConfig> collectionNameNodeMap;
+    private RootNodeLinkConfig rootNodeLinkConfig;
+    private ArrayList<Id> selectedIds;
     public HierarchyBrowserConfig getHierarchyBrowserConfig() {
         return hierarchyBrowserConfig;
     }
-    private RootNodeLinkConfig rootNodeLinkConfig;
     public void setHierarchyBrowserConfig(HierarchyBrowserConfig hierarchyBrowserConfig) {
         this.hierarchyBrowserConfig = hierarchyBrowserConfig;
     }
@@ -49,13 +50,18 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         this.chosenItems = chosenItems;
     }
 
+    public void setSelectedIds(ArrayList<Id> selectedIds) {
+        this.selectedIds = selectedIds;
+    }
+
     @Override
     public ArrayList<Id> getIds() {
-        ArrayList<Id> chosenIds = new ArrayList<Id>();
+      /*  ArrayList<Id> chosenIds = new ArrayList<Id>();
         for (HierarchyBrowserItem item : chosenItems) {
             chosenIds.add(item.getId());
         }
-        return chosenIds;
+        return chosenIds;*/
+        return selectedIds;
     }
 }
 

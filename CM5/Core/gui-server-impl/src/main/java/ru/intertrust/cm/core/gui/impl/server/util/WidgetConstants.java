@@ -1,0 +1,11 @@
+package ru.intertrust.cm.core.gui.impl.server.util;
+
+/**
+ * Created by
+ * Yaroslav Bondarchuk
+ * on 12.06.2014.
+ */
+public class WidgetConstants {
+    public static final String REPRESENTATION_STUB = "Невозможно отобразить елемент";
+    public static final String UNDEFINED_COLLECTION_NAME = "undefined";
+}

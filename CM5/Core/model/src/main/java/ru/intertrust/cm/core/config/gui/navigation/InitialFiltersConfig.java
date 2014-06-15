@@ -1,11 +1,9 @@
 package ru.intertrust.cm.core.config.gui.navigation;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-
-import java.util.List;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -13,12 +11,9 @@ import java.util.List;
  *         Time: 13:15
  */
 @Root(name = "initial-filters")
-public class InitialFiltersConfig implements Dto {
+public class InitialFiltersConfig extends AbstractFiltersConfig implements Dto {
     @Attribute(name = "panel-state", required = false)
     private String panelState;
-
-    @ElementList(inline = true, name ="initial-filter", required = true)
-    private List<InitialFilterConfig> initialFilterConfigs;
 
     public String getPanelState() {
         return panelState;
@@ -28,20 +23,13 @@ public class InitialFiltersConfig implements Dto {
         this.panelState = panelState;
     }
 
-    public List<InitialFilterConfig> getInitialFilterConfigs() {
-        return initialFilterConfigs;
-    }
-
-    public void setInitialFilterConfigs(List<InitialFilterConfig> initialFilterConfigs) {
-        this.initialFilterConfigs = initialFilterConfigs;
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+        if (this == o) return true;
+        if (!(o instanceof InitialFiltersConfig)) {
+            return false;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
@@ -51,18 +39,13 @@ public class InitialFiltersConfig implements Dto {
             return false;
         }
 
-        if (initialFilterConfigs != null ? !initialFilterConfigs.equals(that.initialFilterConfigs) :
-                that.initialFilterConfigs != null) {
-            return false;
-        }
-
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = panelState != null ? panelState.hashCode() : 0;
-        result = 31 * result + (initialFilterConfigs != null ? initialFilterConfigs.hashCode() : 0);
+        int result = super.hashCode();
+        result = 31 * result + (panelState != null ? panelState.hashCode() : 0);
         return result;
     }
 }

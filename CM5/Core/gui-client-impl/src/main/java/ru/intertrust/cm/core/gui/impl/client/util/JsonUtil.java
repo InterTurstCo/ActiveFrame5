@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
 import com.google.gwt.json.client.*;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -107,21 +109,21 @@ public class JsonUtil {
         }
         JSONArray jsonInitialFiltersArr = new JSONArray();
 
-        List<InitialFilterConfig> initialFilterConfigs = initialFiltersConfig.getInitialFilterConfigs();
+        List<AbstractFilterConfig> abstractFilterConfigs = initialFiltersConfig.getAbstractFilterConfigs();
         int index = 0;
-        for (InitialFilterConfig initialFilterConfig : initialFilterConfigs) {
-            prepareJsonInitialFilter(jsonInitialFiltersArr, initialFilterConfig, index);
+        for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
+            prepareJsonInitialFilter(jsonInitialFiltersArr, abstractFilterConfig, index);
             index++;
         }
         jsonInitialFiltersObj.put("jsonInitialFilters", jsonInitialFiltersArr);
         requestObj.put("jsonInitialFilters", jsonInitialFiltersObj);
 
     }
-    private static void prepareJsonInitialFilter(JSONArray jsonInitialFiltersArr, InitialFilterConfig initialFilterConfig, int index) {
+    private static void prepareJsonInitialFilter(JSONArray jsonInitialFiltersArr, AbstractFilterConfig abstractFilterConfig, int index) {
         JSONObject jsonInitialFilterObj = new JSONObject();
-        String filterName = initialFilterConfig.getName();
+        String filterName = abstractFilterConfig.getName();
         jsonInitialFilterObj.put("name", new JSONString(filterName));
-        List<ParamConfig> paramConfigs = initialFilterConfig.getParamConfigs();
+        List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
         if(paramConfigs != null) {
             int paramIndex = 0;
             JSONArray jsonFilterParamArr = new JSONArray();

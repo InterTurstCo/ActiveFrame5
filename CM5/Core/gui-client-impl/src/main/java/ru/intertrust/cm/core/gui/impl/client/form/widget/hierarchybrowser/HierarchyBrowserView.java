@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
@@ -12,6 +13,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -31,6 +33,7 @@ public class HierarchyBrowserView extends Composite {
     private EventBus eventBus;
     private SelectionStyleConfig selectionStyleConfig;
     private boolean displayAsHyperlinks;
+    private ArrayList<Id> selectedIds;
     public HierarchyBrowserView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlinks) {
         this.eventBus = eventBus;
         this.selectionStyleConfig = selectionStyleConfig;
@@ -51,6 +54,14 @@ public class HierarchyBrowserView extends Composite {
     public void handleReplacingChosenItem(HierarchyBrowserItem item) {
         widgetChosenContent.handleReplacingChosenItem(item);
 
+    }
+
+    public ArrayList<Id> getSelectedIds() {
+        return widgetChosenContent.getSelectedIds();
+    }
+
+    public void setSelectedIds(ArrayList<Id> selectedIds) {
+        this.selectedIds = selectedIds;
     }
 
     @Override
@@ -80,7 +91,7 @@ public class HierarchyBrowserView extends Composite {
     public void displayBaseWidget(String width, String height) {
         String widgetWidth = width != null ? width : DEFAULT_WIDTH;
         String widgetHeight = height != null ? height : DEFAULT_HEIGHT;
-        widgetChosenContent.handleAddingChosenItems(chosenItems);
+        widgetChosenContent.handleAddingChosenItems(chosenItems, selectedIds);
         widgetContainer.setSize(widgetWidth, widgetHeight);
 
         widgetContainer.setCellWidth(widgetChosenContent, "100%");
@@ -123,7 +134,7 @@ public class HierarchyBrowserView extends Composite {
                 @Override
                 public void onClick(ClickEvent event) {
                     chosenItems.clear();
-                    widgetChosenContent.handleAddingChosenItems(chosenItems);
+                    widgetChosenContent.handleAddingChosenItems(chosenItems, selectedIds);
 
                 }
             });

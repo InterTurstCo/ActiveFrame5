@@ -2,17 +2,17 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
@@ -27,11 +27,14 @@ import java.util.regex.Pattern;
 
 @ComponentName("linked-domain-objects-table")
 public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
-
     @Autowired
     CrudService crudService;
+
     @Autowired
     ApplicationContext applicationContext;
+
+    @Autowired
+    CollectionsService collectionsService;
 
     @Override
     public LinkedDomainObjectsTableState getInitialState(WidgetContext context) {
@@ -42,19 +45,47 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         SingleChoiceConfig singleChoiceConfig = domainObjectsTableConfig.getSingleChoiceConfig();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         state.setSingleChoice(singleChoiceFromConfig);
-        List<DomainObject> domainObjects = new ArrayList<>();
-        List<Id> ids = context.getAllObjectIds();
-        if (!ids.isEmpty()) {
-            domainObjects = crudService.find(ids);
-        }
+        ArrayList<Id> ids = context.getAllObjectIds();
+        state.setIds(ids);
+
         String linkedFormName = domainObjectsTableConfig.getLinkedFormConfig().getName();
         if (linkedFormName != null && !linkedFormName.isEmpty()) {
             FormConfig formConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
             state.setObjectTypeName(formConfig.getDomainObjectType());
         }
+        SelectionFiltersConfig selectionFiltersConfig = domainObjectsTableConfig.getSelectionFiltersConfig();
+        List<RowItem> rowItems = selectionFiltersConfig == null ? generateRowItems(domainObjectsTableConfig, ids)
+                : generateFilteredRowItems(domainObjectsTableConfig, ids);
+        state.setRowItems(rowItems);
+        return state;
+    }
 
+    private List<RowItem> generateFilteredRowItems(LinkedDomainObjectsTableConfig widgetConfig,
+                                                   List<Id> selectedIds) {
+        SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
+        List<Filter> filters = new ArrayList<>();
+        FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        Filter includedIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);
+        filters.add(includedIds);
+        String collectionName = widgetConfig.getCollectionRefConfig().getName();
+        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, null, filters);
+        List<Id> selectedFilteredIds = new ArrayList<>();
+        for (IdentifiableObject object : collection) {
+            selectedFilteredIds.add(object.getId());
+        }
+        List<RowItem> hyperlinkItems = generateRowItems(widgetConfig, selectedFilteredIds);
+        return hyperlinkItems;
+    }
+
+    private List<RowItem> generateRowItems(LinkedDomainObjectsTableConfig widgetConfig,
+                                           List<Id> selectedIds) {
         List<RowItem> rowItems = new ArrayList<>();
-        List<SummaryTableColumnConfig> summaryTableColumnConfigs = domainObjectsTableConfig
+        if (selectedIds.isEmpty()) {
+            return rowItems;
+        }
+        List<DomainObject> domainObjects = crudService.find(selectedIds);
+
+        List<SummaryTableColumnConfig> summaryTableColumnConfigs = widgetConfig
                 .getSummaryTableConfig().getSummaryTableColumnConfig();
 
         for (DomainObject domainObject : domainObjects) {
@@ -63,8 +94,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             rowItem.setObjectId(domainObject.getId());
             rowItems.add(rowItem);
         }
-        state.setRowItems(rowItems);
-        return state;
+        return rowItems;
     }
 
     @Override

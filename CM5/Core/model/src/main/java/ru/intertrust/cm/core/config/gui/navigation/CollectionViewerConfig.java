@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchCollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class CollectionViewerConfig extends PluginConfig {
 
     @Element(name = "initial-filters", required = false)
     private InitialFiltersConfig initialFiltersConfig;
-
+    private SelectionFiltersConfig selectionFiltersConfig;
     @Element(name = "filter-panel", required = false)
     private FilterPanelConfig filterPanelConfig;
 
@@ -79,6 +80,14 @@ public class CollectionViewerConfig extends PluginConfig {
 
     public void setSearchAreaRefConfig(SearchAreaRefConfig searchAreaRefConfig) {
         this.searchAreaRefConfig = searchAreaRefConfig;
+    }
+
+    public SelectionFiltersConfig getSelectionFiltersConfig() {
+        return selectionFiltersConfig;
+    }
+
+    public void setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
+        this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
     public List<Id> getExcludedIds() {

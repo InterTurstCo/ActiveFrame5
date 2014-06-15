@@ -7,11 +7,13 @@ import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
@@ -40,32 +42,65 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         SuggestBoxConfig widgetConfig = context.getWidgetConfig();
         state.setSuggestBoxConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
-        IdentifiableObjectCollection domainObjects = null;
-
+        LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
         if (!selectedIds.isEmpty()) {
+            DefaultSortCriteriaConfig sortCriteriaConfig = widgetConfig.getDefaultSortCriteriaConfig();
+            SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
             List<Filter> filters = new ArrayList<Filter>();
             Set<Id> idsIncluded = new HashSet<Id>(selectedIds);
             Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, FilterBuilder.INCLUDED_IDS_FILTER);
             filters.add(idsIncludedFilter);
-            domainObjects = collectionsService.findCollection(collectionName, null, filters);
-        }
-        LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
-        if (domainObjects != null) {
-        SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
-        Matcher matcher = formatHandler.pattern.matcher(selectionPatternConfig.getValue());
-        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
-        for (IdentifiableObject domainObject : domainObjects) {
-            objects.put(domainObject.getId(), formatHandler.format(domainObject, matcher, formattingConfig));
-        }
+            IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters);
+            int selectedIdsNumber = selectedIds.size();
+            int collectionItemsNumber = collection.size();
+            SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
+            if (selectedIdsNumber == collectionItemsNumber || (selectedIdsNumber != collectionItemsNumber
+                    && selectionFiltersConfig != null)) {
+                FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+                collection = collectionsService.findCollection(collectionName, sortOrder, filters);
+                objects = generateIdRepresentationMapFromCollection(widgetConfig, collection);
+            } else {
+                objects = generateIdRepresentationMapFromCollectionAndIds(widgetConfig, collection, selectedIds);
+            }
 
         }
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
-        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
+        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
         state.setSingleChoice(singleChoice);
         state.setListValues(objects);
         return state;
+    }
+
+    private LinkedHashMap<Id, String> generateIdRepresentationMapFromCollection(SuggestBoxConfig widgetConfig,
+                                                                                IdentifiableObjectCollection collection) {
+        LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
+        SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
+        Matcher matcher = formatHandler.pattern.matcher(selectionPatternConfig.getValue());
+        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
+        for (IdentifiableObject domainObject : collection) {
+            objects.put(domainObject.getId(), formatHandler.format(domainObject, matcher, formattingConfig));
+        }
+        return objects;
+    }
+
+    private LinkedHashMap<Id, String> generateIdRepresentationMapFromCollectionAndIds(SuggestBoxConfig widgetConfig,
+                                                                                      IdentifiableObjectCollection collection,
+                                                                                      List<Id> selectedIds) {
+        LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
+        SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
+        Matcher matcher = formatHandler.pattern.matcher(selectionPatternConfig.getValue());
+        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
+        for (IdentifiableObject domainObject : collection) {
+            Id id = domainObject.getId();
+            objects.put(id, formatHandler.format(domainObject, matcher, formattingConfig));
+            selectedIds.remove(id);
+        }
+        for (Id selectedId : selectedIds) {
+            objects.put(selectedId, WidgetConstants.REPRESENTATION_STUB);
+        }
+        return objects;
     }
 
     public SuggestionList obtainSuggestions(Dto inputParams) {
@@ -75,6 +110,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         if (!suggestionRequest.getExcludeIds().isEmpty()) {
             filters.add(FilterBuilder.prepareFilter(suggestionRequest.getExcludeIds(), FilterBuilder.EXCLUDED_IDS_FILTER));
         }
+
         filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));
         DefaultSortCriteriaConfig sortCriteriaConfig = suggestionRequest.getDefaultSortCriteriaConfig();
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
@@ -99,10 +135,9 @@ public class SuggestBoxHandler extends ListWidgetHandler {
     private Filter prepareInputTextFilter(String text, String inputTextFilterName) {
         Filter textFilter = new Filter();
         textFilter.setFilter(inputTextFilterName);
-        if (text.equals("*")){
+        if (text.equals("*")) {
             textFilter.addCriterion(0, new StringValue("%"));
-        }
-        else{
+        } else {
             textFilter.addCriterion(0, new StringValue(text + "%"));
         }
         return textFilter;

@@ -30,4 +30,5 @@ public class BusinessUniverseConstants {
     public static final int START_SIDEBAR_WIDTH = 130;
     public static final String CLOSED = "closed";
     public static final String OPEN = "open";
+    public static final String UNDEFINED_COLLECTION_NAME = "undefined";
 }

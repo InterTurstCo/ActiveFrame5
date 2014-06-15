@@ -62,6 +62,9 @@ public class HierarchyBrowserMainPopup {
     public void handleAddingItem(HierarchyBrowserItem item, boolean singleChoice) {
         popupChosenContent.handleAddingItem(item, singleChoice);
     }
+    public ArrayList<Id> getSelectedIds() {
+        return popupChosenContent.getSelectedIds();
+    }
 
     public void handleRemovingItem(HierarchyBrowserItem item) {
         popupChosenContent.handleRemovingItem(item);
@@ -76,7 +79,7 @@ public class HierarchyBrowserMainPopup {
         dialogBox.hide();
     }
 
-    private VerticalPanel initPopup() {
+    private VerticalPanel initPopup(List<Id> selectedIds) {
         VerticalPanel root = new VerticalPanel();
 
         HorizontalPanel linksAndNodesSection = new HorizontalPanel();
@@ -102,7 +105,7 @@ public class HierarchyBrowserMainPopup {
         root.add(popupChosenContent);
         root.add(linksAndNodesSection);
         root.add(buttonsPanel);
-        popupChosenContent.handleAddingChosenItems(chosenItems);
+
         root.setWidth(popupWidth + "px");
       //  root.addStyleName("popup-body");
         root.getElement().getStyle().setMarginRight(10, Style.Unit.PX);
@@ -127,13 +130,15 @@ public class HierarchyBrowserMainPopup {
 
     }
 
-    public void createAndShowPopup() {
+    public void createAndShowPopup(ArrayList<Id> selectedIds) {
         dialogBox = new DialogBox();
+
         dialogBox.setAnimationEnabled(true);
         dialogBox.removeStyleName("gwt-DialogBox ");
         dialogBox.addStyleName("popup-body");
         dialogBox.setModal(true);
-        dialogBox.add(initPopup());
+        dialogBox.add(initPopup(selectedIds));
+        popupChosenContent.handleAddingChosenItems(chosenItems, selectedIds);
         dialogBox.setHeight(popupHeight + "px");
         dialogBox.setWidth(popupWidth + "px");
         dialogBox.center();

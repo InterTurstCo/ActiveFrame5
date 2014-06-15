@@ -10,7 +10,7 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
-import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -72,6 +72,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         if (displayHyperlinks()) {
             facebookStyleView.setEventBus(localEventBus);
             facebookStyleView.displayHyperlinkItems();
+            facebookStyleView.setSelectedIds(state.getSelectedIds());
 
         } else {
             facebookStyleView.displaySelectedItems();
@@ -97,13 +98,15 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     @Override
     protected TableBrowserState createNewState() {
         TableBrowserState state = new TableBrowserState();
+        TableBrowserState previousState =  getInitialData();
         if (isEditable()) {
             state.setTableBrowserItems(facebookStyleView.getChosenItems());
 
         } else {
-            ArrayList<TableBrowserItem> chosenItems = ((TableBrowserState) getInitialData()).getTableBrowserItems();
+            ArrayList<TableBrowserItem> chosenItems = previousState.getTableBrowserItems();
             state.setTableBrowserItems(chosenItems);
         }
+        state.setSelectedIds(previousState.getSelectedIds());
         return state;
     }
 
@@ -179,8 +182,11 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
 
         collectionViewerConfig.setSingleChoice(singleChoice);
         collectionViewerConfig.setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues());
-        collectionViewerConfig.setExcludedIds(facebookStyleView.getChosenIds());
-        InitialFiltersConfig initialFiltersConfig = tableBrowserConfig.getFilterConfig();
+        collectionViewerConfig.setExcludedIds(new ArrayList<Id>(facebookStyleView.getSelectedIds()));
+
+        SelectionFiltersConfig selectionFiltersConfig = tableBrowserConfig.getSelectionFiltersConfig();
+        collectionViewerConfig.setSelectionFiltersConfig(selectionFiltersConfig);
+        InitialFiltersConfig initialFiltersConfig = tableBrowserConfig.getInitialFiltersConfig();
         collectionViewerConfig.setInitialFiltersConfig(initialFiltersConfig);
         return collectionViewerConfig;
     }
@@ -214,6 +220,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
                 chosenIds.clear();
                 facebookStyleView.getChosenItems().clear();
                 facebookStyleView.displaySelectedItems();
+                ((TableBrowserState)getCurrentState()).getIds().clear();
 
             }
         });
@@ -332,11 +339,16 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, new CheckBoxFieldUpdateEventHandler() {
             @Override
             public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
+                Id id = event.getId();
+                TableBrowserState initialState = (TableBrowserState) getCurrentState();
                 if (event.isDeselected()) {
-                    chosenIds.remove(event.getId());
-                    facebookStyleView.removeChosenItem(event.getId());
+
+                    chosenIds.remove(id);
+                    facebookStyleView.removeChosenItem(id);
+                    initialState.getIds().remove(id);
                 } else {
-                    chosenIds.add(event.getId());
+                    chosenIds.add(id);
+                    initialState.getIds().add(id);
                 }
             }
         });

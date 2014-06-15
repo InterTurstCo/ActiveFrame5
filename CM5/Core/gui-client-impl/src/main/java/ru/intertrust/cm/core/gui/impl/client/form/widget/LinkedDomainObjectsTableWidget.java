@@ -37,7 +37,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
 
     public static final String STATE_KEY = "stateKey";
     LinkedDomainObjectsTableState currentState;
-    ArrayList<Id> selectedIds = new ArrayList<>();
 
     private CellTable<RowItem> table = new CellTable<>();
     private ListDataProvider<RowItem> model;
@@ -52,14 +51,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             tableConfigured = true;
         }
         List<RowItem> rowItems = this.currentState.getRowItems();
-        selectedIds.clear();
         model = new ListDataProvider<>();
 
         for (RowItem rowItem : rowItems) {
-            selectedIds.add(rowItem.getObjectId());
             model.getList().add(rowItem);
         }
-        this.currentState.setIds(selectedIds);
         model.addDataDisplay(table);
 
     }
@@ -185,7 +181,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                 } else {
                     // объекта нет в пуле, значит помечаем его для физического удаления
                     if (object.getObjectId() != null) {
-                        selectedIds.remove(object.getObjectId());
+                        currentState.getIds().remove(object.getObjectId());
                         model.getList().remove(object);
                     }
                 }
@@ -237,7 +233,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                 if (currentState.isSingleChoice() && model.getList().size() >= 1) {
                     currentState.clearPreviousStates();
                     model.getList().clear();
-                    selectedIds.clear();
 
                 }
                 FormState formState = formPlugin.getFormState(new IWidgetStateFilter() {
@@ -290,7 +285,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                     if (number != null) {
                         item.setValueByKey(summaryTableColumnConfig.getWidgetId(), number.toString());
                     }
-                }  else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)){
+                } else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
                     LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
                     List<Id> ids = linkEditingWidgetState.getIds();
                     String selectionPattern = summaryTableColumnConfig.getPatternConfig().getValue();
@@ -305,9 +300,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         return new LinkedDomainObjectsTableWidget();
     }
 
-    private void getRepresentation(final RowItem item, final String widgetId, List<Id> ids,String selectionPattern) {
+    private void getRepresentation(final RowItem item, final String widgetId, List<Id> ids, String selectionPattern) {
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
-        RepresentationRequest request = new RepresentationRequest(ids,selectionPattern, summaryTableConfig);
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, summaryTableConfig);
         Command command = new Command("getRepresentation", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
