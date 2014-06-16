@@ -69,7 +69,7 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
 
     @Override
     public void unlock(long serverId) {
-        jdbcTemplate.update(UNLOCK_QUERY, serverId, DateUtils.getGMTDate(new Date()), ID);
+        jdbcTemplate.update(UNLOCK_QUERY, ID);
     }
 
     @Override
