@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
+
     <act:action id="aRefresh" componentName="refresh.action" display="button"
-                      text="Обновить" image="icons/refresh.png" tooltip="Обновить данные"
-                      order="10" merged="false" dirtySensitivity="true"/>
+                text="Обновить" image="icons/refresh.png" tooltip="Обновить данные"
+                order="10" merged="false" dirtySensitivity="true"/>
     <act:action id="aCreate" componentName="create.new.object.action"
                 text="Создать" tooltip="Создать новый" image="icons/icon-create.png" order="100"
                 dirtySensitivity="true"/>
@@ -11,7 +12,7 @@
                 text="Сохранить" tooltip="Сохранить изменения" image="icons/icon-save.png"/>
     <act:action id="aDelete" componentName="delete.action" order="300"
                 text="Удалить" image="icons/icon-delete.png" dirtySensitivity="true"/>
-    <act:action id="aCloseEditorInCentralPanel" componentName="close.in.central.panel.action" order="100"
+    <act:action id="aToggleEditOff" componentName="close.in.central.panel.action" order="100"
                 text="Закрыть" image="icons/icon-edit-close.png"/>
     <act:action id="aToggleEditOn" componentName="toggle.edit.on.action" order="150"
                 text="Редактировать" image="icons/icon-edit.png"/>
@@ -21,7 +22,7 @@
         <act:action-separator order="50"/>
         <act:action-ref actionId="aDelete"/>
         <act:action componentName="save-csv.action" order="500"
-                          text="Выгрузить в CSV" image="icons/icon-csv_download.png"/>
+                    text="Выгрузить в CSV" image="icons/icon-csv_download.png"/>
     </act:tool-bar>
 
     <act:tool-bar plugin="form.plugin">
@@ -30,8 +31,7 @@
         <act:action-ref actionId="aCreate" rendered="not toggle-edit or (toggle-edit and preview)" merged="true"/>
         <act:action-ref actionId="aSave" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
         <act:action-ref actionId="aDelete" rendered="not toggle-edit or (toggle-edit and preview)"/>
-        <act:action-ref actionId="aCloseEditorInCentralPanel" rendered="toggle-edit and not preview"/>
-        <act:action-separator order="20"/>
+        <act:action-ref actionId="aToggleEditOff" rendered="toggle-edit and not preview"/>
         <act:action-ref actionId="aToggleEditOn" merged="true" rendered="toggle-edit and preview"/>
     </act:tool-bar>
 </configuration>
