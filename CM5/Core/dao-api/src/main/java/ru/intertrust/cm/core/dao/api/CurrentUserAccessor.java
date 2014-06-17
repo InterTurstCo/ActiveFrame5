@@ -9,6 +9,8 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  */
 public interface CurrentUserAccessor {
 
+    String INITIAL_DATA_LOADING = "InitialDataLoading";
+
     /**
      * Возвращает логин текущего пользователя.
      * @return логин текущего пользователя

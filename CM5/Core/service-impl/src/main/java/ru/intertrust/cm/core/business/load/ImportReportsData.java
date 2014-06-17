@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.load;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
@@ -13,6 +14,10 @@ import ru.intertrust.cm.core.config.module.ReportTemplateFileConfiguration;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.model.FatalException;
 
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,14 +35,18 @@ import java.util.zip.ZipInputStream;
  *         Date: 28.03.14
  *         Time: 12:55
  */
-public class ImportReportsData {
+@Stateless
+@Local(ImportReportsDataInterface.class)
+@Remote(ImportReportsDataInterface.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
+public class ImportReportsData implements ImportReportsDataInterface, ImportReportsDataInterface.Remote {
 
     @Autowired
     private ModuleService moduleService;
 
     private ReportServiceAdmin reportServiceAdmin;
 
-    public void onLoad() {
+    public void load() {
         for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
             deployReports(moduleConfiguration);
         }

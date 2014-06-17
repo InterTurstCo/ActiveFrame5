@@ -1,14 +1,12 @@
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.ejb.*;
-import javax.transaction.UserTransaction;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.ejb.*;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -28,24 +26,10 @@ public class BootstrapBean {
 
     @PostConstruct
     public void init() {
-        UserTransaction transaction = ejbContext.getUserTransaction();
         try {
-            //Установка таймаута транзакции при загрузке приложения
-            String timeoutValue = System.getProperty(DEPLOY_TRANSACTION_TIMEOUT);
-            int timeout = 0;
-            if (timeoutValue != null){
-                timeout = Integer.parseInt(timeoutValue);
-            }else{
-                timeout = DEFAULT_DEPLOY_TRANSACTION_TIMEOUT;
-            }
-            logger.info("Start create spring context. Transaction timeout = " + timeout);
-            
-            transaction.setTransactionTimeout(timeout);
-            transaction.begin();
-
             logger.info("Initialized ejb context");
 
-            //Загрузка контекста из файла beanRefContex.xml. Перенесено из интерсептора SpringBeanAutowiringInterceptor в этот метод для возможности установить таймаут транзакции
+            //Загрузка контекста из файла beanRefContex.xml.
             final BeanFactory beanFactory = ContextSingletonBeanFactoryLocator.getInstance().useBeanFactory(null).getFactory();
 
             logger.info("Initialized spring context");
@@ -57,16 +41,8 @@ public class BootstrapBean {
             importReportsData(beanFactory);
             initializeScheduledTasks(beanFactory);
 
-            transaction.commit();
-
             logger.info("Initial data loaded");
         } catch (Throwable ex) {
-            if (transaction != null) {
-                try {
-                    transaction.rollback();
-                } catch (Exception ignoreEx) {
-                }
-            }
             throw new FatalBeanException("Error init spring context", ex);
         }
     }
@@ -84,11 +60,11 @@ public class BootstrapBean {
     }
 
     private void importSystemData(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        executeBeanMethod(beanFactory, "importSystemData", "onLoad");
+        executeBeanMethod(beanFactory, "importSystemData", "load");
     }
 
     private void importReportsData(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        executeBeanMethod(beanFactory, "importReportsData", "onLoad");
+        executeBeanMethod(beanFactory, "importReportsData", "load");
     }
 
     private void initializeScheduledTasks(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {

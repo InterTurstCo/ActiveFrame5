@@ -18,7 +18,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
 
 /**
  * @author vmatsukevich
@@ -111,12 +110,6 @@ public class PostgreSqlDataStructureDaoImplTest {
                 index++;
             }
         }
-    }
-
-    @Test
-    public void testCountTables() throws Exception {
-        dataStructureDao.countTables();
-        verify(jdbcTemplate).queryForObject(queryHelper.generateCountTablesQuery(), Integer.class);
     }
 
     @Test

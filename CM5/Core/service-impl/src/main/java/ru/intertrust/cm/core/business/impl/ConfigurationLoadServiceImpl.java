@@ -215,12 +215,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     }
 
     private Boolean isConfigurationLoaded() {
-        Integer tablesCount = dataStructureDao.countTables();
-        if(tablesCount == null) {
-            throw new FatalException("Error occurred when calling DataStructureDao for tables count");
-        }
-
-        return tablesCount > 0;
+        return initializationLockDao.isInitializationLockTableCreated();
     }
 
     private class RecursiveMerger extends AbstractRecursiveLoader {

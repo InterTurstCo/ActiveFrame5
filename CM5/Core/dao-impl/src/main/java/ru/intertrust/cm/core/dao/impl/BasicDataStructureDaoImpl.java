@@ -173,14 +173,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#countTables()}
-     */
-    @Override
-    public Integer countTables() {
-        return jdbcTemplate.queryForObject(generateCountTablesQuery(), Integer.class);
-    }
-
-    /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createServiceTables()}
      */
     @Override
@@ -290,8 +282,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     protected abstract String generateDoesTableExistQuery();
-
-    protected abstract String generateCountTablesQuery();
 
     protected abstract String generateSelectTableIndexes();
 

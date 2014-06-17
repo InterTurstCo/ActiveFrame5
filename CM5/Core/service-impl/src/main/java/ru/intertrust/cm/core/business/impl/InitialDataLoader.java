@@ -7,12 +7,22 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
+import javax.ejb.EJBContext;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import javax.naming.Context;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.AuthenticationService;
+import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -23,10 +33,7 @@ import ru.intertrust.cm.core.config.StaticGroupConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.dao.api.*;
 
 import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
 import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.USER_GROUP_DOMAIN_OBJECT;
@@ -37,7 +44,11 @@ import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.USER_GR
  *         Date: 5/6/13
  *         Time: 9:36 AM
  */
-public class InitialDataLoader {
+@Stateless
+@Local(InitialDataLoaderInterface.class)
+@Remote(InitialDataLoaderInterface.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
+public class InitialDataLoader implements InitialDataLoaderInterface {
 
     private static final String ADMIN_LOGIN = "admin";
     private static final String ADMIN_PASSWORD = "admin";
@@ -65,6 +76,9 @@ public class InitialDataLoader {
 
     @Autowired
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Resource
+    private EJBContext ejbContext;
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -119,6 +133,9 @@ public class InitialDataLoader {
      * @throws Exception
      */
     public void load() throws Exception {
+        // Workaround for JBoss7 bug in @RunAs
+        ejbContext.getContextData().put(CurrentUserAccessor.INITIAL_DATA_LOADING, true);
+
         // статусы сохраняются до сохранения остальных доменных объектов, т.к. ДО могут использовать статусы при
         // сохранении
         saveInitialStatuses();

@@ -49,7 +49,11 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
             // В случае если вызов идет изнутри представившись как system то подставляем пользователя admin,
             // возможно понадобится иметь иного системного пользователя
             // TODO разобратся почему не устанавливается роль
-            if (getEjbContext().isCallerInRole("system")
+
+            // Workaround for JBoss7 bug in @RunAs
+            if (Boolean.TRUE.equals(getEjbContext().getContextData().get(INITIAL_DATA_LOADING))) {
+                return null;
+            } else if (getEjbContext().isCallerInRole("system")
                     || getEjbContext().getCallerPrincipal().getName().equals("anonymous")) {
                 // TODO возможно стоит подумать над иным пользователем, например system
                 result = "admin";

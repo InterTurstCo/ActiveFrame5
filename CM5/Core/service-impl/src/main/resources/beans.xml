@@ -17,12 +17,28 @@
     <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader"
           depends-on="springApplicationContext"/>
 
-    <bean id="initialDataLoader" class="ru.intertrust.cm.core.business.impl.InitialDataLoader"
-          depends-on="configurationLoader" p:dataSource-ref="dataSource"/>
+    <!--<bean id="initialDataLoader" class="ru.intertrust.cm.core.business.impl.InitialDataLoader"
+          depends-on="configurationLoader" p:dataSource-ref="dataSource"/>-->
 
     <jee:local-slsb id="configurationLoadService"
                     jndi-name="java:module/ConfigurationLoadServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationLoadService"
                     business-interface="ru.intertrust.cm.core.business.api.ConfigurationLoadService"/>
+
+    <jee:local-slsb id="initialDataLoader"
+                    jndi-name="java:module/InitialDataLoader!ru.intertrust.cm.core.business.impl.InitialDataLoaderInterface"
+                    business-interface="ru.intertrust.cm.core.business.impl.InitialDataLoaderInterface"/>
+
+    <jee:local-slsb id="importSystemData"
+                    jndi-name="java:module/ImportSystemData!ru.intertrust.cm.core.business.load.ImportSystemDataInterface"
+                    business-interface="ru.intertrust.cm.core.business.load.ImportSystemDataInterface"/>
+
+    <jee:local-slsb id="importReportsData"
+                    jndi-name="java:module/ImportReportsData!ru.intertrust.cm.core.business.load.ImportReportsDataInterface"
+                    business-interface="ru.intertrust.cm.core.business.load.ImportReportsDataInterface"/>
+
+    <jee:local-slsb id="sheduleTaskLoader"
+                    jndi-name="java:module/SheduleTaskLoader!ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderInterface"
+                    business-interface="ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderInterface"/>
 
     <jee:local-slsb id="crudService"
                     jndi-name="java:module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
@@ -80,25 +96,12 @@
 
     <bean id="attachmentCleaner" class="ru.intertrust.cm.core.business.impl.AttachmentCleaner"/>
 
-    <bean id="sheduleTaskLoader" class="ru.intertrust.cm.core.business.shedule.SheduleTaskLoader"/>
+   <!-- <bean id="sheduleTaskLoader" class="ru.intertrust.cm.core.business.shedule.SheduleTaskLoader"/>-->
 
-    <bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData"/>
+    <!--<bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData"/>-->
 
-    <bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData">
-        <property name="reportServiceAdmin">
-            <bean id="reportServiceAdmin"
-                  class="ru.intertrust.cm.core.business.impl.ReportServiceAdminImpl">
-                <property name="attachmentService">
-                    <bean class="ru.intertrust.cm.core.business.impl.LocalAttachmentServiceImpl">
-                        <property name="crudService">
-                            <!-- todo EJB should not be defined as Spring bean -->
-                            <bean class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"/>
-                        </property>
-                    </bean>
-                </property>
-            </bean>
-        </property>
-    </bean>
+    <!--<bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData">
+    </bean>-->
 
 
     <!-- Интеграция с Activiti -->

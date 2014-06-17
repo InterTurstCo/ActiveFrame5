@@ -70,12 +70,6 @@ public interface DataStructureDao {
     void createSequence(DomainObjectTypeConfig config);
 
     /**
-     * Возвращает кол-во таблиц в базе данных
-     * @return кол-во таблиц в базе данных
-     */
-    Integer countTables();
-
-    /**
      * Создает сервисные таблицы, которые не задаются конфигурацией доменных объектов
      */
     void createServiceTables();

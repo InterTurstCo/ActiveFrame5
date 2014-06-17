@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.dao.impl.utils.DateUtils;
@@ -11,7 +12,7 @@ import java.util.Date;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
- * Реализация {@link ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao}
+ * Реализация {@link ru.intertrust.cm.core.dao.api.InitializationLockDao}
  * @author vmatsukevich
  *         Date: 8/13/13
  *         Time: 2:33 PM
@@ -46,6 +47,9 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
     @Autowired
     private JdbcOperations jdbcTemplate;
 
+    @Autowired
+    private DataStructureDao dataStructureDao;
+
     private BasicQueryHelper queryHelper;
 
     public void setJdbcTemplate(JdbcOperations jdbcTemplate) {
@@ -53,32 +57,58 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void createInitializationLockTable() {
         jdbcTemplate.update(getQueryHelper().generateInitializationLockTableQuery());
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isInitializationLockTableCreated() {
+        return dataStructureDao.doesTableExists(wrap(INITIALIZATION_LOCK_TABLE));
+    }
+
+    @Override
+    /**
+     * {@inheritDoc}
+     */
     public void createLockRecord(long serverId) {
         jdbcTemplate.update(INSERT_QUERY, ID, serverId, DateUtils.getGMTDate(new Date()));
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public void lock(long serverId) {
         jdbcTemplate.update(LOCK_QUERY, serverId, DateUtils.getGMTDate(new Date()), ID);
     }
 
     @Override
-    public void unlock(long serverId) {
+    /**
+     * {@inheritDoc}
+     */
+    public void unlock() {
         jdbcTemplate.update(UNLOCK_QUERY, ID);
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean isLocked() {
         Integer freeRecordsCount = jdbcTemplate.queryForObject(COUNT_FREE_QUERY, Integer.class, ID);
         return freeRecordsCount == 0;
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean isLockRecordCreated() {
         Integer recordsCount = jdbcTemplate.queryForObject(COUNT_ALL, Integer.class);
         return recordsCount > 0;

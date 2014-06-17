@@ -22,11 +22,6 @@ public class OracleDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     }
 
     @Override
-    protected String generateCountTablesQuery() {
-        return "select count(table_name) FROM user_tables";
-    }
-
-    @Override
     protected String generateSelectTableIndexes() {
         return "select i.index_name, i.column_name from all_ind_columns i where i.table_name = ?";
     }

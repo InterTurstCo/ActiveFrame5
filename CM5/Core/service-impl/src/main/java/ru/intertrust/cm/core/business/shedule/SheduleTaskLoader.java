@@ -16,11 +16,10 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -37,15 +36,25 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.ScheduleException;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 
 /**
  * Спринг бин загрузчик классов периодических заданий
  * @author larin
  * 
  */
-public class SheduleTaskLoader implements ApplicationContextAware {
+@Stateless
+@Local(ScheduleTaskLoaderInterface.class)
+@Remote(ScheduleTaskLoaderInterface.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
+public class SheduleTaskLoader implements ScheduleTaskLoaderInterface, ScheduleTaskLoaderInterface.Remote {
     private static final Logger logger = LoggerFactory.getLogger(SheduleTaskLoader.class);
-    private ApplicationContext applicationContext;
+
     private Hashtable<String, SheduleTaskReestrItem> reestr = new Hashtable<String, SheduleTaskReestrItem>();
 
     @Autowired
@@ -60,15 +69,14 @@ public class SheduleTaskLoader implements ApplicationContextAware {
     @Autowired
     private ModuleService moduleService;
 
+    @Autowired
+    private SpringApplicationContext springApplicationContext;
+
     /**
      * Установка spring контекста
      */
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-
-    public void initialize() {
+    public void load() throws BeansException {
         initReestr();
         initStorage();
     }
@@ -202,7 +210,7 @@ public class SheduleTaskLoader implements ApplicationContextAware {
                         if (ScheduleTaskHandle.class.isAssignableFrom(scheduleTaskClass)) {
 
                             // создаем экземпляр класса Добавляем класс как спринговый бин с поддержкой autowire
-                            ScheduleTaskHandle scheduleTask = (ScheduleTaskHandle) applicationContext
+                            ScheduleTaskHandle scheduleTask = (ScheduleTaskHandle) springApplicationContext.getContext()
                                     .getAutowireCapableBeanFactory().createBean(scheduleTaskClass,
                                             AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
                             reestr.put(scheduleTaskClass.getName(), new SheduleTaskReestrItem(scheduleTask, annatation));

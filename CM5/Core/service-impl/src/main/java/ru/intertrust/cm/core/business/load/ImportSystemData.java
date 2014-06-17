@@ -8,6 +8,7 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.module.ImportFileConfiguration;
 import ru.intertrust.cm.core.config.module.ImportFilesConfiguration;
@@ -19,12 +20,21 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
 
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 /**
  * Данный сервис загружает системные справочники из *.CSV файлов которые указаны в конфигурации модулей.
  * @author larin
  * 
  */
-public class ImportSystemData {
+@Stateless
+@Local(ImportSystemDataInterface.class)
+@Remote(ImportSystemDataInterface.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
+public class ImportSystemData implements ImportSystemDataInterface, ImportSystemDataInterface.Remote {
 
     private static final Logger logger = Logger.getLogger(ImportSystemData.class);
 
@@ -41,7 +51,7 @@ public class ImportSystemData {
     @Autowired
     private AttachmentContentDao attachmentContentDao;
 
-    public void onLoad() {
+    public void load() {
         String fileName = null;
         String moduleName = null;
         try {

@@ -22,11 +22,6 @@ public class PostgreSqlDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     }
 
     @Override
-    protected String generateCountTablesQuery() {
-        return "select count(table_name) FROM information_schema.tables WHERE table_schema = 'public'";
-    }
-
-    @Override
     protected String generateSelectTableIndexes() {
         return "select i.relname as index_name, a.attname as column_name" +
                 "   from pg_class t, pg_class i, pg_index ix, pg_attribute a" +

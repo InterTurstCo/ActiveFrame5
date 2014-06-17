@@ -69,7 +69,7 @@ public class ConfigurationLoadServiceImplTest {
 
     @Test
     public void testLoadConfigurationLoadedButNotSaved() throws Exception {
-        when(dataStructureDao.countTables()).thenReturn(10);
+        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(true);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(null);
 
         expectedException.expect(ConfigurationException.class);
@@ -81,7 +81,7 @@ public class ConfigurationLoadServiceImplTest {
 
     @Test
     public void testLoadConfigurationUpdated() throws Exception {
-        when(dataStructureDao.countTables()).thenReturn(10);
+        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(true);
 
         String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
@@ -118,14 +118,14 @@ public class ConfigurationLoadServiceImplTest {
 
         configurationService.loadConfiguration();
 
-        verify(dataStructureDao).countTables();
+        verify(initializationLockDao).isInitializationLockTableCreated();
         //verify(dataStructureDao).updateTableStructure(anyString(), anyListOf(FieldConfig.class));
 //        verify(configurationDao).save(ConfigurationSerializer.serializeConfiguration(updatedConfiguration));
     }
 
     @Test
     public void testLoadConfigurationNoUpdate() throws Exception {
-        when(dataStructureDao.countTables()).thenReturn(10);
+        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(true);
 
         String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
@@ -133,7 +133,7 @@ public class ConfigurationLoadServiceImplTest {
 
         configurationService.loadConfiguration();
 
-        verify(dataStructureDao).countTables();
+        verify(initializationLockDao).isInitializationLockTableCreated();
         verify(dataStructureDao, never()).createServiceTables();
         verify(dataStructureDao, never()).createTable(any(DomainObjectTypeConfig.class));
         verify(dataStructureDao, never()).createSequence(any(DomainObjectTypeConfig.class));
@@ -142,10 +142,10 @@ public class ConfigurationLoadServiceImplTest {
 
     @Test
     public void testLoadConfigurationFirstTime() throws Exception {
-        when(dataStructureDao.countTables()).thenReturn(0);
+        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(true);
         configurationService.loadConfiguration();
 
-        verify(dataStructureDao).countTables();
+        verify(initializationLockDao).isInitializationLockTableCreated();
         verify(dataStructureDao).createServiceTables();
         verify(dataStructureDao, times(2)).createTable(any(DomainObjectTypeConfig.class));
         verify(dataStructureDao, times(2)).createSequence(any(DomainObjectTypeConfig.class));
