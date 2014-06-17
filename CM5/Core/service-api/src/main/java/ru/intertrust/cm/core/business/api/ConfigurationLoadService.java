@@ -9,8 +9,6 @@ import ru.intertrust.cm.core.config.ConfigurationException;
  *         Time: 4:32 PM
  */
 public interface ConfigurationLoadService {
-    public interface Remote extends ConfigurationLoadService {
-    }
 
     interface Remote extends ConfigurationLoadService {
     }

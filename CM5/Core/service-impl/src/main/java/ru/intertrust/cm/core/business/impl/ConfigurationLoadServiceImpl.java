@@ -88,7 +88,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
                 saveConfiguration();
 
                 userTransaction = startTransaction();
-                initializationLockDao.unlock(serverId);
+                initializationLockDao.unlock();
                 userTransaction.commit();
 
                 return;
@@ -149,7 +149,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             saveConfiguration();
 
             userTransaction = startTransaction();
-            initializationLockDao.unlock(serverId);
+            initializationLockDao.unlock();
             userTransaction.commit();
         } catch (ConfigurationException e) {
             throw e;
