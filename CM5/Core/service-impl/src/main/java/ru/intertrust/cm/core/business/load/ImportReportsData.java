@@ -44,6 +44,7 @@ public class ImportReportsData implements ImportReportsDataInterface, ImportRepo
     @Autowired
     private ModuleService moduleService;
 
+    @Autowired
     private ReportServiceAdmin reportServiceAdmin;
 
     public void load() {

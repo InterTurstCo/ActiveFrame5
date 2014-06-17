@@ -69,7 +69,7 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
      * {@inheritDoc}
      */
     public boolean isInitializationLockTableCreated() {
-        return dataStructureDao.doesTableExists(wrap(INITIALIZATION_LOCK_TABLE));
+        return dataStructureDao.doesTableExists(INITIALIZATION_LOCK_TABLE);
     }
 
     @Override

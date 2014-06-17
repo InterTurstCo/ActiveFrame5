@@ -68,7 +68,7 @@ public class BootstrapBean {
     }
 
     private void initializeScheduledTasks(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        executeBeanMethod(beanFactory, "sheduleTaskLoader", "initialize");
+        executeBeanMethod(beanFactory, "sheduleTaskLoader", "load");
     }
 
     private void executeBeanMethod(BeanFactory factory, String beanName, String methodName) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
