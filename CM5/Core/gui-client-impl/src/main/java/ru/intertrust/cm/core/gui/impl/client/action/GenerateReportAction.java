@@ -62,13 +62,15 @@ public class GenerateReportAction extends SimpleServerAction {
             for (Map.Entry<String, Value> entry : params.entrySet()) {
                 String fieldName = entry.getKey();
                 String value = ValueUtil.valueToString(entry.getValue());
-                String fieldType = entry.getValue().getFieldType().name();
-                sb.append("&")
-                        .append(fieldName)
-                        .append("=")
-                        .append(value)
-                        .append(SEPARATOR)
-                        .append(fieldType);
+                if (entry.getValue() != null) {
+                    String fieldType = entry.getValue().getFieldType().name();
+                    sb.append("&")
+                            .append(fieldName)
+                            .append("=")
+                            .append(value)
+                            .append(SEPARATOR)
+                            .append(fieldType);
+                }
             }
         }
         return sb.toString();
