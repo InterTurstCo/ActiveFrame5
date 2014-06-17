@@ -39,7 +39,7 @@ public class TimelessDateValueConverter implements DateValueConverter<TimelessDa
 
     @Override
     public TimelessDateValue contextToValue(DateTimeContext dateTimeContext) {
-        if (dateTimeContext != null) {
+        if (dateTimeContext.getDateTime() != null) {
             final TimelessDate result = new TimelessDate();
             final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
             final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
