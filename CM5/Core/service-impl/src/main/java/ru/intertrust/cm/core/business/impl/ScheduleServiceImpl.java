@@ -28,14 +28,13 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.schedule.Schedule;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskConfig;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
-import ru.intertrust.cm.core.business.shedule.SheduleTaskLoader;
-import ru.intertrust.cm.core.business.shedule.SheduleTaskLoader.SheduleTaskReestrItem;
+import ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderInterface;
+import ru.intertrust.cm.core.business.shedule.SheduleTaskReestrItem;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
-import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ScheduleException;
 import ru.intertrust.cm.core.model.UnexpectedException;
@@ -63,7 +62,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     private AccessControlService accessControlService;
 
     @Autowired
-    private SheduleTaskLoader sheduleTaskLoader;
+    private ScheduleTaskLoaderInterface scheduleTaskLoaderInterface;
 
     @Autowired
     private StatusDao statusDao;
@@ -91,7 +90,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public List<String> getTaskClasses() {
         try {
-            List<SheduleTaskReestrItem> tasksDescriptions = sheduleTaskLoader.getSheduleTaskReestrItems(true);
+            List<SheduleTaskReestrItem> tasksDescriptions = scheduleTaskLoaderInterface.getSheduleTaskReestrItems(true);
             List<String> result = new ArrayList<String>();
             for (SheduleTaskReestrItem sheduleTaskReestrItem : tasksDescriptions) {
                 result.add(sheduleTaskReestrItem.getScheduleTask().getClass().toString());
@@ -291,7 +290,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public DomainObject createScheduleTask(String className, String name) {
         try {
-            return sheduleTaskLoader.createTaskDomainObject(sheduleTaskLoader.getSheduleTaskReestrItem(className), name);
+            return scheduleTaskLoaderInterface.createTaskDomainObject(scheduleTaskLoaderInterface.getSheduleTaskReestrItem(className), name);
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {

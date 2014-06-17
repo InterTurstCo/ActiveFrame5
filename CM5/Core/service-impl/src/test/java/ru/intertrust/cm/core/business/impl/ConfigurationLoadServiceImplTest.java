@@ -142,7 +142,7 @@ public class ConfigurationLoadServiceImplTest {
 
     @Test
     public void testLoadConfigurationFirstTime() throws Exception {
-        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(true);
+        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(false);
         configurationService.loadConfiguration();
 
         verify(initializationLockDao).isInitializationLockTableCreated();

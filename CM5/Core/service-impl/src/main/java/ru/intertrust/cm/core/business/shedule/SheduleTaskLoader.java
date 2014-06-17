@@ -87,7 +87,7 @@ public class SheduleTaskLoader implements ScheduleTaskLoaderInterface, ScheduleT
     private void initStorage() {
         for (SheduleTaskReestrItem item : reestr.values()) {
             //Автоматически создаем только Singleton задачи
-            if (item.configuration.type() == SheduleType.Singleton) {
+            if (item.getConfiguration().type() == SheduleType.Singleton) {
                 //Получение доменного объекта по классу
                 DomainObject taskDo = getTaskDomainObject(item.getScheduleTask().getClass().getName());
                 if (taskDo == null) {
@@ -106,22 +106,22 @@ public class SheduleTaskLoader implements ScheduleTaskLoaderInterface, ScheduleT
 
         DomainObject task = createDomainObject("schedule");
         if (name == null) {
-            task.setString(ScheduleService.SCHEDULE_NAME, item.configuration.name());
+            task.setString(ScheduleService.SCHEDULE_NAME, item.getConfiguration().name());
         } else {
             task.setString(ScheduleService.SCHEDULE_NAME, name);
         }
-        task.setString(ScheduleService.SCHEDULE_TASK_CLASS, item.scheduleTask.getClass().getName());
-        task.setLong(ScheduleService.SCHEDULE_TASK_TYPE, item.configuration.type().toLong());
-        task.setString(ScheduleService.SCHEDULE_YEAR, item.configuration.year());
-        task.setString(ScheduleService.SCHEDULE_MONTH, item.configuration.month());
-        task.setString(ScheduleService.SCHEDULE_DAY_OF_MONTH, item.configuration.dayOfMonth());
-        task.setString(ScheduleService.SCHEDULE_DAY_OF_WEEK, item.configuration.dayOfWeek());
-        task.setString(ScheduleService.SCHEDULE_HOUR, item.configuration.hour());
-        task.setString(ScheduleService.SCHEDULE_MINUTE, item.configuration.minute());
-        task.setLong(ScheduleService.SCHEDULE_TIMEOUT, item.configuration.timeout());
-        task.setLong(ScheduleService.SCHEDULE_PRIORITY, item.configuration.priority());
-        task.setString(ScheduleService.SCHEDULE_PARAMETERS, getDefaultParameters(item.configuration));
-        task.setLong(ScheduleService.SCHEDULE_ACTIVE, item.configuration.active() ? 1L : 0);
+        task.setString(ScheduleService.SCHEDULE_TASK_CLASS, item.getScheduleTask().getClass().getName());
+        task.setLong(ScheduleService.SCHEDULE_TASK_TYPE, item.getConfiguration().type().toLong());
+        task.setString(ScheduleService.SCHEDULE_YEAR, item.getConfiguration().year());
+        task.setString(ScheduleService.SCHEDULE_MONTH, item.getConfiguration().month());
+        task.setString(ScheduleService.SCHEDULE_DAY_OF_MONTH, item.getConfiguration().dayOfMonth());
+        task.setString(ScheduleService.SCHEDULE_DAY_OF_WEEK, item.getConfiguration().dayOfWeek());
+        task.setString(ScheduleService.SCHEDULE_HOUR, item.getConfiguration().hour());
+        task.setString(ScheduleService.SCHEDULE_MINUTE, item.getConfiguration().minute());
+        task.setLong(ScheduleService.SCHEDULE_TIMEOUT, item.getConfiguration().timeout());
+        task.setLong(ScheduleService.SCHEDULE_PRIORITY, item.getConfiguration().priority());
+        task.setString(ScheduleService.SCHEDULE_PARAMETERS, getDefaultParameters(item.getConfiguration()));
+        task.setLong(ScheduleService.SCHEDULE_ACTIVE, item.getConfiguration().active() ? 1L : 0);
         return domainObjectDao.save(task, accessToken);
     }
 
@@ -244,42 +244,11 @@ public class SheduleTaskLoader implements ScheduleTaskLoaderInterface, ScheduleT
         return result;
     }
 
-    /**
-     * Класс элемента рееста классов периодических заданий
-     * @author larin
-     * 
-     */
-    public class SheduleTaskReestrItem {
-        private ScheduleTaskHandle scheduleTask;
-        private ScheduleTask configuration;
-
-        public SheduleTaskReestrItem(ScheduleTaskHandle scheduleTask, ScheduleTask configuration) {
-            this.scheduleTask = scheduleTask;
-            this.configuration = configuration;
-        }
-
-        public ScheduleTaskHandle getScheduleTask() {
-            return scheduleTask;
-        }
-
-        public void setScheduleTask(ScheduleTaskHandle scheduleTask) {
-            this.scheduleTask = scheduleTask;
-        }
-
-        public ScheduleTask getConfiguration() {
-            return configuration;
-        }
-
-        public void setConfiguration(ScheduleTask configuration) {
-            this.configuration = configuration;
-        }
-    }
-
     public List<SheduleTaskReestrItem> getSheduleTaskReestrItems(boolean singletonOnly) {
         List<SheduleTaskReestrItem> result = new ArrayList<SheduleTaskReestrItem>();
         for (SheduleTaskReestrItem item : reestr.values()) {
             if (singletonOnly) {
-                if (item.configuration.type() == SheduleType.Singleton) {
+                if (item.getConfiguration().type() == SheduleType.Singleton) {
                     result.add(item);
                 }
             } else {
@@ -294,7 +263,7 @@ public class SheduleTaskLoader implements ScheduleTaskLoaderInterface, ScheduleT
     }
 
     public ScheduleTaskHandle getSheduleTaskHandle(String className) {
-        return reestr.get(className).scheduleTask;
+        return reestr.get(className).getScheduleTask();
     }
 
 }
