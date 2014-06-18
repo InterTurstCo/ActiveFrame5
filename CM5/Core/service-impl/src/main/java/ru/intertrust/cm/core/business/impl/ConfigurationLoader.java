@@ -72,7 +72,8 @@ public class ConfigurationLoader implements ApplicationContextAware {
         }
         
         //Установка флага загруженности конфигурации
-        setLoadedFlag();
+        configurationLoaded = true;
+        // /setLoadedFlag();
     }
 
     @Override
@@ -95,6 +96,7 @@ public class ConfigurationLoader implements ApplicationContextAware {
      * Флаг устанавливается не сразу, а только после окончания транзакции, иначе созданные таблицы не будут доступны другим потокам
      */
     private void setLoadedFlag() {
+
         //не обрабатываем вне транзакции
         if (getTxReg() == null || getTxReg().getTransactionKey() == null) {
             return;

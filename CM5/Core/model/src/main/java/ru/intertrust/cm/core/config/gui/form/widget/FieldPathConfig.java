@@ -57,7 +57,7 @@ public class FieldPathConfig implements Dto {
     private OnDeleteAction onRootDelete;
 
     @Element(name = "on-link", required = false)
-    private OnLinkConfig OnLinkConfigConfig;
+    private OnLinkConfig onLinkConfig;
 
     @Element(name = "on-unlink", required = false)
     private OnUnlinkConfig onUnlinkConfig;
@@ -87,12 +87,12 @@ public class FieldPathConfig implements Dto {
         this.domainObjectLinker = domainObjectLinker;
     }
 
-    public OnLinkConfig getOnLinkConfigConfig() {
-        return OnLinkConfigConfig;
+    public OnLinkConfig getOnLinkConfig() {
+        return onLinkConfig;
     }
 
     public void setOnLinkConfigConfig(OnLinkConfig onLinkConfigConfig) {
-        OnLinkConfigConfig = onLinkConfigConfig;
+        onLinkConfig = onLinkConfigConfig;
     }
 
     public OnUnlinkConfig getOnUnlinkConfig() {
@@ -110,7 +110,7 @@ public class FieldPathConfig implements Dto {
 
         FieldPathConfig that = (FieldPathConfig) o;
 
-        if (!OnLinkConfigConfig.equals(that.OnLinkConfigConfig)) return false;
+        if (!onLinkConfig.equals(that.onLinkConfig)) return false;
         if (!domainObjectLinker.equals(that.domainObjectLinker)) return false;
         if (onRootDelete != that.onRootDelete) return false;
         if (!onUnlinkConfig.equals(that.onUnlinkConfig)) return false;
@@ -124,7 +124,7 @@ public class FieldPathConfig implements Dto {
         int result = value.hashCode();
         result = 31 * result + domainObjectLinker.hashCode();
         result = 31 * result + onRootDelete.hashCode();
-        result = 31 * result + OnLinkConfigConfig.hashCode();
+        result = 31 * result + onLinkConfig.hashCode();
         result = 31 * result + onUnlinkConfig.hashCode();
         return result;
     }
