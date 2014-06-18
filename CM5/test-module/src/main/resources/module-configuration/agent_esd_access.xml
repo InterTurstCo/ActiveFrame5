@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Редакторы Агента_ЭСД -->
+    <dynamic-group name="Agent_Esd_Editor">
+        <context>
+            <domain-object type="agent_esd" />
+        </context>
+        <members>
+            <track-domain-objects type="agent_esd">
+                <get-person>
+                    <query>select ap.person from agent_esd ae inner join agent_person ap on ae.id = ap.agent_esd where ae.id = {0} and ap.is_read_only = 0</query>
+                </get-person>
+            </track-domain-objects>
+            <track-domain-objects type="agent_person">
+                <bind-context>
+                    <doel>agent_esd</doel>
+                </bind-context>            
+                <get-person>
+                <query>
+                    select ap.person from agent_esd ae inner join agent_person ap on ae.id = ap.agent_esd where ae.id = {0} and ap.is_read_only = 0
+                </query>
+                </get-person>
+            </track-domain-objects>            
+        </members>
+    </dynamic-group>
+
+    <!-- Читатели Агента_ЭСД -->    
+    <dynamic-group name="Agent_Esd_Reader_Only">
+        <context>
+            <domain-object type="agent_esd" />
+        </context>
+        <members>
+            <track-domain-objects type="agent_esd">
+                <get-person>
+                    <query>select ap.person from agent_esd ae inner join agent_person ap on ae.id = ap.agent_esd where ae.id = {0} and ap.is_read_only = 1</query>
+                </get-person>
+            </track-domain-objects>
+            <track-domain-objects type="agent_person">
+                <bind-context>
+                    <doel>agent_esd</doel>
+                </bind-context>            
+                <get-person>
+                <query>
+                    select ap.person from agent_esd ae inner join agent_person ap on ae.id = ap.agent_esd where ae.id = {0} and ap.is_read_only = 1
+                </query>
+                </get-person>
+            </track-domain-objects>            
+        </members>
+    </dynamic-group>
+    
+    <!-- Agent_Esd_Editor_Role -->
+    <context-role name="Agent_Esd_Editor_Role">
+        <context>
+            <domain-object type="agent_esd" />
+        </context>
+        <groups>
+            <track-domain-objects type="agent_esd">
+                <get-group name="Agent_Esd_Editor">
+                    <doel>id</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>    
+
+    <!--  Agent_Esd_Reader_Role -->
+    <context-role name="Agent_Esd_Reader_Role">
+        <context>
+            <domain-object type="agent_esd" />
+        </context>
+        <groups>
+            <track-domain-objects type="agent_esd">
+                <get-group name="Agent_Esd_Reader_Only">
+                    <doel>id</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>    
+
+    <!-- Service_Consumer_Editor_Role -->
+    <context-role name="Service_Consumer_Editor_Role">
+        <context>
+            <domain-object type="service_consumer" />
+        </context>
+        <groups>
+            <track-domain-objects type="service_consumer">
+                <get-group name="Agent_Esd_Editor">
+                    <doel>agent_esd</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <!-- Service_Consumer_Reader_Role -->
+    <context-role name="Service_Consumer_Reader_Role">
+        <context>
+            <domain-object type="service_consumer" />
+        </context>
+        <groups>
+            <track-domain-objects type="service_consumer">
+                <get-group name="Agent_Esd_Reader_Only">
+                    <doel>agent_esd</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+    
+    <!-- Contact_Name_Editor_Role -->
+    <context-role name="Contact_Name_Editor_Role">
+        <context>
+            <domain-object type="contact_name" />
+        </context>
+        <groups>
+            <track-domain-objects type="contact_name">
+                <get-group name="Agent_Esd_Editor">
+                    <doel>service_consumer.agent_esd</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+    
+    <!-- Contact_Name_Reader_Role -->
+    <context-role name="Contact_Name_Reader_Role">
+        <context>
+            <domain-object type="contact_name" />
+        </context>
+        <groups>
+            <track-domain-objects type="contact_name">
+                <get-group name="Agent_Esd_Reader_Only">
+                    <doel>service_consumer.agent_esd</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <!-- Record_State_Editor_Role -->
+    <context-role name="Record_State_Editor_Role">
+        <context>
+            <domain-object type="record_state" />
+        </context>
+        <groups>
+            <track-domain-objects type="contact_name">
+                <get-group name="Agent_Esd_Editor">
+                    <doel>service_consumer^record_state.agent_esd</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <!-- Record_State_Reader_Role -->
+    <context-role name="Record_State_Reader_Role">
+        <context>
+            <domain-object type="record_state" />
+        </context>
+        <groups>
+            <track-domain-objects type="contact_name">
+                <get-group name="Agent_Esd_Reader_Only">
+                    <doel>service_consumer^record_state.agent_esd</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <!--  Access Matrix -->    
+    <!-- agent_esd -->
+    <access-matrix type="agent_esd">
+        <status name="Active">
+            <read>
+                <permit-role name="Agent_Esd_Reader_Role" />
+                <permit-role name="Agent_Esd_Editor_Role" />                
+            </read>
+            <write>
+                <permit-role name="Agent_Esd_Editor_Role" />
+            </write>
+            <delete>
+                <permit-role name="Agent_Esd_Editor_Role" />
+            </delete>
+        </status>
+    </access-matrix>
+    
+    <!-- service_consumer -->
+    <access-matrix type="service_consumer">
+        <status name="Active">
+            <read>
+                <permit-role name="Service_Consumer_Editor_Role" />
+                <permit-role name="Service_Consumer_Reader_Role" />
+            </read>
+            <write>
+                <permit-role name="Service_Consumer_Editor_Role" />
+            </write>
+            <delete>
+                <permit-role name="Service_Consumer_Editor_Role" />
+            </delete>
+        </status>
+    </access-matrix>
+    
+    <!--  contact_name -->
+    <access-matrix type="contact_name">
+        <status name="Active">
+            <read>
+                <permit-role name="Contact_Name_Editor_Role" />
+                <permit-role name="Contact_Name_Reader_Role" />
+            </read>
+            <write>
+                <permit-role name="Contact_Name_Editor_Role" />
+            </write>
+            <delete>
+                <permit-role name="Contact_Name_Editor_Role" />
+            </delete>
+        </status>
+    </access-matrix>
+    
+    <!--  contact_name -->
+    <access-matrix type="record_state">
+        <status name="Active">
+            <read>
+                <permit-role name="Record_State_Editor_Role" />
+                <permit-role name="Record_State_Reader_Role" />
+            </read>
+            <write>
+                <permit-role name="Record_State_Editor_Role" />
+            </write>
+            <delete>
+                <permit-role name="Record_State_Editor_Role" />
+            </delete>
+        </status>
+    </access-matrix>
+    
+</configuration>

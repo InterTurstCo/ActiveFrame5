@@ -1,0 +1,6 @@
+TYPE_NAME=agent_person;KEYS=agent_esd,person;;
+agent_esd;person;is_read_only
+"agent_esd.name=""Agent 1""";"person.login=""person1""";false
+"agent_esd.name=""Agent 1""";"person.login=""person2""";false
+"agent_esd.name=""Agent 1""";"person.login=""person3""";true
+"agent_esd.name=""Agent 1""";"person.login=""person4""";true

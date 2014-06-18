@@ -30,9 +30,9 @@
         <uniqueKey>
             <field name="name"/>
         </uniqueKey>
-        <uniqueKey>
+        <!-- <uniqueKey>
             <field name="identifier"/>
-        </uniqueKey>
+        </uniqueKey> -->
     </domain-object-type>
 
     <!--Потребитель сервиса-->
@@ -544,5 +544,1351 @@
             </roles>
         </form-mapping>
     </form-mappings>
+    
+    <!--Тип потребителя-->      
+     <form name="consumer_type_form" domain-object-type="consumer_type" is-default="true">
+        <markup>
+            <header>
+                <table>                                        
+                    <tr><td><widget id="header"/></td></tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                           <table>
+                              <!--  <tr>
+                                  <td width="30%" h-align="right">
+                                      <widget id="code-Label"/>
+                                  </td>
+                                  <td width="70%" h-align="left">
+                                      <widget  width="100%" id="code"/>
+                                  </td>                        
+                               </tr> -->
+                               
+                               <tr>
+                                  <td  width="30%" h-align="right">
+                                      <widget id="description-Label"/>
+                                  </td>
+                                  <td width="70%" h-align="left">
+                                      <widget width="100%" id="description"/>
+                                  </td>                        
+                               </tr>                                                                                                              
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>                  
+            </body>
+        </markup>
+        <widget-config>
+            <label id="blank"><field-path/><text>&#xA0;</text></label>
+            <label id="header"><field-path/><text>Тип потребителя</text></label>                         
+             
+             <!-- <label id="code-Label">
+                <field-path/>
+                <text>Код типа:</text>
+             </label>
+             <integer-box id="code">
+                <field-path value="code"/>
+             </integer-box>  -->
+            
+             <label id="description-Label">
+                <field-path/>
+                <text>Описание:</text>
+             </label>            
+              <text-box id="description">
+                <field-path value="description"/>
+             </text-box>                                                 
+        </widget-config>
+    </form>
 
+     <!-- Contact Name -->
+     <!--Контактное лицо-->  
+     <form name="contact_name_form" domain-object-type="contact_name" is-default="true">
+        <markup>
+            <header>
+                <table>                                        
+                    <tr><td><widget id="header"/></td></tr>
+                    <tr><td><widget id="codeV"/></td></tr>
+                     <tr>                                         
+                        <td><widget id="record_stateV"/></td>
+                    </tr>    
+                    <tr>                
+                        <td><widget id="created_dateV"/></td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                           <table width="800px">
+                               <!-- <tr>
+                                  <td width="30%" h-align="right">
+                                      <widget id="code-Label"/>
+                                  </td>
+                                  <td width="70%" h-align="left">
+                                      <widget width="100%" id="code"/>
+                                  </td>                        
+                               </tr> -->
+                               
+                               <tr>
+                                  <td  width="30%" h-align="right">
+                                      <widget id="name-Label"/>
+                                  </td>
+                                  <td width="70%" h-align="left">
+                                      <widget width="100%" id="name"/>
+                                  </td>                        
+                               </tr>
+                               
+                               <tr>
+                                  <td h-align="right">
+                                      <widget id="description-Label"/>
+                                  </td>
+                                  <td h-align="left">
+                                      <widget width="100%" id="description"/>
+                                  </td>                        
+                               </tr>
+                               
+                               <tr>
+                                  <td h-align="right">
+                                      <widget id="service_consumer-Label"/>
+                                  </td>
+                                  <td h-align="left">
+                                      <widget id="service_consumer"/>
+                                  </td>                        
+                               </tr>
+                               
+                                <!-- <tr>
+                                  <td h-align="right">
+                                      <widget id="record_state-Label"/>
+                                  </td>
+                                  <td h-align="left">
+                                      <widget id="record_state"/>
+                                  </td>                        
+                               </tr> -->                               
+                             
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Адрес">
+                  <single-entry-group>
+                      <tab-group>
+                          <table>
+                           <tr>
+                            <td h-align="left">
+                                <!-- <widget width="100%" id="table_address"/> -->
+                                <widget width="100%" id="hierarchy_address"/>                               
+                            </td> 
+                           </tr>                                                               
+                          </table>
+                      </tab-group>
+                  </single-entry-group>
+              </tab>                        
+            </body>
+        </markup>
+        <widget-config>
+            <label id="blank"><field-path/><text>&#xA0;</text></label>
+            <label id="header"><field-path/><text>Контактное лицо</text></label>                         
+             
+            <!--  <label id="code-Label">
+                <field-path/>
+                <text>Код&#xA0;контактного&#xA0;лица:</text>
+             </label>
+             <integer-box id="code">
+                <field-path value="code"/>
+             </integer-box>  -->
+            
+             <label id="name-Label">
+                <field-path/>
+                <text>Наименование:</text>
+             </label>                       
+             <text-box id="name">
+                <field-path value="name"/>
+             </text-box>
+             
+              <label id="description-Label">
+                <field-path/>
+                <text>Описание:</text>
+             </label>                       
+             <text-box id="description">
+                <field-path value="description"/>
+             </text-box>
+                        
+             <!--  -->
+             <label id="service_consumer-Label">
+                <field-path/>
+                <text>Потребитель&#xA0;сервиса:</text>
+             </label>           
+             <suggest-box id="service_consumer">                
+                <field-path value="service_consumer"/>                              
+                <collection-ref name="col_service_consumer_act"/>                
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+             </suggest-box>            
+            
+             <label id="record_stateV">
+                <field-path value="record_state, record_state.description"/>
+                <pattern value="Состояние записи: {record_state.description}"/>
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+                <font-size value="12px"/>
+             </label>
+             <label id="created_dateV">
+                <field-path value="created_date"/>
+                <pattern value="Дата создания: {created_date}"/>
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+                <font-size value="12px"/>
+             </label>
+             
+              <table-browser id="table_address">
+               <!--  <field-path value="contact_address^contact_name.address"/> -->
+               <field-path value="address^contact_name"/>
+
+                <collection-ref name="col_address"/>
+                <collection-view-ref name="address_default_view"/> 
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{content}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byText"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
+                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
+                <page-size>30</page-size>
+                <display-chosen-values value="false"/>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button  text="Очистить"/>
+                <add-button image="..." text="..."/>
+                <default-sort-criteria column-field="content" order="desc"/>
+                <display-values-as-links value="true"/>
+            </table-browser>
+            
+            <hierarchy-browser id="hierarchy_address">
+                <field-path value="address^contact_name"/>                
+                <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
+                <!-- Уже выбранные элементы показываются помеченными галочками -->
+                <!-- collection - название коллекции для отображения списка значений узла -->
+                <node-collection-def collection="col_address_act" domain-object-type="address"  title = "Создать адрес"> 
+                    <root-node-link title = "Адреса"/> 
+                    <!-- название фильтра по тексту, введённому пользователем -->
+                    <input-text-filter name="byText"/>
+                    <fill-parent-on-add field-to-fill="contact_name"/>
+                    <selection-pattern value="{content}"/>
+                    <default-sort-criteria column-field="content" order="asc"/>                    
+                </node-collection-def>
+
+                <!-- количество элементов, показываемых в данном узле дерева изначально -->
+                <page-size>10</page-size>
+                <selection-style name="table"/>
+                <single-choice value="false"/>
+                <clear-all-button  text="Очистить"/>
+                <add-button image="..." text="..."/>
+                <display-values-as-links value="true"/>
+            </hierarchy-browser> 
+            
+            <label id="codeV">
+                <field-path value="code"/>              
+                <pattern value="Код: {code}"/>
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+                <font-size value="12px"/>
+             </label>   
+                                          
+        </widget-config>
+    </form>
+    
+    <!--Потребитель сервиса-->  
+     <form name="service_consumer_form" domain-object-type="service_consumer" is-default="true">
+       <markup>
+            <header>
+                <table>                                        
+                    <tr>
+                        <td><widget id="header"/></td>                                                                                 
+                    </tr>                   
+                    <tr>                                      
+                        <td><widget id="record_stateV"/></td>
+                    </tr>    
+                    <tr>                
+                        <td><widget id="created_dateV"/></td>
+                    </tr>
+                    <!-- <tr>                       
+                        <td><widget id="idV"/></td>
+                    </tr>    -->                                                                          
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                           <table>
+                              <!--  <tr>
+                                  <td width="30%" h-align="right">
+                                      <widget id="code-Label"/>
+                                  </td>
+                                  <td width="70%" h-align="left">
+                                      <widget width="96%" id="code"/>
+                                  </td>                        
+                               </tr> -->                                                            
+                    
+                               <!--Название  -->
+                               <tr>
+                                  <td  width="30%" h-align="right">
+                                      <widget id="name-Label"/>
+                                  </td>
+                                  <td width="70%" h-align="left">
+                                      <widget width="100%" id="name"/>
+                                  </td>                        
+                               </tr>
+                               
+                               
+                               <!--Описание  -->
+                                <tr>
+                                  <td h-align="right">
+                                      <widget id="description-Label"/>
+                                  </td>
+                                  <td h-align="left">
+                                      <widget width="100%" id="description"/>
+                                  </td>                        
+                               </tr>    
+                                <!--Тип потребителя  -->                           
+                                <tr>
+                                  <td h-align="right">
+                                      <widget id="consumer_type-Label"/>
+                                  </td>
+                                  <td h-align="left">
+                                      <widget id="consumer_type"/>
+                                  </td>                        
+                               </tr>
+                               <!-- агент -->   
+                               <tr>
+                                  <td h-align="right">
+                                      <widget id="agent_esd-Label"/>
+                                  </td>
+                                  <td h-align="left">
+                                      <widget id="agent_esd"/>
+                                  </td>                        
+                               </tr>
+                               <!--  -->
+                               <tr>
+                                  <td h-align="right">
+                                      <widget id="identifier-Label"/>
+                                  </td>
+                                  <td h-align="left">
+                                      <widget width="100%" id="identifier"/>
+                                  </td>                        
+                               </tr>
+                               
+                               <tr>
+                                  <td h-align="right">
+                                      <widget id="guid-Label"/>
+                                  </td>
+                                  <td h-align="left">
+                                      <widget width="100%" id="guid"/>
+                                  </td>                        
+                               </tr>
+                               
+                               <!--  <tr>
+                                  <td h-align="right">
+                                      <widget id="record_state-Label"/>
+                                  </td>
+                                  <td h-align="left">
+                                      <widget id="record_state"/>
+                                  </td>                        
+                               </tr>  -->
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>    
+                
+                <tab name="Контактные лица">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <!-- <tr>                                   
+                                    <td h-align="left">                                     
+                                        <widget width="100%" id= "table_contact_name"/> table_contact_name hyperlink_contact_name contact_names                                         
+                                    </td> 
+                                </tr>
+                                <tr>                                    
+                                    <td h-align="left">                                     
+                                        <widget width="100%" id= "contact_name_table"/> 
+                                     </td>                                                           
+                                </tr> -->
+                                <tr>                                    
+                                    <td h-align="left">                                     
+                                        <widget width="100%" id= "hierarchy_contact_name"/> 
+                                     </td>                                                           
+                                </tr>                                                              
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                
+                <tab name="ЭСД">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>                                    
+                                    <td h-align="left">                                     
+                                        <widget width="100%" id= "table_esd"/>                                      
+                                    </td> 
+                                </tr>                                                              
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>              
+            </body>
+        </markup>
+        <widget-config>
+            <label id="blank"><field-path/><text>&#xA0;</text></label>
+            <label id="header"><field-path/><text>Потребитель сервиса</text></label>
+            
+             <label id="name-Label">
+                <field-path/>
+                <text>Название:</text>
+             </label>                       
+             <text-box id="name">
+                <field-path value="name"/>
+             </text-box>
+             
+             <label id="identifier-Label">
+                <field-path/>
+                <text>Идентификатор&#xA0;клиента:</text>
+             </label>                       
+             <text-box id="identifier">
+                <field-path value="identifier"/>
+             </text-box>
+             
+             <label id="guid-Label">
+                <field-path/>
+                <text>GUID:</text>
+             </label>                       
+             <text-box id="guid">
+                <field-path value="guid"/>
+             </text-box>
+                        
+             <label id="description-Label">
+                <field-path/>
+                <text>Описание:</text>
+             </label>                       
+             <text-box id="description">
+                <field-path value="description"/>
+             </text-box>           
+                        
+                        
+             <!--Состояние записи:  -->
+             <label id="record_state-Label">
+                <field-path/>
+                <text>Состояние записи:</text>
+             </label>               
+             <suggest-box id="record_state">                
+                <field-path value="record_state"/>                              
+                <collection-ref name="col_record_state"/>                
+                <drop-down-pattern value="{description}"/>
+                <selection-pattern value="{description}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+            </suggest-box>
+            
+             <label id="record_stateV">
+                <field-path value="record_state, record_state.description"/>
+                <pattern value="Состояние записи: {record_state.description}"/>
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+                <font-size value="12px"/>
+             </label>
+             <label id="created_dateV">
+                <field-path value="created_date"/>              
+                <pattern value="Дата создания: {created_date}"/>
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+                <font-size value="12px"/>
+             </label>
+             <label id="idV">
+                <field-path value="id"/>                
+                <pattern value="{id}"/>
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+                <font-size value="12px"/>
+             </label>             
+           
+           
+            <label id="consumer_type-Label">
+                <field-path/>
+                <text>Тип потребителя:</text>
+             </label>           
+             <suggest-box id="consumer_type">               
+                <field-path value="consumer_type"/>                             
+                <collection-ref name="col_consumer_type"/>                
+                <drop-down-pattern value="{description}"/>
+                <selection-pattern value="{description}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+            </suggest-box>      
+            
+            
+            <label id="agent_esd-Label">
+                <field-path/>
+                <text>Агент:</text>
+             </label>           
+             <suggest-box id="agent_esd">               
+                <field-path value="agent_esd"/>                             
+                <collection-ref name="col_agent_esd"/>                
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+            </suggest-box>             
+              
+                                                                                 
+        </widget-config>
+    </form>
+    
+    <!-- Consumer Collections -->
+    <!--Тип потребителя-->  
+     <collection name="col_consumer_type" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                 res.id, res.description 
+                from
+                    consumer_type res
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from consumer_type res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        
+         <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>              
+    </collection>
+    
+    <collection-view name="consumer_type_default_view" collection="col_consumer_type" is-default="true">
+        <display>            
+            <column field="description" name="Описание" type="string" sortable="true" min-width="40px" resizable="true"  search-filter="byText"/>
+            <!-- <column field="id" name="Код&#xA0;типа" type="integer" sortable="true" min-width="40px" resizable="true" /> -->                                   
+        </display>
+    </collection-view>
+    
+    <!-- Esd Colelctions -->
+    <!--ЭСД-->
+     <collection name="col_esd" idField="id">     
+        <prototype>
+           <!--  <![CDATA[
+                select
+                    res.id, res.identifier, res.foldername, res.theme , sc.guid ||' ' || sc.name  as service_consumer
+                from
+                    esd res
+                    left join service_consumer sc on (res.service_consumer = sc.id) 
+                    ::from-clause
+                where
+                    1=1 ::where-clause
+                group by 
+                    res.id, res.theme, res.identifier, res.foldername, sc.name, sc.guid                    
+            ]]> -->
+            
+            <!--  
+             <![CDATA[
+                select
+                    esd.id, esd.identifier, esd.foldername, esd.theme , sc.guid ||' ' || sc.name  as service_consumer, channel_link.date_rent, status.name as actual_status
+                from
+                    esd 
+                    left join service_consumer sc on (esd.service_consumer = sc.id)
+                    left join (select * from channel_link order by channel_link.id  limit 1 ) channel_link on channel_link.esd = esd.id
+                    left join (select * from link_state where is_actual =1 ) state on (channel_link.id = state.channel_link)
+                    left join state_list status  on (state.state_list = status.id)  
+                    ::from-clause
+                where
+                    1=1 ::where-clause
+                group by 
+                    esd.id, esd.theme, esd.identifier, esd.foldername, sc.name, sc.guid, channel_link.date_rent, status.name                    
+            ]]>
+            -->
+            <![CDATA[
+                select
+                    e.id, e.code, e.identifier, e.foldername, e.theme, cl.date_rent, sl.name as actual_status, sc.guid || ' ' || sc.name service_consumer
+                from esd e
+                    left join channel_link cl on e.id = cl.esd and cl.date_rent = (select min(date_rent) min_date_rent from channel_link where esd = e.id group by esd)
+                    left join link_state ls on ls.channel_link = cl.id and is_actual = 1
+                    left join state_list sl  on sl.id = ls.state_list
+                    left join service_consumer sc on e.service_consumer = sc.id
+                    ::from-clause
+                where
+                    1=1 ::where-clause                                  
+            ]]>
+            
+        </prototype>       
+        <counting-prototype>
+            select count(*) from esd res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype> 
+        
+        <filter name="byIdentifier">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(e.identifier) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+         <filter name="byTheme">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(e.theme) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                     lower(e.identifier)  like lower({0}) OR lower(res.theme)  like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+         <filter name="byService_consumer">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(sc.guid)  like lower({0}) OR lower(sc.name)  like lower({0})                    
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byStatus">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(sl.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(e.code) like lower({0})
+                ]]>
+            </criteria>
+        </filter>                    
+    </collection>
+    
+    <collection-view name="esd_default_view" collection="col_esd" is-default="true">
+        <display>            
+            <column field="identifier" name="Идентификатор" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byIdentifier"/>
+            <column field="theme" name="Тема" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byTheme"/>
+            <column field="service_consumer" name="Отправитель" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byService_consumer"/>
+            <column field="actual_status" name="Состояние ЭСД" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byStatus"/>            
+            <column field="code" name="Код" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCode" />
+            <!-- <column field="id" name="Код" type="integer" sortable="true" min-width="40px" resizable="true" /> -->            
+            <!-- 
+            <column field="foldername" name="Имя папки" type="string" sortable="true"/>
+            <column field="theme" name="Тема" type="string" sortable="true"/>  -->                                                   
+        </display>
+    </collection-view>
+    
+    <collection name="col_service_consumer" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                 res.id, res.name, res.description, ct.description as  ct_description, a.name as agent_name, rs.description as record_state 
+                from
+                    service_consumer res
+                    left join consumer_type ct  on (res.consumer_type = ct.id)
+                    left join agent_esd a  on (res.agent_esd = a.id)
+                    left join record_state rs  on (res.record_state = rs.id)
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+               group by res.id,  res.name, res.description, ct.description, a.name, rs.description       
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from service_consumer res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>  
+        
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byDescription">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(res.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byCt_description">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(ct.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byAgent_name">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(a.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+         <filter name="byRecord_state">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(rs.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>        
+      
+    </collection>
+    
+    <collection-view name="service_consumer_default_view" collection="col_service_consumer" is-default="true">
+        <display>                
+            <column field="name" name="Название" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byName"/>   
+            <column field="description" name="Описание" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byDescription"/>
+            <column field="ct_description" name="Тип&#xA0;потребителя" type="string" min-width="40px" sortable="true" resizable="true" search-filter="byCt_description"/>
+            <column field="agent_name" name="Агент" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byAgent_name"/>
+            <column field="record_state" name="Состояние&#xA0;записи" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byRecord_state"/>
+            <!-- <column field="id" name="id" type="integer" sortable="true" min-width="40px" resizable="false" /> -->                                                                       
+        </display>
+    </collection-view> 
+    
+    <!-- состаяние записи = действует -->
+    <collection name="col_service_consumer_act" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                 res.id, res.name, res.description, ct.description as  ct_description, a.name as agent_name, rs.description as record_state 
+                from
+                    service_consumer res
+                    left join consumer_type ct  on (res.consumer_type = ct.id)
+                    left join agent_esd a  on (res.agent_esd = a.id)
+                    left join record_state rs  on (res.record_state = rs.id)
+                     ::from-clause
+                where
+                    (rs.description = 'действует') ::where-clause
+               group by res.id,  res.name, res.description, ct.description, a.name, rs.description       
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from service_consumer res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>  
+        
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byDescription">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(res.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byCt_description">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(ct.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byAgent_name">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(a.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byRecord_state">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(rs.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>        
+      
+    </collection>
+    
+    <collection-view name="col_service_consumer_act_view" collection="col_service_consumer_act" is-default="false">
+        <display>                
+            <column field="name" name="Название" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byName"/>   
+            <column field="description" name="Описание" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byDescription"/>
+            <column field="ct_description" name="Тип потребителя" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCt_description"/>
+            <column field="agent_name" name="Агент" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byAgent_name"/>          
+            <!-- <column field="id" name="id" type="integer" sortable="true" min-width="40px" resizable="true" /> -->                                                             
+        </display>
+    </collection-view> 
+    
+     <!-- состаяние записи = анулирована -->
+    <collection name="col_service_consumer_del" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                 res.id, res.name, res.description, ct.description as  ct_description, a.name as agent_name, rs.description as record_state 
+                from
+                    service_consumer res
+                    left join consumer_type ct  on (res.consumer_type = ct.id)
+                    left join agent_esd a  on (res.agent_esd = a.id)
+                    left join record_state rs  on (res.record_state = rs.id)
+                     ::from-clause
+                where
+                    (rs.description != 'действует') ::where-clause
+               group by res.id,  res.name, res.description, ct.description, a.name, rs.description       
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from service_consumer res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>  
+        
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byDescription">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(res.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byCt_description">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(ct.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+         <filter name="byAgent_name">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(a.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+         <filter name="byRecord_state">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(rs.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>        
+      
+    </collection>
+    
+    <collection-view name="col_service_consumer_del_view" collection="col_service_consumer_del" is-default="false">
+        <display>                
+            <column field="name" name="Название" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byName"/>   
+            <column field="description" name="Описание" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byDescription"/>
+            <column field="ct_description" name="Тип потребителя" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCt_description"/>
+            <column field="agent_name" name="Агент" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byAgent_name"/>          
+            <!-- <column field="id" name="id" type="integer" sortable="true" min-width="40px" resizable="true" /> -->                                                             
+        </display>
+    </collection-view>
+    
+    <!-- Contact Name -->
+    
+    <!--Контактное лицо-->      
+     <collection name="col_contact_name" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                 res.id, res.code, res.name, res.description, sc.name as service_consumer, rs.description as record_state 
+                from
+                    contact_name res
+                    left join service_consumer sc on(res.service_consumer = sc.id)
+                    left join record_state rs  on (res.record_state = rs.id)                    
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+                group by res.id, res.code, res.name, res.description, sc.name, rs.description   
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from contact_name res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>  
+        
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>    
+        <filter name="byDescription">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byService_consumer">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(sc.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byRecord_state">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(rs.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.code) like lower({0})
+                ]]>
+            </criteria>
+        </filter>                        
+    </collection>           
+    
+    <collection-view name="contact_name_default_view" collection="col_contact_name" is-default="true">
+        <display>            
+            <column field="name" name="Наименование" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byText"/>                                   
+            <column field="description" name="Описание" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byDescription"/>
+            <column field="service_consumer" name="Потребитель" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byService_consumer"/>
+            <column field="record_state" name="Состояние&#xA0;записи" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byRecord_state"/>
+            <column field="code" name="Код" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCode" />
+            <!-- <column field="id" name="Код&#xA0;контактного&#xA0;лица" type="integer" sortable="true" min-width="40px" resizable="true" /> -->
+        </display>
+    </collection-view> 
+      
+    <!-- коллекция контактных лиц, у которых не заполнено поле Потребитель сервиса -->
+    <collection name="col_contact_name_emptySC" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                    res.id, res.code, res.name, res.description, sc.name as service_consumer                
+                from
+                    contact_name res                   
+                    left join service_consumer sc on(res.service_consumer = sc.id)
+                    ::from-clause
+                where
+                    (service_consumer IS null) ::where-clause
+               group by  res.id, res.code, res.name, res.description, sc.name     
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from contact_name res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>  
+        
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byService_consumer">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(sc.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.code) like lower({0})
+                ]]>
+            </criteria>
+        </filter>                   
+    </collection>  
+    
+    <collection-view name="contact_name_emptySC_view" collection="col_contact_name_emptySC" is-default="true">
+        <display>
+            <column field="code" name="Код" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCode" />
+            <!-- <column field="id" name="Код&#xA0;контактного&#xA0;лица" type="integer" min-width="40px" resizable="true" sortable="false"/> -->
+            <column field="name" name="Наименование" type="string" min-width="40px" resizable="true" sortable="true"/>                                   
+            <column field="description" name="Описание" type="string" min-width="40px" resizable="true" sortable="true"/>
+            <column field="service_consumer" name="Потребитель" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byService_consumer"/>
+        </display>
+    </collection-view>  
+    
+    <!-- состаяние записи = действует -->
+    <collection name="col_contact_name_act" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                    res.id, res.code, res.name, res.description, rs.description as record_state, sc.name as service_consumer 
+                from
+                    contact_name res
+                    left join record_state rs  on (res.record_state = rs.id)
+                    left join service_consumer sc on(res.service_consumer = sc.id)
+                     ::from-clause
+                where
+                    (rs.description = 'действует') ::where-clause
+                group by  res.id, res.code, res.name, res.description, rs.description, sc.name    
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from contact_name res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>  
+        
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>    
+        <filter name="byDescription">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byRecord_state">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(rs.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byService_consumer">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(sc.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.code) like lower({0})
+                ]]>
+            </criteria>
+        </filter>                         
+    </collection>           
+    
+    <collection-view name="contact_name_act_view" collection="col_contact_name_act" is-default="true">
+        <display>            
+            <column field="name" name="Наименование" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byText"/>                                   
+            <column field="description" name="Описание" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byDescription"/>
+            <column field="service_consumer" name="Потребитель" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byService_consumer"/>
+            <column field="code" name="Код" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCode" />
+            <!-- <column field="id" name="Код&#xA0;контактного&#xA0;лица" type="integer" sortable="true" min-width="40px" resizable="true" /> -->
+        </display>
+    </collection-view>
+    
+    <!-- состаяние записи = анулирована -->
+    <collection name="col_contact_name_del" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                    res.id, res.code, res.name, res.description, rs.description as record_state, sc.name as service_consumer  
+                from
+                    contact_name res
+                    left join record_state rs  on (res.record_state = rs.id)
+                    left join service_consumer sc on(res.service_consumer = sc.id)
+                     ::from-clause
+                where
+                    (rs.description != 'действует') ::where-clause
+                group by  res.id, res.code, res.name, res.description, rs.description, sc.name
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from contact_name res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>  
+        
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>    
+        <filter name="byDescription">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byRecord_state">
+            <criteria placeholder="where-clause">
+                <![CDATA[lower(rs.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byService_consumer">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(sc.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.code) like lower({0})
+                ]]>
+            </criteria>
+        </filter>                         
+    </collection>           
+    
+    <collection-view name="contact_name_del_view" collection="col_contact_name_del" is-default="true">
+        <display>            
+            <column field="name" name="Наименование" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byText"/>                                   
+            <column field="description" name="Описание" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byDescription"/>
+            <column field="service_consumer" name="Потребитель" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byService_consumer"/>
+            <column field="code" name="Код" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCode" />
+            <!-- <column field="id" name="Код&#xA0;контактного&#xA0;лица" type="integer" sortable="true" min-width="40px" resizable="true" /> -->
+        </display>
+    </collection-view>
+    
+    <!-- Address -->
+    <!--Адрес-->    
+     <collection name="col_address" idField="id">     
+        <prototype>
+            <![CDATA[
+                select
+                    res.id, res.code, res.content, rs.description as record_state, con.name as contact_name , td.name as type_destination 
+                from
+                    address res
+                    left join contact_name con  on (res.contact_name = con.id)
+                    left join type_destination td  on (res.type_destination = td.id)
+                    left join record_state rs  on (res.record_state = rs.id)
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+                group by res.id, res.code, res.content, rs.description, con.name, td.name  
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from address res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.content) like lower({0})
+                ]]>
+            </criteria>
+        </filter>                
+        <filter name="byRecord_state">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(rs.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byContact_name">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(con.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byType_destination">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(td.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.code) like lower({0})
+                ]]>
+            </criteria>
+        </filter>               
+    </collection>
+    
+      
+    <collection-view name="address_default_view" collection="col_address" is-default="true">
+        <display>            
+            <column field="content" name="Содержание" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byText"/>            
+            <column field="contact_name" name="Контактное&#xA0;лицо" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byContact_name"/>
+            <column field="type_destination" name="Тип" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byType_destination"/>
+            <column field="record_state" name="Состояние" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byRecord_state"/>
+            <column field="code" name="Код" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCode" />                                         
+        </display>
+    </collection-view>  
+    
+    <!-- состаяние записи = действует -->
+    <collection name="col_address_act" idField="id">     
+        <prototype>
+            <![CDATA[
+               select
+                    res.id, res.code, res.content, rs.description as record_state, con.name as contact_name , td.name as type_destination 
+                from
+                    address res
+                    left join contact_name con  on (res.contact_name = con.id)
+                    left join type_destination td  on (res.type_destination = td.id)
+                    left join record_state rs  on (res.record_state = rs.id)
+                     ::from-clause
+                where
+                    (rs.description = 'действует') ::where-clause
+                group by res.id, res.code, res.content, rs.description, con.name, td.name  
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from address res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.content) like lower({0})
+                ]]>
+            </criteria>
+        </filter>         
+        
+        <filter name="byRecord_state">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(rs.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byContact_name">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(con.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byType_destination">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(td.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.code) like lower({0})
+                ]]>
+            </criteria>
+        </filter>               
+    </collection>
+    
+    <collection-view name="address_act_view" collection="col_address_act" is-default="true">
+        <display>            
+            <column field="content" name="Содержание" editable="false" type="string" sortable="true" search-filter="byText"/>            
+            <column field="contact_name" name="Контактное&#xA0;лицо" editable="false" type="string" sortable="true" search-filter="byContact_name"/>
+            <column field="type_destination" name="Тип" editable="false" type="string" sortable="true" search-filter="byType_destination"/>
+            <column field="record_state" name="Состояние" editable="false" type="string" sortable="true" search-filter="byRecord_state"/>
+            <column field="code" name="Код" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCode" />
+            <!--<column field="id" name="Код&#xA0;адреса" editable="false" type="integer" sortable="true"/> -->                                         
+        </display>
+    </collection-view>
+    
+    <!-- состаяние записи = анулирована -->
+    <collection name="col_address_del" idField="id">     
+        <prototype>
+            <![CDATA[
+               select
+                    res.id, res.code, res.content, rs.description as record_state, con.name as contact_name , td.name as type_destination 
+                from
+                    address res
+                    left join contact_name con  on (res.contact_name = con.id)
+                    left join type_destination td  on (res.type_destination = td.id)
+                    left join record_state rs  on (res.record_state = rs.id)
+                     ::from-clause
+                where
+                    (rs.description != 'действует') ::where-clause
+                group by res.id, res.code, res.content, rs.description, con.name, td.name  
+            ]]>
+        </prototype>       
+        <counting-prototype>
+            select count(*) from address res ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.content) like lower({0})
+                ]]>
+            </criteria>
+        </filter>         
+        
+        <filter name="byRecord_state">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(rs.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter> 
+        
+        <filter name="byContact_name">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(con.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byType_destination">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(td.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(res.code) like lower({0})
+                ]]>
+            </criteria>
+        </filter>              
+    </collection>
+    
+    <collection-view name="address_del_view" collection="col_address_del" is-default="true">
+        <display>            
+            <column field="content" name="Содержание" editable="false" type="string" sortable="true" search-filter="byText"/>            
+            <column field="contact_name" name="Контактное&#xA0;лицо" editable="false" type="string" sortable="true" search-filter="byContact_name"/>
+            <column field="type_destination" name="Тип" editable="false" type="string" sortable="true" search-filter="byType_destination"/>
+            <column field="record_state" name="Состояние" editable="false" type="string" sortable="true" search-filter="byRecord_state"/>
+            <column field="code" name="Код" editable="false" type="string" sortable="true" min-width="40px" resizable="true" search-filter="byCode" />
+            <!-- <column field="id" name="Код&#xA0;адреса" editable="false" type="integer" sortable="true"/> -->                                         
+        </display>
+    </collection-view>   
 </configuration>

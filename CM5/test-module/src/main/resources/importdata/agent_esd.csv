@@ -1,0 +1,6 @@
+TYPE_NAME=agent_esd;KEYS=Name,identifier;
+Name;identifier;password
+Agent 1;ID1;password
+Agent 2;ID2;password
+Agent 3;ID3;password
+Agent 5;ID4;password
