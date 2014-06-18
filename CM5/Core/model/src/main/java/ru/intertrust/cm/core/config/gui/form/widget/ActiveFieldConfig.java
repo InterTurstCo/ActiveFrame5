@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
@@ -8,7 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  * Created by tbilyi on 18.06.2014.
  */
 
-@Root(name = "field")
+@Element(name = "field")
 public class ActiveFieldConfig implements Dto{
 
     @Attribute(name = "name", required = false)
