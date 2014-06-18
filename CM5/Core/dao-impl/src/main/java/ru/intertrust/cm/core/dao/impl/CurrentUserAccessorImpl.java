@@ -62,7 +62,9 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
             }
         } catch (Exception e) {
             result = null;
-            logger.error("Error getting current user: " + e.getMessage());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Error getting current user: " + e.getMessage());
+            }
         }
 
         return result;
