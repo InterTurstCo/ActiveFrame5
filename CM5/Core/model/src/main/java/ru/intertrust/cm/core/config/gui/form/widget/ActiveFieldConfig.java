@@ -35,21 +35,24 @@ public class ActiveFieldConfig implements Dto{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ActiveFieldConfig that = (ActiveFieldConfig) o;
-
-        if (!name.equals(that.name)) return false;
-        if (!value.equals(that.value)) return false;
-
-        return true;
+        if (name == null ? that.name != null : !name.equals(that.name)){
+            return false;
+        }
+        return value == null ? that.value == null : value.equals(that.value);
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + value.hashCode();
-        return result;
+        int result = (name == null ? 31 : name.hashCode());
+        result = 31 * result + (value == null ? 31 : value.hashCode());
+        return result ;
     }
+
 }
