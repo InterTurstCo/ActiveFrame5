@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -49,8 +50,18 @@ public class FieldPathConfig implements Dto {
     @Attribute(name = "value", required = false)
     private String value;
 
+    @Attribute(name = "domain-object-linker", required = false)
+    private String domainObjectLinker;
+
     @Attribute(name="on-root-delete", required = false)
     private OnDeleteAction onRootDelete;
+
+    @Element(name = "on-link", required = false)
+    private OnLinkConfig OnLinkConfigConfig;
+
+    @Element(name = "on-unlink", required = false)
+    private OnUnlinkConfig onUnlinkConfig;
+
 
     public String getValue() {
         return value;
@@ -68,31 +79,53 @@ public class FieldPathConfig implements Dto {
         this.onRootDelete = onRootDelete;
     }
 
+    public String getDomainObjectLinker() {
+        return domainObjectLinker;
+    }
+
+    public void setDomainObjectLinker(String domainObjectLinker) {
+        this.domainObjectLinker = domainObjectLinker;
+    }
+
+    public OnLinkConfig getOnLinkConfigConfig() {
+        return OnLinkConfigConfig;
+    }
+
+    public void setOnLinkConfigConfig(OnLinkConfig onLinkConfigConfig) {
+        OnLinkConfigConfig = onLinkConfigConfig;
+    }
+
+    public OnUnlinkConfig getOnUnlinkConfig() {
+        return onUnlinkConfig;
+    }
+
+    public void setOnUnlinkConfig(OnUnlinkConfig onUnlinkConfig) {
+        this.onUnlinkConfig = onUnlinkConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         FieldPathConfig that = (FieldPathConfig) o;
 
-        if (onRootDelete != that.onRootDelete) {
-            return false;
-        }
-        if (value != null ? !value.equals(that.value) : that.value != null) {
-            return false;
-        }
+        if (!OnLinkConfigConfig.equals(that.OnLinkConfigConfig)) return false;
+        if (!domainObjectLinker.equals(that.domainObjectLinker)) return false;
+        if (onRootDelete != that.onRootDelete) return false;
+        if (!onUnlinkConfig.equals(that.onUnlinkConfig)) return false;
+        if (!value.equals(that.value)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = value != null ? value.hashCode() : 0;
-        result = 31 * result + (onRootDelete != null ? onRootDelete.hashCode() : 0);
+        int result = value.hashCode();
+        result = 31 * result + domainObjectLinker.hashCode();
+        result = 31 * result + onRootDelete.hashCode();
+        result = 31 * result + OnLinkConfigConfig.hashCode();
+        result = 31 * result + onUnlinkConfig.hashCode();
         return result;
     }
 }
