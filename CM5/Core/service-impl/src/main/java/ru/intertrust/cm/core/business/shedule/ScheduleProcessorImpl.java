@@ -45,13 +45,10 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
     private static final Logger logger = LoggerFactory.getLogger(SchedulerBean.class);
 
     @Autowired
-    private SheduleTaskLoader sheduleTaskLoader;
+    private ScheduleTaskLoaderInterface scheduleTaskLoaderInterface;
 
     @Autowired
     private DomainObjectDao domainObjectDao;
-
-    @Autowired
-    private CollectionsDao collectionsDao;
 
     @Autowired
     private AccessControlService accessControlService;
@@ -101,7 +98,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                 ejbContext.getUserTransaction().begin();
                 //Получение задачи и запуск ее выполнения
                 ScheduleTaskHandle handle =
-                        sheduleTaskLoader.getSheduleTaskHandle(task.getString(ScheduleService.SCHEDULE_TASK_CLASS));
+                        scheduleTaskLoaderInterface.getSheduleTaskHandle(task.getString(ScheduleService.SCHEDULE_TASK_CLASS));
                 result = handle.execute(sessionContext, scheduleService.getTaskParams(taskId));
             } catch (InterruptedException ex) {
                 logger.error("Task " + taskId + " abort by InterruptedException", ex);

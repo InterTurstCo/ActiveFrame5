@@ -34,12 +34,7 @@ public class BootstrapBean {
 
             logger.info("Initialized spring context");
 
-            loadConfiguration(beanFactory);
-            initDomainObjectTypeIdCache(beanFactory);
-            loadInitialData(beanFactory);
-            importSystemData(beanFactory);
-            importReportsData(beanFactory);
-            initializeScheduledTasks(beanFactory);
+            executeInitializationTasks(beanFactory);
 
             logger.info("Initial data loaded");
         } catch (Throwable ex) {
@@ -47,28 +42,8 @@ public class BootstrapBean {
         }
     }
 
-    private void loadConfiguration(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        executeBeanMethod(beanFactory, "configurationLoader", "load");
-    }
-
-    private void initDomainObjectTypeIdCache(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        executeBeanMethod(beanFactory, "domainObjectTypeIdCache", "build");
-    }
-
-    private void loadInitialData(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        executeBeanMethod(beanFactory, "initialDataLoader", "load");
-    }
-
-    private void importSystemData(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        executeBeanMethod(beanFactory, "importSystemData", "load");
-    }
-
-    private void importReportsData(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        executeBeanMethod(beanFactory, "importReportsData", "load");
-    }
-
-    private void initializeScheduledTasks(BeanFactory beanFactory) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        executeBeanMethod(beanFactory, "sheduleTaskLoader", "load");
+    private void executeInitializationTasks(BeanFactory beanFactory) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        executeBeanMethod(beanFactory, "globallyLockableInitializer", "init");
     }
 
     private void executeBeanMethod(BeanFactory factory, String beanName, String methodName) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {

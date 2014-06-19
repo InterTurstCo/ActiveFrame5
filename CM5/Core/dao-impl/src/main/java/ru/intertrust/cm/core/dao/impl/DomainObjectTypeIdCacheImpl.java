@@ -35,7 +35,8 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
     /**
      * Конструирует кэш из списка {@link DomainObjectTypeId}
      */
-    public void  build() {
+    @Override
+    public void build() {
         List<DomainObjectTypeId> domainObjectTypeIds = domainObjectTypeIdDao.readAll();
 
         if (domainObjectTypeIds == null || domainObjectTypeIds.isEmpty()) {

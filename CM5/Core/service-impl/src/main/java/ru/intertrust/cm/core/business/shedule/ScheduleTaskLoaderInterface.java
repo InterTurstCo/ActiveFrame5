@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.shedule;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 
 import java.util.List;
 
@@ -21,5 +22,7 @@ public interface ScheduleTaskLoaderInterface {
     SheduleTaskReestrItem getSheduleTaskReestrItem(String className);
 
     DomainObject createTaskDomainObject(SheduleTaskReestrItem item, String name);
+
+    ScheduleTaskHandle getSheduleTaskHandle(String className);
 
 }

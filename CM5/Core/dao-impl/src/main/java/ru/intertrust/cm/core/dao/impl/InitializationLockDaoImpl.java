@@ -28,6 +28,10 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
             "update " + wrap(INITIALIZATION_LOCK_TABLE) + " set " + wrap(SERVER_ID_COLUMN) +  " = ?, " +
                     wrap(START_DATE_COLUMN) + " = ? where " + wrap(ID_COLUMN) + " = ?";
 
+    protected static final String SELECT_FOR_UPDATE_QUERY =
+            "select " + wrap(ID_COLUMN) + " from " + wrap(INITIALIZATION_LOCK_TABLE) +
+                    " where " +  wrap(ID_COLUMN) + " = ? and " + wrap(SERVER_ID_COLUMN) +  " is null for update";
+
     protected static final String UNLOCK_QUERY =
             "update " + wrap(INITIALIZATION_LOCK_TABLE) + " set " + wrap(SERVER_ID_COLUMN) +  " = null, " +
                     wrap(START_DATE_COLUMN) + " = null where " + wrap(ID_COLUMN) + " = ?";
@@ -101,17 +105,8 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
      * {@inheritDoc}
      */
     public boolean isLocked() {
-        Integer freeRecordsCount = jdbcTemplate.queryForObject(COUNT_FREE_QUERY, Integer.class, ID);
-        return freeRecordsCount == 0;
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isLockRecordCreated() {
-        Integer recordsCount = jdbcTemplate.queryForObject(COUNT_ALL, Integer.class);
-        return recordsCount > 0;
+        Integer unlockedRecordsCount = jdbcTemplate.queryForObject(SELECT_FOR_UPDATE_QUERY, Integer.class, ID);
+        return unlockedRecordsCount == 0;
     }
 
     protected BasicQueryHelper getQueryHelper() {

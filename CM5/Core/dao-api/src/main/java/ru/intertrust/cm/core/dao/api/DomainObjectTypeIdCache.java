@@ -10,6 +10,8 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  */
 public interface DomainObjectTypeIdCache {
 
+    void build();
+
     /**
      * Возвращает идентификатор типа доменного объекта по его имени
      * @param name имя типа доменного объекта

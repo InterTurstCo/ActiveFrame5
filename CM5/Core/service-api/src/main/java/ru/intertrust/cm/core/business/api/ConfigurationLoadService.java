@@ -10,8 +10,12 @@ import ru.intertrust.cm.core.config.ConfigurationException;
  */
 public interface ConfigurationLoadService {
 
-    interface Remote extends ConfigurationLoadService {
-    }
+    interface Remote extends ConfigurationLoadService {}
+
+    /**
+     * Обновление конфигурации
+     */
+    void updateConfiguration() throws ConfigurationException;
 
     /**
      * Загрузка конфигурации

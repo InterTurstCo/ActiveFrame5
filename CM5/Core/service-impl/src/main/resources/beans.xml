@@ -17,9 +17,6 @@
     <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader"
           depends-on="springApplicationContext"/>
 
-    <!--<bean id="initialDataLoader" class="ru.intertrust.cm.core.business.impl.InitialDataLoader"
-          depends-on="configurationLoader" p:dataSource-ref="dataSource"/>-->
-
     <jee:local-slsb id="configurationLoadService"
                     jndi-name="java:module/ConfigurationLoadServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationLoadService"
                     business-interface="ru.intertrust.cm.core.business.api.ConfigurationLoadService"/>
@@ -39,6 +36,10 @@
     <jee:local-slsb id="sheduleTaskLoader"
                     jndi-name="java:module/SheduleTaskLoader!ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderInterface"
                     business-interface="ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderInterface"/>
+
+    <jee:local-slsb id="globallyLockableInitializer"
+                    jndi-name="java:module/GloballyLockableInitializerImpl!ru.intertrust.cm.core.business.impl.GloballyLockableInitializer"
+                    business-interface="ru.intertrust.cm.core.business.impl.GloballyLockableInitializer"/>
 
     <jee:local-slsb id="crudService"
                     jndi-name="java:module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
