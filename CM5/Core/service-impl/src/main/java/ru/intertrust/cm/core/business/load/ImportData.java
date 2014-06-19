@@ -32,10 +32,10 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.impl.BaseAttachmentServiceImpl;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -298,11 +298,11 @@ public class ImportData {
         }
     }
 
-    private boolean isEmptySimvol(String testString){
+    private boolean isEmptySimvol(String testString) {
         //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
         return (emptyStringSymbol == null && testString.equals("_")) || (emptyStringSymbol != null && testString.equals(emptyStringSymbol));
     }
-    
+
     /**
      * Создание вложения для переданного доменного объекта
      * @param domainObject
@@ -441,35 +441,39 @@ public class ImportData {
      * @return
      */
     private Id getReferenceFromExpression(String refFieldName, String referenceValueAsString) {
-        String type = null;
-        String value = null;
-        String fieldName = null;
-        FieldConfig fieldConfig = null;
-        FieldConfig refFieldConfig = configurationExplorer.getFieldConfig(typeName, refFieldName);
-        String[] field = null;
-        //Проверяем наличие точки до равно
-        if (referenceValueAsString.matches("[_a-zA-Z1-9]+\\.[_a-zA-Z1-9]+=.+")) {
-            //Есть точка, значит в имени поля есть тип, получаем его
-            String[] typeAndField = referenceValueAsString.split("\\.");
-            type = typeAndField[0];
-            field = typeAndField[1].split("=");
-        } else {
-            //Точки нет, значит берем тип из конфигурации поля
-            field = referenceValueAsString.split("=");
-            type = ((ReferenceFieldConfig) refFieldConfig).getType();
+        try {
+            String type = null;
+            String value = null;
+            String fieldName = null;
+            FieldConfig fieldConfig = null;
+            FieldConfig refFieldConfig = configurationExplorer.getFieldConfig(typeName, refFieldName);
+            String[] field = null;
+            //Проверяем наличие точки до равно
+            if (referenceValueAsString.matches("[_a-zA-Z1-9]+\\.[_a-zA-Z1-9]+=.+")) {
+                //Есть точка, значит в имени поля есть тип, получаем его
+                String[] typeAndField = referenceValueAsString.split("\\.");
+                type = typeAndField[0];
+                field = typeAndField[1].split("=");
+            } else {
+                //Точки нет, значит берем тип из конфигурации поля
+                field = referenceValueAsString.split("=");
+                type = ((ReferenceFieldConfig) refFieldConfig).getType();
+            }
+            fieldConfig = configurationExplorer.getFieldConfig(type, field[0]);
+
+            fieldName = field[0];
+
+            if (fieldConfig.getFieldType() == FieldType.LONG) {
+                value = getNormalizationField(field[1]);
+            } else {
+                value = "'" + getNormalizationField(field[1]) + "'";
+            }
+
+            String query = getQuery(type, new String[] { fieldName }, new String[] { value });
+            return getReferenceFromSelect(query);
+        } catch (Exception ex) {
+            throw new FatalException("Error get reference from expression. FieldName=" + refFieldName + "; Value=" + referenceValueAsString, ex);
         }
-        fieldConfig = configurationExplorer.getFieldConfig(type, field[0]);
-
-        fieldName = field[0];
-
-        if (fieldConfig.getFieldType() == FieldType.LONG) {
-            value = getNormalizationField(field[1]);
-        } else {
-            value = "'" + getNormalizationField(field[1]) + "'";
-        }
-
-        String query = getQuery(type, new String[] { fieldName }, new String[] { value });
-        return getReferenceFromSelect(query);
     }
 
     /**
@@ -622,10 +626,17 @@ public class ImportData {
                 if (referenceValue != null) {
                     result = String.valueOf(((RdbmsId) referenceValue).getId());
                 }
-            } else {
-                if (isEmptySimvol(valueAsString)){
-                    result = "''";
+            } else if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
+                boolean boolValue = Boolean.parseBoolean(valueAsString);
+                if (boolValue){
+                    result = "1";
                 }else{
+                    result = "0";
+                }
+            } else {
+                if (isEmptySimvol(valueAsString)) {
+                    result = "''";
+                } else {
                     valueAsString = valueAsString.replace("'", "''");
                     result = "'" + valueAsString + "'";
                 }
