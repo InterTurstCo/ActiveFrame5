@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by tbilyi on 18.06.2014.
+ * Created by tbilyi on 19.06.2014.
  */
 
-@Root(name = "update")
-public class UpdateSection extends OperationConfig{
+@Root(name = "unique-key-value")
+public class UniqueKeyValue implements Dto{
 
     @ElementList(inline = true)
     private List<ActiveFieldConfig> activeFields = new ArrayList<ActiveFieldConfig>();
@@ -30,7 +30,7 @@ public class UpdateSection extends OperationConfig{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UpdateSection that = (UpdateSection) o;
+        UniqueKeyValue that = (UniqueKeyValue) o;
 
         if (activeFields != null ? !activeFields.equals(that.activeFields) : that.activeFields != null) return false;
 
