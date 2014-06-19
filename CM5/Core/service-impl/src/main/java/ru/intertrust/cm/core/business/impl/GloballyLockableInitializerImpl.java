@@ -5,12 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.business.load.ImportReportsData;
-import ru.intertrust.cm.core.business.load.ImportReportsDataInterface;
 import ru.intertrust.cm.core.business.load.ImportSystemData;
-import ru.intertrust.cm.core.business.load.ImportSystemDataInterface;
-import ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderInterface;
+import ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
@@ -43,10 +40,10 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private InitializationLockDao initializationLockDao;
     @Autowired private ConfigurationLoader configurationLoader;
     @Autowired private DomainObjectTypeIdCache domainObjectTypeIdCache;
-    @Autowired private InitialDataLoaderInterface initialDataLoader;
-    @Autowired private ImportSystemDataInterface importSystemData;
-    @Autowired private ImportReportsDataInterface importReportsData;
-    @Autowired private ScheduleTaskLoaderInterface scheduleTaskLoaderInterface;
+    @Autowired private InitialDataLoader initialDataLoader;
+    @Autowired private ImportSystemData importSystemData;
+    @Autowired private ImportReportsData importReportsData;
+    @Autowired private ScheduleTaskLoader scheduleTaskLoader;
 
     @Resource
     private EJBContext ejbContext;
@@ -132,7 +129,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         initialDataLoader.load();
         importSystemData.load();
         importReportsData.load();
-        scheduleTaskLoaderInterface.load();
+        scheduleTaskLoader.load();
     }
 
     private UserTransaction startTransaction() throws SystemException, NotSupportedException {

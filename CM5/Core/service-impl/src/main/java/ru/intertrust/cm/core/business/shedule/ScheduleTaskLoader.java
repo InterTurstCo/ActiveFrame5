@@ -9,9 +9,9 @@ import java.util.List;
  * Business interface for ScheduleTaskLoader
  * Created by vmatsukevich on 6/17/14.
  */
-public interface ScheduleTaskLoaderInterface {
+public interface ScheduleTaskLoader {
 
-    interface Remote extends ScheduleTaskLoaderInterface {}
+    interface Remote extends ScheduleTaskLoader {}
 
     void load();
 

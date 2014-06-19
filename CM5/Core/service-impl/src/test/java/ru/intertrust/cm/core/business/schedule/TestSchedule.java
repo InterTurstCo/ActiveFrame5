@@ -10,11 +10,11 @@ import org.junit.Test;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
-import ru.intertrust.cm.core.business.shedule.SheduleTaskLoader;
+import ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderImpl;
 
 public class TestSchedule {
 
-    private class SheduleTaskLoaderInt extends SheduleTaskLoader {
+    private class ScheduleTaskLoaderImplInt extends ScheduleTaskLoaderImpl {
         public String getDefaultParametersInt(ScheduleTask configuration) {
             return getDefaultParameters(configuration);
         }
@@ -38,7 +38,7 @@ public class TestSchedule {
         etalon += "   </parameters>\n";
         etalon += "</scheduleTaskConfig>";
 
-        SheduleTaskLoaderInt sheduleTaskLoader = new SheduleTaskLoaderInt();
+        ScheduleTaskLoaderImplInt sheduleTaskLoader = new ScheduleTaskLoaderImplInt();
 
         ScheduleTask configuration = TestScheduleWithDefaultParams.class.getAnnotation(ScheduleTask.class);
 

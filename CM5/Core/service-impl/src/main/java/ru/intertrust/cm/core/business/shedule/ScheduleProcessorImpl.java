@@ -32,7 +32,6 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
@@ -45,7 +44,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
     private static final Logger logger = LoggerFactory.getLogger(SchedulerBean.class);
 
     @Autowired
-    private ScheduleTaskLoaderInterface scheduleTaskLoaderInterface;
+    private ScheduleTaskLoader scheduleTaskLoader;
 
     @Autowired
     private DomainObjectDao domainObjectDao;
@@ -98,7 +97,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                 ejbContext.getUserTransaction().begin();
                 //Получение задачи и запуск ее выполнения
                 ScheduleTaskHandle handle =
-                        scheduleTaskLoaderInterface.getSheduleTaskHandle(task.getString(ScheduleService.SCHEDULE_TASK_CLASS));
+                        scheduleTaskLoader.getSheduleTaskHandle(task.getString(ScheduleService.SCHEDULE_TASK_CLASS));
                 result = handle.execute(sessionContext, scheduleService.getTaskParams(taskId));
             } catch (InterruptedException ex) {
                 logger.error("Task " + taskId + " abort by InterruptedException", ex);

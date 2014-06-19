@@ -22,20 +22,20 @@
                     business-interface="ru.intertrust.cm.core.business.api.ConfigurationLoadService"/>
 
     <jee:local-slsb id="initialDataLoader"
-                    jndi-name="java:module/InitialDataLoader!ru.intertrust.cm.core.business.impl.InitialDataLoaderInterface"
-                    business-interface="ru.intertrust.cm.core.business.impl.InitialDataLoaderInterface"/>
+                    jndi-name="java:module/InitialDataLoaderImpl!ru.intertrust.cm.core.business.impl.InitialDataLoader"
+                    business-interface="ru.intertrust.cm.core.business.impl.InitialDataLoader"/>
 
     <jee:local-slsb id="importSystemData"
-                    jndi-name="java:module/ImportSystemData!ru.intertrust.cm.core.business.load.ImportSystemDataInterface"
-                    business-interface="ru.intertrust.cm.core.business.load.ImportSystemDataInterface"/>
+                    jndi-name="java:module/ImportSystemDataImpl!ru.intertrust.cm.core.business.load.ImportSystemData"
+                    business-interface="ru.intertrust.cm.core.business.load.ImportSystemData"/>
 
     <jee:local-slsb id="importReportsData"
-                    jndi-name="java:module/ImportReportsData!ru.intertrust.cm.core.business.load.ImportReportsDataInterface"
-                    business-interface="ru.intertrust.cm.core.business.load.ImportReportsDataInterface"/>
+                    jndi-name="java:module/ImportReportsDataImpl!ru.intertrust.cm.core.business.load.ImportReportsData"
+                    business-interface="ru.intertrust.cm.core.business.load.ImportReportsData"/>
 
     <jee:local-slsb id="sheduleTaskLoader"
-                    jndi-name="java:module/SheduleTaskLoader!ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderInterface"
-                    business-interface="ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderInterface"/>
+                    jndi-name="java:module/ScheduleTaskLoaderImpl!ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader"
+                    business-interface="ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader"/>
 
     <jee:local-slsb id="globallyLockableInitializer"
                     jndi-name="java:module/GloballyLockableInitializerImpl!ru.intertrust.cm.core.business.impl.GloballyLockableInitializer"
@@ -97,11 +97,11 @@
 
     <bean id="attachmentCleaner" class="ru.intertrust.cm.core.business.impl.AttachmentCleaner"/>
 
-   <!-- <bean id="sheduleTaskLoader" class="ru.intertrust.cm.core.business.shedule.SheduleTaskLoader"/>-->
+   <!-- <bean id="sheduleTaskLoader" class="ru.intertrust.cm.core.business.shedule.ScheduleTaskLoaderImplrImpl"/>-->
 
-    <!--<bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData"/>-->
+    <!--<bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemDataImplImpl"/>-->
 
-    <!--<bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsData">
+    <!--<bean id="importReportsData" class="ru.intertrust.cm.core.business.load.ImportReportsDataImplImpl">
     </bean>-->
 
 
