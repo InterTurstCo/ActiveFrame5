@@ -10,5 +10,5 @@ public interface GloballyLockableInitializer {
     /**
      * Выолняет инициализацию приложения, глобально синхронизированную между узлами в кластере
      */
-    void init();
+    void init() throws Exception;
 }

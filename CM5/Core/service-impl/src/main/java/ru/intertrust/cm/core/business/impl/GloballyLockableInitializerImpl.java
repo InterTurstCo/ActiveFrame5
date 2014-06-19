@@ -49,7 +49,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     private EJBContext ejbContext;
 
     @Override
-    public void init() {
+    public void init() throws Exception {
         UserTransaction userTransaction = null;
         try {
             if (!initializationLockDao.isInitializationLockTableCreated()) {
@@ -109,17 +109,13 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             userTransaction = startTransaction();
             initializationLockDao.unlock();
             userTransaction.commit();
-        } catch (ConfigurationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnexpectedException("ConfigurationLoadService", "loadConfiguration", "", e);
         } finally {
             try {
                 if (userTransaction != null && Status.STATUS_ACTIVE == userTransaction.getStatus()) {
                     userTransaction.commit();
                 }
             } catch (Exception e) {
-                logger.error("ConfigurationLoadService: failed to commit transaction", e);
+                logger.error("GloballyLockableInitializer: failed to commit transaction", e);
             }
         }
     }

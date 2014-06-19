@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.dao.impl.utils.DateUtils;
 
 import java.util.Date;
+import java.util.List;
 
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
@@ -105,8 +106,8 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
      * {@inheritDoc}
      */
     public boolean isLocked() {
-        Integer unlockedRecordsCount = jdbcTemplate.queryForObject(SELECT_FOR_UPDATE_QUERY, Integer.class, ID);
-        return unlockedRecordsCount == 0;
+        List<Integer> unlockedRecords = jdbcTemplate.queryForList(SELECT_FOR_UPDATE_QUERY, Integer.class, ID);
+        return unlockedRecords == null || unlockedRecords.isEmpty();
     }
 
     protected BasicQueryHelper getQueryHelper() {
