@@ -103,15 +103,19 @@
                     <plugin>
                         <artifactId>maven-ear-plugin</artifactId>
                         <configuration>
-                            <applicationName>cm-sochi</applicationName>
+                            <applicationName>${application.name}</applicationName>
                             <version>6</version>
+                            <filtering>true</filtering>
+                            <filters>
+                                <filter>${project.basedir}/../deploy.properties</filter>
+                            </filters>
                             <modules>
                                 <webModule>
                                     <groupId>ru.intertrust.cm-sochi</groupId>
                                     <artifactId>web-app</artifactId>
-                                    <uri>web-app.war</uri>
+                                    <uri>${application.weburi}</uri>
                                     <bundleFileName>web-app</bundleFileName>
-                                    <contextRoot>/cm-sochi</contextRoot>
+                                    <contextRoot>/${application.contextroot}</contextRoot>
                                 </webModule>
                             </modules>
                             <!-- <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
@@ -121,6 +125,24 @@
                             </filters>
                             <applicationXml>${basedir}/src/main/application/META-INF/application-externalSolr.xml</applicationXml> -->
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.0-alpha-1</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${deploy.properties.path}</file>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -141,15 +163,19 @@
                     <plugin>
                         <artifactId>maven-ear-plugin</artifactId>
                         <configuration>
-                            <applicationName>cm-sochi</applicationName>
+                            <applicationName>${application.name}</applicationName>
                             <version>6</version>
+                            <filtering>true</filtering>
+                            <filters>
+                                <filter>${project.basedir}/../deploy.properties</filter>
+                            </filters>
                             <modules>
                                 <webModule>
                                     <groupId>ru.intertrust.cm-sochi</groupId>
                                     <artifactId>web-app</artifactId>
-                                    <uri>web-app.war</uri>
+                                    <uri>${application.weburi}</uri>
                                     <bundleFileName>web-app</bundleFileName>
-                                    <contextRoot>/cm-sochi</contextRoot>
+                                    <contextRoot>/${application.contextroot}</contextRoot>
                                 </webModule>
                             </modules>
                             <!-- <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
@@ -159,6 +185,24 @@
                             </filters>
                             <applicationXml>${basedir}/src/main/application/META-INF/application-embeddedSolr.xml</applicationXml> -->
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.0-alpha-1</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${deploy.properties.path}</file>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -176,7 +220,7 @@
                             <hostname>localhost</hostname>
                             <port>9999</port>
                             <filename>${ear.name}.ear</filename>
-                            <name>cm-sochi.ear</name>
+                            <name>${application.name}.ear</name>
                             <skip>false</skip>
                         </configuration>
 
@@ -187,6 +231,24 @@
                                 <goals>
                                     <goal>deploy</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.0-alpha-1</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${deploy.properties.path}</file>
+                                    </files>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -205,7 +267,7 @@
                         <configuration>
                             <hostname>localhost</hostname>
                             <port>9999</port>
-                            <name>cm-sochi.ear</name>
+                            <name>${application.name}.ear</name>
                             <skip>false</skip>
                         </configuration>
 
@@ -216,6 +278,24 @@
                                 <goals>
                                     <goal>undeploy</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.0-alpha-1</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${deploy.properties.path}</file>
+                                    </files>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
