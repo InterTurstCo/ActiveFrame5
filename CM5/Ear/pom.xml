@@ -337,16 +337,16 @@
                                     <goal>add-resource</goal>
                                 </goals>
                                 <configuration>
-                                    <address>subsystem=datasources,data-source=CM5</address>
+                                    <address>subsystem=datasources,data-source=${datasource.name}</address>
                                     <resource>
                                         <enableResource>true</enableResource>
                                         <properties>
                                             <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
                                             <connection-url>jdbc:postgresql://${db.host}:${db.port}/${db.name}</connection-url>
-                                            <jndi-name>java:jboss/datasources/CM5</jndi-name>
+                                            <jndi-name>${datasource.jndi.name}</jndi-name>
                                             <enabled>true</enabled>
                                             <enable>true</enable>
-                                            <pool-name>CM5</pool-name>
+                                            <pool-name>${datasource.pool.name}</pool-name>
                                             <user-name>${db.user}</user-name>
                                             <password>${db.password}</password>
                                             <driver-name>postgresql-jdbc4.jar</driver-name>
@@ -366,7 +366,7 @@
                                     <force>true</force>
                                     <resources>
                                         <resource>
-                                            <address>security-domain=CM5</address>
+                                            <address>security-domain=${application.security-domain}</address>
                                             <properties>
                                                 <cache-type>default</cache-type>
                                             </properties>
@@ -378,7 +378,7 @@
                                                             !![
                                                             {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
-                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"${datasource.jndi.name}"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
                                                             </login-modules>
                                                         </properties>
@@ -401,7 +401,7 @@
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=local:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove</command>
-                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="${application.security-domain}")</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authorization=properties:remove</command>
                                         </commands>
                                     </execute-commands>                                
@@ -479,16 +479,16 @@
                                     <goal>add-resource</goal>
                                 </goals>
                                 <configuration>
-                                    <address>subsystem=datasources,data-source=CM5</address>
+                                    <address>subsystem=datasources,data-source=${datasource.name}</address>
                                     <resource>
                                         <enableResource>true</enableResource>
                                         <properties>
                                             <datasource-class>oracle.jdbc.xa.client.OracleXADataSource</datasource-class>
                                             <connection-url>jdbc:oracle:thin:@${db.host}:${db.port}:${db.name}</connection-url>
-                                            <jndi-name>java:jboss/datasources/CM5</jndi-name>
+                                            <jndi-name>${datasource.jndi.name}</jndi-name>
                                             <enabled>true</enabled>
                                             <enable>true</enable>
-                                            <pool-name>CM5</pool-name>
+                                            <pool-name>${datasource.pool.name}</pool-name>
                                             <user-name>${db.user}</user-name>
                                             <password>${db.password}</password>
                                             <driver-name>ojdbc6.jar</driver-name>
@@ -508,7 +508,7 @@
                                     <force>true</force>
                                     <resources>
                                         <resource>
-                                            <address>security-domain=CM5</address>
+                                            <address>security-domain=${application.security-domain}</address>
                                             <properties>
                                                 <cache-type>default</cache-type>
                                             </properties>
@@ -520,7 +520,7 @@
                                                             !![
                                                             {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
-                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"${datasource.jndi.name}"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
                                                         </login-modules>
                                                     </properties>
@@ -543,7 +543,7 @@
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=local:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove</command>
-                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="${application.security-domain}")</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authorization=properties:remove</command>
                                         </commands>
                                     </execute-commands>
