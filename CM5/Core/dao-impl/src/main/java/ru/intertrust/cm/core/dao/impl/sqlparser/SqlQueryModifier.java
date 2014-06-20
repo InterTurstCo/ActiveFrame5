@@ -753,7 +753,8 @@ public class SqlQueryModifier {
         SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
 
         if (selectExpressionItem.getAlias() != null) {
-            referenceFieldTypeItem.setAlias(new Alias(getServiceColumnName(selectExpressionItem.getAlias().getName(), postfix), false));
+            String serviceColumnAlias = createServiceColumnAlias(selectExpressionItem, postfix);
+            referenceFieldTypeItem.setAlias(new Alias(serviceColumnAlias, false));
         }
 
         String tableName = column.getTable() != null && column.getTable().getName() != null ? column.getTable().getName() : "";
@@ -761,6 +762,12 @@ public class SqlQueryModifier {
         referenceFieldTypeItem.setExpression(new Column(new Table(tableName), columnName));
 
         return referenceFieldTypeItem;
+    }
+
+    private String createServiceColumnAlias(SelectExpressionItem selectExpressionItem, String postfix) {
+        String baseAlias = DaoUtils.unwrap(selectExpressionItem.getAlias().getName());
+        String serviceColumnAlias = DaoUtils.wrap(getServiceColumnName(baseAlias, postfix));
+        return serviceColumnAlias;
     }
 
     private static PlainSelect getPlainSelect(SelectBody selectBody) {
