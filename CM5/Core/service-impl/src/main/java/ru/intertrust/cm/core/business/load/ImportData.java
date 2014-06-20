@@ -152,7 +152,7 @@ public class ImportData {
                 lineNum++;
             }
         } catch (Exception ex) {
-            throw new FatalException("Error load data", ex);
+            throw new FatalException("Error load data. TypeName=" + typeName, ex);
         } finally {
             try {
                 reader.close();
@@ -508,6 +508,10 @@ public class ImportData {
         Id result = null;
         if (collection.size() > 0) {
             result = collection.get(0).getId();
+        }
+        
+        if (result == null){
+            throw new FatalException("Not find value by query: " + query);
         }
         return result;
     }

@@ -36,6 +36,7 @@ public class TestImportData extends ClientBase {
             importDataService.importData(readFile(new File("import-long-value.csv")), null, true);
             importDataService.importData(readFile(new File("import-employee-prof.csv")), null, true);
 
+            log("Test OK");
         } finally {
             writeLog();
         }
