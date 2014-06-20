@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.shedule;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 
 import java.util.List;
 
@@ -8,9 +9,9 @@ import java.util.List;
  * Business interface for ScheduleTaskLoader
  * Created by vmatsukevich on 6/17/14.
  */
-public interface ScheduleTaskLoaderInterface {
+public interface ScheduleTaskLoader {
 
-    interface Remote extends ScheduleTaskLoaderInterface {}
+    interface Remote extends ScheduleTaskLoader {}
 
     void load();
 
@@ -21,5 +22,7 @@ public interface ScheduleTaskLoaderInterface {
     SheduleTaskReestrItem getSheduleTaskReestrItem(String className);
 
     DomainObject createTaskDomainObject(SheduleTaskReestrItem item, String name);
+
+    ScheduleTaskHandle getSheduleTaskHandle(String className);
 
 }

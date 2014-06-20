@@ -1,39 +1,37 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by tbilyi on 18.06.2014.
+ * Created by tbilyi on 19.06.2014.
  */
-@Root(name = "on-link")
-public class OnLinkConfig implements Dto {
+@Root(name = "create")
+public class CreateSection extends OperationConfig{
 
-    @Attribute(name = "do-link", required = false)
-    private String doLink;
+    @Attribute(name = "type", required = false)
+    private String type;
 
     @ElementList(inline = true)
-    private List<OperationConfig> activeFields = new ArrayList<OperationConfig>();
+    private List<ActiveFieldConfig> activeFields = new ArrayList<ActiveFieldConfig>();
 
-    public String getDoLink() {
-        return doLink;
+    public String getType() {
+        return type;
     }
 
-    public void setDoLink(String doLink) {
-        this.doLink = doLink;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public List<OperationConfig> getActiveFields() {
+    public List<ActiveFieldConfig> getActiveFields() {
         return activeFields;
     }
 
-    public void setActiveFields(List<OperationConfig> activeFields) {
+    public void setActiveFields(List<ActiveFieldConfig> activeFields) {
         this.activeFields = activeFields;
     }
 
@@ -42,17 +40,17 @@ public class OnLinkConfig implements Dto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        OnLinkConfig that = (OnLinkConfig) o;
+        CreateSection that = (CreateSection) o;
 
         if (activeFields != null ? !activeFields.equals(that.activeFields) : that.activeFields != null) return false;
-        if (doLink != null ? !doLink.equals(that.doLink) : that.doLink != null) return false;
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = doLink != null ? doLink.hashCode() : 0;
+        int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (activeFields != null ? activeFields.hashCode() : 0);
         return result;
     }

@@ -443,7 +443,7 @@
     </form>
 
     <act:action name="start-internal-document-process" componentName="start.process.action"
-        text="Отправить на согласование" image="sign.png">
+        text="Отправить на согласование" image="sign.png" merged="true">
         <act:before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
             <act:confirmation-message text="Отправить на согласование?" />

@@ -30,8 +30,8 @@
         <act:action-separator order="50"/>
         <act:action-ref actionId="aCreate" rendered="not toggle-edit or (toggle-edit and preview)" merged="true"/>
         <act:action-ref actionId="aSave" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
-        <act:action-ref actionId="aDelete" rendered="not toggle-edit or (toggle-edit and preview)"/>
-        <act:action-ref actionId="aToggleEditOff" rendered="toggle-edit and not preview"/>
+        <act:action-ref actionId="aDelete" rendered="not toggle-edit or (toggle-edit and preview)" merged="false"/>
+        <act:action-ref actionId="aToggleEditOff" rendered="toggle-edit and not preview" merged="false"/>
         <act:action-ref actionId="aToggleEditOn" merged="true" rendered="toggle-edit and preview"/>
     </act:tool-bar>
 </configuration>

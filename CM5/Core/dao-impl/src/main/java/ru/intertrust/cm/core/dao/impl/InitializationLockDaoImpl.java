@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.dao.impl.utils.DateUtils;
 
 import java.util.Date;
+import java.util.List;
 
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
@@ -27,6 +28,10 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
     protected static final String LOCK_QUERY =
             "update " + wrap(INITIALIZATION_LOCK_TABLE) + " set " + wrap(SERVER_ID_COLUMN) +  " = ?, " +
                     wrap(START_DATE_COLUMN) + " = ? where " + wrap(ID_COLUMN) + " = ?";
+
+    protected static final String SELECT_FOR_UPDATE_QUERY =
+            "select " + wrap(ID_COLUMN) + " from " + wrap(INITIALIZATION_LOCK_TABLE) +
+                    " where " +  wrap(ID_COLUMN) + " = ? and " + wrap(SERVER_ID_COLUMN) +  " is null for update";
 
     protected static final String UNLOCK_QUERY =
             "update " + wrap(INITIALIZATION_LOCK_TABLE) + " set " + wrap(SERVER_ID_COLUMN) +  " = null, " +
@@ -101,17 +106,8 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
      * {@inheritDoc}
      */
     public boolean isLocked() {
-        Integer freeRecordsCount = jdbcTemplate.queryForObject(COUNT_FREE_QUERY, Integer.class, ID);
-        return freeRecordsCount == 0;
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isLockRecordCreated() {
-        Integer recordsCount = jdbcTemplate.queryForObject(COUNT_ALL, Integer.class);
-        return recordsCount > 0;
+        List<Integer> unlockedRecords = jdbcTemplate.queryForList(SELECT_FOR_UPDATE_QUERY, Integer.class, ID);
+        return unlockedRecords == null || unlockedRecords.isEmpty();
     }
 
     protected BasicQueryHelper getQueryHelper() {

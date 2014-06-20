@@ -31,7 +31,7 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
     private int weight;
 
     @Attribute(required = false)
-    private boolean merged = false;
+    private boolean merged = true;
 
     @Attribute(required = false)
     private boolean disabled = false;

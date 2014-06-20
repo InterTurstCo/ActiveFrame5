@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.config.*;
@@ -10,14 +8,11 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
-import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
-import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
-import javax.transaction.*;
 import java.util.*;
 
 /**
@@ -30,13 +25,11 @@ import java.util.*;
 @Local(ConfigurationLoadService.class)
 @Remote(ConfigurationLoadService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-@TransactionManagement(TransactionManagementType.BEAN)
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, ConfigurationLoadService.Remote {
 
     private static final String COMMON_ERROR_MESSAGE = "It's only allowed to add some new configuration " +
             "but not to modify or delete the existing one.";
-
-    private static final long serverId = new Random().nextLong();
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -45,14 +38,9 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Autowired
-    private InitializationLockDao initializationLockDao;
-    @Autowired
     private ConfigurationDao configurationDao;
     @Autowired
     private ConfigurationSerializer configurationSerializer;
-
-    @Resource
-    private EJBContext ejbContext;
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -63,66 +51,23 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
      */
     @Override
     public void loadConfiguration() throws ConfigurationException {
-        UserTransaction userTransaction = null;
         try {
-            if (!isConfigurationLoaded()) {
-                try {
-                    initializationLockDao.createInitializationLockTable();
-                } catch (DataAccessException e) {
-                    try {
-                        Thread.currentThread().sleep(1000);
-                    } catch (InterruptedException e1) {
-                        throw new ConfigurationException(e1);
-                    }
+            RecursiveLoader recursiveLoader = new RecursiveLoader();
+            recursiveLoader.load();
+            saveConfiguration();
+        } catch (ConfigurationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedException("ConfigurationLoadService", "loadConfiguration", "", e);
+        }
+    }
 
-                    loadConfiguration();
-                }
-
-                userTransaction = startTransaction();
-                initializationLockDao.createLockRecord(serverId);
-                userTransaction.commit();
-
-                RecursiveLoader recursiveLoader = new RecursiveLoader();
-                recursiveLoader.load();
-
-                saveConfiguration();
-
-                userTransaction = startTransaction();
-                initializationLockDao.unlock();
-                userTransaction.commit();
-
-                return;
-            }
-
-            userTransaction = startTransaction();
-
-            Boolean isLockRecordCreated = null;
-            while(true) {
-                if (userTransaction == null) {
-                    userTransaction = startTransaction();
-                }
-
-                if (isLockRecordCreated == null || !isLockRecordCreated) {
-                    isLockRecordCreated = initializationLockDao.isLockRecordCreated();
-                }
-
-                if (isLockRecordCreated && !initializationLockDao.isLocked()) {
-                    break;
-                }
-
-                userTransaction.commit();
-                userTransaction = null;
-
-                try {
-                    Thread.currentThread().sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new FatalException(e);
-                }
-            }
-
-            initializationLockDao.lock(serverId);
-            userTransaction.commit();
-
+    /**
+     * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationLoadService#loadConfiguration()}
+     */
+    @Override
+    public void updateConfiguration() throws ConfigurationException {
+        try {
             String oldConfigurationString = configurationDao.readLastSavedConfiguration();
             if (oldConfigurationString == null) {
                 throw new ConfigurationException("Configuration loading aborted: configuration was previously " +
@@ -147,29 +92,11 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             RecursiveMerger recursiveMerger = new RecursiveMerger(oldConfiguration);
             recursiveMerger.merge();
             saveConfiguration();
-
-            userTransaction = startTransaction();
-            initializationLockDao.unlock();
-            userTransaction.commit();
         } catch (ConfigurationException e) {
             throw e;
         } catch (Exception e) {
             throw new UnexpectedException("ConfigurationLoadService", "loadConfiguration", "", e);
-        } finally {
-            try {
-                if (userTransaction != null && Status.STATUS_ACTIVE == userTransaction.getStatus()) {
-                    userTransaction.commit();
-                }
-            } catch (Exception e) {
-                throw new UnexpectedException("ConfigurationLoadService", "loadConfiguration", "", e);
-            }
         }
-    }
-
-    UserTransaction startTransaction() throws SystemException, NotSupportedException {
-        UserTransaction userTransaction = ejbContext.getUserTransaction();
-        userTransaction.begin();
-        return userTransaction;
     }
 
     private void saveConfiguration() {
@@ -212,10 +139,6 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
                 }
             }
         }
-    }
-
-    private Boolean isConfigurationLoaded() {
-        return initializationLockDao.isInitializationLockTableCreated();
     }
 
     private class RecursiveMerger extends AbstractRecursiveLoader {

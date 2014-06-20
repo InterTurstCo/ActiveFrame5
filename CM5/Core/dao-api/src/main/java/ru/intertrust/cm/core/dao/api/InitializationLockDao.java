@@ -50,10 +50,4 @@ public interface InitializationLockDao {
      * @return
      */
     boolean isLocked();
-
-    /**
-     * Returns true if initialization lock record is created
-     * @return
-     */
-    boolean isLockRecordCreated();
 }

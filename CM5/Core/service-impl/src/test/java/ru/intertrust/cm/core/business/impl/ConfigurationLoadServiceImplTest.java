@@ -64,25 +64,10 @@ public class ConfigurationLoadServiceImplTest {
         configuration = createConfiguration();
         configurationService.setConfigurationExplorer(new ConfigurationExplorerImpl(configuration));
         when(ejbContext.getUserTransaction()).thenReturn(new MockUserTransaction());
-        when(initializationLockDao.isLockRecordCreated()).thenReturn(true);
-    }
-
-    @Test
-    public void testLoadConfigurationLoadedButNotSaved() throws Exception {
-        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(true);
-        when(configurationDao.readLastSavedConfiguration()).thenReturn(null);
-
-        expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("Configuration loading aborted: configuration was previously " +
-                "loaded but wasn't saved");
-
-        configurationService.loadConfiguration();
     }
 
     @Test
     public void testLoadConfigurationUpdated() throws Exception {
-        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(true);
-
         String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
         when(configurationSerializer.deserializeTrustedConfiguration(configurationString, false)).thenReturn(configuration);
@@ -117,23 +102,16 @@ public class ConfigurationLoadServiceImplTest {
         configurationService.setConfigurationExplorer(configExplorer);
 
         configurationService.loadConfiguration();
-
-        verify(initializationLockDao).isInitializationLockTableCreated();
-        //verify(dataStructureDao).updateTableStructure(anyString(), anyListOf(FieldConfig.class));
-//        verify(configurationDao).save(ConfigurationSerializer.serializeConfiguration(updatedConfiguration));
     }
 
     @Test
     public void testLoadConfigurationNoUpdate() throws Exception {
-        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(true);
-
         String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
         when(configurationSerializer.deserializeTrustedConfiguration(configurationString, false)).thenReturn(configuration);
 
-        configurationService.loadConfiguration();
+        configurationService.updateConfiguration();
 
-        verify(initializationLockDao).isInitializationLockTableCreated();
         verify(dataStructureDao, never()).createServiceTables();
         verify(dataStructureDao, never()).createTable(any(DomainObjectTypeConfig.class));
         verify(dataStructureDao, never()).createSequence(any(DomainObjectTypeConfig.class));
@@ -142,10 +120,8 @@ public class ConfigurationLoadServiceImplTest {
 
     @Test
     public void testLoadConfigurationFirstTime() throws Exception {
-        when(initializationLockDao.isInitializationLockTableCreated()).thenReturn(false);
         configurationService.loadConfiguration();
 
-        verify(initializationLockDao).isInitializationLockTableCreated();
         verify(dataStructureDao).createServiceTables();
         verify(dataStructureDao, times(2)).createTable(any(DomainObjectTypeConfig.class));
         verify(dataStructureDao, times(2)).createSequence(any(DomainObjectTypeConfig.class));

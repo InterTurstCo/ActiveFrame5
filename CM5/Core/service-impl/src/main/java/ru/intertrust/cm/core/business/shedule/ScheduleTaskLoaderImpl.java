@@ -49,11 +49,11 @@ import javax.interceptor.Interceptors;
  * 
  */
 @Stateless
-@Local(ScheduleTaskLoaderInterface.class)
-@Remote(ScheduleTaskLoaderInterface.Remote.class)
+@Local(ScheduleTaskLoader.class)
+@Remote(ScheduleTaskLoader.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-public class SheduleTaskLoader implements ScheduleTaskLoaderInterface, ScheduleTaskLoaderInterface.Remote {
-    private static final Logger logger = LoggerFactory.getLogger(SheduleTaskLoader.class);
+public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskLoader.Remote {
+    private static final Logger logger = LoggerFactory.getLogger(ScheduleTaskLoaderImpl.class);
 
     private Hashtable<String, SheduleTaskReestrItem> reestr = new Hashtable<String, SheduleTaskReestrItem>();
 
