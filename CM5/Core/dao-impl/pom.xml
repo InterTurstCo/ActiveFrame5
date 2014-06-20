@@ -61,20 +61,6 @@
     </dependencies>
 
     <build>
-
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources/</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>beans.xml</include>
-                </includes>
-            </resource>
-        </resources>
-        <filters>
-            <filter>${basedir}/../../deploy.properties</filter>
-        </filters>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

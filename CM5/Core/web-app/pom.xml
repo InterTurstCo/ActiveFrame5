@@ -81,27 +81,6 @@
         <plugins>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <webResources>
-                        <resource>
-                            <directory>${basedir}/src/main/webapp/WEB-INF/</directory>
-                            <targetPath>WEB-INF</targetPath>
-                            <filtering>true</filtering>
-                            <includes>
-                                <include>jboss-web.xml</include>
-                            </includes>
-                        </resource>
-                    </webResources>
-
-                    <filters>
-                        <filter>${basedir}/../../deploy.properties</filter>
-                    </filters>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
                 <version>${gwt.version}</version>

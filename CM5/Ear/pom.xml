@@ -103,19 +103,15 @@
                     <plugin>
                         <artifactId>maven-ear-plugin</artifactId>
                         <configuration>
-                            <applicationName>${application.name}</applicationName>
+                            <applicationName>cm-sochi</applicationName>
                             <version>6</version>
-                            <filtering>true</filtering>
-                            <filters>
-                                <filter>${project.basedir}/../deploy.properties</filter>
-                            </filters>
                             <modules>
                                 <webModule>
                                     <groupId>ru.intertrust.cm-sochi</groupId>
                                     <artifactId>web-app</artifactId>
-                                    <uri>${application.weburi}</uri>
+                                    <uri>web-app.war</uri>
                                     <bundleFileName>web-app</bundleFileName>
-                                    <contextRoot>/${application.contextroot}</contextRoot>
+                                    <contextRoot>/cm-sochi</contextRoot>
                                 </webModule>
                             </modules>
                             <!-- <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
@@ -125,24 +121,6 @@
                             </filters>
                             <applicationXml>${basedir}/src/main/application/META-INF/application-externalSolr.xml</applicationXml> -->
                         </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>
-                        <version>1.0-alpha-1</version>
-                        <executions>
-                            <execution>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>read-project-properties</goal>
-                                </goals>
-                                <configuration>
-                                    <files>
-                                        <file>${deploy.properties.path}</file>
-                                    </files>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -163,19 +141,15 @@
                     <plugin>
                         <artifactId>maven-ear-plugin</artifactId>
                         <configuration>
-                            <applicationName>${application.name}</applicationName>
+                            <applicationName>cm-sochi</applicationName>
                             <version>6</version>
-                            <filtering>true</filtering>
-                            <filters>
-                                <filter>${project.basedir}/../deploy.properties</filter>
-                            </filters>
                             <modules>
                                 <webModule>
                                     <groupId>ru.intertrust.cm-sochi</groupId>
                                     <artifactId>web-app</artifactId>
-                                    <uri>${application.weburi}</uri>
+                                    <uri>web-app.war</uri>
                                     <bundleFileName>web-app</bundleFileName>
-                                    <contextRoot>/${application.contextroot}</contextRoot>
+                                    <contextRoot>/cm-sochi</contextRoot>
                                 </webModule>
                             </modules>
                             <!-- <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
@@ -185,24 +159,6 @@
                             </filters>
                             <applicationXml>${basedir}/src/main/application/META-INF/application-embeddedSolr.xml</applicationXml> -->
                         </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>
-                        <version>1.0-alpha-1</version>
-                        <executions>
-                            <execution>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>read-project-properties</goal>
-                                </goals>
-                                <configuration>
-                                    <files>
-                                        <file>${deploy.properties.path}</file>
-                                    </files>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -220,7 +176,7 @@
                             <hostname>localhost</hostname>
                             <port>9999</port>
                             <filename>${ear.name}.ear</filename>
-                            <name>${application.name}.ear</name>
+                            <name>cm-sochi.ear</name>
                             <skip>false</skip>
                         </configuration>
 
@@ -231,24 +187,6 @@
                                 <goals>
                                     <goal>deploy</goal>
                                 </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>
-                        <version>1.0-alpha-1</version>
-                        <executions>
-                            <execution>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>read-project-properties</goal>
-                                </goals>
-                                <configuration>
-                                    <files>
-                                        <file>${deploy.properties.path}</file>
-                                    </files>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -267,7 +205,7 @@
                         <configuration>
                             <hostname>localhost</hostname>
                             <port>9999</port>
-                            <name>${application.name}.ear</name>
+                            <name>cm-sochi.ear</name>
                             <skip>false</skip>
                         </configuration>
 
@@ -278,24 +216,6 @@
                                 <goals>
                                     <goal>undeploy</goal>
                                 </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>properties-maven-plugin</artifactId>
-                        <version>1.0-alpha-1</version>
-                        <executions>
-                            <execution>
-                                <phase>initialize</phase>
-                                <goals>
-                                    <goal>read-project-properties</goal>
-                                </goals>
-                                <configuration>
-                                    <files>
-                                        <file>${deploy.properties.path}</file>
-                                    </files>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -337,16 +257,16 @@
                                     <goal>add-resource</goal>
                                 </goals>
                                 <configuration>
-                                    <address>subsystem=datasources,data-source=${datasource.name}</address>
+                                    <address>subsystem=datasources,data-source=CM5</address>
                                     <resource>
                                         <enableResource>true</enableResource>
                                         <properties>
                                             <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
                                             <connection-url>jdbc:postgresql://${db.host}:${db.port}/${db.name}</connection-url>
-                                            <jndi-name>${datasource.jndi.name}</jndi-name>
+                                            <jndi-name>java:jboss/datasources/CM5</jndi-name>
                                             <enabled>true</enabled>
                                             <enable>true</enable>
-                                            <pool-name>${datasource.pool.name}</pool-name>
+                                            <pool-name>CM5</pool-name>
                                             <user-name>${db.user}</user-name>
                                             <password>${db.password}</password>
                                             <driver-name>postgresql-jdbc4.jar</driver-name>
@@ -366,7 +286,7 @@
                                     <force>true</force>
                                     <resources>
                                         <resource>
-                                            <address>security-domain=${application.security-domain}</address>
+                                            <address>security-domain=CM5</address>
                                             <properties>
                                                 <cache-type>default</cache-type>
                                             </properties>
@@ -378,7 +298,7 @@
                                                             !![
                                                             {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
-                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"${datasource.jndi.name}"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
                                                             </login-modules>
                                                         </properties>
@@ -401,7 +321,7 @@
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=local:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove</command>
-                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="${application.security-domain}")</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authorization=properties:remove</command>
                                         </commands>
                                     </execute-commands>                                
@@ -479,16 +399,16 @@
                                     <goal>add-resource</goal>
                                 </goals>
                                 <configuration>
-                                    <address>subsystem=datasources,data-source=${datasource.name}</address>
+                                    <address>subsystem=datasources,data-source=CM5</address>
                                     <resource>
                                         <enableResource>true</enableResource>
                                         <properties>
                                             <datasource-class>oracle.jdbc.xa.client.OracleXADataSource</datasource-class>
                                             <connection-url>jdbc:oracle:thin:@${db.host}:${db.port}:${db.name}</connection-url>
-                                            <jndi-name>${datasource.jndi.name}</jndi-name>
+                                            <jndi-name>java:jboss/datasources/CM5</jndi-name>
                                             <enabled>true</enabled>
                                             <enable>true</enable>
-                                            <pool-name>${datasource.pool.name}</pool-name>
+                                            <pool-name>CM5</pool-name>
                                             <user-name>${db.user}</user-name>
                                             <password>${db.password}</password>
                                             <driver-name>ojdbc6.jar</driver-name>
@@ -508,7 +428,7 @@
                                     <force>true</force>
                                     <resources>
                                         <resource>
-                                            <address>security-domain=${application.security-domain}</address>
+                                            <address>security-domain=CM5</address>
                                             <properties>
                                                 <cache-type>default</cache-type>
                                             </properties>
@@ -520,7 +440,7 @@
                                                             !![
                                                             {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
                                                             {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
-                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"${datasource.jndi.name}"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
                                                         </login-modules>
                                                     </properties>
@@ -543,7 +463,7 @@
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=local:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove</command>
-                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="${application.security-domain}")</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authorization=properties:remove</command>
                                         </commands>
                                     </execute-commands>
