@@ -209,7 +209,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             if (REFERENCE_TYPE_ANY.equals(domainObjectConfigName)) {
                 throw new IllegalArgumentException("'*' is not a valid Domain Object type");
             }
-
+            if (domainObjectConfigName == null || fieldConfigName == null) {
+                return null;
+            }
+            
             FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
             FieldConfig result = configStorage.fieldConfigMap.get(fieldConfigKey);
 

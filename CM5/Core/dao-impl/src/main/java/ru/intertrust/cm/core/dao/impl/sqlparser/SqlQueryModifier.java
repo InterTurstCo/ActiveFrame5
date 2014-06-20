@@ -129,12 +129,12 @@ public class SqlQueryModifier {
     }
 
     private void buildColumnToConfigMap(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {
-        CollectingColumnConfigVisitor collectWhereColumnConfigVisitor = new CollectingColumnConfigVisitor(configurationExplorer, plainSelect);        
+        CollectingColumnConfigVisitor collectColumnConfigVisitor = new CollectingColumnConfigVisitor(configurationExplorer, plainSelect);        
 
-        plainSelect.accept(collectWhereColumnConfigVisitor);
+        plainSelect.accept(collectColumnConfigVisitor);
         
-        for (String column : collectWhereColumnConfigVisitor.getWhereColumnToConfigMapping().keySet()) {
-            FieldConfig fieldConfig = collectWhereColumnConfigVisitor.getWhereColumnToConfigMapping().get(column);
+        for (String column : collectColumnConfigVisitor.getColumnToConfigMapping().keySet()) {
+            FieldConfig fieldConfig = collectColumnConfigVisitor.getColumnToConfigMapping().get(column);
             if (fieldConfig != null) {
                 columnToTableMapping.put(column, fieldConfig);
             }
@@ -600,6 +600,10 @@ public class SqlQueryModifier {
         } else if (plainSelect.getFromItem() instanceof Table) {
             Table fromItem = (Table) plainSelect.getFromItem();
 
+            if (forSubSelect && hasStringExpressionWithSameAlias(plainSelect, column)) {
+                return null;
+            }
+            //TODO do we need condition for forSubSelect here?
             if (forSubSelect || column.getTable() == null || column.getTable().getName() == null) {
                 return DaoUtils.unwrap(fromItem.getName());
             }
@@ -610,10 +614,6 @@ public class SqlQueryModifier {
             }
 
             List joinList = plainSelect.getJoins();
-            if (joinList == null || joinList.isEmpty()) {
-                throw new CollectionQueryException("Failed to evaluate table name for column '" +
-                        column.getColumnName() + "'");
-            }
 
             for (Object joinObject : joinList) {
                 Join join = (Join) joinObject;
@@ -636,6 +636,26 @@ public class SqlQueryModifier {
 
         throw new CollectionQueryException("Failed to evaluate table name for column '" +
                 column.getColumnName() + "'");
+    }
+
+    private static boolean hasStringExpressionWithSameAlias(PlainSelect plainSelect, Column column) {
+        if (plainSelect.getSelectItems() != null) {
+            for (SelectItem selectItem : plainSelect.getSelectItems()) {
+                if (!SelectExpressionItem.class.equals(selectItem.getClass())) {
+                    continue;
+                }
+                SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+                if (selectExpressionItem.getExpression() instanceof StringValue) {
+
+                    if (selectExpressionItem.getAlias() != null) {
+                        if (column.getColumnName().equalsIgnoreCase(selectExpressionItem.getAlias().getName())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private FieldConfig getFieldConfig(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {

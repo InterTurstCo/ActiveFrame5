@@ -216,6 +216,12 @@ public class CollectionsIT extends IntegrationTestBase {
         
         collection = collectionService.findCollectionByQuery(query, params);
 
+        query = "select t.created_by, '' as test from(select '' as created_by, '' as test2 from schedule) t ";
+        params = new ArrayList<Value>();
+        
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() > 0);
     }
     
     @Test
