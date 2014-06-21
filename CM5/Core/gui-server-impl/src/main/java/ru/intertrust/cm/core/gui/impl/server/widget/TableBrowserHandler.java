@@ -41,7 +41,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         TableBrowserConfig widgetConfig = context.getWidgetConfig();
         state.setTableBrowserConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
-        Set<Id> selectedIdsSet = new LinkedHashSet<>();
+        Set<Id> selectedIdsSet = new LinkedHashSet<>(selectedIds);
         state.setSelectedIds(selectedIdsSet);
         ArrayList<TableBrowserItem> items = new ArrayList<>(0);
         if (!selectedIds.isEmpty()) {

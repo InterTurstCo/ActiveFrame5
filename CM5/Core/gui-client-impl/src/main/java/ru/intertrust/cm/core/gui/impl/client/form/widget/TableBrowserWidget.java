@@ -36,34 +36,31 @@ import java.util.List;
 public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChangedEventHandler {
     public static final int DEFAULT_DIALOG_WIDTH = 500;
     public static final int DEFAULT_DIALOG_HEIGHT = 300;
-    private TableBrowserConfig tableBrowserConfig;
     private PluginPanel pluginPanel;
     private FocusPanel openDialogButton;
     private FocusPanel clearButton;
     private TextBox filterEditor;
     private EventBus localEventBus = new SimpleEventBus();
-    private ArrayList<Id> chosenIds = new ArrayList<Id>();
-    private boolean singleChoice;
+    private ArrayList<Id> temporaryStateOfSelectedIds = new ArrayList<Id>();
+    private TableBrowserState currentState;
     private int dialogWidth;
     private int dialogHeight;
     private DialogBox dialogBox;
     private FacebookStyleView facebookStyleView;
-    FlowPanel root = new FlowPanel();
+    private FlowPanel root = new FlowPanel();
 
     @Override
-    public void setCurrentState(WidgetState currentState) {
-        TableBrowserState tableBrowserState = (TableBrowserState) currentState;
-        tableBrowserConfig = tableBrowserState.getTableBrowserConfig();
+    public void setCurrentState(WidgetState state) {
+        currentState = (TableBrowserState) state;
         if (isEditable()) {
-            setCurrentStateForEditableWidget(tableBrowserState);
+            setCurrentStateForEditableWidget(currentState);
         } else {
-            setCurrentStateForNoneEditableWidget(tableBrowserState);
+            setCurrentStateForNoneEditableWidget(currentState);
         }
     }
 
     private void setCurrentStateForEditableWidget(TableBrowserState state) {
 
-        singleChoice = state.isSingleChoice();
         facebookStyleView.setChosenItems(state.getTableBrowserItems());
         initDialogWindowSize();
         initDialogView();
@@ -130,27 +127,26 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         commonInitialization(state);
-        SelectionStyleConfig selectionStyleConfig = tableBrowserConfig.getSelectionStyleConfig();
+        SelectionStyleConfig selectionStyleConfig = currentState.getTableBrowserConfig().getSelectionStyleConfig();
         return initWidgetView(selectionStyleConfig);
     }
 
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
         commonInitialization(state);
-        SelectionStyleConfig selectionStyleConfig = tableBrowserConfig.getSelectionStyleConfig();
+        SelectionStyleConfig selectionStyleConfig = currentState.getTableBrowserConfig().getSelectionStyleConfig();
         return new SimpleNoneEditablePanelWithHyperlinks(selectionStyleConfig, localEventBus);
 
     }
 
     private void commonInitialization(WidgetState state) {
-        TableBrowserState tableBrowserState = (TableBrowserState) state;
-        tableBrowserConfig = tableBrowserState.getTableBrowserConfig();
+        currentState = (TableBrowserState) state;
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
 
     }
 
     private boolean displayHyperlinks() {
-        DisplayValuesAsLinksConfig displayValuesAsLinksConfig = tableBrowserConfig.getDisplayValuesAsLinksConfig();
+        DisplayValuesAsLinksConfig displayValuesAsLinksConfig = currentState.getTableBrowserConfig().getDisplayValuesAsLinksConfig();
         return displayValuesAsLinksConfig != null && displayValuesAsLinksConfig.isValue();
     }
 
@@ -169,7 +165,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     private CollectionViewerConfig initCollectionConfig() {
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
-
+        TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
         collectionViewerConfig.setFilterName(tableBrowserConfig.getInputTextFilterConfig().getName());
         collectionViewerConfig.setFilterValue(filterEditor.getValue());
         collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
@@ -180,9 +176,10 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
 
-        collectionViewerConfig.setSingleChoice(singleChoice);
+        collectionViewerConfig.setSingleChoice(currentState.isSingleChoice());
         collectionViewerConfig.setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues());
-        collectionViewerConfig.setExcludedIds(new ArrayList<Id>(facebookStyleView.getSelectedIds()));
+
+        collectionViewerConfig.setExcludedIds(currentState.getIds());
 
         SelectionFiltersConfig selectionFiltersConfig = tableBrowserConfig.getSelectionFiltersConfig();
         collectionViewerConfig.setSelectionFiltersConfig(selectionFiltersConfig);
@@ -217,7 +214,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         clearButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                chosenIds.clear();
+                temporaryStateOfSelectedIds.clear();
                 facebookStyleView.getChosenItems().clear();
                 facebookStyleView.displaySelectedItems();
                 ((TableBrowserState)getCurrentState()).getIds().clear();
@@ -235,21 +232,23 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     private void initAddButton() {
         openDialogButton.clear();
         ButtonForm addButton;
+        TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
         if (tableBrowserConfig.getClearAllButtonConfig() != null) {
             String img = tableBrowserConfig.getAddButtonConfig().getImage();
             String text = tableBrowserConfig.getAddButtonConfig().getText();
             if (text == null || text.equals("...") || text.length() == 0) {
-                text = "Добавить";
+                text = "????????";
             }
             addButton = new ButtonForm(openDialogButton, img, text);
         } else {
-            addButton = new ButtonForm(openDialogButton, null, "Добавить");
+            addButton = new ButtonForm(openDialogButton, null, "????????");
         }
 
         openDialogButton.add(addButton);
     }
 
     private void initClearAllButton() {
+        TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
         if (tableBrowserConfig.getClearAllButtonConfig() != null) {
             String img = tableBrowserConfig.getClearAllButtonConfig().getImage();
             String text = tableBrowserConfig.getClearAllButtonConfig().getText();
@@ -272,7 +271,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         Button okButton = new Button("OK");
         okButton.removeStyleName("gwt-Button");
         okButton.addStyleName("dark-button buttons-fixed");
-        Button cancelButton = new Button("Отмена");
+        Button cancelButton = new Button("??????");
         cancelButton.removeStyleName("gwt-Button");
         cancelButton.addStyleName("light-button buttons-fixed position-margin-left");
         if (isSingleChoice()) {
@@ -298,7 +297,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     }
 
     private boolean isSingleChoice() {
-        final SingleChoiceConfig singleChoice = tableBrowserConfig.getSingleChoice();
+        final SingleChoiceConfig singleChoice = currentState.getTableBrowserConfig().getSingleChoice();
         return singleChoice != null && singleChoice.isSingleChoice();
     }
 
@@ -308,6 +307,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
             @Override
             public void onClick(ClickEvent event) {
                 dialogBox.hide();
+                temporaryStateOfSelectedIds.clear();
             }
         });
     }
@@ -315,7 +315,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     @Override
     public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
         Id id = event.getId();
-        updateHyperlink(id, tableBrowserConfig.getSelectionPatternConfig().getValue());
+        updateHyperlink(id, currentState.getTableBrowserConfig().getSelectionPatternConfig().getValue());
     }
 
     private class FetchFilteredRowsClickHandler implements ClickHandler {
@@ -332,6 +332,8 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                currentState.getSelectedIds().addAll(temporaryStateOfSelectedIds);
+                temporaryStateOfSelectedIds.clear();
                 fetchParsedRows();
                 dialogBox.hide();
             }
@@ -340,15 +342,11 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
             @Override
             public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
                 Id id = event.getId();
-                TableBrowserState initialState = (TableBrowserState) getCurrentState();
                 if (event.isDeselected()) {
-
-                    chosenIds.remove(id);
+                    temporaryStateOfSelectedIds.remove(id);
                     facebookStyleView.removeChosenItem(id);
-                    initialState.getIds().remove(id);
                 } else {
-                    chosenIds.add(id);
-                    initialState.getIds().add(id);
+                    temporaryStateOfSelectedIds.add(id);
                 }
             }
         });
@@ -368,8 +366,8 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
             @Override
             public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-                chosenIds.clear();
-                chosenIds.add(event.getId());
+                temporaryStateOfSelectedIds.clear();
+                temporaryStateOfSelectedIds.add(event.getId());
 
             }
         });
@@ -377,7 +375,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     }
 
     private void initDialogWindowSize() {
-        DialogWindowConfig dialogWindowConfig = tableBrowserConfig.getDialogWindowConfig();
+        DialogWindowConfig dialogWindowConfig = currentState.getTableBrowserConfig().getDialogWindowConfig();
         String widthString = dialogWindowConfig != null ? dialogWindowConfig.getWidth() : null;
         String heightString = dialogWindowConfig != null ? dialogWindowConfig.getHeight() : null;
         dialogWidth = widthString == null ? DEFAULT_DIALOG_WIDTH : Integer.parseInt(widthString.replaceAll("\\D+", ""));
@@ -386,13 +384,14 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
 
     private void fetchParsedRows() {
 
-        if (chosenIds.isEmpty()) {
+        if (currentState.getSelectedIds().isEmpty()) {
             facebookStyleView.displaySelectedItems();
             return;
         }
+        TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
         FormatRowsRequest formatRowsRequest = new FormatRowsRequest();
         formatRowsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
-        formatRowsRequest.setIdsShouldBeFormatted(chosenIds);
+        formatRowsRequest.setIdsShouldBeFormatted(currentState.getIds());
         formatRowsRequest.setCollectionName(tableBrowserConfig.getCollectionRefConfig().getName());
         formatRowsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
         formatRowsRequest.setDefaultSortCriteriaConfig(tableBrowserConfig.getDefaultSortCriteriaConfig());
@@ -408,7 +407,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
                     facebookStyleView.getChosenItems().addAll(items);
                 }
                 facebookStyleView.displaySelectedItems();
-                chosenIds.clear();
+                temporaryStateOfSelectedIds.clear();
             }
 
             @Override
@@ -422,7 +421,8 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     private void updateHyperlink(Id id, String selectionPattern) {
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, tableBrowserConfig.getFormattingConfig());
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, currentState.
+                getTableBrowserConfig().getFormattingConfig());
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

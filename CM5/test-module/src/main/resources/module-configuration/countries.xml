@@ -489,10 +489,10 @@
             <table-browser id="17a" read-only="false">
                 <field-path value="city^country"/>
                 <collection-ref name="Cities"/>
-                <selection-filters>
+                <!--<selection-filters>
                     <selection-filter name="withoutCountry"></selection-filter>
 
-                </selection-filters>
+                </selection-filters>-->
                 <collection-view-ref name="cities_default_view"/>
 
                 <!-- паттерн отображения уже выбранных значений -->

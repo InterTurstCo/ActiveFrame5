@@ -171,10 +171,10 @@
                 select
                  ci.id,   ci.name, ci.population, ci.year_of_foundation, ci.latitude, ci.longitude, ci.square
                 from
-                    city ci
+                    city ci left outer join country co on ci.country = co.id
                      ::from-clause
                 where
-                    ci.country is null ::where-clause
+                    1 = 1 ::where-clause
             ]]>
         </prototype>
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
