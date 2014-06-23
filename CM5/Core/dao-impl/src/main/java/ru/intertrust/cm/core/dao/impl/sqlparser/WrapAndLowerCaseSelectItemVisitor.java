@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
@@ -30,6 +31,9 @@ class WrapAndLowerCaseSelectItemVisitor implements SelectItemVisitor {
     public void visit(SelectExpressionItem selectExpressionItem) {
         if (selectExpressionItem.getExpression() != null) {
             selectExpressionItem.getExpression().accept(new WrapAndLowerCaseExpressionVisitor());
+            if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null) {
+                selectExpressionItem.setAlias(new Alias(DaoUtils.wrap(selectExpressionItem.getAlias().getName().toLowerCase()), false));
+            }
         }
     }
 }

@@ -60,7 +60,7 @@ public class CollectionsDaoImplTest {
 
     private static final String ACTUAL_COLLECTION_QUERY_WITH_LIMITS =
             "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
-                    "e.\"updated_date\", 'employee' AS TEST_CONSTANT " +
+                    "e.\"updated_date\", 'employee' \"test_constant\" " +
                     "FROM (SELECT * FROM \"person\" person WHERE EXISTS (SELECT r.\"object_id\" " +
                     "FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN " +
@@ -74,7 +74,7 @@ public class CollectionsDaoImplTest {
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
             "SELECT e.\"id\", e.\"id_type\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
-                    "'employee' AS TEST_CONSTANT " +
+                    "'employee' \"test_constant\" " +
                     "FROM (SELECT * FROM \"employee\" employee WHERE EXISTS (SELECT r.\"object_id\" " +
                     "FROM \"employee_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
@@ -90,8 +90,8 @@ public class CollectionsDaoImplTest {
                     "AND d.\"name\" = 'dep1' ORDER BY e.\"name\"";
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
-            "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") AS BOSS, " +
-                    "p.\"created_date\", p.\"updated_date\", 'person' AS TEST_CONSTANT " +
+            "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") \"boss\", " +
+                    "p.\"created_date\", p.\"updated_date\", 'person' \"test_constant\" " +
                     "FROM (SELECT * FROM \"person\" person WHERE EXISTS (SELECT r.\"object_id\" FROM " +
                     "\"person_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
