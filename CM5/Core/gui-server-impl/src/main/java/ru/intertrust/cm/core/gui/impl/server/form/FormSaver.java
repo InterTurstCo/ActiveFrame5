@@ -2,11 +2,9 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -16,7 +14,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.model.form.*;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
@@ -35,15 +36,12 @@ public class FormSaver {
     private ConfigurationExplorer configurationExplorer;
     @Autowired
     private CrudService crudService;
-    @Autowired
-    private AttachmentService attachmentService;
     private FormState formState;
     private Map<FieldPath, Value> forcedRootDomainObjectValues;
     private FormObjects formObjects;
     private List<WidgetConfig> widgetConfigs;
     private HashMap<FieldPath, ObjectWithReferences> toCreate;
     private HashMap<FieldPath, ObjectWithReferences> toUpdateReferences;
-    private ArrayList<FormSaveOperation> linkChangeOperations;
     private HashSet<FieldPath> toUpdate;
     private HashMap<Id, DomainObject> savedObjectsById;
 
@@ -53,7 +51,6 @@ public class FormSaver {
         this.forcedRootDomainObjectValues = forcedRootDomainObjectValues == null ? new HashMap<FieldPath, Value>(0) : forcedRootDomainObjectValues;
         toCreate = new HashMap<>();
         toUpdateReferences = new HashMap<>();
-        linkChangeOperations = new ArrayList<>();
         toUpdate = new HashSet<>();
         savedObjectsById = new HashMap<>();
     }
@@ -81,6 +78,7 @@ public class FormSaver {
         if (rootDomainObject.isNew()) {
             toCreate.put(FieldPath.ROOT, new ObjectWithReferences(FieldPath.ROOT, new HashMap<String, FieldPath>(0)));
         }
+        ArrayList<WidgetContext> multiBackReferenceContexts = new ArrayList<>();
         for (WidgetConfig widgetConfig : widgetConfigs) {
             WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
             if (widgetState.mayContainNestedFormStates()) {
@@ -95,23 +93,15 @@ public class FormSaver {
                 }
             }
 
-            FieldPath[] fieldPaths = FieldPath.createPaths(widgetConfig.getFieldPathConfig().getValue());
-            FieldPath firstFieldPath = fieldPaths[0];
-            WidgetHandler handler = getWidgetHandler(widgetConfig);
+            WidgetContext context = new WidgetContext(widgetConfig, formObjects);
+            final FieldPath firstFieldPath = context.getFirstFieldPath();
             if (firstFieldPath.isMultiBackReference()) {
-                // todo get rid of deleteEntriesOnLinkDrop - substitute with field-path config on-delete
-                // what about single choice in widgets???
-                boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop(widgetConfig) || isParentReferencedByNotNullField(fieldPaths);
-                HashMap<FieldPath, ArrayList<Id>> fieldPathsIds
-                        = getBackReferenceFieldPathsIds(fieldPaths, (LinkEditingWidgetState) widgetState);
-                for (FieldPath fieldPath : fieldPaths) {
-                    linkChangeOperations.addAll(mergeObjectReferences(fieldPath, fieldPathsIds.get(fieldPath), deleteEntriesOnLinkDrop));
-                }
+                multiBackReferenceContexts.add(context);
                 continue;
             }
 
-            Value newValue = handler.getValue(widgetState);
-            Value oldValue = formObjects.getFieldValue(firstFieldPath);
+            Value newValue = getWidgetHandler(widgetConfig).getValue(widgetState);
+            Value oldValue = context.getValue();
             FieldPath parentObjectPath = firstFieldPath.getParentPath();
             findCreateAndUpdateReferencesOperationsForChain(new ObjectWithReferences(parentObjectPath));
             if (!areValuesSemanticallyEqual(newValue, oldValue)) {
@@ -126,37 +116,30 @@ public class FormSaver {
 
         saveRootWithDirectlyLinkedObjects();
 
-        rootDomainObject = formObjects.getRootNode().getDomainObject(); // after save its ID changed
-        ReferenceValue rootObjectReference = new ReferenceValue(rootDomainObject.getId());
+        changeMultiBackReferences(multiBackReferenceContexts);
 
-        for (FormSaveOperation operation : linkChangeOperations) {
-            if (operation.type == FormSaveOperation.Type.Delete) {
-                delete(operation);
-            } else {
-                operation.domainObject.setValue(operation.fieldToSetWithRootReference, rootObjectReference);
-                save(operation.domainObject);
-            }
-        }
         saveNewLinkedObjects();
-        return rootDomainObject;
+        return formObjects.getRootNode().getDomainObject(); // after save its ID may be changed
     }
 
-    private boolean isParentReferencedByNotNullField(FieldPath[] fieldPaths) {
-        for (final FieldPath fieldPath : fieldPaths) {
-            if (!fieldPath.isOneToManyReference()) {
-                continue;
-            }
-            final String type = fieldPath.getReferenceType();
-            final String fieldName = fieldPath.getLinkToParentName();
-            final ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationExplorer.getFieldConfig(type, fieldName);
-            if (fieldConfig.isNotNull()) {
-                return true;
+    private void changeMultiBackReferences(ArrayList<WidgetContext> multiBackReferenceContexts) {
+        for (WidgetContext context : multiBackReferenceContexts) {
+            // todo get rid of deleteEntriesOnLinkDrop - substitute with field-path config on-delete
+            // what about single choice in widgets???
+            final WidgetConfig widgetConfig = context.getWidgetConfig();
+            LinkEditingWidgetState widgetState = (LinkEditingWidgetState) formState.getWidgetState(widgetConfig.getId());
+            final WidgetHandler handler = getWidgetHandler(widgetConfig);
+            boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop(widgetConfig);
+            HashMap<FieldPath, ArrayList<Id>> fieldPathsIds = getBackReferenceFieldPathsIds(context.getFieldPaths(), widgetState);
+            for (FieldPath fieldPath : context.getFieldPaths()) {
+                final String linkerBeanName = fieldPath.isOneToManyReference() ? "oneToManyLinker" : "manyToManyLinker";
+                ObjectsLinker linker = (ObjectsLinker) applicationContext.getBean(linkerBeanName, formState, context, fieldPath, fieldPathsIds.get(fieldPath), deleteEntriesOnLinkDrop, savedObjectsById);
+                linker.updateLinkedObjects();
             }
         }
-        return false;
     }
 
-    private void saveNewLinkedObjects() {
+    private void saveNewLinkedObjects() { // todo: handle on link as well
         for (WidgetConfig config : widgetConfigs) {
             WidgetState widgetState = formState.getWidgetState(config.getId());
             if (widgetState == null) { // ignore - such data shouldn't be saved
@@ -223,36 +206,6 @@ public class FormSaver {
     private void saveDomainObject(FieldPath fieldPath) {
         final DomainObject domainObject = crudService.save(getSingleDomainObject(fieldPath));
         ((SingleObjectNode) formObjects.getNode(fieldPath)).setDomainObject(domainObject);
-    }
-
-    private DomainObject save(DomainObject object) {
-        // this is required to avoid optimistic lock exceptions when same object is being edited by several widgets,
-        // for example, one widget is editing object's properties while the other edits links
-        final Id id = object.getId();
-        DomainObject earlierSavedObject = savedObjectsById.get(id);
-        if (earlierSavedObject != null) {
-            // todo merge objects here
-            return earlierSavedObject;
-        }
-        if (id != null && isAttachment(id)) { // attachments should never be saved again - they're "final"
-            return object;
-        }
-        DomainObject savedObject = crudService.save(object);
-        savedObjectsById.put(savedObject.getId(), savedObject);
-        return savedObject;
-    }
-
-    private void delete(FormSaveOperation operation) {
-        final Id id = operation.id;
-        if (isAttachment(id)) {
-            attachmentService.deleteAttachment(id);
-        } else {
-            crudService.delete(id);
-        }
-    }
-
-    private boolean isAttachment(Id id) {
-        return configurationExplorer.isAttachmentType(crudService.getDomainObjectType(id));
     }
 
     private void findCreateAndUpdateReferencesOperationsForChain(ObjectWithReferences object) {
@@ -350,124 +303,8 @@ public class FormSaver {
         return result;
     }
 
-    private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, ArrayList<Id> newIds, boolean deleteEntriesOnLinkDrop) {
-        if (fieldPath.isOneToManyReference()) {
-            return mergeOneToMany(fieldPath, newIds, deleteEntriesOnLinkDrop);
-        } else {
-            return mergeManyToMany(fieldPath, newIds, deleteEntriesOnLinkDrop);
-        }
-    }
-
-    private ArrayList<FormSaveOperation> mergeOneToMany(FieldPath fieldPath, ArrayList<Id> newIds, boolean deleteEntriesOnLinkDrop) {
-
-        // there will be an exception if multi-object node is a parent for one-to-many relationship
-        DomainObject parentObject = getSingleDomainObject(fieldPath.getParentPath());
-        Id parentObjectId = parentObject.getId();
-
-        String linkToParentName = fieldPath.getLinkToParentName();
-
-        ArrayList<DomainObject> previousState = ((MultiObjectNode) formObjects.getNode(fieldPath)).getDomainObjects();
-        if (previousState == null) {
-            previousState = new ArrayList<>(0);
-        }
-        if (newIds == null) {
-            newIds = new ArrayList<>(0);
-        }
-
-        HashSet<Id> previousIds = new HashSet<>(previousState.size());
-        for (DomainObject previousStateObject : previousState) {
-            previousIds.add(previousStateObject.getId());
-        }
-
-        ArrayList<FormSaveOperation> operations = new ArrayList<>(previousIds.size() + newIds.size());
-
-        // links to create
-        for (Id id : newIds) {
-            if (previousIds.contains(id)) {
-                continue; // nothing to update
-            }
-            DomainObject objectToSetLinkIn = crudService.find(id);
-            objectToSetLinkIn.setReference(linkToParentName, parentObjectId);
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, objectToSetLinkIn, linkToParentName));
-        }
-
-        // links to drop
-        previousIds.removeAll(newIds); // leave only those which aren't in new IDs
-        for (Id id : previousIds) {
-            if (id == null) {
-                continue;
-            }
-            if (deleteEntriesOnLinkDrop) {
-                operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, id));
-                continue;
-            }
-            DomainObject objectToDropLinkIn = crudService.find(id);
-            objectToDropLinkIn.setReference(linkToParentName, (Id) null);
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Update, objectToDropLinkIn, null));
-        }
-        return operations;
-    }
-
-    private ArrayList<FormSaveOperation> mergeManyToMany(FieldPath fieldPath, ArrayList<Id> newIds, boolean deleteEntriesOnLinkDrop) {
-        MultiObjectNode mergedNode = (MultiObjectNode) formObjects.getNode(fieldPath);
-        String linkObjectType = mergedNode.getType();
-
-        String rootLinkField = fieldPath.getLinkToParentName();
-
-        ArrayList<DomainObject> previousInBetweenDOs = mergedNode.getDomainObjects();
-        if (previousInBetweenDOs == null) {
-            previousInBetweenDOs = new ArrayList<>(0);
-        }
-        if (newIds == null) {
-            newIds = new ArrayList<>(0);
-        }
-
-        HashSet<Id> prevLinkedIds = new HashSet<>(previousInBetweenDOs.size());
-        HashMap<Id, DomainObject> prevInBetweenDOsByLinkedObjectId = new HashMap<>(previousInBetweenDOs.size());
-        String linkToChildrenName = fieldPath.getLinkToChildrenName();
-        for (DomainObject prevInBetweenObject : previousInBetweenDOs) {
-            Id linkedObjectId = prevInBetweenObject.getReference(linkToChildrenName);
-            prevLinkedIds.add(linkedObjectId);
-            prevInBetweenDOsByLinkedObjectId.put(linkedObjectId, prevInBetweenObject);
-        }
-
-        ArrayList<FormSaveOperation> operations = new ArrayList<>(prevLinkedIds.size() + newIds.size());
-
-        // there will be an exception if multi-object node is a parent for one-to-many relationship
-        DomainObject parentObject = getSingleDomainObject(fieldPath.getParentPath());
-        Id parentObjectId = parentObject.getId();
-        // links to create
-        for (Id id : newIds) {
-            if (prevLinkedIds.contains(id)) {
-                continue; // nothing to update
-            }
-            DomainObject newInBetweenObject = crudService.createDomainObject(linkObjectType);
-            newInBetweenObject.setReference(rootLinkField, parentObjectId);
-            newInBetweenObject.setReference(linkToChildrenName, id);
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, newInBetweenObject, rootLinkField));
-        }
-
-        // links to drop
-        prevLinkedIds.removeAll(newIds); // leave only those which aren't in new values
-        for (Id id : prevLinkedIds) {
-            if (id == null) {
-                continue;
-            }
-            final DomainObject inBetweenDOToDrop = prevInBetweenDOsByLinkedObjectId.get(id);
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, inBetweenDOToDrop.getId()));
-            if (deleteEntriesOnLinkDrop) {
-                operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, id));
-            }
-        }
-        return operations;
-    }
-
     private DomainObject getSingleDomainObject(FieldPath fieldPath) {
         return ((SingleObjectNode) formObjects.getNode(fieldPath)).getDomainObject();
-    }
-
-    private ArrayList<DomainObject> getDomainObjects(FieldPath fieldPath) {
-        return ((MultiObjectNode) formObjects.getNode(fieldPath)).getDomainObjects();
     }
 
     private static FieldPath[] getFieldPaths(WidgetConfig widgetConfig) {

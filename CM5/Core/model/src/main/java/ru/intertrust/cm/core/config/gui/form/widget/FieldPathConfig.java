@@ -105,27 +105,36 @@ public class FieldPathConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         FieldPathConfig that = (FieldPathConfig) o;
 
-        if (!onLinkConfig.equals(that.onLinkConfig)) return false;
-        if (!domainObjectLinker.equals(that.domainObjectLinker)) return false;
-        if (onRootDelete != that.onRootDelete) return false;
-        if (!onUnlinkConfig.equals(that.onUnlinkConfig)) return false;
-        if (!value.equals(that.value)) return false;
+        if (domainObjectLinker != null ? !domainObjectLinker.equals(that.domainObjectLinker) : that.domainObjectLinker != null) {
+            return false;
+        }
+        if (onLinkConfig != null ? !onLinkConfig.equals(that.onLinkConfig) : that.onLinkConfig != null) {
+            return false;
+        }
+        if (onRootDelete != that.onRootDelete) {
+            return false;
+        }
+        if (onUnlinkConfig != null ? !onUnlinkConfig.equals(that.onUnlinkConfig) : that.onUnlinkConfig != null) {
+            return false;
+        }
+        if (value != null ? !value.equals(that.value) : that.value != null) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = value.hashCode();
-        result = 31 * result + domainObjectLinker.hashCode();
-        result = 31 * result + onRootDelete.hashCode();
-        result = 31 * result + onLinkConfig.hashCode();
-        result = 31 * result + onUnlinkConfig.hashCode();
-        return result;
+        return value != null ? value.hashCode() : 0;
     }
 }

@@ -51,6 +51,10 @@ public class WidgetContext implements Dto {
         return widgetConfigsById == null ? null : (T) widgetConfigsById.get(widgetId);
     }
 
+    public FieldPathConfig getFieldPathConfig() {
+        return widgetConfig.getFieldPathConfig();
+    }
+
     public FormObjects getFormObjects() {
         return formObjects;
     }
@@ -72,8 +76,12 @@ public class WidgetContext implements Dto {
         return fieldPaths;
     }
 
+    public FieldPath getFirstFieldPath() {
+        return getFieldPaths()[0];
+    }
+
     public <T extends Value> T getValue() {
-        return (T) formObjects.getFieldValue(getFieldPaths()[0]);
+        return (T) formObjects.getFieldValue(getFirstFieldPath());
     }
 
     public <T extends Value> T getValue(FieldPath fieldPath) {
