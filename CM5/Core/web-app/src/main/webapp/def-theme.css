@@ -2304,9 +2304,10 @@ a:active .icon.back {
 }
 
 .datePickerDayIsToday {
-    padding: 3px;
+    background: #d7dfe8;
+    padding: 4px !important;
     color: #ffffff;
-    background: url(images/hborderN.png) repeat-x 0 -2607px;
+    /*background: url(images/hborderN.png) repeat-x 0 -2607px;*/
 }
 
 .datePickerMonthSelector {

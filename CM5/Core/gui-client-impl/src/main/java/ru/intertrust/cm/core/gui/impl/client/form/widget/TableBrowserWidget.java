@@ -237,11 +237,11 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
             String img = tableBrowserConfig.getAddButtonConfig().getImage();
             String text = tableBrowserConfig.getAddButtonConfig().getText();
             if (text == null || text.equals("...") || text.length() == 0) {
-                text = "????????";
+                text = "Добавить";
             }
             addButton = new ButtonForm(openDialogButton, img, text);
         } else {
-            addButton = new ButtonForm(openDialogButton, null, "????????");
+            addButton = new ButtonForm(openDialogButton, null, "Добавить");
         }
 
         openDialogButton.add(addButton);
@@ -271,7 +271,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         Button okButton = new Button("OK");
         okButton.removeStyleName("gwt-Button");
         okButton.addStyleName("dark-button buttons-fixed");
-        Button cancelButton = new Button("??????");
+        Button cancelButton = new Button("Отмена");
         cancelButton.removeStyleName("gwt-Button");
         cancelButton.addStyleName("light-button buttons-fixed position-margin-left");
         if (isSingleChoice()) {
