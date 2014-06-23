@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -76,6 +75,9 @@ public class FormPanel implements IsWidget {
         for (BaseWidget widget : widgets) {
             WidgetState newState = formState.getWidgetState(widget.getDisplayConfig().getId());
             WidgetState currentState = widget.getCurrentState();
+            if(newState == null) { //for LinkedTable
+                continue;
+            }
             if (!newState.equals(currentState)) {
                 widget.setState(newState);
             }

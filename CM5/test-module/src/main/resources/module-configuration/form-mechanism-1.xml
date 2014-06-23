@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-               xmlns:act="https://cm5.intertrust.ru/config/action">
+        >
     <!-- Test 1 - direct references 1:1 -->
     <domain-object-type name="a1">
         <fields>
@@ -266,7 +266,7 @@
                 <field-path value="a1_f1^a1.f1" on-root-delete="unlink"/>
                 <linked-form name="f1_form" inline="true"/>
                 <summary-table>
-                    <summary-table-column header="F1 Name 1" widget-id="1">
+                    <summary-table-column header="F1 Name 1" widget-id="f_name1">
                         <pattern value="{name1}"/>
                         <!-- пути задаются относительно базового field-path (correspondent) -->
                         <!--<formatting>
@@ -282,7 +282,7 @@
                             </date-format>
                         </formatting>-->
                     </summary-table-column>
-                    <summary-table-column header="F1 Name 1" widget-id="2">
+                    <summary-table-column header="F1 Name 1" widget-id="f_name2">
                         <pattern value="{name2}"/>
                     </summary-table-column>
                 </summary-table>
