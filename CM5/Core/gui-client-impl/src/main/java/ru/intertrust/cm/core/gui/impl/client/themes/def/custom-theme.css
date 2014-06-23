@@ -464,8 +464,8 @@ div.gwt-Good-Label {
     margin: 5px;
 }
 
-.default .gwt-Red-Label {
-    color: red;
+.gwt-Red-Label {
+    color: #ff0000;
     vertical-align: super;
     font-weight: bold;
     padding-top: 5px;

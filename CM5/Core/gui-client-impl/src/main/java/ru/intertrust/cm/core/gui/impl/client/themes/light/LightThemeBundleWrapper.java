@@ -8,16 +8,17 @@ import ru.intertrust.cm.core.gui.impl.client.themes.BundleWrapper;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.datagrid.DataGridResources;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
+import ru.intertrust.cm.core.gui.impl.client.themes.light.datagrid.LightDataGridResources;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 /**
- * @author user
+ * @author Yaroslav Bondarchuk
  *         Date: 30.05.14
  *         Time: 18:27
  */
 @ComponentName(GlobalThemesManager.THEME_LIGHT)
     public class LightThemeBundleWrapper implements BundleWrapper {
     private static final LightThemeBundle themeBundle = GWT.create(LightThemeBundle.class);
-    private static final DataGridResources dataGridResources = GWT.create(DataGridResources.class);
+    private static final LightDataGridResources dataGridResources = GWT.create(LightDataGridResources.class);
 
     @Override
     public Component createNew() {
@@ -33,8 +34,6 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
     public CssResource getMainCss() {
         return themeBundle.mainCss();
     }
-
-    @Override
     public  LightThemeBundle getThemeBundle() {
         return themeBundle;
     }

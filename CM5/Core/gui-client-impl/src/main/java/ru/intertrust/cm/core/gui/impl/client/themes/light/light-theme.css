@@ -459,7 +459,7 @@ div.gwt-Good-Label {
 }
 
 .gwt-Red-Label {
-    color: green;
+    color: #ff0000;
     vertical-align: super;
     font-weight: bold;
     padding-top: 5px;
@@ -646,7 +646,7 @@ div.gwt-Good-Label {
 }
 
 .srch-corner {
-    background: url(images/bubble_arrow-dark-theme.png);
+    background: url(images/bubble_arrow-light-theme.png);
 }
 
 .theme-popup {
@@ -714,4 +714,9 @@ a.action-bar-button:hover {
 
 .close-notification-popup {
     background: url(images/notes_up-dark-theme.png) no-repeat 0 0;
+}
+
+.header-cell-move-resize-border {
+    border-top: 1px solid #BDC0C4;
+    border-bottom: 1px solid #BDC0C4 !important;
 }

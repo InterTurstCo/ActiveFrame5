@@ -459,7 +459,7 @@ div.gwt-Good-Label {
 }
 
 .gwt-Red-Label {
-    color: green;
+    color: #ff0000;
     vertical-align: super;
     font-weight: bold;
     padding-top: 5px;
