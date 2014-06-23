@@ -1,16 +1,23 @@
 package ru.intertrust.cm.remoteclient.collection;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.SearchService;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
@@ -82,14 +89,40 @@ public class TestCollection extends ClientBase {
             params.add(new ReferenceValue(new RdbmsId(5015, 1)));
             executeQuery(query, 1, params);
             
+            query = "select e.id from Tst_Employee e ";
+            query += "where e.DateOn = {0}";
+            params = new ArrayList<Value>();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+            DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(TimeZone.getDefault().getID(),
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH),
+                    calendar.get(Calendar.HOUR),
+                    calendar.get(Calendar.MINUTE),
+                    calendar.get(Calendar.SECOND), 0
+                    );
+            DateTimeWithTimeZoneValue value = new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
+            params.add(value);
+            executeQuery(query, 1, params);
 
-            //TODO расскомментировать после исполнения 395
-            /*List<Filter> filters = new ArrayList<Filter>();
-            Filter filter = new Filter();
+            SortOrder sortOrder = new SortOrder();
+            sortOrder.add(new SortCriterion("name", SortCriterion.Order.ASCENDING));
+            List<Filter> filters = new ArrayList<Filter>();
+            /*Filter filter = new Filter();
             filter.setFilter("byLastName");
             filter.addCriterion(0, null);
-            filters.add(filter);
-            executeCollection("PersonTestNull", 1, filters);*/
+            filters.add(filter);*/      
+            executeCollection("Employees", 3, sortOrder, filters);
+            
+            query = "select dateon from tst_employee";
+            executeQuery(query, 1);
+
+            query = "select dateon as works from tst_employee";
+            executeQuery(query, 1);
+
+            query = "select dateon as \"works\" from tst_employee";
+            executeQuery(query, 1);
 
         } finally {
             writeLog();
@@ -125,9 +158,9 @@ public class TestCollection extends ClientBase {
         log("Test query " + query + " OK");
     }
 
-    private void executeCollection(String collectionName, int columnCount, List<Filter> filters) throws Exception {
+    private void executeCollection(String collectionName, int columnCount, SortOrder sort, List<Filter> filters) throws Exception {
         IdentifiableObjectCollection collection =
-                collectionService.findCollection(collectionName, null, filters);
+                collectionService.findCollection(collectionName, sort, filters);
 
         assertTrue("Column count", collection.getFieldsConfiguration().size() == columnCount);
 
