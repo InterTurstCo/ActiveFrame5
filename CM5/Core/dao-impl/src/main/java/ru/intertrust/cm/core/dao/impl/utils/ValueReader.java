@@ -141,7 +141,6 @@ public class ValueReader {
 
         DateTimeWithTimeZoneValue value;
         if (!rs.wasNull()) {
-            columnName = DaoUtils.unwrap(columnName);
             String timeZoneIdColumnName = getTimeZoneIdColumnName(columnName).toLowerCase();
             String timeZoneId = rs.getString(timeZoneIdColumnName);
             if (!rs.wasNull()) {
