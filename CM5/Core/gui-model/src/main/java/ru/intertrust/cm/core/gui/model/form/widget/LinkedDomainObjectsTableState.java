@@ -58,6 +58,9 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         newFormStates.put(key, formState);
         return key;
     }
+    public void rewriteNewFormState(String key, FormState formState) {
+        newFormStates.put(key, formState);
+    }
 
     public void removeNewObjectState(String key) {
         newFormStates.remove(key);

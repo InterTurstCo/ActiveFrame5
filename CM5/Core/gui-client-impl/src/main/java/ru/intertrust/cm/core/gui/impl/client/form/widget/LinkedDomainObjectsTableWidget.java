@@ -28,7 +28,6 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -121,7 +120,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                         if (id != null) {
                             currentState.putEditedFormState(id.toStringRepresentation(), formState);
                             object.setParameter(STATE_KEY, id.toStringRepresentation());
-
+                        } else {
+                            String stateKey = object.getParameter(STATE_KEY);
+                            currentState.rewriteNewFormState(stateKey, formState);
                         }
                         model.getList().set(index, object);
                     }
