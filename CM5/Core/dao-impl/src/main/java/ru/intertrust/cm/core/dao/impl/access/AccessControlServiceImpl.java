@@ -123,11 +123,20 @@ public class AccessControlServiceImpl implements AccessControlService {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
-        Id[] ids = databaseAgent.checkMultiDomainObjectAccess(personIdInt, objectIds, type);
-        if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
-            throw new AccessException();
+        Id[] ids = null;
+        boolean deferred = false;
+        AccessToken token = null;
+        
+        if (DomainObjectAccessType.READ.equals(type)) {
+            deferred = true;
+            token = new MultiObjectAccessToken(new UserSubject(personIdInt), objectIds, type, deferred);
+        } else {
+            ids = databaseAgent.checkMultiDomainObjectAccess(personIdInt, objectIds, type);
+            if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
+                throw new AccessException();
+            }
+            token = new MultiObjectAccessToken(new UserSubject(personIdInt), ids, type, deferred);   
         }
-        AccessToken token = new MultiObjectAccessToken(new UserSubject(personIdInt), ids, type);
 
         return token;
     }
@@ -262,12 +271,14 @@ public class AccessControlServiceImpl implements AccessControlService {
         private final UserSubject subject;
         private final Set<Id> objectIds;
         private final AccessType type;
+        private final boolean deferred;
 
-        MultiObjectAccessToken(UserSubject subject, Id[] objectIds, AccessType type) {
+        MultiObjectAccessToken(UserSubject subject, Id[] objectIds, AccessType type, boolean deferred) {
             this.subject = subject;
             this.objectIds = new HashSet<>(objectIds.length);
             this.objectIds.addAll(Arrays.asList(objectIds));
             this.type = type;
+            this.deferred = deferred;
         }
 
         @Override
@@ -277,7 +288,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
         @Override
         public boolean isDeferred() {
-            return false;
+            return deferred;
         }
 
         @Override

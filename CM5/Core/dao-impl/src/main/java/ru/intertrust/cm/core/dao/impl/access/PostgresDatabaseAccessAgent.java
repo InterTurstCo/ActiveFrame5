@@ -129,7 +129,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     @Override
     public Id[] checkMultiDomainObjectAccess(int userId, Id[] objectIds, AccessType type) {
-        RdbmsId[] ids = (RdbmsId[]) objectIds;
+        RdbmsId[] ids = Arrays.copyOf(objectIds, objectIds.length, RdbmsId[].class);
+        
         String opCode = makeAccessTypeCode(type);
         if (objectIds == null || objectIds.length == 0) {
             return new RdbmsId[0];
@@ -140,16 +141,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         //check configuration 
         for (final Integer domainObjectTypeId : idSorterByType.getDomainObjectTypeIds()) {
-            String domainObjectType = domainObjetcTypeIdCache.getName(domainObjectTypeId);
-            if (DomainObjectAccessType.READ.equals(type)
-                    && configurationExplorer.isReadPermittedToEverybody(domainObjectType)) {
-                List<Id> allIdsOfOneType = idSorterByType.getIdsOfType(domainObjectTypeId);
-                idsWithAllowedAccess.addAll(allIdsOfOneType);
-            } else {
-                idSorterByType.getIdsOfType(domainObjectTypeId);
-                List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectTypeId);
-                idsWithAllowedAccess.addAll(checkedIds);
-            }
+            idSorterByType.getIdsOfType(domainObjectTypeId);
+            List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectTypeId);
+            idsWithAllowedAccess.addAll(checkedIds);
         }
 
         return idsWithAllowedAccess.toArray(new Id[idsWithAllowedAccess.size()]);

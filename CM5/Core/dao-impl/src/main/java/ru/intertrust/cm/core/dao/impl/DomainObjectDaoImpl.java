@@ -847,7 +847,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
 
-        if (accessToken.isDeferred()) {
+        if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(domainObjectType)) {
 
             String aclReadTable = AccessControlUtility
                     .getAclReadTableNameFor(configurationExplorer, domainObjectType);
