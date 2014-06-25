@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -15,17 +14,17 @@ import java.util.List;
 @Root(name = "on-unlink")
 public class OnUnlinkConfig implements Dto {
 
-    @Attribute(name = "do-unlink", required = false)
-    private String doUnlink;
+    @Attribute(name = "do-unlink", required = false, empty = "true")
+    private boolean doUnlink;
 
     @ElementList(inline = true)
     private List<OperationConfig> activeFields = new ArrayList<OperationConfig>();
 
-    public String getDoUnlink() {
+    public boolean getDoUnlink() {
         return doUnlink;
     }
 
-    public void setDoUnlink(String doUnlink) {
+    public void setDoUnlink(boolean doUnlink) {
         this.doUnlink = doUnlink;
     }
 
@@ -45,14 +44,14 @@ public class OnUnlinkConfig implements Dto {
         OnUnlinkConfig that = (OnUnlinkConfig) o;
 
         if (activeFields != null ? !activeFields.equals(that.activeFields) : that.activeFields != null) return false;
-        if (doUnlink != null ? !doUnlink.equals(that.doUnlink) : that.doUnlink != null) return false;
+        if (doUnlink != that.doUnlink) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = doUnlink != null ? doUnlink.hashCode() : 0;
+        int result = doUnlink ? 1 : 0;
         result = 31 * result + (activeFields != null ? activeFields.hashCode() : 0);
         return result;
     }
