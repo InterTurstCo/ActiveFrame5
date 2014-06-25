@@ -10,6 +10,8 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import javax.naming.InitialContext;
+
 /**
  * Класс JDBC драйвера. 
  * формат строки подключения: 
@@ -63,14 +65,17 @@ public class JdbcDriver implements Driver {
                 port = String.valueOf(urlObject.getPort());
                 String[] path = urlObject.getPath().split("/");
                 if (path.length != 3){
-                    new SQLException("Connection string need contains application name and module name. Example:  ");
+                    throw new SQLException("Connection string need contains application name and module name. Example:  ");
                 }
                 appName = path[1];
                 moduleName = path[2];
             }else if(uriString.startsWith(DRIVER_PREFIX_LOCAL)){
                 mode = ConnectMode.Local;
+                InitialContext ctx = new InitialContext();
+                appName = (String)ctx.lookup("java:app/AppName");
+                moduleName = (String)ctx.lookup("java:module/ModuleName");         
             }else{
-                new SQLException("URI schema not valid. Valid schema: jdbc:sochi:local or jdbc:sochi:remoting");
+                throw new SQLException("URI schema not valid. Valid schema: jdbc:sochi:local or jdbc:sochi:remoting");
             }
 
             return new JdbcConnection(new SochiClient(mode, host, port, login, password, appName, moduleName));

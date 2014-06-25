@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -50,9 +51,9 @@ public class TestReportService extends ClientBase {
             
             //Установка отчетов
             deployReport("../reports/reports/all-employee");
-            
+            ReportResult result = null;
             //Генерация отчета
-            ReportResult result = generateReport("all-employee", null);
+            result = generateReport("all-employee", null);
             //и еще раз генерим тот же отчет
             result = generateReport("all-employee", null);
 

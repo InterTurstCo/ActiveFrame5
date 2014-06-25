@@ -134,8 +134,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return getBigDecimal(getFieldName(columnIndex));
     }
 
     @Override
@@ -252,8 +251,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return collection.get(index).getDecimal(columnLabel);
     }
 
     @Override
@@ -377,8 +375,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return collection.get(index).getDecimal(columnLabel);
     }
 
     @Override

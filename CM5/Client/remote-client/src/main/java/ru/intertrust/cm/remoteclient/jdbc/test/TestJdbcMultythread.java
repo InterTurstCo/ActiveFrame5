@@ -31,7 +31,7 @@ public class TestJdbcMultythread extends ClientBase {
     public void execute(String[] args) throws Exception {
         super.execute(args);
 
-        crudService = (CrudService.Remote) getService(
+        /*crudService = (CrudService.Remote) getService(
                 "CrudServiceImpl", CrudService.Remote.class);
 
         collectionService = (CollectionsService.Remote) getService(
@@ -43,34 +43,31 @@ public class TestJdbcMultythread extends ClientBase {
         Collection<DomainObjectTypeConfig> configs = configService.getConfigs(DomainObjectTypeConfig.class);
 
         //Создаем тестовый доменный объект
-        final DomainObject outgoingDocument = greateOutgoingDocument();
+        final DomainObject outgoingDocument = greateOutgoingDocument();*/
 
-        //Выполняем запрос с помощью JDBC
-        Class.forName(JdbcDriver.class.getName());
 
-        Connection connection =
-                DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", "admin");
         
-        Thread t1 = new Thread(new TestJdbcRunable(connection));
+        Thread t1 = new Thread(new TestJdbcRunable());
         t1.start();
-        Thread t2 = new Thread(new TestJdbcRunable(connection));
+        Thread t2 = new Thread(new TestJdbcRunable());
         t2.start();
 
         t1.join();
         t2.join();
-        connection.close();
 
     }
 
     private class TestJdbcRunable implements Runnable{
-        private Connection connection;
-        public TestJdbcRunable(Connection connection){
-            this.connection = connection;
-        }
         
             @Override
             public void run() {
+                Connection connection = null;
                 try {
+                    Class.forName(JdbcDriver.class.getName());
+
+                    connection =
+                            DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", "admin");
+                    
                     String query = "select t.name, t.created_date, t.author, t.long_field ";
                     query += "from Outgoing_Document t ";
                     //query += "where creation_date between ? and ? and Name = ? and Author = ? and Long_Field = ?";
@@ -127,8 +124,14 @@ public class TestJdbcMultythread extends ClientBase {
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                }finally{
+                    if (connection != null){
+                        try{
+                        connection.close();
+                        }catch(Exception ignoreEx){
+                        }
+                    }
                 }
-
             }
 
         

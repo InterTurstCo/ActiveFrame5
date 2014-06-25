@@ -48,7 +48,7 @@ public class TestJdbc extends ClientBase {
 
         String query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
         query += "from Outgoing_Document t ";
-        query += "where t.created_date between ? and ? and t.Name = ? and t.Author = ? and t.Long_Field = ?";
+        query += "where t.created_date between ? and ? and t.Name = ? and t.Author = ? and t.Author = ? and t.Long_Field = ?";
 
         PreparedStatement prepareStatement =
                 connection.prepareStatement(query);
@@ -61,7 +61,8 @@ public class TestJdbc extends ClientBase {
         prepareStatement.setTimestamp(2, new java.sql.Timestamp(toDate.getTime().getTime()));
         prepareStatement.setString(3, "Outgoing_Document");
         prepareStatement.setString(4, outgoingDocument.getReference("Author").toStringRepresentation());
-        prepareStatement.setLong(5, 10);
+        prepareStatement.setObject(5, outgoingDocument.getReference("Author"));
+        prepareStatement.setLong(6, 10);
         ResultSet resultset = prepareStatement.executeQuery();
 
         printResultSet(resultset);
@@ -136,5 +137,6 @@ public class TestJdbc extends ClientBase {
             System.out.print("\n");
             rowCount++;
         }
+        System.out.println("-----------------------------------------------------------------------");
     }
 }

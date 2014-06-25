@@ -6,12 +6,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jboss.ejb.client.ContextSelector;
-import org.jboss.ejb.client.EJBClientConfiguration;
-import org.jboss.ejb.client.EJBClientContext;
-import org.jboss.ejb.client.PropertiesBasedEJBClientConfiguration;
-import org.jboss.ejb.client.remoting.ConfigBasedEJBClientContextSelector;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
@@ -24,9 +18,9 @@ public class SochiClient {
     private String password;
     private String appName;
     private String moduleName;
-    private InitialContext ctx;
-    private CollectionsService collectionService;
-    private ConfigurationService configService;
+    private ThreadLocal<InitialContext> ctx = new ThreadLocal<InitialContext>();
+    private ThreadLocal<CollectionsService> collectionService = new ThreadLocal<CollectionsService>();
+    private ThreadLocal<ConfigurationService> configService = new ThreadLocal<ConfigurationService>();
 
     public SochiClient(ConnectMode mode, String host, String port, String login, String password, String appName, String moduleName) {
         this.mode = mode;
@@ -43,45 +37,77 @@ public class SochiClient {
     }
     
     public CollectionsService getCollectionService() throws Exception {
-        if (collectionService == null) {
+        if (collectionService.get() == null) {
             if (mode == ConnectMode.Remoting) {
-                collectionService =
-                        (CollectionsService) getRemoteService("CollectionsServiceImpl", host, port, login, password,
-                                CollectionsService.Remote.class);
+                collectionService.set((CollectionsService) getRemoteService("CollectionsServiceImpl", host, port, login, password,
+                                CollectionsService.Remote.class));
             } else {
-                collectionService =
-                        (CollectionsService) getLocalService("CollectionsServiceImpl", CollectionsService.class);
+                collectionService.set((CollectionsService) getLocalService("CollectionsServiceImpl", CollectionsService.class));
             }
         }
-        return collectionService;
+        return collectionService.get();
     }
 
     public ConfigurationService getConfigService() throws Exception {
-        if (configService == null) {
+        if (configService.get() == null) {
             if (mode == ConnectMode.Remoting) {
-                configService =
-                        (ConfigurationService) getRemoteService("ConfigurationServiceImpl", host, port, login, password,
-                                ConfigurationService.Remote.class);
+                configService.set((ConfigurationService) getRemoteService("ConfigurationServiceImpl", host, port, login, password,
+                                ConfigurationService.Remote.class));
             } else {
-                configService =
-                        (ConfigurationService) getLocalService("ConfigurationServiceImpl", ConfigurationService.class);
+                configService.set((ConfigurationService) getLocalService("ConfigurationServiceImpl", ConfigurationService.class));
             }
         }
-        return configService;
+        return configService.get();
     }
 
+    /**
+     * Получение remote интерфеса используя JNDI
+     * @param serviceName
+     * @param host
+     * @param port
+     * @param login
+     * @param password
+     * @param remoteInterfaceClass
+     * @return
+     * @throws Exception
+     */
     private Object getRemoteService(String serviceName, String host, String port, String login, String password,
             Class<?> remoteInterfaceClass) throws Exception {
 
-        if (ctx == null) {
+        if (ctx.get() == null) {
             Properties jndiProps = new Properties();
-            /*jndiProps.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
+            jndiProps.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
 
-            jndiProps.put(Context.PROVIDER_URL, "remote://" + address);
+            jndiProps.put(Context.PROVIDER_URL, "remote://" + host + ":" + port);
             jndiProps.put("jboss.naming.client.ejb.context", "true");
             jndiProps.put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false");
             jndiProps.put(Context.SECURITY_PRINCIPAL, login);
-            jndiProps.put(Context.SECURITY_CREDENTIALS, password);*/
+            jndiProps.put(Context.SECURITY_CREDENTIALS, password);
+            
+            ctx.set(new InitialContext(jndiProps));
+        }
+
+        Object service = ctx.get().lookup(appName + "/" + moduleName + "/" + serviceName + "!" + remoteInterfaceClass.getName());
+
+        return service;
+    }
+
+    /**
+     * Получение remote интерфеса используя naming, нежелательно использование так как используется jboss зависимости
+     * @param serviceName
+     * @param host
+     * @param port
+     * @param login
+     * @param password
+     * @param remoteInterfaceClass
+     * @return
+     * @throws Exception
+     */
+    /*private Object getRemoteService(String serviceName, String host, String port, String login, String password,
+            Class<?> remoteInterfaceClass) throws Exception {
+
+        if (ctx.get() == null) {
+            Properties jndiProps = new Properties();
             
             Properties clientProperties = new Properties();
             clientProperties.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
@@ -99,31 +125,33 @@ public class SochiClient {
 
             jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");            
 
-            ctx = new InitialContext(jndiProps);
+            ctx.set(new InitialContext(jndiProps));
         }
 
-        //Object service = ctx.lookup(appName + "/" + moduleName + "/" + serviceName + "!" + remoteInterfaceClass.getName());
-        Object service = ctx.lookup("ejb:" + appName + "/" + moduleName + "//" + serviceName + "!" + remoteInterfaceClass.getName());
+        Object service = ctx.get().lookup("ejb:" + appName + "/" + moduleName + "//" + serviceName + "!" + remoteInterfaceClass.getName());
 
         return service;
-    }
-
+    }*/
+    
+    
     private Object getLocalService(String serviceName, Class<?> localInterfaceClass) throws NamingException {
-        if (ctx == null) {
-            ctx = new InitialContext();
+        //Не получаеится использовать ThreadLocal ссылку на InitialContext, так как в потоке созданном не jboss не доступны ссылки на ejb
+        if (ctx.get() == null) {
+            ctx.set(new InitialContext());
         }
-        Object service = ctx.lookup("java:module/" + serviceName + "!" + localInterfaceClass.getName());
+        //Нельзя использовать конструкцию java:module/.... так как Jasper создает потоки для подотчетов и lookup выдаст ошибку
+        Object service = ctx.get().lookup("java:global/" + appName + "/" + moduleName + "/" + serviceName + "!" + localInterfaceClass.getName());
         return service;
     }
 
     public void close() {
         try {
-            if (ctx != null){
-                ctx.close();
+            if (ctx.get() != null){
+                ctx.get().close();
             }
-            ctx = null;
-            collectionService = null;
-            configService = null;
+            ctx.set(null);
+            collectionService.set(null);
+            configService.set(null);
         } catch (Exception ignoreEx) {
             ignoreEx.printStackTrace();
         }
