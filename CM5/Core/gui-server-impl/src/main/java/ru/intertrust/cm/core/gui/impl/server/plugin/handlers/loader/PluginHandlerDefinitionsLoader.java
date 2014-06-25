@@ -8,9 +8,14 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.core.type.filter.RegexPatternTypeFilter;
+import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * A bean registry postprocessor which loads classes, annotated with {@link ComponentName} as bean definitions
@@ -26,6 +31,8 @@ public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPos
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         ClassPathScanningCandidateComponentProvider componentProvider = new ClassPathScanningCandidateComponentProvider(false);
         componentProvider.addIncludeFilter(new AnnotationTypeFilter(ComponentName.class));
+        componentProvider.addIncludeFilter(new AssignableTypeFilter(ComponentHandler.class));
+        componentProvider.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile("ru.intertrust.cm.core.gui.api.codegen.ComponentRegistryGenerator")));
         Set<BeanDefinition> pluginHandlerDefinitions = componentProvider.findCandidateComponents(basePackage);
 
         for (BeanDefinition pluginHandlerDefinition : pluginHandlerDefinitions) {
@@ -36,7 +43,11 @@ public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPos
     private void registerBeanDefinitionInRegistry(ScannedGenericBeanDefinition pluginHandlerDefinition, BeanDefinitionRegistry registry) {
         ScannedGenericBeanDefinition scannedGenericBeanDefinition = pluginHandlerDefinition;
         scannedGenericBeanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-        String annotationValue = scannedGenericBeanDefinition.getMetadata().getAnnotationAttributes(ComponentName.class.getName()).get(VALUE_ATTRIBUTE).toString();
+        final Map<String, Object> annotationAttributes = scannedGenericBeanDefinition.getMetadata().getAnnotationAttributes(ComponentName.class.getName());
+        if (annotationAttributes == null) {
+            return;
+        }
+        String annotationValue = annotationAttributes.get(VALUE_ATTRIBUTE).toString();
         registry.registerBeanDefinition(annotationValue, scannedGenericBeanDefinition);
     }
 
