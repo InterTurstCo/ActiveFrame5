@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -64,6 +66,8 @@ public class ComponentRegistryGenerator extends Generator {
             e.printStackTrace();
             throw new UnableToCompleteException();
         }
+
+        debugComponents(componentClassesByName);
 
         ClassSourceFileComposerFactory sourceWriterFactory = getFactory();
         sourceWriterFactory.addImplementedInterface(REGISTRY_PACKAGE + '.' + REGISTRY_CLASS_NAME);
@@ -121,6 +125,15 @@ public class ComponentRegistryGenerator extends Generator {
             return properties;
         }
         return properties;
+    }
+
+    private void debugComponents(HashMap<String, String> componentClassesByName) {
+        final ArrayList<String> componentNames = new ArrayList<>(componentClassesByName.keySet());
+        Collections.sort(componentNames);
+        System.out.println("============ Components ============");
+        for (String name : componentNames) {
+            System.out.println(name + "\t\t\t ===> " + componentClassesByName.get(name));
+        }
     }
 }
 
