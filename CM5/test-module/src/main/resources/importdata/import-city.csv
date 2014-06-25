@@ -1,4 +1,4 @@
-TYPE_NAME=city;KEYS=country;;
+TYPE_NAME=city;KEYS=name;;
 name;population;country
 Москва;11500000;"name=""Россия"""
 Киев;2780000;"name=""Украина"""
