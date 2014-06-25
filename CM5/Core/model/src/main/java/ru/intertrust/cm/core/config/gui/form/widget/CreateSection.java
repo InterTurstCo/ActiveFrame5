@@ -17,7 +17,7 @@ public class CreateSection extends OperationConfig{
     private String type;
 
     @ElementList(inline = true)
-    private List<ActiveFieldConfig> activeFields = new ArrayList<ActiveFieldConfig>();
+    private List<FieldValueConfig> activeFields = new ArrayList<FieldValueConfig>();
 
     public String getType() {
         return type;
@@ -27,11 +27,11 @@ public class CreateSection extends OperationConfig{
         this.type = type;
     }
 
-    public List<ActiveFieldConfig> getActiveFields() {
+    public List<FieldValueConfig> getActiveFields() {
         return activeFields;
     }
 
-    public void setActiveFields(List<ActiveFieldConfig> activeFields) {
+    public void setActiveFields(List<FieldValueConfig> activeFields) {
         this.activeFields = activeFields;
     }
 

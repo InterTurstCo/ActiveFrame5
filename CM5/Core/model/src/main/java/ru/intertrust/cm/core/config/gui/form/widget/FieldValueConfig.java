@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -10,7 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 
 @Element(name = "field")
-public class ActiveFieldConfig implements Dto{
+public class FieldValueConfig implements Dto{
 
     @Attribute(name = "name", required = false)
     private String name;
@@ -31,7 +30,7 @@ public class ActiveFieldConfig implements Dto{
     private String type;
 
     @Element(name = "unique-key-value", required = false)
-    private UniqueKeyValue uniqueKeyValue;
+    private UniqueKeyValueConfig uniqueKeyValueConfig;
 
     public String getName() {
         return name;
@@ -81,12 +80,12 @@ public class ActiveFieldConfig implements Dto{
         this.type = type;
     }
 
-    public UniqueKeyValue getUniqueKeyValue() {
-        return uniqueKeyValue;
+    public UniqueKeyValueConfig getUniqueKeyValueConfig() {
+        return uniqueKeyValueConfig;
     }
 
-    public void setUniqueKeyValue(UniqueKeyValue uniqueKeyValue) {
-        this.uniqueKeyValue = uniqueKeyValue;
+    public void setUniqueKeyValueConfig(UniqueKeyValueConfig uniqueKeyValueConfig) {
+        this.uniqueKeyValueConfig = uniqueKeyValueConfig;
     }
 
     @Override
@@ -94,7 +93,7 @@ public class ActiveFieldConfig implements Dto{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ActiveFieldConfig that = (ActiveFieldConfig) o;
+        FieldValueConfig that = (FieldValueConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (setBaseObject != null ? !setBaseObject.equals(that.setBaseObject) : that.setBaseObject != null)
@@ -103,7 +102,7 @@ public class ActiveFieldConfig implements Dto{
             return false;
         if (setNull != null ? !setNull.equals(that.setNull) : that.setNull != null) return false;
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (uniqueKeyValue != null ? !uniqueKeyValue.equals(that.uniqueKeyValue) : that.uniqueKeyValue != null)
+        if (uniqueKeyValueConfig != null ? !uniqueKeyValueConfig.equals(that.uniqueKeyValueConfig) : that.uniqueKeyValueConfig != null)
             return false;
         if (value != null ? !value.equals(that.value) : that.value != null) return false;
 
@@ -118,7 +117,7 @@ public class ActiveFieldConfig implements Dto{
         result = 31 * result + (setBaseObject != null ? setBaseObject.hashCode() : 0);
         result = 31 * result + (setNull != null ? setNull.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (uniqueKeyValue != null ? uniqueKeyValue.hashCode() : 0);
+        result = 31 * result + (uniqueKeyValueConfig != null ? uniqueKeyValueConfig.hashCode() : 0);
         return result;
     }
 }

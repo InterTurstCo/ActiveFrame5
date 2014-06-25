@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +14,13 @@ import java.util.List;
 public class UpdateSection extends OperationConfig{
 
     @ElementList(inline = true)
-    private List<ActiveFieldConfig> activeFields = new ArrayList<ActiveFieldConfig>();
+    private List<FieldValueConfig> activeFields = new ArrayList<FieldValueConfig>();
 
-    public List<ActiveFieldConfig> getActiveFields() {
+    public List<FieldValueConfig> getActiveFields() {
         return activeFields;
     }
 
-    public void setActiveFields(List<ActiveFieldConfig> activeFields) {
+    public void setActiveFields(List<FieldValueConfig> activeFields) {
         this.activeFields = activeFields;
     }
 

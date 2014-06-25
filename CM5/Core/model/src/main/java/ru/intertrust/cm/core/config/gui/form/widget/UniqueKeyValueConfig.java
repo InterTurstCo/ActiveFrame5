@@ -12,16 +12,16 @@ import java.util.List;
  */
 
 @Root(name = "unique-key-value")
-public class UniqueKeyValue implements Dto{
+public class UniqueKeyValueConfig implements Dto{
 
     @ElementList(inline = true)
-    private List<ActiveFieldConfig> activeFields = new ArrayList<ActiveFieldConfig>();
+    private List<FieldValueConfig> activeFields = new ArrayList<FieldValueConfig>();
 
-    public List<ActiveFieldConfig> getActiveFields() {
+    public List<FieldValueConfig> getActiveFields() {
         return activeFields;
     }
 
-    public void setActiveFields(List<ActiveFieldConfig> activeFields) {
+    public void setActiveFields(List<FieldValueConfig> activeFields) {
         this.activeFields = activeFields;
     }
 
@@ -30,7 +30,7 @@ public class UniqueKeyValue implements Dto{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UniqueKeyValue that = (UniqueKeyValue) o;
+        UniqueKeyValueConfig that = (UniqueKeyValueConfig) o;
 
         if (activeFields != null ? !activeFields.equals(that.activeFields) : that.activeFields != null) return false;
 
