@@ -1334,15 +1334,32 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+
+
+
+
     <xs:complexType name="fieldPathType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
+
+        <xs:sequence>
+            <xs:element type="con:onUnlinkType" name="on-unlink"
+                        minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+            <xs:element type="con:onLinkType" name="on-link"
+                        minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+
                 <xs:attribute type="xs:string" name="value"
                               use="optional"/>
                 <xs:attribute type="xs:string" name="on-root-delete"
                               use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
+                <xs:attribute type="xs:string" name="domain-object-linker"
+                              use="optional"/>
+
+
+
     </xs:complexType>
 
     <xs:complexType name="tdType">
@@ -2455,4 +2472,75 @@
         <xs:attribute name="text" type="xs:string"/>
         <xs:attribute name="action-name" type="xs:string"/>
     </xs:complexType>
+
+    <xs:complexType name="onLinkType">
+        <xs:sequence>
+            <xs:element type="con:updateSectionType" name="update"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+
+            <xs:element type="con:createSectionType" name="create"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:boolean" name="do-link" default="true" use="optional"/>
+
+    </xs:complexType>
+
+    <xs:complexType name="onUnlinkType">
+        <xs:sequence>
+            <xs:element type="con:createSectionType" name="create"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+
+            <xs:element type="con:updateSectionType" name="update"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:boolean" name="do-unlink" default="true" use="optional"/>
+
+    </xs:complexType>
+
+    <xs:element type="con:fieldValueType" name="field" />
+    <xs:element type="con:uniqueKeyValueType" name="unique-key-value" />
+    <xs:element type="con:onLinkType" name="on-link" />
+    <xs:element type="con:onUnlinkType" name="on-unlink" />
+    <xs:element type="con:updateSectionType" name="update" />
+    <xs:element type="con:createSectionType" name="create" />
+
+
+    <xs:complexType name="fieldValueType">
+        <xs:sequence>
+                <xs:element type="con:uniqueKeyValueType" name="unique-key-value"
+                            minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="value" use="optional"/>
+        <xs:attribute type="xs:string" name="set-current-user" use="optional"/>
+        <xs:attribute type="xs:string" name="set-base-object" use="optional"/>
+        <xs:attribute type="xs:string" name="set-null" use="optional"/>
+        <xs:attribute type="xs:string" name="type" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="uniqueKeyValueType">
+        <xs:sequence>
+            <xs:element type="con:fieldValueType" name="field"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+
+
+
+    <xs:complexType name="updateSectionType">
+        <xs:sequence>
+            <xs:element type="con:fieldValueType" name="field"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="createSectionType">
+        <xs:sequence>
+            <xs:element type="con:fieldValueType" name="field"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
 </xs:schema>
