@@ -920,6 +920,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
+        parameters.put("domain_object_typeid", ((RdbmsId) domainObjectId).getTypeId());
         String query = buildFindChildrenQuery(linkedType, linkedField, offset,
                 limit, accessToken);
         if (accessToken.isDeferred()) {
@@ -969,6 +970,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
+        parameters.put("domain_object_typeid", ((RdbmsId) domainObjectId).getTypeId());
         String query = buildFindChildrenIdsQuery(linkedType, linkedField,
                 offset, limit, accessToken);
         if (accessToken.isDeferred()) {
@@ -1534,7 +1536,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" from ");
         appendTableNameQueryPart(query, linkedType);
         query.append(" where ").append(tableHavingLinkedFieldAlias).append(".").
-                append(wrap(getSqlName(linkedField))).append(" = :domain_object_id");
+                append(wrap(getSqlName(linkedField))).append(" = :domain_object_id").
+                append(" and ").append(wrap(getSqlName(getReferenceTypeColumnName(linkedField))))
+                .append(" = :domain_object_typeid");
 
         if (accessToken.isDeferred()) {
              appendAccessControlLogicToQuery(query, linkedType);
@@ -1555,7 +1559,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append("select ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).
                 append(" from ").append(wrap(tableName)).append(" ").append(tableAlias).
                 append(" where ").append(tableAlias).append(".").append(wrap(getSqlName(linkedField))).
-                append(" = :domain_object_id");
+                append(" = :domain_object_id").
+                append(" and ").append(wrap(getSqlName(getReferenceTypeColumnName(linkedField))))
+                .append(" = :domain_object_typeid");
 
         if (accessToken.isDeferred()) {
              appendAccessControlLogicToQuery(query, linkedType);
