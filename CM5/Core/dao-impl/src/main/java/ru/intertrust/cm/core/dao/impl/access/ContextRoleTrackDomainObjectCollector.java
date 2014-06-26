@@ -39,7 +39,7 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
                 result.add(getUserGroupByGroupNameAndObjectId(trackDomainObjects.getGetGroup().getGroupName(), id));
             }
         } else {
-            //имя не указано, полученные доменные объекты и ест контекстные группы
+            //имя не указано, полученные доменные объекты и есть группы
             result = contextGroupOwner;
         }
         return result;

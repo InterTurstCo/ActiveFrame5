@@ -11,7 +11,7 @@ import org.simpleframework.xml.Attribute;
  */
 public class GetGroupConfig extends GetPersonConfig implements Serializable {
 
-    @Attribute(name="name")
+    @Attribute(name="name", required=false)
     private String groupName;
 
     public String getGroupName() {

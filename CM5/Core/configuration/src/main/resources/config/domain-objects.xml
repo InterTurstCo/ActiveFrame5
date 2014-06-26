@@ -104,7 +104,7 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="Person" initial-status="Active3">
+    <domain-object-type name="Person" initial-status="Active">
         <fields>
             <string name="Login" length="128" />
             <string name="FirstName" length="128" />

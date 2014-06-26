@@ -789,8 +789,9 @@
     </xs:complexType>
 
     <xs:complexType name="groupsType">
-        <xs:choice>
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
             <xs:element name="track-domain-objects" type="con:trackObjectsType"
+                        maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="collector" type="con:collectorType"
                         maxOccurs="1" minOccurs="0"
