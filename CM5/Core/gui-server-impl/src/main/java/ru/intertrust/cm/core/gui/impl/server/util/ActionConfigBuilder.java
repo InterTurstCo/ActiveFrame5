@@ -48,11 +48,12 @@ public class ActionConfigBuilder {
             }
             final ActionConfig actionConfig = (ActionConfig) config;
             final boolean contains = applicationContext.containsBean(actionConfig.getComponentName());
-            final ActionHandler actionHandler;
+            ActionHandler actionHandler = new FakeActionHandler();
             if (contains) {
-                actionHandler = (ActionHandler) applicationContext.getBean(actionConfig.getComponentName());
-            } else {
-                actionHandler = new FakeActionHandler();
+                final Object componentHandler = applicationContext.getBean(actionConfig.getComponentName());
+                if (componentHandler instanceof ActionHandler) {
+                    actionHandler = (ActionHandler) componentHandler;
+                }
             }
             final ActionHandler.HandlerStatusData statusData = actionHandler.getCheckStatusData();
             final ActionHandler.Status status;
