@@ -976,9 +976,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (accessToken.isDeferred()) {
             parameters.putAll(getAclParameters(accessToken));
         }
-        Integer linkedTypeId = domainObjectTypeIdCache.getId(linkedType);
-        return jdbcTemplate.query(query, parameters, new MultipleIdRowMapper(
-                linkedTypeId));
+
+        return jdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType));
     }
 
     /**
@@ -1557,6 +1556,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
         query.append("select ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).
+                append(", ").append(tableAlias).append(".").append(getReferenceTypeColumnName(ID_COLUMN)).
                 append(" from ").append(wrap(tableName)).append(" ").append(tableAlias).
                 append(" where ").append(tableAlias).append(".").append(wrap(getSqlName(linkedField))).
                 append(" = :domain_object_id").
