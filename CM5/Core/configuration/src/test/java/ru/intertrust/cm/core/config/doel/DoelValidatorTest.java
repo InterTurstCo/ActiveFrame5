@@ -366,6 +366,24 @@ public class DoelValidatorTest {
         checkTypes(result, new String[] { "F", "Ca" });
     }
 
+    @Test
+    public void testFunctionWithIllegalParameters() {
+        DoelExpression expr = DoelExpression.parse("toC.toE:params");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
+        DoelValidator.DoelTypes result = proc.process();
+        assertFalse("Выражение не должно быть корректным", result.isCorrect());
+        assertFalse("Выражение не должно быть корректным", result.isAlwaysCorrect());
+    }
+
+    @Test
+    public void testFunctionInIllegalContext() {
+        DoelExpression expr = DoelExpression.parse("toB.bString:ref");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
+        DoelValidator.DoelTypes result = proc.process();
+        assertFalse("Выражение не должно быть корректным", result.isCorrect());
+        assertFalse("Выражение не должно быть корректным", result.isAlwaysCorrect());
+    }
+
     private void checkTypes(DoelValidator.DoelTypes result, Object[] expectedTypes) {
         DoelValidator.DoelTypes.Link link = result.getTypeChain();
         for (int i = 0; i < expectedTypes.length; i++) {
