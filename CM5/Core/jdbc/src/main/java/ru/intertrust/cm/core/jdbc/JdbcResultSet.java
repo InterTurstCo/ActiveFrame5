@@ -282,7 +282,7 @@ public class JdbcResultSet implements ResultSet {
         Timestamp result = null;
         
         Value value = collection.get(index).getValue(columnLabel);
-        if (value != null) {
+        if (value != null && value.get() != null) {
             if (value instanceof DateTimeValue){
                 java.util.Date date = collection.get(index).getTimestamp(columnLabel);
                 result = new Timestamp(date.getTime());
