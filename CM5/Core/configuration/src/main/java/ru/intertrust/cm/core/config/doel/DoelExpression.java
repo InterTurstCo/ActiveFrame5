@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.config.doel;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 
 /**
  * Класс, обеспечивающий разбор и хранение выражений на языке DOEL (Domain Object Expression Language),
@@ -46,9 +48,353 @@ public class DoelExpression {
      *
      * @param expression Строка, содержащая DOEL-выражение
      * @return Разобранное DOEL-выражение
-     * @throws ParseException если строка не является корректным выражением на DOEL
+     * @throws DoelParseException если строка не является корректным выражением на DOEL
      */
     public static DoelExpression parse(String expression) {
+        Parser parser = new Parser();
+        Parser.TokenType tokenType = null;
+        int positionMark = -1;
+
+        for (int i = 0; i < expression.length(); i++) {
+            char ch = expression.charAt(i);
+            if (tokenType != null) {
+                if (tokenType.eat(ch)) {
+                    continue;
+                }
+                String token = expression.substring(positionMark, i);
+                try {
+                    parser.addToken(token, tokenType);
+                } catch (Exception e) {
+                    throw new DoelParseException(expression, positionMark);
+                }
+                tokenType = null;
+            }
+            if (Character.isWhitespace(ch)) {
+                continue;
+            }
+            if (ch == '"' || ch == '\'') {
+                tokenType = Parser.TokenType.STRING;
+            } else if (isSpecialChar(ch)) {
+                tokenType = Parser.TokenType.SYMBOL;
+            } else if (isNameChar(ch)) {
+                tokenType = Parser.TokenType.NAME;
+            }
+            positionMark = i;
+            tokenType.eat(ch);
+        }
+        if (tokenType != null) {
+            if (!tokenType.isFinished()) {
+                throw new DoelParseException(expression, positionMark);
+            }
+            String token = expression.substring(positionMark);
+            try {
+                parser.addToken(token, tokenType);
+            } catch (Exception e) {
+                throw new DoelParseException(expression, positionMark);
+            }
+        }
+        DoelExpression doel = new DoelExpression();
+        try {
+            doel.elements = parser.getResult();
+        } catch (Exception e) {
+            throw new DoelParseException(expression, expression.length());
+        }
+        return doel;
+    }
+
+    private static class Parser {
+
+        private interface CharProcessor {
+            boolean processChar(char ch);
+            boolean mayBreakNow();
+        }
+
+        private enum TokenType {
+
+            NAME (new CharProcessor() {
+                @Override
+                public boolean processChar(char ch) {
+                    return isNameChar(ch);
+                }
+                @Override
+                public boolean mayBreakNow() {
+                    return true;
+                }
+            }),
+
+            SYMBOL (new CharProcessor() {
+                boolean ready = true;
+                @Override
+                public boolean processChar(char ch) {
+                    try {
+                        return ready;
+                    } finally {
+                        ready = !ready;
+                    }
+                }
+                @Override
+                public boolean mayBreakNow() {
+                    return true;
+                }
+            }),
+
+            STRING (new CharProcessor() {
+                char startChar = '?';
+                @Override
+                public boolean processChar(char ch) {
+                    switch(startChar) {
+                    case '?':
+                        startChar = ch;
+                        return true;
+                    case '!':
+                        startChar = '?';
+                        return false;
+                    default:
+                        if (startChar == ch) {
+                            startChar = '!';
+                        }
+                        return true;
+                    }
+                }
+                @Override
+                public boolean mayBreakNow() {
+                    return startChar == '!';
+                }
+            }),
+
+            EMPTY (null);
+
+            CharProcessor charProcessor;
+
+            private TokenType(CharProcessor charProcessor) {
+                this.charProcessor = charProcessor;
+            }
+
+            boolean eat(char ch) {
+                return charProcessor.processChar(ch);
+            }
+
+            boolean isFinished() {
+                return charProcessor.mayBreakNow();
+            }
+        }
+
+        private interface TokenAcceptor {
+            State accept(Parser parser, String token, TokenType type);
+        }
+
+        private enum State {
+            FIELD_WAIT (new TokenAcceptor() {
+                @Override
+                public State accept(Parser parser, String token, TokenType type) {
+                    if (type == TokenType.NAME) {
+                        parser.stack.push(token);
+                        return FIELDNAME_GOT;
+                    } else if (type == TokenType.SYMBOL && "(".equals(token)) {
+                        parser.stack.push(token);
+                        return FIELD_WAIT;
+                    } else {
+                        throw new IllegalStateException();
+                    }
+                }
+            }),
+
+            FIELDNAME_GOT (new TokenAcceptor() {
+                @Override
+                public State accept(Parser parser, String token, TokenType type) {
+                    if (type == TokenType.SYMBOL && "^".equals(token)) {
+                        return CHILDLINK_WAIT;
+                    } else {
+                        parser.stack.push(new Field((String) parser.stack.pop()));
+                        return FIELD_GOT.tokenAcceptor.accept(parser, token, type);
+                    }
+                }
+            }),
+
+            CHILDLINK_WAIT (new TokenAcceptor() {
+                @Override
+                public State accept(Parser parser, String token, TokenType type) {
+                    if (type == TokenType.NAME) {
+                        parser.stack.push(new Children((String) parser.stack.pop(), token));
+                        return FIELD_GOT;
+                    } else {
+                        throw new IllegalStateException();
+                    }
+                }
+            }),
+
+            FIELD_GOT (new TokenAcceptor() {
+                @Override
+                public State accept(Parser parser, String token, TokenType type) {
+                    if (type == TokenType.SYMBOL && ".".equals(token)) {
+                        parser.finishElement();
+                        return FIELD_WAIT;
+                    } else if (type == TokenType.SYMBOL && ":".equals(token)) {
+                        return FUNCTION_WAIT;
+                    } else if (type == TokenType.SYMBOL && ")".equals(token)) {
+                        parser.finishElement();
+                        //TODO roll back stack until "(" and make a Subexpression element
+                        LinkedList<Element> nested = new LinkedList<>();
+                        while (true/*!parser.stack.isEmpty()*/) {
+                            Object stored = parser.stack.pop();
+                            if (stored instanceof Element) {
+                                nested.addFirst((Element) stored);
+                            } else if ("(".equals(stored)) {
+                                break;
+                            } else {
+                                throw new IllegalStateException();
+                            }
+                        }
+                        if (nested.isEmpty()) {
+                            throw new IllegalStateException();
+                        }
+                        DoelExpression subExpr = new DoelExpression();
+                        subExpr.elements = nested.toArray(new Element[nested.size()]);
+                        parser.stack.push(subExpr);
+                        return FIELD_GOT;
+                    } else if (type == TokenType.SYMBOL && "*".equals(token)) {
+                        Element element = (Element) parser.stack.pop();
+                        if (element.isRepeated()) {
+                            throw new IllegalStateException();
+                        }
+                        element.setRepeated(true);
+                        parser.stack.push(element);
+                        return FIELD_GOT;
+                    } else if (type == TokenType.EMPTY) {
+                        parser.finishElement();
+                        return FINISHED;
+                    } else {
+                        throw new IllegalStateException();
+                    }
+                }
+            }),
+
+            FUNCTION_WAIT (new TokenAcceptor() {
+                @Override
+                public State accept(Parser parser, String token, TokenType type) {
+                    if (type == TokenType.NAME) {
+                        parser.stack.push(token);
+                        return FUNCNAME_GOT;
+                    } else {
+                        throw new IllegalStateException();
+                    }
+                }
+            }),
+
+            FUNCNAME_GOT (new TokenAcceptor() {
+                @Override
+                public State accept(Parser parser, String token, TokenType type) {
+                    if (type == TokenType.SYMBOL && "(".equals(token)) {
+                        parser.stack.push(token);
+                        return ARGUMENT_WAIT;
+                    } else {
+                        parser.stack.push(new Function((String) parser.stack.pop(), null));
+                        return FIELD_GOT.tokenAcceptor.accept(parser, token, type);
+                    }
+                }
+            }),
+
+            ARGUMENT_WAIT (new TokenAcceptor() {
+                @Override
+                public State accept(Parser parser, String token, TokenType type) {
+                    if (type == TokenType.NAME) {
+                        parser.stack.push(token);
+                        return ARGUMENT_GOT;
+                    } else if (type == TokenType.STRING) {
+                        parser.stack.push(token.substring(1, token.length() - 1));  // removing quotes
+                        return ARGUMENT_GOT;
+                    } else if (type == TokenType.SYMBOL && ")".equals(token)) {
+                        if (!"(".equals(parser.stack.pop())) {
+                            throw new IllegalStateException();
+                        }
+                        return FIELD_GOT;
+                    } else {
+                        throw new IllegalStateException();
+                    }
+                }
+            }),
+
+            ARGUMENT_GOT (new TokenAcceptor() {
+                @Override
+                public State accept(Parser parser, String token, TokenType type) {
+                    if (type == TokenType.SYMBOL && ",".equals(token)) {
+                        return ARGUMENT_WAIT;
+                    } else if (type == TokenType.SYMBOL && ")".equals(token)) {
+                        LinkedList<Object> arguments = new LinkedList<>();
+                        while(!parser.stack.isEmpty()) {
+                            String arg = (String) parser.stack.pop();
+                            if ("(".equals(arg)) {
+                                break;
+                            }
+                            arguments.addFirst(arg);
+                        }
+                        parser.stack.push(new Function((String) parser.stack.pop(),
+                                arguments.toArray(new String[arguments.size()])));
+                        return FIELD_GOT;
+                    } else {
+                        throw new IllegalStateException();
+                    }
+                }
+            }),
+
+            FINISHED (null);
+
+            TokenAcceptor tokenAcceptor;
+
+            private State(TokenAcceptor tokenAcceptor) {
+                this.tokenAcceptor = tokenAcceptor;
+            }
+        }
+
+        private State state = State.FIELD_WAIT;
+        private LinkedList<Object> stack = new LinkedList<>();
+
+        private void finishElement() {
+            LinkedList<Function> functions = new LinkedList<>();
+            while(true/*!stack.isEmpty()*/) {
+                Object stored = stack.pop();
+                if (stored instanceof Function) {
+                    functions.addFirst((Function) stored);
+                } else if (stored instanceof Element) {
+                    ((Element) stored).setFunctions(functions.toArray(new Function[functions.size()]));
+                    stack.push(stored);
+                    break;
+                } else {
+                    throw new IllegalStateException();
+                }
+            }
+        }
+
+        void addToken(String token, TokenType type) {
+            System.out.println(type.name() + ": " + token);
+            state = state.tokenAcceptor.accept(this, token, type);
+        }
+
+        Element[] getResult() {
+            System.out.println(TokenType.EMPTY.name());
+            state = state.tokenAcceptor.accept(this, null, TokenType.EMPTY);
+            if (state != State.FINISHED) {
+                throw new IllegalStateException();
+            }
+            Collections.reverse(stack);
+            return stack.toArray(new Element[stack.size()]);
+        }
+    }
+
+    private static boolean isNameChar(char ch) {
+        return !isSpecialChar(ch) && !Character.isWhitespace(ch);
+    }
+
+    private static char[] specialChars = new char[] { '.', '^', '*', '(', ')', ':', ',', '"', '\'' };
+    static {
+        Arrays.sort(specialChars);
+    }
+
+    private static boolean isSpecialChar(char ch) {
+        return Arrays.binarySearch(specialChars, ch) >= 0;
+    }
+
+    public static DoelExpression parse_Old(String expression) {
         DoelExpression doel = new DoelExpression();
         String[] parts = expression.trim().split("\\.");
         doel.elements = new Element[parts.length];
@@ -60,10 +406,12 @@ public class DoelExpression {
             }
             if (part.matches(".+\\^.*")) {
                 String[] names = part.split("\\^");
-                doel.elements[i] = new Children(names[0].trim(), names[1].trim(), repeated);
+                doel.elements[i] = new Children(names[0].trim(), names[1].trim());
             } else {
-                doel.elements[i] = new Field(part, repeated);
+                doel.elements[i] = new Field(part);
             }
+            doel.elements[i].setRepeated(repeated);
+            //doel.elements[i].setFunctions((Function[]) functions.toArray());
         }
         return doel;
     }
@@ -80,10 +428,23 @@ public class DoelExpression {
      * Базовый класс для хранения частей DOEL-выражения.
      */
     public abstract static class Element {
+        Function[] functions;
         boolean repeated = false;
+
+        void setFunctions(Function[] functions) {
+            this.functions = functions;
+        }
+
+        void setRepeated(boolean repeated) {
+            this.repeated = repeated;
+        }
 
         public boolean isRepeated() {
             return repeated;
+        }
+
+        public Function[] getFunctions() {
+            return functions;
         }
 
         @Override
@@ -97,6 +458,19 @@ public class DoelExpression {
             return ((Element) obj).repeated == repeated;
         }
 
+        protected String decorate(String element) {
+            StringBuilder result = new StringBuilder(element);
+            if (isRepeated()) {
+                result.append("*");
+            }
+            if (functions != null) {
+                for (Function func : functions) {
+                    result.append(":").append(func.toString());
+                }
+            }
+            return result.toString();
+        }
+
         public abstract ElementType getElementType();
     }
 
@@ -106,9 +480,8 @@ public class DoelExpression {
     public static class Field extends Element {
         String name;
 
-        Field(String name, boolean repeated) {
+        Field(String name) {
             this.name = name;
-            this.repeated = repeated;
         }
 
         public String getName() {
@@ -127,11 +500,12 @@ public class DoelExpression {
 
         @Override
         public String toString() {
-            StringBuilder expr = new StringBuilder(name);
+            /*StringBuilder expr = new StringBuilder(name);
             if (repeated) {
                 expr.append("*");
             }
-            return expr.toString();
+            return expr.toString();*/
+            return decorate(name);
         }
 
         @Override
@@ -147,10 +521,9 @@ public class DoelExpression {
         String childType;
         String parentLink;
 
-        Children(String childType, String parentLink, boolean repeated) {
+        Children(String childType, String parentLink) {
             this.childType = childType;
             this.parentLink = parentLink;
-            this.repeated = repeated;
         }
 
         public String getChildType() {
@@ -178,10 +551,10 @@ public class DoelExpression {
         @Override
         public String toString() {
             StringBuilder expr = new StringBuilder().append(childType).append("^").append(parentLink);
-            if (repeated) {
+            /*if (repeated) {
                 expr.append("*");
-            }
-            return expr.toString();
+            }*/
+            return decorate(expr.toString());
         }
 
         @Override
@@ -193,9 +566,8 @@ public class DoelExpression {
     public static class Subexpression extends Element {
         DoelExpression subExpression;
 
-        public Subexpression(DoelExpression subExpr, boolean repeated) {
+        Subexpression(DoelExpression subExpr) {
             this.subExpression = subExpr;
-            this.repeated = repeated;
         }
 
         @Override
@@ -216,12 +588,70 @@ public class DoelExpression {
         @Override
         public String toString() {
             StringBuilder expr = new StringBuilder().append("(").append(subExpression.toString()).append(")");
-            if (repeated) {
+            /*if (repeated) {
                 expr.append("*");
+            }*/
+            return decorate(expr.toString());
+        }
+
+    }
+
+    public static class Function {
+        String name;
+        String[] arguments;
+
+        Function(String name, String[] arguments) {
+            this.name = name;
+            this.arguments = arguments;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String[] getArguments() {
+            if (arguments == null) {
+                return new String[0];
+            }
+            return arguments;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = name.hashCode();
+            if (arguments != null) {
+                for (String arg : arguments) {
+                    hash = hash * 31 + arg.hashCode();
+                }
+            }
+            return hash;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder expr = new StringBuilder();
+            expr.append(name);
+            if (arguments != null) {
+                expr.append("(");
+                for (int i = 0; i < arguments.length; i++) {
+                    String arg = arguments[i];
+                    if (i > 0) {
+                        expr.append(",");
+                    }
+                    if (mustBeQuoted(arg)) {
+                        expr.append("\"").append(arg.replaceAll("\"", "\"\"")).append("\"");
+                    } else {
+                        expr.append(arg);
+                    }
+                }
+                expr.append(")");
             }
             return expr.toString();
         }
 
+        private static boolean mustBeQuoted(String arg) {
+            return arg.matches(".*[,\"\\(\\)].*");
+        }
     }
 
     private Element[] elements;

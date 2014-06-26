@@ -15,6 +15,8 @@
 
     <bean id="moduleService" class="ru.intertrust.cm.core.config.module.ModuleService" init-method="init"/>
 
+    <bean id="doelFunctionRegistry" class="ru.intertrust.cm.core.config.doel.DoelFunctionRegistry"/>
+
     <bean id="configurationSerializer" depends-on="configurationClassesCacheInitializer"
           class="ru.intertrust.cm.core.config.ConfigurationSerializer"/>
 

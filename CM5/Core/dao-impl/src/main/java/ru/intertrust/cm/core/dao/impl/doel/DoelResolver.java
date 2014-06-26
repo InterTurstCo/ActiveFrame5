@@ -27,6 +27,8 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -42,6 +44,8 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.config.doel.DoelExpression.Function;
+import ru.intertrust.cm.core.config.doel.DoelFunctionRegistry;
 import ru.intertrust.cm.core.config.doel.DoelValidator;
 import ru.intertrust.cm.core.config.doel.DoelValidator.DoelTypes;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -59,6 +63,8 @@ import ru.intertrust.cm.core.model.DoelException;
 
 public class DoelResolver implements DoelEvaluator {
 
+    private static final Logger log = LoggerFactory.getLogger(DoelResolver.class);
+
     @Autowired
     private NamedParameterJdbcOperations jdbcTemplate;
     //private NamedParameterJdbcTemplate jdbcTemplate;
@@ -71,6 +77,8 @@ public class DoelResolver implements DoelEvaluator {
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired
     private DomainObjectCacheServiceImpl domainObjectCacheService;
+    @Autowired
+    private DoelFunctionRegistry doelFunctionRegistry;
 
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -119,6 +127,8 @@ public class DoelResolver implements DoelEvaluator {
                 evaluateBranch(expression, type, Collections.singletonList(id), result, accessToken);
             }
             return result;
+        } catch (DoelException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new DoelException("Error evaluate doel expression \"" + expression + "\" on type \""
                     + domainObjectTypeIdCache.getName(sourceObjectId) + "\".", ex);
@@ -309,6 +319,13 @@ public class DoelResolver implements DoelEvaluator {
 
             // Готовимся к следующему шагу
             step++;
+
+            Function[] functions = element.getFunctions();
+            if (functions != null && functions.length > 0) {
+                // Вычисление функции требует значений, т.е. немедленного выполнения запроса
+                break;
+            }
+
             if (step < expr.getElements().length) {
                 List<DoelTypes.Link> nextTypes = branch.getNext();
                 if (nextTypes.size() == 0) {
@@ -332,14 +349,29 @@ public class DoelResolver implements DoelEvaluator {
         }
         select.setSelectItems(fields);
         select.accept(new WrapAndLowerCaseSelectVisitor());
-        
+
         String query = applyAcl(select, accessToken);
-
         Map<String, Object> parameters = new HashMap<String, Object>();
-
         applyAclParameters(parameters, accessToken);
 
         List<T> values = jdbcTemplate.query(query, parameters, new DoelResolverRowMapper<T>(linkField, fieldConfig));
+        if (values.size() == 0) {
+            return;
+        }
+
+        Function[] functions = expr.getElements()[step - 1].getFunctions();
+        if (functions != null) {
+            for (Function function : functions) {
+                DoelFunctionImplementation impl = doelFunctionRegistry.getFunctionImplementation(function.getName());
+                if (log.isTraceEnabled()) {
+                    log.trace("Processing function " + function + " [" + impl.getClass().getName() + "] on " + values);
+                }
+                values = impl.process(values, function.getArguments(), accessToken);
+                if (values.size() == 0) {
+                    return;
+                }
+            }
+        }
 
         if (step < expr.getElements().length) {
             // Продолжаем обработку, если оказалось несколько ветвей
@@ -368,7 +400,6 @@ public class DoelResolver implements DoelEvaluator {
         if (!isSystemAccessToken(accessToken)) {
             int userId = getUserId(accessToken);
             parameters.put("user_id", userId);
-
         }
     }
 
@@ -420,7 +451,9 @@ public class DoelResolver implements DoelEvaluator {
                 }
                 type = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type).getExtendsAttribute();
             }
-            System.err.println("Unexpected object type: " + domainObjectTypeIdCache.getName(id)); //*****
+            if (log.isInfoEnabled()) {
+                log.info("Unexpected object type: " + domainObjectTypeIdCache.getName(id)); //*****
+            }
         }
         return result;
     }
@@ -467,6 +500,7 @@ public class DoelResolver implements DoelEvaluator {
         }
     }
 
+    @Deprecated
     public DoelExpression createReverseExpression(DoelExpression expr, String sourceType) {
         StringBuilder reverseExpr = new StringBuilder();
         String currentType = sourceType;
@@ -496,6 +530,7 @@ public class DoelResolver implements DoelEvaluator {
         return DoelExpression.parse(reverseExpr.toString());
     }
 
+    @Deprecated
     public DoelExpression createReverseExpression(DoelExpression expr, int count, String sourceType) {
         return createReverseExpression(expr.cutByCount(count), sourceType);
     }

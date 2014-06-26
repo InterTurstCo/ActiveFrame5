@@ -9,20 +9,20 @@ public class DoelTest {
 
     @Test
     public void parseValidExpression() throws Exception {
-        DoelExpression expr = DoelExpression.parse("Document.Commission^Document.Assignee");
+        DoelExpression expr = DoelExpression.parse("Document.Commission^Document:Status(Assigned).Assignee");
         assertNotNull(expr);
     }
 
     @Test
     public void parseEqualExpressions() throws Exception {
-        DoelExpression expr1 = DoelExpression.parse("Document.Commission^Document.Assignee");
-        DoelExpression expr2 = DoelExpression.parse("  Document.Commission^Document.Assignee   ");
+        DoelExpression expr1 = DoelExpression.parse("Document.Commission^Document:Status(Assigned).Assignee");
+        DoelExpression expr2 = DoelExpression.parse("  Document . Commission^Document :Status( 'Assigned' ) . Assignee   ");
         assertEquals(expr1, expr2);
     }
 
     @Test
     public void makeExpressionBack() throws Exception {
-        final String expression = "Document.Commission^Document.Assignee";
+        final String expression = "Document.Commission^Document:Status(Assigned).Assignee";
         DoelExpression expr = DoelExpression.parse(expression);
         String result = expr.toString();
         assertEquals(expression, result);

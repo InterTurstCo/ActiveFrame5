@@ -46,6 +46,8 @@ public class DoelValidatorTest {
 */
     @Mock
     private ConfigurationExplorer config;
+    @Mock
+    private DoelFunctionRegistry functionRegistry;
 
     @Mock
     private ApplicationContext context;
@@ -71,6 +73,7 @@ public class DoelValidatorTest {
         MockitoAnnotations.initMocks(this);
         new SpringApplicationContext().setApplicationContext(context);
         when(context.getBean(ConfigurationExplorer.class)).thenReturn(config);
+        when(context.getBean(DoelFunctionRegistry.class)).thenReturn(functionRegistry);
 
         // ================ Связи =================
         when(config.getFieldConfig("A", "toB")).thenReturn(referenceFieldConfig("toB", "B"));
@@ -83,9 +86,9 @@ public class DoelValidatorTest {
         when(config.getFieldConfig("E", "toG")).thenReturn(referenceFieldConfig("toG", "G"));
         when(config.getFieldConfig("F", "toH")).thenReturn(referenceFieldConfig("toH", "H"));
         when(config.getFieldConfig("G", "toH")).thenReturn(referenceFieldConfig("toH", "H"));
-        when(config.getFieldConfig("F", "toI")).thenReturn(referenceFieldConfig("toI", "I"));
+        when(config.getFieldConfig("G", "toI")).thenReturn(referenceFieldConfig("toI", "I"));
 
-                // ============== Другие поля ==============
+        // ============== Другие поля ==============
         when(config.getFieldConfig("B", "bString")).thenReturn(fieldConfig(StringFieldConfig.class, "bString"));
         when(config.getFieldConfig("C", "cString")).thenReturn(fieldConfig(StringFieldConfig.class, "cString"));
         when(config.getFieldConfig("Ca", "caDate")).thenReturn(fieldConfig(DateTimeFieldConfig.class, "caDate"));
@@ -119,6 +122,18 @@ public class DoelValidatorTest {
         });
         when(config.getDomainObjectRootType("Ca")).thenReturn("C");
         when(config.findChildDomainObjectTypes("C", false)).thenReturn(Collections.singletonList(caConfigMock));
+
+        // ============= Функции =============
+        when(functionRegistry.getFunctionValidator("univ")).thenReturn(new AnnotationFunctionValidator(
+                UniversalFunction.class.getAnnotation(DoelFunction.class)));
+        when(functionRegistry.getFunctionValidator("totext")).thenReturn(new AnnotationFunctionValidator(
+                ToTextFunction.class.getAnnotation(DoelFunction.class)));
+        when(functionRegistry.getFunctionValidator("ref")).thenReturn(new AnnotationFunctionValidator(
+                ReferenceProcessingFunction.class.getAnnotation(DoelFunction.class)));
+        when(functionRegistry.getFunctionValidator("params")).thenReturn(new AnnotationFunctionValidator(
+                ParametrizedFunction.class.getAnnotation(DoelFunction.class)));
+        when(functionRegistry.getFunctionValidator("single")).thenReturn(new AnnotationFunctionValidator(
+                SingleChoosingFunction.class.getAnnotation(DoelFunction.class)));
     }
 
     private ReferenceFieldConfig referenceFieldConfig(String name, String type) {
@@ -180,8 +195,8 @@ public class DoelValidatorTest {
 
     @Test
     public void testReverseLinkExpression() {
-        DoelExpression expr = DoelExpression.parse("F^toI.D^toAny");
-        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "I");
+        DoelExpression expr = DoelExpression.parse("G^toH.D^toAny");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "H");
         DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
         assertTrue("Тип результата выражения должен быть ссылочным",
@@ -190,7 +205,7 @@ public class DoelValidatorTest {
         assertNotNull("Выражение должно возвращать доменный объект", result.getResultObjectTypes());
         assertTrue("Проверка типа возвращаемого доменного объекта", result.getResultObjectTypes().size() == 1 &&
                 result.getResultObjectTypes().contains("D"));
-        checkTypes(result, new String[] { "I", "F" });
+        checkTypes(result, new String[] { "H", "G" });
     }
 
     @Test
@@ -265,6 +280,90 @@ public class DoelValidatorTest {
         assertFalse("Выражение не должно быть корректным", result.isAlwaysCorrect());
         assertNull("Выражение не должно возвращать результат", result.getResultTypes());
         //checkTypes(result, new String[] { "A", "C" });
+    }
+
+    @DoelFunction(name = "univ")
+    public static class UniversalFunction { }
+
+    @DoelFunction(name = "totext", changesType = true, resultType = FieldType.STRING)
+    public static class ToTextFunction { }
+
+    @DoelFunction(name = "ref", contextTypes = { FieldType.REFERENCE })
+    public static class ReferenceProcessingFunction { }
+
+    @DoelFunction(name = "params", requiredParams = 1, optionalParams = 3)
+    public static class ParametrizedFunction { }
+
+    @DoelFunction(name = "single", resultMultiple = false)
+    public static class SingleChoosingFunction { }
+
+    @Test
+    public void testNonConvertingFunctionAtLink() {
+        DoelExpression expr = DoelExpression.parse("B^toD:univ.A^toB");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "D");
+        DoelValidator.DoelTypes result = proc.process();
+        assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
+        assertTrue("Тип результата выражения должен быть ссылочным",
+                result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.REFERENCE));
+        assertFalse("Выражение может возвращать множество значений", result.isSingleResult());
+        assertNotNull("Выражение должно возвращать доменный объект", result.getResultObjectTypes());
+        assertTrue("Проверка типа возвращаемого доменного объекта", result.getResultObjectTypes().size() == 1 &&
+                result.getResultObjectTypes().contains("A"));
+        checkTypes(result, new String[] { "D", "B" });
+    }
+
+    @Test
+    public void testNonConvertingFunctionAtEnd() {
+        DoelExpression expr = DoelExpression.parse("F^toH.fString:univ");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "H");
+        DoelValidator.DoelTypes result = proc.process();
+        assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
+        assertTrue("Тип результата выражения должен быть строковым",
+                result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.STRING));
+        assertFalse("Выражение может возвращать множество значений", result.isSingleResult());
+        assertNull("Выражение не должно возвращать доменный объект", result.getResultObjectTypes());
+        checkTypes(result, new String[] { "H", "F" });
+    }
+
+    @Test
+    public void testMultipleFunctions() {
+        DoelExpression expr = DoelExpression.parse("toE:params(a,b):univ.toG.gString");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "C");
+        DoelValidator.DoelTypes result = proc.process();
+        assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
+        assertTrue("Тип результата выражения должен быть строковым",
+                result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.STRING));
+        assertTrue("Выражение должно возвращать единственное значение", result.isSingleResult());
+        assertNull("Выражение не должно возвращать доменный объект", result.getResultObjectTypes());
+        checkTypes(result, new String[] { "C", "E", "G" });
+    }
+
+    @Test
+    public void testConvertingFunctionAtEnd() {
+        DoelExpression expr = DoelExpression.parse("toI.iDate:totext");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "G");
+        DoelValidator.DoelTypes result = proc.process();
+        assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
+        assertTrue("Тип результата выражения должен быть строковым",
+                result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.STRING));
+        assertTrue("Выражение должно возвращать единственное значение", result.isSingleResult());
+        assertNull("Выражение не должно возвращать доменный объект", result.getResultObjectTypes());
+        checkTypes(result, new String[] { "G", "I" });
+    }
+
+    @Test
+    public void testStickingFunction() {
+        DoelExpression expr = DoelExpression.parse("Ca^toF.A^toC:single");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "F");
+        DoelValidator.DoelTypes result = proc.process();
+        assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
+        assertTrue("Тип результата выражения должен быть ссылочным",
+                result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.REFERENCE));
+        assertTrue("Выражение должно возвращать единственное значение", result.isSingleResult());
+        assertNotNull("Выражение должно возвращать доменный объект", result.getResultObjectTypes());
+        assertTrue("Проверка типа возвращаемого доменного объекта", result.getResultObjectTypes().size() == 1 &&
+                result.getResultObjectTypes().contains("A"));
+        checkTypes(result, new String[] { "F", "Ca" });
     }
 
     private void checkTypes(DoelValidator.DoelTypes result, Object[] expectedTypes) {

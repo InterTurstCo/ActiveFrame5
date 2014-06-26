@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.doel.DoelExpression.Function;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.util.*;
@@ -165,13 +166,21 @@ public class DoelValidator {
         DoelExpression expression;
         String sourceType;
         DoelTypes result;
+        ValidationReport report;
 
         ConfigurationExplorer config;
+        DoelFunctionRegistry functionRegistry;
 
         public Processor(DoelExpression expr, String sourceType) {
             this.expression = expr;
             this.sourceType = sourceType;
             this.config = SpringApplicationContext.getContext().getBean(ConfigurationExplorer.class);
+            this.functionRegistry = SpringApplicationContext.getContext().getBean(DoelFunctionRegistry.class);
+        }
+
+        public Processor(DoelExpression expr, String sourceType, ValidationReport report) {
+            this(expr, sourceType);
+            this.report = report;
         }
 
         public DoelTypes process() {
@@ -180,12 +189,12 @@ public class DoelValidator {
                 //result.typeChain = new DoelTypes.Link();
                 //result.typeChain.type = sourceType;
                 //processStep(0, result.typeChain);
-                result.typeChains = processStep(0, sourceType);
+                result.typeChains = processStep(0, sourceType, false);
             }
             return result;
         }
 
-        private List<DoelTypes.Link> processStep(int step, String currentType) {
+        private List<DoelTypes.Link> processStep(int step, String currentType, boolean multiple) {
             DoelExpression.Element exprElem = expression.getElements()[step];
 
             // Попытка расщепить выражение на несколько ветвей, если тип неизвестен или не содержит указанное поле
@@ -207,6 +216,7 @@ public class DoelValidator {
                 result.brokenPaths = true;
                 return Collections.emptyList();
             }
+
             ArrayList<DoelTypes.Link> branches = new ArrayList<>(typeVariants.size());
             for (String type : typeVariants) {
                 String nextType = null;
@@ -230,11 +240,44 @@ public class DoelValidator {
                                 nextType = childrenElem.getChildType();
                             }
                             //TODO Добавить проверку наличия ключа уникальности = единственной ссылки
-                            result.singleResult = false;
+                            multiple = true;//result.singleResult = false;
                         }
                         break;
                     case SUBEXPRESSION:
                         throw new UnsupportedOperationException("Subexpressions not implemented yet");
+                }
+
+                // Валидация функций
+                FieldType fieldType = null;
+                if (fieldConfig != null) {
+                    fieldType = fieldConfig.getFieldType();
+                    if (exprElem.getFunctions() != null) {
+                        for (Function func : exprElem.getFunctions()) {
+                            DoelFunctionValidator funcValidator = functionRegistry.getFunctionValidator(func.getName());
+                            if (funcValidator == null) {
+                                if (report != null) {
+                                    report.addRecord("Функция " + func.getName() + " не определена");
+                                }
+                                fieldType = null;
+                                break;
+                            }
+                            DoelFunctionValidator.ResultInfo resultInfo = funcValidator.validateContext(
+                                    func.getArguments(), fieldType, multiple, report);
+                            if (resultInfo == null) {
+                                fieldType = null;
+                                break;
+                            }
+                            fieldType = resultInfo.getFieldType();
+                            if (FieldType.REFERENCE == fieldType && nextType == null) {
+                                nextType = ReferenceFieldConfig.ANY_TYPE;
+                            }
+                            multiple = resultInfo.isMultipleValues();
+                        }
+                    }
+                }
+                if (fieldType == null) {
+                    result.brokenPaths = true;
+                    continue;
                 }
 
                 DoelTypes.Link branch = new DoelTypes.Link();
@@ -242,29 +285,34 @@ public class DoelValidator {
                 branch.fieldConfig = fieldConfig;
                 boolean lastStep = step == expression.getElements().length - 1;
                 if (!lastStep) {
-                    // Рекурсивное вычисление последующих типов
                     if (nextType == null) {
                         result.brokenPaths = true;
-                    } else {
-                        List<DoelTypes.Link> subbranches = processStep(step + 1, nextType);
-                        if (subbranches != null && subbranches.size() > 0) {
-                            branch.next = subbranches;
-                            branches.add(branch);
-                        }
+                        continue;
+                    }
+                    // Рекурсивное вычисление последующих типов
+                    List<DoelTypes.Link> subbranches = processStep(step + 1, nextType, multiple);
+                    if (subbranches != null && subbranches.size() > 0) {
+                        branch.next = subbranches;
+                        branches.add(branch);
                     }
                 } else {
                     // Определение типов, возвращаемых выражением
                     if (result.resultTypes == null) {
                         result.resultTypes = new HashSet<>();
                     }
-                    result.resultTypes.add(fieldConfig.getFieldType());
-                    if (FieldType.REFERENCE == fieldConfig.getFieldType()) {
-                        if (result.resultObjectTypes == null) {
-                            result.resultObjectTypes = new HashSet<>();
+                    if (fieldType != null) {
+                        result.resultTypes.add(fieldType);
+                        if (FieldType.REFERENCE == fieldType) {
+                            if (result.resultObjectTypes == null) {
+                                result.resultObjectTypes = new HashSet<>();
+                            }
+                            result.resultObjectTypes.add(nextType);
                         }
-                        result.resultObjectTypes.add(nextType);
+                        if (multiple) {
+                            result.singleResult = false;
+                        }
+                        branches.add(branch);
                     }
-                    branches.add(branch);
                 }
             }
             return branches;
@@ -391,6 +439,14 @@ public class DoelValidator {
      * @return объект, содержащий информацию о типах, используемых и вычисляемых выражением
      */
     public static DoelTypes validateTypes(DoelExpression expr, String sourceType) {
-        return new Processor(expr, sourceType).process();
+        ValidationReport report = null;
+        if (logger.isTraceEnabled()) {
+            report = new ValidationReport();
+        }
+        DoelTypes result = new Processor(expr, sourceType, report).process();
+        if (report != null && report.hasRecords()) {
+            logger.trace("DOEL expression validation discovered some potential problems in " + expr + ":\n" + report);
+        }
+        return result;
     }
 }
