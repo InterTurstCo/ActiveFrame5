@@ -112,6 +112,9 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
                 Application.getInstance().hideLoadingIndicator();
+                ((DomainObjectSurferPluginData) getInitialData())
+                        .setFormPluginData((FormPluginData) newFormPlugin.getInitialData());
+                getView().updateActionToolBar();
             }
         });
     }

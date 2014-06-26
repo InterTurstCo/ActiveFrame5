@@ -52,7 +52,7 @@ public abstract class PluginView implements IsWidget {
         }
     }
 
-    protected void updateActionToolBar() {
+    public void updateActionToolBar() {
         if (!(plugin instanceof IsActive) || actionToolBar == null) {
             return;
         }

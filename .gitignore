@@ -48,3 +48,4 @@ build.properties
 CM5/deploy.properties
 
 CM5/server.properties
+CM5/Client/remote-client/client.properties
