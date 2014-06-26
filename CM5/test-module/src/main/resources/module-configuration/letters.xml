@@ -3,6 +3,7 @@
     <domain-object-type name="letter" initial-status="Active">
         <fields>
             <string name="subject" length="128"/>
+            <string name="password" length="128" encrypted="true"/>
         </fields>
     </domain-object-type>
 
@@ -183,8 +184,14 @@
                         <td width="100px" h-align="right">
                             <widget id="subject_label"/>
                         </td>
-                        <td width="100%" h-align="left">
+                        <td width="200px" h-align="left">
                             <widget id="subject"/>
+                        </td>
+                        <td width="100px" h-align="right">
+                            <widget id="password_label"/>
+                        </td>
+                        <td width="100px" h-align="left">
+                            <widget id="password"/>
                         </td>
                     </tr>
                 </table>
@@ -228,6 +235,13 @@
             </label>
             <text-box id="subject">
                 <field-path value="subject"/>
+            </text-box>
+            <label id="password_label">
+                <field-path/>
+                <text>Пароль:</text>
+            </label>
+            <text-box id="password">
+                <field-path value="password"/>
             </text-box>
 
             <label id="addressees_label">

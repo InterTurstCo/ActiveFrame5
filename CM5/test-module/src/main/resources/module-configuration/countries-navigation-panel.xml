@@ -150,6 +150,7 @@
                             <collection-viewer>
                                 <collection-ref name="letters"/>
                             </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>

@@ -2,9 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.user.client.ui.HasText;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -30,13 +28,13 @@ public class TextAreaWidget extends TextBoxWidget {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        TextArea textArea = new TextArea();
-        textArea.addBlurHandler(new BlurHandler() {
+        TextBoxBase widget = ((TextState) state).isEncrypted() ? new PasswordTextBox() : new TextArea();
+        widget.addBlurHandler(new BlurHandler() {
             @Override
             public void onBlur(BlurEvent event) {
                 validate();
             }
         });
-        return textArea;
+        return widget;
     }
 }

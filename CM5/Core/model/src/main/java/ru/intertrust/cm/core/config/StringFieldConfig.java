@@ -39,6 +39,10 @@ public class StringFieldConfig extends FieldConfig {
         this.encrypted = encrypted;
     }
 
+    public boolean isEncrypted() {
+        return Boolean.TRUE.equals(encrypted);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
