@@ -21,6 +21,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.TimeZone;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 
@@ -278,12 +279,39 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Timestamp getTimestamp(String columnLabel) throws SQLException {
-        java.util.Date result = collection.get(index).getTimestamp(columnLabel);
-
-        if (result != null) {
-            return new Timestamp(result.getTime());
-        } else
-            return null;
+        Timestamp result = null;
+        
+        Value value = collection.get(index).getValue(columnLabel);
+        if (value != null) {
+            if (value instanceof DateTimeValue){
+                java.util.Date date = collection.get(index).getTimestamp(columnLabel);
+                result = new Timestamp(date.getTime());
+            }else if(value instanceof TimelessDateValue){
+                TimelessDate date = collection.get(index).getTimelessDate(columnLabel);
+                Calendar calendar = Calendar.getInstance();
+                calendar.clear();
+                calendar.set(Calendar.YEAR, date.getYear());
+                calendar.set(Calendar.MONTH, date.getMonth());
+                calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
+                result = new Timestamp(calendar.getTime().getTime());
+            }else if(value instanceof DateTimeWithTimeZoneValue){
+                DateTimeWithTimeZone date = collection.get(index).getDateTimeWithTimeZone(columnLabel);
+                Calendar calendar = Calendar.getInstance();
+                calendar.clear();
+                calendar.set(Calendar.YEAR, date.getYear());
+                calendar.set(Calendar.MONTH, date.getMonth());
+                calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
+                calendar.set(Calendar.HOUR_OF_DAY, date.getHours());
+                calendar.set(Calendar.MINUTE, date.getMinutes());
+                calendar.set(Calendar.SECOND, date.getSeconds());
+                calendar.set(Calendar.MILLISECOND, date.getMilliseconds());
+                calendar.setTimeZone(TimeZone.getTimeZone(date.getTimeZoneContext().getTimeZoneId()));
+                result = new Timestamp(calendar.getTime().getTime());
+            }else{
+                throw new SQLException("GetTimestamp can not get value of type " + value.getClass().getName());
+            }
+        }
+        return result;
     }
 
     @Override
@@ -340,8 +368,10 @@ public class JdbcResultSet implements ResultSet {
                 result = ((LongValue) value).get();
             } else if (value instanceof ReferenceValue) {
                 result = ((ReferenceValue) value).get().toStringRepresentation();
-            } else if (value instanceof DateTimeValue) {
-                result = ((DateTimeValue) value).get();
+            } else if (value instanceof DateTimeValue 
+                    || value instanceof TimelessDateValue 
+                    || value instanceof DateTimeWithTimeZoneValue) {
+                result = getTimestamp(columnLabel);            
             }else{
                 result = value.toString();
             }

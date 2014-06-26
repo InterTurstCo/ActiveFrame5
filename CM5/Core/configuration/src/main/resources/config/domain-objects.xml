@@ -178,6 +178,8 @@
             <string name="Fingerprint" length="128" />
             <boolean name="HasChildren"/>
             <dateTimeWithTimeZone name="DateOn" />
+            <date-time name="DateOff" />
+            <timelessDate name="DateAll"/>
             <text name="description"/>
             <boolean name="active"/>
         </fields>

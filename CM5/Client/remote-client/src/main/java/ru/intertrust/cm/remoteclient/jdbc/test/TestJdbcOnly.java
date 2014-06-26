@@ -26,15 +26,21 @@ public class TestJdbcOnly {
 
 		String query = "select t.id, t.login, t.created_date, t.status ";
 		query += "from person t ";
+		executeQuery(connection, query);
 
-		PreparedStatement prepareStatement = connection.prepareStatement(query);
+		executeQuery(connection, "select dateon, DateOff, DateAll from tst_employee");
+		connection.close();
+	}
+	
+	private void executeQuery(Connection connection, String sql) throws Exception{
+        PreparedStatement prepareStatement = connection.prepareStatement(sql);
 
-		ResultSet resultset = prepareStatement.executeQuery();
+        ResultSet resultset = prepareStatement.executeQuery();
 
-		printResultSet(resultset);
+        printResultSet(resultset);
 
-		resultset.close();
-		prepareStatement.close();
+        resultset.close();
+        prepareStatement.close();
 	}
 
 	private void printResultSet(ResultSet resultset) throws SQLException {

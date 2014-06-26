@@ -115,8 +115,8 @@ public class TestCollection extends ClientBase {
             filters.add(filter);*/      
             executeCollection("Employees", 3, sortOrder, filters);
             
-            query = "select dateon from tst_employee";
-            executeQuery(query, 1);
+            query = "select dateon, DateOff, DateAll from tst_employee";
+            executeQuery(query, 3);
 
             query = "select dateon as works from tst_employee";
             executeQuery(query, 1);
