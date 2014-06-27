@@ -1,0 +1,14 @@
+TYPE_NAME=schedule;KEYS=name;;;;;;;;;;;
+name;task_class;task_type;year;month;day_of_month;day_of_week;hour;minute;timeout;priority;parameters;active
+NotificationScheduleTask;ru.intertrust.cm.core.business.impl.notification.NotificationScheduleTask;1;*;*;*;*;*;*/1;5;4;"<scheduleTaskConfig>
+   <parameters class=""ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig"">
+      <notificationTaskConfig notificationType=""TEST_NOTIFICATION_SCHEDULE"" notificationPriority=""HIGH"" taskMode=""BY_DOMAIN_OBJECT"">
+         <findDomainObjects>
+            <find-query>select id from organization</find-query>
+         </findDomainObjects>
+         <findPersons>
+            <find-query>select id from person where login=&apos;person10&apos;</find-query>
+         </findPersons>
+      </notificationTaskConfig>
+   </parameters>
+</scheduleTaskConfig>";true
