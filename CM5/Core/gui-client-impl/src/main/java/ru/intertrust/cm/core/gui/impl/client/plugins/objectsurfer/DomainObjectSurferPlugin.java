@@ -108,15 +108,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         newFormPlugin.setConfig(newConfig);
         formPluginPanel.open(newFormPlugin);
         this.formPlugin = newFormPlugin;
-        newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
-            @Override
-            public void onViewCreation(PluginViewCreatedEvent source) {
-                Application.getInstance().hideLoadingIndicator();
-                ((DomainObjectSurferPluginData) getInitialData())
-                        .setFormPluginData((FormPluginData) newFormPlugin.getInitialData());
-                getView().updateActionToolBar();
-            }
-        });
+        newFormPlugin.addViewCreatedListener(new FormPluginCreatedListener());
     }
 
     @Override
@@ -141,6 +133,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         final FormPluginState fpState = (FormPluginState) data.getPluginState();
         formPluginConfig.setPluginState(fpState);
         newPlugin.setConfig(formPluginConfig);
+        newPlugin.addViewCreatedListener(new FormPluginCreatedListener());
         formPlugin.getOwner().open(newPlugin);
         formPlugin = newPlugin;
         formPlugin.setLocalEventBus(this.eventBus);
@@ -186,5 +179,16 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         if (formPlugin != null && formPlugin.getView() != null) {
             formPlugin.getView().onPluginPanelResize();
         }*/
+    }
+
+    private class FormPluginCreatedListener implements PluginViewCreatedEventListener {
+
+        @Override
+        public void onViewCreation(PluginViewCreatedEvent source) {
+            Application.getInstance().hideLoadingIndicator();
+            ((DomainObjectSurferPluginData) getInitialData())
+                    .setFormPluginData((FormPluginData) source.getPlugin().getInitialData());
+            getView().updateActionToolBar();
+        }
     }
 }

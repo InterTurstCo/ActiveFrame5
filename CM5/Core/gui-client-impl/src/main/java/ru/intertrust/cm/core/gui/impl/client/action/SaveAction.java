@@ -54,7 +54,6 @@ public class SaveAction extends SimpleServerAction {
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         }
-
         Window.alert("Saved!!!");
     }
 
