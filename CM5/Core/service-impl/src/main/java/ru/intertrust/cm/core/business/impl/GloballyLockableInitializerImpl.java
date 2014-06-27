@@ -105,15 +105,11 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
             configurationLoader.update();
             executeInitialLoadingTasks();
-
-            userTransaction = startTransaction();
-            initializationLockDao.unlock();
-            userTransaction.commit();
         } finally {
             try {
-                if (userTransaction != null && Status.STATUS_ACTIVE == userTransaction.getStatus()) {
-                    userTransaction.commit();
-                }
+                userTransaction = startTransaction();
+                initializationLockDao.unlock();
+                userTransaction.commit();
             } catch (Exception e) {
                 logger.error("GloballyLockableInitializer: failed to commit transaction", e);
             }
