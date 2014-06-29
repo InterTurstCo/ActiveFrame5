@@ -38,6 +38,7 @@ public class DateTimeBoxDecorate extends Composite {
     private ListBox timeZoneChooser;
     private DateBoxWidget parentWidget;
     private EventBus eventBus;
+
     public DateTimeBoxDecorate(DateBoxWidget parentWidget) {
         root = new AbsolutePanel();
         this.parentWidget = parentWidget;
@@ -54,8 +55,7 @@ public class DateTimeBoxDecorate extends Composite {
     }
 
     public String getText() {
-        final String result = dateBox.getValue() == null
-                ? null
+        final String result = dateBox.getValue() == null ? null
                 : DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN).format(dateBox.getValue());
         return result;
     }
@@ -73,15 +73,17 @@ public class DateTimeBoxDecorate extends Composite {
         dateBtn = new FocusPanel();
         dateBtn.setStyleName("date-box-button");
         final Date date = getDate(state.getDateTimeContext());
-        final DateTimeFormat dtFormat = DateTimeFormat.getFormat(state.getPattern());
+        String pattern = state.getPattern();
+        final DateTimeFormat dtFormat = DateTimeFormat.getFormat(pattern);
 
         DateBox.Format format = new DateBox.DefaultFormat(dtFormat);
         dateBox = new DateBox();
         dateBox.setFormat(format);
         dateBox.setValue(date);
         dateBox.getTextBox().addStyleName("date-text-box");
-        picker = new OneDatePickerPopup(date, eventBus, state.isDisplayTime());
-        // dateBox.getTextBox().addClickHandler(showDatePickerHandler);
+        boolean showSeconds = TimeUtil.showSeconds(pattern);
+        picker = new OneDatePickerPopup(date, eventBus, state.isDisplayTime(), showSeconds);
+
         dateBtn.addClickHandler(showDatePickerHandler);
         Event.sinkEvents(dateBox.getElement(), Event.ONBLUR);
         dateBox.addHandler(new BlurHandler() {
@@ -142,15 +144,7 @@ public class DateTimeBoxDecorate extends Composite {
     private class ShowDatePickerHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
-            final String baloonUp;
-            final String baloonDown;
-            if (dateBtn.getAbsoluteTop() > dateBox.getDatePicker().getAbsoluteTop()) {
-                baloonUp = "date-picker-baloon-up";
-                baloonDown = "!!!";
-            } else {
-                baloonDown = "date-picker-baloon";
-                baloonUp = "!!!";
-            }
+
             picker.showRelativeTo(dateBox);
         }
     }

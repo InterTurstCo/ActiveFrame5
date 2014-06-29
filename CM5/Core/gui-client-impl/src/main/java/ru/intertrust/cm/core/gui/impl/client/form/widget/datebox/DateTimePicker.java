@@ -19,19 +19,19 @@ public class DateTimePicker extends Composite {
     private Panel container;
     private Date date;
 
-    public DateTimePicker(Date date, boolean showTime) {
+    public DateTimePicker(Date date, boolean showTime, boolean showSeconds) {
         this.date = date == null ? new Date() : date;
-        initWidgetContent(showTime);
+        initWidgetContent(showTime, showSeconds);
         initWidget(container);
     }
 
-    private void initWidgetContent(boolean showTime) {
+    private void initWidgetContent(boolean showTime, boolean showSeconds) {
         container = new AbsolutePanel();
         picker = new DatePicker();
         picker.setStyleName("date-picker-decorate");
         container.add(picker);
         if (showTime) {
-            timePicker = new TimeBox(date, true);
+            timePicker = new TimeBox(date, showSeconds);
             container.add(timePicker);
         }
 

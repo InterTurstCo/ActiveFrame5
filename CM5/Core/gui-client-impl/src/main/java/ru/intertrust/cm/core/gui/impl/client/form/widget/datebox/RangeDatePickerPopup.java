@@ -22,12 +22,12 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Time: 0:48
  */
 public class RangeDatePickerPopup extends DatePickerPopup {
-    public RangeDatePickerPopup(Date startDate, Date endDate, EventBus eventBus, boolean showTime) {
+    public RangeDatePickerPopup(Date startDate, Date endDate, EventBus eventBus, boolean showTime, boolean showSeconds) {
         super(eventBus);
-        initWidget(startDate, endDate, showTime);
+        initWidget(startDate, endDate, showTime, showSeconds);
     }
 
-    private void initWidget(Date startDate, Date endDate, boolean showTime) {
+    private void initWidget(Date startDate, Date endDate, boolean showTime, boolean showSeconds) {
 
         Panel container = new AbsolutePanel();
 
@@ -45,8 +45,8 @@ public class RangeDatePickerPopup extends DatePickerPopup {
 
         Panel dateRangePanel = initDateSelectorWithPicker(CHOSE_DATE_RANGE_LABEL);
         container.add(dateRangePanel);
-        final DateTimePicker startDateTimePicker = new DateTimePicker(startDate, showTime);
-        final DateTimePicker endDateTimePicker = new DateTimePicker(endDate, showTime);
+        final DateTimePicker startDateTimePicker = new DateTimePicker(startDate, showTime, showSeconds);
+        final DateTimePicker endDateTimePicker = new DateTimePicker(endDate, showTime, showSeconds);
         Panel dateTimePickersPanel = initDatePickerPanel(startDateTimePicker, endDateTimePicker);
         dateRangePanel.addDomHandler(new DatetimeClickHandler(dateTimePickersPanel), ClickEvent.getType());
         container.add(dateTimePickersPanel);

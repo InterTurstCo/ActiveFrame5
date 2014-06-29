@@ -8,6 +8,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.OneDatePickerPopup;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.util.HeaderWidgetUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -33,13 +34,15 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
         initHtml();
         EventBus eventBus = new SimpleEventBus();
         boolean showTime = timePattern == null ? false : !TIMELESS_DATE_TYPE.equalsIgnoreCase(fieldType);
+        Date date = null;
         try {
-            Date date = filterValuesRepresentation == null || filterValuesRepresentation.isEmpty() ? null
+            date = filterValuesRepresentation == null || filterValuesRepresentation.isEmpty() ? null
                     : dateTimeFormat.parse(filterValuesRepresentation);
-            popupDatePicker = new OneDatePickerPopup(date, eventBus, showTime);
         } catch (IllegalArgumentException ex) {
             Window.alert("Неверный формат времени! Попробуйте " + dateTimeFormat.getPattern());
         }
+        boolean showSeconds = TimeUtil.showSeconds(dateTimeFormat.getPattern());
+        popupDatePicker = new OneDatePickerPopup(date, eventBus, showTime, showSeconds);
         initHandlers(eventBus);
 
     }

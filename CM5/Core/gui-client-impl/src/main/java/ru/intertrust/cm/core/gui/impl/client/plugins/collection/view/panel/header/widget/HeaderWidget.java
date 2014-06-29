@@ -37,7 +37,7 @@ public abstract class HeaderWidget {
     public abstract List<String> getFilterValues();
     public abstract void setFilterInputWidth(int filterWidth);
 
-    protected String getTitleStyle() {
+    protected String getTitleHtml() {
         StringBuilder titleBuilder = new StringBuilder("<div  class=\"header-label\"><p>");
         titleBuilder.append(title);
         titleBuilder.append("</p><p style=\"display:none\">");

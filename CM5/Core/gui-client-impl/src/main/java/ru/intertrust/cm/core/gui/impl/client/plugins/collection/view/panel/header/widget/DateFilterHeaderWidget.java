@@ -31,7 +31,7 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
     }
 
     protected void initHtml() {
-        StringBuilder htmlBuilder = new StringBuilder(getTitleStyle());
+        StringBuilder htmlBuilder = new StringBuilder(getTitleHtml());
 
         htmlBuilder.append(" <div class=\"search-container\"");
         htmlBuilder.append(getSearchContainerStyle());

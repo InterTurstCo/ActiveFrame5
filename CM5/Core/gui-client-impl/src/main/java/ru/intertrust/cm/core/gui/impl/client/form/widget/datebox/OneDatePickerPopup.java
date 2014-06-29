@@ -21,13 +21,13 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 public class OneDatePickerPopup extends DatePickerPopup {
 
-    public OneDatePickerPopup(Date date, EventBus eventBus, boolean showTime) {
+    public OneDatePickerPopup(Date date, EventBus eventBus, boolean showTime, boolean showSeconds) {
         super(eventBus);
 
-        initWidget(date, showTime);
+        initWidget(date, showTime, showSeconds);
     }
 
-    private void initWidget(Date date, boolean showTime) {
+    private void initWidget(Date date, boolean showTime, boolean showSeconds) {
 
         Panel container = new AbsolutePanel();
 
@@ -54,7 +54,7 @@ public class OneDatePickerPopup extends DatePickerPopup {
 
         Panel datePanel = initDateSelectorWithPicker(CHOSE_DATE_LABEL);
         container.add(datePanel);
-        DateTimePicker dateTimePicker = new DateTimePicker(date, showTime);
+        DateTimePicker dateTimePicker = new DateTimePicker(date, showTime, showSeconds);
         Panel dateTimePickerPanel = initDatePickerPanel(dateTimePicker);
         datePanel.addDomHandler(new DatetimeClickHandler(dateTimePickerPanel), ClickEvent.getType());
         container.add(dateTimePickerPanel);
@@ -130,9 +130,4 @@ public class OneDatePickerPopup extends DatePickerPopup {
     }
 
 
-    @Override
-    public void show() {
-        super.show();
-
-    }
 }

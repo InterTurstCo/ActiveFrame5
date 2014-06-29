@@ -8,6 +8,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.RangeDatePickerPopup;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.util.HeaderWidgetUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -32,13 +33,13 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
     }
 
     public void init() {
-
         initHtml();
         EventBus eventBus = new SimpleEventBus();
         boolean showTime = timePattern == null ? false : !TIMELESS_DATE_TYPE.equalsIgnoreCase(fieldType);
         Date startDate = null;
         Date endDate = null;
         List<String> dateStrings = HeaderWidgetUtil.getFilterValues(VALUE_SEPARATOR, filterValuesRepresentation);
+        boolean showSeconds = TimeUtil.showSeconds(dateTimeFormat.getPattern());
         if (!dateStrings.isEmpty()) {
             String startDateString = dateStrings.get(0);
             try {
@@ -48,12 +49,15 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
                     String endDateString = dateStrings.get(1);
                     endDate = endDateString == null || endDateString.isEmpty() ? null
                             : dateTimeFormat.parse(endDateString);
+
+
                 }
             } catch (IllegalArgumentException ex) {
                 Window.alert("Неверный формат времени! Попробуйте " + dateTimeFormat.getPattern());
             }
+            popupDatePicker = new RangeDatePickerPopup(startDate, endDate, eventBus, showTime, showSeconds);
         }
-        popupDatePicker = new RangeDatePickerPopup(startDate, endDate, eventBus, showTime);
+
         initHandlers(eventBus);
 
     }

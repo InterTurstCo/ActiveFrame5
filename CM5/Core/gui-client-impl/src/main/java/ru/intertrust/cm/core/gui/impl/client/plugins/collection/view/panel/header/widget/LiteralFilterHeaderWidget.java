@@ -22,7 +22,7 @@ public class LiteralFilterHeaderWidget extends FilterHeaderWidget {
 
     public void init() {
 
-        StringBuilder htmlBuilder = new StringBuilder(getTitleStyle());
+        StringBuilder htmlBuilder = new StringBuilder(getTitleHtml());
 
         htmlBuilder.append(" <div class=\"search-container\"");
         htmlBuilder.append(getSearchContainerStyle());
