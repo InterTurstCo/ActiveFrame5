@@ -15,7 +15,7 @@ public class DateBoxState extends ValueEditingWidgetState {
     private DateTimeContext dateTimeContext;
     private String pattern;
     private boolean displayTimeZoneChoice;
-
+    private boolean displayTime;
     public DateTimeContext getDateTimeContext() {
         return dateTimeContext;
     }
@@ -40,11 +40,20 @@ public class DateBoxState extends ValueEditingWidgetState {
         this.displayTimeZoneChoice = displayTimeZoneChoice;
     }
 
+    public boolean isDisplayTime() {
+        return displayTime;
+    }
+
+    public void setDisplayTime(boolean displayTime) {
+        this.displayTime = displayTime;
+    }
+
     @Override
     public int hashCode() {
         int result = (dateTimeContext == null ? 17 : dateTimeContext.hashCode());
         result = result * 17 + getPattern().hashCode();
         result = result * 17 + (displayTimeZoneChoice ? 0 : 1);
+        result = result * 17 + (displayTime ? 0 : 1);
         return result;
     }
 
@@ -64,6 +73,9 @@ public class DateBoxState extends ValueEditingWidgetState {
             return false;
         }
         if (displayTimeZoneChoice != other.displayTimeZoneChoice) {
+            return false;
+        }
+        if (displayTime != other.displayTime) {
             return false;
         }
         return true;

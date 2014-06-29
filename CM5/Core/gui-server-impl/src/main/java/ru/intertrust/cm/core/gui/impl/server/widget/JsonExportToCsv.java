@@ -149,7 +149,7 @@ public class JsonExportToCsv {
                 Calendar calendar;
                 String timeZoneId;
                 final String pattern =
-                        (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.PATTERN_KEY);
+                        (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.DATE_PATTERN);
                 switch (value.getFieldType()) {
                     case DATETIMEWITHTIMEZONE:
                         final DateTimeWithTimeZone dateTimeWithTimeZone = (DateTimeWithTimeZone) value.get();

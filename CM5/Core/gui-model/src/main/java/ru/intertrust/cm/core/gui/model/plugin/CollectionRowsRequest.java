@@ -6,10 +6,7 @@ import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -33,7 +30,7 @@ public class CollectionRowsRequest implements Dto {
     private SortCriteriaConfig sortCriteriaConfig;
     private Set<Id> includedIds;
     private LinkedHashMap<String, CollectionColumnProperties> columnProperties;
-    private Map<String, String> filtersMap;
+    private Map<String, List<String>> filtersMap;
     public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
                                   String simpleSearchQuery, String searchArea) {
         this.offset = offset;
@@ -159,11 +156,11 @@ public class CollectionRowsRequest implements Dto {
         this.columnProperties = columnProperties;
     }
 
-    public Map<String, String> getFiltersMap() {
+    public Map<String, List<String>> getFiltersMap() {
         return filtersMap;
     }
 
-    public void setFiltersMap(Map<String, String> filtersMap) {
+    public void setFiltersMap(Map<String, List<String>> filtersMap) {
         this.filtersMap = filtersMap;
     }
 

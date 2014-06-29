@@ -437,8 +437,9 @@
             <date-box id="10">
                 <field-path value="independence_day"/>
                 <time-zone-id>GMT-4</time-zone-id>
-                <pattern>dd.MM.yyyy</pattern>
+                <pattern>dd.MM.yyyy hh:mm:ss</pattern>
                 <display-time-zone-choice>true</display-time-zone-choice>
+                <display-time-box>true</display-time-box>
             </date-box>
 
             <label id="summary_label">
@@ -741,8 +742,8 @@
         <display>
             <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
             <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName" min-width="300px" text-break-style="cut"/>
-            <column field="independence_day" name="День Независимости" type="datetime" editable="false" resizable="false" min-width="320px"
-                    sortable="true" search-filter="byIndependenceDay" pattern="dd.MM.yyyy"/>
+            <column field="independence_day" name="День Независимости" type="datetime" editable="false" resizable="true" min-width="270px"
+                    sortable="true" search-filter="byIndependenceDay" date-pattern="dd.MM.yyyy" time-pattern="hh:mm:ss" date-range="true"/>
             <column field="population" name="Популяция" type="long" editable="false" sortable="true"
                     search-filter="byPopulation">
                 <renderer component-name="default.image.renderer" />

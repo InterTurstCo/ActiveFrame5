@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
+package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header;
 
 import java.util.List;
 

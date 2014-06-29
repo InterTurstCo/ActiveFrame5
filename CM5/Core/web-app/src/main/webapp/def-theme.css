@@ -325,7 +325,26 @@ h1 {
     display: inline-block;
     overflow: hidden;
     margin: 5px 0 0 0;
-    width: 150px;
+    /*width: 150px;*/
+}
+.search-container-long {
+    display: inline-block;
+    overflow: hidden;
+    margin: 5px 0 0 0;
+    /*width: 230px;*/
+}
+.search-data-box-long {
+    border: 1px solid #8D97A5;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+    color: #1f2b5d;
+    display: inline-block;
+    font-size: 11px;
+    outline: medium none;
+    margin: 0;
+    padding: 3px;
+    vertical-align: middle;
+   /* width: 240px;*/
 }
 
 .search-box:focus,
@@ -351,7 +370,7 @@ h1 {
     margin: 0;
     padding: 3px;
     vertical-align: middle;
-    width: 120px;
+    /*width: 120px;*/
 }
 
 .search-box-clear-button-off {

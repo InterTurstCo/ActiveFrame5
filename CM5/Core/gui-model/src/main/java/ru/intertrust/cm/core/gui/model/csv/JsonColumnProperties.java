@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.model.csv;
 
+import java.util.List;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 09.04.14
@@ -9,15 +11,15 @@ public class JsonColumnProperties {
     private String columnName;
     private String fieldName;
     private String fieldType;
-    private  String filterName;
-    private  String filterValue;
-    private String pattern;
+    private String filterName;
+    private List<String> filterValues;
+    private String datePattern;
+    private String timePattern;
     private String timeZoneId;
     private String initialFilterValue;
 
     public JsonColumnProperties() {
     }
-
 
     public String getFieldName() {
         return fieldName;
@@ -43,20 +45,28 @@ public class JsonColumnProperties {
         this.filterName = filterName;
     }
 
-    public String getFilterValue() {
-        return filterValue;
+    public List<String> getFilterValues() {
+        return filterValues;
     }
 
-    public void setFilterValue(String filterValue) {
-        this.filterValue = filterValue;
+    public void setFilterValues(List<String> filterValues) {
+        this.filterValues = filterValues;
     }
 
-    public String getPattern() {
-        return pattern;
+    public String getDatePattern() {
+        return datePattern;
     }
 
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
+    public void setDatePattern(String datePattern) {
+        this.datePattern = datePattern;
+    }
+
+    public String getTimePattern() {
+        return timePattern;
+    }
+
+    public void setTimePattern(String timePattern) {
+        this.timePattern = timePattern;
     }
 
     public String getTimeZoneId() {
@@ -103,10 +113,13 @@ public class JsonColumnProperties {
         if (filterName != null ? !filterName.equals(that.filterName) : that.filterName != null) {
             return false;
         }
-        if (filterValue != null ? !filterValue.equals(that.filterValue) : that.filterValue != null) {
+        if (filterValues != null ? !filterValues.equals(that.filterValues) : that.filterValues != null) {
             return false;
         }
-        if (pattern != null ? !pattern.equals(that.pattern) : that.pattern != null) {
+        if (datePattern != null ? !datePattern.equals(that.datePattern) : that.datePattern != null) {
+            return false;
+        }
+        if (timePattern != null ? !timePattern.equals(that.timePattern) : that.timePattern != null) {
             return false;
         }
         if (timeZoneId != null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) {
@@ -127,8 +140,9 @@ public class JsonColumnProperties {
         int result = fieldName != null ? fieldName.hashCode() : 0;
         result = 31 * result + (fieldType != null ? fieldType.hashCode() : 0);
         result = 31 * result + (filterName != null ? filterName.hashCode() : 0);
-        result = 31 * result + (filterValue != null ? filterValue.hashCode() : 0);
-        result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
+        result = 31 * result + (filterValues != null ? filterValues.hashCode() : 0);
+        result = 31 * result + (datePattern != null ? datePattern.hashCode() : 0);
+        result = 31 * result + (timePattern != null ? timePattern.hashCode() : 0);
         result = 31 * result + (timeZoneId != null ? timeZoneId.hashCode() : 0);
         result = 31 * result + (columnName != null ? columnName.hashCode() : 0);
         result = 31 * result + (initialFilterValue != null ? initialFilterValue.hashCode() : 0);

@@ -1516,7 +1516,7 @@
     <xs:complexType name="dateBoxType">
         <xs:complexContent>
             <xs:extension base="con:abstractWidgetType">
-                <xs:sequence>
+                <xs:choice maxOccurs="unbounded">
                     <xs:element type="con:fieldPathType" name="field-path"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="xs:string" name="time-zone-id" minOccurs="0" maxOccurs="1"/>
@@ -1528,7 +1528,8 @@
                         <xs:element type="con:rangeType" name="range-end"
                                     minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     </xs:choice>
-                </xs:sequence>
+                    <xs:element type="xs:boolean" name="display-time-box" minOccurs="0" maxOccurs="1"/>
+                </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="optional"/>
             </xs:extension>
         </xs:complexContent>
@@ -2231,12 +2232,15 @@
         </xs:attribute>
         <xs:attribute type="xs:string" name="search-filter"
                       use="optional"/>
-        <xs:attribute type="xs:string" name="pattern" use="optional"/>
+        <xs:attribute type="xs:string" name="date-pattern" use="optional"/>
+        <xs:attribute type="xs:string" name="time-pattern" use="optional"/>
         <xs:attribute type="xs:string" name="time-zone-id" use="optional"/>
         <xs:attribute type="xs:string" name="min-width" default="200px"/>
         <xs:attribute type="xs:string" name="max-width"/>
         <xs:attribute type="xs:boolean" name="resizable" default="true"/>
         <xs:attribute type="con:textBreakStyleType" name="text-break-style"/>
+        <xs:attribute type="xs:boolean" name="date-range" use="optional"/>
+
     </xs:complexType>
 
     <xs:complexType name="mappingType">

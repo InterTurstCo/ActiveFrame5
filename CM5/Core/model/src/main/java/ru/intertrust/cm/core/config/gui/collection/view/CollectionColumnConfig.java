@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.config.gui.collection.view;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-
+import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
@@ -12,28 +12,32 @@ import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
  * @author atsvetkov
  *
  */
+@Root(name = "column")
 public class CollectionColumnConfig implements Dto {
 
-    @Attribute(required = true)
+    @Attribute(name = "field", required = true)
     private String field;
 
-    @Attribute(required = true)
+    @Attribute(name = "name", required = true)
     private String name;
 
-    @Attribute(required = false)
+    @Attribute(name = "hidden", required = false)
     private boolean hidden;
 
-    @Attribute(required = false)
+    @Attribute(name = "sortable",required = false)
     private boolean sortable;
 
-    @Attribute(required = false)
+    @Attribute(name = "editable",required = false)
     private boolean editable;
 
-    @Attribute(required = true)
+    @Attribute(name = "type", required = true)
     private String type;
 
-    @Attribute(name = "pattern", required = false)
-    private String pattern;
+    @Attribute(name = "date-pattern", required = false)
+    private String datePattern;
+
+    @Attribute(name = "time-pattern", required = false)
+    private String timePattern;
 
     @Attribute(name = "time-zone-id", required = false)
     private String timeZoneId;
@@ -53,6 +57,9 @@ public class CollectionColumnConfig implements Dto {
     @Attribute(name = "text-break-style", required = false)
     private String textBreakStyle;
 
+    @Attribute(name = "date-range", required = false)
+    private boolean dateRange;
+
     @Element(name = "asc-sort-criteria", required = false)
     private AscSortCriteriaConfig ascSortCriteriaConfig;
 
@@ -64,6 +71,7 @@ public class CollectionColumnConfig implements Dto {
 
     @Element(name = "renderer", required = false)
     private RendererConfig rendererConfig;
+
     public String getField() {
         return field;
     }
@@ -112,8 +120,8 @@ public class CollectionColumnConfig implements Dto {
         this.type = type;
     }
 
-    public String getPattern() {
-        return pattern == null ? ModelUtil.DEFAULT_DATE_PATTERN : pattern;
+    public String getDatePattern() {
+        return datePattern == null ? ModelUtil.DEFAULT_DATE_PATTERN : datePattern;
     }
 
     public String getTimeZoneId() {
@@ -144,8 +152,8 @@ public class CollectionColumnConfig implements Dto {
         this.descSortCriteriaConfig = descSortCriteriaConfig;
     }
 
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
+    public void setDatePattern(String datePattern) {
+        this.datePattern = datePattern;
     }
 
     public void setTimeZoneId(String timeZoneId) {
@@ -200,6 +208,22 @@ public class CollectionColumnConfig implements Dto {
         this.rendererConfig = rendererConfig;
     }
 
+    public String getTimePattern() {
+        return timePattern;
+    }
+
+    public void setTimePattern(String timePattern) {
+        this.timePattern = timePattern;
+    }
+
+    public boolean isDateRange() {
+        return dateRange;
+    }
+
+    public void setDateRange(boolean dateRange) {
+        this.dateRange = dateRange;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -244,7 +268,10 @@ public class CollectionColumnConfig implements Dto {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        if (pattern != null ? !pattern.equals(that.pattern) : that.pattern != null) {
+        if (datePattern != null ? !datePattern.equals(that.datePattern) : that.datePattern != null) {
+            return false;
+        }
+        if (timePattern != null ? !timePattern.equals(that.timePattern) : that.timePattern!= null) {
             return false;
         }
         if (searchFilter != null ? !searchFilter.equals(that.searchFilter) : that.searchFilter != null) {
@@ -262,6 +289,9 @@ public class CollectionColumnConfig implements Dto {
         if (rendererConfig != null ? !rendererConfig.equals(that.rendererConfig) : that.rendererConfig != null) {
             return false;
         }
+        if (dateRange != that.dateRange) {
+            return false;
+        }
 
         return true;
     }
@@ -271,10 +301,11 @@ public class CollectionColumnConfig implements Dto {
         int result = field != null ? field.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (hidden ? 1 : 0);
+        result = 31 * result + (dateRange ? 1 : 0);
         result = 31 * result + (sortable ? 1 : 0);
         result = 31 * result + (editable ? 1 : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
+        result = 31 * result + (datePattern != null ? datePattern.hashCode() : 0);
         result = 31 * result + (timeZoneId != null ? timeZoneId.hashCode() : 0);
         result = 31 * result + (searchFilter != null ? searchFilter.hashCode() : 0);
         result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
@@ -285,6 +316,7 @@ public class CollectionColumnConfig implements Dto {
         result = 31 * result + (descSortCriteriaConfig != null ? descSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (imageMappingsConfig != null ? imageMappingsConfig.hashCode() : 0);
         result = 31 * result + (rendererConfig != null ? rendererConfig.hashCode() : 0);
+        result = 31 * result + (timePattern != null ? timePattern.hashCode() : 0);
         return result;
     }
 }

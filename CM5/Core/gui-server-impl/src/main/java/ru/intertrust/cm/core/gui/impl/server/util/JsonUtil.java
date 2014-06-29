@@ -3,7 +3,10 @@ package ru.intertrust.cm.core.gui.impl.server.util;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.*;
 
@@ -26,11 +29,11 @@ public class JsonUtil {
         List<String> excludedFilterFields = new ArrayList<>();
 
         for (JsonColumnProperties jsonProperties : jsonPropertiesList) {
-            String filterValue = jsonProperties.getFilterValue();
+            List<String> filterValues = jsonProperties.getFilterValues();
             String fieldName = jsonProperties.getFieldName();
             CollectionColumnProperties columnProperties = columnPropertiesMap.get(fieldName);
-            if (filterValue != null && filterValue.length() > 0) {
-                Filter filter = FilterBuilder.prepareSearchFilter(filterValue, columnProperties);
+            if (filterValues!= null && filterValues.size() > 0) {
+                Filter filter = FilterBuilder.prepareSearchFilter(filterValues, columnProperties);
                 filters.add(filter);
                 excludedFilterFields.add(fieldName);
             } else {
@@ -56,8 +59,10 @@ public class JsonUtil {
         properties.addProperty(CollectionColumnProperties.TYPE_KEY, fieldType);
         String timeZoneId = jsonProperties.getTimeZoneId();
         properties.addProperty(CollectionColumnProperties.TIME_ZONE_ID, timeZoneId);
-        String pattern = jsonProperties.getPattern();
-        properties.addProperty(CollectionColumnProperties.PATTERN_KEY, pattern);
+        String datePattern = jsonProperties.getDatePattern();
+        properties.addProperty(CollectionColumnProperties.DATE_PATTERN, datePattern);
+        String timePattern = jsonProperties.getTimePattern();
+        properties.addProperty(CollectionColumnProperties.TIME_PATTERN, timePattern);
         String columnName = jsonProperties.getColumnName();
         properties.addProperty(CollectionColumnProperties.NAME_KEY, columnName);
         String initialFilterValue = jsonProperties.getInitialFilterValue();

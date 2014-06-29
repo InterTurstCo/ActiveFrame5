@@ -1,10 +1,10 @@
-package ru.intertrust.cm.core.config.gui.form.widget;
+package ru.intertrust.cm.core.config.gui.form.widget.datebox;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 
 /**
  * @author Denis Mitavskiy
@@ -28,6 +28,9 @@ public class DateBoxConfig extends WidgetConfig implements Dto {
 
     @Element(name ="range-end", required = false)
     private RangeEndConfig rangeEndConfig;
+
+    @Element(name ="display-time-box", required = false)
+    private boolean displayTimeBox;
 
     public String getTimeZoneId() {
         return timeZoneId == null ? ModelUtil.DEFAULT_TIME_ZONE_ID : timeZoneId;
@@ -57,6 +60,14 @@ public class DateBoxConfig extends WidgetConfig implements Dto {
         this.rangeEndConfig = rangeEndConfig;
     }
 
+    public boolean isDisplayTimeBox() {
+        return displayTimeBox;
+    }
+
+    public void setDisplayTimeBox(boolean displayTimeBox) {
+        this.displayTimeBox = displayTimeBox;
+    }
+
     @Override
     public String getComponentName() {
         return "date-box";
@@ -82,6 +93,9 @@ public class DateBoxConfig extends WidgetConfig implements Dto {
         }
         if (rangeStartConfig != null
                 ? !rangeStartConfig.equals(other.rangeStartConfig) : other.rangeStartConfig != null) {
+            return false;
+        }
+        if (displayTimeBox != other.displayTimeBox) {
             return false;
         }
         return true;

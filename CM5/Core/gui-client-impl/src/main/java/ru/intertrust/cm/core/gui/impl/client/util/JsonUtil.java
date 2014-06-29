@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.gui.impl.client.util;
 import com.google.gwt.json.client.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
@@ -53,22 +55,26 @@ public class JsonUtil {
     }
 
     public static void prepareJsonColumnProperties(JSONObject requestObj, LinkedHashMap<String,
-            CollectionColumnProperties> fieldPropertiesMap, Map<String, String> filtersMap) {
+            CollectionColumnProperties> fieldPropertiesMap, Map<String, List<String>> filtersMap) {
         Set<String> fieldNames = fieldPropertiesMap.keySet();
         JSONArray propertiesArray = new JSONArray();
         int count = 0;
         for (String fieldName : fieldNames) {
             JSONObject jsonColumnProperties = new JSONObject();
-            String filterValue = filtersMap.get(fieldName);
+            List<String> filterValues = filtersMap.get(fieldName);
             CollectionColumnProperties properties = fieldPropertiesMap.get(fieldName);
-            if (filterValue != null) {
-                jsonColumnProperties.put("filterValue", new JSONString(filterValue));
+            if (filterValues != null) {
+                JSONArray jsonFilterValues = prepareFilterValuesRepresentation(filterValues);
+                jsonColumnProperties.put("filterValues", jsonFilterValues);
                 String filterName = (String) properties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
                 jsonColumnProperties.put("filterName", new JSONString(filterName));
             }
             jsonColumnProperties.put("fieldName", new JSONString(fieldName));
-            String pattern = (String) properties.getProperty(CollectionColumnProperties.PATTERN_KEY);
-            jsonColumnProperties.put("pattern", new JSONString(pattern));
+            String datePattern = (String) properties.getProperty(CollectionColumnProperties.DATE_PATTERN);
+            jsonColumnProperties.put("datePattern", new JSONString(datePattern));
+            String timePattern = (String) properties.getProperty(CollectionColumnProperties.TIME_PATTERN);
+            JSONString jsonTimePattern = timePattern == null ? null : new JSONString(timePattern);
+            jsonColumnProperties.put("timePattern", jsonTimePattern);
             String fieldType = (String) properties.getProperty(CollectionColumnProperties.TYPE_KEY);
             jsonColumnProperties.put("fieldType", new JSONString(fieldType));
             String timeZoneId = (String) properties.getProperty(CollectionColumnProperties.TIME_ZONE_ID);
@@ -87,6 +93,15 @@ public class JsonUtil {
         }
         requestObj.put("columnProperties", propertiesArray);
 
+
+    }
+    private static JSONArray prepareFilterValuesRepresentation(List<String> filterValues){
+        JSONArray jsonFiltersArr = new JSONArray();
+        for (int i = 0; i < filterValues.size(); i++) {
+            String filterValue =  filterValues.get(i);
+            jsonFiltersArr.set(i, new JSONString(filterValue));
+        }
+        return jsonFiltersArr;
 
     }
 

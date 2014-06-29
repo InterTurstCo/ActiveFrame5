@@ -26,10 +26,10 @@ import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CollectionColumnHeader;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CollectionColumnHeaderController;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.HeaderWidget;
-
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidget;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidgetFactory;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
@@ -65,7 +65,7 @@ public class CollectionPluginView extends PluginView {
     private SortCollectionState sortCollectionState;
     private ToggleButton filterButton = new ToggleButton();
     private HandlerRegistration scrollHandlerRegistration;
-    private Map<String, String> filtersMap = new HashMap<String, String>();
+    private Map<String, List<String>> filtersMap = new HashMap<String, List<String>>();
     private String simpleSearchQuery = "";
     private String searchArea = "";
     private CollectionColumnHeaderController headerController;
@@ -91,10 +91,6 @@ public class CollectionPluginView extends PluginView {
         tableWidth = plugin.getOwner().getVisibleWidth();
         CollectionDataGridUtils.addjustColumnsWidth(tableWidth, tableBody);
 
-    }
-
-    public CollectionColumnHeaderController getHeaderController() {
-        return headerController;
     }
 
     @Override
@@ -253,9 +249,9 @@ public class CollectionPluginView extends PluginView {
     private void onKeyEnterPressed() {
         filtersMap.clear();
         for (CollectionColumnHeader header : headerController.getHeaders()) {
-            String filterValue = header.getFilterValue();
-            if (filterValue != null) {
-                filtersMap.put(header.getFieldName(), filterValue);
+            List<String> filterValues = header.getHeaderWidget().getFilterValues();
+            if (filterValues != null) {
+                filtersMap.put(header.getHeaderWidget().getFieldName(), filterValues);
 
             }
         }
@@ -387,8 +383,8 @@ public class CollectionPluginView extends PluginView {
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
             CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
-            String initialFilterValue = (String) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE);
-            HeaderWidget headerWidget = new HeaderWidget(column, columnProperties, initialFilterValue);
+            List<String> initialFilterValues = (List<String>) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE);
+            HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             headers.add(collectionColumnHeader);
             tableBody.addColumn(column, collectionColumnHeader);

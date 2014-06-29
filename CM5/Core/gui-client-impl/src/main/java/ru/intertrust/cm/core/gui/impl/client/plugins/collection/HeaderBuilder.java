@@ -27,7 +27,7 @@ import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.AbstractCellTable.Style;
 import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CollectionColumnHeader;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 
 /**
  * Default implementation of {@link HeaderBuilder} that renders columns.

@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfi
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
-import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
@@ -55,10 +54,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     SearchService searchService;
 
     @Autowired
-    private GuiService guiService;
-
-    @Autowired
     DefaultImageMapperImpl defaultImageMapper;
+
     @Autowired
     private ActionConfigBuilder actionConfigBuilder;
 
@@ -268,7 +265,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 Calendar calendar;
                 String timeZoneId;
                 final String pattern =
-                        (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.PATTERN_KEY);
+                        (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.DATE_PATTERN);
                 switch (value.getFieldType()) {
                     case DATETIMEWITHTIMEZONE:
                         final DateTimeWithTimeZone dateTimeWithTimeZone = (DateTimeWithTimeZone) value.get();
@@ -374,7 +371,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         final int offset = collectionRowsRequest.getOffset();
         final int limit = collectionRowsRequest.getLimit();
         //  final List<Filter> filters = transformDateFilters(collectionRowsRequest.getFilterList());
-        Map<String, String> filtersMap = collectionRowsRequest.getFiltersMap();
+        Map<String, List<String>> filtersMap = collectionRowsRequest.getFiltersMap();
         List<Filter> filters = prepareSearchFilters(filtersMap, properties);
         InitialFiltersConfig initialFiltersConfig = collectionRowsRequest.getInitialFiltersConfig();
         Set<String> userFilterNamesWithInputs = filtersMap == null ? null : filtersMap.keySet();
@@ -405,60 +402,39 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         return collectionRowItemList;
     }
 
-    private List<Filter> prepareSearchFilters(Map<String, String> filtersMap, LinkedHashMap<String, CollectionColumnProperties> properties) {
+    private List<Filter> prepareSearchFilters(Map<String, List<String>> filtersMap, LinkedHashMap<String, CollectionColumnProperties> properties) {
         List<Filter> filters = new ArrayList<Filter>();
         if (filtersMap == null) {
             return filters;
         }
         Set<String> fieldNames = filtersMap.keySet();
         for (String fieldName : fieldNames) {
-            String filterValue = filtersMap.get(fieldName);
-            if (!"".equalsIgnoreCase(filterValue)) {
+            List<String> filterValues = filtersMap.get(fieldName);
+            if(filterValuesAreValid(filterValues)) {
                 CollectionColumnProperties columnProperties = properties.get(fieldName);
-                Filter filter = null;
                 try {
-
-                    filter = FilterBuilder.prepareSearchFilter(filterValue, columnProperties);
+                    Filter filter = FilterBuilder.prepareSearchFilter(filterValues, columnProperties);
+                    filters.add(filter);
                 } catch (ParseException e) {
                     e.printStackTrace();  //for developers only
                 }
-                filters.add(filter);
+
             }
+
         }
         return filters;
     }
-
-    private ArrayList<Filter> transformDateFilters(List<Filter> filters) {
-        if (filters == null || filters.isEmpty()) {
-            return new ArrayList<>(0);
+    private boolean filterValuesAreValid(List<String> filterValues ){
+        if(filterValues == null || filterValues.isEmpty()){
+            return false;
         }
-        Calendar cal = Calendar.getInstance();
-        ArrayList<Filter> result = new ArrayList<>(filters);
-        for (int i = 0; i < result.size(); ++i) {
-            Filter filter = result.get(i);
-            final Value criterion = filter.getCriterion(0);
-            if (criterion instanceof DateTimeValue) {
-                cal.setTime((Date) criterion.get());
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                Date rangeStart = cal.getTime();
 
-                cal.set(Calendar.HOUR_OF_DAY, 23);
-                cal.set(Calendar.MINUTE, 59);
-                cal.set(Calendar.SECOND, 59);
-                cal.set(Calendar.MILLISECOND, 999);
-                Date rangeEnd = cal.getTime();
-                Filter timestampFilter = new Filter();
-                timestampFilter.setFilter(filter.getFilter());
-                timestampFilter.addCriterion(0, new DateTimeValue(rangeStart));
-                timestampFilter.addCriterion(1, new DateTimeValue(rangeEnd));
-
-                result.set(i, timestampFilter);
+        for (String filterValue : filterValues) {
+            if(filterValue == null || filterValue.isEmpty()){
+                return false;
             }
         }
-        return result;
+        return true;
     }
 
     private SortOrder getSortOrder(CollectionRowsRequest request) {

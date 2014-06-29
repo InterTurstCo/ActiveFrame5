@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.gui.form.widget;
+package ru.intertrust.cm.core.config.gui.form.widget.datebox;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
@@ -6,12 +6,12 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * User: IPetrov
- * Date: 06.02.14
- * Time: 13:07
- * окончание интервала дат
+ * Date: 05.02.14
+ * Time: 18:16
+ * начало интервала дат
  */
-@Root(name ="range-end")
-public class RangeEndConfig implements Dto {
+@Root(name ="range-start")
+public class RangeStartConfig implements Dto {
     @Attribute(name = "widget-id")
     private String widgetId;
 
@@ -28,7 +28,7 @@ public class RangeEndConfig implements Dto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        RangeEndConfig that = (RangeEndConfig) o;
+        RangeStartConfig that = (RangeStartConfig) o;
 
         if (widgetId != null ? !widgetId.equals(that.widgetId) : that.widgetId != null) return false;
 

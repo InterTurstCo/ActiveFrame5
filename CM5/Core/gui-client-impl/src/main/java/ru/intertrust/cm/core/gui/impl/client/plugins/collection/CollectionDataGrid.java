@@ -23,7 +23,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
         this.eventBus = eventBus;
         panel = (HeaderPanel) getWidget();
         panel.getHeaderWidget().addStyleName("dataGridHeaderRow");
-        setAutoHeaderRefreshDisabled(true);
+        setAutoHeaderRefreshDisabled(false);
         setHeaderBuilder(new HeaderBuilder<CollectionRowItem>(this, false));
         addStyleName("collection-plugin-view collection-plugin-view-container");
         this.addCellPreviewHandler(new CollectionCellPreviewHandler());

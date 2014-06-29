@@ -544,3 +544,17 @@ div.gwt-Good-Label {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0);
     background: linear-gradient(478 BCC);
 }
+
+/**
+ * top date picker
+ */
+.gwt-ToggleButton-up,
+.gwt-ToggleButton-up-hovering,
+.gwt-ToggleButton-up-disabled,
+.gwt-ToggleButton-down,
+.gwt-ToggleButton-down-hovering,
+.gwt-ToggleButton-down-disabled {
+    background: none;
+    border: none;
+    padding: 0;
+}

@@ -5,13 +5,13 @@ import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -54,32 +54,34 @@ public final class GuiServerHelper {
         return calendar;
     }
 
-    public static CollectionColumnProperties collectionColumnConfigToProperties(final CollectionColumnConfig config,
-                final DefaultSortCriteriaConfig sortCriteriaConfig, InitialFiltersConfig initialFiltersConfig) {
-        final CollectionColumnProperties properties = new CollectionColumnProperties();
-        final String sortedField = getSortedField(sortCriteriaConfig);
-        final String field = config.getField();
-        final String columnName = config.getName();
+    public static CollectionColumnProperties collectionColumnConfigToProperties(CollectionColumnConfig config,
+                DefaultSortCriteriaConfig sortCriteriaConfig, InitialFiltersConfig initialFiltersConfig) {
+        CollectionColumnProperties properties = new CollectionColumnProperties();
+        String sortedField = getSortedField(sortCriteriaConfig);
+        String field = config.getField();
+        String columnName = config.getName();
         String searchFilterName = config.getSearchFilter();
         properties.addProperty(CollectionColumnProperties.FIELD_NAME, field)
                 .addProperty(CollectionColumnProperties.NAME_KEY, columnName)
                 .addProperty(CollectionColumnProperties.TYPE_KEY, config.getType())
                 .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY,searchFilterName)
-                .addProperty(CollectionColumnProperties.PATTERN_KEY, config.getPattern())
+                .addProperty(CollectionColumnProperties.DATE_PATTERN, config.getDatePattern())
+                .addProperty(CollectionColumnProperties.TIME_PATTERN, config.getTimePattern())
                 .addProperty(CollectionColumnProperties.TIME_ZONE_ID, config.getTimeZoneId())
                 .addProperty(CollectionColumnProperties.MIN_WIDTH, config.getMinWidth())
                 .addProperty(CollectionColumnProperties.MAX_WIDTH, config.getMaxWidth())
                 .addProperty(CollectionColumnProperties.RESIZABLE, config.isResizable())
                 .addProperty(CollectionColumnProperties.TEXT_BREAK_STYLE, config.getTextBreakStyle())
-                .addProperty(CollectionColumnProperties.SORTABLE, config.isSortable());
+                .addProperty(CollectionColumnProperties.SORTABLE, config.isSortable())
+                .addProperty(CollectionColumnProperties.DATE_RANGE, config.isDateRange());;
         if (field.equalsIgnoreCase(sortedField)) {
             properties.addProperty(
                     CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));
         }
         if(initialFiltersConfig != null){
             List<AbstractFilterConfig> abstractFilterConfigs = (List<AbstractFilterConfig>) initialFiltersConfig.getAbstractFilterConfigs();
-            String initialFilterValue = getInitialFilterValue(searchFilterName, abstractFilterConfigs);
-            properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE, initialFilterValue);
+            List<String> initialFilterValues = getInitialFilterValue(searchFilterName, abstractFilterConfigs);
+            properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE, initialFilterValues);
         }
         properties.setAscSortCriteriaConfig(config.getAscSortCriteriaConfig());
         properties.setDescSortCriteriaConfig(config.getDescSortCriteriaConfig());
@@ -98,18 +100,23 @@ public final class GuiServerHelper {
         }
         return null;
     }
-    private static String getInitialFilterValueFromParamConfigs(List<ParamConfig> paramConfigs) {
+   
+    private static List<String> getInitialFilterValue(String filterName, List<AbstractFilterConfig> abstractFilterConfigs){
+        List<ParamConfig> paramConfigs = findFilterInitParams(filterName, abstractFilterConfigs);
+        List<String> initialFilterValues = getInitialFilterValueFromParamConfigs(paramConfigs);
+        return initialFilterValues;
+    }
+    
+    private static List<String> getInitialFilterValueFromParamConfigs(List<ParamConfig> paramConfigs) {
         if(paramConfigs == null || paramConfigs.isEmpty()) {
             return null;
         }
-        int size = paramConfigs.size();
-        ParamConfig paramConfig = paramConfigs.get(size - 1);
-        return paramConfig.getValue();
-    }
-    private static String getInitialFilterValue(String filterName, List<AbstractFilterConfig> abstractFilterConfigs){
-        List<ParamConfig> paramConfigs = findFilterInitParams(filterName, abstractFilterConfigs);
-        String initialFilterValue = getInitialFilterValueFromParamConfigs(paramConfigs);
-        return initialFilterValue;
+        List<String> initialFilterValues = new ArrayList<>();
+        for (ParamConfig paramConfig : paramConfigs) {
+            initialFilterValues.add(paramConfig.getValue());
+        }
+
+        return initialFilterValues;
     }
 
     private static String getSortedField(DefaultSortCriteriaConfig sortCriteriaConfig) {

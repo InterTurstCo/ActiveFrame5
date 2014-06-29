@@ -335,7 +335,7 @@
     
     <collection-view name="event_log_default_view" collection="col_event_log" is-default="true">
         <display>            
-            <column field="created_date" name="Дата" type="datetime" sortable="true" pattern="dd.MM.yyyy HH:mm:ss" search-filter="byDate"/>
+            <column field="created_date" name="Дата" type="datetime" sortable="true" date-pattern="dd.MM.yyyy" search-filter="byDate"/>
             <column field="description" name="Описание" type="string" sortable="true" search-filter="byText"/>            
             <column field="initiator" name="Инициатор события" type="string" sortable="true" search-filter="byInitiator"/>
             <column field="event_type" name="Тип события" type="string" sortable="true" search-filter="byEvent_type"/>

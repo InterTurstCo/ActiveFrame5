@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
+package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -20,9 +20,12 @@ import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DatePickerPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.DateFilterHeaderWidget;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidget;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
@@ -46,7 +49,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     protected final CollectionColumn column;
     private Element input;
     private HeaderWidget widget;
-    private static final int RESIZE_HANDLE_WIDTH = 34;
+
     private String searchAreaId;
     private EventBus eventBus;
     private Element clearButton;
@@ -66,23 +69,25 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public String getFilterValue() {
-        if (widget.getSearchFilterName() != null) {
+        if (widget.hasFilter()) {
             input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
             inputFilter = InputElement.as(input);
-            return inputFilter.getValue();
+            String value = inputFilter.getValue();
+            widget.setFilterValuesRepresentation(value);
+            return value;
         } else {
-            return EMPTY_VALUE;
+            return null;
 
         }
     }
-
-    public String getFieldName() {
-        return widget.getFieldName();
+    public HeaderWidget getHeaderWidget(){
+        return widget;
     }
 
+
     public void resetFilterValue() {
-        if (widget.getSearchFilterName() != null) {
-            widget.setFilterValue(EMPTY_VALUE);
+        if (widget.hasFilter()) {
+            widget.setFilterValuesRepresentation(EMPTY_VALUE);
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
@@ -113,13 +118,13 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public void updateFilterValue() {
-        if (widget.getSearchFilterName() != null) {
+        if (widget.hasFilter()) {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
                     input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
                     inputFilter = InputElement.as(input);
-                    inputFilter.setValue(widget.getFilterValue());
+                    inputFilter.setValue(widget.getFilterValuesRepresentation());
 
                 }
             });
@@ -127,15 +132,15 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public void saveFilterValue() {
-        if (widget.getSearchFilterName() != null) {
+        if (widget.hasFilter()) {
             input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
             inputFilter = InputElement.as(input);
-            widget.setFilterValue(inputFilter.getValue());
+            widget.setFilterValuesRepresentation(inputFilter.getValue());
         }
     }
 
     private void initElements() {
-        if (widget.getSearchFilterName() == null && widget.isShowFilter()) {
+        if (widget.hasFilter() && widget.isShowFilter()) {
             clearButton = DOM.getElementById(searchAreaId + HEADER_CLEAR_BUTTON_ID_PART);
             input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
             inputFilter = InputElement.as(input);
@@ -143,7 +148,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public void setSearchAreaVisibility(final boolean visibility) {
-        if (widget.getSearchFilterName() == null) {
+        if (!widget.hasFilter()) {
             return;
         }
         widget.setShowFilter(visibility);
@@ -162,7 +167,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public void hideClearButton() {
-        if (widget.getSearchFilterName() != null) {
+        if (widget.hasFilter()) {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
@@ -185,8 +190,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
         initElements();
         String eventType = event.getType();
-        if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown") && widget.getSearchFilterName() != null) {
-            widget.setFilterValue(inputFilter.getValue());
+        if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown") && widget.hasFilter()) {
+            widget.setFilterValuesRepresentation(inputFilter.getValue());
             focused = true;
             eventBus.fireEvent(new FilterEvent(false));
 
@@ -195,8 +200,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
             return;
         }
-        if (event.getKeyCode() == KeyCodes.KEY_ESCAPE && eventType.equalsIgnoreCase("keydown") && widget.getSearchFilterName() != null) {
-            widget.setFilterValue(EMPTY_VALUE);
+        if (event.getKeyCode() == KeyCodes.KEY_ESCAPE && eventType.equalsIgnoreCase("keydown") && widget.hasFilter()) {
+            widget.setFilterValuesRepresentation(EMPTY_VALUE);
             eventBus.fireEvent(new FilterEvent(true));
             focused = false;
             event.stopPropagation();
@@ -235,11 +240,11 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     private Element getClickedChild(NativeEvent event, String id) {
-        if (widget.getSearchFilterName() == null) {
+        if (!widget.hasFilter()) {
             return null;
         }
         Element target = Element.as(event.getEventTarget());
-        Element  element = Document.get().getElementById(id);
+        Element element = Document.get().getElementById(id);
         if (element == null) {
             return null;
         }
@@ -322,9 +327,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                     natEvent.stopPropagation();
                     natEvent.preventDefault();
                     return;
-                } else if (widget.getSearchFilterName() != null) {
+                } else if (widget.hasFilter()) {
                     String filterValue = getFilterValue();
-                    widget.setFilterValue(filterValue);
+                    widget.setFilterValuesRepresentation(filterValue);
                 }
             }
             if (eventType.equalsIgnoreCase("keydown")) {
@@ -388,13 +393,23 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                 clearButton = DOM.getElementById(searchAreaId + HEADER_CLEAR_BUTTON_ID_PART);
                 clearButton.setClassName("search-box-clear-button-off");
                 inputFilter.setValue(EMPTY_VALUE);
-                widget.setFilterValue(EMPTY_VALUE);
+                widget.setFilterValuesRepresentation(EMPTY_VALUE);
                 inputFilter.focus();
             } else if ((searchAreaId + HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
-                widget.getDateBox().getDatePicker().getElement().getStyle().setPosition(Position.ABSOLUTE);
-                widget.getDateBox().getDatePicker().getElement().getStyle().setLeft(inputFilter.getAbsoluteLeft(), PX);
-                widget.getDateBox().getDatePicker().getElement().getStyle().setTop(inputFilter.getAbsoluteTop() + 15, PX);
-                widget.getDateBox().showDatePicker();
+                if (widget instanceof DateFilterHeaderWidget) {
+                    DateFilterHeaderWidget dateFilterHeaderWidget = (DateFilterHeaderWidget) widget;
+                    DatePickerPopup datePickerPopup = dateFilterHeaderWidget.getDateBox();
+                    Style style = datePickerPopup.getElement().getStyle();
+                    style.setPosition(Position.ABSOLUTE);
+                    int absoluteLeft = inputFilter.getAbsoluteLeft();
+
+                    int absoluteTop = inputFilter.getAbsoluteTop();
+                    datePickerPopup.show();
+                    style.setTop(absoluteTop + 30, PX);
+                    style.setLeft(absoluteLeft, PX);
+                    cleanUp();
+                }
+
             }
         }
 
@@ -516,7 +531,11 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     protected void changeColumnWidth(int newWidth) {
         table.setColumnWidth(column, newWidth + "px");
+        widget.setFilterInputWidth(newWidth - SEARCH_CONTAINER_MARGIN_WIDTH);
+        saveFilterValue();
         table.redraw();
+        updateFilterValue();
+
 
     }
 

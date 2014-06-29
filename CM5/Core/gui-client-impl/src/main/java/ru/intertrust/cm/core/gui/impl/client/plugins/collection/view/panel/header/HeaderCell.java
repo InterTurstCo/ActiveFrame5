@@ -1,23 +1,25 @@
-package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
+package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidget;
 
 /**
- * Created by User on 27.02.14.
+ * @author Yaroslav Bondarchuk
+ *         Date: 22.06.2014
+ *         Time: 21:29
  */
 public class HeaderCell extends AbstractCell<HeaderWidget> {
 
-    public HeaderCell( ) {
-        super("mousemove","keydown","keyup","change","blur");
+    public HeaderCell() {
+        super("mousemove", "keydown", "keyup", "change", "blur");
 
     }
 
     @Override
     public void render(com.google.gwt.cell.client.Cell.Context context,
-                       final    HeaderWidget value, SafeHtmlBuilder sb) {
-
+                       final HeaderWidget value, SafeHtmlBuilder sb) {
         value.init();
         sb.append(new SafeHtml() {
             @Override
@@ -25,7 +27,6 @@ public class HeaderCell extends AbstractCell<HeaderWidget> {
                 return value.getHtml();
             }
         });
-
 
     }
 

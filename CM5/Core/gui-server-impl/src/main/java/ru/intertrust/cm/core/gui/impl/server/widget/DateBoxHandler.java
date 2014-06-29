@@ -4,7 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.DateBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -36,6 +36,8 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
         final DateTimeContext context = converter.valueToContext(widgetContext.getValue(), config.getTimeZoneId(), dateFormat);
         context.setTimeZoneId(config.getTimeZoneId());
+        boolean displayTime = fieldType == FieldType.TIMELESSDATE ? false : config.isDisplayTimeBox();
+        state.setDisplayTime(displayTime);
         state.setDateTimeContext(context);
         return state;
     }
