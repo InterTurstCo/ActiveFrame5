@@ -213,20 +213,20 @@ public class ReportShcedule implements ScheduleTaskHandle {
                 }
 
                 // Расчитываем смещение
-                if (relativeDateParam.getOffsetMin() != null) {
-                    calendar.add(Calendar.MINUTE, relativeDateParam.getOffsetMin());
-                }
-                if (relativeDateParam.getOffsetHour() != null) {
-                    calendar.add(Calendar.HOUR_OF_DAY, relativeDateParam.getOffsetHour());
-                }
-                if (relativeDateParam.getOffsetDay() != null) {
-                    calendar.add(Calendar.DAY_OF_MONTH, relativeDateParam.getOffsetDay());
+                if (relativeDateParam.getOffsetYear() != null) {
+                    calendar.add(Calendar.YEAR, relativeDateParam.getOffsetYear());
                 }
                 if (relativeDateParam.getOffsetMonth() != null) {
                     calendar.add(Calendar.MONTH, relativeDateParam.getOffsetMonth());
                 }
-                if (relativeDateParam.getOffsetYear() != null) {
-                    calendar.add(Calendar.YEAR, relativeDateParam.getOffsetYear());
+                if (relativeDateParam.getOffsetDay() != null) {
+                    calendar.add(Calendar.DAY_OF_MONTH, relativeDateParam.getOffsetDay());
+                }
+                if (relativeDateParam.getOffsetHour() != null) {
+                    calendar.add(Calendar.HOUR_OF_DAY, relativeDateParam.getOffsetHour());
+                }
+                if (relativeDateParam.getOffsetMin() != null) {
+                    calendar.add(Calendar.MINUTE, relativeDateParam.getOffsetMin());
                 }
 
                 result.put(parameter.getName(), calendar.getTime());
