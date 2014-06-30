@@ -57,7 +57,11 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
         for (TopLevelConfig config : configuration.getConfigurationList()) {
             if (DomainObjectTypeConfig.class.equals(config.getClass())) {
-                return true;
+                DomainObjectTypeConfig newConfig = (DomainObjectTypeConfig) config;
+                DomainObjectTypeConfig currentConfig = configurationExplorer.getDomainObjectTypeConfig(newConfig.getName());
+                if (!newConfig.equals(currentConfig)) {
+                    return true;
+                }
             }
         }
 
