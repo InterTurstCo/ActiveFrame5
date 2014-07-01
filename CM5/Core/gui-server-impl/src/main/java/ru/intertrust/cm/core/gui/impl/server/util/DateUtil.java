@@ -7,6 +7,8 @@ import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -18,6 +20,7 @@ public class DateUtil {
     /**
      * If date changed on client side the {@link ru.intertrust.cm.core.gui.model.DateTimeContext#timeZoneId} attribute is setting to selected
      * time zone id, otherwise the {@link ru.intertrust.cm.core.gui.model.DateTimeContext#timeZoneId} has origin value.
+     *
      * @return actual value of timeZoneId.
      */
     public static String getTimeZoneId(String timeZoneId) {
@@ -29,6 +32,7 @@ public class DateUtil {
         }
         return timeZoneId;
     }
+
     public static TimeZone prepareTimeZone(String rawTimeZone) {
         String timeZoneId = prepareTimeZoneId(rawTimeZone);
         return TimeZone.getTimeZone(timeZoneId);
@@ -36,10 +40,10 @@ public class DateUtil {
 
     private static String prepareTimeZoneId(String rawTimeZone) {
         String timeZone = rawTimeZone == null ? ModelUtil.DEFAULT_TIME_ZONE_ID : rawTimeZone;
-        return  getTimeZoneId(timeZone);
+        return getTimeZoneId(timeZone);
     }
 
-    public static DateTimeWithTimeZone prepareDateTimeWithTimeZone(Date date, String rawTimeZone, TimeZone timeZone)  {
+    public static DateTimeWithTimeZone prepareDateTimeWithTimeZone(Date date, String rawTimeZone, TimeZone timeZone) {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.setTime(date);
         DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone();
@@ -63,4 +67,16 @@ public class DateUtil {
             return new OlsonTimeZoneContext(timeZoneId);
         }
     }
+
+    public static DateFormat getDateFormat(String datePattern, String timePattern) {
+        if (datePattern == null) {
+            return null;
+        }
+        if (timePattern == null) {
+            return new SimpleDateFormat(datePattern);
+        }
+
+        return new SimpleDateFormat(datePattern + timePattern);
+    }
+
 }

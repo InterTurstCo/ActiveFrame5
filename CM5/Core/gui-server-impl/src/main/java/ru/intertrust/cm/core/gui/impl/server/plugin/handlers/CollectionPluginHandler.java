@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.DateUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -30,7 +31,6 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -261,16 +261,17 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 value = identifiableObject.getValue(field.toLowerCase());
             }
             if (value != null && value.get() != null) {
-                DateFormat dateFormat;
                 Calendar calendar;
                 String timeZoneId;
-                final String pattern =
+                String datePattern =
                         (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.DATE_PATTERN);
+                String timePattern =
+                        (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.TIME_PATTERN);
+                DateFormat dateFormat = DateUtil.getDateFormat(datePattern, timePattern);
                 switch (value.getFieldType()) {
                     case DATETIMEWITHTIMEZONE:
                         final DateTimeWithTimeZone dateTimeWithTimeZone = (DateTimeWithTimeZone) value.get();
                         calendar = GuiServerHelper.dateTimeWithTimezoneToCalendar(dateTimeWithTimeZone);
-                        dateFormat = new SimpleDateFormat(pattern);
                         dateFormat.setTimeZone(TimeZone.getTimeZone(
                                 dateTimeWithTimeZone.getTimeZoneContext().getTimeZoneId()));
                         value = new StringValue(dateFormat.format(calendar.getTime()));
@@ -278,7 +279,6 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                     case DATETIME:
                         timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
                         final DateTimeValue dateTimeValue = (DateTimeValue) value;
-                        dateFormat = new SimpleDateFormat(pattern);
                         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
                         value = new StringValue(dateFormat.format(dateTimeValue.get()));
                         break;
@@ -286,7 +286,6 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                         final TimelessDate timelessDate = (TimelessDate) value.get();
                         timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
                         calendar = GuiServerHelper.timelessDateToCalendar(timelessDate, GuiServerHelper.GMT_TIME_ZONE);
-                        dateFormat = new SimpleDateFormat(pattern);
                         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
                         value = new StringValue(dateFormat.format(calendar.getTime()));
                 }
