@@ -741,9 +741,9 @@
     <xs:simpleType name="doelType">
         <xs:restriction base="xs:string">
             <xs:whiteSpace value="collapse"/>
-            <xs:pattern
+            <!-- <xs:pattern
                     value="([A-Za-z0-9\s_]+(\^[A-Za-z0-9\s_]*)?\.)*[A-Za-z0-9\s_]+(\^[A-Za-z0-9\s_]*)?">
-            </xs:pattern>
+            </xs:pattern> -->
         </xs:restriction>
     </xs:simpleType>
 

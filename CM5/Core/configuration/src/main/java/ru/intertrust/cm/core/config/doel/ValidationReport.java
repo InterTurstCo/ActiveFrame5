@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.config.doel;
 
 public class ValidationReport {
 
-    private StringBuilder report;
+    private StringBuilder report = new StringBuilder();
 
     public void addRecord(String record) {
         report.append(record).append('\n');

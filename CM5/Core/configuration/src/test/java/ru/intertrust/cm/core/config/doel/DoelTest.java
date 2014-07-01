@@ -20,6 +20,46 @@ public class DoelTest {
         assertEquals(expr1, expr2);
     }
 
+    @Test(expected = DoelParseException.class)
+    public void parseInvalidExpression_ExcessCaret() {
+        try {
+            /*DoelExpression expr = */DoelExpression.parse("Job^Commission^Document");
+        } catch (DoelParseException e) {
+            assertEquals(14, e.getPosition());
+            throw e;
+        }
+    }
+
+    @Test(expected = DoelParseException.class)
+    public void parseInvalidExpression_WrongBracket() {
+        try {
+            /*DoelExpression expr = */DoelExpression.parse("Job^Commission(Document)");
+        } catch (DoelParseException e) {
+            assertEquals(14, e.getPosition());
+            throw e;
+        }
+    }
+
+    @Test(expected = DoelParseException.class)
+    public void parseInvalidExpression_UnclosedBracket() {
+        try {
+            /*DoelExpression expr = */DoelExpression.parse("Commission:Func(Document");
+        } catch (DoelParseException e) {
+            assertEquals(24, e.getPosition());
+            throw e;
+        }
+    }
+
+    @Test(expected = DoelParseException.class)
+    public void parseInvalidExpression_UnclosedQuote() {
+        try {
+            /*DoelExpression expr = */DoelExpression.parse("Name:join(', )");
+        } catch (DoelParseException e) {
+            assertEquals(14, e.getPosition());
+            throw e;
+        }
+    }
+
     @Test
     public void makeExpressionBack() throws Exception {
         final String expression = "Document.Commission^Document:Status(Assigned).Assignee";

@@ -8,8 +8,9 @@ public class DoelParseException extends DoelException {
     private int position;
 
     public DoelParseException(String expression, int position) {
-        super("DOEL parse error [" + expression + "]: unexpected '" + expression.charAt(position)
-                + "' at position " + position);
+        super("DOEL parse error [" + expression + "]: unexpected "
+                + (position >= expression.length() ? "end of string" :
+                    "'" + expression.charAt(position) + "' at position " + position));
         this.expression = expression;
         this.position = position;
     }

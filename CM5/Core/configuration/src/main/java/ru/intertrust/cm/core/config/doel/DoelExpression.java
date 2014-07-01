@@ -51,55 +51,7 @@ public class DoelExpression {
      * @throws DoelParseException если строка не является корректным выражением на DOEL
      */
     public static DoelExpression parse(String expression) {
-        Parser parser = new Parser();
-        Parser.TokenType tokenType = null;
-        int positionMark = -1;
-
-        for (int i = 0; i < expression.length(); i++) {
-            char ch = expression.charAt(i);
-            if (tokenType != null) {
-                if (tokenType.eat(ch)) {
-                    continue;
-                }
-                String token = expression.substring(positionMark, i);
-                try {
-                    parser.addToken(token, tokenType);
-                } catch (Exception e) {
-                    throw new DoelParseException(expression, positionMark);
-                }
-                tokenType = null;
-            }
-            if (Character.isWhitespace(ch)) {
-                continue;
-            }
-            if (ch == '"' || ch == '\'') {
-                tokenType = Parser.TokenType.STRING;
-            } else if (isSpecialChar(ch)) {
-                tokenType = Parser.TokenType.SYMBOL;
-            } else if (isNameChar(ch)) {
-                tokenType = Parser.TokenType.NAME;
-            }
-            positionMark = i;
-            tokenType.eat(ch);
-        }
-        if (tokenType != null) {
-            if (!tokenType.isFinished()) {
-                throw new DoelParseException(expression, positionMark);
-            }
-            String token = expression.substring(positionMark);
-            try {
-                parser.addToken(token, tokenType);
-            } catch (Exception e) {
-                throw new DoelParseException(expression, positionMark);
-            }
-        }
-        DoelExpression doel = new DoelExpression();
-        try {
-            doel.elements = parser.getResult();
-        } catch (Exception e) {
-            throw new DoelParseException(expression, expression.length());
-        }
-        return doel;
+        return new Parser().parse(expression);
     }
 
     private static class Parser {
@@ -111,71 +63,76 @@ public class DoelExpression {
 
         private enum TokenType {
 
-            NAME (new CharProcessor() {
+            NAME {
                 @Override
-                public boolean processChar(char ch) {
-                    return isNameChar(ch);
-                }
-                @Override
-                public boolean mayBreakNow() {
-                    return true;
-                }
-            }),
-
-            SYMBOL (new CharProcessor() {
-                boolean ready = true;
-                @Override
-                public boolean processChar(char ch) {
-                    try {
-                        return ready;
-                    } finally {
-                        ready = !ready;
-                    }
-                }
-                @Override
-                public boolean mayBreakNow() {
-                    return true;
-                }
-            }),
-
-            STRING (new CharProcessor() {
-                char startChar = '?';
-                @Override
-                public boolean processChar(char ch) {
-                    switch(startChar) {
-                    case '?':
-                        startChar = ch;
-                        return true;
-                    case '!':
-                        startChar = '?';
-                        return false;
-                    default:
-                        if (startChar == ch) {
-                            startChar = '!';
+                CharProcessor getCharProcessor(Parser parser) {
+                    return new CharProcessor() {
+                        @Override
+                        public boolean processChar(char ch) {
+                            return isNameChar(ch);
                         }
-                        return true;
-                    }
+                        @Override
+                        public boolean mayBreakNow() {
+                            return true;
+                        }
+                    };
                 }
+            },
+
+            SYMBOL {
                 @Override
-                public boolean mayBreakNow() {
-                    return startChar == '!';
+                CharProcessor getCharProcessor(Parser parser) {
+                    return new CharProcessor() {
+                        boolean ready = true;
+                        @Override
+                        public boolean processChar(char ch) {
+                            try {
+                                return ready;
+                            } finally {
+                                ready = !ready;
+                            }
+                        }
+                        @Override
+                        public boolean mayBreakNow() {
+                            return true;
+                        }
+                    };
                 }
-            }),
+            },
 
-            EMPTY (null);
+            STRING {
+                @Override
+                CharProcessor getCharProcessor(Parser parser) {
+                    return new CharProcessor() {
+                        char startChar = '?';
+                        @Override
+                        public boolean processChar(char ch) {
+                            switch(startChar) {
+                            case '?':
+                                startChar = ch;
+                                return true;
+                            case '!':
+                                startChar = '?';
+                                return false;
+                            default:
+                                if (startChar == ch) {
+                                    startChar = '!';
+                                }
+                                return true;
+                            }
+                        }
+                        @Override
+                        public boolean mayBreakNow() {
+                            return startChar == '!';
+                        }
+                    };
+                }
+            },
 
-            CharProcessor charProcessor;
+            EMPTY;
 
-            private TokenType(CharProcessor charProcessor) {
-                this.charProcessor = charProcessor;
-            }
-
-            boolean eat(char ch) {
-                return charProcessor.processChar(ch);
-            }
-
-            boolean isFinished() {
-                return charProcessor.mayBreakNow();
+            CharProcessor getCharProcessor(Parser parser) {
+                return null;
             }
         }
 
@@ -233,7 +190,6 @@ public class DoelExpression {
                         return FUNCTION_WAIT;
                     } else if (type == TokenType.SYMBOL && ")".equals(token)) {
                         parser.finishElement();
-                        //TODO roll back stack until "(" and make a Subexpression element
                         LinkedList<Element> nested = new LinkedList<>();
                         while (true/*!parser.stack.isEmpty()*/) {
                             Object stored = parser.stack.pop();
@@ -346,8 +302,64 @@ public class DoelExpression {
             }
         }
 
+        TokenType tokenType = null;
+        CharProcessor charProcessor = null;
+        int positionMark = -1;
         private State state = State.FIELD_WAIT;
         private LinkedList<Object> stack = new LinkedList<>();
+
+        DoelExpression parse(String expression) {
+            for (int i = 0; i < expression.length(); i++) {
+                char ch = expression.charAt(i);
+                if (tokenType != null) {
+                    if (charProcessor.processChar(ch)) {
+                        continue;
+                    }
+                    String token = expression.substring(positionMark, i);
+                    try {
+                        addToken(token, tokenType);
+                    } catch (Exception e) {
+                        throw new DoelParseException(expression, positionMark);
+                    }
+                    tokenType = null;
+                    charProcessor = null;
+                }
+                if (Character.isWhitespace(ch)) {
+                    continue;
+                }
+                if (ch == '"' || ch == '\'') {
+                    tokenType = Parser.TokenType.STRING;
+                } else if (isSpecialChar(ch)) {
+                    tokenType = Parser.TokenType.SYMBOL;
+                } else if (isNameChar(ch)) {
+                    tokenType = Parser.TokenType.NAME;
+                }
+                if (tokenType == null) {
+                    throw new DoelParseException(expression, i);
+                }
+                charProcessor = tokenType.getCharProcessor(this);
+                positionMark = i;
+                charProcessor.processChar(ch);
+            }
+            if (tokenType != null) {
+                if (!charProcessor.mayBreakNow()) {
+                    throw new DoelParseException(expression, expression.length()/*positionMark*/);
+                }
+                String token = expression.substring(positionMark);
+                try {
+                    addToken(token, tokenType);
+                } catch (Exception e) {
+                    throw new DoelParseException(expression, positionMark);
+                }
+            }
+            DoelExpression doel = new DoelExpression();
+            try {
+                doel.elements = getResult();
+            } catch (Exception e) {
+                throw new DoelParseException(expression, expression.length());
+            }
+            return doel;
+        }
 
         private void finishElement() {
             LinkedList<Function> functions = new LinkedList<>();
@@ -392,28 +404,6 @@ public class DoelExpression {
 
     private static boolean isSpecialChar(char ch) {
         return Arrays.binarySearch(specialChars, ch) >= 0;
-    }
-
-    public static DoelExpression parse_Old(String expression) {
-        DoelExpression doel = new DoelExpression();
-        String[] parts = expression.trim().split("\\.");
-        doel.elements = new Element[parts.length];
-        for (int i = 0; i < parts.length; i++) {
-            String part = parts[i].trim();
-            boolean repeated = part.matches(".+\\*$");
-            if (repeated) {
-                part = part.split("\\*")[0].trim();
-            }
-            if (part.matches(".+\\^.*")) {
-                String[] names = part.split("\\^");
-                doel.elements[i] = new Children(names[0].trim(), names[1].trim());
-            } else {
-                doel.elements[i] = new Field(part);
-            }
-            doel.elements[i].setRepeated(repeated);
-            //doel.elements[i].setFunctions((Function[]) functions.toArray());
-        }
-        return doel;
     }
 
     private DoelExpression() { }
@@ -500,11 +490,6 @@ public class DoelExpression {
 
         @Override
         public String toString() {
-            /*StringBuilder expr = new StringBuilder(name);
-            if (repeated) {
-                expr.append("*");
-            }
-            return expr.toString();*/
             return decorate(name);
         }
 
@@ -551,9 +536,6 @@ public class DoelExpression {
         @Override
         public String toString() {
             StringBuilder expr = new StringBuilder().append(childType).append("^").append(parentLink);
-            /*if (repeated) {
-                expr.append("*");
-            }*/
             return decorate(expr.toString());
         }
 

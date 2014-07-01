@@ -126,11 +126,14 @@ public class DoelResolver implements DoelEvaluator {
             for (DoelValidator.DoelTypes.Link type : check.getTypeChains()) {
                 evaluateBranch(expression, type, Collections.singletonList(id), result, accessToken);
             }
+            if (log.isTraceEnabled()) {
+                log.trace("Calculated " + expression + " for " + sourceObjectId + ": " + result);
+            }
             return result;
         } catch (DoelException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new DoelException("Error evaluate doel expression \"" + expression + "\" on type \""
+            throw new DoelException("Error evaluating DOEL expression \"" + expression + "\" on type \""
                     + domainObjectTypeIdCache.getName(sourceObjectId) + "\".", ex);
         }
     }
