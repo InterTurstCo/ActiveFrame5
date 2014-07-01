@@ -35,6 +35,7 @@ import ru.intertrust.cm.core.dao.api.StatusDao;
  * Функция не выполняет преобразование типа значения.
  * <p><b>Пример использования:</b><br>
  * <code>Commission^parent:Status(Assigned,Executing).Job^parent.Assignee</code>
+ * - вычисляет всех исполнителей поручений, находящихся в статусе "Назначено" или "Исполняется".
  * 
  * @author apirozhkov
  */
