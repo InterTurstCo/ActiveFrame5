@@ -136,14 +136,15 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Override
     public DomainObject save(DomainObject domainObject) {
         try {
-            checkForAttachment(domainObject.getTypeName());
+            String domainObjectType = domainObject.getTypeName();
+            checkForAttachment(domainObjectType);
+            String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = null;
             if (!domainObject.isNew()) {
-                String user = currentUserAccessor.getCurrentUser();
                 Id objectId = ((GenericDomainObject) domainObject).getId();
                 accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
             } else {
-                accessToken = createSystemAccessToken();
+                accessToken = accessControlService.createDomainObjectCreateToken(user, domainObjectType);
             }
 
             DomainObject result = domainObjectDao.save(domainObject, accessToken);

@@ -2,12 +2,14 @@ package ru.intertrust.cm.core.dao.impl.access;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AccessType;
@@ -34,6 +36,10 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Autowired
     private UserGroupGlobalCache userGroupCache;
+    
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+
 
     /**
      * Устанавливает программный агент, которому делегируются функции физической проверки прав доступа
@@ -47,6 +53,10 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     public void setUserGroupCache(UserGroupGlobalCache userGroupCache) {
         this.userGroupCache = userGroupCache;
+    }
+
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
     }
 
     @Override
@@ -84,6 +94,28 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
         
         AccessToken token = new SimpleAccessToken(new UserSubject(personIdInt), objectId, type, deferred);
+        return token;
+    }
+    
+
+    @Override
+    public AccessToken createDomainObjectCreateToken(String login, String domainObjectType)
+            throws AccessException {
+
+        Id personId = getUserIdByLogin(login);
+        Integer personIdInt = (int) ((RdbmsId) personId).getId();
+        boolean isSuperUser = isPersonSuperUser(personId);
+
+        if (isSuperUser) {
+            return new SuperUserAccessToken(new UserSubject(personIdInt));
+        }
+
+        if (!isAllowedToCreateDOFor(personId, domainObjectType)) {
+            throw new AccessException("Creation of object " + domainObjectType + " is not allowed for " + login);
+
+        }
+
+        AccessToken token = new DomainObjectCreateToken(new UserSubject(personIdInt), domainObjectType);
         return token;
     }
 
@@ -262,6 +294,37 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
     }
 
+    
+    /**
+     * Маркер доступа на создание доменных объектов
+     * @author atsvetkov
+     */
+    final class DomainObjectCreateToken extends AccessTokenBase {
+
+        private final UserSubject subject;
+        private final String objectType;
+
+        DomainObjectCreateToken(UserSubject subject, String objectType) {
+            this.subject = subject;
+            this.objectType = objectType;
+        }
+
+        @Override
+        public Subject getSubject() {
+            return subject;
+        }
+
+        @Override
+        public boolean isDeferred() {
+            return false;
+        }
+
+        @Override
+        boolean allowsAccess(Id objectId, AccessType type) {
+            return true;
+        }
+    }
+
     /**
      * Маркер доступа к набору доменных объектов. Задаёт разрешение на определённый тип доступа
      * сразу к множеству объектов. Не может быть отложенным.
@@ -386,5 +449,9 @@ public class AccessControlServiceImpl implements AccessControlService {
         boolean allowsAccess(Id objectId, AccessType type) {
             return true; // Разрешает любой доступ к любому объекту
         }
+    }
+    
+    private boolean isAllowedToCreateDOFor(Id userId, String objectType) {
+        return databaseAgent.isAllowedToCreateDOFor(userId, objectType);
     }
 }

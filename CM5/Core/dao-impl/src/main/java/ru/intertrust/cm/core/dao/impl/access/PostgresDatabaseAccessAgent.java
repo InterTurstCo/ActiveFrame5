@@ -38,6 +38,8 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlNam
  */
 public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
+    private static final String ALL_PERSONS_GROUP = "*";
+
     @Autowired
     private DomainObjectTypeIdCache domainObjetcTypeIdCache;
 
@@ -355,4 +357,42 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return query.toString();
     }
 
+    @Override
+    public boolean isAllowedToCreateDOFor(Id userId, String objectType) {
+        List<String> userGroups = configurationExplorer.getAllowedToCreateUserGroups(objectType);
+
+        if (userGroups.size() == 0) {
+            return false;
+        }
+
+        if (userId == null) {
+            return false;
+        }
+
+        if (userGroups.contains(ALL_PERSONS_GROUP)) {
+            return true;
+        }
+
+        String query =
+                "select gm.person_id, gm.person_id_type from group_member gm inner join user_group ug on gm.usergroup = ug.id where ug.group_name in (:groups)";
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("groups", userGroups);
+
+        List<Id> groupMembers = jdbcTemplate.query(query, params, new RowMapper<Id>() {
+
+            @Override
+            public Id mapRow(ResultSet rs, int rowNum) throws SQLException {
+                Long personId = rs.getLong("person_id");
+                int personObjectType = rs.getInt("person_id_type");
+                RdbmsId id = new RdbmsId(personObjectType, personId);
+                return id;
+            }
+
+        });
+
+        if (groupMembers.contains(userId)) {
+            return true;
+        }
+        return false;
+    }
 }

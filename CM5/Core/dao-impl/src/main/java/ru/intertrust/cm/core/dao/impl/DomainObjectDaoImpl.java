@@ -173,8 +173,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private DomainObject[] createMany(DomainObject[] domainObjects, AccessToken accessToken) {
 
-        accessControlService.verifySystemAccessToken(accessToken);
-
         String initialStatus = getInitialStatus(domainObjects[0]);
 
         DomainObject createdObjects[] = create(domainObjects,

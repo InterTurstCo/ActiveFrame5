@@ -205,4 +205,13 @@ public interface ConfigurationExplorer {
     String[] getDomainObjectTypesHierarchy(String typeName);
 
     void updateConfig(TopLevelConfig config);
+    
+    /**
+     * Возвращает список статических и безконтексных динамических групп, имеющих право на создание указанного типа
+     * доменного объекта. Эти группы конфигурируются в матрице доступа для доменного объекта.
+     * @param typeName
+     * @return
+     */
+    List<String> getAllowedToCreateUserGroups(String typeName);
+
 }

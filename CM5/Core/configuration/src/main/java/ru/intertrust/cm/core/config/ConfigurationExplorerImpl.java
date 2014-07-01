@@ -488,4 +488,19 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
     }
+    
+    @Override
+    public List<String> getAllowedToCreateUserGroups(String objectType) {
+        List<String> userGroups = new ArrayList<>();
+
+        AccessMatrixConfig accessMatrix = getAccessMatrixByObjectType(objectType);
+
+        if (accessMatrix.getCreateConfig() != null && accessMatrix.getCreateConfig().getPermitGroups() != null) {
+            for (PermitGroup permitGroup : accessMatrix.getCreateConfig().getPermitGroups()) {
+                userGroups.add(permitGroup.getName());
+            }
+        }
+        return userGroups;
+    }
+
 }

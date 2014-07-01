@@ -280,6 +280,9 @@
 
     <!-- Матрицы доступа -->
     <access-matrix type="Outgoing_Document">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
         <status name="Draft">
             <read>
                 <permit-role name="DocumentAuthor" />
@@ -300,6 +303,9 @@
     </access-matrix>
 
     <access-matrix type="letter">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>    
         <status name="*">
             <read>
                 <permit-group name="Administrators" />
@@ -318,6 +324,9 @@
     </access-matrix>
 
     <access-matrix type="country">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>    
         <status name="Active">
             <read>
                 <permit-group name="Administrators" />
@@ -336,6 +345,9 @@
     </access-matrix>
 
     <access-matrix type="Employee">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
         <status name="Active">
             <read>
                 <permit-group name="Administrators" />
@@ -355,6 +367,9 @@
 
 
     <access-matrix type="Department">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>        
         <status name="Active">
             <read>
                 <permit-group name="Administrators" />
@@ -373,6 +388,9 @@
     </access-matrix>
 
     <access-matrix type="Organization">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>    
         <status name="Active">
             <read>
                 <permit-group name="Administrators" />
@@ -391,6 +409,9 @@
     </access-matrix>
 
     <access-matrix type="bu_nav_link_collection">
+        <create>
+            <permit-group name="AllPersons" />                        
+        </create>        
         <status name="Active">
             <read>
                 <permit-group name="Administrators" />
@@ -409,6 +430,9 @@
     </access-matrix>
 
     <access-matrix type="country_union">
+        <create>
+            <permit-group name="AllPersons" />                        
+        </create>
         <status name="Active">
             <read>
                 <permit-group name="Administrators" />
@@ -427,6 +451,9 @@
     </access-matrix>
 
     <access-matrix type="city" read-everybody="true">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
         <!--status name="*"> <read permit-everybody="true"> </read> </status -->
         <status name="Active">
             <!--read> <permit-group name="AllPersons" /> </read -->
@@ -444,6 +471,9 @@
 
     <!-- Внутренний документ -->
     <access-matrix type="Internal_Document">
+        <create>
+            <permit-group name="AllPersons" />                        
+        </create>
         <status name="Draft">
             <read>
                 <permit-role name="Author" />
@@ -499,19 +529,225 @@
     </access-matrix>
 
     <!-- Карточка согласования. Наследует права у родительского документа -->
-    <access-matrix type="Negotiation_Card" matrix-reference-field="Parent_Document" />
+    <access-matrix type="Negotiation_Card" matrix-reference-field="Parent_Document" >
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
 
-    <access-matrix type="Status" read-everybody="true" />
-    <access-matrix type="Assignee_Person" read-everybody="true" />
-    <access-matrix type="Assignee_Group" read-everybody="true" />
-    <access-matrix type="Task_Attachment" read-everybody="true" />
-    <access-matrix type="Person" read-everybody="true" />
+    <access-matrix type="Examine_Card" >
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="Resolution_Card" >
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="Status" read-everybody="true" >
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="Assignee_Person" read-everybody="true" >
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="Assignee_Group" read-everybody="true" >
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="Task_Attachment" read-everybody="true" >
+        <create>
+            <permit-group name="AllPersons" />
+        </create>    
+    </access-matrix>
+    
+    <access-matrix type="Person" read-everybody="true" >
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
     <access-matrix type="Person_Task">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>        
         <status name="*">
             <read>
                 <permit-role name="task-addressee" />
             </read>
         </status>
+    </access-matrix>    
+
+    <access-matrix type="notification">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="Assignment">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="Authentication_Info">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="Employee">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="org_middle">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="Tst_Employee">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="Delegation">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="User_Group">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="Group_Member">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="Group_Admin">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="test_process_attachment">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="group_group_settings">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="group_group">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="report_template">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="report_result">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="schedule">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="locale">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="notification_text">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="profile">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="system_profile">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="person_profile">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="profile_value">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="profile_value_long">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="profile_value_string">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="profile_value_boolean">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="profile_value_date">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+    
+    <access-matrix type="profile_value_locale">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
     </access-matrix>
 
 </configuration>

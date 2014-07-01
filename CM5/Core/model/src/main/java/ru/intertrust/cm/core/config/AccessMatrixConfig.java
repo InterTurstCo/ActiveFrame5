@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
@@ -28,6 +29,8 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Attribute(name= "matrix-reference-field", required = false)
     private String matrixReference;
 
+    @Element(name = "create", required = false)
+    private AccessMatrixCreateConfig accessMatrixCreateConfig;
     
     public String getType() {
         return type;
@@ -53,6 +56,15 @@ public class AccessMatrixConfig implements TopLevelConfig {
         this.status = status;
     }
 
+    
+    public AccessMatrixCreateConfig getCreateConfig() {
+        return accessMatrixCreateConfig;
+    }
+
+    public void setCreateConfig(AccessMatrixCreateConfig accessMatrixCreateConfig) {
+        this.accessMatrixCreateConfig = accessMatrixCreateConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -74,6 +86,10 @@ public class AccessMatrixConfig implements TopLevelConfig {
             return false;
         }
 
+        if (accessMatrixCreateConfig != null ? !accessMatrixCreateConfig.equals(that.accessMatrixCreateConfig)
+                : that.accessMatrixCreateConfig != null) {
+            return false;
+        }
         return true;
     }
 

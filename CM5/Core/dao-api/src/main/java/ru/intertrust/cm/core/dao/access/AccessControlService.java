@@ -134,5 +134,14 @@ public interface AccessControlService {
      * @param accessToken Маркер доступа
      * @throws AccessException если маркер нулевой или не является универсальным маркером доступа
      */
-    public void verifySystemAccessToken(AccessToken accessToken) throws AccessException;    
+    public void verifySystemAccessToken(AccessToken accessToken) throws AccessException;
+    
+    /**
+     * Формирует маркер доступа на создание доменного объекта данного типа для переданного пользователя.
+     * @param login Идентификатор пользователя
+     * @param domainObjectType тип доменного объекта
+     * @return
+     * @throws AccessException
+     */
+    AccessToken createDomainObjectCreateToken(String login, String domainObjectType) throws AccessException;
 }

@@ -50,4 +50,12 @@ public interface DatabaseAccessAgent {
      * @return true если пользователь входит в группу
      */
     boolean checkUserGroup(int userId, String groupName);
+    
+    /**
+     * Разрешена ли опрерация создания доменных объектов данного типа для переданоого пользователя.
+     * @param userId идентификатор пользователя
+     * @param objectType тип доменного объекта
+     * @return
+     */
+    boolean isAllowedToCreateDOFor(Id userId, String objectType);
 }

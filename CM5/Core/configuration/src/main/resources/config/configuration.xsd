@@ -809,6 +809,7 @@
 
     <xs:complexType name="accessMatrixType">
         <xs:sequence>
+            <xs:element name="create" type="con:createPermissionsType" maxOccurs="1" minOccurs="0" />        
             <xs:element name="status" type="con:accessMatrixSectionType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -1088,6 +1089,15 @@
                 <xs:element name="permit-group" type="con:permissionGroupType"
                             maxOccurs="unbounded" minOccurs="0"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="createPermissionsType">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:choice>
+                <xs:element name="permit-group" type="con:permissionGroupType"
+                            maxOccurs="unbounded" minOccurs="0"/>
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
