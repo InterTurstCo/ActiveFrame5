@@ -532,55 +532,62 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
-                CollectionRowItem item = collectionRowItems.get(0);
-                int index = -1;
-                for (CollectionRowItem i : items) {
-                    if (i.getId().toStringRepresentation().equalsIgnoreCase(item.getId().toStringRepresentation())) {
-                        index = items.indexOf(i);
-                    }
-                }
-
-                // коллекция не пуста
-                if (items.size() >= 0) {
-                    // признак вставки элемента в коллекцию
-                    boolean inserted = false;
-                    // если была выделена строка коллекции - снимаем выделение
+                if (collectionRowItems.isEmpty()) { //it happens when the updated item doesn't belong to the collection anymore
+                    // перерисовка таблицы(коллекции)
+                    tableBody.setRowData(items);
+                    tableBody.redraw();
+                    tableBody.flush();
+                } else {
+                    CollectionRowItem item = collectionRowItems.get(0);
+                    int index = -1;
                     for (CollectionRowItem i : items) {
-                        if (selectionModel.isSelected(i)) {
-                            selectionModel.setSelected(i, false);
+                        if (i.getId().toStringRepresentation().equalsIgnoreCase(item.getId().toStringRepresentation())) {
+                            index = items.indexOf(i);
                         }
                     }
 
-                    // если был совпадающий по id элемент
-                    if (index >= 0) {
-                        try {
-                            // замена элемента в коллекции
-                            items.remove(index);
-                            items.add(index, item);
+                    // коллекция не пуста
+                    if (items.size() >= 0) {
+                        // признак вставки элемента в коллекцию
+                        boolean inserted = false;
+                        // если была выделена строка коллекции - снимаем выделение
+                        for (CollectionRowItem i : items) {
+                            if (selectionModel.isSelected(i)) {
+                                selectionModel.setSelected(i, false);
+                            }
+                        }
+
+                        // если был совпадающий по id элемент
+                        if (index >= 0) {
+                            try {
+                                // замена элемента в коллекции
+                                items.remove(index);
+                                items.add(index, item);
+                                selectionModel.setSelected(item, true);
+                                inserted = true;
+                                // обновляем таблицу
+                                tableBody.setRowData(items);
+                                tableBody.redraw();
+                                tableBody.flush();
+                            } catch (IndexOutOfBoundsException ie) {
+                            }
+                        }
+
+                        // добавление нового элемента
+                        if (!inserted) {
+
+                            items.add(item);
+                            selectionModel.clear();
                             selectionModel.setSelected(item, true);
-                            inserted = true;
-                            // обновляем таблицу
-                            tableBody.setRowData(items);
-                            tableBody.redraw();
-                            tableBody.flush();
-                        } catch (IndexOutOfBoundsException ie) {
                         }
                     }
 
-                    // добавление нового элемента
-                    if (!inserted) {
-
-                        items.add(item);
-                        selectionModel.clear();
-                        selectionModel.setSelected(item, true);
-                    }
+                    // перерисовка таблицы(коллекции)
+                    tableBody.setRowData(items);
+                    tableBody.redraw();
+                    tableBody.flush();
+                    eventBus.fireEvent(new CollectionRowSelectedEvent(item.getId()));
                 }
-
-                // перерисовка таблицы(коллекции)
-                tableBody.setRowData(items);
-                tableBody.redraw();
-                tableBody.flush();
-                eventBus.fireEvent(new CollectionRowSelectedEvent(item.getId()));
             }
         });
     }
