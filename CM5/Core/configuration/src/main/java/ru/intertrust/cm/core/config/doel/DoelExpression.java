@@ -378,12 +378,12 @@ public class DoelExpression {
         }
 
         void addToken(String token, TokenType type) {
-            System.out.println(type.name() + ": " + token);
+            //System.out.println(type.name() + ": " + token);
             state = state.tokenAcceptor.accept(this, token, type);
         }
 
         Element[] getResult() {
-            System.out.println(TokenType.EMPTY.name());
+            //System.out.println(TokenType.EMPTY.name());
             state = state.tokenAcceptor.accept(this, null, TokenType.EMPTY);
             if (state != State.FINISHED) {
                 throw new IllegalStateException();
