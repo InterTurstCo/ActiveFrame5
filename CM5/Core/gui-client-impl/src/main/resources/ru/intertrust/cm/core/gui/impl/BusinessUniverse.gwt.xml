@@ -15,4 +15,9 @@
     <inherits name="ru.intertrust.cm.core.config.Configuration"/>
     <source path="client"/>
 
+    <!-- defines HistoryManager -->
+    <replace-with class="ru.intertrust.cm.core.gui.impl.client.HistoryManagerImpl">
+        <when-type-assignable class="ru.intertrust.cm.core.gui.api.client.HistoryManager"/>
+    </replace-with>
+
 </module>

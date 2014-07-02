@@ -30,13 +30,23 @@ public class Application {
 
 
     /*
-     * Шина событий приложения
+     * Глобальная шина событий приложения
      */
-    private EventBus eventBus = null;
-    private CompactModeState compactModeState;
+    private final EventBus eventBus;
+    private final CompactModeState compactModeState;
+    private final HistoryManager historyManager;
     private List<String> timeZoneIds;
     private int collectionCountersUpdatePeriod = -1;
     private int headerNotificationPeriod = -1;
+
+    private Application() {
+        // создаем шину сообщений
+        eventBus = GWT.create(SimpleEventBus.class);
+        compactModeState = new CompactModeState();
+        historyManager = GWT.create(HistoryManager.class);
+        glassPopupPanel = new PopupPanel();
+        createGlassPopup();
+    }
 
     /*
      * Метод получения экземпляра класса                                        ;
@@ -57,6 +67,10 @@ public class Application {
 
     public CompactModeState getCompactModeState() {
         return compactModeState;
+    }
+
+    public HistoryManager getHistoryManager() {
+        return historyManager;
     }
 
     public List<String> getTimeZoneIds() {
@@ -96,16 +110,6 @@ public class Application {
           timer.cancel();
           glassPopupPanel.hide();
 
-    }
-
-
-
-    private Application() {
-        // создаем шину сообщений
-        eventBus = GWT.create(SimpleEventBus.class);
-        compactModeState = new CompactModeState();
-        glassPopupPanel = new PopupPanel();
-        createGlassPopup();
     }
 
     private void createGlassPopup(){

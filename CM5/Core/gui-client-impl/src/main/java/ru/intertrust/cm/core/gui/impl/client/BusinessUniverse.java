@@ -1,16 +1,23 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
+import java.util.logging.Logger;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
@@ -18,20 +25,26 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyle;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyleHandler;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
-import ru.intertrust.cm.core.gui.impl.client.panel.SettingsPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-
-import java.util.logging.Logger;
 
 /**
  * @author Denis Mitavskiy
@@ -41,7 +54,6 @@ import java.util.logging.Logger;
 @ComponentName("business.universe")
 public class BusinessUniverse extends BaseComponent implements EntryPoint, NavigationTreeItemSelectedEventHandler {
     static Logger logger = Logger.getLogger("Business universe");
-    private static EventBus eventBus = Application.getInstance().getEventBus();
     private CentralPluginPanel centralPluginPanel;
     private NavigationTreePlugin navigationTreePlugin;
     private PluginPanel navigationTreePanel;
@@ -65,6 +77,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
+                final EventBus glEventBus = Application.getInstance().getEventBus();
                 SettingsPopupConfig settingsPopupConfig = result.getSettingsPopupConfig();
                 ThemesConfig themesConfig = settingsPopupConfig == null ? null : settingsPopupConfig.getThemesConfig();
                 GlobalThemesManager.initTheme(themesConfig);
@@ -102,15 +115,15 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 // данному плагину устанавливается глобальная шина событий
-                navigationTreePlugin.setEventBus(eventBus);
+                navigationTreePlugin.setEventBus(glEventBus);
                 centralPluginPanel = new CentralPluginPanel();
                 centralDivPanel.add(centralPluginPanel);
                 centralPluginWidth = Window.getClientWidth() - 150;
                 centralPluginHeight = Window.getClientHeight();
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
-                eventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
-                eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
+                glEventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
+                glEventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
                 navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
                 navigationTreePanel.open(navigationTreePlugin);
                 String logoImagePath = result.getLogoImagePath();
@@ -118,7 +131,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig));
                 left.add(navigationTreePanel);
 
-                eventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
+                glEventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
                     @Override
                     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
 
@@ -131,12 +144,12 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                         }
 
-                        eventBus.fireEvent(new PluginPanelSizeChangedEvent());
+                        glEventBus.fireEvent(new PluginPanelSizeChangedEvent());
 
                     }
                 });
 
-                eventBus.addHandler(SideBarResizeEventStyle.TYPE, new SideBarResizeEventStyleHandler() {
+                glEventBus.addHandler(SideBarResizeEventStyle.TYPE, new SideBarResizeEventStyleHandler() {
                     @Override
                     public void sideBarSetStyleEvent(SideBarResizeEventStyle event) {
 
@@ -146,7 +159,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 });
 
                 // обработчик окончания расширенного поиска
-                eventBus.addHandler(ExtendedSearchCompleteEvent.TYPE, new ExtendedSearchCompleteEventHandler() {
+                glEventBus.addHandler(ExtendedSearchCompleteEvent.TYPE, new ExtendedSearchCompleteEventHandler() {
                     @Override
                     public void onExtendedSearchComplete(ExtendedSearchCompleteEvent event) {
                         extendedSearchComplete(event.getDomainObjectSurferPluginData());
@@ -215,7 +228,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //centralPluginPanel.setVisibleHeight(centralPanelHeight);
                 centralPluginPanel.asWidget().getElement().getFirstChildElement().addClassName("central-plugin-panel-table");
                 //centrInner.getElement().getStyle().setHeight(centralPanelHeight - 11, Style.Unit.PX);
-                eventBus.fireEvent(new PluginPanelSizeChangedEvent());
+                Application.getInstance().getEventBus().fireEvent(new PluginPanelSizeChangedEvent());
 
             }
         });
@@ -240,7 +253,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 }
 
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
-                eventBus.fireEvent(new PluginPanelSizeChangedEvent());
+                Application.getInstance().getEventBus().fireEvent(new PluginPanelSizeChangedEvent());
             }
         });
 

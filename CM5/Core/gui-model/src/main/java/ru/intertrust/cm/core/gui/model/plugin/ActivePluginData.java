@@ -9,13 +9,15 @@ import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
  *         Date: 22.08.13
  *         Time: 16:14
  */
-public abstract class ActivePluginData extends PluginData {
+public class ActivePluginData extends PluginData {
+    // @defaultUID
+    private static final long serialVersionUID = 0L;
+
     private ToolbarContext toolbarContext;
 
     /**
      * Возвращает список конфигураций действий, отображаемых в "Панели действий"
      * @return список конфигураций действий, отображаемых в "Панели действий"
-     * @return
      */
     public ToolbarContext getToolbarContext() {
         return toolbarContext;
@@ -23,7 +25,7 @@ public abstract class ActivePluginData extends PluginData {
 
     /**
      * Устанавливает список конфигураций действий, отображаемых в "Панели действий"
-     * @param toolbarContext
+     * @param toolbarContext список конфигураций действий, отображаемых в "Панели действий"
      */
     public void setToolbarContext(final ToolbarContext toolbarContext) {
         this.toolbarContext = toolbarContext;

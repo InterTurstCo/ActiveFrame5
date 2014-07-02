@@ -5,7 +5,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
  */
 public class FormPluginState implements PluginState {
 
-    private boolean editable;
+    private boolean editable = true;
     private boolean toggleEdit;
     private boolean inCentralPanel;
 

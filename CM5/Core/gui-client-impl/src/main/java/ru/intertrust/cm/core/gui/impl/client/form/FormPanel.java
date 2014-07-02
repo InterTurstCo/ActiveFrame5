@@ -1,26 +1,51 @@
 package ru.intertrust.cm.core.gui.impl.client.form;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTMLTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.config.gui.form.*;
+
+import ru.intertrust.cm.core.config.gui.form.BodyConfig;
+import ru.intertrust.cm.core.config.gui.form.BookmarkListConfig;
+import ru.intertrust.cm.core.config.gui.form.CellConfig;
+import ru.intertrust.cm.core.config.gui.form.HeaderConfig;
+import ru.intertrust.cm.core.config.gui.form.HidingGroupListConfig;
+import ru.intertrust.cm.core.config.gui.form.LayoutConfig;
+import ru.intertrust.cm.core.config.gui.form.MarkupConfig;
+import ru.intertrust.cm.core.config.gui.form.RowConfig;
+import ru.intertrust.cm.core.config.gui.form.SingleEntryGroupListConfig;
+import ru.intertrust.cm.core.config.gui.form.TabConfig;
+import ru.intertrust.cm.core.config.gui.form.TabGroupConfig;
+import ru.intertrust.cm.core.config.gui.form.TabGroupListConfig;
+import ru.intertrust.cm.core.config.gui.form.TableLayoutConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import ru.intertrust.cm.core.gui.model.history.HistoryItem;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 /**
  * @author Denis Mitavskiy
@@ -28,6 +53,7 @@ import java.util.Map;
  *         Time: 14:53
  */
 public class FormPanel implements IsWidget {
+    private static final String TAB_KEY = "tb";
 
     private TabPanel bodyTabPanel;
     private AbsolutePanel footer;
@@ -37,21 +63,18 @@ public class FormPanel implements IsWidget {
     private boolean isHeightFromConfig;
     private boolean isWidthFromConfig;
     private List<TabConfig> tabs;
-    private final boolean editable;
+    private final FormPluginState state;
     private EventBus eventBus;
-    public static String TOOL_BAR_ID = "action-bar-id";
-    private boolean toggleEdit;
     private BaseComponent owner;
 
     public void setClassForPluginPanel(String styleName) {
         panel.getElement().addClassName(styleName);
     }
 
-    public FormPanel(FormDisplayData formDisplayData, boolean editable, boolean toggleEdit, EventBus eventBus) {
+    public FormPanel(FormDisplayData formDisplayData, FormPluginState state, EventBus eventBus) {
         this.formDisplayData = formDisplayData;
-        this.editable = editable;
+        this.state = state;
         this.eventBus = eventBus;
-        this.toggleEdit = toggleEdit;
         panel = new FlowPanel();
         build();
 
@@ -89,7 +112,7 @@ public class FormPanel implements IsWidget {
     private FlowPanel build() {
 
 
-        if (isExtraStyleRequired(editable, toggleEdit)) {
+        if (isExtraStyleRequired()) {
             panel.setStyleName("frm-pnl-top");
         }
         widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
@@ -154,7 +177,8 @@ public class FormPanel implements IsWidget {
                 FlowPanel selectedPanel = (FlowPanel) bodyTabPanel.getWidget(numberOfSelected);
                 Widget selectedWidget = selectedPanel.getWidget(0);
                 Object marker = selectedWidget.getLayoutData();
-
+                Application.getInstance().getHistoryManager().addHistoryItems(
+                        new HistoryItem(HistoryItem.Type.URL, TAB_KEY, numberOfSelected.toString()));
                 if (BusinessUniverseConstants.FOOTER_LONG.equals(marker)) {
                     footer.setStyleName("form-footer-long");
                 } else if (BusinessUniverseConstants.FOOTER_SHORT.equals(marker)) {
@@ -165,10 +189,13 @@ public class FormPanel implements IsWidget {
             }
         });
         if (!tabs.isEmpty()) {
-            bodyTabPanel.selectTab(0);
-            bodyTabPanel.getWidget(0).getParent().getElement().getParentElement().addClassName("gwt-TabLayoutPanel-wrapper");
+            final HistoryManager historyManager = Application.getInstance().getHistoryManager();
+            final String indexAsStr = historyManager.getValue(TAB_KEY);
+            final int selectedTab = StringUtil.integerFromString(indexAsStr, Integer.valueOf(0));
+            bodyTabPanel.selectTab(selectedTab);
+            bodyTabPanel.getWidget(selectedTab).getParent().getElement().getParentElement()
+                    .addClassName("gwt-TabLayoutPanel-wrapper");
         }
-
     }
 
 
@@ -265,7 +292,7 @@ public class FormPanel implements IsWidget {
                 }
                 String widgetComponent = formDisplayData.getWidgetComponent(displayConfig.getId());
                 BaseWidget widget = ComponentRegistry.instance.get(widgetComponent);
-                widget.setEditable(editable && widgetState.isEditable());
+                widget.setEditable(state.isEditable() && widgetState.isEditable());
                 widget.setDisplayConfig(displayConfig);
                 Map<String, String> messages = formState.getMessages();
                 widget.setMessages(messages);
@@ -343,8 +370,8 @@ public class FormPanel implements IsWidget {
 
     }
 
-    private boolean isExtraStyleRequired(boolean isEditable, boolean isToggleEdit) {
-        return isEditable && isToggleEdit;
+    private boolean isExtraStyleRequired() {
+        return state.isEditable() && state.isToggleEdit();
     }
 
     public BaseComponent getOwner() {

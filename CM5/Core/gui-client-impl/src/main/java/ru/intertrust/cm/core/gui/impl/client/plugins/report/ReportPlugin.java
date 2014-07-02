@@ -8,7 +8,6 @@ import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
@@ -27,12 +26,10 @@ import ru.intertrust.cm.core.gui.model.plugin.ReportPluginState;
 @ComponentName("report.plugin")
 public class ReportPlugin extends Plugin implements IsActive {
 
-    private String reportName;
-    private FormDisplayData formDisplayData;
-
     @Override
     public PluginView createView() {
-        return new ReportPluginView(this, formDisplayData);
+        final ReportPluginData initialData = getInitialData();
+        return new ReportPluginView(this, initialData.getFormDisplayData());
     }
 
     @Override
@@ -55,20 +52,18 @@ public class ReportPlugin extends Plugin implements IsActive {
     @Override
     public void setInitialData(PluginData initialData) {
         super.setInitialData(initialData);
-
-        ReportPluginData reportPluginData = (ReportPluginData) initialData;
-        reportName = reportPluginData.getReportName();
-        formDisplayData = reportPluginData.getFormDisplayData();
         setDisplayActionToolBar(true);
         Application.getInstance().hideLoadingIndicator();
     }
 
     public String getReportName() {
-        return reportName;
+        final ReportPluginData initialData = getInitialData();
+        return initialData.getReportName();
     }
 
     public FormState getFormState() {
-        return formDisplayData.getFormState();
+        final ReportPluginData initialData = getInitialData();
+        return initialData.getFormDisplayData().getFormState();
     }
 
     public void updateFormState() {

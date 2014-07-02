@@ -12,7 +12,7 @@ public class ReportPluginData extends ActivePluginData {
     private String reportName;
     private FormDisplayData formDisplayData;
 
-    public ReportPluginData(){} // for serialization support only; normally should not be used.
+    public ReportPluginData(){} // for GWT serialization support only; normally should not be used.
 
     public ReportPluginData(String reportName, FormDisplayData formDisplayData) {
         this.reportName = reportName;
@@ -26,6 +26,4 @@ public class ReportPluginData extends ActivePluginData {
     public FormDisplayData getFormDisplayData() {
         return formDisplayData;
     }
-
-
 }

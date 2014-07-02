@@ -53,6 +53,8 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 public class CollectionPluginView extends PluginView {
     public static final int FETCHED_ROW_COUNT = 25;
+    public static final String ID_KEY = "id";
+
     private CollectionDataGrid tableBody;
     private List<CollectionRowItem> items;
     private LinkedHashMap<String, CollectionColumnProperties> fieldPropertiesMap;

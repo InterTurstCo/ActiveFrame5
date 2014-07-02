@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,8 @@ public class ExtendedSearchFormPluginView extends PluginView {
 
     public ExtendedSearchFormPluginView(ExtendedSearchFormPlugin extendedSearchFormPlugin, FormDisplayData formDisplayData) {
         super(extendedSearchFormPlugin);
-        extendedSearchFormPanel = new FormPanel(formDisplayData, true, false, Application.getInstance().getEventBus());
+        final FormPluginState state = new FormPluginState();
+        extendedSearchFormPanel = new FormPanel(formDisplayData, state, Application.getInstance().getEventBus());
         extendedSearchFormPanel.setClassForPluginPanel("ext-search-form-style");
     }
 

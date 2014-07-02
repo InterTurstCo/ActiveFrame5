@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.report;
 
 import com.google.gwt.user.client.ui.IsWidget;
+
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 /**
  * @author Lesia Puhova
@@ -16,9 +18,10 @@ public class ReportPluginView extends PluginView {
 
     private FormPanel formPanel;
 
-    protected ReportPluginView(Plugin plugin, FormDisplayData formDisplayData) {
+    ReportPluginView(Plugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
-        formPanel = new FormPanel(formDisplayData, true, false, Application.getInstance().getEventBus());
+        final FormPluginState state = new FormPluginState();
+        formPanel = new FormPanel(formDisplayData, state, Application.getInstance().getEventBus());
     }
 
     @Override

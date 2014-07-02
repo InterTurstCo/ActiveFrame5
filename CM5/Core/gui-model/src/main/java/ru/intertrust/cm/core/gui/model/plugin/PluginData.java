@@ -7,7 +7,9 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 22.08.13
  *         Time: 15:54
  */
-public abstract class PluginData implements Dto {
+public class PluginData implements Dto {
+    // @defaultUID
+    private static final long serialVersionUID = 0L;
 
     private PluginState pluginState;
 
@@ -18,5 +20,4 @@ public abstract class PluginData implements Dto {
     public void setPluginState(PluginState pluginState) {
         this.pluginState = pluginState;
     }
-
 }
