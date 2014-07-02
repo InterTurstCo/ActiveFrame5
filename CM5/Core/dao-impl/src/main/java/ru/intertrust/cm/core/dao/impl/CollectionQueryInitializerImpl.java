@@ -29,7 +29,7 @@ import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.transfor
  */
 public class CollectionQueryInitializerImpl implements CollectionQueryInitializer {
 
-    private static final String PLACEHOLDER_REGEXP_PATTERN = "::[\\w\\d_\\-]+";
+    private static final String PLACEHOLDER_REGEXP_PATTERN = "::(?!timestamp$)[\\w\\d_\\-]+";
 
     private static final String PLACEHOLDER_PREFIX = "::";
 
@@ -300,7 +300,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      * @return измененный запрос
      */
     private String removeUnFilledPlaceholders(String prototypeQuery) {
-        Pattern pattern = Pattern.compile(PLACEHOLDER_REGEXP_PATTERN);
+        Pattern pattern = Pattern.compile("::(?!timestamp)[\\w\\d_\\-]+");
         Matcher matcher = pattern.matcher(prototypeQuery);
         // Check all occurrences
         while (matcher.find()) {
