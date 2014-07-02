@@ -95,8 +95,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return getBoolean(getFieldName(columnIndex));
     }
 
     @Override
@@ -195,8 +194,19 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public boolean getBoolean(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException();
+        boolean result = false;
+        Value value = collection.get(index).getValue(columnLabel);
+        if (value != null && value.get() != null) {
+            if (value instanceof BooleanValue) {
+                result = ((BooleanValue) value).get();
+            }else {
+                throw new SQLException("Value of column " + columnLabel + " is not int type");
+            }
+        }else{
+            throw new SQLException("Method getBoolean can not execute on field with null value");
+        }
 
+        return result;
     }
 
     @Override
@@ -367,7 +377,9 @@ public class JdbcResultSet implements ResultSet {
             if (value instanceof LongValue) {
                 result = ((LongValue) value).get();
             } else if (value instanceof ReferenceValue) {
-                result = ((ReferenceValue) value).get().toStringRepresentation();
+                result = ((ReferenceValue) value).get();
+            } else if (value instanceof BooleanValue) {
+                result = ((BooleanValue) value).get();
             } else if (value instanceof DateTimeValue 
                     || value instanceof TimelessDateValue 
                     || value instanceof DateTimeWithTimeZoneValue) {

@@ -12,7 +12,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sochi.version>0.5.11-3-SNAPSHOT</sochi.version>
+        <sochi.version>0.5.11-5-SNAPSHOT</sochi.version>
     </properties>
 
     <dependencies>
@@ -38,4 +38,11 @@
             <type>pom</type>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>intertrust.releases</id>
+            <snapshots><enabled>true</enabled></snapshots>
+            <url>https://nexus.inttrust.ru/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>    
 </project>

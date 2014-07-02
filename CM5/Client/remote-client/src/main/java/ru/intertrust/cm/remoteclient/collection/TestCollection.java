@@ -123,6 +123,16 @@ public class TestCollection extends ClientBase {
 
             query = "select dateon as \"works\" from tst_employee";
             executeQuery(query, 1);
+            
+            params.clear();
+            params.add(new ReferenceValue(new RdbmsId(5018, 1)));
+            query = "select x.id, x.col2 from ( ";
+            query += "select t.id, t.created_date as col2, t.organization as col3 from department t ";
+            query += "union ";
+            query += "select t.id, t.created_date as col2, t.organization as col3 from department t ";
+            query += ") x where x.col3 = {0}";
+            executeQuery(query, 2, params);
+            
 
         } finally {
             writeLog();
