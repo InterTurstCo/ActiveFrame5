@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ListValue;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
@@ -42,7 +43,7 @@ import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 @RunWith(Arquillian.class)
 public class CollectionsIT extends IntegrationTestBase {
 
-    private static final String PERSON_2_PASSWORD = "admin";
+    private static final String ADMIN = "admin";
 
     private static final String PERSON_2_LOGIN = "person2";
 
@@ -76,7 +77,7 @@ public class CollectionsIT extends IntegrationTestBase {
 
     @Before
     public void init() throws IOException, LoginException {
-        LoginContext lc = login(PERSON_2_PASSWORD, PERSON_2_PASSWORD);
+        LoginContext lc = login(ADMIN, ADMIN);
         lc.login();
         try {
             if (!isDataLoaded) {
@@ -96,7 +97,7 @@ public class CollectionsIT extends IntegrationTestBase {
     private void createAuthenticationInfo() {
         AuthenticationInfoAndRole authenticationInfo = new AuthenticationInfoAndRole();
         authenticationInfo.setUserUid(PERSON_2_LOGIN);
-        authenticationInfo.setPassword(PERSON_2_PASSWORD);
+        authenticationInfo.setPassword(ADMIN);
         try {
             authenticationService.insertAuthenticationInfoAndRole(authenticationInfo);
         } catch (Exception e) {
@@ -126,7 +127,7 @@ public class CollectionsIT extends IntegrationTestBase {
         List<Value> params = new ArrayList<Value>();
 
         IdentifiableObjectCollection collection = null;
-        LoginContext lc = login(PERSON_2_LOGIN, PERSON_2_PASSWORD);
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
         lc.login();
         try {
             collection = collectionService.findCollectionByQuery(query, params);
@@ -140,7 +141,41 @@ public class CollectionsIT extends IntegrationTestBase {
 
 
     }
-    
+
+    @Test
+    public void testFindCollectionByQueryWithListParam() {
+        String query = "select * from Employee e where e.department in ({0}) and name = {1}";
+
+        Integer departmentTypeid = domainObjectTypeIdCache.getId(DEPARTMENT_TYPE);
+
+        List<Value> departments = new ArrayList<>();
+        departments.add(new ReferenceValue(new RdbmsId(departmentTypeid, 1)));
+        departments.add(new ReferenceValue(new RdbmsId(departmentTypeid, 2)));
+
+        ListValue departmentsParam = new ListValue(departments);
+
+        List<Value> params = new ArrayList<Value>();
+        params.add(departmentsParam);
+        params.add(new StringValue(EMPLOYEE_1_NAME));
+
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        query = "select * from Employee e where name in ({0})";
+        List<Value> employees = new ArrayList<>();
+
+        employees.add(new StringValue(EMPLOYEE_1_NAME));
+        employees.add(new StringValue("Сотрудник 2"));
+        employees.add(new StringValue("Сотрудник 3"));
+
+        ListValue employeesParam = new ListValue(employees);
+        params = new ArrayList<Value>();
+        params.add(employeesParam);
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+    }
+
     @Test
     public void testFindCollectionByQueryWithParams() {
         String query = "select * from Employee e where e.department = {0} and name = {1}";
@@ -282,7 +317,7 @@ public class CollectionsIT extends IntegrationTestBase {
         filterValues.add(filter);
 
         IdentifiableObjectCollection employeesCollection = null;
-        LoginContext lc = login(PERSON_2_LOGIN, PERSON_2_PASSWORD);
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
         lc.login();
         try {
             employeesCollection =
