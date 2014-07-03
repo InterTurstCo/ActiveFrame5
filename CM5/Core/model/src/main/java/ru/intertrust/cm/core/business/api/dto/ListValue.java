@@ -1,9 +1,8 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
 /**
  * Хранение списка однотипных значений для передачи в SQL in () выражение.
@@ -11,10 +10,10 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
  */
 public class ListValue extends Value<ListValue> {
 
-    private List values;
+    private transient List<Serializable> values;
 
     public ListValue() {
-        this.values = new ArrayList();
+        this.values = new ArrayList<>();
     }
 
     /**
@@ -22,29 +21,22 @@ public class ListValue extends Value<ListValue> {
      * @param values целочичсленное значение
      */
     public ListValue(List<Value> values) {
-        this.values = copyValues(values);
-    }
-
-    private List copyValues(List<Value> values) {
-        List resultValues = new ArrayList();
-        if (values != null && values.size() > 0) {
-            for (Value value : values) {
-                if (value instanceof DateTimeWithTimeZoneValue || value instanceof TimelessDateValue) {
-                    throw new IllegalArgumentException("Value of type " + value.getClass().getName()
-                            + " is not supported for ListValue");
-
-                } else if (value instanceof ReferenceValue) {
-                    resultValues.add(((RdbmsId) value.get()).getId());
-                } else {
-                    resultValues.add(value.get());
-                }
-            }
-        }
-        return resultValues;
+        this.values = getPrimitiveValues(values);
     }
 
     @Override
-    public List get() {
+    public List<Serializable> get() {
         return values;
+    }
+
+    private List<Serializable> getPrimitiveValues(List<Value> values) {
+        if (values == null || values.size() <= 0) {
+            return null;
+        }
+        List<Serializable> resultValues = new ArrayList<>();
+        for (Value value : values) {
+            resultValues.add((Serializable) value.get());
+        }
+        return resultValues;
     }
 }
