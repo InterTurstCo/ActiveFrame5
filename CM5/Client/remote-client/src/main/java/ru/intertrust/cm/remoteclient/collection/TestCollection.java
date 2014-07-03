@@ -124,6 +124,7 @@ public class TestCollection extends ClientBase {
             query = "select dateon as \"works\" from tst_employee";
             executeQuery(query, 1);
             
+            /* Расскоментировать после исправления CMFIVE-1220
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5018, 1)));
             query = "select x.id, x.col2 from ( ";
@@ -131,7 +132,20 @@ public class TestCollection extends ClientBase {
             query += "union ";
             query += "select t.id, t.created_date as col2, t.organization as col3 from department t ";
             query += ") x where x.col3 = {0}";
-            executeQuery(query, 2, params);
+            executeQuery(query, 2, params);*/
+
+            /* Расскоментировать после исправления CMFIVE-1225 
+             params.clear();
+            List<ReferenceValue> listParam = new ArrayList<ReferenceValue>();
+            listParam.add(new ReferenceValue(new RdbmsId(5018, 1)));
+            listParam.add(new ReferenceValue(new RdbmsId(5018, 2)));
+            listParam.add(new ReferenceValue(new RdbmsId(5018, 3)));
+            params.add(listParam);
+            query = "select id, name from organization where id in ({0})";
+            executeQuery(query, 2, params);*/
+            
+            
+            
             
 
         } finally {

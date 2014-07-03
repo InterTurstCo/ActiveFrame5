@@ -186,11 +186,18 @@ public abstract class ClientBase {
         }
 
         //Object service = ctx.lookup("cm-sochi/web-app/" + serviceName + "!" + remoteInterfaceClass.getName());
-        Object service = ctx.lookup("ejb:cm-sochi/web-app//" + serviceName + "!" + remoteInterfaceClass.getName());
+        Object service = ctx.lookup("ejb:" + getAppName() + "/" + getModuleName() + "//" + serviceName + "!" + remoteInterfaceClass.getName());
         return service;
 
     }    
     
+    protected String getAppName(){
+        return "cm-sochi";
+    }
+    
+    protected String getModuleName(){
+        return "web-app";
+    }
     /**
      * Запись лог файла. Необходимо вызывать в finally блоке переопределенного метода execute
      * @throws IOException
