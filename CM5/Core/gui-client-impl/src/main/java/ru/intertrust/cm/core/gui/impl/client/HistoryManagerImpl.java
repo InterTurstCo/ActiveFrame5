@@ -4,7 +4,9 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
 
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.HistoryManager;
+import ru.intertrust.cm.core.gui.impl.client.event.history.RestoreHistoryNavigationEvent;
 import ru.intertrust.cm.core.gui.model.history.HistoryItem;
 import ru.intertrust.cm.core.gui.model.history.HistoryToken;
 
@@ -14,10 +16,16 @@ import ru.intertrust.cm.core.gui.model.history.HistoryToken;
  */
 public class HistoryManagerImpl implements HistoryManager {
 
-    private HistoryToken current = new HistoryToken("unknown");
+    private HistoryToken current = new HistoryToken(UNKNOWN_LINK);
 
     public HistoryManagerImpl() {
         History.addValueChangeHandler(new ValueChangeHandlerImpl());
+    }
+
+    @Override
+    public void setLink(String link) {
+        current = new HistoryToken(link);
+        History.newItem(current.getUrlToken(), false);
     }
 
     public void addHistoryItems(HistoryItem... items) {
@@ -34,7 +42,17 @@ public class HistoryManagerImpl implements HistoryManager {
     private class ValueChangeHandlerImpl implements ValueChangeHandler<String> {
         @Override
         public void onValueChange(ValueChangeEvent<String> event) {
-            System.out.println("-------------->> I'm here " + event.getValue() + " ------------ " + event.getSource());
+            final HistoryToken restoreToken = HistoryToken.getHistoryToken(event.getValue());
+            boolean linkChanged = restoreToken.getLink() != null
+                    && !restoreToken.getLink().isEmpty()
+                    && !UNKNOWN_LINK.equals(restoreToken.getLink())
+                    && !restoreToken.getLink().equals(current.getLink());
+            current = restoreToken;
+            if (linkChanged) {
+                final RestoreHistoryNavigationEvent restoreHistoryNavigationEvent =
+                        new RestoreHistoryNavigationEvent(restoreToken);
+                Application.getInstance().getEventBus().fireEvent(restoreHistoryNavigationEvent);
+            }
         }
     }
 }

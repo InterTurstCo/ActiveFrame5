@@ -19,6 +19,7 @@ public class Application {
     private static final int MILLIS_IN_SEC = 1000;
 
     private static Application ourInstance = null;
+
     private PopupPanel glassPopupPanel;
     private Timer timer = new Timer() {
         @Override
@@ -35,6 +36,7 @@ public class Application {
     private final EventBus eventBus;
     private final CompactModeState compactModeState;
     private final HistoryManager historyManager;
+    private String pageNamePrefix;
     private List<String> timeZoneIds;
     private int collectionCountersUpdatePeriod = -1;
     private int headerNotificationPeriod = -1;
@@ -71,6 +73,14 @@ public class Application {
 
     public HistoryManager getHistoryManager() {
         return historyManager;
+    }
+
+    public String getPageNamePrefix() {
+        return pageNamePrefix == null ? "cmj: " : pageNamePrefix;
+    }
+
+    public void setPageNamePrefix(String pageNamePrefix) {
+        this.pageNamePrefix = pageNamePrefix;
     }
 
     public List<String> getTimeZoneIds() {

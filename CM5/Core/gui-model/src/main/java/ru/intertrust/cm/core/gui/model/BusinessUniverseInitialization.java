@@ -12,12 +12,15 @@ import java.util.List;
  *         Time: 12:37
  */
 public class BusinessUniverseInitialization implements Dto {
+    // @defaultUID
+    private static final long serialVersionUID = 1L;
     private String currentLogin;
     private String firstName;
     private String lastName;
     private String eMail;
     private String logoImagePath;
     private SettingsPopupConfig settingsPopupConfig;
+    private String pageNamePrefix;
     private List<String> timeZoneIds;
     private Integer collectionCountersUpdatePeriod;
     private Integer headerNotificationPeriod;
@@ -31,6 +34,14 @@ public class BusinessUniverseInitialization implements Dto {
             this.currentLogin = "";
         }
         this.currentLogin = currentLogin;
+    }
+
+    public String getPageNamePrefix() {
+        return pageNamePrefix;
+    }
+
+    public void setPageNamePrefix(String pageNamePrefix) {
+        this.pageNamePrefix = pageNamePrefix;
     }
 
     public List<String> getTimeZoneIds() {

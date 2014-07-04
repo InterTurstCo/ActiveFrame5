@@ -6,6 +6,13 @@ package ru.intertrust.cm.core.gui.impl.client.util;
  *         Time: 13:15
  */
 public class BusinessUniverseConstants {
+    // Navigation tree constants
+    public static final String TREE_ITEM_NAME = "name";
+    public static final String TREE_ITEM_ORIGINAL_TEXT = "originalText";
+    public static final String TREE_ITEM_PLUGIN_CONFIG = "pluginConfig";
+
+
+    // gui constants
     public static final String CHECK_BOX_COLUMN_NAME = "checkBox";
     public static final String DESCEND_ARROW = "↓";
     public static final String ASCEND_ARROW = "↑";
@@ -57,5 +64,5 @@ public class BusinessUniverseConstants {
     public static final int CLEAR_BUTTON_WIDTH = 28;
     public static final int SEARCH_CONTAINER_MARGIN_WIDTH = 20;
 
-
+    private BusinessUniverseConstants() {}
 }

@@ -8,6 +8,10 @@ import ru.intertrust.cm.core.gui.model.history.HistoryItem;
  */
 public interface HistoryManager {
 
+    String UNKNOWN_LINK = "unknown";
+
+    void setLink(String link);
+
     void addHistoryItems(HistoryItem... items);
 
     <T> T getValue(String key);

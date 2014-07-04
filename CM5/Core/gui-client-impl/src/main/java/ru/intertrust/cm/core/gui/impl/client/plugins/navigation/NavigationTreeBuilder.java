@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeImages;
 import com.google.gwt.user.client.ui.TreeItem;
 import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 
 import java.util.*;
@@ -124,9 +125,9 @@ class NavigationTreeBuilder {
         TreeItem treeItem = new TreeItem(label);
         label.removeStyleName("gwt-Label");
         Map<String, Object> treeUserObjects = new HashMap<>();
-        treeUserObjects.put("name", treeItemName);
-        treeUserObjects.put("originalText", treeItem.getText());
-        treeUserObjects.put("pluginConfig", pluginDefinition.getPluginConfig());
+        treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_NAME, treeItemName);
+        treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT, treeItem.getText());
+        treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG, pluginDefinition.getPluginConfig());
         treeItem.setUserObject(treeUserObjects);
         return treeItem;
     }
@@ -160,7 +161,8 @@ class NavigationTreeBuilder {
         for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
             List<LinkConfig> linkConfigList = childLinksConfig.getLinkConfigList();
             for (LinkConfig linkConfig : linkConfigList) {
-                TreeItem item = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
+                TreeItem item = composeTreeItem(
+                        linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
                 collectCounterDecorators(linkConfig, item);
                 parentTreeItem.addItem(item);
                 addChildrenTreeItems(item, linkConfig);

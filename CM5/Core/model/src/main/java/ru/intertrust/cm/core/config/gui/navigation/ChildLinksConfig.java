@@ -68,5 +68,13 @@ public class ChildLinksConfig implements Dto {
         result = 31 * result + (linkConfigList != null ? linkConfigList.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder(ChildLinksConfig.class.getSimpleName())
+                .append(": groupName=").append(groupName)
+                .append(", childList=").append(linkConfigList)
+                .toString();
+    }
 }
 

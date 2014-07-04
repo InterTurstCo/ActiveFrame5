@@ -13,6 +13,7 @@ public class NavigationTreePluginData extends PluginData {
     private LinkConfig rootLinkConfig;
     private PluginConfig pluginConfig;
     private String childToOpen;
+    private String rootLinkSelectedName;
 
     public String getChildToOpen() {
         return childToOpen;
@@ -21,8 +22,6 @@ public class NavigationTreePluginData extends PluginData {
     public void setChildToOpen(String childToOpen) {
         this.childToOpen = childToOpen;
     }
-
-    private String rootLinkSelectedName;
 
 
     public NavigationConfig getNavigationConfig() {

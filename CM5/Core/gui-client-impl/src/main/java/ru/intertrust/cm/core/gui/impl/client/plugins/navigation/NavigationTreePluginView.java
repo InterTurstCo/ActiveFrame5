@@ -1,14 +1,33 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeImages;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
@@ -23,8 +42,8 @@ import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyle;
 import ru.intertrust.cm.core.gui.impl.client.panel.RootNodeButton;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
-import ru.intertrust.cm.core.gui.impl.client.panel.SystemTreeStyles;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
@@ -32,15 +51,9 @@ import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 
 public class NavigationTreePluginView extends PluginView {
 
-    private static EventBus eventBus = Application.getInstance().getEventBus();
     private final int DURATION = 500;
     private int END_WIDGET_WIDTH = 349;
     private int START_WIDGET_WIDTH = 130;
@@ -88,7 +101,7 @@ public class NavigationTreePluginView extends PluginView {
         decorateRootlinksPanel(rootLinksPanel);
         List<LinkConfig> linkConfigList = navigationTreePluginData.getNavigationConfig().getLinkConfigList();
         String selectedRootLinkName = navigationTreePluginData.getRootLinkSelectedName();
-        buildRootLinks(linkConfigList, selectedRootLinkName, sideBarView);
+        final LinkConfig selectedLinkConfig = buildRootLinks(linkConfigList, selectedRootLinkName, sideBarView);
         navigationTreeContainer.add(sideBarView);
         final HorizontalPanel navigationTreePanel = new HorizontalPanel();
         HorizontalPanel horizontalPanel = new HorizontalPanel();
@@ -98,9 +111,8 @@ public class NavigationTreePluginView extends PluginView {
         verticalPanel.add(navigationTreesPanel);
         navigationTreePanel.getElement().getStyle().setLeft(150, Style.Unit.PX);
         focusContainer.add(horizontalPanel);
-        LinkConfig firstRootLink = first(linkConfigList);
         navigationTreeContainer.add(focusContainer);
-        drawNavigationTrees(firstRootLink);
+        drawNavigationTrees(selectedLinkConfig);
 
         pinButton.getElement().getStyle().setZIndex(111);
         pinButton.getElement().getStyle().setDisplay(Style.Display.BLOCK);
@@ -112,6 +124,7 @@ public class NavigationTreePluginView extends PluginView {
         pinButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                final EventBus eventBus = Application.getInstance().getEventBus();
                 if (pinButtonClick == false) {
                     pinButtonClick = true;
                     pinButton.removeStyleName("icon pin-normal");
@@ -128,33 +141,31 @@ public class NavigationTreePluginView extends PluginView {
             }
         });
 
-       focusContainer.addMouseMoveHandler(new MouseMoveHandler() {
-           @Override
-           public void onMouseMove(MouseMoveEvent event) {
-               if (stopMouseMoveEvent){
-               if (event.getX() < SIDE_BAR_WIDTH || currentWidth > START_WIDGET_WIDTH){
-                   if (mouseOutTimer != null) {
-                       mouseOutTimer.cancel();
-                   }
-                   ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH, navigationTreesPanel);
-                   resizeTreeAnimation.run(DURATION);
-                   currentWidth = END_WIDGET_WIDTH;
-                   pinButton.getElement().getStyle().setZIndex(10);
-                   navigationTreeContainer.getElement().getStyle().setZIndex(9);
+        focusContainer.addMouseMoveHandler(new MouseMoveHandler() {
+            @Override
+            public void onMouseMove(MouseMoveEvent event) {
+                if (stopMouseMoveEvent) {
+                    if (event.getX() < SIDE_BAR_WIDTH || currentWidth > START_WIDGET_WIDTH) {
+                        if (mouseOutTimer != null) {
+                            mouseOutTimer.cancel();
+                        }
+                        ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH,
+                                navigationTreesPanel);
+                        resizeTreeAnimation.run(DURATION);
+                        currentWidth = END_WIDGET_WIDTH;
+                        pinButton.getElement().getStyle().setZIndex(10);
+                        navigationTreeContainer.getElement().getStyle().setZIndex(9);
 
+                        final String style = pinButtonClick ? "left-section-active" : "left-section";
+                        final SideBarResizeEventStyle sideBarResizeEventStyle =
+                                new SideBarResizeEventStyle(false, "", style, "");
+                        Application.getInstance().getEventBus().fireEvent(sideBarResizeEventStyle);
+                        stopMouseMoveEvent = false;
+                    }
+                }
 
-                   if (!pinButtonClick) {
-                       eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
-                   } else {
-                       eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section-active", ""));
-                   }
-                   stopMouseMoveEvent = false;
-
-               }
-               }
-
-           }
-       });
+            }
+        });
 
         focusContainer.addMouseOutHandler(new MouseOutHandler() {
             @Override
@@ -168,8 +179,8 @@ public class NavigationTreePluginView extends PluginView {
                             currentWidth = START_WIDGET_WIDTH;
                             pinButton.getElement().getStyle().setZIndex(0);
                             navigationTreeContainer.getElement().getStyle().setZIndex(0);
-                            eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
-
+                            Application.getInstance().getEventBus().fireEvent(
+                                    new SideBarResizeEventStyle(false, "", "left-section", ""));
                         }
                     };
                     mouseOutTimer.schedule(500);
@@ -177,7 +188,6 @@ public class NavigationTreePluginView extends PluginView {
                 }
             }
         });
-        setIndex(0);
         if (Application.getInstance().getCollectionCountersUpdatePeriod() > 0) {
             activateCollectionCountersUpdateTimer(Application.getInstance().getCollectionCountersUpdatePeriod());
         }
@@ -208,8 +218,8 @@ public class NavigationTreePluginView extends PluginView {
                         }
                         for (CounterDecorator counterObject : rootCounterDecorators) {
                             if (counterObject.getCounterKey().getCollectionName() != null){
-                            CounterKey identifier = counterObject.getCounterKey();
-                            counterObject.decorate(countersValues.get(identifier));
+                                CounterKey identifier = counterObject.getCounterKey();
+                                counterObject.decorate(countersValues.get(identifier));
                             }
                         }
                         counterKeys.clear();
@@ -223,9 +233,6 @@ public class NavigationTreePluginView extends PluginView {
                 });
             }
         };
-
-//        Integer collectionCountersUpdatePeriod = businessUniverseInitialization.getCollectionCountersUpdatePeriod();
-//        int collectionCountersUpdatePeriodMillis = collectionCountersUpdatePeriod * 1000;
         timer.scheduleRepeating(collectionCountersUpdatePeriodMillis);
     }
 
@@ -236,19 +243,36 @@ public class NavigationTreePluginView extends PluginView {
         }
         for (CounterDecorator rootCounterDecorator : rootCounterDecorators) {
             if (rootCounterDecorator.getCounterKey().getCollectionName() !=null){
-            counterKeys.put(rootCounterDecorator.getCounterKey(), null);
+                counterKeys.put(rootCounterDecorator.getCounterKey(), null);
             }
         }
     }
 
-    public void repaintNavigationTrees(String rootLinkName) {
+    public void repaintNavigationTrees(String rootLinkName, String childToOpenName) {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
         List<LinkConfig> linkConfigList = navigationTreePluginData.getNavigationConfig().getLinkConfigList();
         for (LinkConfig linkConfig : linkConfigList) {
             if (linkConfig.getName().equals(rootLinkName)) {
+                final String originChildToOpenName = linkConfig.getChildToOpen();
+                if (childToOpenName != null) {
+                    linkConfig.setChildToOpen(childToOpenName);
+                }
                 updateCounterTimerContext();
                 drawNavigationTrees(linkConfig);
                 updateCounterKeys();
+                linkConfig.setChildToOpen(originChildToOpenName);
+                break;
+            }
+        }
+    }
+
+    public void showAsSelectedRootLink(final String rootLinkName) {
+        clearSelectedButton();
+        for (int index = 0; index < sideBarView.getMenuItems().getWidgetCount(); index++) {
+            final RootNodeButton btn = (RootNodeButton) sideBarView.getWidgetMenuItems(index);
+            if (rootLinkName.equals(btn.getName())) {
+                btn.setSelected(true);
+                break;
             }
         }
     }
@@ -256,23 +280,21 @@ public class NavigationTreePluginView extends PluginView {
     private void updateCounterTimerContext() {
         counterDecorators.clear();
         lastCountersUpdateTime = 0;
-
-
     }
 
-    private void drawNavigationTrees(LinkConfig firstRootLink) {
+    private void drawNavigationTrees(LinkConfig selectedRootLinkConfig) {
         navigationTreesPanel.clear();
         VerticalPanel verticalPanel = new VerticalPanel();
         SelectionHandler<TreeItem> handler = createSelectionHandler();
         TreeImages images = GWT.create(MyTreeImages.class);
-        List<ChildLinksConfig> childLinksConfigs = firstRootLink.getChildLinksConfigList();
+        List<ChildLinksConfig> childLinksConfigs = selectedRootLinkConfig.getChildLinksConfigList();
         for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
             String groupName = childLinksConfig.getGroupName();
             List<LinkConfig> links = childLinksConfig.getLinkConfigList();
             NavigationTreeBuilder navigationTreeBuilder = new NavigationTreeBuilder(links, groupName);
             navigationTreeBuilder
                     .addSelectionHandler(handler)
-                    .setChildToOpenName(firstRootLink.getChildToOpen())
+                    .setChildToOpenName(selectedRootLinkConfig.getChildToOpen())
                     .setImages(images);
             Tree tree = navigationTreeBuilder.toTree();
             counterDecorators.addAll(navigationTreeBuilder.getCounterDecorators());
@@ -288,6 +310,7 @@ public class NavigationTreePluginView extends PluginView {
 
     private SelectionHandler<TreeItem> createSelectionHandler() {
         return new SelectionHandler<TreeItem>() {
+
             @Override
             public void onSelection(SelectionEvent<TreeItem> event) {
                 TreeItem tempItem = event.getSelectedItem();
@@ -313,27 +336,30 @@ public class NavigationTreePluginView extends PluginView {
                 tempItem.getElement().getFirstChildElement().addClassName("gwt-custom-TreeItem-selected");
                 Map<String, Object> treeItemUserObject = (Map<String, Object>) tempItem.getUserObject();
                 if (treeItemUserObject != null) {
+                    final String pageTitle = new StringBuilder(Application.getInstance().getPageNamePrefix())
+                            .append(treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT))
+                            .toString();
+                    Window.setTitle(pageTitle);
+                    Application.getInstance().getHistoryManager()
+                            .setLink((String) treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_NAME));
                     Application.getInstance().getEventBus().fireEventFromSource(
-                            new NavigationTreeItemSelectedEvent((PluginConfig) treeItemUserObject.get("pluginConfig")), plugin);
+                            new NavigationTreeItemSelectedEvent((PluginConfig) treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG)),
+                            plugin);
                 }
-
             }
         };
     }
 
-    private void buildRootLinks(final List<LinkConfig> linkConfigList,
+    private LinkConfig buildRootLinks(final List<LinkConfig> linkConfigList,
                                 final String selectedRootLinkName, final SidebarView sideBarView) {
+        LinkConfig result = null;
+        final ClickHandler clickHandler = new RootNodeButtonClickHandler();
         for (LinkConfig linkConfig : linkConfigList) {
-
-            long collectionCount = 0;
-
             String name = linkConfig.getName();
             String image = linkConfig.getImage();
             String displayText = linkConfig.getDisplayText();
 
-            final RootNodeButton my = new RootNodeButton(collectionCount, name, image, displayText);
-            fillRootNodeButton(collectionCount, name, image, displayText);
-
+            final RootNodeButton my = new RootNodeButton(null, name, image, displayText);
             if (linkConfig.getChildToOpen() != null) {
                 CounterRootNodeDecorator counterRootNodeDecorator = new CounterRootNodeDecorator(my);
                 String collectionToBeOpened = findCollectionForOpen(linkConfig);
@@ -342,19 +368,20 @@ public class NavigationTreePluginView extends PluginView {
                 rootCounterDecorators.add(counterRootNodeDecorator);
             }
             sideBarView.getMenuItems().add(my);
-
-            if (linkConfig.getName().equals(selectedRootLinkName)) {
-                my.setStyleName("selected");
-            }
-            my.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    RootNodeButton source = (RootNodeButton) event.getSource();
-                    Application.getInstance().getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source.getTitle()), plugin);
-                    setStyleForAllNAvigationButton(sideBarView.getWidgetIndex(my), sideBarView);
+            if (selectedRootLinkName == null) {
+                if (result == null) {
+                    result = linkConfig;
+                    my.setSelected(true);
                 }
-            });
+            } else {
+                if (linkConfig.getName().equals(selectedRootLinkName)) {
+                    result = linkConfig;
+                    my.setSelected(true);
+                }
+            }
+            my.addClickHandler(clickHandler);
         }
+        return result;
     }
 
     private String findCollectionForOpen(LinkConfig linkConfig) {
@@ -373,37 +400,12 @@ public class NavigationTreePluginView extends PluginView {
         return null;
     }
 
-    private RootNodeButton fillRootNodeButton(long collectionCount, String name, String image, String displayText) {
-        RootNodeButton my = new RootNodeButton(collectionCount, name, image, displayText);
-
-        return my;
-    }
-
-    private void setStyleForAllNAvigationButton(Integer activeMenu, SidebarView navigationPanel) {
-        for (int i = 0; i < navigationPanel.getMenuItems().getWidgetCount(); i++) {
-            if (activeMenu == i) {
-                navigationPanel.getMenuItems().getWidget(i).removeStyleName("non-selected");
-                navigationPanel.getMenuItems().getWidget(i).setStyleName("selected");
-            } else {
-                navigationPanel.getMenuItems().getWidget(i).removeStyleName("selected");
-                navigationPanel.getMenuItems().getWidget(i).setStyleName("non-selected");
-            }
+    private void clearSelectedButton() {
+        for (int index = 0; index < sideBarView.getMenuItems().getWidgetCount(); index++) {
+            final RootNodeButton rnButton = (RootNodeButton) sideBarView.getMenuItems().getWidget(index);
+            rnButton.setSelected(false);
         }
     }
-
-    void setIndex(int index) {
-
-        for (int i = 0; i < sideBarView.getMenuItems().getWidgetCount(); i++) {
-            if (i == index) {
-
-                sideBarView.getMenuItems().getWidget(i).setStyleName("selected");
-            } else {
-
-                sideBarView.getMenuItems().getWidget(i).setStyleName("non-selected");
-            }
-        }
-    }
-
 
     private void decorateRootlinksPanel(VerticalPanel chapterMenu) {
         chapterMenu.getElement().getStyle().setProperty("backgroundColor", "#EEE");
@@ -411,21 +413,14 @@ public class NavigationTreePluginView extends PluginView {
         chapterMenu.getElement().getStyle().setProperty("marginRight", "5px");
     }
 
-    private String selected(String text, int counter) {
-        return "<div class='fl-selected'>" + text
-                + "<div class='fl-arrow-left'></div><div class='fl-arrow-right'></div>" + counter(counter) + "</div>";
-    }
-
-    private String counter(int num) {
-        if (num > 0) {
-            return "<div class='fl-counter'>" + num + "</div>";
-        } else {
-            return "";
+    private class RootNodeButtonClickHandler implements ClickHandler {
+        @Override
+        public void onClick(ClickEvent event) {
+            RootNodeButton source = (RootNodeButton) event.getSource();
+            Application.getInstance().getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source
+                    .getTitle()), plugin);
+            clearSelectedButton();
+            source.setSelected(true);
         }
     }
-
-    private <T> T first(List<T> linkConfigList) {
-        return linkConfigList.iterator().next();
-    }
-
 }

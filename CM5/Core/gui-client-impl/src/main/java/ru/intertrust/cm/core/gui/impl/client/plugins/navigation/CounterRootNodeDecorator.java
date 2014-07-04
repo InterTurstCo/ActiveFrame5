@@ -26,14 +26,7 @@ public class CounterRootNodeDecorator implements CounterDecorator {
 
     @Override
     public void decorate(Long counterValue) {
-        Long counter = counterValue;
-        if (counterValue == null) {
-            counter = 0L;
-        }
-        rootNodeButton.writeHtml(counter,
-                rootNodeButton.getName(),
-                rootNodeButton.getImage(),
-                rootNodeButton.getDisplayText());
+        rootNodeButton.updateCollectionCount(counterValue);
     }
 
     public String getName() {

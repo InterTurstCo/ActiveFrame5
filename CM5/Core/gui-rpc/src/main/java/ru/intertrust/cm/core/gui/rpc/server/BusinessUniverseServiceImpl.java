@@ -75,6 +75,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         businessUniverseInitialization.setFirstName(person.getString("FirstName"));
         businessUniverseInitialization.setLastName(person.getString("LastName"));
         businessUniverseInitialization.seteMail(person.getString("EMail"));
+        businessUniverseInitialization.setPageNamePrefix(System.getProperty("pageNamePrefix"));
         businessUniverseInitialization.setTimeZoneIds(getTimeZoneIds());
         return businessUniverseInitialization;
     }

@@ -161,4 +161,12 @@ public class  LinkConfig implements Dto {
         result = 31 * result + (decorationsConfig != null ? decorationsConfig.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder(LinkConfig.class.getSimpleName())
+                .append(": name=").append(name)
+                .append(", displayText=").append(displayText)
+                .toString();
+    }
 }

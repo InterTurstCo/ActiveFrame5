@@ -170,6 +170,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 RootLayoutPanel.get().add(root);
                 RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
                 final Application application = Application.getInstance();
+                application.setPageNamePrefix(result.getPageNamePrefix());
                 application.setTimeZoneIds(result.getTimeZoneIds());
                 application.setHeaderNotificationPeriod(result.getHeaderNotificationPeriod());
                 application.setCollectionCountersUpdatePeriod(result.getCollectionCountersUpdatePeriod());
