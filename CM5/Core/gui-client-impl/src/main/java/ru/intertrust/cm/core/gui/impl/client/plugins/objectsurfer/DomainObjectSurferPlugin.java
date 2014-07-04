@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -39,7 +40,7 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,
-        IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler {
+        IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler, RestoreHistorySupport {
 
     private CollectionPlugin collectionPlugin;
     private FormPlugin formPlugin;
@@ -192,6 +193,14 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         if (formPlugin != null && formPlugin.getView() != null) {
             formPlugin.getView().onPluginPanelResize();
         }*/
+    }
+
+    @Override
+    public boolean restoreHistory() {
+        if (!collectionPlugin.restoreHistory()) {
+            formPlugin.restoreHistory();
+        }
+        return false;
     }
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {

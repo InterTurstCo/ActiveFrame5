@@ -2,9 +2,11 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 
 /**
@@ -13,7 +15,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
  *         Time: 12:05 PM
  */
 @ComponentName("collection.plugin")
-public class CollectionPlugin extends Plugin {
+public class CollectionPlugin extends Plugin implements RestoreHistorySupport {
 
     // поле для локальной шины событий
     protected EventBus eventBus;
@@ -44,6 +46,11 @@ public class CollectionPlugin extends Plugin {
     @Override
     public CollectionPlugin createNew() {
         return new CollectionPlugin();
+    }
+
+    @Override
+    public boolean restoreHistory() {
+        return false;
     }
 
     @Override

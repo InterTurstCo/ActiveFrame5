@@ -35,6 +35,7 @@ import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
@@ -59,7 +60,7 @@ public class NavigationTreePluginView extends PluginView {
     private int START_WIDGET_WIDTH = 130;
     private static final int SIDE_BAR_WIDTH = 109;
     private boolean pinButtonClick = false;
-    private TreeItem previousSelectedItem;
+    private TreeItem currentSelectedItem;
     private FocusPanel navigationTreesPanel = new FocusPanel();
     private SidebarView sideBarView;
     private Timer mouseOutTimer;
@@ -248,6 +249,14 @@ public class NavigationTreePluginView extends PluginView {
         }
     }
 
+    public String getSelectedLinkName() {
+        if (currentSelectedItem != null) {
+            final Map<String, Object> userObject  = (Map<String, Object>) currentSelectedItem.getUserObject();
+            return (String) userObject.get(BusinessUniverseConstants.TREE_ITEM_NAME);
+        }
+        return HistoryManager.UNKNOWN_LINK;
+    }
+
     public void repaintNavigationTrees(String rootLinkName, String childToOpenName) {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
         List<LinkConfig> linkConfigList = navigationTreePluginData.getNavigationConfig().getLinkConfigList();
@@ -314,15 +323,15 @@ public class NavigationTreePluginView extends PluginView {
             @Override
             public void onSelection(SelectionEvent<TreeItem> event) {
                 TreeItem tempItem = event.getSelectedItem();
-                if (previousSelectedItem != null && previousSelectedItem != tempItem) {
-                    previousSelectedItem.removeStyleName("synchronized");
-                    previousSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
+                if (currentSelectedItem != null && currentSelectedItem != tempItem) {
+                    currentSelectedItem.removeStyleName("synchronized");
+                    currentSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
                 }
                 TreeItem parent = tempItem.getParentItem();
                 tempItem.getTree().setSelectedItem(parent, false);
                 tempItem.removeStyleName("gwt-TreeItem-selected");
                 tempItem.removeStyleName("gwt-custom-TreeItem-selected");
-                previousSelectedItem = tempItem;
+                currentSelectedItem = tempItem;
                 boolean state = tempItem.getState();
                 tempItem.setState(!state, false);
                 tempItem.setStyleName("synchronized");

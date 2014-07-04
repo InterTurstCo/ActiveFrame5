@@ -6,17 +6,17 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.history.RestoreHistoryNavigationEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.history.RestoreHistoryNavigationEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.history.HistoryToken;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 
 @ComponentName("navigation.tree")
-public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler, RestoreHistoryNavigationEventHandler {
+public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler, RestoreHistorySupport {
 
     protected EventBus eventBus;
 
@@ -38,7 +38,7 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
 
     @Override
     protected GwtEvent.Type[] getEventTypesToHandle() {
-        return new GwtEvent.Type[]{RootLinkSelectedEvent.TYPE, RestoreHistoryNavigationEvent.TYPE};
+        return new GwtEvent.Type[]{RootLinkSelectedEvent.TYPE};
     }
 
     @Override
@@ -48,26 +48,37 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
     }
 
     @Override
-    public void restoreHistory(HistoryToken token) {
-        final NavigationTreePluginData data = getInitialData();
-        final List<LinkConfig> linkConfigs = data.getNavigationConfig().getLinkConfigList();
-        String rootName = null;
-        boolean containsChild = false;
-        for (LinkConfig linkConfig : linkConfigs) {
-            rootName = linkConfig.getName();
-            if (token.getLink().equals(rootName)) {
-                break;
-            } else {
-                containsChild = containsChildLink(linkConfig.getChildLinksConfigList(), token.getLink());
-                if (containsChild) {
+    public boolean restoreHistory() {
+        final HistoryManager historyManager = Application.getInstance().getHistoryManager();
+        final NavigationTreePluginView view = (NavigationTreePluginView) getView();
+        final String selectedLinkName = view.getSelectedLinkName();
+        boolean linkChanged = historyManager.getLink() != null
+                && !historyManager.getLink().isEmpty()
+                && !HistoryManager.UNKNOWN_LINK.equals(historyManager.getLink())
+                && !historyManager.getLink().equals(selectedLinkName);
+        if (linkChanged) {
+            final NavigationTreePluginData data = getInitialData();
+            final List<LinkConfig> linkConfigs = data.getNavigationConfig().getLinkConfigList();
+            String rootName = null;
+            boolean containsChild = false;
+            for (LinkConfig linkConfig : linkConfigs) {
+                rootName = linkConfig.getName();
+                if (historyManager.getLink().equals(rootName)) {
                     break;
+                } else {
+                    containsChild = containsChildLink(linkConfig.getChildLinksConfigList(), historyManager.getLink());
+                    if (containsChild) {
+                        break;
+                    }
                 }
             }
-        }
-        if (rootName != null) {
-            final NavigationTreePluginView view = (NavigationTreePluginView) getView();
-            view.showAsSelectedRootLink(rootName);
-            view.repaintNavigationTrees(rootName, containsChild ? token.getLink() : null);
+            if (rootName != null) {
+                view.showAsSelectedRootLink(rootName);
+                view.repaintNavigationTrees(rootName, containsChild ? historyManager.getLink() : null);
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 

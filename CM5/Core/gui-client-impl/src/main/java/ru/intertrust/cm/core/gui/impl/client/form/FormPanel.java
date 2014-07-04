@@ -37,14 +37,14 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.api.client.HistoryManager;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.history.HistoryItem;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 /**
@@ -54,6 +54,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
  */
 public class FormPanel implements IsWidget {
     private static final String TAB_KEY = "tb";
+    private static final int DEFAULT_TAB = 0;
 
     private TabPanel bodyTabPanel;
     private AbsolutePanel footer;
@@ -77,7 +78,6 @@ public class FormPanel implements IsWidget {
         this.eventBus = eventBus;
         panel = new FlowPanel();
         build();
-
     }
 
     public void updateSizes(int width, int height) {
@@ -86,9 +86,10 @@ public class FormPanel implements IsWidget {
 
     @Override
     public Widget asWidget() {
-
         return panel;
     }
+
+
 
     public List<BaseWidget> getWidgets() {
         return widgets;
@@ -106,6 +107,14 @@ public class FormPanel implements IsWidget {
             }
         }
         this.formDisplayData.setFormState(formState);
+    }
+
+    public void updateViewFromHistory() {
+        final HistoryManager historyManager = Application.getInstance().getHistoryManager();
+        final Integer tabNum = StringUtil.integerFromString((String) historyManager.getValue(TAB_KEY), DEFAULT_TAB);
+        if (bodyTabPanel.getTabBar().getSelectedTab() != tabNum) {
+            bodyTabPanel.selectTab(tabNum);
+        }
     }
 
 
@@ -177,8 +186,11 @@ public class FormPanel implements IsWidget {
                 FlowPanel selectedPanel = (FlowPanel) bodyTabPanel.getWidget(numberOfSelected);
                 Widget selectedWidget = selectedPanel.getWidget(0);
                 Object marker = selectedWidget.getLayoutData();
-                Application.getInstance().getHistoryManager().addHistoryItems(
-                        new HistoryItem(HistoryItem.Type.URL, TAB_KEY, numberOfSelected.toString()));
+                final HistoryItem historyItem = new HistoryItem(
+                        HistoryItem.Type.URL,
+                        TAB_KEY,
+                        DEFAULT_TAB == numberOfSelected ? null : numberOfSelected.toString());
+                Application.getInstance().getHistoryManager().addHistoryItems(historyItem);
                 if (BusinessUniverseConstants.FOOTER_LONG.equals(marker)) {
                     footer.setStyleName("form-footer-long");
                 } else if (BusinessUniverseConstants.FOOTER_SHORT.equals(marker)) {
@@ -191,7 +203,7 @@ public class FormPanel implements IsWidget {
         if (!tabs.isEmpty()) {
             final HistoryManager historyManager = Application.getInstance().getHistoryManager();
             final String indexAsStr = historyManager.getValue(TAB_KEY);
-            final int selectedTab = StringUtil.integerFromString(indexAsStr, Integer.valueOf(0));
+            final int selectedTab = StringUtil.integerFromString(indexAsStr, DEFAULT_TAB);
             bodyTabPanel.selectTab(selectedTab);
             bodyTabPanel.getWidget(selectedTab).getParent().getElement().getParentElement()
                     .addClassName("gwt-TabLayoutPanel-wrapper");
@@ -217,7 +229,7 @@ public class FormPanel implements IsWidget {
                 bodyTabPanel.add(tab.getName(), buildBookmarksTabContent(tab));
             }
             panel.add(bodyTabPanel);
-            bodyTabPanel.selectedIndex(0);
+            bodyTabPanel.selectedIndex(DEFAULT_TAB);
         }
 
         if (groupList instanceof HidingGroupListConfig) {

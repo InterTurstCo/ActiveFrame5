@@ -9,6 +9,8 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import java.util.List;
 
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
+
 /**
  * Утилитный класс, который обеспечивает доступ к "глобальным" объектам приложения
  * User: IPetrov

@@ -9,6 +9,9 @@ import com.google.gwt.event.dom.client.MouseOutEvent;
 import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -37,6 +40,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyle;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyleHandler;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
+import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -174,6 +178,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 application.setTimeZoneIds(result.getTimeZoneIds());
                 application.setHeaderNotificationPeriod(result.getHeaderNotificationPeriod());
                 application.setCollectionCountersUpdatePeriod(result.getCollectionCountersUpdatePeriod());
+                History.addValueChangeHandler(new HistoryValueChangeHandler());
             }
 
             @Override
@@ -264,7 +269,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 if (toggleBtn.getValue()) {
                     return;
                 }
-
             }
         });
 
@@ -280,6 +284,19 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         return new BusinessUniverse();
     }
 
+    private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
+        @Override
+        public void onValueChange(ValueChangeEvent<String> event) {
+            Application.getInstance().getHistoryManager().setToken(event.getValue());
+            if (!navigationTreePlugin.restoreHistory()) {
+                final Plugin plugin = centralPluginPanel.getCurrentPlugin();
+                if (plugin instanceof RestoreHistorySupport) {
+                    ((RestoreHistorySupport) plugin).restoreHistory();
+                }
+            }
+        }
+    }
+
     private static class CentralPluginPanel extends PluginPanel implements CentralPluginChildOpeningRequestedHandler {
         @Override
         public void openChildPlugin(CentralPluginChildOpeningRequestedEvent event) {
@@ -287,5 +304,4 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             this.openChild(child);
         }
     }
-
 }

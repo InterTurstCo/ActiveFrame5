@@ -1,6 +1,6 @@
-package ru.intertrust.cm.core.gui.api.client;
+package ru.intertrust.cm.core.gui.api.client.history;
 
-import ru.intertrust.cm.core.gui.model.history.HistoryItem;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 
 /**
  * @author Sergey.Okolot
@@ -10,7 +10,11 @@ public interface HistoryManager {
 
     String UNKNOWN_LINK = "unknown";
 
+    void setToken(String url);
+
     void setLink(String link);
+
+    String getLink();
 
     void addHistoryItems(HistoryItem... items);
 

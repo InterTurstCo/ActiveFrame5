@@ -94,6 +94,9 @@ public class FormPluginView extends PluginView {
         formPanel.updateSizes(formWidth, formHeight);
     }
 
+    public void updateViewFromHistory() {
+        formPanel.updateViewFromHistory();
+    }
 
     private static class DefaultWidgetStateFilter implements IWidgetStateFilter {
         @Override

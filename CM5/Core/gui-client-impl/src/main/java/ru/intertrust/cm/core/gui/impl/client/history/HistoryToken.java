@@ -1,13 +1,15 @@
-package ru.intertrust.cm.core.gui.model.history;
+package ru.intertrust.cm.core.gui.impl.client.history;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 
 /**
  * @author Sergey.Okolot
  *         Created on 01.07.2014 14:55.
  */
-public class HistoryToken {
+class HistoryToken {
     private static final String ASSIGN_KEY = "=";
     private static final String DELIMITER_KEY = ";";
     private static final String LINK_KEY = "link";
@@ -38,7 +40,7 @@ public class HistoryToken {
     public String getUrlToken() {
         final StringBuilder builder = new StringBuilder(LINK_KEY).append(ASSIGN_KEY).append(link);
         for (Map.Entry<String, HistoryItem> entry : itemMap.entrySet()) {
-            if (HistoryItem.Type.SESSION != entry.getValue().getType() && entry.getValue() != null) {
+            if (HistoryItem.Type.SESSION != entry.getValue().getType() && entry.getValue().getValue() != null) {
                 builder.append(DELIMITER_KEY).append(entry.getKey()).append(ASSIGN_KEY)
                         .append(entry.getValue().getValue());
             }
@@ -52,10 +54,12 @@ public class HistoryToken {
             final String[] items = urlToken.split(DELIMITER_KEY);
             for (String item : items) {
                 final String[] itemData = item.split(ASSIGN_KEY);
-                if (LINK_KEY.equals(itemData[0])) {
-                    token.link = itemData[1];
-                } else {
-                    token.itemMap.put(itemData[0], new HistoryItem(HistoryItem.Type.URL, itemData[0], itemData[1]));
+                if (itemData.length == 2) {
+                    if (LINK_KEY.equals(itemData[0])) {
+                        token.link = itemData[1];
+                    } else {
+                        token.itemMap.put(itemData[0], new HistoryItem(HistoryItem.Type.URL, itemData[0], itemData[1]));
+                    }
                 }
             }
         }

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.model.history;
+package ru.intertrust.cm.core.gui.api.client.history;
 
 /**
  * @author Sergey.Okolot

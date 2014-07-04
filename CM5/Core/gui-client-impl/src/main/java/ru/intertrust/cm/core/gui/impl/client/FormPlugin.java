@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -20,7 +21,8 @@ import java.util.Map;
  *         Time: 15:28
  */
 @ComponentName("form.plugin")
-public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor, PluginPanelSizeChangedEventHandler {
+public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor, PluginPanelSizeChangedEventHandler,
+        RestoreHistorySupport {
     private int temporaryWidth;
     private int temporaryHeight;
     // поле для локальной шины событий
@@ -137,6 +139,12 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     @Override
     public void updateSizes() {
         getView().onPluginPanelResize();
+    }
 
+    @Override
+    public boolean restoreHistory() {
+        final FormPluginView view = (FormPluginView) getView();
+        view.updateViewFromHistory();
+        return false;
     }
 }
