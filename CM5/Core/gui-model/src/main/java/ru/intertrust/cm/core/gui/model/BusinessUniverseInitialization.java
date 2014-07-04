@@ -12,8 +12,6 @@ import java.util.List;
  *         Time: 12:37
  */
 public class BusinessUniverseInitialization implements Dto {
-    // @defaultUID
-    private static final long serialVersionUID = 1L;
     private String currentLogin;
     private String firstName;
     private String lastName;
