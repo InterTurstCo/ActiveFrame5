@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class ListValue extends Value<ListValue> {
 
-    private transient List<Serializable> values;
+    private List<Serializable> values;
 
     public ListValue() {
         this.values = new ArrayList<>();
