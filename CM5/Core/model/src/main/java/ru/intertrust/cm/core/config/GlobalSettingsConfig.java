@@ -23,6 +23,9 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Element(name = "sql-trace", required = true)
     private SqlTrace sqlTrace;
 
+    @Element(name = "transaction-trace", required = true)
+    private TransactionTrace transactionTrace;
+
     @ElementList(name = "search-languages", entry = "language", required = false)
     private List<SearchLanguageConfig> searchLanguages;
 
@@ -40,6 +43,14 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     public void setSqlTrace(SqlTrace sqlTrace) {
         this.sqlTrace = sqlTrace;
+    }
+
+    public TransactionTrace getTransactionTrace() {
+        return transactionTrace;
+    }
+
+    public void setTransactionTrace(TransactionTrace transactionTrace) {
+        this.transactionTrace = transactionTrace;
     }
 
     public List<SearchLanguageConfig> getSearchLanguages() {
@@ -63,6 +74,9 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         if (sqlTrace != null ? !sqlTrace.equals(that.sqlTrace) : that.sqlTrace != null) {
             return false;
         }
+        if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null) {
+            return false;
+        }
         if (searchLanguages != null ? !searchLanguages.equals(that.searchLanguages) : that.searchLanguages != null) {
             return false;
         }
@@ -74,6 +88,7 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     public int hashCode() {
         int result = auditLog != null ? auditLog.hashCode() : 0;
         result = 31 * result + (sqlTrace != null ? sqlTrace.hashCode() : 0);
+        result = 31 * result + (transactionTrace != null ? transactionTrace.hashCode() : 0);
         result = 31 * result + (searchLanguages != null ? searchLanguages.hashCode() : 0);
         return result;
     }

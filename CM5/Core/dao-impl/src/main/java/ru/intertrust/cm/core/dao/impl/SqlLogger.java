@@ -12,10 +12,14 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.TransactionTrace;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 
 /**
  * @author vmatsukevich
@@ -35,6 +39,12 @@ public class SqlLogger {
     @org.springframework.beans.factory.annotation.Value("${sql.trace.resolveParams:false}")
     private Boolean resolveParams;
 
+    @Autowired
+    UserTransactionService userTransactionService;
+
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+
     @Around("(this(org.springframework.jdbc.core.JdbcOperations) || " +
                 "this(org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations)) && " +
                 "execution(* *(String, ..))")
@@ -47,8 +57,27 @@ public class SqlLogger {
         Object returnValue = joinPoint.proceed();
         long timing = System.currentTimeMillis() - startTime;
 
-        String query = joinPoint.getArgs()[0].toString();
+        String query = getSqlQuery(joinPoint);
 
+        int rows = countSqlRows(returnValue, query);
+
+        boolean logWarn = timing >= minWarnTime || rows >= minRowsNum;
+        if (logWarn && logger.isWarnEnabled()) {
+            query = resolveParameters(query, joinPoint);
+            logger.warn(formatLogEntry(query, timing, rows));
+        } else if (logger.isTraceEnabled()){
+            query = resolveParameters(query, joinPoint);
+            logger.trace(formatLogEntry(query, timing, rows));
+        }
+
+        return returnValue;
+    }
+
+    private String getSqlQuery(ProceedingJoinPoint joinPoint) {
+        return joinPoint.getArgs()[0].toString();
+    }
+
+    private int countSqlRows(Object returnValue, String query) {
         int rows = -1;
 
         if (returnValue == null) {
@@ -74,18 +103,51 @@ public class SqlLogger {
             // для прочих
             rows = 1;
         }
+        return rows;
+    }
 
-        boolean logWarn = timing >= minWarnTime || rows >= minRowsNum;
-        if (logWarn && logger.isWarnEnabled()) {
-            query = resolveParameters(query, joinPoint);
-            logger.warn(formatLogEntry(query, timing, rows));
-        } else if (logger.isTraceEnabled()){
-            query = resolveParameters(query, joinPoint);
-            logger.trace(formatLogEntry(query, timing, rows));
+
+    @Around("(this(org.springframework.jdbc.core.JdbcOperations) || " +
+            "this(org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations)) && " +
+            "execution(* *(String, ..))")
+    public Object logTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        TransactionTrace transactionTraceConf = configurationExplorer.getGlobalSettings().getTransactionTrace();
+
+        if (!transactionTraceConf.isEnable()) {
+            return joinPoint.proceed();
         }
+
+        String transactionId = userTransactionService.getTransactionId();
+        if (transactionId == null) {
+            return joinPoint.proceed();
+        }
+
+        long startTime = System.currentTimeMillis();
+        Object returnValue = joinPoint.proceed();
+        long timing = System.currentTimeMillis() - startTime;
+
+        String query = getSqlQuery(joinPoint);
+
+        int rows = countSqlRows(returnValue, query);
+
+        query = resolveParameters(query, joinPoint);
+        String logEntry = formatLogEntry(query, timing, rows);
+
+
+        LogTransactionListener listener = null;
+        listener = userTransactionService.getListener(LogTransactionListener.class);
+        if (listener == null) {
+            listener = new LogTransactionListener(startTime, transactionId, transactionTraceConf.getMinTime());
+            userTransactionService.addListener(listener);
+        }
+
+        listener.addSqlLogEntry(logEntry);
 
         return returnValue;
     }
+
+
 
     private String resolveParameters(String query, ProceedingJoinPoint joinPoint) {
         if (resolveParams) {

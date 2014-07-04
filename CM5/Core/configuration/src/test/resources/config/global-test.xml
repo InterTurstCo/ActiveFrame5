@@ -2,5 +2,6 @@
     <global-settings>
         <audit-log enable="false"/>
         <sql-trace enable="true" resolveParameters="true" minTime="0" minRows="0"/>
+        <transaction-trace enable="true" minTime="0"/>
     </global-settings>
 </configuration>

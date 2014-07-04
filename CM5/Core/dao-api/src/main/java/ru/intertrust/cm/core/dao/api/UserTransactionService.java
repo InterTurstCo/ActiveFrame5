@@ -23,4 +23,19 @@ public interface UserTransactionService {
      * @param actionListener - событие, необходимо переопределить методы onCommit и onRollback.
      */
     public void addListener(ActionListener actionListener);
+
+
+    /**
+     * возвращает ID текущей транзакции
+     * @return ID текущей транзакции или null вне контекста
+     */
+    public String getTransactionId();
+
+    /**
+     * Возвращает слушатель задданного типа для текущей транзакции
+     * @param tClass класс
+     * @param <T> тип слушателя
+     * @return слушатель заданного типа или null, если такой не зарегистрирован
+     */
+    public <T> T getListener(Class<T> tClass);
 }

@@ -54,10 +54,38 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         List actionListeners = (List) getTxReg().getResource(ListenerBasedSynchronization.class);
         if (actionListeners == null) {
             actionListeners = new ArrayList();
-            getTxReg().putResource(Synchronization.class, actionListeners);
+            getTxReg().putResource(ListenerBasedSynchronization.class, actionListeners);
             getTxReg().registerInterposedSynchronization(new ListenerBasedSynchronization(actionListeners));
         }
         actionListeners.add(actionListener);
+    }
+
+    @Override
+    public String getTransactionId() {
+        Object transactionKey = getTxReg().getTransactionKey();
+        return transactionKey == null ? null : transactionKey.toString();
+    }
+
+    @Override
+    public <T> T getListener(Class<T> tClass){
+        //не обрабатываем вне транзакции
+        if (getTxReg().getTransactionKey() == null) {
+            return null;
+        }
+
+        List actionListeners = (List) getTxReg().getResource(ListenerBasedSynchronization.class);
+
+        if (actionListeners == null) {
+            return null;
+        }
+
+        for (Object l : actionListeners) {
+            if (tClass.equals(l.getClass())){
+                return (T) l;
+            }
+        }
+
+        return null;
     }
 
     /**
