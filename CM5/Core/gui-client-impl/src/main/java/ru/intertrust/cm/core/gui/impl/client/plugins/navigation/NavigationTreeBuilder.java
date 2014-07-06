@@ -6,7 +6,10 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeImages;
 import com.google.gwt.user.client.ui.TreeItem;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 
@@ -106,9 +109,9 @@ class NavigationTreeBuilder {
         } else {
             label.setText(displayText);
         }
-        label.addStyleName("tree-label");
+        label.setStyleName("tree-label");
         TreeItem treeItem = new TreeItem(label);
-        label.removeStyleName("gwt-Label");
+
         return treeItem;
     }
 
@@ -121,14 +124,17 @@ class NavigationTreeBuilder {
         } else {
             label.setText(displayText);
         }
-        label.addStyleName("tree-label");
+        label.setStyleName("tree-label");
         TreeItem treeItem = new TreeItem(label);
-        label.removeStyleName("gwt-Label");
+
         Map<String, Object> treeUserObjects = new HashMap<>();
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_NAME, treeItemName);
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT, treeItem.getText());
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG, pluginDefinition.getPluginConfig());
         treeItem.setUserObject(treeUserObjects);
+        treeItem.getElement().getStyle().clearPaddingLeft();
+        treeItem.getElement().getStyle().clearPadding();
+        treeItem.addStyleName("tree-item-padding-style");
         return treeItem;
     }
 

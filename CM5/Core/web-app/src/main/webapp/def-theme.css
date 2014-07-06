@@ -922,7 +922,7 @@ td.datePickerMonth {
     left: 0;
     right: 0;
     bottom: 0;
-    margin: 70px 11px 11px 130px;
+    margin: 70px 11px 11px 140px;
 }
 
 .central-div-panel-test-full {
@@ -1000,7 +1000,18 @@ td.datePickerMonth {
 .navigation-dynamic-panel {
     left: 15px;
     padding-top: 20px;
-    width: 130px;
+    width: 140px;
+
+   /* overflow-y: auto;*/
+    /*height: 1000px;*/
+}
+.navigation-dynamic-panel-expanded {
+    left: 15px;
+    padding-top: 20px;
+    width: 140px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /*height: 1000px;*/
 }
 
 .group-tree td {
@@ -1023,15 +1034,6 @@ td.datePickerMonth {
     width: 100%;
     /*ага*/
     height: 100%;
-}
-
-.tree-label {
-    text-decoration: none !important;
-    padding-right: 8px;
-    padding-left: 5px;
-    cursor: pointer;
-    padding-top: 8px;
-
 }
 
 /**
@@ -1500,7 +1502,7 @@ td.datePickerMonth {
     position: absolute;
     z-index: 0;
     left: 0;
-    width: 106px;
+  /*  width: 106px;*/
     top: 0;
     bottom: 0;
     border-right: 3px solid #232264;
@@ -1645,6 +1647,17 @@ td.datePickerMonth {
     margin-left: -20px !important;
     margin-right: 120px;
     padding-left: 20px !important;
+    text-decoration: none !important;
+    padding-right: 8px;
+    padding-left: 5px;
+    cursor: pointer;
+    padding-top: 8px;
+}
+.tree-item-padding-style{
+    padding-left: 15px !important;
+}
+.tree-items-navigation{
+    overflow: visible;
 }
 
 .not-edit-date-text-label {
@@ -2604,4 +2617,15 @@ td.datePickerMonth {
 
 .settings-item .gwt-Label {
     cursor: pointer;
+}
+.tooltip-popup {
+    background: #fafafa;;
+    border: 1px solid #999;
+    box-shadow: 2px 2px 5px rgba(128, 128, 128, .7);
+    padding: 2px;
+    z-index: 45;
+}
+.tooltip-button {
+    cursor: pointer;
+
 }

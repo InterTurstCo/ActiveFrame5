@@ -1,11 +1,11 @@
 /*
- * Copyright 2011-2012 InterTrust LTD. All rights reserved. Visit our web-site: www.intertrust.ru.
- */
-package ru.intertrust.cm.core.gui.impl.client.panel;
+        * Copyright 2011-2012 InterTrust LTD. All rights reserved. Visit our web-site: www.intertrust.ru.
+        */
+        package ru.intertrust.cm.core.gui.impl.client.panel;
 
 import com.google.gwt.animation.client.Animation;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -20,25 +20,43 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * @author laputski
+ * @author Yaroslav Bondarchuk
+ *         Date: 30.06.2014
+ *         Time: 13:38
  */
 public class SidebarView extends Composite {
 
     public final static String DIV_CONTENT_ID = "content";
     public final static String DIV_SIDEBAR_ID = "sidebar";
     public final static String DIV_TASKSWRAP_ID = "tasks-wrap";
+    private HashMap<String, String> hasImg = new HashMap<String, String>();
 
+    private LayoutPanel sidebarPanel = new LayoutPanel();
+    private ScrollPanel scrollPanel = new ScrollPanel();
+    private HTMLPanel tasksWrap = new HTMLPanel("");
+    private HTMLPanel arrsPanel = new HTMLPanel("");
+    private Element arrTop;
+    private Element arrBottom;
+    private VerticalPanel menuItems = new VerticalPanel();
+    private ChangeVerticalScrollPositionTop changePositionTop = new ChangeVerticalScrollPositionTop();
+    private ChangeVerticalScrollPositionBottom changePositionBottom = new ChangeVerticalScrollPositionBottom();
+    private HashMap<String, HTML> navigationMap = new HashMap<String, HTML>();
 
-    HashMap<String, String> hasImg = new HashMap<String, String>();
+    public final static int SB_ELEM_HEIGHT = 84;
+    public final static int BUT_RESERV_HEIGHT = 30;
+    private int currentItemsCount = 0;
 
-    HTMLPanel hpan = new HTMLPanel("");
-    LayoutPanel sidebarPanel = new LayoutPanel();
-    ScrollPanel scrollPanel = new ScrollPanel();
-    HTMLPanel tasksWrap = new HTMLPanel("");
-    HTMLPanel arrsPanel = new HTMLPanel("");
-    Element arrTop;
-    Element arrBottom;
-    public VerticalPanel menuItems = new VerticalPanel();
+    public SidebarView() {
+        createSideBar();
+        initWidget(sidebarPanel);
+        init();
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                correctContentStyles();
+            }
+        });
+    }
 
     public int getWidgetIndex(Widget w) {
         int result = menuItems.getWidgetIndex(w);
@@ -49,8 +67,16 @@ public class SidebarView extends Composite {
         return menuItems.getWidget(index);
     }
 
+    public VerticalPanel getMenuItems() {
+        return menuItems;
+    }
+
+    public HashMap<String, HTML> getNavigationMap() {
+        return navigationMap;
+    }
+
     public void createSideBar() {
-        hpan.add(sidebarPanel);
+
         HTMLPanel support = new HTMLPanel("");
         sidebarPanel.add(support);
         support.addStyleName("gradient");
@@ -62,93 +88,19 @@ public class SidebarView extends Composite {
         arrTop.addClassName("arr top disabled");
         arrBottom = DOM.createSpan();
         arrBottom.addClassName("arr bottom");
-        DOM.appendChild(arrsPanel.getElement(), (com.google.gwt.user.client.Element) arrTop);
-        DOM.appendChild(arrsPanel.getElement(), (com.google.gwt.user.client.Element) arrBottom);
+        Element arrsPanelElement = arrsPanel.getElement();
+        DOM.appendChild(arrsPanelElement, arrTop);
+        DOM.appendChild(arrsPanelElement, arrBottom);
 
     }
 
-    public VerticalPanel getMenuItems() {
-        return menuItems;
-    }
-
-    HashMap<String, HTML> navigationMap = new HashMap<String, HTML>();
-
-    // @Override
     public void putNavigationMap(String name, HTML h) {
         navigationMap.put(name, h);
     }
 
-    public SidebarView() {
-        createSideBar();
-        initWidget(hpan);
-        init();
-        Window.addResizeHandler(new ResizeHandler() {
-            @Override
-            public void onResize(ResizeEvent event) {
-                correctContentStyles();
-            }
-        });
-    }
-
-    // @Override
     public HashMap<String, String> getHasImg() {
         return hasImg;
     }
-
-    public class ChangeVerticalScrollPositionTop extends Animation {
-
-        private int scrollPosition;
-
-        @Override
-        protected void onUpdate(double progress) {
-            int position = (int) changePositionTop(progress);
-            scrollPanel.setVerticalScrollPosition(scrollPosition - position);
-        }
-
-        private double changePositionTop(double progress) {
-            double outPosition = SB_ELEM_HEIGHT * progress;
-            return outPosition;
-        }
-
-        /**
-         * @param duration
-         * @param Position
-         */
-        public void run(int duration, int position) {
-            this.scrollPosition = position;
-            super.run(duration);
-        }
-
-    }
-
-    public class ChangeVerticalScrollPositionBottom extends Animation {
-
-        private int scrollPosition;
-
-        @Override
-        protected void onUpdate(double progress) {
-            int position = (int) changePositionBottom(progress);
-            scrollPanel.setVerticalScrollPosition(scrollPosition + position);
-        }
-
-        private double changePositionBottom(double progress) {
-            double outPosition = SB_ELEM_HEIGHT * progress;
-            return outPosition;
-        }
-
-        /**
-         * @param duration
-         * @param Position
-         */
-        public void run(int duration, int position) {
-            this.scrollPosition = position;
-            super.run(duration);
-        }
-
-    }
-
-    final ChangeVerticalScrollPositionTop changePositionTop = new ChangeVerticalScrollPositionTop();
-    final ChangeVerticalScrollPositionBottom changePositionBottom = new ChangeVerticalScrollPositionBottom();
 
     private void init() {
 
@@ -166,7 +118,7 @@ public class SidebarView extends Composite {
         Event.sinkEvents(arrTop, Event.ONCLICK);
         Event.sinkEvents(arrBottom, Event.ONCLICK);
 
-        DOM.setEventListener((com.google.gwt.user.client.Element) arrTop, new EventListener() {
+        DOM.setEventListener(arrTop, new EventListener() {
 
             @Override
             public void onBrowserEvent(Event event) {
@@ -187,7 +139,7 @@ public class SidebarView extends Composite {
             }
         });
 
-        DOM.setEventListener((com.google.gwt.user.client.Element) arrBottom, new EventListener() {
+        DOM.setEventListener(arrBottom, new EventListener() {
 
             @Override
             public void onBrowserEvent(Event event) {
@@ -220,6 +172,7 @@ public class SidebarView extends Composite {
         }
     }
 
+
     private void setArrowImage(Element arrow, String path) {
         arrow.getStyle().setBackgroundImage("url(" + path + ")");
     }
@@ -244,7 +197,7 @@ public class SidebarView extends Composite {
     /**
      * Делает выделенным элемент с названием name
      */
-    // @Override
+
     public void correctStyle(String name) {
         for (Iterator<?> iterator = navigationMap.values().iterator(); iterator.hasNext(); ) {
             HTML type = (HTML) iterator.next();
@@ -256,27 +209,13 @@ public class SidebarView extends Composite {
         }
     }
 
-    // @Override
-    public HashMap<String, HTML> getNavigationMap() {
-        return navigationMap;
-    }
-
-    public final static int SB_ELEM_HEIGHT = 84;
-    public final static int BUT_RESERV_HEIGHT = 30;
-
-
-    private final int currentItemsCount = 8;
-
     /**
      * Sidebar content correct function. See main.js for details
      *
      * @author labotski, alex oreshkevich
      */
     private strictfp void sidebarContentCorrect() {
-
         int clientHeight = Window.getClientHeight();
-
-
         if (clientHeight < 108) {
             return;
         }
@@ -288,7 +227,7 @@ public class SidebarView extends Composite {
         int visibleHeight = SB_ELEM_HEIGHT * visibleItemCount;
 
         // manage scrollPanel height
-        if (visibleHeight > 0 && visibleItemCount < currentItemsCount) {
+        if (visibleHeight > 0 && visibleItemCount < menuItems.getWidgetCount()) {
             scrollPanel.setHeight(Integer.toString(visibleHeight) + "px");
             showArrs();
         } else {
@@ -299,17 +238,68 @@ public class SidebarView extends Composite {
 
     private void showArrs() {
         initArrowsImages();
-        arrsPanel.getElement().getStyle().setDisplay(Display.BLOCK);
+        Style style = arrsPanel.getElement().getStyle();
+        style.setDisplay(Display.BLOCK);
     }
 
     private void hideArrs() {
-        arrsPanel.getElement().getStyle().setDisplay(Display.NONE);
+        Style style = arrsPanel.getElement().getStyle();
+        style.setDisplay(Display.NONE);
     }
 
-    // @Override
     public void correctContentStyles() {
         sidebarContentCorrect();
     }
 
+    private class ChangeVerticalScrollPositionBottom extends Animation {
 
+        private int scrollPosition;
+
+        @Override
+        protected void onUpdate(double progress) {
+            int position = (int) changePositionBottom(progress);
+            scrollPanel.setVerticalScrollPosition(scrollPosition + position);
+        }
+
+        private double changePositionBottom(double progress) {
+            double outPosition = SB_ELEM_HEIGHT * progress;
+            return outPosition;
+        }
+
+        /**
+         * @param duration
+         * @param Position
+         */
+        public void run(int duration, int position) {
+            this.scrollPosition = position;
+            super.run(duration);
+        }
+
+    }
+
+    private class ChangeVerticalScrollPositionTop extends Animation {
+
+        private int scrollPosition;
+
+        @Override
+        protected void onUpdate(double progress) {
+            int position = (int) changePositionTop(progress);
+            scrollPanel.setVerticalScrollPosition(scrollPosition - position);
+        }
+
+        private double changePositionTop(double progress) {
+            double outPosition = SB_ELEM_HEIGHT * progress;
+            return outPosition;
+        }
+
+        /**
+         * @param duration
+         * @param Position
+         */
+        public void run(int duration, int position) {
+            this.scrollPosition = position;
+            super.run(duration);
+        }
+
+    }
 }

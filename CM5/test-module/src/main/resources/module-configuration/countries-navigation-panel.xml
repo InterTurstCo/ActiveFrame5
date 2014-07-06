@@ -381,8 +381,629 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="Module2" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module3" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module4" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module5" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module6" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module7" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module8" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module9" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module10" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module11" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module12" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link><link name="Module13" display-text="модули">
+                <plugin>
+                    <domain-object-surfer domain-object-type-to-create="SS_Module">
+                        <collection-viewer>
+                            <collection-ref name="SS_Module_Collection"/>
+                        </collection-viewer>
+                    </domain-object-surfer>
+                </plugin>
+            </link>
+                <link name="Module14" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module15" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module16" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module17" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module18" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module19" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module20" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module21" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module22" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module23" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module24" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module25" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module26" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module27" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module28" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module29" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module30" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module31" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module32" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module33" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module34" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module35" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module36" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module37" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module38" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module39" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module40" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module41" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module42" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module43" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module44" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module45" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module46" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module47" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module48" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module49" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module50" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module51" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module52" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module53" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module54" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module55" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module56" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module57" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module58" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module59" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module60" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module61" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module62" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module63" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module64" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module65" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module66" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module67" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module68" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module69" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Module70" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
             </child-links>
         </link>
+
     </navigation>
     <navigation name="panel_1"
                 is-default="false">

@@ -1,33 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.event.dom.client.MouseOutEvent;
-import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeImages;
-import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
@@ -51,6 +33,11 @@ import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class NavigationTreePluginView extends PluginView {
@@ -103,14 +90,14 @@ public class NavigationTreePluginView extends PluginView {
         List<LinkConfig> linkConfigList = navigationTreePluginData.getNavigationConfig().getLinkConfigList();
         String selectedRootLinkName = navigationTreePluginData.getRootLinkSelectedName();
         final LinkConfig selectedLinkConfig = buildRootLinks(linkConfigList, selectedRootLinkName, sideBarView);
-        navigationTreeContainer.add(sideBarView);
-        final HorizontalPanel navigationTreePanel = new HorizontalPanel();
+
+
         HorizontalPanel horizontalPanel = new HorizontalPanel();
         horizontalPanel.add(sideBarView);
         horizontalPanel.add(verticalPanel);
         verticalPanel.add(pinButton);
         verticalPanel.add(navigationTreesPanel);
-        navigationTreePanel.getElement().getStyle().setLeft(150, Style.Unit.PX);
+
         focusContainer.add(horizontalPanel);
         navigationTreeContainer.add(focusContainer);
         drawNavigationTrees(selectedLinkConfig);
@@ -156,7 +143,8 @@ public class NavigationTreePluginView extends PluginView {
                         currentWidth = END_WIDGET_WIDTH;
                         pinButton.getElement().getStyle().setZIndex(10);
                         navigationTreeContainer.getElement().getStyle().setZIndex(9);
-
+                        navigationTreesPanel.setStyleName("navigation-dynamic-panel-expanded");
+                        navigationTreesPanel.setHeight(Window.getClientHeight() - 100 + "px");
                         final String style = pinButtonClick ? "left-section-active" : "left-section";
                         final SideBarResizeEventStyle sideBarResizeEventStyle =
                                 new SideBarResizeEventStyle(false, "", style, "");
@@ -180,6 +168,7 @@ public class NavigationTreePluginView extends PluginView {
                             currentWidth = START_WIDGET_WIDTH;
                             pinButton.getElement().getStyle().setZIndex(0);
                             navigationTreeContainer.getElement().getStyle().setZIndex(0);
+                            navigationTreesPanel.setStyleName("navigation-dynamic-panel");
                             Application.getInstance().getEventBus().fireEvent(
                                     new SideBarResizeEventStyle(false, "", "left-section", ""));
                         }
@@ -329,8 +318,7 @@ public class NavigationTreePluginView extends PluginView {
                 }
                 TreeItem parent = tempItem.getParentItem();
                 tempItem.getTree().setSelectedItem(parent, false);
-                tempItem.removeStyleName("gwt-TreeItem-selected");
-                tempItem.removeStyleName("gwt-custom-TreeItem-selected");
+
                 currentSelectedItem = tempItem;
                 boolean state = tempItem.getState();
                 tempItem.setState(!state, false);
@@ -341,6 +329,9 @@ public class NavigationTreePluginView extends PluginView {
                         tempItem.getChild(i).addStyleName("gwt-custom-white");
                     }
                 }
+                tempItem.getElement().getStyle().clearPaddingLeft();
+                tempItem.getElement().getStyle().clearPadding();
+                tempItem.addStyleName("tree-item-padding-style");
                 tempItem.addStyleName("gwt-custom-white");
                 tempItem.getElement().getFirstChildElement().addClassName("gwt-custom-TreeItem-selected");
                 Map<String, Object> treeItemUserObject = (Map<String, Object>) tempItem.getUserObject();
@@ -390,6 +381,7 @@ public class NavigationTreePluginView extends PluginView {
             }
             my.addClickHandler(clickHandler);
         }
+        sideBarView.correctContentStyles();
         return result;
     }
 

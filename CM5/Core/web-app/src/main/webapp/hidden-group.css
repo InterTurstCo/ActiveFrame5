@@ -99,7 +99,8 @@ width: 106px;
 text-align: center;
 }
 #sidebar .gradient div{
-overflow: visible !important;
+/*overflow-x: visible !important;*/
+
 }
 #sidebar .gwt-HTML span {
 font-size: 12px;
