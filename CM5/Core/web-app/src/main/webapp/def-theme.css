@@ -1002,7 +1002,7 @@ td.datePickerMonth {
     padding-top: 20px;
     width: 140px;
 
-   /* overflow-y: auto;*/
+    /*overflow-y: auto;*/
     /*height: 1000px;*/
 }
 .navigation-dynamic-panel-expanded {
@@ -1019,7 +1019,6 @@ td.datePickerMonth {
 }
 
 .group-tree {
-
     font-weight: bold;
     margin-left: 130px;
     margin-top: 10px;
@@ -2628,4 +2627,10 @@ td.datePickerMonth {
 .tooltip-button {
     cursor: pointer;
 
+}
+
+.menuSeparatorInner {
+    border: 1px solid rgb(211, 211, 211);
+    height: 38px;
+    margin: 0 0 0 20px;
 }
