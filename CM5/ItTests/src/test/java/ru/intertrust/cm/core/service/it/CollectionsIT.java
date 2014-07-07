@@ -189,10 +189,10 @@ public class CollectionsIT extends IntegrationTestBase {
         assertTrue(collection.size() >= 1);
 
 
-    }
+    }    
 
     @Test
-    public void testFindCollectionByQueryWithReferenceParamsInSubSubQuery() {
+    public void testFindCollectionByQueryWithReferenceParamsInSubQuery() {
 
         String query = "select p2.id, (select p3.login from person p3 where p3.id = {0}) as login " +
         		" from (select * from person p where p.id = {1}) p2 " +
@@ -270,7 +270,7 @@ public class CollectionsIT extends IntegrationTestBase {
     }
     
     @Test
-    public void testFindCollectionWithReferenceParamsInSubSubQuery() throws LoginException {
+    public void testFindCollectionWithReferenceParamsInSubQuery() throws LoginException {
         SortOrder sortOrder = new SortOrder();
         sortOrder.add(new SortCriterion("id", Order.ASCENDING));
 
