@@ -25,14 +25,13 @@ import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.ListValue;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
@@ -257,6 +256,16 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
         assertTrue(collection.size() > 0);
+        
+        query = "select id from person where created_by = {0}";
+        params = new ArrayList<Value>();
+        personTypeid = domainObjectTypeIdCache.getId(PERSON_TYPE);
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() > 0);
+
     }
     
     @Test
