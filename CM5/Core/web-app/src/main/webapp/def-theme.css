@@ -1014,6 +1014,24 @@ td.datePickerMonth {
     /*height: 1000px;*/
 }
 
+.navigation-dynamic-panel::-webkit-scrollbar,
+.navigation-dynamic-panel-expanded::-webkit-scrollbar {
+    width: 12px;
+}
+
+.navigation-dynamic-panel::-webkit-scrollbar-track,
+.navigation-dynamic-panel-expanded::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+    border-radius: 10px;
+}
+
+.navigation-dynamic-panel::-webkit-scrollbar-thumb,
+.navigation-dynamic-panel-expanded::-webkit-scrollbar-thumb {
+    background: #8ba4c3;
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.7);
+}
+
 .group-tree td {
     vertical-align: bottom !important;
 }
@@ -1412,9 +1430,12 @@ td.datePickerMonth {
 }
 
 #sidebar .arrs {
-    text-align: center;
     display: none;
-    width: 106px;
+    margin: 10px 0 0;
+    text-align: center;
+    position: absolute;
+    bottom: 5px;
+    left: 40px;
 }
 
 #sidebar .arr {

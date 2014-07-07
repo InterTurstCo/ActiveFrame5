@@ -206,12 +206,10 @@ div, input, textarea, select {
 
 .composite-datetime-picker {
     background: #fafafa;;
-    /* width: 300px;
-     height: 300px;*/
     border: 1px solid #999;
     box-shadow: 2px 2px 5px rgba(128, 128, 128, .7);
     padding: 2px;
-    z-index: 45;
+    z-index: 100;
 }
 
 .datePickerDay {
