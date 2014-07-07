@@ -216,12 +216,12 @@ public class SidebarView extends Composite {
      */
     private strictfp void sidebarContentCorrect() {
         int clientHeight = Window.getClientHeight();
-        if (clientHeight < 108) {
+        if (clientHeight < 50) {
             return;
         }
 
         // client height without north (header, topMenu ...)
-        double totalHeight = clientHeight - 108;
+        double totalHeight = clientHeight - 50;
 
         int visibleItemCount = (int) Math.floor((totalHeight - BUT_RESERV_HEIGHT) / SB_ELEM_HEIGHT);
         int visibleHeight = SB_ELEM_HEIGHT * visibleItemCount;
