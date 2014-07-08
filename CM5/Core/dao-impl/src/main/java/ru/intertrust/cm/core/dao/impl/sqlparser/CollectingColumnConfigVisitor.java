@@ -6,10 +6,7 @@ import java.util.Map;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.FromItemVisitor;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
-import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 
@@ -48,6 +45,21 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
     }
 
     @Override
+    public void visit(SelectExpressionItem selectExpressionItem) {
+        selectExpressionItem.getExpression().accept(this);
+
+        // Add column to config mapping for column alias
+        if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null &&
+                selectExpressionItem.getExpression() instanceof Column) {
+            Column column = (Column) selectExpressionItem.getExpression();
+            String aliasName = selectExpressionItem.getAlias().getName().toLowerCase();
+            if (columnToConfigMapping.get(aliasName) == null) {
+                columnToConfigMapping.put(aliasName, columnToConfigMapping.get(getColumnName(column)));
+            }
+        }
+    }
+
+    @Override
     public void visit(Column column) {
         collectWhereColumnConfigurations(column);
     }
@@ -61,7 +73,12 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
         FieldConfig fieldConfig =
                 configurationExplorer.getFieldConfig(SqlQueryModifier.getDOTypeName(plainSelect, column, false),
                         column.getColumnName());
-        columnToConfigMapping.put(column.getColumnName().toLowerCase(), fieldConfig);
+        if (fieldConfig != null) {
+            columnToConfigMapping.put(getColumnName(column), fieldConfig);
+        }
     }
-    
+
+    private String getColumnName(Column column) {
+        return column.getColumnName().toLowerCase();
+    }
 }
