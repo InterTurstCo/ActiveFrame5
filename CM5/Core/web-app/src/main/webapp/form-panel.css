@@ -94,13 +94,8 @@
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
     font-weight: bold !important;
     cursor: default !important;
-    /* background: #8bc53d !important; */
-
     padding: 0 24px 0 0 !important;
-    /* background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0 transparent !important; */
     background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0 !important;
-    /* background-color: #FF0000 !important; */
-    /* background-color: #c2e7f0 !important; */
 }
 
 .gwt-TabLayoutPanel .div.gwt-Label {
@@ -110,9 +105,6 @@
 .gwt-TabLayoutPanelContentContainer {
     background-color: #FFFFFF;
     border: none !important;
-    /*-webkit-border-radius: 10px;*/
-    /*-moz-border-radius: 10px;*/
-    /*border-radius: 10px;*/
     height:100%;
 }
 
@@ -154,6 +146,14 @@
 .widget-wrapper {
     margin: 0 10px 0 0;
     padding: 5px 10px;
+}
+
+.widget-wrapper > .hierarh-browser-inline {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    bottom: 0;
+    left: 10px;
 }
 
 .ext-search-form-style .widget-wrapper {

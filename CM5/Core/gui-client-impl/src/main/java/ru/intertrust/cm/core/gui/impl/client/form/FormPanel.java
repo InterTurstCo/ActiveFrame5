@@ -315,6 +315,7 @@ public class FormPanel implements IsWidget {
                 AbsolutePanel wrapper = new AbsolutePanel();
                 wrapper.addStyleName("widget-wrapper");
                 wrapper.getElement().getStyle().clearOverflow();
+                wrapper.getElement().getStyle().clearPosition();
                 wrapper.add(widget);
                 table.setWidget(rowIndex, colIndex,wrapper);
 
