@@ -2,9 +2,13 @@ package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
@@ -106,9 +110,34 @@ public class DaoUtils {
         } else if (value instanceof BooleanValue) {
             Boolean parameterValue = (Boolean) value.get();
             parameters.put(parameterName, parameterValue ? 1 : 0);
+        } else if (value instanceof ListValue) {            
+            List<Serializable> jdbcCompliantValues = createJdbcCompliantValues((ListValue) value);
+            parameters.put(parameterName, jdbcCompliantValues);
+
         } else {
             parameters.put(parameterName, value.get());
         }
+    }
+
+    private static List<Serializable> createJdbcCompliantValues(ListValue value) {
+        List<Serializable> jdbcCompliantValues = new ArrayList<>();
+        for (Serializable singleValue : value.get()) {
+
+            if (singleValue instanceof Id) {
+                jdbcCompliantValues.add(((RdbmsId) singleValue).getId());
+            } else if (singleValue instanceof DateTimeWithTimeZone) {
+                jdbcCompliantValues.add(getGMTDate((DateTimeWithTimeZone) singleValue));
+                // TODO create mechanism for passing timeZone. in() expression in SQL should be replaced by set of OR
+                // exressions
+            } else if (singleValue instanceof Date) {
+                jdbcCompliantValues.add(getGMTDate((Date) singleValue));
+            } else if (singleValue instanceof TimelessDate) {
+                jdbcCompliantValues.add(getGMTDate((TimelessDate) singleValue));
+            } else {
+                jdbcCompliantValues.add(singleValue);
+            }
+        }
+        return jdbcCompliantValues;
     }
 
     public static String wrap(String string) {
