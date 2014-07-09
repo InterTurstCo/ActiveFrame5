@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.NotificationTextFormer;
@@ -111,15 +112,20 @@ public class NotificationTextFormerImpl implements NotificationTextFormer{
 
     private void injectBeans(Map<String, Object> model){
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
+        /* Вместо явных исключениий добавляем проверку на прототип
         List<String> exceptionBeans = new ArrayList<>();
         exceptionBeans.add("formSaver");
+        */
         
         for (String beanDefinitionName : beanDefinitionNames) {
+            /* Вместо явных исключениий добавляем проверку на прототип
             if (exceptionBeans.contains(beanDefinitionName)) {
                 continue;
+            }*/
+            if (!((AbstractApplicationContext)applicationContext).isPrototype(beanDefinitionName)){
+                Object bean = applicationContext.getBean(beanDefinitionName);
+                model.put(beanDefinitionName, bean);
             }
-            Object bean = applicationContext.getBean(beanDefinitionName);
-            model.put(beanDefinitionName, bean);
         }
     }
 
