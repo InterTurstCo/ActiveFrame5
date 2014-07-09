@@ -615,22 +615,23 @@ public class SqlQueryModifier {
 
             List joinList = plainSelect.getJoins();
 
-            for (Object joinObject : joinList) {
-                Join join = (Join) joinObject;
-                
-                if (join.getRightItem() instanceof SubSelect) {
-                    SubSelect subSelect = (SubSelect) join.getRightItem();
-                    PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
-                    return getDOTypeName(plainSubSelect, column, true);
-                } else if(join.getRightItem() instanceof Table){
-                    Table joinTable = (Table) join.getRightItem();
-                    if (joinTable.getAlias() != null && column.getTable().getName().equalsIgnoreCase(joinTable.getAlias().getName()) ||
-                            column.getTable().getName().equalsIgnoreCase(joinTable.getName())) {
-                        return DaoUtils.unwrap(joinTable.getName());
-                    }
+            if (joinList != null){
+                for (Object joinObject : joinList) {
+                    Join join = (Join) joinObject;
                     
+                    if (join.getRightItem() instanceof SubSelect) {
+                        SubSelect subSelect = (SubSelect) join.getRightItem();
+                        PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
+                        return getDOTypeName(plainSubSelect, column, true);
+                    } else if(join.getRightItem() instanceof Table){
+                        Table joinTable = (Table) join.getRightItem();
+                        if (joinTable.getAlias() != null && column.getTable().getName().equalsIgnoreCase(joinTable.getAlias().getName()) ||
+                                column.getTable().getName().equalsIgnoreCase(joinTable.getName())) {
+                            return DaoUtils.unwrap(joinTable.getName());
+                        }
+                        
+                    }
                 }
-
             }
         }
 
