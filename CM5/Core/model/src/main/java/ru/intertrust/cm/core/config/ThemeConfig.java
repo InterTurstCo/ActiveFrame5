@@ -84,10 +84,10 @@ public class ThemeConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = displayName != null ? displayName.hashCode() : 0;
-        result = 31 * result + (componentName!= null ? componentName.hashCode() : 0);
-        result = 31 * result + (img != null ? img.hashCode() : 0);
-        result = 31 * result + (defaultTheme ? 1 : 0);
+        int result = displayName != null ? displayName.hashCode() : 31;
+        result = 31 * result + (componentName!= null ? componentName.hashCode() : 31);
+        result = 31 * result + (img != null ? img.hashCode() : 31);
+        result = 31 * result + (defaultTheme ? 1 : 31);
         return result;
     }
 }

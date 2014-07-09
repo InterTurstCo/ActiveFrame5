@@ -58,12 +58,12 @@ public class ActionConfigBuilder {
             final ActionHandler.HandlerStatusData statusData = actionHandler.getCheckStatusData();
             final ActionHandler.Status status;
             if (statusData == null) {
-                status = ActionHandler.Status.SUCCESSFUL;
+                status = ActionHandler.Status.APPLY;
             } else {
                 statusData.initialize(params);
                 status = actionHandler.getHandlerStatus(config.getRendered(), statusData);
             }
-            if (ActionHandler.Status.SUCCESSFUL == status) {
+            if (ActionHandler.Status.APPLY == status) {
                 ActionContext actionContext = actionHandler.getActionContext();
                 actionContext.setActionConfig(actionConfig);
                 contextList.addContext(actionContext);

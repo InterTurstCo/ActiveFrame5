@@ -1,26 +1,28 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import java.util.ArrayList;
+import java.util.logging.Logger;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-
-import java.util.ArrayList;
-import java.util.logging.Logger;
 
 public class DomainObjectSurferPluginView extends PluginView {
 
@@ -206,6 +208,8 @@ public class DomainObjectSurferPluginView extends PluginView {
 
         }
         Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().getHistoryManager()
+                .setMode(HistoryManager.Mode.APPLY, plugin.getClass().getSimpleName());
         return flowPanel;
     }
 

@@ -1,15 +1,33 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeImages;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
@@ -17,7 +35,6 @@ import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
@@ -33,11 +50,6 @@ import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 public class NavigationTreePluginView extends PluginView {
@@ -243,7 +255,7 @@ public class NavigationTreePluginView extends PluginView {
             final Map<String, Object> userObject  = (Map<String, Object>) currentSelectedItem.getUserObject();
             return (String) userObject.get(BusinessUniverseConstants.TREE_ITEM_NAME);
         }
-        return HistoryManager.UNKNOWN_LINK;
+        return null;
     }
 
     public void repaintNavigationTrees(String rootLinkName, String childToOpenName) {
@@ -340,10 +352,11 @@ public class NavigationTreePluginView extends PluginView {
                             .append(treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT))
                             .toString();
                     Window.setTitle(pageTitle);
-                    Application.getInstance().getHistoryManager()
-                            .setLink((String) treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_NAME));
+                    final PluginConfig pluginConfig =
+                            (PluginConfig) treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG);
+                    final String linkName = (String) treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_NAME);
                     Application.getInstance().getEventBus().fireEventFromSource(
-                            new NavigationTreeItemSelectedEvent((PluginConfig) treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG)),
+                            new NavigationTreeItemSelectedEvent(pluginConfig, linkName),
                             plugin);
                 }
             }

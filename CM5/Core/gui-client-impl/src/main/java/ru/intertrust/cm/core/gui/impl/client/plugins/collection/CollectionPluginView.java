@@ -23,6 +23,8 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
@@ -33,6 +35,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.heade
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
@@ -41,6 +44,7 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+import ru.intertrust.cm.core.service.api.App;
 
 import java.util.*;
 
@@ -54,6 +58,8 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 public class CollectionPluginView extends PluginView {
     public static final int FETCHED_ROW_COUNT = 25;
     public static final String ID_KEY = "id";
+    private static final String SORT_COLUMN_KEY = "sc";
+    private static final String SORT_DIRECT_KEY = "sd";
 
     private CollectionDataGrid tableBody;
     private List<CollectionRowItem> items;
@@ -106,9 +112,35 @@ public class CollectionPluginView extends PluginView {
         items = collectionPluginData.getItems();
         filterPanelConfig = collectionPluginData.getFilterPanelConfig();
         init();
-        final List<Integer> selectedIndexes = collectionPluginData.getIndexesOfSelectedItems();
+        final List<Integer> selectedIndexes = new ArrayList<>();
+        final String selectedIdsAsStr = Application.getInstance().getHistoryManager().getValue(ID_KEY);
+        if (selectedIdsAsStr != null) {
+            final String[] idAsStrArray = selectedIdsAsStr.split(",");
+            for (String idAsStr : idAsStrArray) {
+                final Id id = StringUtil.idFromString(idAsStr);
+                if (id != null) {
+                    final int index = getSelectedIndex(id);
+                    if (index > -1) {
+                        selectedIndexes.add(index);
+                    }
+                }
+            }
+        } else {
+            selectedIndexes.addAll(collectionPluginData.getIndexesOfSelectedItems());
+        }
+        boolean isFirst = true;
+        final StringBuilder builder = new StringBuilder();
         for (int index : selectedIndexes) {
-            selectionModel.setSelected(items.get(index), true);
+            final CollectionRowItem item = items.get(index);
+            selectionModel.setSelected(item, true);
+            if (!isFirst) {
+                builder.append(',');
+            }
+            builder.append(item.getId().toStringRepresentation());
+        }
+        if (builder.length() > 0) {
+            Application.getInstance().getHistoryManager().addHistoryItems(
+                    new HistoryItem(HistoryItem.Type.URL, ID_KEY, builder.toString()));
         }
         root.addStyleName("collection-plugin-view-container");
         addHandlers();
@@ -291,13 +323,7 @@ public class CollectionPluginView extends PluginView {
             return;  // если в коллекции не было элементов операция удаления ни к чему не приводит
         }
         // ищем какой элемент коллекции должен быть удален
-        int index = -1;
-        for (CollectionRowItem i : items) {
-            if (i.getId().toStringRepresentation().equalsIgnoreCase(collectionObject.toStringRepresentation())) {
-                index = items.indexOf(i);
-                break;
-            }
-        }
+        int index = getSelectedIndex(collectionObject);
         if (index < 0) {    // element of collection isn't found.
             return;
         }
@@ -541,13 +567,7 @@ public class CollectionPluginView extends PluginView {
                     tableBody.flush();
                 } else {
                     CollectionRowItem item = collectionRowItems.get(0);
-                    int index = -1;
-                    for (CollectionRowItem i : items) {
-                        if (i.getId().toStringRepresentation().equalsIgnoreCase(item.getId().toStringRepresentation())) {
-                            index = items.indexOf(i);
-                        }
-                    }
-
+                    int index = getSelectedIndex(item.getId());
                     // коллекция не пуста
                     if (items.size() >= 0) {
                         // признак вставки элемента в коллекцию
@@ -629,5 +649,13 @@ public class CollectionPluginView extends PluginView {
 
     }
 
+    public int getSelectedIndex(final Id id) {
+        for (CollectionRowItem item : items) {
+            if (item.getId().equals(id)) {
+                return items.indexOf(item);
+            }
+        }
+        return -1;
+    }
 }
 

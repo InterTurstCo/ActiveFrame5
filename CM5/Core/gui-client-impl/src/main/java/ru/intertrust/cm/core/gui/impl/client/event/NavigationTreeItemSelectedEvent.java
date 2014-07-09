@@ -6,10 +6,12 @@ import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 public class NavigationTreeItemSelectedEvent extends GwtEvent<NavigationTreeItemSelectedEventHandler> {
 
     public static Type<NavigationTreeItemSelectedEventHandler> TYPE = new Type<NavigationTreeItemSelectedEventHandler>();
-    private PluginConfig pluginConfig;
+    private final PluginConfig pluginConfig;
+    private final String linkName;
 
-    public NavigationTreeItemSelectedEvent(PluginConfig pluginConfig) {
+    public NavigationTreeItemSelectedEvent(final PluginConfig pluginConfig, final String linkName) {
         this.pluginConfig = pluginConfig;
+        this.linkName = linkName;
     }
 
     @Override
@@ -24,5 +26,9 @@ public class NavigationTreeItemSelectedEvent extends GwtEvent<NavigationTreeItem
 
     public PluginConfig getPluginConfig() {
         return pluginConfig;
+    }
+
+    public String getLinkName() {
+        return linkName;
     }
 }

@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
-import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
+import ru.intertrust.cm.core.gui.impl.client.plugins.PluginHistorySupport;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @ComponentName("form.plugin")
 public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor, PluginPanelSizeChangedEventHandler,
-        RestoreHistorySupport {
+        PluginHistorySupport {
     private int temporaryWidth;
     private int temporaryHeight;
     // поле для локальной шины событий

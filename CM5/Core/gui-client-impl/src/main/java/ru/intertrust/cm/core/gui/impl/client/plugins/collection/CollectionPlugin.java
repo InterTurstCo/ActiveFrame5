@@ -6,7 +6,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
+import ru.intertrust.cm.core.gui.impl.client.plugins.PluginHistorySupport;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 
 /**
@@ -15,7 +15,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
  *         Time: 12:05 PM
  */
 @ComponentName("collection.plugin")
-public class CollectionPlugin extends Plugin implements RestoreHistorySupport {
+public class CollectionPlugin extends Plugin implements PluginHistorySupport {
 
     // поле для локальной шины событий
     protected EventBus eventBus;

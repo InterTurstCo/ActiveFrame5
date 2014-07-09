@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
  *         Created on 01.07.2014 14:55.
  */
 class HistoryToken {
+    static final String UNKNOWN_LINK = "unknown";
     private static final String ASSIGN_KEY = "=";
     private static final String DELIMITER_KEY = ";";
     private static final String LINK_KEY = "link";
@@ -17,14 +18,16 @@ class HistoryToken {
     private String link;
     private final Map<String, HistoryItem> itemMap = new HashMap<>();
 
-    private HistoryToken() {}
+    public HistoryToken() {
+        this(UNKNOWN_LINK);
+    }
 
     public HistoryToken(final String link) {
         this.link = link;
     }
 
     public String getLink() {
-        return link;
+        return (link != null && !link.isEmpty()) ? link : UNKNOWN_LINK;
     }
 
     public void addItems(HistoryItem... items) {
@@ -50,7 +53,7 @@ class HistoryToken {
 
     public static HistoryToken getHistoryToken(final String urlToken) {
         final HistoryToken token = new HistoryToken();
-        if (urlToken != null || !urlToken.isEmpty()) {
+        if (urlToken != null && !urlToken.isEmpty()) {
             final String[] items = urlToken.split(DELIMITER_KEY);
             for (String item : items) {
                 final String[] itemData = item.split(ASSIGN_KEY);

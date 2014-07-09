@@ -25,15 +25,15 @@ public class ThemesConfig implements Dto {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (!(o instanceof ThemesConfig)) {
+        if (obj == null || !(obj instanceof ThemesConfig)) {
             return false;
         }
 
-        ThemesConfig that = (ThemesConfig) o;
+        ThemesConfig that = (ThemesConfig) obj;
 
         if (themes != null ? !themes.equals(that.themes) : that.themes != null) {
             return false;
@@ -44,6 +44,6 @@ public class ThemesConfig implements Dto {
 
     @Override
     public int hashCode() {
-        return themes != null ? themes.hashCode() : 0;
+        return themes != null ? themes.hashCode() : 17;
     }
 }

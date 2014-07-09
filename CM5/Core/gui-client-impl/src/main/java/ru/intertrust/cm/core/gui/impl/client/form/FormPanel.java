@@ -187,9 +187,7 @@ public class FormPanel implements IsWidget {
                 Widget selectedWidget = selectedPanel.getWidget(0);
                 Object marker = selectedWidget.getLayoutData();
                 final HistoryItem historyItem = new HistoryItem(
-                        HistoryItem.Type.URL,
-                        TAB_KEY,
-                        DEFAULT_TAB == numberOfSelected ? null : numberOfSelected.toString());
+                        HistoryItem.Type.URL, TAB_KEY, numberOfSelected.toString());
                 Application.getInstance().getHistoryManager().addHistoryItems(historyItem);
                 if (BusinessUniverseConstants.FOOTER_LONG.equals(marker)) {
                     footer.setStyleName("form-footer-long");

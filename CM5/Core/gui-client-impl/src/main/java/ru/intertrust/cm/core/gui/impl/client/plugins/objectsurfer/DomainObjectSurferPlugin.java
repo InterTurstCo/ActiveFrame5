@@ -22,7 +22,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
-import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
+import ru.intertrust.cm.core.gui.impl.client.plugins.PluginHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -40,7 +40,7 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,
-        IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler, RestoreHistorySupport {
+        IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler, PluginHistorySupport {
 
     private CollectionPlugin collectionPlugin;
     private FormPlugin formPlugin;
@@ -127,17 +127,17 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public FormState getFormState() {
-        return ((IsDomainObjectEditor) getFormPlugin()).getFormState();
+        return getFormPlugin().getFormState();
     }
 
     @Override
     public void setFormState(FormState formState) {
-        ((IsDomainObjectEditor) getFormPlugin()).setFormState(formState);
+        getFormPlugin().setFormState(formState);
     }
 
     @Override
     public DomainObject getRootDomainObject() {
-        return ((IsDomainObjectEditor) getFormPlugin()).getRootDomainObject();
+        return getFormPlugin().getRootDomainObject();
     }
 
     @Override

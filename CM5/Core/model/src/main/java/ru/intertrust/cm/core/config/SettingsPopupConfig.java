@@ -42,6 +42,6 @@ public class SettingsPopupConfig implements Dto {
 
     @Override
     public int hashCode() {
-        return themesConfig != null ? themesConfig.hashCode() : 0;
+        return themesConfig != null ? themesConfig.hashCode() : 17;
     }
 }

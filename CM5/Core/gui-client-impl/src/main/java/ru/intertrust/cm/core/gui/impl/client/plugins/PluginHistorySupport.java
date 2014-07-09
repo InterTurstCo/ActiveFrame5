@@ -5,7 +5,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins;
  * @author Sergey.Okolot
  *         Created on 04.07.2014 16:13.
  */
-public interface RestoreHistorySupport {
+public interface PluginHistorySupport {
 
     /**
      *
@@ -13,4 +13,6 @@ public interface RestoreHistorySupport {
      * требуется, FALSE - событие восстановления данных истории должно быть передано дальше по цепочкею
      */
     boolean restoreHistory();
+
+//    void fillHistoryData();
 }

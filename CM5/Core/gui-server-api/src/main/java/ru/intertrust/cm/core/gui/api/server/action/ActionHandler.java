@@ -23,7 +23,7 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
     public static final String TOGGLE_EDIT_ATTR = "toggle-edit";
     public static final String TOGGLE_EDIT_KEY = "toggleEdit";
 
-    public enum Status {SUCCESSFUL, SKIPPED}
+    public enum Status {APPLY, SKIP}
 
     @Autowired
     protected ApplicationContext applicationContext;
@@ -43,7 +43,7 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
     }
 
     public Status getHandlerStatus(String conditionExpression, HandlerStatusData condition) {
-        return Status.SUCCESSFUL;
+        return Status.APPLY;
     }
 
     protected <X> X evaluateExpression(final String conditionExpression, final HandlerStatusData condition) {

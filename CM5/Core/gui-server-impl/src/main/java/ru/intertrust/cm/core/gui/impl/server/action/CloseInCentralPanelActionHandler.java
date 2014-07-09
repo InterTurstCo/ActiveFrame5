@@ -30,6 +30,6 @@ public class CloseInCentralPanelActionHandler extends ActionHandler<ActionContex
     public Status getHandlerStatus(String conditionExpression, HandlerStatusData condition) {
         conditionExpression = conditionExpression.replaceAll(TOGGLE_EDIT_ATTR, TOGGLE_EDIT_KEY);
         final boolean result = evaluateExpression(conditionExpression, condition);
-        return result ? Status.SUCCESSFUL : Status.SKIPPED;
+        return result ? Status.APPLY : Status.SKIP;
     }
 }

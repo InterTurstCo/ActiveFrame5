@@ -22,9 +22,10 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
-import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
+import ru.intertrust.cm.core.gui.impl.client.plugins.PluginHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -175,7 +176,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
     }
 
-
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
         Application.getInstance().showLoadingIndicator();
@@ -183,7 +183,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         String pluginName = pluginConfig.getComponentName();
         Plugin plugin = ComponentRegistry.instance.get(pluginName);
         plugin.setConfig(pluginConfig);
-
+        Application.getInstance().getHistoryManager()
+                .setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
+                .setLink(event.getLinkName());
         plugin.setDisplayActionToolBar(true);
         centralPluginPanel.open(plugin);
     }
@@ -273,11 +275,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
         @Override
         public void onValueChange(ValueChangeEvent<String> event) {
-            Application.getInstance().getHistoryManager().setToken(event.getValue());
-            if (!navigationTreePlugin.restoreHistory()) {
-                final Plugin plugin = centralPluginPanel.getCurrentPlugin();
-                if (plugin instanceof RestoreHistorySupport) {
-                    ((RestoreHistorySupport) plugin).restoreHistory();
+            final String url = event.getValue();
+            if (url != null && !url.isEmpty()) {
+                Application.getInstance().getHistoryManager().setToken(event.getValue());
+                if (!navigationTreePlugin.restoreHistory()) {
+                    final Plugin plugin = centralPluginPanel.getCurrentPlugin();
+                    if (plugin instanceof PluginHistorySupport) {
+                        ((PluginHistorySupport) plugin).restoreHistory();
+                    }
                 }
             }
         }

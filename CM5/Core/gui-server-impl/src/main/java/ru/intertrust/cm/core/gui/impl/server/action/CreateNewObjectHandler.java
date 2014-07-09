@@ -32,6 +32,6 @@ public class CreateNewObjectHandler extends ActionHandler {
     public Status getHandlerStatus(String conditionExpression, final HandlerStatusData condition) {
         conditionExpression = conditionExpression.replaceAll(TOGGLE_EDIT_ATTR, TOGGLE_EDIT_KEY);
         final boolean result = (Boolean) evaluateExpression(conditionExpression, condition);
-        return result ? Status.SUCCESSFUL : Status.SKIPPED;
+        return result ? Status.APPLY : Status.SKIP;
     }
 }

@@ -11,12 +11,12 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.plugins.RestoreHistorySupport;
+import ru.intertrust.cm.core.gui.impl.client.plugins.PluginHistorySupport;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 
 @ComponentName("navigation.tree")
-public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler, RestoreHistorySupport {
+public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler, PluginHistorySupport {
 
     protected EventBus eventBus;
 
@@ -52,29 +52,25 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
         final HistoryManager historyManager = Application.getInstance().getHistoryManager();
         final NavigationTreePluginView view = (NavigationTreePluginView) getView();
         final String selectedLinkName = view.getSelectedLinkName();
-        boolean linkChanged = historyManager.getLink() != null
-                && !historyManager.getLink().isEmpty()
-                && !HistoryManager.UNKNOWN_LINK.equals(historyManager.getLink())
-                && !historyManager.getLink().equals(selectedLinkName);
-        if (linkChanged) {
+        if (!historyManager.isLinkEquals(selectedLinkName)) {
             final NavigationTreePluginData data = getInitialData();
             final List<LinkConfig> linkConfigs = data.getNavigationConfig().getLinkConfigList();
             String rootName = null;
-            boolean containsChild = false;
+            String childLink = null;
             for (LinkConfig linkConfig : linkConfigs) {
                 rootName = linkConfig.getName();
-                if (historyManager.getLink().equals(rootName)) {
+                if (historyManager.isLinkEquals(rootName)) {
                     break;
                 } else {
-                    containsChild = containsChildLink(linkConfig.getChildLinksConfigList(), historyManager.getLink());
-                    if (containsChild) {
+                    childLink = findChildLink(linkConfig.getChildLinksConfigList(), historyManager);
+                    if (childLink != null) {
                         break;
                     }
                 }
             }
             if (rootName != null) {
                 view.showAsSelectedRootLink(rootName);
-                view.repaintNavigationTrees(rootName, containsChild ? historyManager.getLink() : null);
+                view.repaintNavigationTrees(rootName, childLink);
             }
             return true;
         } else {
@@ -82,16 +78,19 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
         }
     }
 
-    private boolean containsChildLink(final List<ChildLinksConfig> childLinksConfigs, final String childName) {
+    private String findChildLink(final List<ChildLinksConfig> childLinksConfigs, final HistoryManager manager) {
         for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
             final List<LinkConfig> linkConfigs = childLinksConfig.getLinkConfigList();
             for (LinkConfig linkConfig : linkConfigs) {
-                if (childName.equals(linkConfig.getName())
-                        || containsChildLink(linkConfig.getChildLinksConfigList(), childName)) {
-                    return true;
+                if (manager.isLinkEquals(linkConfig.getName())) {
+                    return linkConfig.getName();
+                }
+                final String childLink = findChildLink(linkConfig.getChildLinksConfigList(), manager);
+                if (childLink != null) {
+                    return childLink;
                 }
             }
         }
-        return false;
+        return null;
     }
 }

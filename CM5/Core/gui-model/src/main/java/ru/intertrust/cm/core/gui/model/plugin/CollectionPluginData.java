@@ -1,14 +1,14 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -21,16 +21,17 @@ public class CollectionPluginData extends ActivePluginData {
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     private boolean singleChoice;
     private boolean displayChosenValues;
-    private ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
+    private ArrayList<CollectionRowItem> items = new ArrayList<>();
     private LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap;
-    private ArrayList<Integer> indexesOfSelectedItems = new ArrayList<Integer>();
-    private List<Id> chosenIds = new ArrayList<Id>();
+    private List<Integer> indexesOfSelectedItems = new ArrayList<>();
+    private List<Id> chosenIds = new ArrayList<>();
     private String searchArea;
     private String collectionViewConfigName;
     private InitialFiltersConfig initialFiltersConfig;
     private FilterPanelConfig filterPanelConfig;
+
     public CollectionPluginData() {
-        domainObjectFieldPropertiesMap = new LinkedHashMap<String, CollectionColumnProperties>();
+        domainObjectFieldPropertiesMap = new LinkedHashMap<>();
     }
 
     public boolean isSingleChoice() {
@@ -82,7 +83,7 @@ public class CollectionPluginData extends ActivePluginData {
         this.collectionName = collectionName;
     }
 
-    public ArrayList<Integer> getIndexesOfSelectedItems() {
+    public List<Integer> getIndexesOfSelectedItems() {
         return indexesOfSelectedItems;
     }
 

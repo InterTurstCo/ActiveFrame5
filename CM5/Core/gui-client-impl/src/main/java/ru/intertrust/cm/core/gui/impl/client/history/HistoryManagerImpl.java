@@ -2,8 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client.history;
 
 import com.google.gwt.user.client.History;
 
-import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 
 /**
  * @author Sergey.Okolot
@@ -11,7 +11,26 @@ import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
  */
 public class HistoryManagerImpl implements HistoryManager {
 
-    private HistoryToken current = new HistoryToken(UNKNOWN_LINK);
+    private HistoryToken current = new HistoryToken();
+    private Mode mode = Mode.APPLY;
+    private String identifier;
+
+    @Override
+    public HistoryManager setMode(final Mode mode, final String identifier) {
+            if (Mode.WRITE == mode) {
+                if (this.identifier == null) {
+                    this.mode = mode;
+                    this.identifier = identifier;
+                }
+            } else if (Mode.APPLY == mode) {
+                if (this.identifier == null || this.identifier.equals(identifier)) {
+                    this.mode = mode;
+                    this.identifier = null;
+                    History.newItem(current.getUrlToken(), false);
+                }
+            }
+        return this;
+    }
 
     @Override
     public void setToken(String url) {
@@ -22,19 +41,23 @@ public class HistoryManagerImpl implements HistoryManager {
     public void setLink(String link) {
         if (!link.equals(current.getLink())) {
             current = new HistoryToken(link);
-            History.newItem(current.getUrlToken(), false);
+            if (Mode.APPLY == mode) {
+                History.newItem(current.getUrlToken(), false);
+            }
         }
     }
 
     @Override
-    public String getLink() {
-        return current.getLink();
+    public boolean isLinkEquals(final String link) {
+        return current.getLink().equals(link);
     }
 
     @Override
     public void addHistoryItems(HistoryItem... items) {
         current.addItems(items);
-        History.newItem(current.getUrlToken(), false);
+        if (Mode.APPLY == mode) {
+            History.newItem(current.getUrlToken(), false);
+        }
     }
 
     @Override
