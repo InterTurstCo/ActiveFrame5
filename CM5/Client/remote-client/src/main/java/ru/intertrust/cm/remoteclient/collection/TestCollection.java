@@ -124,6 +124,9 @@ public class TestCollection extends ClientBase {
             query = "select dateon as \"works\" from tst_employee";
             executeQuery(query, 1);
             
+            query = "select id from employee where (select count(e.id) from employee e where e.name = 'xxx') > 0";
+            executeQuery(query, 1);
+            
             /* Расскоментировать после исправления CMFIVE-1220
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5018, 1)));
