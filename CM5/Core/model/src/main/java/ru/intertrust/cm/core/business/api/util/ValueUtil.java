@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.OlsonTimeZoneContext;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.TimeZoneContext;
@@ -17,9 +16,14 @@ import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Lesia Puhova
@@ -27,6 +31,9 @@ import java.util.Date;
  *         Time: 10:59
  */
 public class ValueUtil {
+
+    private static final String ITEMS_DELIMITER = "_"; //TODO: need to escape them in string values
+    private static final String ITEM_TYPE_VALUE_DELIMItER = "-";
 
     private ValueUtil() {} // non-instantiable
 
@@ -51,6 +58,24 @@ public class ValueUtil {
                 return format((TimelessDate) (value.get()));
             case REFERENCE:
                 return ((Id)(value.get())).toStringRepresentation();
+            case LIST:
+                StringBuilder sb = new StringBuilder();
+                int i = 0;
+                List<Serializable> items = ((ListValue)value).get();
+                for (Serializable item : items) {
+                    if (item instanceof Id) {
+                        sb.append(((Id)item).toStringRepresentation());
+                    } else {
+                        sb.append(item);
+                    }
+                    sb.append(ITEM_TYPE_VALUE_DELIMItER)
+                      .append(ValueUtil.getFieldTypeForListItem(item));
+
+                    if (++i <  items.size()) {
+                        sb.append(ITEMS_DELIMITER);
+                    }
+                }
+                return sb.toString();
             default:
                 throw new IllegalArgumentException();
         }
@@ -82,8 +107,51 @@ public class ValueUtil {
                 Id id = new RdbmsId();
                 id.setFromStringRepresentation(string);
                 return new ReferenceValue(id);
+            case LIST:
+                List<Value> values = new ArrayList<>();
+                String[] chunks = string.split(ITEMS_DELIMITER);
+                for (String chunk : chunks) {
+                    if (chunk != null && !chunk.isEmpty()) {
+                        String[]parts = chunk.split(ITEM_TYPE_VALUE_DELIMItER);
+                        String paramValue = parts[0];
+                        String paramType = parts[1];
+                        if (paramValue != null && !"null".equals(paramValue)) {
+                            Value value = ValueUtil.stringValueToObject(paramValue, paramType);
+                            values.add(value);
+                        }
+                    }
+                }
+                return new ListValue(values);
             default: return new StringValue(string);
         }
+    }
+
+    private static FieldType getFieldTypeForListItem(Serializable plainValue) {
+        if (plainValue instanceof Boolean) {
+            return FieldType.BOOLEAN;
+        }
+        if (plainValue instanceof String)  {
+            return FieldType.STRING;
+        }
+        if (plainValue instanceof Long) {
+            return FieldType.LONG;
+        }
+        if (plainValue instanceof BigDecimal) {
+            return FieldType.DECIMAL;
+        }
+        if (plainValue instanceof DateTimeWithTimeZone) {
+            return FieldType.DATETIMEWITHTIMEZONE;
+        }
+        if (plainValue instanceof Date) {
+            return FieldType.DATETIME;
+        }
+        if (plainValue instanceof TimelessDate) {
+            return FieldType.TIMELESSDATE;
+        }
+        if (plainValue instanceof Id) {
+            return FieldType.REFERENCE;
+        }
+        throw new IllegalArgumentException("Object has non-supported type: " + plainValue);
     }
 
     private static String format(TimelessDate timelessDate) {

@@ -61,8 +61,8 @@ public class GenerateReportAction extends SimpleServerAction {
         if (params != null && !params.isEmpty()) {
             for (Map.Entry<String, Value> entry : params.entrySet()) {
                 String fieldName = entry.getKey();
-                String value = ValueUtil.valueToString(entry.getValue());
                 if (entry.getValue() != null) {
+                    String value = ValueUtil.valueToString(entry.getValue());
                     String fieldType = entry.getValue().getFieldType().name();
                     sb.append("&")
                             .append(fieldName)

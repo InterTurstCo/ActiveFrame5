@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.dto.Id;import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
@@ -14,8 +16,10 @@ import ru.intertrust.cm.core.gui.model.action.GenerateReportActionContext;
 import ru.intertrust.cm.core.gui.model.action.GenerateReportActionData;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +42,7 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
 
         GenerateReportActionData actionData = new GenerateReportActionData();
         actionData.setReportName(context.getReportName());
-        actionData.setParams(buildParamsString(formState));
+        actionData.setParams(buildParamsMap(formState));
         return actionData;
     }
 
@@ -47,7 +51,7 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
         return new GenerateReportActionContext();
     }
 
-    private Map<String, Value> buildParamsString(FormState formState) {
+    private Map<String, Value> buildParamsMap(FormState formState) {
         Map<String, Value> params = new HashMap<String, Value>();
 
         List<WidgetConfig> widgetConfigs = getWidgetConfigs(formState);
@@ -64,8 +68,18 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
                 continue;
             }
             WidgetHandler handler = getWidgetHandler(widgetConfig);
-            Value value = handler.getValue(widgetState);
-
+            Value value;
+            if (widgetState instanceof LinkEditingWidgetState &&
+                    !((LinkEditingWidgetState)widgetState).isSingleChoice()) {
+                List<Id> ids = ((LinkEditingWidgetState)widgetState).getIds();
+                List<Value> values = new ArrayList<>(ids.size());
+                for (Id id : ids) {
+                    values.add(new ReferenceValue(id));
+                }
+                value = new ListValue(values);
+            } else {
+                value = handler.getValue(widgetState);
+            }
             params.put(paramName, value);
         }
         return params;

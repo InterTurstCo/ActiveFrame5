@@ -121,6 +121,9 @@ public class DaoUtils {
 
     private static List<Serializable> createJdbcCompliantValues(ListValue value) {
         List<Serializable> jdbcCompliantValues = new ArrayList<>();
+        if (value.get() == null) {
+            return null;
+        }
         for (Serializable singleValue : value.get()) {
 
             if (singleValue instanceof Id) {

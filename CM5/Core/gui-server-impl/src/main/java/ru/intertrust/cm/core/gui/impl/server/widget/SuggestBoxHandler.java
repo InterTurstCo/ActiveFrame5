@@ -43,6 +43,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         state.setSuggestBoxConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
+
         if (!selectedIds.isEmpty()) {
             DefaultSortCriteriaConfig sortCriteriaConfig = widgetConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
@@ -63,13 +64,16 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             } else {
                 objects = generateIdRepresentationMapFromCollectionAndIds(widgetConfig, collection, selectedIds);
             }
-
+            SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
+            boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+            boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
+            state.setSingleChoice(singleChoice);
+            state.setListValues(objects);
+        } else {
+            SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
+            boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+            state.setSingleChoice(singleChoiceFromConfig);
         }
-        SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
-        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
-        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
-        state.setSingleChoice(singleChoice);
-        state.setListValues(objects);
         return state;
     }
 
