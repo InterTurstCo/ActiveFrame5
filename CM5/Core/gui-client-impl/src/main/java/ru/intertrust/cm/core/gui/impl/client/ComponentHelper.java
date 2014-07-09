@@ -5,6 +5,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
+
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionDisplayType;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
@@ -30,22 +31,21 @@ public final class ComponentHelper {
     public static SafeHtml createActionHtmlItem(final ActionContext context) {
         final ActionConfig actionConfig = context.getActionConfig();
         final SimplePanel wrapper = new SimplePanel();
-        final Image image;
-        final Anchor anchor;
         if (actionConfig.getImageUrl() != null) {
-            final String imageUrl;
-            if (ActionDisplayType.toggleButton == actionConfig.getDisplay()) {
-                final ToggleActionContext toggleActionContext = (ToggleActionContext) context;
-                imageUrl = actionConfig.getImageUrl().replace(ToggleAction.IMAGE_SUFFIX,
-                        toggleActionContext.isPushed() ? ToggleAction.OFF_SUFFIX : ToggleAction.ON_SUFFIX);
-            } else {
-                imageUrl = actionConfig.getImageUrl();
+            final String imageUrl = getImageAttr(actionConfig.getImageUrl(), context);
+            final Image image = new Image(imageUrl);
+            if (actionConfig.getImageClass() != null) {
+                image.setStyleName(actionConfig.getImageClass());
             }
-            image = new Image(imageUrl);
             DOM.appendChild(wrapper.getElement(), image.getElement());
+        } else if (actionConfig.getImageClass() != null) {
+            final String imageClass = getImageAttr(actionConfig.getImageClass(), context);
+            final SimplePanel panel = new SimplePanel();
+            panel.setStyleName(imageClass);
+            DOM.appendChild(wrapper.getElement(), panel.getElement());
         }
         if (actionConfig.getText() != null) {
-            anchor = new Anchor(actionConfig.getText());
+            final Anchor anchor = new Anchor(actionConfig.getText());
             anchor.setStyleName("action-bar-button");
             DOM.appendChild(wrapper.getElement(), anchor.getElement());
         }
@@ -56,5 +56,18 @@ public final class ComponentHelper {
             }
         };
         return safeHtml;
+    }
+
+    private static String getImageAttr(final String attrValue, ActionContext context) {
+        final ActionDisplayType type = ((ActionConfig) context.getActionConfig()).getDisplay();
+        final String result;
+        if (ActionDisplayType.toggleButton == type) {
+            final ToggleActionContext toggleActionContext = (ToggleActionContext) context;
+            result = attrValue.replace(ToggleAction.IMAGE_SUFFIX,
+                    toggleActionContext.isPushed() ? ToggleAction.OFF_SUFFIX : ToggleAction.ON_SUFFIX);
+        } else {
+            result = attrValue;
+        }
+        return result;
     }
 }

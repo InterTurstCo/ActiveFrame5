@@ -48,6 +48,9 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
     @Attribute(name = "image", required = false)
     private String imageUrl;
 
+    @Attribute(name = "imageClass", required = false)
+    private String imageClass;
+
     @Attribute(required = false)
     private String tooltip;
 
@@ -145,6 +148,14 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
 
     public void setImageUrl(final String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getImageClass() {
+        return imageClass;
+    }
+
+    public void setImageClass(String imageClass) {
+        this.imageClass = imageClass;
     }
 
     public String getTooltip() {

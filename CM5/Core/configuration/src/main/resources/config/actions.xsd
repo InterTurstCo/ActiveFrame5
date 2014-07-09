@@ -66,6 +66,7 @@
                 <xs:attribute name="componentName" type="act:componentNameType" use="required" />
                 <xs:attribute name="text" type="xs:string" />
                 <xs:attribute name="image" type="xs:string" />
+                <xs:attribute name="imageClass" type="xs:string" />
                 <xs:attribute name="tooltip" type="xs:string"/>
                 <xs:attribute name="immediate" type="xs:boolean" default="false" />
                 <xs:attribute name="action" type="xs:string" />

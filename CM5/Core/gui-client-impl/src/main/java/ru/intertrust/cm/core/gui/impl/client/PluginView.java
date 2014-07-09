@@ -153,11 +153,6 @@ public abstract class PluginView implements IsWidget {
             final AbstractActionConfig config = context.getActionConfig();
             if (config instanceof ActionSeparatorConfig) {
                 final MenuItemSeparator separator = addSeparator();
-                // FIXME will be defined css style class
-//                separator.getElement().getStyle().setBorderColor("lightgray");
-//                separator.getElement().getStyle().setBorderWidth(1.0, Style.Unit.PX);
-//                separator.getElement().getStyle().setBorderStyle(Style.BorderStyle.SOLID);
-                // end fixme
                 updateByConfig(separator, config);
             } else if (config instanceof ActionConfig) {
                 final ScheduleCommandImpl commandImpl = new ScheduleCommandImpl(context);
