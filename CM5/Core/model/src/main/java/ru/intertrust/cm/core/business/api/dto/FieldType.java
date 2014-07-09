@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+
 /**
  * Перечисление типов полей доменных объектов, реализованных в системе.
  *
@@ -17,7 +19,8 @@ public enum FieldType {
     TIMELESSDATE(TimelessDateValue.class),
     REFERENCE(ReferenceValue.class),
     @Deprecated
-    PASSWORD(StringValue.class);
+    PASSWORD(StringValue.class),
+    LIST(ListValue.class);
 
     private Class<? extends Value> valueClass;
 

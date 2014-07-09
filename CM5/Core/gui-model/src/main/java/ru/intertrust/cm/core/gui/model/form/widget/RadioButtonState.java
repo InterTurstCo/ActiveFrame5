@@ -36,7 +36,9 @@ public class RadioButtonState extends ListWidgetState {
     @Override
     public ArrayList<Id> getIds() {
         ArrayList<Id> list = new ArrayList<Id>();
-        list.add(selectedId);
+        if (selectedId != null) {
+            list.add(selectedId);
+        }
         return list;
     }
 

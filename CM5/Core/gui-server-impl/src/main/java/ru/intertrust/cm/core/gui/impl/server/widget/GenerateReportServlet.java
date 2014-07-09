@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,23 +45,22 @@ public class GenerateReportServlet {
                                HttpServletResponse response) throws IOException, ServletException {
 
         String reportName = request.getParameter("report_name");
-
-        Map<String, Object> params = convertParameters(request.getParameterMap());
-
         OutputStream resOut = response.getOutputStream();
         OutputStream bufferOut = new BufferedOutputStream(resOut);
         try {
+            Map<String, Object> params = convertParameters(request.getParameterMap());
+
             response.setHeader("Content-Disposition", "attachment; filename=" + reportName);
             ReportResult reportResult = reportService.generate(reportName, params);
             bufferOut.write(reportResult.getReport());
         } catch (Exception e) {
+            logger.error("Ошибка при генерации отчета " + reportName, e.getCause());
             response.setHeader("Content-Disposition", "attachment; filename=REPORT_GENERATION_ERROR_" + reportName);
             bufferOut.write("Ошибка при генерации отчета ".getBytes());
             bufferOut.write(reportName.getBytes());
             bufferOut.write("\r\n".getBytes());
             bufferOut.write(e.getMessage().getBytes());
             bufferOut.write(Arrays.asList(e.getCause().getStackTrace()).toString().getBytes());
-            logger.error("Ошибка при генерации отчета " + reportName, e.getCause());
         }
         bufferOut.flush();
         bufferOut.close();
@@ -73,18 +74,22 @@ public class GenerateReportServlet {
             }
             String requestParamValue = requestParams.get(paramName)[0];
             if (requestParamValue != null && !requestParamValue.isEmpty()) {
-                String[]parts = requestParamValue.split(SEPARATOR);
-                String paramValue = parts[0];
-                String paramType = parts[1];
-                if (paramValue != null && !"null".equals(paramValue)) {
-                    Value value = ValueUtil.stringValueToObject(paramValue, paramType);
-                    reportParams.put(paramName, value.get());
-                } else {
-                    reportParams.put(paramName, null);
-                }
+                reportParams.put(paramName, getParamValue(requestParamValue));
             }
         }
         return reportParams;
+    }
 
+    private Object getParamValue(String requestParamValue) {
+        String[]parts = requestParamValue.split(SEPARATOR);
+        String paramValue = parts[0];
+        String paramType = parts[1];
+        if (paramValue != null && !"null".equals(paramValue)) {
+            Value value = ValueUtil.stringValueToObject(paramValue, paramType);
+            return value.get();
+        } else if ("LIST".equals(paramType)) {
+            return new ArrayList<Serializable>();
+        }
+        return null;
     }
 }

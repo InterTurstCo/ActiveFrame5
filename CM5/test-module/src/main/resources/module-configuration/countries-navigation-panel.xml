@@ -245,6 +245,11 @@
                         <report-plugin report-name="employee-groups"/>
                     </plugin>
                 </link>
+                <link name="Report_param_list" display-text="Список">
+                    <plugin>
+                        <report-plugin report-name="all-employee-param-list"/>
+                    </plugin>
+                </link>
             </child-links>
         </link>
 

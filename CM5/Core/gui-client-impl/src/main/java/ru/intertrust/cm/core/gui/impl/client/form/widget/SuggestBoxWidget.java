@@ -201,7 +201,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         display = (CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
         display.setPositionRelativeTo(presenter);
         display.getSuggestionPopup().getElement().getStyle().setZIndex(999999999);
-
+        presenter.suggestBox = suggestBox;
         return presenter;
     }
 

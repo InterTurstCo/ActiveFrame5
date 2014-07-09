@@ -442,6 +442,63 @@
         </widget-config>
     </form>
 
+    <form name="report-param-list" type="report"  report-template="all-employee-param-list">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td h-align="left">
+                            <widget id="reportDescriptionLabel" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Параметры отчета">
+                    <single-entry-group>
+                        <tab-group>
+                            <table width="800px" height="100px">
+                                <tr  height="45px">
+                                    <td h-align="left">
+                                        <widget id="paramIdListLabel" />
+                                    </td>
+                                    <td width="200px">
+                                        <widget id="employeesSuggestBox"/>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="reportDescriptionLabel">
+                <field-path/>
+                <text>Список сотрудников</text>
+            </label>
+            <label id="paramIdListLabel">
+                <field-path/>
+                <text>Сотрудники:</text>
+            </label>
+            <suggest-box id="employeesSuggestBox">
+                <field-path value="paramIdList"/>
+                <collection-ref name="Employees"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button  text="Очистить"/>
+                <default-sort-criteria column-field="name" order="asc"/>
+            </suggest-box>
+
+        </widget-config>
+    </form>
+
     <act:action name="start-internal-document-process" componentName="start.process.action"
         text="Отправить на согласование" image="sign.png" merged="true">
         <act:before-execution>

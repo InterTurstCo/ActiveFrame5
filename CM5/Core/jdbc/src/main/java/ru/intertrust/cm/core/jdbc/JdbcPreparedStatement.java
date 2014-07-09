@@ -1,5 +1,14 @@
 package ru.intertrust.cm.core.jdbc;
 
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -23,9 +32,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
-
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     private Hashtable<Integer, Object> parameters = new Hashtable<Integer, Object>();
@@ -74,6 +80,13 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 parameter = new DateTimeValue((Date)value);
             } else if (value instanceof Id) {
                 parameter = new ReferenceValue((Id)value);
+            } else if (value instanceof List) {
+                List<Id> ids = (List)value;
+                List<Value> values = new ArrayList<>(ids.size());
+                for (Id id : ids) {
+                    values.add(new ReferenceValue(id));
+                }
+                parameter = new ListValue(values);
             } else {
                 parameter = new StringValue(value.toString());
             } 
