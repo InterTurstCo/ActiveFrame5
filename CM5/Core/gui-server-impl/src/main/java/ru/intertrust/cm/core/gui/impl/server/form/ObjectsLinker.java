@@ -11,7 +11,6 @@ import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.OnLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.OnUnlinkConfig;
 import ru.intertrust.cm.core.gui.api.server.form.DomainObjectLinkInterceptor;
-import ru.intertrust.cm.core.gui.api.server.form.FormMechanismDomainObjectLinkInterceptor;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -118,7 +117,7 @@ public abstract class ObjectsLinker {
         if (onLinkConfig == null && onUnlinkConfig == null) {
             return null; // nothing to do before
         }
-        return new FormMechanismDomainObjectLinkInterceptor(); // todo: NO, it's a bean!
+        return (DomainObjectLinkInterceptor) applicationContext.getBean("defaultConfigurableDomainObjectLinkInterceptor");
     }
 
 }

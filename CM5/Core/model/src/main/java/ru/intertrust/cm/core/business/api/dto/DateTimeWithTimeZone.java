@@ -1,5 +1,11 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.model.GwtIncompatible;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 /**
  * Класс представляет дату и время в виде календаря (год, месяц, день месяца, часы, минуты, секунды,
  * миллисекунды) с часовым поясом (или временнЫм смещением).
@@ -73,6 +79,24 @@ public class DateTimeWithTimeZone implements Dto {
         this.minutes = minutes;
         this.seconds = seconds;
         this.milliseconds = milliseconds;
+    }
+
+    @GwtIncompatible
+    public DateTimeWithTimeZone(Date date, TimeZone timeZone) {
+        if (date == null) {
+            return;
+        }
+        final Calendar cal = Calendar.getInstance(timeZone);
+        cal.setTime(date);
+
+        this.timeZoneContext = new OlsonTimeZoneContext(timeZone.getID());
+        this.year = cal.get(Calendar.YEAR);
+        this.month = cal.get(Calendar.MONTH);
+        this.dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
+        this.hours = cal.get(Calendar.HOUR_OF_DAY);
+        this.minutes = cal.get(Calendar.MINUTE);
+        this.seconds = cal.get(Calendar.SECOND);
+        this.milliseconds = cal.get(Calendar.MILLISECOND);
     }
 
     public int getYear() {

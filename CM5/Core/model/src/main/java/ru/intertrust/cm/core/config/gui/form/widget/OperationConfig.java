@@ -5,5 +5,5 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 /**
  * Created by tbilyi on 19.06.2014.
  */
-abstract class OperationConfig implements Dto{
+public abstract class OperationConfig implements Dto{
 }

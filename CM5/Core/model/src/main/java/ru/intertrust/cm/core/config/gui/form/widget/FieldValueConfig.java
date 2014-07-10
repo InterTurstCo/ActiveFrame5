@@ -18,19 +18,22 @@ public class FieldValueConfig implements Dto{
     private String value;
 
     @Attribute(name = "set-current-user", required = false)
-    private String setCurrentUser;
+    private boolean setCurrentUser;
 
     @Attribute(name = "set-base-object", required = false)
-    private String setBaseObject;
+    private boolean setBaseObject;
 
     @Attribute(name = "set-null", required = false)
-    private String setNull;
+    private boolean setNull;
 
-    @Attribute(name = "type", required = false)
-    private String type;
+    @Attribute(name = "set-current-moment", required = false)
+    private boolean setCurrentMoment;
 
     @Element(name = "unique-key-value", required = false)
     private UniqueKeyValueConfig uniqueKeyValueConfig;
+
+    @Element(name = "time-zone-id", required = false)
+    private String timeZoneId;
 
     public String getName() {
         return name;
@@ -48,36 +51,44 @@ public class FieldValueConfig implements Dto{
         this.value = value;
     }
 
-    public String getSetCurrentUser() {
+    public boolean isSetCurrentUser() {
         return setCurrentUser;
     }
 
-    public void setSetCurrentUser(String setCurrentUser) {
+    public void setSetCurrentUser(boolean setCurrentUser) {
         this.setCurrentUser = setCurrentUser;
     }
 
-    public String getSetBaseObject() {
+    public boolean isSetBaseObject() {
         return setBaseObject;
     }
 
-    public void setSetBaseObject(String setBaseObject) {
+    public void setSetBaseObject(boolean setBaseObject) {
         this.setBaseObject = setBaseObject;
     }
 
-    public String getSetNull() {
+    public boolean isSetNull() {
         return setNull;
     }
 
-    public void setSetNull(String setNull) {
+    public void setSetNull(boolean setNull) {
         this.setNull = setNull;
     }
 
-    public String getType() {
-        return type;
+    public boolean isSetCurrentMoment() {
+        return setCurrentMoment;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setSetCurrentMoment(boolean setCurrentMoment) {
+        this.setCurrentMoment = setCurrentMoment;
+    }
+
+    public String getTimeZoneId() {
+        return timeZoneId;
+    }
+
+    public void setTimeZoneId(String timeZoneId) {
+        this.timeZoneId = timeZoneId;
     }
 
     public UniqueKeyValueConfig getUniqueKeyValueConfig() {
@@ -90,34 +101,45 @@ public class FieldValueConfig implements Dto{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         FieldValueConfig that = (FieldValueConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (setBaseObject != null ? !setBaseObject.equals(that.setBaseObject) : that.setBaseObject != null)
+        if (setBaseObject != that.setBaseObject) {
             return false;
-        if (setCurrentUser != null ? !setCurrentUser.equals(that.setCurrentUser) : that.setCurrentUser != null)
+        }
+        if (setCurrentUser != that.setCurrentUser) {
             return false;
-        if (setNull != null ? !setNull.equals(that.setNull) : that.setNull != null) return false;
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (uniqueKeyValueConfig != null ? !uniqueKeyValueConfig.equals(that.uniqueKeyValueConfig) : that.uniqueKeyValueConfig != null)
+        }
+        if (setNull != that.setNull) {
             return false;
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
+        }
+        if (setCurrentMoment != that.setCurrentMoment) {
+            return false;
+        }
+        if (!name.equals(that.name)) {
+            return false;
+        }
+        if (uniqueKeyValueConfig != null ? !uniqueKeyValueConfig.equals(that.uniqueKeyValueConfig) : that.uniqueKeyValueConfig != null) {
+            return false;
+        }
+        if (value != null ? !value.equals(that.value) : that.value != null) {
+            return false;
+        }
+        if (timeZoneId != null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (setCurrentUser != null ? setCurrentUser.hashCode() : 0);
-        result = 31 * result + (setBaseObject != null ? setBaseObject.hashCode() : 0);
-        result = 31 * result + (setNull != null ? setNull.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (uniqueKeyValueConfig != null ? uniqueKeyValueConfig.hashCode() : 0);
-        return result;
+        return name.hashCode();
     }
 }

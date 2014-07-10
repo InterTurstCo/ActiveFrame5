@@ -1,5 +1,11 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.model.GwtIncompatible;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 /**
  * Класс представляет дату без времени в виде календаря (год, месяц, день месяца).
  *
@@ -20,6 +26,18 @@ public class TimelessDate implements Dto, Comparable<TimelessDate> {
         this.year = year;
         this.month = month;
         this.dayOfMonth = dayOfMonth;
+    }
+
+    @GwtIncompatible
+    public TimelessDate(Date date, TimeZone timeZone) {
+        if (date == null) {
+            return;
+        }
+        final Calendar calendar = Calendar.getInstance(timeZone);
+        calendar.setTime(date);
+        this.year = calendar.get(Calendar.YEAR);
+        this.month = calendar.get(Calendar.MONTH);
+        this.dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
     }
 
     public int getYear() {

@@ -1353,11 +1353,11 @@
 
         <xs:sequence>
             <xs:element type="con:onUnlinkType" name="on-unlink"
-                        minOccurs="0"
+                        minOccurs="0" maxOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
             <xs:element type="con:onLinkType" name="on-link"
-                        minOccurs="0"
+                        minOccurs="0" maxOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
@@ -2491,10 +2491,10 @@
     <xs:complexType name="onLinkType">
         <xs:sequence>
             <xs:element type="con:updateSectionType" name="update"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
 
             <xs:element type="con:createSectionType" name="create"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:boolean" name="do-link" default="true" use="optional"/>
 
@@ -2503,21 +2503,21 @@
     <xs:complexType name="onUnlinkType">
         <xs:sequence>
             <xs:element type="con:createSectionType" name="create"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
 
             <xs:element type="con:updateSectionType" name="update"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:boolean" name="do-unlink" default="true" use="optional"/>
 
     </xs:complexType>
 
-    <xs:element type="con:fieldValueType" name="field" />
+    <!--<xs:element type="con:fieldValueType" name="field" />
     <xs:element type="con:uniqueKeyValueType" name="unique-key-value" />
     <xs:element type="con:onLinkType" name="on-link" />
     <xs:element type="con:onUnlinkType" name="on-unlink" />
     <xs:element type="con:updateSectionType" name="update" />
-    <xs:element type="con:createSectionType" name="create" />
+    <xs:element type="con:createSectionType" name="create" />-->
 
 
     <xs:complexType name="fieldValueType">
@@ -2530,7 +2530,8 @@
         <xs:attribute type="xs:string" name="set-current-user" use="optional"/>
         <xs:attribute type="xs:string" name="set-base-object" use="optional"/>
         <xs:attribute type="xs:string" name="set-null" use="optional"/>
-        <xs:attribute type="xs:string" name="type" use="optional"/>
+        <xs:attribute type="xs:string" name="set-current-moment" use="optional"/>
+        <xs:attribute type="xs:string" name="time-zone-id" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="uniqueKeyValueType">
@@ -2538,6 +2539,7 @@
             <xs:element type="con:fieldValueType" name="field"
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
+        <xs:attribute type="xs:string" name="type" use="required"/>
     </xs:complexType>
 
 
@@ -2547,15 +2549,16 @@
     <xs:complexType name="updateSectionType">
         <xs:sequence>
             <xs:element type="con:fieldValueType" name="field"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="createSectionType">
         <xs:sequence>
             <xs:element type="con:fieldValueType" name="field"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
+        <xs:attribute type="xs:string" name="type" use="required"/>
     </xs:complexType>
 
 </xs:schema>
