@@ -125,7 +125,8 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     public DomainObject saveForm(final FormState formState, final UserInfo userInfo) {
         final GuiContext guiCtx = GuiContext.get();
         guiCtx.setUserInfo(userInfo);
-        FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState, null);
+        FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
+        formSaver.setContext(formState, null);
         return formSaver.saveForm();
     }
 
@@ -143,9 +144,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     private FormRetriever getFormRetriever(UserInfo userInfo) {
         final GuiContext guiCtx = GuiContext.get();
         guiCtx.setUserInfo(userInfo);
-        FormRetriever formRetriever = (FormRetriever)
-                applicationContext.getBean("formRetriever", getUserUid());
-        return formRetriever;
+        return (FormRetriever) applicationContext.getBean("formRetriever");
     }
 
 }

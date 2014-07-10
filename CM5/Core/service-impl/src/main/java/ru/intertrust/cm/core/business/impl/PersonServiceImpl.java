@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
@@ -44,6 +43,10 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public DomainObject getCurrentPerson() {
-        return findPersonByLogin(sessionContext.getCallerPrincipal().getName());
+        return findPersonByLogin(getCurrentPersonUid());
+    }
+
+    public String getCurrentPersonUid() {
+        return sessionContext.getCallerPrincipal().getName();
     }
 }

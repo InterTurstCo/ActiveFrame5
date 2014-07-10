@@ -17,5 +17,15 @@ public interface PersonService {
      */
     DomainObject findPersonByLogin(String login);
 
+    /**
+     * Возвращает доменный объект персоны, осуществляющей операцию
+     * @return доменный объект персоны, осуществляющей операцию
+     */
     DomainObject getCurrentPerson();
+
+    /**
+     * Возвращает уникальный идентификатор персоны, осуществляющей операцию
+     * @return уникальный идентификатор персоны, осуществляющей операцию
+     */
+    String getCurrentPersonUid();
 }

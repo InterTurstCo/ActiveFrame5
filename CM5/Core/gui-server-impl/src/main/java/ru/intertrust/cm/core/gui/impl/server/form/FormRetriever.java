@@ -3,10 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -28,23 +25,11 @@ import java.util.*;
  *         Date: 21.10.13
  *         Time: 13:03
  */
-public class FormRetriever {
+public class FormRetriever extends FormProcessor {
     private static Logger log = LoggerFactory.getLogger(FormRetriever.class);
 
     @Autowired
-    protected ApplicationContext applicationContext;
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-    @Autowired
-    private CrudService crudService;
-    @Autowired
     private FormResolver formResolver;
-
-    private String userUid;
-
-    public FormRetriever(String userUid) {
-        this.userUid = userUid;
-    }
 
     public FormDisplayData getForm(String domainObjectType) {
         DomainObject root = crudService.createDomainObject(domainObjectType);
@@ -86,7 +71,7 @@ public class FormRetriever {
 
     private FormDisplayData buildExtendedSearchForm(String domainObjectType, HashSet<String> formFields) {
         //FormConfig formConfig = formResolver.findFormConfig(root, userUid); was 30.01.2014
-        FormConfig formConfig = formResolver.findSearchFormConfig(domainObjectType, userUid);
+        FormConfig formConfig = formResolver.findSearchFormConfig(domainObjectType, getUserUid());
         if (formConfig == null) {
             return null; //throw new GuiException("Конфигурация поиска для ДО " + domainObjectType + " не найдена!");
         }
@@ -107,7 +92,7 @@ public class FormRetriever {
     }
 
     public FormDisplayData getReportForm(String reportName) {
-        FormConfig formConfig = formResolver.findReportFormConfig(reportName, userUid);
+        FormConfig formConfig = formResolver.findReportFormConfig(reportName, getUserUid());
         if (formConfig == null) {
             throw new GuiException("Конфигурация формы для отчета " + reportName + " не найдена!");
         }
@@ -167,7 +152,7 @@ public class FormRetriever {
         // a.b.c.d - direct links
         // a^b - link defining 1:N relationship (widgets changing attributes can't have such field path)
         // a^b.c - link defining N:M relationship (widgets changing attributes can't have such field path)
-        FormConfig formConfig = formResolver.findEditingFormConfig(root, userUid);
+        FormConfig formConfig = formResolver.findEditingFormConfig(root, getUserUid());
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         HashMap<String, WidgetConfig> widgetConfigsById = buildWidgetConfigsById(widgetConfigs);
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());

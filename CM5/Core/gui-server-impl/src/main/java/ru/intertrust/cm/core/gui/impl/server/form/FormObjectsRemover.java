@@ -1,12 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
@@ -54,16 +50,7 @@ import java.util.List;
  *         Date: 05.05.14
  *         Time: 13:06
  */
-public class FormObjectsRemover {
-    @Autowired
-    protected ApplicationContext applicationContext;
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-    @Autowired
-    private CrudService crudService;
-    @Autowired
-    private AttachmentService attachmentService;
-
+public class FormObjectsRemover extends FormProcessor {
     @Autowired
     private FormResolver formResolver;
     @Autowired
@@ -77,11 +64,9 @@ public class FormObjectsRemover {
 
     private HashMap<FieldPath, FieldPathConfig> fieldPathConfigs;
     private HashMap<FieldPath, WidgetState> fieldPathStates;
-    private String userUid;
     private boolean attachmentsDeleted;
 
-    public FormObjectsRemover(String userUid) {
-        this.userUid = userUid;
+    public FormObjectsRemover() {
         this.rootAndOneToOneToDelete = new HashMap<>();
         this.oneToOneToUnlink = new HashSet<>();
     }
@@ -94,7 +79,7 @@ public class FormObjectsRemover {
     }
 
     public void deleteForm(Id id) {
-        this.formConfig = formResolver.findEditingFormConfig(id, userUid);
+        this.formConfig = formResolver.findEditingFormConfig(id, getUserUid());
         this.initialFormState = formRetriever.getForm(id).getFormState();
         this.formObjects = initialFormState.getObjects();
         deleteForm();
@@ -110,10 +95,9 @@ public class FormObjectsRemover {
                 continue;
             }
 
-            // delete chain
             findDeleteOperationsForChain(new ObjectWithReferences(fieldPath.getParentPath()), fieldPathConfigs.get(fieldPath).getOnRootDelete());
         }
-
+        // todo clean up references from the root to avoid the situation when it locks child deletions
         deleteMultiBackReferences(multiBackReferencesToDelete);
         deleteRootWithOneToOneChain();
     }

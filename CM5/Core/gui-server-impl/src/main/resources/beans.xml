@@ -23,14 +23,9 @@
                     business-interface="ru.intertrust.cm.core.business.api.SearchService"/>
 
 
-    <bean id="formRetriever" class="ru.intertrust.cm.core.gui.impl.server.form.FormRetriever" scope="prototype">
-        <constructor-arg value=""/>
-    </bean>
+    <bean id="formRetriever" class="ru.intertrust.cm.core.gui.impl.server.form.FormRetriever" scope="prototype"/>
 
-    <bean id="formSaver" class="ru.intertrust.cm.core.gui.impl.server.form.FormSaver" scope="prototype">
-        <constructor-arg value=""/>
-        <constructor-arg value=""/>
-    </bean>
+    <bean id="formSaver" class="ru.intertrust.cm.core.gui.impl.server.form.FormSaver" scope="prototype"/>
 
     <bean id="oneToManyLinker" class="ru.intertrust.cm.core.gui.impl.server.form.OneToManyLinker" scope="prototype"/>
 
@@ -38,9 +33,7 @@
 
     <bean id="actionConfigBuilder" class="ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder" scope="prototype"/>
 
-    <bean id="formObjectsRemover" class="ru.intertrust.cm.core.gui.impl.server.form.FormObjectsRemover" scope="prototype">
-        <constructor-arg value=""/>
-    </bean>
+    <bean id="formObjectsRemover" class="ru.intertrust.cm.core.gui.impl.server.form.FormObjectsRemover" scope="prototype"/>
 
     <bean id="formResolver" class="ru.intertrust.cm.core.gui.impl.server.form.FormResolver" scope="singleton"
           lazy-init="true"/>

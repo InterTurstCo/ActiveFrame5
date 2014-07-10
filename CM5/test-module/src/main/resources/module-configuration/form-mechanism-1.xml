@@ -57,7 +57,7 @@
             <date-time name="date_time_field"/>
             <dateTimeWithTimeZone name="date_w_tz_field"/>
             <timelessDate name="timeless_date_field"/>
-            <!--<reference name="a1_2" type="a1"/>-->
+            <reference name="a1_2" type="a1"/>
             <reference name="a_person" type="person"/>
         </fields>
         <uniqueKey>
