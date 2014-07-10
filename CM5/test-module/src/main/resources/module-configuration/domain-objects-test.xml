@@ -22,7 +22,7 @@
         </fields>
     </domain-object-type>
 
-    <search-area name="Внутренние документы">
+    <search-area name="Внутренние документы 2">
         <target-domain-object type="Internal_Document">
             <indexed-field name="RegNum" />
             <indexed-field name="Name" />

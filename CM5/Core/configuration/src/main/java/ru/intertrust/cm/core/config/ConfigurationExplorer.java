@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
@@ -54,6 +55,12 @@ public interface ConfigurationExplorer {
      * @return все конфигурации верхнего уровня данного типа type
      */
     <T> Collection<T> getConfigs(Class<T> type);
+
+    /**
+     * Возвращает множетсво всех классов конфигураций верхнего уровня
+     * @return множетсво всех классов конфигураций верхнего уровня
+     */
+    Set<Class<?>> getTopLevelConfigClasses();
 
     /**
      * Возвращает конфигурацию типа доменного объекта
