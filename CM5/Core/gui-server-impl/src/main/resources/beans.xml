@@ -32,23 +32,9 @@
         <constructor-arg value=""/>
     </bean>
 
-    <bean id="oneToManyLinker" class="ru.intertrust.cm.core.gui.impl.server.form.OneToManyLinker" scope="prototype">
-        <constructor-arg value=""/>
-        <constructor-arg value=""/>
-        <constructor-arg value=""/>
-        <constructor-arg value=""/>
-        <constructor-arg value="false"/>
-        <constructor-arg value=""/>
-    </bean>
+    <bean id="oneToManyLinker" class="ru.intertrust.cm.core.gui.impl.server.form.OneToManyLinker" scope="prototype"/>
 
-    <bean id="manyToManyLinker" class="ru.intertrust.cm.core.gui.impl.server.form.ManyToManyLinker" scope="prototype">
-        <constructor-arg value=""/>
-        <constructor-arg value=""/>
-        <constructor-arg value=""/>
-        <constructor-arg value=""/>
-        <constructor-arg value="false"/>
-        <constructor-arg value=""/>
-    </bean>
+    <bean id="manyToManyLinker" class="ru.intertrust.cm.core.gui.impl.server.form.ManyToManyLinker" scope="prototype"/>
 
     <bean id="actionConfigBuilder" class="ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder" scope="prototype"/>
 

@@ -133,7 +133,8 @@ public class FormSaver {
             HashMap<FieldPath, ArrayList<Id>> fieldPathsIds = getBackReferenceFieldPathsIds(context.getFieldPaths(), widgetState);
             for (FieldPath fieldPath : context.getFieldPaths()) {
                 final String linkerBeanName = fieldPath.isOneToManyReference() ? "oneToManyLinker" : "manyToManyLinker";
-                ObjectsLinker linker = (ObjectsLinker) applicationContext.getBean(linkerBeanName, formState, context, fieldPath, fieldPathsIds.get(fieldPath), deleteEntriesOnLinkDrop, savedObjectsById);
+                ObjectsLinker linker = (ObjectsLinker) applicationContext.getBean(linkerBeanName);
+                linker.setContext(formState, context, fieldPath, fieldPathsIds.get(fieldPath), deleteEntriesOnLinkDrop, savedObjectsById);
                 linker.updateLinkedObjects();
             }
         }

@@ -16,7 +16,6 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,7 +46,7 @@ public abstract class ObjectsLinker {
     protected String linkToParentName;
     protected DomainObjectLinkInterceptor linkInterceptor;
 
-    public ObjectsLinker(FormState formState, WidgetContext widgetContext, FieldPath fieldPath, ArrayList<Id> currentIds, boolean deleteEntriesOnLinkDrop, HashMap<Id, DomainObject> savedObjectsCache) {
+    public void setContext(FormState formState, WidgetContext widgetContext, FieldPath fieldPath, ArrayList<Id> currentIds, boolean deleteEntriesOnLinkDrop, HashMap<Id, DomainObject> savedObjectsCache) {
         this.formState = formState;
         this.parentObject = ((SingleObjectNode) formState.getObjects().getNode(fieldPath.getParentPath())).getDomainObject();
         this.widgetContext = widgetContext;
@@ -57,10 +56,6 @@ public abstract class ObjectsLinker {
         this.savedObjectsCache = savedObjectsCache;
         this.fieldPathConfig = widgetContext.getFieldPathConfig();
         this.linkToParentName = fieldPath.getLinkToParentName();
-    }
-
-    @PostConstruct
-    private void init() {
         this.linkInterceptor =  getLinkInterceptor();
     }
 

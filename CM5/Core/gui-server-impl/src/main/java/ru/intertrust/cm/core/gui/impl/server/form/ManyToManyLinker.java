@@ -22,8 +22,8 @@ public class ManyToManyLinker extends ObjectsLinker {
     private MultiObjectNode intermediateObjectsNode;
     private String intermediateObjectType;
 
-    public ManyToManyLinker(FormState formState, WidgetContext widgetContext, FieldPath fieldPath, ArrayList<Id> currentIds, boolean deleteEntriesOnLinkDrop, HashMap<Id, DomainObject> savedObjectsCache) {
-        super(formState, widgetContext, fieldPath, currentIds, deleteEntriesOnLinkDrop, savedObjectsCache);
+    public void setContext(FormState formState, WidgetContext widgetContext, FieldPath fieldPath, ArrayList<Id> currentIds, boolean deleteEntriesOnLinkDrop, HashMap<Id, DomainObject> savedObjectsCache) {
+        super.setContext(formState, widgetContext, fieldPath, currentIds, deleteEntriesOnLinkDrop, savedObjectsCache);
         linkedObjectReferenceName = fieldPath.getLinkToChildrenName();
         intermediateObjectsNode = (MultiObjectNode) formState.getObjects().getNode(fieldPath);
         intermediateObjectType = intermediateObjectsNode.getType();
