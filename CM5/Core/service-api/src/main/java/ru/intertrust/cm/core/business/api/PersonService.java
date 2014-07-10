@@ -17,4 +17,5 @@ public interface PersonService {
      */
     DomainObject findPersonByLogin(String login);
 
+    DomainObject getCurrentPerson();
 }

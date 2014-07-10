@@ -10,8 +10,10 @@ import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
+import javax.annotation.Resource;
 import javax.ejb.Local;
 import javax.ejb.Remote;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
@@ -22,6 +24,9 @@ import javax.interceptor.Interceptors;
 public class PersonServiceImpl implements PersonService {
 
     private static final Logger logger = LoggerFactory.getLogger(PersonServiceImpl.class);
+
+    @Resource
+    protected SessionContext sessionContext;
 
     @Autowired
     private PersonServiceDao personServiceDao;
@@ -35,5 +40,10 @@ public class PersonServiceImpl implements PersonService {
             throw new UnexpectedException("PersonService", "findPersonByLogin",
                     "login:" + login, ex);
         }
+    }
+
+    @Override
+    public DomainObject getCurrentPerson() {
+        return findPersonByLogin(sessionContext.getCallerPrincipal().getName());
     }
 }

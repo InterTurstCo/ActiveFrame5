@@ -1,5 +1,11 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.model.GwtIncompatible;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 /**
  * Значение поля доменного объекта, определяющее дату без времени время в виде календаря.
  * @author vmatsukevich
@@ -13,6 +19,14 @@ public class TimelessDateValue extends Value<TimelessDateValue> {
      * Создает пустое булево значение
      */
     public TimelessDateValue() {
+    }
+
+    @GwtIncompatible
+    public TimelessDateValue(Date date, TimeZone timeZone) {
+        if (date == null) {
+            return;
+        }
+        value = new TimelessDate(date, timeZone);
     }
 
     /**

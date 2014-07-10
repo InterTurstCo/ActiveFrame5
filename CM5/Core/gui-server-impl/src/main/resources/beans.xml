@@ -63,4 +63,14 @@
 
     <bean id="navigationTreeResolver" class="ru.intertrust.cm.core.gui.impl.server.plugin.handlers.NavigationTreeResolver"
           scope="singleton" lazy-init="true"/>
+
+    <bean id="defaultConfigurableDomainObjectLinkInterceptor" class="ru.intertrust.cm.core.gui.impl.server.form.DefaultConfigurableDomainObjectLinkInterceptor"
+          scope="singleton" lazy-init="true"/>
+
+    <bean id="domainObjectFieldsSetter" class="ru.intertrust.cm.core.gui.impl.server.form.DomainObjectFieldsSetter"
+          scope="prototype">
+        <constructor-arg value=""/>
+        <constructor-arg value=""/>
+        <constructor-arg value=""/>
+    </bean>
 </beans>
