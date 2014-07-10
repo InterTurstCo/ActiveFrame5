@@ -278,6 +278,15 @@ public class CollectionsIT extends IntegrationTestBase {
 
         IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
+
+        query = "select id from employee where (select count(e.id) from employee e where e.id = {0}) > 0";
+        params = new ArrayList<Value>();
+        personTypeid = domainObjectTypeIdCache.getId(PERSON_TYPE);
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        
         
     }
     
