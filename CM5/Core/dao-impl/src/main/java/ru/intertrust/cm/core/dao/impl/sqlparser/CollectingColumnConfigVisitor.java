@@ -23,7 +23,7 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
 
     protected String plainSelectQuery;
 
-    protected Map<String, FieldConfig> columnToConfigMapping = new HashMap<>();
+    protected Map<String, FieldConfig> columnToConfigMapping = new HashMap<>(); 
 
     public Map<String, FieldConfig> getColumnToConfigMapping() {
         return columnToConfigMapping;
@@ -61,7 +61,7 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
 
     @Override
     public void visit(Column column) {
-        collectWhereColumnConfigurations(column);
+        collectColumnConfiguration(column);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
 
     }
 
-    private void collectWhereColumnConfigurations(Column column) {
+    private void collectColumnConfiguration(Column column) {
         FieldConfig fieldConfig =
                 configurationExplorer.getFieldConfig(SqlQueryModifier.getDOTypeName(plainSelect, column, false),
                         column.getColumnName());
