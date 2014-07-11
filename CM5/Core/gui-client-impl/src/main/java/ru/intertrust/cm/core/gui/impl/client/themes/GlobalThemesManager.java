@@ -46,7 +46,9 @@ public class GlobalThemesManager {
         } else {
             bundleWrapper = ComponentRegistry.instance.get(defaultThemeComponent);
         }
-
+        if (bundleWrapper == null) {
+            bundleWrapper = ComponentRegistry.instance.get("default-theme");
+        }
         bundleWrapper.getMainCss().ensureInjected();
     }
 
