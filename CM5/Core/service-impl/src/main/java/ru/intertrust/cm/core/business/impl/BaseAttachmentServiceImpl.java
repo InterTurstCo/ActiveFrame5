@@ -66,7 +66,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             attachmentDomainObject.setReference(attchmentLinkedField, objectId);
             return attachmentDomainObject;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in createAttachmentDomainObjectFor", ex);
             throw new UnexpectedException("AttachmentService", "createAttachmentDomainObjectFor",
                     "objectId:" + objectId + " attachmentType:" + attachmentType, ex);
         }
@@ -111,11 +111,11 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
                 attachmentDomainObject.setValue(PATH_NAME, newFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in saveAttachment", ex);
             throw new UnexpectedException("AttachmentService", "saveAttachment",
                     "attachmentDomainObject:" + attachmentDomainObject.getId(), ex);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in saveAttachment", ex);
             throw new UnexpectedException("AttachmentService", "saveAttachment",
                     "attachmentDomainObject:" + attachmentDomainObject.getId(), ex);
         } finally {
@@ -143,7 +143,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             RemoteInputStream export = wrapStream(inputStream);
             return export;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in loadAttachment", ex);
             if (inFile != null) {
                 try {
                     inFile.close();
@@ -172,7 +172,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             //файл может быть и не удален
             domainObjectDao.delete(attachmentDomainObjectId, accessToken);
         } catch (DaoException ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in deleteAttachment", ex);
             throw new UnexpectedException("AttachmentService", "deleteAttachment",
                     "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
         }
@@ -190,7 +190,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             collectAttachmentsForDOAndParentDO(domainObjectId, domainObjectTypeName, foundAttachments);
             return foundAttachments;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findAttachmentDomainObjectsFor", ex);
             throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",
                     "domainObjectId:" + domainObjectId, ex);
         }
@@ -239,7 +239,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
             return domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attchmentLinkedField, accessToken);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findAttachmentDomainObjectsFor", ex);
             throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",
                     "domainObjectId:" + domainObjectId + " attachmentType:" + attachmentType, ex);
         }

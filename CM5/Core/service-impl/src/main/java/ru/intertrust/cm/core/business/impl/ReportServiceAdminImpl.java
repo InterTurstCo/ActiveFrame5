@@ -126,7 +126,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
             tmpFolder.delete();
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in deploy", ex);
             throw new ReportServiceException("Error deploy process", ex);
         }
 
@@ -158,7 +158,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         } catch (AccessException | ObjectNotFoundException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in undeploy", ex);
             throw new UnexpectedException("ReportServiceAdmin", "undeploy", "name: " + name, ex);
         }
     }

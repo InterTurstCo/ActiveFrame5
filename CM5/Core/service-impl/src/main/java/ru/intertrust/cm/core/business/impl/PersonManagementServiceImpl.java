@@ -39,7 +39,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         try {
             return personServiceDao.findPersonByLogin(login).getId();
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getPersonId", ex);
             throw new UnexpectedException("PersonManagementService", "getPersonId",
                     "login:" + login, ex);
         }
@@ -52,7 +52,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getPersonsInGroup", ex);
             throw new UnexpectedException("PersonManagementService", "getPersonsInGroup",
                     "groupId:" + groupId, ex);
         }
@@ -65,7 +65,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getAllPersonsInGroup", ex);
             throw new UnexpectedException("PersonManagementService", "getAllPersonsInGroup",
                     "groupId:" + groupId, ex);
         }
@@ -78,7 +78,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in isPersonInGroup", ex);
             throw new UnexpectedException("PersonManagementService", "isPersonInGroup",
                     "groupId:" + groupId + " personId:" + personId, ex);
         }
@@ -91,7 +91,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getPersonGroups", ex);
             throw new UnexpectedException("PersonManagementService", "getPersonGroups",
                     "personId:" + personId, ex);
         }
@@ -104,7 +104,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in isGroupInGroup", ex);
             throw new UnexpectedException("PersonManagementService", "isGroupInGroup",
                     "parent:" + parent + " child:" + child + " recursive: " + recursive, ex);
         }
@@ -117,7 +117,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getAllParentGroup", ex);
             throw new UnexpectedException("PersonManagementService", "getAllParentGroup",
                     "child:" + child, ex);
         }
@@ -130,7 +130,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getChildGroups", ex);
             throw new UnexpectedException("PersonManagementService", "getChildGroups",
                     "parent:" + parent, ex);
         }
@@ -143,7 +143,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getAllChildGroups", ex);
             throw new UnexpectedException("PersonManagementService", "getAllChildGroups",
                     "parent:" + parent, ex);
         }
@@ -156,7 +156,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in addPersonToGroup", ex);
             throw new UnexpectedException("PersonManagementService", "addPersonToGroup",
                     "group:" + group + " person:" + person, ex);
         }
@@ -169,7 +169,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in addGroupToGroup", ex);
             throw new UnexpectedException("PersonManagementService", "addGroupToGroup",
                     "parent:" + parent + " child:" + child, ex);
         }
@@ -182,7 +182,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in remotePersonFromGroup", ex);
             throw new UnexpectedException("PersonManagementService", "remotePersonFromGroup",
                     "group:" + group + " person:" + person, ex);
         }
@@ -195,7 +195,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in remoteGroupFromGroup", ex);
             throw new UnexpectedException("PersonManagementService", "remoteGroupFromGroup",
                     "parent:" + parent + " child:" + child, ex);
         }
@@ -209,7 +209,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getGroupId", ex);
             throw new UnexpectedException("PersonManagementService", "getGroupId",
                     "groupName:" + groupName, ex);
         }
@@ -222,7 +222,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         } catch (AccessException ex){
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findDynamicGroup", ex);
             throw new UnexpectedException("PersonManagementService", "findDynamicGroup",
                     "name:" + name + " contectId:" + contectId, ex);
         }

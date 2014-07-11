@@ -110,7 +110,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             throw ex;
         }
         catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in createDomainObject", ex);
             throw new UnexpectedException("CrudService", "createDomainObject", "name:" + name, ex);
         }
     }
@@ -156,7 +156,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in save", ex);
             throw new UnexpectedException("CrudService", "save", "domainObject:" + domainObject, ex);
         }
     }
@@ -175,7 +175,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in save", ex);
             throw new UnexpectedException("CrudService", "save", "domainObjects:" + Arrays.toString(domainObjects.toArray()), ex);
         }
     }
@@ -191,7 +191,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (NullPointerException e) {
             throw e;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in exists", ex);
             throw new UnexpectedException("CrudService", "exists", "id:" + id, ex);
         }
     }
@@ -217,7 +217,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in find", ex);
             throw new UnexpectedException("CrudService", "find", "id:" + id, ex);
         }
     }
@@ -246,7 +246,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findAndLock", ex);
             throw new UnexpectedException("CrudService", "findAndLock", "id:" + id, ex);
         }
     }
@@ -267,7 +267,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in find", ex);
             throw new UnexpectedException("CrudService", "find", "ids:" + Arrays.toString(idsArray), ex);
         }
     }
@@ -291,7 +291,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException | ObjectNotFoundException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findAll", ex);
             throw new UnexpectedException("CrudService", "findAll", "domainObjectType:" + domainObjectType, ex);
         }
     }
@@ -308,7 +308,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in delete", ex);
             throw new UnexpectedException("CrudService", "delete", "id:" + id, ex);
         }
     }
@@ -331,7 +331,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in delete", ex);
             throw new UnexpectedException("CrudService", "delete", "ids:" + Arrays.toString(ids.toArray()), ex);
         }
     }
@@ -344,7 +344,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException  ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findLinkedDomainObjects", ex);
             throw new UnexpectedException("CrudService", "findLinkedDomainObjects",
                     "domainObjectId:" + domainObjectId + " linkedType:" + linkedType
                     + " linkedField:" + linkedField, ex);
@@ -359,7 +359,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException  ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findLinkedDomainObjectsIds", ex);
             throw new UnexpectedException("CrudService", "findLinkedDomainObjectsIds",
                     "domainObjectId:" + domainObjectId + " linkedType:" + linkedType
                             + " linkedField:" + linkedField, ex);
@@ -382,7 +382,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         try {
             return domainObjectTypeIdCache.getName(id);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getDomainObjectType", ex);
             throw new UnexpectedException("CrudService", "getDomainObjectType", "id:" + id, ex);
         }
     }

@@ -35,7 +35,7 @@ public class PersonServiceImpl implements PersonService {
         try {
             return personServiceDao.findPersonByLogin(login);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findPersonByLogin", ex);
             throw new UnexpectedException("PersonService", "findPersonByLogin",
                     "login:" + login, ex);
         }

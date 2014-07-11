@@ -116,7 +116,7 @@ public class ProcessServiceImpl implements ProcessService {
                     variablesHM).getId();
             return idProcess;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in startProcess", ex);
             throw new UnexpectedException("ProcessService", "startProcess",
                     "processName:" + processName + " attachedObjectId:" + attachedObjectId
                     + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray())), ex);
@@ -147,7 +147,7 @@ public class ProcessServiceImpl implements ProcessService {
         try {
             runtimeService.deleteProcessInstance(processId, null);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in terminateProcess", ex);
             throw new UnexpectedException("ProcessService", "terminateProcess",
                     "processId:" + processId, ex);
         }
@@ -165,7 +165,7 @@ public class ProcessServiceImpl implements ProcessService {
             Deployment depl = db.deploy();
             return depl.getId();
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in deployProcess", ex);
             throw new ProcessException("Error on deploy process", ex);
         } finally {
             try {
@@ -180,7 +180,7 @@ public class ProcessServiceImpl implements ProcessService {
         try {
             repositoryService.deleteDeployment(processDefinitionId, cascade);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in undeployProcess", ex);
             throw new UnexpectedException("ProcessService", "undeployProcess",
                     "processDefinitionId:" + processDefinitionId + " cascade:" + cascade, ex);
         }
@@ -195,7 +195,7 @@ public class ProcessServiceImpl implements ProcessService {
             result = getUserTasks(personId);
             return result;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getUserTasks", ex);
             throw new UnexpectedException("ProcessService", "getUserTasks", "", ex);
         }
 
@@ -213,7 +213,7 @@ public class ProcessServiceImpl implements ProcessService {
             }
             return result;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getUserDomainObjectTasks", ex);
             throw new UnexpectedException("ProcessService", "getUserDomainObjectTasks",
                     "attachedObjectId:" + attachedObjectId, ex);
         }
@@ -267,7 +267,7 @@ public class ProcessServiceImpl implements ProcessService {
 
             // taskService.complete(taskId, createHashMap(variables));
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in completeTask", ex);
             throw new UnexpectedException("ProcessService", "completeTask",
                     "taskDomainObjectId:" + taskDomainObjectId
                     + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray()))
@@ -291,7 +291,7 @@ public class ProcessServiceImpl implements ProcessService {
             }
             return result;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getDeployedProcesses", ex);
             throw new UnexpectedException("ProcessService", "getDeployedProcesses", "", ex);
         }
     }
@@ -345,7 +345,7 @@ public class ProcessServiceImpl implements ProcessService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getUserTasks", ex);
             throw new UnexpectedException("ProcessService", "getUserTasks", "personId: " + personId, ex);
         }
     }
@@ -405,7 +405,7 @@ public class ProcessServiceImpl implements ProcessService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getUserDomainObjectTasks", ex);
             throw new UnexpectedException("ProcessService", "getUserDomainObjectTasks",
                     "attachedObjectId: " + attachedObjectId + " personId: " + personId, ex);
         }

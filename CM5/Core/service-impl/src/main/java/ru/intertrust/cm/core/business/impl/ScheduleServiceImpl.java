@@ -82,7 +82,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getTaskList", ex);
             throw new UnexpectedException("ScheduleService", "getTaskList", "", ex);
         }
     }
@@ -97,7 +97,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
             return result;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getTaskClasses", ex);
             throw new UnexpectedException("ScheduleService", "getTaskClasses", "", ex);
         }
     }
@@ -118,7 +118,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getTaskSchedule", ex);
             throw new UnexpectedException("ScheduleService", "getTaskSchedule", "taskId:" + taskId, ex);
         }
     }
@@ -138,7 +138,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in setTaskSchedule", ex);
             throw new UnexpectedException("ScheduleService", "setTaskSchedule",
                     "taskId:" + taskId + " schedule:" + schedule, ex);
         }
@@ -214,7 +214,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in enableTask", ex);
             throw new UnexpectedException("ScheduleService", "enableTask", "taskId:" + taskId, ex);
         }
     }
@@ -231,7 +231,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in disableTask", ex);
             throw new UnexpectedException("ScheduleService", "disableTask", "taskId:" + taskId, ex);
         }
     }
@@ -246,7 +246,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in run", ex);
             throw new UnexpectedException("ScheduleService", "run", "taskId:" + taskId, ex);
         }
     }
@@ -263,7 +263,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in setPriority", ex);
             throw new UnexpectedException("ScheduleService", "setPriority",
                     "taskId:" + taskId + " priority: " + priority, ex);
         }
@@ -281,7 +281,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in setTimeout", ex);
             throw new UnexpectedException("ScheduleService", "setTimeout",
                     "taskId:" + taskId + " timeout:" + timeout, ex);
         }
@@ -294,7 +294,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in createScheduleTask", ex);
             throw new UnexpectedException("ScheduleService", "createScheduleTask",
                     "className:" + className + " name:" + name, ex);
         }

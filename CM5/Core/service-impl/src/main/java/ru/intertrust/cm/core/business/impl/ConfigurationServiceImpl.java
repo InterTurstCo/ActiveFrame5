@@ -49,7 +49,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getConfiguration();
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getConfiguration", ex);
             throw new UnexpectedException("ConfigurationService", "getConfiguration", "", ex);
         }
     }
@@ -59,7 +59,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getGlobalSettings();
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getGlobalSettings", ex);
             throw new UnexpectedException("ConfigurationService", "getGlobalSettings", "", ex);
         }
     }
@@ -74,7 +74,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getConfig(type, name);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getConfig", ex);
             throw new UnexpectedException("ConfigurationService", "getConfig",
                     "type:" + type + " name:" + name, ex);
         }
@@ -85,8 +85,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getDomainObjectTypeConfig(typeName);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
-            throw new UnexpectedException("ConfigurationService", "getConfig", "type:" + typeName, ex);
+            logger.error("Unexpected exception caught in getDomainObjectTypeConfig", ex);
+            throw new UnexpectedException("ConfigurationService", "getDomainObjectTypeConfig", "type:" + typeName, ex);
         }
     }
 
@@ -95,7 +95,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getConfigs(type);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getConfigs", ex);
             throw new UnexpectedException("ConfigurationService", "getConfigs",
                     "type:" + type, ex);
         }
@@ -106,7 +106,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.findChildDomainObjectTypes(typeName, includeIndirect);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findChildDomainObjectTypes", ex);
             throw new UnexpectedException("ConfigurationService", "findChildDomainObjectTypes",
                     "typeName:" + typeName + " includeIndirect:" + includeIndirect, ex);
         }
@@ -117,7 +117,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getFieldConfig(domainObjectConfigName, fieldConfigName);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getFieldConfig", ex);
             throw new UnexpectedException("ConfigurationService", "getFieldConfig",
                     "domainObjectConfigName:" + domainObjectConfigName + " fieldConfigName:" + fieldConfigName, ex);
         }
@@ -128,7 +128,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getFieldConfig(domainObjectConfigName, fieldConfigName, returnInheritedConfig);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getFieldConfig", ex);
             throw new UnexpectedException("ConfigurationService", "getFieldConfig",
                     "domainObjectConfigName:" + domainObjectConfigName + " fieldConfigName:" + fieldConfigName
                     + " returnInheritedConfig:" + returnInheritedConfig, ex);
@@ -140,7 +140,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getCollectionColumnConfig(collectionConfigName, columnConfigName);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getCollectionColumnConfig", ex);
             throw new UnexpectedException("ConfigurationService", "getCollectionColumnConfig",
                     "collectionConfigName:" + collectionConfigName + " columnConfigName:" + columnConfigName, ex);
         }
@@ -151,7 +151,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getDynamicGroupConfigsByContextType(domainObjectType);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getDynamicGroupConfigsByContextType", ex);
             throw new UnexpectedException("ConfigurationService", "getDynamicGroupConfigsByContextType",
                     "domainObjectType:" + domainObjectType, ex);
         }
@@ -162,7 +162,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getDynamicGroupConfigsByTrackDO(objectTypeName, status);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getDynamicGroupConfigsByTrackDO", ex);
             throw new UnexpectedException("ConfigurationService", "getDynamicGroupConfigsByTrackDO",
                     "objectTypeName:" + objectTypeName + " status:" + status, ex);
         }
@@ -174,7 +174,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             return configurationExplorer.getDynamicGroupConfigsByTrackDO(crudService.getDomainObjectType(objectId),
                     status);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getDynamicGroupConfigsByTrackDO", ex);
             throw new UnexpectedException("ConfigurationService", "getDynamicGroupConfigsByTrackDO",
                     "objectId:" + objectId + " status:" + status, ex);
         }
@@ -185,7 +185,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getAccessMatrixByObjectTypeAndStatus", ex);
             throw new UnexpectedException("ConfigurationService", "getAccessMatrixByObjectTypeAndStatus",
                     "domainObjectType:" + domainObjectType + " status:" + status, ex);
         }
@@ -200,7 +200,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.isAttachmentType(domainObjectType);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in isAttachmentType", ex);
             throw new UnexpectedException("ConfigurationService", "isAttachmentType",
                     "domainObjectType:" + domainObjectType, ex);
         }
@@ -213,7 +213,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getDefaultToolbarConfig(pluginName);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getDefaultToolbarConfig", ex);
             throw new UnexpectedException("ConfigurationService", "getDefaultToolbarConfig",
                     "pluginName:" + pluginName, ex);
         }
@@ -226,7 +226,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getDomainObjectParentType(typeName);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getDomainObjectParentType", ex);
             throw new UnexpectedException("ConfigurationService", "getDomainObjectParentType",
                     "typeName:" + typeName, ex);
         }
@@ -239,7 +239,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getDomainObjectRootType(typeName);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getDomainObjectRootType", ex);
             throw new UnexpectedException("ConfigurationService", "getDomainObjectRootType",
                     "typeName:" + typeName, ex);
         }
@@ -252,7 +252,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             return configurationExplorer.getDomainObjectTypesHierarchy(typeName);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getDomainObjectTypesHierarchy", ex);
             throw new UnexpectedException("ConfigurationService", "getDomainObjectTypesHierarchy",
                     "typeName:" + typeName, ex);
         }

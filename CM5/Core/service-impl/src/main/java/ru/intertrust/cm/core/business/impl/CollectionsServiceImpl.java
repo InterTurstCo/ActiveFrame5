@@ -68,7 +68,7 @@ public class CollectionsServiceImpl implements CollectionsService {
         } catch (AccessException e) {
             throw e;
         } catch (Exception ex){
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findCollection", ex);
             throw new UnexpectedException("CollectionsService", "findCollection",
                     "collectionName:" + collectionName + " sortOrder: " + sortOrder
                     + " filterValues:" + (filterValues == null ? "null" : Arrays.toString(filterValues.toArray()))
@@ -101,7 +101,7 @@ public class CollectionsServiceImpl implements CollectionsService {
         } catch (AccessException e) {
             throw e;
         } catch (Exception ex){
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findCollectionCount", ex);
             throw new UnexpectedException("CollectionsService", "findCollectionCount",
                     "collectionName:" + collectionName + " filterValues:" + filterValues, ex);
         }
@@ -117,7 +117,7 @@ public class CollectionsServiceImpl implements CollectionsService {
         } catch (AccessException e) {
             throw e;
         } catch (Exception ex){
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findCollectionByQuery", ex);
             throw new UnexpectedException("CollectionsService", "findCollectionByQuery",
                     "query:" + query + " offset:" + offset + " limit:" + limit, ex);
         }
@@ -140,7 +140,7 @@ public class CollectionsServiceImpl implements CollectionsService {
         } catch (AccessException e) {
             throw e;
         } catch (Exception ex){
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findCollectionByQuery", ex);
             throw new UnexpectedException("CollectionsService", "findCollectionByQuery",
                     "query:" + query + " params: " + (params == null ? "null" : Arrays.toString(params.toArray()))
                     +  " offset:" + offset + " limit:" + limit, ex);

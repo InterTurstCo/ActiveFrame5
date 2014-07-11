@@ -78,7 +78,7 @@ public class NotificationServiceImpl implements NotificationService {
             userTransactionService.addListener(listener);
             logger.debug("Register to send notification " + notificationType + " " + addresseeList);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in sendOnTransactionSuccess", ex);
             throw new UnexpectedException("NotificationService", "sendOnTransactionSuccess",
                     "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
                     + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray())), ex);
@@ -113,7 +113,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             return new AsyncResult<Boolean>(true);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in sendNow", ex);
             throw new UnexpectedException("NotificationService", "sendNow",
                     "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
                     + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray()))

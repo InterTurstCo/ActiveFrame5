@@ -47,7 +47,7 @@ public class AuditServiceImpl implements AuditService {
         try {
             return auditLogServiceDao.findAllVersions(domainObjectId);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findAllVersions", ex);
             throw new UnexpectedException("AuditService", "findAllVersions",
                     "domainObjectId:" + domainObjectId, ex);
         }
@@ -63,7 +63,7 @@ public class AuditServiceImpl implements AuditService {
         try {
             return auditLogServiceDao.findVersion(versionId);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in findVersion", ex);
             throw new UnexpectedException("AuditService", "findVersion",
                     "versionId:" + versionId, ex);
         }
@@ -78,6 +78,7 @@ public class AuditServiceImpl implements AuditService {
         try {
             auditLogServiceDao.clean(domainObjectId);
         } catch (Exception ex) {
+            logger.error("Unexpected exception caught in clean", ex);
             throw new UnexpectedException("AuditService", "clean",
                     "domainObjectId:" + domainObjectId, ex);
         }
@@ -98,6 +99,7 @@ public class AuditServiceImpl implements AuditService {
 
             return compare(baseVersion, comparedVersion);
         } catch (Exception ex) {
+            logger.error("Unexpected exception caught in compare", ex);
             throw new UnexpectedException("AuditService", "compare",
                     "baseVersionId:" + baseVersionId, ex);
         }
@@ -119,6 +121,7 @@ public class AuditServiceImpl implements AuditService {
 
             return compare(baseVersion, comparedVersion);
         } catch (Exception ex) {
+            logger.error("Unexpected exception caught in compare", ex);
             throw new UnexpectedException("AuditService", "compare",
                     "baseVersionId:" + baseVersionId + " comparedVersionId:" + comparedVersionId, ex);
         }

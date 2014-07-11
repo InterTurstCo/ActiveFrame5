@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
@@ -31,6 +32,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     private static final String COMMON_ERROR_MESSAGE = "It's only allowed to add some new configuration " +
             "but not to modify or delete the existing one.";
 
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationLoadServiceImpl.class);
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
@@ -58,6 +61,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
         } catch (ConfigurationException e) {
             throw e;
         } catch (Exception e) {
+            logger.error("Unexpected exception caught in loadConfiguration", e);
             throw new UnexpectedException("ConfigurationLoadService", "loadConfiguration", "", e);
         }
     }
@@ -95,7 +99,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
         } catch (ConfigurationException e) {
             throw e;
         } catch (Exception e) {
-            throw new UnexpectedException("ConfigurationLoadService", "loadConfiguration", "", e);
+            logger.error("Unexpected exception caught in updateConfiguration", e);
+            throw new UnexpectedException("ConfigurationLoadService", "updateConfiguration", "", e);
         }
     }
 

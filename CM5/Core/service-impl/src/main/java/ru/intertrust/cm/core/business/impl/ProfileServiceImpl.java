@@ -82,7 +82,7 @@ public class ProfileServiceImpl implements ProfileService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getProfile", ex);
             throw new UnexpectedException("ProfileService", "getProfile", "name: " + name, ex);
         }
     }
@@ -111,7 +111,7 @@ public class ProfileServiceImpl implements ProfileService {
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getPersonProfile", ex);
             throw new UnexpectedException("ProfileService", "getPersonProfile", "personId: " + personId, ex);
         }
     }
@@ -159,7 +159,7 @@ public class ProfileServiceImpl implements ProfileService {
         } catch (AccessException | ProfileException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in setProfile", ex);
             throw new UnexpectedException("ProfileService", "setProfile", "profile: " + profile, ex);
         }
 
@@ -179,7 +179,7 @@ public class ProfileServiceImpl implements ProfileService {
             Id currentUserId = currentUserAccessor.getCurrentUserId();
             return getPersonProfileByPersonId(currentUserId);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getPersonProfile", ex);
             throw new UnexpectedException("ProfileService", "getPersonProfile", "", ex);
         }
 
@@ -203,7 +203,7 @@ public class ProfileServiceImpl implements ProfileService {
 
             return personProfileObject;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getPersonProfileByPersonId", ex);
             throw new UnexpectedException("ProfileService", "getPersonProfileByPersonId", "personId: " + personId, ex);
         }
     }
@@ -261,7 +261,7 @@ public class ProfileServiceImpl implements ProfileService {
         } catch (AccessException | ProfileException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in setPersonProfile", ex);
             throw new UnexpectedException("ProfileService", "setPersonProfile", "profile: " + profile, ex);
         }
     }

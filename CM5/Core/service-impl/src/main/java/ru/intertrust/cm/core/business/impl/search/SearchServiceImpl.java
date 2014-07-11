@@ -109,7 +109,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         } catch (SearchException ex) {
             throw ex;
         } catch (Exception ex) {
-            log.error(ex.getMessage());
+            log.error("Unexpected exception caught in search", ex);
             throw new UnexpectedException("SearchService", "search",
                 "query: " + query + ", areaName: " + areaName + ", targetCollectionName: " + targetCollectionName, ex);
         }
@@ -141,7 +141,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         } catch (SearchException ex) {
             throw ex;
         } catch (Exception ex) {
-            log.error(ex.getMessage());
+            log.error("Unexpected exception caught in search", ex);
             throw new UnexpectedException("SearchService", "search",
                 "query: " + query + ", targetCollectionName: " + targetCollectionName, ex);
         }

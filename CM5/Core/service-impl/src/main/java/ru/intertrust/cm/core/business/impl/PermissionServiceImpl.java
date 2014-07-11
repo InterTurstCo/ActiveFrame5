@@ -57,7 +57,7 @@ public class PermissionServiceImpl implements PermissionService {
 
             return permissionServiceDao.getObjectPermission(domainObjectId, personId);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getObjectPermission", ex);
             throw new UnexpectedException("PermissionService", "getObjectPermission",
                     "domainObjectId:" + domainObjectId, ex);
         }
@@ -68,7 +68,7 @@ public class PermissionServiceImpl implements PermissionService {
         try {
             return permissionServiceDao.getObjectPermission(domainObjectId, userId);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getObjectPermission", ex);
             throw new UnexpectedException("PermissionService", "getObjectPermission",
                     "domainObjectId:" + domainObjectId + " userId:" + userId, ex);
         }
@@ -79,7 +79,7 @@ public class PermissionServiceImpl implements PermissionService {
         try {
             return permissionServiceDao.getObjectPermissions(domainObjectId);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in getObjectPermissions", ex);
             throw new UnexpectedException("PermissionService", "getObjectPermissions",
                     "domainObjectId:" + domainObjectId, ex);
         }
@@ -90,7 +90,7 @@ public class PermissionServiceImpl implements PermissionService {
         try {
             return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
         } catch (Exception ex) {
-            logger.error(ex.getMessage());
+            logger.error("Unexpected exception caught in isReadPermittedToEverybody", ex);
             throw new UnexpectedException("PermissionService", "isReadPermittedToEverybody",
                     "domainObjectType:" + domainObjectType, ex);
         }
