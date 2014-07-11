@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client.panel;
+package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.HTML;

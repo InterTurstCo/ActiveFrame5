@@ -11,6 +11,7 @@ import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -21,6 +22,7 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.web.bindery.event.shared.EventBus;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
@@ -47,7 +49,10 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 /**
@@ -294,10 +299,28 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         public void onValueChange(ValueChangeEvent<String> event) {
             final String url = event.getValue();
             if (url != null && !url.isEmpty()) {
-                Application.getInstance().getHistoryManager().setToken(event.getValue());
-                if (!navigationTreePlugin.restoreHistory()) {
-                    final Plugin plugin = centralPluginPanel.getCurrentPlugin();
-                    plugin.restoreHistory();
+                final HistoryManager manager = Application.getInstance().getHistoryManager();
+                manager.setToken(event.getValue());
+                if (manager.hasLink()) {
+                    if (!navigationTreePlugin.restoreHistory()) {
+                        final Plugin plugin = centralPluginPanel.getCurrentPlugin();
+                        plugin.restoreHistory();
+                    }
+                } else if (!manager.getSelectedIds().isEmpty()){
+                    final Id selectedId = manager.getSelectedIds().get(0);
+                    final FormPluginConfig formPluginConfig = new FormPluginConfig(selectedId);
+                    final FormPluginState formPluginState = new FormPluginState();
+                    formPluginState.setInCentralPanel(Application.getInstance().getCompactModeState().isExpanded());
+                    formPluginConfig.setPluginState(formPluginState);
+
+                    final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+                    formPlugin.setConfig(formPluginConfig);
+                    formPlugin.setDisplayActionToolBar(true);
+                    formPlugin.setLocalEventBus((EventBus) GWT.create(SimpleEventBus.class));
+                    manager.setMode(HistoryManager.Mode.WRITE, FormPlugin.class.getSimpleName());
+                    navigationTreePlugin.clearCurrentSelectedItemValue();
+                    Window.setTitle("Форма документа");
+                    centralPluginPanel.open(formPlugin);
                 }
             }
         }

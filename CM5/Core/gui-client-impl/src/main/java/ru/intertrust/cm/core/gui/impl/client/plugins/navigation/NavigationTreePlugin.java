@@ -46,6 +46,10 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
         pluginView.repaintNavigationTrees(event.getSelectedRootLinkName(), null);
     }
 
+    public void clearCurrentSelectedItemValue() {
+        ((NavigationTreePluginView) getView()).clearCurrentSelectedItemValue();
+    }
+
     @Override
     public boolean restoreHistory() {
         final HistoryManager historyManager = Application.getInstance().getHistoryManager();

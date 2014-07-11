@@ -40,7 +40,6 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyle;
-import ru.intertrust.cm.core.gui.impl.client.panel.RootNodeButton;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -258,6 +257,12 @@ public class NavigationTreePluginView extends PluginView {
         return null;
     }
 
+    public void clearCurrentSelectedItemValue() {
+        currentSelectedItem.removeStyleName("synchronized");
+        currentSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
+        currentSelectedItem = null;
+    }
+
     public void repaintNavigationTrees(String rootLinkName, String childToOpenName) {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
         List<LinkConfig> linkConfigList = navigationTreePluginData.getNavigationConfig().getLinkConfigList();
@@ -348,9 +353,8 @@ public class NavigationTreePluginView extends PluginView {
                 tempItem.getElement().getFirstChildElement().addClassName("gwt-custom-TreeItem-selected");
                 Map<String, Object> treeItemUserObject = (Map<String, Object>) tempItem.getUserObject();
                 if (treeItemUserObject != null) {
-                    final String pageTitle = new StringBuilder(Application.getInstance().getPageNamePrefix())
-                            .append(treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT))
-                            .toString();
+                    final String pageTitle = Application.getInstance().getPageName(
+                            (String) treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT));
                     Window.setTitle(pageTitle);
                     final PluginConfig pluginConfig =
                             (PluginConfig) treeItemUserObject.get(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG);

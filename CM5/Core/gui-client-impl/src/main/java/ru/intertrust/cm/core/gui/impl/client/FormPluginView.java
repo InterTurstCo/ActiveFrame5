@@ -7,6 +7,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
 
+import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
@@ -49,7 +51,8 @@ public class FormPluginView extends PluginView {
 
         formPanel = new FormPanel(formDisplayData, pluginState, eventBus);
         formPanel.setOwner(plugin);
-
+        Application.getInstance().getHistoryManager()
+                .setMode(HistoryManager.Mode.APPLY, FormPlugin.class.getSimpleName());
     }
 
     @Override

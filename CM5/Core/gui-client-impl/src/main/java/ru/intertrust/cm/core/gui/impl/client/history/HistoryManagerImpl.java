@@ -57,6 +57,11 @@ public class HistoryManagerImpl implements HistoryManager {
     }
 
     @Override
+    public boolean hasLink() {
+        return !HistoryToken.UNKNOWN_LINK.equals(current.getLink());
+    }
+
+    @Override
     public void setSelectedIds(Id... ids) {
         final StringBuilder builder = new StringBuilder();
         if (ids != null && ids.length > 0) {

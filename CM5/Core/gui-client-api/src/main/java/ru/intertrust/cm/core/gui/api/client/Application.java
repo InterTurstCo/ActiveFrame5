@@ -77,8 +77,8 @@ public class Application {
         return historyManager;
     }
 
-    public String getPageNamePrefix() {
-        return pageNamePrefix == null ? "cmj: " : pageNamePrefix;
+    public String getPageName(final String name) {
+        return new StringBuilder(pageNamePrefix == null ? "cmj: " : pageNamePrefix).append(name).toString();
     }
 
     public void setPageNamePrefix(String pageNamePrefix) {
@@ -133,6 +133,5 @@ public class Application {
         image.addStyleName("loading");
         glassPopupPanel.add(image);
         glassPopupPanel.center();
-
     }
 }

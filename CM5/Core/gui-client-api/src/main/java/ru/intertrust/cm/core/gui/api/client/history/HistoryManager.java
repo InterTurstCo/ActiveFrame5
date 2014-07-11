@@ -17,6 +17,8 @@ public interface HistoryManager {
 
     boolean isLinkEquals(String link);
 
+    boolean hasLink();
+
     void setToken(String url);
 
     void setLink(String link);

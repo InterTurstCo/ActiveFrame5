@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gwt.storage.client.Storage;
+
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 
 /**
@@ -25,6 +27,11 @@ class HistoryToken {
 
     public HistoryToken(final String link) {
         this.link = link;
+        final Storage storage = Storage.getLocalStorageIfSupported();
+        if (storage != null) {
+            final String storageToken = storage.getItem(link);
+            parseTokenString(storageToken, this);
+        }
     }
 
     public String getLink() {
@@ -32,8 +39,19 @@ class HistoryToken {
     }
 
     public void addItems(HistoryItem... items) {
+        boolean sessionDataChanged = false;
         for (HistoryItem item : items) {
             itemMap.put(item.getName(), item);
+            if (HistoryItem.Type.SESSION == item.getType()) {
+                sessionDataChanged = true;
+            }
+        }
+        if (sessionDataChanged && !UNKNOWN_LINK.equals(getLink())) {
+            final Storage storage = Storage.getLocalStorageIfSupported();
+            if (storage != null) {
+                final String storageToken = tokenToStringByType(HistoryItem.Type.SESSION, this);
+                storage.setItem(getLink(), storageToken);
+            }
         }
     }
 
@@ -46,20 +64,36 @@ class HistoryToken {
     }
 
     public String getUrlToken() {
-        final StringBuilder builder = new StringBuilder(LINK_KEY).append(ASSIGN_KEY).append(link);
-        for (Map.Entry<String, HistoryItem> entry : itemMap.entrySet()) {
-            if (HistoryItem.Type.SESSION != entry.getValue().getType() && entry.getValue().getValue() != null) {
-                builder.append(DELIMITER_KEY).append(entry.getKey()).append(ASSIGN_KEY)
-                        .append(entry.getValue().getValue());
-            }
+        final StringBuilder builder = new StringBuilder();
+        if (!UNKNOWN_LINK.equals(getLink())) {
+            builder.append(LINK_KEY).append(ASSIGN_KEY).append(link).append(DELIMITER_KEY);
         }
+        builder.append(tokenToStringByType(HistoryItem.Type.URL, this));
         return builder.toString();
     }
 
     public static HistoryToken getHistoryToken(final String urlToken) {
         final HistoryToken token = new HistoryToken();
-        if (urlToken != null && !urlToken.isEmpty()) {
-            final String[] items = urlToken.split(DELIMITER_KEY);
+        parseTokenString(urlToken, token);
+        final Storage storage = Storage.getLocalStorageIfSupported();
+        if (storage != null) {
+            final String storageToken = storage.getItem(token.getLink());
+            parseTokenString(storageToken, token);
+        }
+        return token;
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder(HistoryToken.class.getSimpleName())
+                .append(": link=").append(link)
+                .append(", itemMap=").append(itemMap)
+                .toString();
+    }
+
+    private static void parseTokenString(final String tokenAsStr, final HistoryToken token) {
+        if (tokenAsStr != null && !tokenAsStr.isEmpty()) {
+            final String[] items = tokenAsStr.split(DELIMITER_KEY);
             for (String item : items) {
                 final String[] itemData = item.split(ASSIGN_KEY);
                 if (itemData.length == 2) {
@@ -71,14 +105,16 @@ class HistoryToken {
                 }
             }
         }
-        return token;
     }
 
-    @Override
-    public String toString() {
-        return new StringBuilder(HistoryToken.class.getSimpleName())
-                .append(": link=").append(link)
-                .append(", itemMap=").append(itemMap)
-                .toString();
+    private static String tokenToStringByType(final HistoryItem.Type type, final HistoryToken token) {
+        final StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, HistoryItem> entry : token.itemMap.entrySet()) {
+            if (type == entry.getValue().getType() && entry.getValue().getValue() != null) {
+                builder.append(DELIMITER_KEY).append(entry.getKey()).append(ASSIGN_KEY)
+                        .append(entry.getValue().getValue());
+            }
+        }
+        return builder.length() == 0 ? "" : builder.substring(1);
     }
 }
