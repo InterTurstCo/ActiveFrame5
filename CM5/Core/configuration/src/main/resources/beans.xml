@@ -43,5 +43,7 @@
     <bean id="collectionViewConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.CollectionViewConfigUpdateHandler"/>
     <bean id="toolBarConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.ToolBarConfigUpdateHandler"/>
     <bean id="dynamicGroupConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.DynamicGroupConfigUpdateHandler"/>
+    
+    <bean id="serverPropertiesInitializer" class="ru.intertrust.cm.core.config.server.ServerPropertiesInitializer"/>
 
 </beans>

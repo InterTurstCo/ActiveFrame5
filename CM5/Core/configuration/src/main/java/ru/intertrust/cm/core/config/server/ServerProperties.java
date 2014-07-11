@@ -1,18 +1,8 @@
 package ru.intertrust.cm.core.config.server;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import java.io.File;
 
 @Configuration
 public class ServerProperties {
@@ -23,7 +13,12 @@ public class ServerProperties {
         configurer.setNullValue("");
         //configurer.setIgnoreUnresolvablePlaceholders(true);
 
-        String serverPropertiesLocation = System.getProperty("server.properties.location");
+        // !!!!! Динамическая загрузка проперти файлов переехали в класс ServerPropertiesInitializer, 
+        //при текущей реализации не устанавливались свойства в объекте Environment
+        
+        
+        
+        /*String serverPropertiesLocation = System.getProperty("server.properties.location");
 
         String appName = "";
         try {
@@ -47,7 +42,9 @@ public class ServerProperties {
                         serverPropertiesResource
                 };
 
-        configurer.setLocations(resources);
+        configurer.setLocations(resources);*/
         return configurer;
     }
+    
+    
 }
