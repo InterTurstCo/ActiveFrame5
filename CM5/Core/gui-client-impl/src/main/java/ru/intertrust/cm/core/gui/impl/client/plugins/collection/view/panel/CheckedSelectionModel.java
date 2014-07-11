@@ -1,13 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
 
+import java.util.Set;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
+
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
-import java.util.Set;
-
-public class CheckedSelectionModel<T extends CollectionRowItem> extends MultiSelectionModel<T> {
+public class CheckedSelectionModel<T extends CollectionRowItem> extends SingleSelectionModel<T> {
   private static final int         SELECTION_DELAY   = 500;
 
   private MultiSelectionModelEx<T> outerModel;

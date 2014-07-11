@@ -48,23 +48,24 @@ public class DomainObjectSurferConfig extends PluginConfig {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         DomainObjectSurferConfig that = (DomainObjectSurferConfig) o;
-
-        if (collectionViewerConfig != null ? !collectionViewerConfig.equals(that.collectionViewerConfig) : that.collectionViewerConfig != null) {
+        if (collectionViewerConfig != null
+                ? !collectionViewerConfig.equals(that.collectionViewerConfig)
+                : that.collectionViewerConfig != null) {
             return false;
         }
-        if (domainObjectTypeToCreate != null ? !domainObjectTypeToCreate.equals(that.domainObjectTypeToCreate) : that.domainObjectTypeToCreate != null) {
+        if (domainObjectTypeToCreate != null
+                ? !domainObjectTypeToCreate.equals(that.domainObjectTypeToCreate)
+                : that.domainObjectTypeToCreate != null) {
             return false;
         }
-
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = collectionViewerConfig != null ? collectionViewerConfig.hashCode() : 0;
-        result = 31 * result + (domainObjectTypeToCreate != null ? domainObjectTypeToCreate.hashCode() : 0);
+        int result = collectionViewerConfig != null ? collectionViewerConfig.hashCode() : 31;
+        result = 31 * result + (domainObjectTypeToCreate != null ? domainObjectTypeToCreate.hashCode() : 31);
         return result;
     }
 

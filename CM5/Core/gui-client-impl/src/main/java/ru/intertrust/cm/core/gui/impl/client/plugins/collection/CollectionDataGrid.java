@@ -6,10 +6,10 @@ import com.google.gwt.user.client.ui.HeaderPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 /**
@@ -48,9 +48,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
             NativeEvent nativeEvent = event.getNativeEvent();
             if ("click".equals(nativeEvent.getType())) {
                 Id id = event.getValue().getId();
-                Application.getInstance().getHistoryManager().addHistoryItems(
-                        new HistoryItem(HistoryItem.Type.URL, CollectionPluginView.ID_KEY,
-                                id.toStringRepresentation()));
+                Application.getInstance().getHistoryManager().setSelectedIds(id);
                 eventBus.fireEvent(new CollectionRowSelectedEvent(id));
             }
         }

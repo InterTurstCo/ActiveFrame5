@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.GwtEvent;
@@ -12,6 +14,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -22,9 +25,9 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
-import ru.intertrust.cm.core.gui.impl.client.plugins.PluginHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
@@ -40,7 +43,7 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,
-        IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler, PluginHistorySupport {
+        IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler {
 
     private CollectionPlugin collectionPlugin;
     private FormPlugin formPlugin;
@@ -201,6 +204,14 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
             formPlugin.restoreHistory();
         }
         return false;
+    }
+
+    @Override
+    public void fillHistoryData() {
+        final HistoryManager manager = Application.getInstance().getHistoryManager();
+        if (!manager.getSelectedIds().isEmpty()) {
+            getConfig().setHistoryValue("ids", manager.getSelectedIds());
+        }
     }
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {

@@ -92,7 +92,6 @@ public abstract class Plugin extends BaseComponent {
         AsyncCallback<Dto> callback = new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
-                final PluginData pluginData = (PluginData) result;
                 Plugin.this.setInitialData((PluginData) result);
                 postSetUp();
             }
@@ -102,7 +101,8 @@ public abstract class Plugin extends BaseComponent {
                 Plugin.this.onDataLoadFailure();
             }
         };
-        Command command = new Command("initialize", this.getName(), getConfig());
+        fillHistoryData();
+        final Command command = new Command("initialize", this.getName(), getConfig());
         BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
     }
 
@@ -199,6 +199,18 @@ public abstract class Plugin extends BaseComponent {
     }
 
     protected void afterInitialDataChange(PluginData oldData, PluginData newData) {
+    }
+
+    /**
+     *
+     * @return TRUE - Обработка события восстановления данных истории завершена и дальше по цепочке обработка не
+     * требуется, FALSE - событие восстановления данных истории должно быть передано дальше по цепочкею
+     */
+    public boolean restoreHistory() {
+        return false;
+    }
+
+    public void fillHistoryData() {
     }
 
     /**

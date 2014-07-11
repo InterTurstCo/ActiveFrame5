@@ -1,5 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -13,10 +20,17 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
@@ -24,9 +38,22 @@ import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.FilterEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
@@ -35,7 +62,6 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.heade
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
-import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
@@ -44,11 +70,12 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-import ru.intertrust.cm.core.service.api.App;
 
-import java.util.*;
-
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MIN_WIDTH;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSED;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -57,9 +84,6 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 public class CollectionPluginView extends PluginView {
     public static final int FETCHED_ROW_COUNT = 25;
-    public static final String ID_KEY = "id";
-    private static final String SORT_COLUMN_KEY = "sc";
-    private static final String SORT_DIRECT_KEY = "sd";
 
     private CollectionDataGrid tableBody;
     private List<CollectionRowItem> items;
@@ -112,36 +136,22 @@ public class CollectionPluginView extends PluginView {
         items = collectionPluginData.getItems();
         filterPanelConfig = collectionPluginData.getFilterPanelConfig();
         init();
-        final List<Integer> selectedIndexes = new ArrayList<>();
-        final String selectedIdsAsStr = Application.getInstance().getHistoryManager().getValue(ID_KEY);
-        if (selectedIdsAsStr != null) {
-            final String[] idAsStrArray = selectedIdsAsStr.split(",");
-            for (String idAsStr : idAsStrArray) {
-                final Id id = StringUtil.idFromString(idAsStr);
-                if (id != null) {
-                    final int index = getSelectedIndex(id);
-                    if (index > -1) {
-                        selectedIndexes.add(index);
-                    }
+
+        final List<Id> selectedIds = new ArrayList<>();
+        final List<Id> selectedFromHistory = Application.getInstance().getHistoryManager().getSelectedIds();
+        if (!selectedFromHistory.isEmpty()) {
+            selectedIds.addAll(selectedFromHistory);
+        } else {
+            selectedIds.addAll(collectionPluginData.getChosenIds());
+        }
+        if (!selectedIds.isEmpty()) {
+            for (CollectionRowItem item : items) {
+                if (selectedIds.contains(item.getId())) {
+                    selectionModel.setSelected(item, true);
                 }
             }
-        } else {
-            selectedIndexes.addAll(collectionPluginData.getIndexesOfSelectedItems());
         }
-        boolean isFirst = true;
-        final StringBuilder builder = new StringBuilder();
-        for (int index : selectedIndexes) {
-            final CollectionRowItem item = items.get(index);
-            selectionModel.setSelected(item, true);
-            if (!isFirst) {
-                builder.append(',');
-            }
-            builder.append(item.getId().toStringRepresentation());
-        }
-        if (builder.length() > 0) {
-            Application.getInstance().getHistoryManager().addHistoryItems(
-                    new HistoryItem(HistoryItem.Type.URL, ID_KEY, builder.toString()));
-        }
+        Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
         root.addStyleName("collection-plugin-view-container");
         addHandlers();
         return root;
@@ -158,11 +168,35 @@ public class CollectionPluginView extends PluginView {
     }
 
     public List<Id> getSelectedIds() {
-        final List<Id> selectedIds = new ArrayList<Id>(selectionModel.getSelectedSet().size());
+        final List<Id> selectedIds = new ArrayList<>(selectionModel.getSelectedSet().size());
         for (CollectionRowItem item : selectionModel.getSelectedSet()) {
             selectedIds.add(item.getId());
         }
         return selectedIds;
+    }
+
+    public boolean restoreHistory() {
+        final HistoryManager manager = Application.getInstance().getHistoryManager();
+        final List<Id> selectedFromHistoryIds = manager.getSelectedIds();
+        final List<Id> selectedIds = getSelectedIds();
+        final Id oldSelectedFormId = selectedIds.isEmpty() ? null : selectedIds.get(0);
+        Id newSelectedFormId = null;
+        selectionModel.clear();
+        if (!selectedFromHistoryIds.isEmpty()) {
+            for(CollectionRowItem item : items) {
+                if (selectedFromHistoryIds.contains(item.getId())) {
+                    selectionModel.setSelected(item, true);
+                    if (newSelectedFormId == null) {
+                        newSelectedFormId = item.getId();
+                    }
+                }
+            }
+        }
+        if (newSelectedFormId != null && !newSelectedFormId.equals(oldSelectedFormId)) {
+            eventBus.fireEvent(new CollectionRowSelectedEvent(newSelectedFormId));
+            return true;
+        }
+        return false;
     }
 
     private void createTableColumns() {
@@ -347,11 +381,11 @@ public class CollectionPluginView extends PluginView {
      * @param collectionObject
      */
     public void refreshCollection(IdentifiableObject collectionObject) {
-        Set<Id> includedIds = new HashSet<Id>();
+        Set<Id> includedIds = new HashSet<>();
         includedIds.add(collectionObject.getId());
 
-        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(0, 1,
-                collectionName, fieldPropertiesMap, simpleSearchQuery, searchArea);
+        final CollectionRowsRequest collectionRowsRequest =
+                new CollectionRowsRequest(0, 1, collectionName, fieldPropertiesMap, simpleSearchQuery, searchArea);
         collectionRowsRequest.setIncludedIds(includedIds);
         collectionOneRowRequestCommand(collectionRowsRequest);
 
@@ -466,15 +500,14 @@ public class CollectionPluginView extends PluginView {
 
     private void applySelectionModel() {
         if (singleChoice) {
-            selectionModel = new CheckedSelectionModel<CollectionRowItem>();
+            selectionModel = new CheckedSelectionModel<>();
         } else {
-            selectionModel = new MultiSelectionModel<CollectionRowItem>();
+            selectionModel = new MultiSelectionModel<>();
         }
         tableBody.setSelectionModel(selectionModel);
     }
 
     private void applyBodyTableStyle() {
-        selectionModel = new CheckedSelectionModel<CollectionRowItem>();
         String emptyTableText = "Результаты отсутствуют";
         HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
         tableBody.setEmptyTableWidget(emptyTableWidget);
@@ -649,7 +682,7 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    public int getSelectedIndex(final Id id) {
+    private int getSelectedIndex(final Id id) {
         for (CollectionRowItem item : items) {
             if (item.getId().equals(id)) {
                 return items.indexOf(item);

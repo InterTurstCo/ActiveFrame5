@@ -1,17 +1,27 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.plugin.*;
-
-import java.util.ArrayList;
+import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferHandler extends ActivePluginHandler {
+    private static final String IDS_KEY = "ids";
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -28,10 +38,15 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         if (items == null || items.isEmpty()) {
             formPluginConfig = new FormPluginConfig(config.getDomainObjectTypeToCreate());
         } else {
-            formPluginConfig = new FormPluginConfig(items.get(0).getId());
-            final ArrayList<Integer> selectedIndexes = new ArrayList<>(1);
-            selectedIndexes.add(Integer.valueOf(0));
-            collectionPluginData.setIndexesOfSelectedItems(selectedIndexes);
+            final List<Id> selectedIds = new ArrayList<>();
+            final List<Id> selectedFromHistory = config.getHistoryValue(IDS_KEY);
+            if (selectedFromHistory != null && !selectedFromHistory.isEmpty()) {
+                selectedIds.addAll((List) config.getHistoryValue(IDS_KEY));
+            } else {
+                selectedIds.add(items.get(0).getId());
+            }
+            formPluginConfig = new FormPluginConfig(selectedIds.get(0));
+            collectionPluginData.setChosenIds(selectedIds);
         }
         final FormPluginState fpState = new FormPluginState();
         formPluginConfig.setPluginState(fpState);

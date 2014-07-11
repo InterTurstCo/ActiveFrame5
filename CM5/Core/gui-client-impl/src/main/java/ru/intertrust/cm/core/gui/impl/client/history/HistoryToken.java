@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.history;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,10 @@ class HistoryToken {
         for (HistoryItem item : items) {
             itemMap.put(item.getName(), item);
         }
+    }
+
+    public Map<String, HistoryItem> getItems() {
+        return Collections.unmodifiableMap(itemMap);
     }
 
     public HistoryItem getItem(final String key) {

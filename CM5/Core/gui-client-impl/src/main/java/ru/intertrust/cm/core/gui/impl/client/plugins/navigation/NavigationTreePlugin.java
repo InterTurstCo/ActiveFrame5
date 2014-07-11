@@ -11,12 +11,11 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.plugins.PluginHistorySupport;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 
 @ComponentName("navigation.tree")
-public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler, PluginHistorySupport {
+public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler {
 
     protected EventBus eventBus;
 

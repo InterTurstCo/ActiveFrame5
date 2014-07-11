@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -23,8 +24,7 @@ public class CollectionPluginData extends ActivePluginData {
     private boolean displayChosenValues;
     private ArrayList<CollectionRowItem> items = new ArrayList<>();
     private LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap;
-    private List<Integer> indexesOfSelectedItems = new ArrayList<>();
-    private List<Id> chosenIds = new ArrayList<>();
+    private List<Id> chosenIds;
     private String searchArea;
     private String collectionViewConfigName;
     private InitialFiltersConfig initialFiltersConfig;
@@ -83,16 +83,8 @@ public class CollectionPluginData extends ActivePluginData {
         this.collectionName = collectionName;
     }
 
-    public List<Integer> getIndexesOfSelectedItems() {
-        return indexesOfSelectedItems;
-    }
-
-    public void setIndexesOfSelectedItems(ArrayList<Integer> indexesOfSelectedItems) {
-        this.indexesOfSelectedItems = indexesOfSelectedItems;
-    }
-
     public List<Id> getChosenIds() {
-        return chosenIds;
+        return chosenIds == null ? Collections.EMPTY_LIST : chosenIds;
     }
 
     public void setChosenIds(List<Id> chosenIds) {

@@ -38,9 +38,9 @@ public class StringUtil {
 
     public static Id idFromString(final String idAsStr) {
         Id result = null;
-        if (idAsStr != null && !idAsStr.isEmpty()) {
+        if (idAsStr != null && !idAsStr.trim().isEmpty()) {
             try {
-                result = new RdbmsId(idAsStr);
+                result = new RdbmsId(idAsStr.trim());
             } catch (Exception ignored) {}
         }
         return result;

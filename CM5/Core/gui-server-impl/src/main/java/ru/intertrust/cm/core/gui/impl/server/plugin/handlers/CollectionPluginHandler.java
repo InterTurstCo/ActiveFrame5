@@ -104,8 +104,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             ArrayList<CollectionRowItem> items = getRows(collectionName,
                     0, INIT_ROWS_NUMBER, filters, order, columnPropertyMap);
-            List<Id> chosenIds = collectionViewerConfig.getExcludedIds();
-            pluginData.setIndexesOfSelectedItems(getListOfAlreadyChosenItems(chosenIds, items));
+            pluginData.setChosenIds(collectionViewerConfig.getExcludedIds());
             pluginData.setItems(items);
         }
 
@@ -451,17 +450,4 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         textFilter.addCriterion(0, new StringValue(text + "%"));
         return textFilter;
     }
-
-    private ArrayList<Integer> getListOfAlreadyChosenItems(List<Id> chosenIds, List<CollectionRowItem> itemsForClient) {
-        ArrayList<Integer> indexesOfChosenItems = new ArrayList<Integer>();
-        for (Id id : chosenIds) {
-            for (int i = 0; i < itemsForClient.size(); i++) {
-                if (id.equals(itemsForClient.get(i).getId())) {
-                    indexesOfChosenItems.add(i);
-                }
-            }
-        }
-        return indexesOfChosenItems;
-    }
-
 }

@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config.gui.navigation;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
@@ -10,5 +12,19 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root
 public abstract class PluginConfig implements Dto {
+    private Map<String, Object> historyData = new HashMap<>();
+
     public abstract String getComponentName();
+
+    public void setHistoryValue(final String key, final Object value) {
+        historyData.put(key, value);
+    }
+
+    public <T> T getHistoryValue(final String key) {
+        return historyData == null ? null : (T) historyData.get(key);
+    }
+
+    public void setHistoryValues(final Map<String, Object> values) {
+        historyData.putAll(values);
+    }
 }

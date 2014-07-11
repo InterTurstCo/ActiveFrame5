@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
  */
 public class UpdateCollectionEvent extends GwtEvent<UpdateCollectionEventHandler> {
 
-    public static Type<UpdateCollectionEventHandler> TYPE = new Type<UpdateCollectionEventHandler>();
+    public static Type<UpdateCollectionEventHandler> TYPE = new Type<>();
     // поле для объекта, который будет добавляться в коллекцию
     private IdentifiableObject identifiableObject;
 
