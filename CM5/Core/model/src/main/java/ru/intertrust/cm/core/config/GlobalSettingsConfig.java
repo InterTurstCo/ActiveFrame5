@@ -23,7 +23,7 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Element(name = "sql-trace", required = true)
     private SqlTrace sqlTrace;
 
-    @Element(name = "transaction-trace", required = true)
+    @Element(name = "transaction-trace", required = false)
     private TransactionTrace transactionTrace;
 
     @ElementList(name = "search-languages", entry = "language", required = false)

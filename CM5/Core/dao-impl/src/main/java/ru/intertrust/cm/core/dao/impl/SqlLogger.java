@@ -114,7 +114,7 @@ public class SqlLogger {
 
         TransactionTrace transactionTraceConf = configurationExplorer.getGlobalSettings().getTransactionTrace();
 
-        if (!transactionTraceConf.isEnable()) {
+        if (transactionTraceConf == null || !transactionTraceConf.isEnable()) {
             return joinPoint.proceed();
         }
 
