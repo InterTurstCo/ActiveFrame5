@@ -72,14 +72,18 @@ public class BusinessUniverseConfig implements TopLevelConfig {
         }
 
         BusinessUniverseConfig that = (BusinessUniverseConfig) o;
-
-        if (!collectionCountCacheRefreshConfig.equals(that.collectionCountCacheRefreshConfig)) {
+        if (logoConfig != null ? !logoConfig.equals(that.logoConfig) : that.logoConfig != null) {
+            return false;
+        }
+        if (headerNotificationRefreshConfig == null
+                ? that.headerNotificationRefreshConfig != null
+                : !headerNotificationRefreshConfig.equals(that.getHeaderNotificationRefreshConfig())) {
             return false;
         }
         if (!collectionCountRefreshConfig.equals(that.collectionCountRefreshConfig)) {
             return false;
         }
-        if (logoConfig != null ? !logoConfig.equals(that.logoConfig) : that.logoConfig != null) {
+        if (!collectionCountCacheRefreshConfig.equals(that.collectionCountCacheRefreshConfig)) {
             return false;
         }
         if (settingsPopupConfig != null ? !settingsPopupConfig.equals(that.settingsPopupConfig) :
@@ -92,10 +96,12 @@ public class BusinessUniverseConfig implements TopLevelConfig {
 
     @Override
     public int hashCode() {
-        int result = logoConfig != null ? logoConfig.hashCode() : 0;
+        int result = (logoConfig != null ? logoConfig.hashCode() : 31);
+        result = result * 31 +
+                (headerNotificationRefreshConfig == null ? 31 : headerNotificationRefreshConfig.hashCode());
         result = 31 * result + collectionCountRefreshConfig.hashCode();
         result = 31 * result + collectionCountCacheRefreshConfig.hashCode();
-        result = 31 * result + settingsPopupConfig.hashCode();
+        result = 31 * result + (settingsPopupConfig == null ? 31 : settingsPopupConfig.hashCode());
         return result;
     }
 
