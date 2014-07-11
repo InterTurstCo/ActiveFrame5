@@ -7,6 +7,7 @@ import java.util.Map;
 import com.google.gwt.user.client.History;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
@@ -90,6 +91,8 @@ public class HistoryManagerImpl implements HistoryManager {
                 final Id id = StringUtil.idFromString(idStr);
                 if (id != null) {
                     result.add(id);
+                } else {
+                    throw new HistoryException("Неправильный формат Id " + idStr);
                 }
             }
         }

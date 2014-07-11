@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -60,21 +61,25 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
             final List<LinkConfig> linkConfigs = data.getNavigationConfig().getLinkConfigList();
             String rootName = null;
             String childLink = null;
+            boolean notExists = true;
             for (LinkConfig linkConfig : linkConfigs) {
                 rootName = linkConfig.getName();
                 if (historyManager.isLinkEquals(rootName)) {
+                    notExists = false;
                     break;
                 } else {
                     childLink = findChildLink(linkConfig.getChildLinksConfigList(), historyManager);
                     if (childLink != null) {
+                        notExists = false;
                         break;
                     }
                 }
             }
-            if (rootName != null) {
-                view.showAsSelectedRootLink(rootName);
-                view.repaintNavigationTrees(rootName, childLink);
+            if (notExists) {
+                throw new HistoryException("Пункт меню не найден");
             }
+            view.showAsSelectedRootLink(rootName);
+            view.repaintNavigationTrees(rootName, childLink);
             return true;
         } else {
             return false;

@@ -30,6 +30,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedHandler;
@@ -86,6 +87,16 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
+                GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
+                    @Override
+                    public void onUncaughtException(Throwable ex) {
+                        if (ex.getCause() instanceof HistoryException) {
+                            Window.alert(ex.getCause().getMessage());
+                        } else {
+                            GWT.log("Uncaught exception escaped", ex);
+                        }
+                    }
+                });
                 final EventBus glEventBus = Application.getInstance().getEventBus();
                 SettingsPopupConfig settingsPopupConfig = result.getSettingsPopupConfig();
                 ThemesConfig themesConfig = settingsPopupConfig == null ? null : settingsPopupConfig.getThemesConfig();
@@ -321,6 +332,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                     navigationTreePlugin.clearCurrentSelectedItemValue();
                     Window.setTitle("Форма документа");
                     centralPluginPanel.open(formPlugin);
+                } else {
+                    throw new HistoryException("Переход по данным '" + url + "' невозможет");
                 }
             }
         }
