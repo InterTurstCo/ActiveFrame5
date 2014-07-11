@@ -2,7 +2,12 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.DomainObjectFieldsConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
@@ -97,7 +102,7 @@ public class FormObjectsRemover extends FormProcessor {
 
             findDeleteOperationsForChain(new ObjectWithReferences(fieldPath.getParentPath()), fieldPathConfigs.get(fieldPath).getOnRootDelete());
         }
-        // todo clean up references from the root to avoid the situation when it locks child deletions
+        cleanUpRootReferences();
         deleteMultiBackReferences(multiBackReferencesToDelete);
         deleteRootWithOneToOneChain();
     }
@@ -140,6 +145,30 @@ public class FormObjectsRemover extends FormProcessor {
 
         if (!toDelete.path.isRoot()) { // recursive call for parent objects; passing this object reference in case parent references it directly
             findDeleteOperationsForChain(toDelete.getParentReferencingThis(), FieldPathConfig.OnDeleteAction.CASCADE);
+        }
+    }
+
+    private void cleanUpRootReferences() {
+        final DomainObject rootDomainObject = formObjects.getRootDomainObject();
+        final DomainObjectTypeConfig typeConfig = configurationExplorer.getDomainObjectTypeConfig(rootDomainObject.getTypeName());
+        final DomainObjectFieldsConfig fieldsConfig = typeConfig.getDomainObjectFieldsConfig();
+        if (fieldsConfig == null || fieldsConfig.getFieldConfigs() == null) {
+            return;
+        }
+        boolean toSave = false;
+        for (FieldConfig fieldConfig : fieldsConfig.getFieldConfigs()) {
+            if (fieldConfig.getFieldType() != FieldType.REFERENCE || fieldConfig.isNotNull()) {
+                continue;
+            }
+            final Value value = rootDomainObject.getValue(fieldConfig.getName());
+            if (value == null || value.isEmpty()) {
+                continue;
+            }
+            rootDomainObject.setValue(fieldConfig.getName(), null);
+            toSave = true;
+        }
+        if (toSave) {
+            crudService.save(rootDomainObject);
         }
     }
 
