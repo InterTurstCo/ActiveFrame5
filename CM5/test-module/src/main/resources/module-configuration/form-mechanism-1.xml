@@ -50,6 +50,15 @@
             <reference name="a1" type="a1"/>
             <string name="name1" length="128" not-null="true"/>
             <string name="name2" length="128"/>
+            <string name="string_field" length="128"/>
+            <long name="long_field"/>
+            <decimal name="decimal_field"/>
+            <boolean name="boolean_field"/>
+            <date-time name="date_time_field"/>
+            <dateTimeWithTimeZone name="date_w_tz_field"/>
+            <timelessDate name="timeless_date_field"/>
+            <reference name="a1_2" type="a1"/>
+            <reference name="a_person" type="person"/>
         </fields>
         <uniqueKey>
             <field name="name1"/>
@@ -65,6 +74,8 @@
             <field name="name1"/>
         </uniqueKey>
     </domain-object-type>
+
+    <domain-object-type name="g1" extends="e1"/>
 
     <domain-object-type name="a1_f1">
         <fields>
@@ -233,12 +244,37 @@
                 <field-path value="b1.c1.name2"/>
             </text-box>
 
-            <label id="e1_1:N_label">
+            <label id="e1_1:N_label"> <!-- show only "active" and set as "inactive" on unlink -->
                 <field-path/>
                 <text>E1 (1:N):</text>
             </label>
             <suggest-box id="e1_1:N">
-                <field-path value="e1^a1"/>
+                <field-path value="e1^a1">
+                    <!--<on-link>
+                        <update>
+                            <field name="string_field" value="active"/>
+                            <field name="long_field" value="777"/>
+                            <field name="decimal_field" value="3.14"/>
+                            <field name="boolean_field" value="true"/>
+                            <field name="date_time_field" value="2014-07-09 17:32 Europe/Kiev"/>
+                            <field name="date_w_tz_field" set-current-moment="true"/>
+                            <field name="timeless_date_field" set-current-moment="true"/>
+                            <field name="a1_2" set-base-object="true"/>
+                            <field name="a_person" set-current-user="true"/>
+                        </update>
+                        <create type="g1">
+                            <field name="string_field" value="active"/>
+                            <field name="long_field" value="777"/>
+                            <field name="decimal_field" value="3.14"/>
+                            <field name="boolean_field" value="true"/>
+                            <field name="date_time_field" value="2014-07-09 17:32" time-zone-id="Europe/Kiev"/>
+                            <field name="date_w_tz_field" set-current-moment="true"/>
+                            <field name="timeless_date_field" set-current-moment="true"/>
+                            <field name="a1_2" set-base-object="true"/>
+                            <field name="a_person" set-current-user="true"/>
+                        </create>
+                    </on-link>-->
+                </field-path>
 
                 <collection-ref name="e1_collection"/>
 
@@ -289,6 +325,32 @@
                 <single-choice value="false"/>
             </linked-domain-objects-table>
         </widget-config>
+        <!--<form-objects-remover handler="custom">
+            <on-delete do-delete="true">
+                <update>
+                    <field name="string_field" value="active"/>
+                    <field name="long_field" value="777"/>
+                    <field name="decimal_field" value="3.14"/>
+                    <field name="boolean_field" value="true"/>
+                    <field name="date_time_field" value="2014-07-09 17:32 Europe/Kiev"/>
+                    <field name="date_w_tz_field" set-current-moment="true"/>
+                    <field name="timeless_date_field" set-current-moment="true"/>
+                    <field name="a1_2" set-base-object="true"/>
+                    <field name="a_person" set-current-user="true"/>
+                </update>
+                <create type="g1">
+                    <field name="string_field" value="active"/>
+                    <field name="long_field" value="777"/>
+                    <field name="decimal_field" value="3.14"/>
+                    <field name="boolean_field" value="true"/>
+                    <field name="date_time_field" value="2014-07-09 17:32" time-zone-id="Europe/Kiev"/>
+                    <field name="date_w_tz_field" set-current-moment="true"/>
+                    <field name="timeless_date_field" set-current-moment="true"/>
+                    <field name="a1_2" set-base-object="true"/>
+                    <field name="a_person" set-current-user="true"/>
+                </create>
+            </on-delete>
+        </form-objects-remover>-->
     </form>
 
     <form name="f1_form" domain-object-type="f1" is-default="true">

@@ -302,30 +302,6 @@
         <filter name="byDepartment" />
     </collection>
 
-    <collection name="Outgoing_Document" idField="id">
-        <!--todo поддержка конвертации значений, например, в картинки -->
-
-        <prototype>
-            <![CDATA[
-                select
-                    od.id, od.name, od.description, od.registration_date
-                from
-                    Outgoing_document od
-                     ::from-clause
-                where
-                    1=1 ::where-clause
-            ]]>
-        </prototype>
-
-        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
-            вместо названий колонок -->
-        <counting-prototype>
-            select count(*) from Outgoing_document od
-            ::from-clause WHERE 1=1 ::where-clause
-        </counting-prototype>
-
-    </collection>
-
     <collection name="Internal_Document" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <prototype>

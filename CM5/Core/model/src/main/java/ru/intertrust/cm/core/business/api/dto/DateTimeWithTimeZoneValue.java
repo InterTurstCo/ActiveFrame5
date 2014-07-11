@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.TimeZone;
 
 /**
@@ -17,17 +18,22 @@ public class DateTimeWithTimeZoneValue extends Value<DateTimeWithTimeZoneValue> 
     private DateTimeWithTimeZone value;
 
     /**
-     * Создает пустое булево значение
+     * Создает пустое значение даты с часовым поясом
      */
     public DateTimeWithTimeZoneValue() {
     }
 
     /**
-     * Создает булево значение
-     * @param value булево значение
+     * Создает значение даты с часовым поясом
+     * @param value значение даты с часовым поясом
      */
     public DateTimeWithTimeZoneValue(DateTimeWithTimeZone value) {
         this.value = value;
+    }
+
+    @GwtIncompatible
+    public DateTimeWithTimeZoneValue(Date date, TimeZone timeZone) {
+        this.value = new DateTimeWithTimeZone(date, timeZone);
     }
 
     @Override

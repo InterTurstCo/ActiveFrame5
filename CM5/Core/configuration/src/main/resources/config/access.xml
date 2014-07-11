@@ -606,12 +606,6 @@
         </create>
     </access-matrix>
     
-    <access-matrix type="Employee">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-    
     <access-matrix type="org_middle">
         <create>
             <permit-group name="AllPersons" />

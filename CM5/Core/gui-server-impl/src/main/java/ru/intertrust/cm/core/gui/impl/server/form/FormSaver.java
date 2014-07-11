@@ -1,12 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
@@ -21,7 +17,6 @@ import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
@@ -29,13 +24,7 @@ import java.util.*;
  *         Date: 21.10.13
  *         Time: 13:03
  */
-public class FormSaver {
-    @Autowired
-    protected ApplicationContext applicationContext;
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-    @Autowired
-    private CrudService crudService;
+public class FormSaver extends FormProcessor {
     private FormState formState;
     private Map<FieldPath, Value> forcedRootDomainObjectValues;
     private FormObjects formObjects;
@@ -45,7 +34,7 @@ public class FormSaver {
     private HashSet<FieldPath> toUpdate;
     private HashMap<Id, DomainObject> savedObjectsById;
 
-    public FormSaver(FormState formState, Map<FieldPath, Value> forcedRootDomainObjectValues) {
+    public void setContext(FormState formState, Map<FieldPath, Value> forcedRootDomainObjectValues) {
         this.formState = formState;
         this.formObjects = formState.getObjects();
         this.forcedRootDomainObjectValues = forcedRootDomainObjectValues == null ? new HashMap<FieldPath, Value>(0) : forcedRootDomainObjectValues;
@@ -53,9 +42,9 @@ public class FormSaver {
         toUpdateReferences = new HashMap<>();
         toUpdate = new HashSet<>();
         savedObjectsById = new HashMap<>();
+        init();
     }
 
-    @PostConstruct
     private void init() {
         FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formState.getName());
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
@@ -88,7 +77,8 @@ public class FormSaver {
                 Set<Map.Entry<String, FormState>> entries = nestedFormStates.entrySet();
                 for (Map.Entry<String, FormState> entry : entries) {
                     FormState nestedFormState = entry.getValue();
-                    FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", nestedFormState, null);
+                    FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
+                    formSaver.setContext(nestedFormState, null);
                     formSaver.saveForm();
                 }
             }
@@ -133,7 +123,8 @@ public class FormSaver {
             HashMap<FieldPath, ArrayList<Id>> fieldPathsIds = getBackReferenceFieldPathsIds(context.getFieldPaths(), widgetState);
             for (FieldPath fieldPath : context.getFieldPaths()) {
                 final String linkerBeanName = fieldPath.isOneToManyReference() ? "oneToManyLinker" : "manyToManyLinker";
-                ObjectsLinker linker = (ObjectsLinker) applicationContext.getBean(linkerBeanName, formState, context, fieldPath, fieldPathsIds.get(fieldPath), deleteEntriesOnLinkDrop, savedObjectsById);
+                ObjectsLinker linker = (ObjectsLinker) applicationContext.getBean(linkerBeanName);
+                linker.setContext(formState, context, fieldPath, fieldPathsIds.get(fieldPath), deleteEntriesOnLinkDrop, savedObjectsById);
                 linker.updateLinkedObjects();
             }
         }

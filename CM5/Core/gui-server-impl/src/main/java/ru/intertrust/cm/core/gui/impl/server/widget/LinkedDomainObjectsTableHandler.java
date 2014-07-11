@@ -115,10 +115,10 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             if (fieldPath.isOneToManyReference()) {
                 final HashMap<FieldPath, Value> rootObjectValues = new HashMap<>();
                 rootObjectValues.put(new FieldPath(fieldPath.getLinkToParentName()), new ReferenceValue(rootDomainObject.getId()));
-                FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState, rootObjectValues);
+                FormSaver formSaver = getFormSaver(formState, rootObjectValues);
                 savedObject = formSaver.saveForm();
             } else if (fieldPath.isManyToManyReference()) {
-                FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState, null);
+                FormSaver formSaver = getFormSaver(formState, null);
                 savedObject = formSaver.saveForm();
                 String referenceType = fieldPath.getReferenceType();
                 DomainObject referencedObject = crudService.createDomainObject(referenceType);
@@ -127,7 +127,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 crudService.save(referencedObject);
             } else { // one-to-one reference
                 // todo: not-null constraint will fail!
-                FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState, null);
+                FormSaver formSaver = getFormSaver(formState, null);
                 savedObject = formSaver.saveForm();
                 rootDomainObject.setReference(fieldPath.getFieldName(), savedObject);
                 crudService.save(rootDomainObject);
@@ -136,6 +136,12 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             newObjects.add(savedObject);
         }
         return newObjects;
+    }
+
+    public FormSaver getFormSaver(FormState formState, HashMap<FieldPath, Value> rootObjectValues) {
+        final FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
+        formSaver.setContext(formState, rootObjectValues);
+        return formSaver;
     }
 
     @Override

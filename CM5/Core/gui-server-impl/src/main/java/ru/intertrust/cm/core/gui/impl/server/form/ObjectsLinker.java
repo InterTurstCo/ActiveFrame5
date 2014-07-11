@@ -1,23 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.OnLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.OnUnlinkConfig;
 import ru.intertrust.cm.core.gui.api.server.form.DomainObjectLinkInterceptor;
-import ru.intertrust.cm.core.gui.api.server.form.FormMechanismDomainObjectLinkInterceptor;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,16 +20,7 @@ import java.util.HashSet;
  *         Date: 23.06.2014
  *         Time: 22:11
  */
-public abstract class ObjectsLinker {
-    @Autowired
-    protected ApplicationContext applicationContext;
-    @Autowired
-    protected ConfigurationExplorer configurationExplorer;
-    @Autowired
-    protected CrudService crudService;
-    @Autowired
-    protected AttachmentService attachmentService;
-
+public abstract class ObjectsLinker extends FormProcessor {
     protected FormState formState;
     protected DomainObject parentObject;
     protected WidgetContext widgetContext;
@@ -48,7 +32,7 @@ public abstract class ObjectsLinker {
     protected String linkToParentName;
     protected DomainObjectLinkInterceptor linkInterceptor;
 
-    public ObjectsLinker(FormState formState, WidgetContext widgetContext, FieldPath fieldPath, ArrayList<Id> currentIds, boolean deleteEntriesOnLinkDrop, HashMap<Id, DomainObject> savedObjectsCache) {
+    public void setContext(FormState formState, WidgetContext widgetContext, FieldPath fieldPath, ArrayList<Id> currentIds, boolean deleteEntriesOnLinkDrop, HashMap<Id, DomainObject> savedObjectsCache) {
         this.formState = formState;
         this.parentObject = ((SingleObjectNode) formState.getObjects().getNode(fieldPath.getParentPath())).getDomainObject();
         this.widgetContext = widgetContext;
@@ -58,10 +42,6 @@ public abstract class ObjectsLinker {
         this.savedObjectsCache = savedObjectsCache;
         this.fieldPathConfig = widgetContext.getFieldPathConfig();
         this.linkToParentName = fieldPath.getLinkToParentName();
-    }
-
-    @PostConstruct
-    private void init() {
         this.linkInterceptor =  getLinkInterceptor();
     }
 
@@ -118,7 +98,7 @@ public abstract class ObjectsLinker {
         if (onLinkConfig == null && onUnlinkConfig == null) {
             return null; // nothing to do before
         }
-        return new FormMechanismDomainObjectLinkInterceptor(); // todo: NO, it's a bean!
+        return (DomainObjectLinkInterceptor) applicationContext.getBean("defaultConfigurableDomainObjectLinkInterceptor");
     }
 
 }

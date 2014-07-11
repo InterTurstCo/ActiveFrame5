@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -15,30 +16,50 @@ import java.util.List;
 public class UniqueKeyValueConfig implements Dto{
 
     @ElementList(inline = true)
-    private List<FieldValueConfig> activeFields = new ArrayList<FieldValueConfig>();
+    private List<FieldValueConfig> fieldValueConfigs = new ArrayList<FieldValueConfig>();
 
-    public List<FieldValueConfig> getActiveFields() {
-        return activeFields;
+    @Attribute(name = "type", required = false)
+    private String type;
+
+    public List<FieldValueConfig> getFieldValueConfigs() {
+        return fieldValueConfigs;
     }
 
-    public void setActiveFields(List<FieldValueConfig> activeFields) {
-        this.activeFields = activeFields;
+    public void setFieldValueConfigs(List<FieldValueConfig> fieldValueConfigs) {
+        this.fieldValueConfigs = fieldValueConfigs;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         UniqueKeyValueConfig that = (UniqueKeyValueConfig) o;
 
-        if (activeFields != null ? !activeFields.equals(that.activeFields) : that.activeFields != null) return false;
+        if (fieldValueConfigs != null ? !fieldValueConfigs.equals(that.fieldValueConfigs) : that.fieldValueConfigs != null) {
+            return false;
+        }
+        if (!type.equals(that.type)) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return activeFields != null ? activeFields.hashCode() : 0;
+        return type.hashCode();
     }
 }

@@ -81,13 +81,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      *
      */
     private void validate() {
-        GlobalSettingsLogicalValidator globalSettingsLogicalValidator =
-                new GlobalSettingsLogicalValidator(configStorage.configuration);
-        globalSettingsLogicalValidator.validate();
-        DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
-        domainObjectLogicalValidator.validate();
-        AccessMatrixLogicalValidator accessMatrixLogicalValidator = new AccessMatrixLogicalValidator(this);
-        accessMatrixLogicalValidator.validate();
+        new GlobalSettingsLogicalValidator(configStorage.configuration).validate();
+        new DomainObjectLogicalValidator(this).validate();
+        new AccessMatrixLogicalValidator(this).validate();
+        new UniqueNameLogicalValidator(this).validate();
     }
 
     public void validateGui() {
@@ -150,6 +147,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             result.addAll((Collection<T>) typeMap.values());
 
             return getReturnObject(result, ArrayList.class);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Set<Class<?>> getTopLevelConfigClasses() {
+        readLock.lock();
+        try {
+            return configStorage.topLevelConfigMap.keySet();
         } finally {
             readLock.unlock();
         }

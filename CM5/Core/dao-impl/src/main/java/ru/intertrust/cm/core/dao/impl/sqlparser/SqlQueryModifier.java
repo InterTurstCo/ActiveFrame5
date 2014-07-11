@@ -586,7 +586,8 @@ public class SqlQueryModifier {
 
     /**
      * Возвращает имя таблицы, в которой находится данная колонка. Елси алиас для таблицы не был использован в SQL
-     * запросе, то берется название первой таблицы в FROM выражении.
+     * запросе, то берется название первой таблицы в FROM выражении. Если поле вычисляемое, то возвращается null.
+     * Если тип доменного объекта не найден, возвращается null.
      * @param plainSelect SQL запрос
      * @param column колока (поле) в запросе.
      * @return
@@ -615,28 +616,29 @@ public class SqlQueryModifier {
 
             List joinList = plainSelect.getJoins();
 
-            if (joinList != null){
+            if (joinList != null) {
                 for (Object joinObject : joinList) {
                     Join join = (Join) joinObject;
-                    
+
                     if (join.getRightItem() instanceof SubSelect) {
                         SubSelect subSelect = (SubSelect) join.getRightItem();
                         PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
                         return getDOTypeName(plainSubSelect, column, true);
-                    } else if(join.getRightItem() instanceof Table){
+                    } else if (join.getRightItem() instanceof Table) {
                         Table joinTable = (Table) join.getRightItem();
-                        if (joinTable.getAlias() != null && column.getTable().getName().equalsIgnoreCase(joinTable.getAlias().getName()) ||
+                        if (joinTable.getAlias() != null
+                                && column.getTable().getName().equalsIgnoreCase(joinTable.getAlias().getName()) ||
                                 column.getTable().getName().equalsIgnoreCase(joinTable.getName())) {
                             return DaoUtils.unwrap(joinTable.getName());
                         }
-                        
+
                     }
+
                 }
             }
-        }
 
-        throw new CollectionQueryException("Failed to evaluate table name for column '" +
-                column.getColumnName() + "'");
+        }
+        return null;
     }
 
     private static boolean hasStringExpressionWithSameAlias(PlainSelect plainSelect, Column column) {

@@ -11,13 +11,13 @@ import java.util.List;
  * Created by tbilyi on 19.06.2014.
  */
 @Root(name = "create")
-public class CreateSection extends OperationConfig{
+public class CreateConfig extends OperationConfig{
 
     @Attribute(name = "type", required = false)
     private String type;
 
     @ElementList(inline = true)
-    private List<FieldValueConfig> activeFields = new ArrayList<FieldValueConfig>();
+    private List<FieldValueConfig> fieldValueConfigs = new ArrayList<FieldValueConfig>();
 
     public String getType() {
         return type;
@@ -27,12 +27,12 @@ public class CreateSection extends OperationConfig{
         this.type = type;
     }
 
-    public List<FieldValueConfig> getActiveFields() {
-        return activeFields;
+    public List<FieldValueConfig> getFieldValueConfigs() {
+        return fieldValueConfigs;
     }
 
-    public void setActiveFields(List<FieldValueConfig> activeFields) {
-        this.activeFields = activeFields;
+    public void setFieldValueConfigs(List<FieldValueConfig> fieldValueConfigs) {
+        this.fieldValueConfigs = fieldValueConfigs;
     }
 
     @Override
@@ -40,9 +40,9 @@ public class CreateSection extends OperationConfig{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CreateSection that = (CreateSection) o;
+        CreateConfig that = (CreateConfig) o;
 
-        if (activeFields != null ? !activeFields.equals(that.activeFields) : that.activeFields != null) return false;
+        if (fieldValueConfigs != null ? !fieldValueConfigs.equals(that.fieldValueConfigs) : that.fieldValueConfigs != null) return false;
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
 
         return true;
@@ -51,7 +51,7 @@ public class CreateSection extends OperationConfig{
     @Override
     public int hashCode() {
         int result = type != null ? type.hashCode() : 0;
-        result = 31 * result + (activeFields != null ? activeFields.hashCode() : 0);
+        result = 31 * result + (fieldValueConfigs != null ? fieldValueConfigs.hashCode() : 0);
         return result;
     }
 }

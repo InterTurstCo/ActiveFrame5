@@ -18,8 +18,7 @@ public class DeleteActionHandler extends ActionHandler<ActionContext, DeleteActi
 
     @Override
     public DeleteActionData executeAction(ActionContext context) {
-        final FormObjectsRemover remover = (FormObjectsRemover) applicationContext.getBean("formObjectsRemover",
-                guiService.getUserUid());
+        final FormObjectsRemover remover = (FormObjectsRemover) applicationContext.getBean("formObjectsRemover");
         remover.deleteForm(context.getRootObjectId());
 
         DeleteActionData result = new DeleteActionData();
