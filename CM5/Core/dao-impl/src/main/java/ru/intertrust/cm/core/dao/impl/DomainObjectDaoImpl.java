@@ -1573,18 +1573,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void appendAccessControlLogicToQuery(StringBuilder query,
             String linkedType) {
 
-        String childAclReadTable = AccessControlUtility
-                .getAclReadTableNameFor(configurationExplorer, linkedType);
+        //Добавляем учет ReadPermittedToEverybody и косвенных прав. Как и в запросах даем эти ДО читать
+        if (!configurationExplorer.isReadPermittedToEverybody(linkedType) &&
+                configurationExplorer.getMatrixReferenceTypeName(linkedType) == null) {
+        
+            String childAclReadTable = AccessControlUtility
+                    .getAclReadTableNameFor(configurationExplorer, linkedType);
 
-        query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
+            query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
 
-        String linkedTypeAlias = getSqlAlias(linkedType);
+            String linkedTypeAlias = getSqlAlias(linkedType);
 
-        query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.").append(DaoUtils.wrap("group_id"))
-                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-        query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
-        query.append("where gm.person_id = :user_id and r.object_id = ").append(linkedTypeAlias).append(".").append(DaoUtils.wrap(ID_COLUMN)).append(")");
+            query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.").append(DaoUtils.wrap("group_id"))
+                    .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
+            query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
+                    .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
+            query.append("where gm.person_id = :user_id and r.object_id = ").append(linkedTypeAlias).append(".").append(DaoUtils.wrap(ID_COLUMN)).append(")");
+        }
     }
 
     private DomainObject[] create(DomainObject[] domainObjects, Integer type, AccessToken accessToken, String initialStatus) {
