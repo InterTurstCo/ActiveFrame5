@@ -9,15 +9,20 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
-import ru.intertrust.cm.core.gui.impl.client.form.FacebookStyleView;
+import ru.intertrust.cm.core.gui.impl.client.form.WidgetItemsView;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -25,6 +30,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -33,7 +39,7 @@ import java.util.List;
  *         Time: 11:15
  */
 @ComponentName("table-browser")
-public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChangedEventHandler {
+public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
     public static final int DEFAULT_DIALOG_WIDTH = 500;
     public static final int DEFAULT_DIALOG_HEIGHT = 300;
     private PluginPanel pluginPanel;
@@ -46,11 +52,12 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     private int dialogWidth;
     private int dialogHeight;
     private DialogBox dialogBox;
-    private FacebookStyleView facebookStyleView;
+    private WidgetItemsView widgetItemsView;
     private FlowPanel root = new FlowPanel();
 
     @Override
     public void setCurrentState(WidgetState state) {
+        initialData = state;
         currentState = (TableBrowserState) state;
         if (isEditable()) {
             setCurrentStateForEditableWidget(currentState);
@@ -61,47 +68,43 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
 
     private void setCurrentStateForEditableWidget(TableBrowserState state) {
 
-        facebookStyleView.setChosenItems(state.getTableBrowserItems());
+        widgetItemsView.setListValues(state.getListValues());
         initDialogWindowSize();
         initDialogView();
         initAddButton();
         initClearAllButton();
-        if (displayHyperlinks()) {
-            facebookStyleView.setEventBus(localEventBus);
-            facebookStyleView.displayHyperlinkItems();
-            facebookStyleView.setSelectedIds(state.getSelectedIds());
-
+        widgetItemsView.setSelectedIds(state.getSelectedIds());
+        if (isDisplayingAsHyperlink()) {
+            widgetItemsView.setEventBus(localEventBus);
+            widgetItemsView.displayHyperlinkItems();
         } else {
-            facebookStyleView.displaySelectedItems();
+            widgetItemsView.displayItems();
         }
+        widgetItemsView.addShowTooltipButton(new ShowTooltipHandler());
     }
 
     private void setCurrentStateForNoneEditableWidget(TableBrowserState state) {
-        SimpleNoneEditablePanelWithHyperlinks noneEditablePanel = (SimpleNoneEditablePanelWithHyperlinks) impl;
-        List<TableBrowserItem> tableBrowserItems = state.getTableBrowserItems();
-
-        if (displayHyperlinks()) {
-            for (TableBrowserItem item : tableBrowserItems) {
-                displayHyperlink(item, noneEditablePanel);
-            }
+        HyperlinkNoneEditablePanel noneEditablePanel = (HyperlinkNoneEditablePanel) impl;
+        LinkedHashMap<Id, String> listValues = state.getListValues();
+        if (isDisplayingAsHyperlink()) {
+            noneEditablePanel.displayHyperlinks(listValues);
         } else {
-            for (TableBrowserItem tableBrowserItem : tableBrowserItems) {
-                String representation = tableBrowserItem.getStringRepresentation();
-                noneEditablePanel.displayItem(representation);
-            }
+            noneEditablePanel.displayItems(listValues.values());
+        }
+        if (shouldDrawTooltipButton()) {
+            noneEditablePanel.addShowTooltipLabel(new ShowTooltipHandler());
         }
     }
 
     @Override
     protected TableBrowserState createNewState() {
         TableBrowserState state = new TableBrowserState();
-        TableBrowserState previousState =  getInitialData();
+        TableBrowserState previousState = getInitialData();
         if (isEditable()) {
-            state.setTableBrowserItems(facebookStyleView.getChosenItems());
-
+            state.setListValues(widgetItemsView.getListValues());
         } else {
-            ArrayList<TableBrowserItem> chosenItems = previousState.getTableBrowserItems();
-            state.setTableBrowserItems(chosenItems);
+            LinkedHashMap<Id, String> listValues = previousState.getListValues();
+            state.setListValues(listValues);
         }
         state.setSelectedIds(previousState.getSelectedIds());
         return state;
@@ -114,7 +117,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         }
         TableBrowserState stateWithItems = createNewState();
         TableBrowserState fullClientState = new TableBrowserState();
-        fullClientState.setTableBrowserItems(stateWithItems.getTableBrowserItems());
+        fullClientState.setListValues(stateWithItems.getListValues());
         TableBrowserState initialState = getInitialData();
         fullClientState.setSingleChoice(initialState.isSingleChoice());
         fullClientState.setTableBrowserConfig(initialState.getTableBrowserConfig());
@@ -135,7 +138,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     protected Widget asNonEditableWidget(WidgetState state) {
         commonInitialization(state);
         SelectionStyleConfig selectionStyleConfig = currentState.getTableBrowserConfig().getSelectionStyleConfig();
-        return new SimpleNoneEditablePanelWithHyperlinks(selectionStyleConfig, localEventBus);
+        return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus);
 
     }
 
@@ -143,11 +146,6 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         currentState = (TableBrowserState) state;
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
 
-    }
-
-    private boolean displayHyperlinks() {
-        DisplayValuesAsLinksConfig displayValuesAsLinksConfig = currentState.getTableBrowserConfig().getDisplayValuesAsLinksConfig();
-        return displayValuesAsLinksConfig != null && displayValuesAsLinksConfig.isValue();
     }
 
     @Override
@@ -175,12 +173,9 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         collectionViewerConfig.setDefaultSortCriteriaConfig(defaultSortCriteriaConfig);
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
-
         collectionViewerConfig.setSingleChoice(currentState.isSingleChoice());
         collectionViewerConfig.setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues());
-
         collectionViewerConfig.setExcludedIds(currentState.getIds());
-
         SelectionFiltersConfig selectionFiltersConfig = tableBrowserConfig.getSelectionFiltersConfig();
         collectionViewerConfig.setSelectionFiltersConfig(selectionFiltersConfig);
         InitialFiltersConfig initialFiltersConfig = tableBrowserConfig.getInitialFiltersConfig();
@@ -205,7 +200,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     }
 
     private FlowPanel initWidgetView(SelectionStyleConfig selectionStyleConfig) {
-        facebookStyleView = new FacebookStyleView(selectionStyleConfig);
+        widgetItemsView = new WidgetItemsView(selectionStyleConfig);
         filterEditor = new TextBox();
         filterEditor.getElement().setClassName("table-browser-filter-editor");
         openDialogButton = new FocusPanel();
@@ -215,16 +210,16 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
             @Override
             public void onClick(ClickEvent event) {
                 temporaryStateOfSelectedIds.clear();
-                facebookStyleView.getChosenItems().clear();
-                facebookStyleView.displaySelectedItems();
-                ((TableBrowserState)getCurrentState()).getIds().clear();
+                widgetItemsView.getListValues().clear();
+                widgetItemsView.displayItems();
+                ((TableBrowserState) getCurrentState()).getIds().clear();
 
             }
         });
         root.add(filterEditor);
         root.add(openDialogButton);
         root.add(clearButton);
-        root.add(facebookStyleView);
+        root.add(widgetItemsView);
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         return root;
     }
@@ -318,6 +313,11 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         updateHyperlink(id, currentState.getTableBrowserConfig().getSelectionPatternConfig().getValue());
     }
 
+    @Override
+    protected String getTooltipHandlerName() {
+        return "widget-items-handler";
+    }
+
     private class FetchFilteredRowsClickHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
@@ -334,7 +334,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
             public void onClick(ClickEvent event) {
                 currentState.getSelectedIds().addAll(temporaryStateOfSelectedIds);
                 temporaryStateOfSelectedIds.clear();
-                fetchParsedRows();
+                fetchTableBrowserItems();
                 dialogBox.hide();
             }
         });
@@ -344,7 +344,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
                 Id id = event.getId();
                 if (event.isDeselected()) {
                     temporaryStateOfSelectedIds.remove(id);
-                    facebookStyleView.removeChosenItem(id);
+                    widgetItemsView.removeChosenItem(id);
                 } else {
                     temporaryStateOfSelectedIds.add(id);
                 }
@@ -359,7 +359,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
             @Override
             public void onClick(ClickEvent event) {
 
-                fetchParsedRows();
+                fetchTableBrowserItems();
                 dialogBox.hide();
             }
         });
@@ -382,32 +382,28 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         dialogHeight = heightString == null ? DEFAULT_DIALOG_HEIGHT : Integer.parseInt(heightString.replaceAll("\\D+", ""));
     }
 
-    private void fetchParsedRows() {
+    private void fetchTableBrowserItems() {
 
         if (currentState.getSelectedIds().isEmpty()) {
-            facebookStyleView.displaySelectedItems();
+            widgetItemsView.displayItems();
             return;
         }
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
-        FormatRowsRequest formatRowsRequest = new FormatRowsRequest();
-        formatRowsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
-        formatRowsRequest.setIdsShouldBeFormatted(currentState.getIds());
-        formatRowsRequest.setCollectionName(tableBrowserConfig.getCollectionRefConfig().getName());
-        formatRowsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
-        formatRowsRequest.setDefaultSortCriteriaConfig(tableBrowserConfig.getDefaultSortCriteriaConfig());
-        Command command = new Command("fetchParsedRows", getName(), formatRowsRequest);
+        WidgetItemsRequest widgetItemsRequest = new WidgetItemsRequest();
+        widgetItemsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
+        widgetItemsRequest.setSelectedIds(currentState.getIds());
+        widgetItemsRequest.setCollectionName(tableBrowserConfig.getCollectionRefConfig().getName());
+        widgetItemsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
+        widgetItemsRequest.setDefaultSortCriteriaConfig(tableBrowserConfig.getDefaultSortCriteriaConfig());
+        widgetItemsRequest.setSelectionFiltersConfig(tableBrowserConfig.getSelectionFiltersConfig());
+        Command command = new Command("fetchWidgetItems", "widget-items-handler", widgetItemsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
-                ParsedRowsList list = (ParsedRowsList) result;
-                ArrayList<TableBrowserItem> items = list.getFilteredRows();
-                if (isSingleChoice()) {
-                    facebookStyleView.setChosenItems(items);
-                } else {
-                    facebookStyleView.getChosenItems().addAll(items);
-                }
-                facebookStyleView.displaySelectedItems();
-                temporaryStateOfSelectedIds.clear();
+                WidgetItemsResponse list = (WidgetItemsResponse) result;
+                LinkedHashMap<Id, String> listValues = list.getListValues();
+                handleItemsForMainContent(listValues);
+
             }
 
             @Override
@@ -415,6 +411,17 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
                 GWT.log("something was going wrong while obtaining rows");
             }
         });
+
+    }
+
+    private void handleItemsForMainContent(LinkedHashMap<Id, String> listValues) {
+        if (isSingleChoice()) {
+            widgetItemsView.setListValues(listValues);
+        } else {
+            widgetItemsView.getListValues().putAll(listValues);
+        }
+        widgetItemsView.displayItems();
+        temporaryStateOfSelectedIds.clear();
 
     }
 
@@ -430,17 +437,13 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
                 RepresentationResponse response = (RepresentationResponse) result;
                 Id id = response.getId();
                 String representation = response.getRepresentation();
-                TableBrowserItem updatedItem = new TableBrowserItem(id, representation);
                 if (isEditable()) {
-
-                    facebookStyleView.updateHyperlinkItem(updatedItem);
+                    widgetItemsView.updateHyperlinkItem(id, representation);
                 } else {
-                    SimpleNoneEditablePanelWithHyperlinks noneEditablePanel = (SimpleNoneEditablePanelWithHyperlinks) impl;
+                    HyperlinkNoneEditablePanel noneEditablePanel = (HyperlinkNoneEditablePanel) impl;
                     noneEditablePanel.cleanPanel();
-                    List<TableBrowserItem> items = getUpdatedHyperlinks(updatedItem);
-                    for (TableBrowserItem item : items) {
-                        displayHyperlink(item, noneEditablePanel);
-                    }
+                    LinkedHashMap<Id, String> listValues = getUpdatedHyperlinks(id, representation);
+                    noneEditablePanel.displayHyperlinks(listValues);
                 }
 
             }
@@ -452,22 +455,12 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         });
     }
 
-    private void displayHyperlink(TableBrowserItem item, SimpleNoneEditablePanelWithHyperlinks noneEditablePanel) {
-        Id itemId = item.getId();
-        String itemRepresentation = item.getStringRepresentation();
-        noneEditablePanel.displayHyperlink(itemId, itemRepresentation);
+    private LinkedHashMap<Id, String> getUpdatedHyperlinks(Id id, String representation) {
+        TableBrowserState state = getInitialData();
+        LinkedHashMap<Id, String> listValues = state.getListValues();
+        listValues.put(id, representation);
+        return listValues;
     }
 
-    private List<TableBrowserItem> getUpdatedHyperlinks(TableBrowserItem updatedItem) {
-        TableBrowserState state = getInitialData();
-        Id idToFind = updatedItem.getId();
-        List<TableBrowserItem> items = state.getTableBrowserItems();
-        for (TableBrowserItem item : items) {
-            if (idToFind.equals(item.getId())) {
-                int index = items.indexOf(item);
-                items.set(index, updatedItem);
-            }
-        }
-        return items;
-    }
+
 }

@@ -75,9 +75,9 @@ public class FilterBuilder {
         prepareInitialOrSelectionFilters(initialFiltersConfig, excludedInitialFilterNames, filters);
     }
 
-    public static void prepareSelectionFilters(SelectionFiltersConfig selectionFiltersConfig, List<String> excludedInitialFilterNames,
+    public static boolean prepareSelectionFilters(SelectionFiltersConfig selectionFiltersConfig, List<String> excludedInitialFilterNames,
                                                List<Filter> filters) {
-        prepareInitialOrSelectionFilters(selectionFiltersConfig, excludedInitialFilterNames, filters);
+       return prepareInitialOrSelectionFilters(selectionFiltersConfig, excludedInitialFilterNames, filters);
     }
 
 
@@ -111,7 +111,7 @@ public class FilterBuilder {
                 rangeStartCalendar.get(Calendar.DAY_OF_MONTH));
         Value rangeStartTimeValue = new TimelessDateValue(rangeStartTimelessDate);
         filter.addCriterion(0, rangeStartTimeValue);
-        if(filterValues.size() == 1) {
+        if (filterValues.size() == 1) {
             filter.addCriterion(1, rangeStartTimeValue);
         } else {
             String rangeEndFilterValue = filterValues.get(0);
@@ -255,20 +255,22 @@ public class FilterBuilder {
 
     }
 
-    private static void prepareInitialOrSelectionFilters(AbstractFiltersConfig abstractFiltersConfig, List<String> excludedInitialFilterNames,
+    private static boolean prepareInitialOrSelectionFilters(AbstractFiltersConfig abstractFiltersConfig, List<String> excludedInitialFilterNames,
                                                          List<Filter> filters) {
         if (abstractFiltersConfig == null) {
-            return;
+            return false;
         }
         List<AbstractFilterConfig> abstractFilterConfigs = abstractFiltersConfig.getAbstractFilterConfigs();
-        for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
-            String filterName = abstractFilterConfig.getName();
-            if (excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)) {
-                Filter initialFilter = prepareInitialOrSelectionFilter(abstractFilterConfig);
-                filters.add(initialFilter);
-            }
+        if (abstractFilterConfigs != null && !abstractFilterConfigs.isEmpty()) {
+            for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
+                String filterName = abstractFilterConfig.getName();
+                if (excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)) {
+                    Filter initialFilter = prepareInitialOrSelectionFilter(abstractFilterConfig);
+                    filters.add(initialFilter);
+                }
+            } return true;
         }
-
+        return false;
     }
 
     private static Filter prepareInitialOrSelectionFilter(AbstractFilterConfig abstractFilterConfig) {

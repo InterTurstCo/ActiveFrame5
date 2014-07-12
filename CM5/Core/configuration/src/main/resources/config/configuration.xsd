@@ -1677,11 +1677,13 @@
     </xs:complexType>
 
     <xs:complexType name="selectionFiltersType">
-        <xs:sequence maxOccurs="unbounded" minOccurs="1">
+        <xs:sequence maxOccurs="unbounded" minOccurs="0">
             <xs:element type="con:selectionFilterType" name="selection-filter"  maxOccurs="unbounded" minOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
-
+        <xs:attribute name="row-limit" use="optional" type="xs:integer"/>
+        <xs:attribute name="max-tooltip-width" use="optional" type="xs:string"/>
+        <xs:attribute name="max-tooltip-height" use="optional" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="selectionFilterType">
         <xs:sequence>

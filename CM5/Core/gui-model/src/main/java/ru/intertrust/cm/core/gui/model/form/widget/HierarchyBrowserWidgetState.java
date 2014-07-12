@@ -19,6 +19,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     private Map<String, NodeCollectionDefConfig> collectionNameNodeMap;
     private RootNodeLinkConfig rootNodeLinkConfig;
     private ArrayList<Id> selectedIds;
+    private boolean shouldDrawTooltipButton;
     public HierarchyBrowserConfig getHierarchyBrowserConfig() {
         return hierarchyBrowserConfig;
     }
@@ -54,13 +55,16 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         this.selectedIds = selectedIds;
     }
 
+    public boolean shouldDrawTooltipButton() {
+        return shouldDrawTooltipButton;
+    }
+
+    public void setShouldDrawTooltipButton(boolean shouldDrawTooltipButton) {
+        this.shouldDrawTooltipButton = shouldDrawTooltipButton;
+    }
+
     @Override
     public ArrayList<Id> getIds() {
-      /*  ArrayList<Id> chosenIds = new ArrayList<Id>();
-        for (HierarchyBrowserItem item : chosenItems) {
-            chosenIds.add(item.getId());
-        }
-        return chosenIds;*/
         return selectedIds;
     }
 }

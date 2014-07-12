@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
@@ -9,7 +10,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.*;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -18,16 +18,16 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.DisplayValuesAsLinksConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -36,10 +36,9 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.*;
 
 @ComponentName("suggest-box")
-public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChangedEventHandler {
+public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
     private EventBus localEventBus = new SimpleEventBus();
     private SuggestBox suggestBox;
-    private boolean displayAsHyperlinks;
     private String selectionPattern;
     private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
     private LinkedHashMap<Id, String> stateListValues = new LinkedHashMap<>(); //used for temporary state
@@ -52,6 +51,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
 
     @Override
     public void setCurrentState(WidgetState currentState) {
+        initialData = currentState;
         final SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
         suggestBoxConfig = suggestBoxState.getSuggestBoxConfig();
 
@@ -83,13 +83,10 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     @Override
     protected SuggestBoxState createNewState() {
         SuggestBoxState state = new SuggestBoxState();
-        if (isEditable()) {
-            final SuggestPresenter presenter = (SuggestPresenter) impl;
-            state.setSelectedIds(new ArrayList<Id>(presenter.getSelectedKeys()));
-        } else {
+
             final SuggestBoxState initialState = getInitialData();
             state.setSelectedIds(initialState.getSelectedIds());
-        }
+
         return state;
     }
 
@@ -101,8 +98,8 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         SuggestBoxState initialState = getInitialData();
         SuggestBoxState state = new SuggestBoxState();
         state.setListValues(stateListValues);
-        SuggestPresenter presenter = (SuggestPresenter) impl;
-        state.setSelectedIds(new ArrayList<Id>(presenter.getSelectedKeys()));
+
+        state.setSelectedIds(initialState.getSelectedIds());
         state.getListValues().putAll(initialState.getListValues());
         state.setSingleChoice(initialState.isSingleChoice());
         state.setSuggestBoxConfig(initialState.getSuggestBoxConfig());
@@ -117,13 +114,12 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         SuggestBoxState suggestBoxState = (SuggestBoxState) state;
         commonInitialization(suggestBoxState);
         SelectionStyleConfig selectionStyleConfig = suggestBoxState.getSuggestBoxConfig().getSelectionStyleConfig();
-        SimpleNoneEditablePanelWithHyperlinks noneEditablePanel = new SimpleNoneEditablePanelWithHyperlinks(selectionStyleConfig, localEventBus);
+        HyperlinkNoneEditablePanel noneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus);
         return noneEditablePanel;
     }
 
     private void commonInitialization(SuggestBoxState state) {
         SuggestBoxConfig config = state.getSuggestBoxConfig();
-        displayAsHyperlinks = displayAsHyperlinks(config);
         selectionPattern = config.getSelectionPatternConfig().getValue();
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
     }
@@ -157,16 +153,16 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         });
     }
 
+    @Override
+    protected String getTooltipHandlerName() {
+        return "widget-items-handler";
+    }
+
     public class CmjDefaultSuggestionDisplay extends SuggestBox.DefaultSuggestionDisplay {
         public PopupPanel getSuggestionPopup() {
             return this.getPopupPanel();
         }
 
-    }
-
-    private boolean displayAsHyperlinks(SuggestBoxConfig config) {
-        DisplayValuesAsLinksConfig displayValuesAsLinksConfig = config.getDisplayValuesAsLinksConfig();
-        return displayValuesAsLinksConfig != null && displayValuesAsLinksConfig.isValue();
     }
 
     @Override
@@ -185,6 +181,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 Id id = selectedItem.getId();
                 presenter.insert(id, replacementString);
                 stateListValues.put(id, replacementString);
+                suggestBoxState.getSelectedIds().add(id);
                 SuggestBox sourceObject = (SuggestBox) event.getSource();
                 sourceObject.setText("");
                 sourceObject.setFocus(true);
@@ -210,18 +207,17 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
             final SuggestPresenter presenter = (SuggestPresenter) impl;
             presenter.initView(state, suggestBox);
         } else {
-            HashMap<Id, String> listValues = state.getListValues();
-            SimpleNoneEditablePanelWithHyperlinks noneEditablePanel = (SimpleNoneEditablePanelWithHyperlinks) impl;
+            LinkedHashMap<Id, String> listValues = state.getListValues();
+            HyperlinkNoneEditablePanel noneEditablePanel = (HyperlinkNoneEditablePanel) impl;
             noneEditablePanel.cleanPanel();
-            if (displayAsHyperlinks) {
-                for (Id id : listValues.keySet()) {
-                    noneEditablePanel.displayHyperlink(id, listValues.get(id));
-                }
+            if (isDisplayingAsHyperlink()) {
+                noneEditablePanel.displayHyperlinks(listValues);
             } else {
-                for (Id id : listValues.keySet()) {
-                    noneEditablePanel.displayItem(listValues.get(id));
-                }
+                noneEditablePanel.displayItems(listValues.values());
 
+            }
+            if(shouldDrawTooltipButton()){
+            noneEditablePanel.addShowTooltipLabel(new ShowTooltipHandler());
             }
         }
     }
@@ -236,7 +232,6 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 String name = suggestBoxConfig.getCollectionRefConfig().getName();
                 suggestionRequest.setCollectionName(name);
                 String dropDownPatternConfig = suggestBoxConfig.getDropdownPatternConfig().getValue();
-
                 suggestionRequest.setDropdownPattern(dropDownPatternConfig);
                 suggestionRequest.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
                 suggestionRequest.setText(request.getQuery());
@@ -351,24 +346,8 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
             return maxDropDownWidth;
         }
 
-        private void setMaxDropDownWidth(Integer maxDropDownWidth) {
-            this.maxDropDownWidth = maxDropDownWidth;
-        }
-
         private Integer getMaxDropDownHeight() {
             return maxDropDownHeight;
-        }
-
-        private void setMaxDropDownHeight(Integer maxDropDownHeight) {
-            this.maxDropDownHeight = maxDropDownHeight;
-        }
-
-        private int getNumberFromSizeString(String sizeString) {
-            if (sizeString == null || sizeString.equalsIgnoreCase("")) {
-                return 0;
-            }
-            int UnitPx = 2;
-            return Integer.parseInt(sizeString.substring(0, sizeString.length() - UnitPx));
         }
 
         public void initModel(final SuggestBoxState state) {
@@ -397,12 +376,17 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 final SelectedItemComposite itemComposite =
                         new SelectedItemComposite(listEntry.getKey(), listEntry.getValue());
                 itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
-                if (displayAsHyperlinks) {
+                if (isDisplayingAsHyperlink()) {
                     itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
                 }
                 super.add(itemComposite, container);
             }
-
+            if (shouldDrawTooltipButton()){
+                Button openTooltip = new Button("..");
+                openTooltip.setStyleName("tooltip-button");
+                openTooltip.addClickHandler(new ShowTooltipHandler());
+                super.add(openTooltip, container);
+            }
             super.add(suggestBox, container);
             if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
                 FocusPanel focusPanel = new FocusPanel();
@@ -414,9 +398,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 focusPanel.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        for (int i = selectedSuggestions.size() - 1; i >= 0; i--) {
-                            remove(i);
-                        }
+                        stateListValues.clear();
                         selectedSuggestions.clear();
 
                     }
@@ -428,7 +410,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         public void insert(final Id itemId, final String itemName) {
             final SelectedItemComposite itemComposite = new SelectedItemComposite(itemId, itemName);
             itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
-            if (displayAsHyperlinks) {
+            if (isDisplayingAsHyperlink()) {
                 itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
             }
             if (singleChoice) {
@@ -442,7 +424,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 }
             }
             selectedSuggestions.put(itemId, itemName);
-            final int index = container.getChildCount() - 1;
+            int index = shouldDrawTooltipButton() ? container.getChildCount() - 2 : container.getChildCount() - 1;
             super.insert(itemComposite, container, index, true);
 
         }
@@ -455,6 +437,8 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                     Id id = itemComposite.getItemId();
                     selectedSuggestions.remove(id);
                     stateListValues.remove(id);
+                    SuggestBoxState suggestBoxState = getInitialData();
+                    suggestBoxState.getIds().remove(id);
                     suggestBox.setFocus(true);
 
                 }
@@ -510,4 +494,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
 
         }
     }
+
+
+
 }

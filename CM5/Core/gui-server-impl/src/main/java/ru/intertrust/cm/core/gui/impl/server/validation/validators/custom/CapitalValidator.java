@@ -41,7 +41,7 @@ public class CapitalValidator implements ServerValidator {
         }
         if (dtoToValidate instanceof SuggestBoxState) {
             SuggestBoxState state = (SuggestBoxState)dtoToValidate;
-            ArrayList<Id> ids = state.getSelectedIds();
+            ArrayList<Id> ids = state.getIds();
             if (ids != null && ids.size() == 1) {
                 Id cityId = ids.get(0);
                 CrudService crudService = getCrudService();

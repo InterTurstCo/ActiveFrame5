@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
@@ -43,7 +43,6 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         state.setSuggestBoxConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
-
         if (!selectedIds.isEmpty()) {
             DefaultSortCriteriaConfig sortCriteriaConfig = widgetConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
@@ -52,59 +51,29 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             Set<Id> idsIncluded = new HashSet<Id>(selectedIds);
             Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, FilterBuilder.INCLUDED_IDS_FILTER);
             filters.add(idsIncludedFilter);
-            IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters);
-            int selectedIdsNumber = selectedIds.size();
-            int collectionItemsNumber = collection.size();
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            if (selectedIdsNumber == collectionItemsNumber || (selectedIdsNumber != collectionItemsNumber
-                    && selectionFiltersConfig != null)) {
-                FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
-                collection = collectionsService.findCollection(collectionName, sortOrder, filters);
-                objects = generateIdRepresentationMapFromCollection(widgetConfig, collection);
-            } else {
-                objects = generateIdRepresentationMapFromCollectionAndIds(widgetConfig, collection, selectedIds);
-            }
-            SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
-            boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
-            boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
-            state.setSingleChoice(singleChoice);
-            state.setListValues(objects);
-        } else {
-            SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
-            boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
-            state.setSingleChoice(singleChoiceFromConfig);
+            boolean hasSelectionFilters = FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+            int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+            boolean noLimit = limit == 0;
+            IdentifiableObjectCollection collection = noLimit
+                    ? collectionsService.findCollection(collectionName, sortOrder, filters)
+                    : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
+            SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
+            FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
+            objects = (!hasSelectionFilters && collection.size() != selectedIds.size() && noLimit)
+                    ? widgetItemsHandler.generateWidgetItemsFromCollectionAndIds(selectionPatternConfig, formattingConfig, collection, selectedIds)
+                    : widgetItemsHandler.generateWidgetItemsFromCollection(selectionPatternConfig,
+                    formattingConfig, collection);
         }
+        SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
+        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
+        state.setSelectedIds(new LinkedHashSet<Id>(selectedIds));
+        state.setSingleChoice(singleChoice);
+        state.setListValues(objects);
+        boolean displayingAsHyperlinks = WidgetUtil.isDisplayingAsHyperlinks(widgetConfig.getDisplayValuesAsLinksConfig());
+        state.setDisplayingAsHyperlinks(displayingAsHyperlinks);
         return state;
-    }
-
-    private LinkedHashMap<Id, String> generateIdRepresentationMapFromCollection(SuggestBoxConfig widgetConfig,
-                                                                                IdentifiableObjectCollection collection) {
-        LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
-        SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
-        Matcher matcher = formatHandler.pattern.matcher(selectionPatternConfig.getValue());
-        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
-        for (IdentifiableObject domainObject : collection) {
-            objects.put(domainObject.getId(), formatHandler.format(domainObject, matcher, formattingConfig));
-        }
-        return objects;
-    }
-
-    private LinkedHashMap<Id, String> generateIdRepresentationMapFromCollectionAndIds(SuggestBoxConfig widgetConfig,
-                                                                                      IdentifiableObjectCollection collection,
-                                                                                      List<Id> selectedIds) {
-        LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
-        SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
-        Matcher matcher = formatHandler.pattern.matcher(selectionPatternConfig.getValue());
-        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
-        for (IdentifiableObject domainObject : collection) {
-            Id id = domainObject.getId();
-            objects.put(id, formatHandler.format(domainObject, matcher, formattingConfig));
-            selectedIds.remove(id);
-        }
-        for (Id selectedId : selectedIds) {
-            objects.put(selectedId, WidgetConstants.REPRESENTATION_STUB);
-        }
-        return objects;
     }
 
     public SuggestionList obtainSuggestions(Dto inputParams) {

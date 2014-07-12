@@ -8,6 +8,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.RootNodeLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.*;
@@ -21,7 +22,7 @@ public class HierarchyBrowserMainPopup {
 
     public static final int DEFAULT_WIDTH = 1000;
     public static final int DEFAULT_HEIGHT = 400;
-    private HierarchyBrowserFacebookStyleView popupChosenContent;
+    private HierarchyBrowserItemsView popupChosenContent;
     private HorizontalPanel nodesSection;
     private DialogBox dialogBox;
     private int popupWidth;
@@ -38,13 +39,15 @@ public class HierarchyBrowserMainPopup {
     private Button cancelButton;
     private double nodeSectionWidth;
     private RootNodeLinkConfig rootNodeLinkConfig;
+    private boolean shouldDrawTooltipButton;
     public HierarchyBrowserMainPopup(EventBus eventBus, ArrayList<HierarchyBrowserItem> chosenItems,
                                      int popupWidth, int popupHeight, SelectionStyleConfig selectionStyleConfig,
-                                     boolean displayAsHyperlinks, RootNodeLinkConfig rootNodeLinkConfig) {
+                                     boolean displayAsHyperlinks, RootNodeLinkConfig rootNodeLinkConfig, boolean shouldDrawTooltipButton) {
         this.eventBus = eventBus;
         this.chosenItems = chosenItems;
         this.selectionStyleConfig = selectionStyleConfig;
         this.displayAsHyperlinks = displayAsHyperlinks;
+        this.shouldDrawTooltipButton = shouldDrawTooltipButton;
         containerMap = new HashMap<String, HierarchyBrowserNodeView>();
         nodeTypes = new ArrayList<String>();
         this.rootNodeLinkConfig = rootNodeLinkConfig;
@@ -79,7 +82,7 @@ public class HierarchyBrowserMainPopup {
         dialogBox.hide();
     }
 
-    private VerticalPanel initPopup(List<Id> selectedIds) {
+    private VerticalPanel initPopup() {
         VerticalPanel root = new VerticalPanel();
 
         HorizontalPanel linksAndNodesSection = new HorizontalPanel();
@@ -87,12 +90,11 @@ public class HierarchyBrowserMainPopup {
         VerticalPanel linksSection = new VerticalPanel();
         linksSection.setWidth(0.1 * popupWidth + "px");
 
-        popupChosenContent = new HierarchyBrowserFacebookStyleView(selectionStyleConfig, eventBus, displayAsHyperlinks);
+        popupChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         popupChosenContent.asWidget().setHeight(0.1 * popupHeight + "px");
         popupChosenContent.asWidget().addStyleName("popup-chosen-content");
         ScrollPanel scrollPanel = new ScrollPanel();
         scrollPanel.addStyleName("node-section-scroll");
-//        scrollPanel.getElement().getStyle().setOverflowX(Style.Overflow.SCROLL);
         nodesSection = new HorizontalPanel();
         nodeSectionWidth = 0.90 * popupWidth;
         scrollPanel.setWidth(nodeSectionWidth + "px");
@@ -107,7 +109,6 @@ public class HierarchyBrowserMainPopup {
         root.add(buttonsPanel);
 
         root.setWidth(popupWidth + "px");
-      //  root.addStyleName("popup-body");
         root.getElement().getStyle().setMarginRight(10, Style.Unit.PX);
         return root;
     }
@@ -137,8 +138,16 @@ public class HierarchyBrowserMainPopup {
         dialogBox.removeStyleName("gwt-DialogBox ");
         dialogBox.addStyleName("popup-body");
         dialogBox.setModal(true);
-        dialogBox.add(initPopup(selectedIds));
+        dialogBox.add(initPopup());
         popupChosenContent.handleAddingChosenItems(chosenItems, selectedIds);
+        if(shouldDrawTooltipButton) {
+            popupChosenContent.addShowTooltipLabel(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                  eventBus.fireEvent(new HierarchyBrowserShowTooltipEvent(popupChosenContent));
+                }
+            });
+        }
         dialogBox.setHeight(popupHeight + "px");
         dialogBox.setWidth(popupWidth + "px");
         dialogBox.center();

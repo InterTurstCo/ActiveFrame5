@@ -15,7 +15,7 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  * To change this template use File | Settings | File Templates.
  */
 @Root(name = "suggest-box")
-public class SuggestBoxConfig extends WidgetConfig implements Dto {
+public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
 
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;

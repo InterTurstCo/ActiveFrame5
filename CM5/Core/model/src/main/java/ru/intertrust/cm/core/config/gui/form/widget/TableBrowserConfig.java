@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
  *         Time: 11:40
  */
 @Root(name = "table-browser")
-public class TableBrowserConfig extends WidgetConfig {
+public class TableBrowserConfig extends LinkEditingWidgetConfig {
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
 

@@ -19,6 +19,7 @@ public class AbstractNoneEditablePanel extends Composite {
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
+        mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
         initWidget(mainBoxPanel);
 
     }

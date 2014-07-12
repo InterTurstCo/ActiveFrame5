@@ -5,7 +5,6 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -13,19 +12,11 @@ import java.util.Set;
  *         Date: 06.11.13
  *         Time: 16:15
  */
-public class TableBrowserState extends LinkEditingWidgetState {
-    private ArrayList<TableBrowserItem> tableBrowserItems;
+public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
+
     private LinkedHashMap<String, String> domainFieldOnColumnNameMap;
     private TableBrowserConfig tableBrowserConfig;
     private Set<Id> selectedIds;
-
-    public ArrayList<TableBrowserItem> getTableBrowserItems() {
-        return tableBrowserItems;
-    }
-
-    public void setTableBrowserItems(ArrayList<TableBrowserItem> tableBrowserItems) {
-        this.tableBrowserItems = tableBrowserItems;
-    }
 
     public TableBrowserConfig getTableBrowserConfig() {
         return tableBrowserConfig;
@@ -54,5 +45,10 @@ public class TableBrowserState extends LinkEditingWidgetState {
 
     public Set<Id> getSelectedIds() {
         return selectedIds;
+    }
+
+    @Override
+    public TableBrowserConfig getWidgetConfig() {
+        return tableBrowserConfig;
     }
 }

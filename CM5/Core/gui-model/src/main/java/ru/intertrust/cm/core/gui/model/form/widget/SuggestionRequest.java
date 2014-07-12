@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
@@ -27,7 +26,8 @@ public class SuggestionRequest implements Dto {
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     private LinkedHashSet<Id> excludeIds = new LinkedHashSet<Id>();
     private FormattingConfig formattingConfig;
-
+    private SelectionFiltersConfig selectionFiltersConfig;
+    private boolean tooltipContent;
     public String getText() {
         return text;
     }
@@ -100,4 +100,19 @@ public class SuggestionRequest implements Dto {
         this.formattingConfig = formattingConfig;
     }
 
+    public SelectionFiltersConfig getSelectionFiltersConfig() {
+        return selectionFiltersConfig;
+    }
+
+    public void setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
+        this.selectionFiltersConfig = selectionFiltersConfig;
+    }
+
+    public boolean isTooltipContent() {
+        return tooltipContent;
+    }
+
+    public void setTooltipContent(boolean tooltipContent) {
+        this.tooltipContent = tooltipContent;
+    }
 }

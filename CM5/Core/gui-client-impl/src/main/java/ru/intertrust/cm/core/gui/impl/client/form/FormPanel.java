@@ -1,42 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.client.form;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTMLTable;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.TabPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-
-import ru.intertrust.cm.core.config.gui.form.BodyConfig;
-import ru.intertrust.cm.core.config.gui.form.BookmarkListConfig;
-import ru.intertrust.cm.core.config.gui.form.CellConfig;
-import ru.intertrust.cm.core.config.gui.form.HeaderConfig;
-import ru.intertrust.cm.core.config.gui.form.HidingGroupListConfig;
-import ru.intertrust.cm.core.config.gui.form.LayoutConfig;
-import ru.intertrust.cm.core.config.gui.form.MarkupConfig;
-import ru.intertrust.cm.core.config.gui.form.RowConfig;
-import ru.intertrust.cm.core.config.gui.form.SingleEntryGroupListConfig;
-import ru.intertrust.cm.core.config.gui.form.TabConfig;
-import ru.intertrust.cm.core.config.gui.form.TabGroupConfig;
-import ru.intertrust.cm.core.config.gui.form.TabGroupListConfig;
-import ru.intertrust.cm.core.config.gui.form.TableLayoutConfig;
+import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -44,8 +21,11 @@ import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -202,6 +182,7 @@ public class FormPanel implements IsWidget {
             final HistoryManager historyManager = Application.getInstance().getHistoryManager();
             final String indexAsStr = historyManager.getValue(TAB_KEY);
             final int selectedTab = StringUtil.integerFromString(indexAsStr, DEFAULT_TAB);
+            //TODO java.lang.IndexOutOfBoundsException for hyperlinks when form is opened in Popup
             bodyTabPanel.selectTab(selectedTab);
             bodyTabPanel.getWidget(selectedTab).getParent().getElement().getParentElement()
                     .addClassName("gwt-TabLayoutPanel-wrapper");

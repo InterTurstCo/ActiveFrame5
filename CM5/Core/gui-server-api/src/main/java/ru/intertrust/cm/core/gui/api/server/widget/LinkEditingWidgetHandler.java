@@ -24,6 +24,9 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
     @Autowired
     protected ConfigurationService configurationService;
 
+    @Autowired
+    protected WidgetItemsHandler widgetItemsHandler;
+
     @Override
     public Value getValue(WidgetState state) {
         ArrayList<Id> ids = ((LinkEditingWidgetState) state).getIds();

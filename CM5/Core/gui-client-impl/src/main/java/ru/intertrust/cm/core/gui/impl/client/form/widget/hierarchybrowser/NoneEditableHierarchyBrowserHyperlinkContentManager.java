@@ -6,7 +6,6 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.HierarchyBrowserNoneEditablePanelWithHyperlinks;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
@@ -23,11 +22,11 @@ import java.util.Map;
  *         Time: 13:15
  */
 public class NoneEditableHierarchyBrowserHyperlinkContentManager extends HierarchyBrowserHyperlinkContentManager{
-    private HierarchyBrowserNoneEditablePanelWithHyperlinks panel;
+    private HierarchyBrowserNoneEditablePanel panel;
     private List<HierarchyBrowserItem> items;
 
     public NoneEditableHierarchyBrowserHyperlinkContentManager(Id id, String collectionName,
-           HierarchyBrowserConfig config, HierarchyBrowserNoneEditablePanelWithHyperlinks panel,
+           HierarchyBrowserConfig config, HierarchyBrowserNoneEditablePanel panel,
            List<HierarchyBrowserItem> items, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
         super(id, collectionName, config, collectionNameNodeMap);
         this.panel = panel;
@@ -52,9 +51,7 @@ public class NoneEditableHierarchyBrowserHyperlinkContentManager extends Hierarc
 
                 panel.cleanPanel();
                 List<HierarchyBrowserItem> browserItems = getUpdatedHyperlinks(updatedItem, items);
-                for (HierarchyBrowserItem item : browserItems) {
-                    panel.displayHyperlink(item);
-                }
+                panel.displayHyperlinks(browserItems);
 
             }
 

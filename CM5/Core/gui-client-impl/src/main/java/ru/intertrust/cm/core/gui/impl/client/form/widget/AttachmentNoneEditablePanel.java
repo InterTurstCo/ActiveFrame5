@@ -3,12 +3,13 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
-
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 /**
- * Created by User on 28.03.2014.
+ * @author Yaroslav Bondarchuk
+ *         Date: 03.05.14
+ *         Time: 13:15
  */
 public class AttachmentNoneEditablePanel extends AbstractNoneEditablePanel {
     public AttachmentNoneEditablePanel(SelectionStyleConfig selectionStyleConfig) {

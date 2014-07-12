@@ -4,6 +4,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -11,7 +12,7 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
  *         Time: 12:05 PM
  */
 @Root(name = "linked-domain-object-hyperlink")
-public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
+public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
 
     @Element(name = "linked-form")
     private LinkedFormConfig linkedFormConfig;
@@ -54,6 +55,18 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
 
     public FormattingConfig getFormattingConfig() {
         return formattingConfig;
+    }
+
+    @Override
+    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+        return null;
+    }
+
+    @Override
+    public SelectionPatternConfig getSelectionPatternConfig() {
+        SelectionPatternConfig selectionPatternConfig = new SelectionPatternConfig();
+        selectionPatternConfig.setValue(patternConfig.getValue());
+        return selectionPatternConfig;
     }
 
     public void setFormattingConfig(FormattingConfig formattingConfig) {

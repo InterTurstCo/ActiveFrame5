@@ -76,14 +76,7 @@ public class HierarchyBrowserItem implements Dto {
 
         HierarchyBrowserItem that = (HierarchyBrowserItem) o;
 
-        if (chosen != that.chosen) {
-            return false;
-        }
         if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-        if (nodeCollectionName != null ? !nodeCollectionName.equals(that.nodeCollectionName) : that.
-                nodeCollectionName != null) {
             return false;
         }
         if (stringRepresentation != null ? !stringRepresentation.equals(that.stringRepresentation) : that.
@@ -98,8 +91,6 @@ public class HierarchyBrowserItem implements Dto {
     public int hashCode() {
         int result = stringRepresentation != null ? stringRepresentation.hashCode() : 0;
         result = 31 * result + (id != null ? id.hashCode() : 0);
-        result = 31 * result + (nodeCollectionName != null ? nodeCollectionName.hashCode() : 0);
-        result = 31 * result + (chosen ? 1 : 0);
         return result;
     }
 }

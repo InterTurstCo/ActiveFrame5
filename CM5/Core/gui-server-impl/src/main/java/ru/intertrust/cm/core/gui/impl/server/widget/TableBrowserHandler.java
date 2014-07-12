@@ -9,20 +9,17 @@ import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.FormatRowsRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.ParsedRowsList;
-import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
 
 import java.util.*;
-import java.util.regex.Matcher;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -43,7 +40,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         Set<Id> selectedIdsSet = new LinkedHashSet<>(selectedIds);
         state.setSelectedIds(selectedIdsSet);
-        ArrayList<TableBrowserItem> items = new ArrayList<>(0);
+        LinkedHashMap<Id, String> listValues = null;
         if (!selectedIds.isEmpty()) {
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
             Filter includeIds = FilterBuilder.prepareFilter(selectedIdsSet, FilterBuilder.INCLUDED_IDS_FILTER);
@@ -51,22 +48,24 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             filters.add(includeIds);
             DefaultSortCriteriaConfig defaultSortCriteriaConfig = widgetConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
-            IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters);
-            int selectedIdsNumber = selectedIds.size();
-            int collectionItemsNumber = collection.size();
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            if (selectedIdsNumber == collectionItemsNumber || (selectedIdsNumber != collectionItemsNumber
-                    && selectionFiltersConfig != null)) {
-                FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
-                collection = collectionsService.findCollection(collectionName, sortOrder, filters);
-
-                items = generateTableBrowserItemsFromCollection(widgetConfig, collection);
-            } else {
-                items = generateTableBrowserItemsFromCollectionAndIds(widgetConfig,
-                        collection, new ArrayList<Id>(selectedIds));
-            }
+            boolean hasSelectionFilters = FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+            int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+            boolean noLimit = limit == 0;
+            IdentifiableObjectCollection collection = noLimit
+                    ? collectionsService.findCollection(collectionName, sortOrder, filters)
+                    : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
+            SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
+            FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
+            listValues = (!hasSelectionFilters && collection.size() != selectedIds.size() && noLimit)
+                    ? widgetItemsHandler.generateWidgetItemsFromCollectionAndIds(selectionPatternConfig, formattingConfig, collection, selectedIds)
+                    : widgetItemsHandler.generateWidgetItemsFromCollection(selectionPatternConfig,
+                    formattingConfig, collection);
+            state.setListValues(listValues);
+            boolean displayingAsHyperlinks = WidgetUtil.isDisplayingAsHyperlinks(widgetConfig.getDisplayValuesAsLinksConfig());
+            state.setDisplayingAsHyperlinks(displayingAsHyperlinks);
         }
-        state.setTableBrowserItems(items);
+
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
@@ -75,68 +74,41 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         return state;
     }
 
-    private ArrayList<TableBrowserItem> generateTableBrowserItemsFromCollection(TableBrowserConfig widgetConfig,
-                                                                                IdentifiableObjectCollection collection) {
-        ArrayList<TableBrowserItem> items = new ArrayList<TableBrowserItem>();
-        SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
-        Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
-        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
-        for (IdentifiableObject collectionObject : collection) {
-            TableBrowserItem item = new TableBrowserItem();
-            item.setId(collectionObject.getId());
-            item.setStringRepresentation(formatHandler.format(collectionObject, matcher, formattingConfig));
-            items.add(item);
-        }
-        return items;
-    }
-
-    private ArrayList<TableBrowserItem> generateTableBrowserItemsFromCollectionAndIds(TableBrowserConfig widgetConfig,
-                                                                                      IdentifiableObjectCollection collection, List<Id> selectedIds) {
-        ArrayList<TableBrowserItem> items = new ArrayList<TableBrowserItem>();
-        SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
-        Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
-        FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
-        for (IdentifiableObject collectionObject : collection) {
-            TableBrowserItem item = new TableBrowserItem();
-            Id id = collectionObject.getId();
-            item.setId(id);
-            selectedIds.remove(id);
-            item.setStringRepresentation(formatHandler.format(collectionObject, matcher, formattingConfig));
-            items.add(item);
-        }
-        for (Id selectedId : selectedIds) {
-            TableBrowserItem item = new TableBrowserItem();
-            item.setId(selectedId);
-            item.setStringRepresentation(WidgetConstants.REPRESENTATION_STUB);
-            items.add(item);
-        }
-        return items;
-    }
-
-
-    public ParsedRowsList fetchParsedRows(Dto inputParams) {
-        FormatRowsRequest formatRowsRequest = (FormatRowsRequest) inputParams;
-        List<Id> idsToParse = formatRowsRequest.getIdsShouldBeFormatted();
-        Filter includeIds = FilterBuilder.prepareFilter(new HashSet<Id>(idsToParse), FilterBuilder.INCLUDED_IDS_FILTER);
+    public WidgetItemsResponse fetchTableBrowserItems(Dto inputParams) {
+        WidgetItemsRequest widgetItemsRequest = (WidgetItemsRequest) inputParams;
+        List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
+        Filter includeIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);
         List<Filter> filters = new ArrayList<>();
         filters.add(includeIds);
-        String collectionName = formatRowsRequest.getCollectionName();
-        DefaultSortCriteriaConfig defaultSortCriteriaConfig = formatRowsRequest.getDefaultSortCriteriaConfig();
+        String collectionName = widgetItemsRequest.getCollectionName();
+        DefaultSortCriteriaConfig defaultSortCriteriaConfig = widgetItemsRequest.getDefaultSortCriteriaConfig();
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
-        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters);
-
-        Matcher selectionMatcher = formatHandler.pattern.matcher(formatRowsRequest.getSelectionPattern());
-        ArrayList<TableBrowserItem> items = new ArrayList<>();
-        FormattingConfig formattingConfig = formatRowsRequest.getFormattingConfig();
-        for (IdentifiableObject collectionObject : collection) {
-            TableBrowserItem item = new TableBrowserItem();
-            item.setId(collectionObject.getId());
-            item.setStringRepresentation(formatHandler.format(collectionObject, selectionMatcher, formattingConfig));
-            items.add(item);
+        SelectionFiltersConfig selectionFiltersConfig = widgetItemsRequest.getSelectionFiltersConfig();
+        boolean selectionFiltersWereApplied = FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        IdentifiableObjectCollection collection = null;
+        boolean hasLostItems = false;
+        boolean noLimit = limit == 0;
+        if (noLimit) {
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
+            hasLostItems = collection.size() != selectedIds.size();
+        } else {
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
         }
-        ParsedRowsList parsedRows = new ParsedRowsList();
-        parsedRows.setFilteredRows(items);
-        return parsedRows;
+        if (selectionFiltersWereApplied || !noLimit) {
+            hasLostItems = false;
+        }
+        SelectionPatternConfig selectionPatternConfig = new SelectionPatternConfig();
+        selectionPatternConfig.setValue(widgetItemsRequest.getSelectionPattern());
+        FormattingConfig formattingConfig = widgetItemsRequest.getFormattingConfig();
+        LinkedHashMap<Id, String> listValues = hasLostItems
+                ? widgetItemsHandler.generateWidgetItemsFromCollectionAndIds(selectionPatternConfig, formattingConfig, collection, selectedIds)
+                : widgetItemsHandler.generateWidgetItemsFromCollection(selectionPatternConfig, formattingConfig, collection);
+        WidgetItemsResponse response = new WidgetItemsResponse();
+        response.setListValues(listValues);
+
+        return response;
     }
+
 
 }

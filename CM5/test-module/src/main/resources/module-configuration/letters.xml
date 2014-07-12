@@ -266,10 +266,8 @@
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
-                    <selection-filters>
-                       <selection-filter name="byName">
-                          <param name="0" value="Организация 1"/>
-                       </selection-filter>
+                    <selection-filters row-limit="1">
+
                     </selection-filters>
                     <node-collection-def collection="Departments" parent-filter="byOrganization" domain-object-type="Department"  >
                         <!-- название фильтра по тексту, введённому пользователем -->
@@ -278,7 +276,9 @@
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
+                        <selection-filters row-limit="1">
 
+                        </selection-filters>
                     </node-collection-def>
                     <node-collection-def collection="OrganizationsDepartmentsEmployees" parent-filter="byDepAndOrg" domain-object-type="Employee" >
                         <!-- название фильтра по тексту, введённому пользователем -->
@@ -286,6 +286,9 @@
                         <input-text-filter name="byNameAndPosition"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name} {position}"/>
+                        <selection-filters row-limit="1">
+
+                        </selection-filters>
                     </node-collection-def>
                 </node-collection-def>
 
@@ -526,10 +529,8 @@
                     </date-format>
                 </formatting>
                 <collection-ref name="Departments"/>
-                <selection-filters>
-                    <selection-filter name="byName">
-                        <param name="0" value="Подразделение 4"/>
-                    </selection-filter>
+                <selection-filters row-limit="1">
+
                 </selection-filters>
             </linked-domain-object-hyperlink>
         </widget-config>

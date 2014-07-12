@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -27,11 +29,6 @@ public abstract class WidgetHandler implements ComponentHandler {
     protected ConfigurationService configurationService;
     @Autowired
     protected FormatHandler formatHandler;
-/*
-
-
-    public static final String FIELD_PLACEHOLDER_PATTERN = "\\{\\w+\\}";
-    public static final Pattern pattern = Pattern.compile(FIELD_PLACEHOLDER_PATTERN);*/
 
     public abstract <T extends WidgetState> T getInitialState(WidgetContext context);
 
@@ -46,39 +43,6 @@ public abstract class WidgetHandler implements ComponentHandler {
         }
         return displayValues;
     }
-
-   /* protected String format(DomainObject domainObject, Matcher matcher) {
-        return format((IdentifiableObject) domainObject, matcher);
-    }
-
-    protected String format(IdentifiableObject identifiableObject, Matcher matcher) {
-
-        StringBuffer replacement = new StringBuffer();
-
-        while (matcher.find()) {
-            String group = matcher.group();
-            String fieldName = group.substring(1, group.length() - 1);
-
-            Value value = identifiableObject.getValue(fieldName);
-            String displayValue = "";
-            if (value != null) {
-                Object primitiveValue = value.get();
-                if (primitiveValue == null) {
-                    if (value instanceof LongValue || value instanceof DecimalValue) {
-                        displayValue = "0";
-                    }
-                } else {
-                    displayValue = primitiveValue.toString();
-                }
-            }
-            matcher.appendReplacement(replacement, displayValue);
-        }
-
-
-        matcher.appendTail(replacement);
-        matcher.reset();
-        return replacement.toString();
-    }*/
 
     protected void appendDisplayMappings(List<DomainObject> listToDisplay, String displayPattern,
                                          Map<Id, String> idDisplayMapping) {

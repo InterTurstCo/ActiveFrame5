@@ -9,11 +9,11 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -24,7 +24,7 @@ public class HierarchyBrowserView extends Composite {
     public static final String DEFAULT_WIDTH = "400px";
     public static final String DEFAULT_HEIGHT = "150px";
     private static final String MIN_HEIGHT = "20px";
-    private HierarchyBrowserFacebookStyleView widgetChosenContent;
+    private HierarchyBrowserItemsView widgetChosenContent;
     private ArrayList<HierarchyBrowserItem> chosenItems;
     private DockPanel widgetContainer;
     private FocusPanel openPopupButton;
@@ -33,11 +33,14 @@ public class HierarchyBrowserView extends Composite {
     private EventBus eventBus;
     private SelectionStyleConfig selectionStyleConfig;
     private boolean displayAsHyperlinks;
+    private boolean shouldDrawTooltipButton;
     private ArrayList<Id> selectedIds;
-    public HierarchyBrowserView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlinks) {
+    public HierarchyBrowserView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
+                                boolean displayAsHyperlinks, boolean shouldDrawTooltipButton) {
         this.eventBus = eventBus;
         this.selectionStyleConfig = selectionStyleConfig;
         this.displayAsHyperlinks = displayAsHyperlinks;
+        this.shouldDrawTooltipButton = shouldDrawTooltipButton;
         widgetContainer = initWidgetContent();
 
         initWidget(widgetContainer);
@@ -77,7 +80,7 @@ public class HierarchyBrowserView extends Composite {
         buttonActionPanel = new VerticalPanel(); //TODO: looks like it's never used
         buttonActionPanel.setStyleName("hierarh-browser-inline");
 
-        widgetChosenContent = new HierarchyBrowserFacebookStyleView(selectionStyleConfig, eventBus, displayAsHyperlinks);
+        widgetChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarh-browser-border");
         widgetContainer.add(widgetChosenContent, DockPanel.CENTER);
         widgetContainer.add(buttonActionPanel, DockPanel.EAST);
@@ -92,6 +95,14 @@ public class HierarchyBrowserView extends Composite {
         String widgetWidth = width != null ? width : DEFAULT_WIDTH;
         String widgetHeight = height != null ? height : DEFAULT_HEIGHT;
         widgetChosenContent.handleAddingChosenItems(chosenItems, selectedIds);
+        if(shouldDrawTooltipButton) {
+            widgetChosenContent.addShowTooltipLabel(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    eventBus.fireEvent(new HierarchyBrowserShowTooltipEvent(widgetChosenContent));
+                }
+            });
+        }
         widgetContainer.setSize(widgetWidth, widgetHeight);
 
         widgetContainer.setCellWidth(widgetChosenContent, "100%");

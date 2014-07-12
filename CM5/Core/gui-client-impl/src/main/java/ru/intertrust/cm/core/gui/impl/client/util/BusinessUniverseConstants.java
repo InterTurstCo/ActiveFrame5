@@ -35,7 +35,7 @@ public class BusinessUniverseConstants {
     public static final String LOGIN_PAGE = "Login.html";
     public static final String USER_THEME_NAME = "userThemeName";
 
-    public static final int START_SIDEBAR_WIDTH = 130;
+    public static final int START_SIDEBAR_WIDTH = 140;
     public static final String CLOSED = "closed";
     public static final String OPEN = "open";
     public static final String UNDEFINED_COLLECTION_NAME = "undefined";
@@ -64,5 +64,10 @@ public class BusinessUniverseConstants {
     public static final int CLEAR_BUTTON_WIDTH = 28;
     public static final int SEARCH_CONTAINER_MARGIN_WIDTH = 20;
 
+    //Tooltip default sizes
+    public static final String MAX_TOOLTIP_DEFAULT_WIDTH = "400px";
+    public static final String MAX_TOOLTIP_DEFAULT_HEIGHT = "300px";
+    //Hyperlink form title, maybe temporary
+    public static final String FORM_TITLE = "Item";
     private BusinessUniverseConstants() {}
 }

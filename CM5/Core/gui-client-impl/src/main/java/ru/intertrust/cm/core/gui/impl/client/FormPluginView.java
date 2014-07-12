@@ -1,23 +1,23 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.LinkedDomainObjectHyperlinkWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.LinkedDomainObjectHyperlinkWidget;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy

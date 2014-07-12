@@ -13,7 +13,7 @@ import java.util.List;
  *         Time: 13:15
  */
 public class AbstractFiltersConfig implements Dto {
-   // @ElementList(type=AbstractFilterConfig.class, inline=true)
+
    @ElementListUnion({
            @ElementList(entry = "initial-filter", type = InitialFilterConfig.class, inline = true, required = false),
            @ElementList(entry = "selection-filter", type = SelectionFilterConfig.class, inline = true, required = false)
@@ -30,7 +30,9 @@ public class AbstractFiltersConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }

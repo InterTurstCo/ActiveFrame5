@@ -16,7 +16,7 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
 
     private LinkedHashMap<String, FormState> newFormStates = new LinkedHashMap<>();
     private LinkedHashMap<String, FormState> editedFormStates = new LinkedHashMap<>();
-
+    private boolean shouldDrawTooltipButton;
     @Override
     public ArrayList<Id> getIds() {
         return selectedIds;
@@ -28,6 +28,14 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
 
     public void setLinkedDomainObjectTableConfig(LinkedDomainObjectsTableConfig linkedDomainObjectsTableConfig) {
         this.linkedDomainObjectsTableConfig = linkedDomainObjectsTableConfig;
+    }
+
+    public boolean isShouldDrawTooltipButton() {
+        return shouldDrawTooltipButton;
+    }
+
+    public void setShouldDrawTooltipButton(boolean shouldDrawTooltipButton) {
+        this.shouldDrawTooltipButton = shouldDrawTooltipButton;
     }
 
     public LinkedDomainObjectsTableConfig getLinkedDomainObjectsTableConfig() {

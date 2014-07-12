@@ -8,18 +8,19 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
-import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -54,27 +55,42 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             state.setObjectTypeName(formConfig.getDomainObjectType());
         }
         SelectionFiltersConfig selectionFiltersConfig = domainObjectsTableConfig.getSelectionFiltersConfig();
-        List<RowItem> rowItems = selectionFiltersConfig == null ? generateRowItems(domainObjectsTableConfig, ids)
-                : generateFilteredRowItems(domainObjectsTableConfig, ids);
+        CollectionRefConfig refConfig = domainObjectsTableConfig.getCollectionRefConfig();
+        boolean collectionNameConfigured = refConfig != null;
+        boolean shouldDrawTooltipButton =  WidgetUtil.getLimit(selectionFiltersConfig) != 0 && collectionNameConfigured && !ids.isEmpty();
+
+        List<RowItem> rowItems = selectionFiltersConfig == null || !collectionNameConfigured ? generateRowItems(domainObjectsTableConfig, ids)
+                : generateFilteredRowItems(domainObjectsTableConfig, ids, false);
         state.setRowItems(rowItems);
+        state.setShouldDrawTooltipButton(shouldDrawTooltipButton );
         return state;
     }
 
     private List<RowItem> generateFilteredRowItems(LinkedDomainObjectsTableConfig widgetConfig,
-                                                   List<Id> selectedIds) {
+                                                   List<Id> selectedIds, boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
         FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
         Filter includedIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);
         filters.add(includedIds);
+
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
-        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, null, filters);
+        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        IdentifiableObjectCollection collection = null;
+        if(limit == 0) {
+            collection = collectionsService.findCollection(collectionName, null, filters);
+
+        } else {
+            collection = tooltipContent
+                    ? collectionsService.findCollection(collectionName, null, filters,limit, WidgetConstants.UNBOUNDED_LIMIT)
+                    : collectionsService.findCollection(collectionName, null, filters, 0, limit);
+        }
         List<Id> selectedFilteredIds = new ArrayList<>();
         for (IdentifiableObject object : collection) {
             selectedFilteredIds.add(object.getId());
         }
-        List<RowItem> hyperlinkItems = generateRowItems(widgetConfig, selectedFilteredIds);
-        return hyperlinkItems;
+        List<RowItem> items = generateRowItems(widgetConfig, selectedFilteredIds);
+        return items;
     }
 
     private List<RowItem> generateRowItems(LinkedDomainObjectsTableConfig widgetConfig,
@@ -246,6 +262,16 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         Pattern fieldPlaceholderPattern = Pattern.compile(FormatHandler.FIELD_PLACEHOLDER_PATTERN);
         return fieldPlaceholderPattern.matcher(pattern);
     }
+    public Dto fetchWidgetItems(Dto inputParams) {
+        LinkedTableTooltipRequest request = (LinkedTableTooltipRequest) inputParams;
+        LinkedDomainObjectsTableConfig config = request.getConfig();
+        List<Id> ids = request.getSelectedIds();
 
+        SelectionFiltersConfig selectionFiltersConfig = config.getSelectionFiltersConfig();
+        List<RowItem> rowItems = selectionFiltersConfig == null ? generateRowItems(config, ids)
+                : generateFilteredRowItems(config, ids, true);
+
+        return new LinkedTableTooltipResponse(rowItems);
+    }
 }
 
