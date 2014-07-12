@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.server.form.DomainObjectLinkContext;
 import ru.intertrust.cm.core.gui.api.server.form.DomainObjectLinkInterceptor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,7 +31,18 @@ public class DefaultConfigurableDomainObjectLinkInterceptor implements DomainObj
             return true;
         }
         final boolean doLink = onLinkConfig.doLink();
-        final List<OperationConfig> operationConfigs = onLinkConfig.getOperationConfigs();
+
+        List<OperationConfig> operationConfigs = null;
+        if (onLinkConfig.getCreateConfig() != null || onLinkConfig.getUpdateConfig() != null) {
+            operationConfigs = new ArrayList<>();
+            if (onLinkConfig.getCreateConfig() != null) {
+                operationConfigs.add(onLinkConfig.getCreateConfig());
+            }
+            if (onLinkConfig.getUpdateConfig() != null) {
+                operationConfigs.add(onLinkConfig.getUpdateConfig());
+            }
+        }
+
         if (operationConfigs == null) {
             return doLink;
         }

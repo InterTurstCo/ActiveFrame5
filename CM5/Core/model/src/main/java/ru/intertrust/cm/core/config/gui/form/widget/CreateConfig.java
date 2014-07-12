@@ -16,7 +16,7 @@ public class CreateConfig extends OperationConfig{
     @Attribute(name = "type", required = false)
     private String type;
 
-    @ElementList(inline = true)
+    @ElementList(entry = "field", inline = true)
     private List<FieldValueConfig> fieldValueConfigs = new ArrayList<FieldValueConfig>();
 
     public String getType() {

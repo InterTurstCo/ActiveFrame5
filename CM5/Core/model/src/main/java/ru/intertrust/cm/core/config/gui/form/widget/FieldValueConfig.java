@@ -2,13 +2,13 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * Created by tbilyi on 18.06.2014.
  */
 
-@Element(name = "field")
 public class FieldValueConfig implements Dto{
 
     @Attribute(name = "name", required = false)
@@ -29,11 +29,11 @@ public class FieldValueConfig implements Dto{
     @Attribute(name = "set-current-moment", required = false)
     private boolean setCurrentMoment;
 
+    @Attribute(name = "time-zone-id", required = false)
+    private String timeZoneId;
+
     @Element(name = "unique-key-value", required = false)
     private UniqueKeyValueConfig uniqueKeyValueConfig;
-
-    @Element(name = "time-zone-id", required = false)
-    private String timeZoneId;
 
     public String getName() {
         return name;

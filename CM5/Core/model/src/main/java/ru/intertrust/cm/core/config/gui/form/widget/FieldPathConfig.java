@@ -87,20 +87,20 @@ public class FieldPathConfig implements Dto {
         this.domainObjectLinker = domainObjectLinker;
     }
 
-    public OnLinkConfig getOnLinkConfig() {
-        return onLinkConfig;
-    }
-
-    public void setOnLinkConfigConfig(OnLinkConfig onLinkConfigConfig) {
-        onLinkConfig = onLinkConfigConfig;
-    }
-
     public OnUnlinkConfig getOnUnlinkConfig() {
         return onUnlinkConfig;
     }
 
     public void setOnUnlinkConfig(OnUnlinkConfig onUnlinkConfig) {
         this.onUnlinkConfig = onUnlinkConfig;
+    }
+
+    public OnLinkConfig getOnLinkConfig() {
+        return onLinkConfig;
+    }
+
+    public void setOnLinkConfig(OnLinkConfig onLinkConfig) {
+        this.onLinkConfig = onLinkConfig;
     }
 
     @Override

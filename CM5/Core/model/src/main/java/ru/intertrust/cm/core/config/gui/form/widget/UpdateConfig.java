@@ -13,7 +13,7 @@ import java.util.List;
 @Root(name = "update")
 public class UpdateConfig extends OperationConfig{
 
-    @ElementList(inline = true)
+    @ElementList(entry = "field", inline = true)
     private List<FieldValueConfig> fieldValueConfigs = new ArrayList<FieldValueConfig>();
 
     public List<FieldValueConfig> getFieldValueConfigs() {

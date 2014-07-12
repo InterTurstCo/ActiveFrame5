@@ -28,6 +28,10 @@ public abstract class WidgetConfig implements Dto {
         return fieldPathConfig;
     }
 
+    public void setFieldPathConfig(FieldPathConfig fieldPathConfig) {
+        this.fieldPathConfig = fieldPathConfig;
+    }
+
     public boolean isReadOnly() {
         return readOnly;
     }
