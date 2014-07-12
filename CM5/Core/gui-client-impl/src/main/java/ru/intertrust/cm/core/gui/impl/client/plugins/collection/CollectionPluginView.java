@@ -1,12 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -20,17 +13,10 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
@@ -40,20 +26,7 @@ import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.FilterEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
@@ -71,11 +44,9 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MIN_WIDTH;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSED;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN;
+import java.util.*;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -445,7 +416,7 @@ public class CollectionPluginView extends PluginView {
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
             CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
-            List<String> initialFilterValues = (List<String>) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE);
+            List<String> initialFilterValues = (List<String>) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
             HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             headers.add(collectionColumnHeader);

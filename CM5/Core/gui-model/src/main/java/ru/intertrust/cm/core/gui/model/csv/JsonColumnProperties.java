@@ -16,7 +16,7 @@ public class JsonColumnProperties {
     private String datePattern;
     private String timePattern;
     private String timeZoneId;
-    private String initialFilterValue;
+    private List<String> initialFilterValues;
 
     public JsonColumnProperties() {
     }
@@ -85,12 +85,12 @@ public class JsonColumnProperties {
         this.columnName = columnName;
     }
 
-    public String getInitialFilterValue() {
-        return initialFilterValue;
+    public List<String> getInitialFilterValues() {
+        return initialFilterValues;
     }
 
-    public void setInitialFilterValue(String initialFilterValue) {
-        this.initialFilterValue = initialFilterValue;
+    public void setInitialFilterValues(List<String> initialFilterValues) {
+        this.initialFilterValues = initialFilterValues;
     }
 
     @Override
@@ -128,7 +128,8 @@ public class JsonColumnProperties {
         if (columnName != null ? !columnName.equals(that.columnName) : that.columnName != null) {
             return false;
         }
-        if (initialFilterValue != null ? !initialFilterValue.equals(that.initialFilterValue) : that.initialFilterValue!= null) {
+        if (initialFilterValues != null ? !initialFilterValues.equals(that.initialFilterValues)
+                : that.initialFilterValues!= null) {
             return false;
         }
 
@@ -145,7 +146,7 @@ public class JsonColumnProperties {
         result = 31 * result + (timePattern != null ? timePattern.hashCode() : 0);
         result = 31 * result + (timeZoneId != null ? timeZoneId.hashCode() : 0);
         result = 31 * result + (columnName != null ? columnName.hashCode() : 0);
-        result = 31 * result + (initialFilterValue != null ? initialFilterValue.hashCode() : 0);
+        result = 31 * result + (initialFilterValues != null ? initialFilterValues.hashCode() : 0);
         return result;
     }
 }

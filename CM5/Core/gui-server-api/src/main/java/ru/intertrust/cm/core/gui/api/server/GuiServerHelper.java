@@ -81,7 +81,7 @@ public final class GuiServerHelper {
         if(initialFiltersConfig != null){
             List<AbstractFilterConfig> abstractFilterConfigs = (List<AbstractFilterConfig>) initialFiltersConfig.getAbstractFilterConfigs();
             List<String> initialFilterValues = getInitialFilterValue(searchFilterName, abstractFilterConfigs);
-            properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE, initialFilterValues);
+            properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES, initialFilterValues);
         }
         properties.setAscSortCriteriaConfig(config.getAscSortCriteriaConfig());
         properties.setDescSortCriteriaConfig(config.getDescSortCriteriaConfig());

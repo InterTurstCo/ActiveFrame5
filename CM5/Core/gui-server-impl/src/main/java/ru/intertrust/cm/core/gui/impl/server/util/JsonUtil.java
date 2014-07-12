@@ -37,8 +37,8 @@ public class JsonUtil {
                 filters.add(filter);
                 excludedFilterFields.add(fieldName);
             } else {
-                String initialFilterValue = (String) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE);
-                if (initialFilterValue != null) {
+                List<String> initialFilterValues = (List<String>) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
+                if (initialFilterValues != null) {
                     excludedFilterFields.add(fieldName);
                 }
             }
@@ -65,8 +65,8 @@ public class JsonUtil {
         properties.addProperty(CollectionColumnProperties.TIME_PATTERN, timePattern);
         String columnName = jsonProperties.getColumnName();
         properties.addProperty(CollectionColumnProperties.NAME_KEY, columnName);
-        String initialFilterValue = jsonProperties.getInitialFilterValue();
-        properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE, initialFilterValue);
+        List<String> initialFilterValues = jsonProperties.getInitialFilterValues();
+        properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES, initialFilterValues);
         return properties;
 
     }

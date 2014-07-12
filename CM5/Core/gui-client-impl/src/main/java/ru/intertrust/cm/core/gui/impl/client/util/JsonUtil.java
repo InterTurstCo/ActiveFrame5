@@ -81,9 +81,9 @@ public class JsonUtil {
             jsonColumnProperties.put("timeZoneId", new JSONString(timeZoneId));
             String columnName = (String) properties.getProperty(CollectionColumnProperties.NAME_KEY);
             jsonColumnProperties.put("columnName", new JSONString(columnName));
-            String initialFilterValue = (String) properties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUE);
-            if(initialFilterValue != null){
-            jsonColumnProperties.put("initialFilterValue", new JSONString(initialFilterValue));
+            List<String> initialFilterValues = (List<String> ) properties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
+            if(initialFilterValues != null){
+            jsonColumnProperties.put("initialFilterValues", prepareFilterValuesRepresentation(initialFilterValues));
             }
 
             propertiesArray.set(count, jsonColumnProperties);

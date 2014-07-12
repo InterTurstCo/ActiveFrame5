@@ -30,7 +30,7 @@ public class CollectionColumnProperties implements Dto {
     public static final String SORTABLE = "sortable";
     public static final String SORTED_MARKER = "sorted";
     public static final String FIELD_NAME = "field";
-    public static final String INITIAL_FILTER_VALUE = "initialFilterValue";
+    public static final String INITIAL_FILTER_VALUES = "initialFilterValues";
     public static final String DATE_RANGE = "range-date";
     private AscSortCriteriaConfig ascSortCriteriaConfig;
     private DescSortCriteriaConfig descSortCriteriaConfig;
