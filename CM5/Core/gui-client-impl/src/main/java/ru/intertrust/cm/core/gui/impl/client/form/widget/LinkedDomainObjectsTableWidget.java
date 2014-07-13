@@ -36,7 +36,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     private CellTable<RowItem> table = new CellTable<>();
     private ListDataProvider<RowItem> model;
     private boolean tableConfigured = false;
-
+    private boolean isButtonDrawn;
     @Override
     public void setCurrentState(WidgetState state) {
         currentState = (LinkedDomainObjectsTableState) state;
@@ -44,10 +44,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         if (!tableConfigured) {
             configureTable(currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig());
             tableConfigured = true;
-            if (currentState.isShouldDrawTooltipButton()) {
-                Button tooltipButton = getShowTooltipButton();
-                ((VerticalPanel) impl).add(tooltipButton);
-            }
+
         }
         List<RowItem> rowItems = currentState.getRowItems();
         model = new ListDataProvider<>();
@@ -56,7 +53,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             model.getList().add(rowItem);
         }
         model.addDataDisplay(table);
-
+        if (currentState.isShouldDrawTooltipButton() && !isButtonDrawn) {
+            isButtonDrawn = true;
+            Button tooltipButton = getShowTooltipButton();
+            ((VerticalPanel) impl).add(tooltipButton);
+        }
     }
 
     private void configureTable(SummaryTableConfig summaryTableConfig) {

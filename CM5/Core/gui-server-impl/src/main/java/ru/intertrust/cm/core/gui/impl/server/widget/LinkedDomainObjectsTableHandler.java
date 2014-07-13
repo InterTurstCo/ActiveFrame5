@@ -57,12 +57,12 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         SelectionFiltersConfig selectionFiltersConfig = domainObjectsTableConfig.getSelectionFiltersConfig();
         CollectionRefConfig refConfig = domainObjectsTableConfig.getCollectionRefConfig();
         boolean collectionNameConfigured = refConfig != null;
-        boolean shouldDrawTooltipButton =  WidgetUtil.getLimit(selectionFiltersConfig) != 0 && collectionNameConfigured && !ids.isEmpty();
+        boolean shouldDrawTooltipButton = WidgetUtil.getLimit(selectionFiltersConfig) != 0 && collectionNameConfigured && !ids.isEmpty();
 
         List<RowItem> rowItems = selectionFiltersConfig == null || !collectionNameConfigured ? generateRowItems(domainObjectsTableConfig, ids)
                 : generateFilteredRowItems(domainObjectsTableConfig, ids, false);
         state.setRowItems(rowItems);
-        state.setShouldDrawTooltipButton(shouldDrawTooltipButton );
+        state.setShouldDrawTooltipButton(shouldDrawTooltipButton);
         return state;
     }
 
@@ -77,12 +77,12 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
-        if(limit == 0) {
+        if (limit == 0) {
             collection = collectionsService.findCollection(collectionName, null, filters);
 
         } else {
             collection = tooltipContent
-                    ? collectionsService.findCollection(collectionName, null, filters,limit, WidgetConstants.UNBOUNDED_LIMIT)
+                    ? collectionsService.findCollection(collectionName, null, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
                     : collectionsService.findCollection(collectionName, null, filters, 0, limit);
         }
         List<Id> selectedFilteredIds = new ArrayList<>();
@@ -186,82 +186,18 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         for (SummaryTableColumnConfig columnConfig : summaryTableColumnConfigs) {
             PatternConfig patternConfig = columnConfig.getPatternConfig();
             String columnPattern = patternConfig.getValue();
-
-            List<String> fieldsInPattern = takeFieldNamesFromPattern(columnPattern);
             FormattingConfig formattingConfig = columnConfig.getFormattingConfig();
-
-            Map<String, String> formattedFields = new HashMap<>();
-
-            if (formattingConfig != null) {
-                NumberFormatConfig numberFormatConfig = formattingConfig.getNumberFormatConfig();
-                if (numberFormatConfig != null) {
-                    formatFields(new NumberFormatter(domainObject), formattedFields, numberFormatConfig.getPattern(),
-                            numberFormatConfig.getFieldsPathConfig());
-                }
-                DateFormatConfig dateFormatConfig = formattingConfig.getDateFormatConfig();
-                if (dateFormatConfig != null) {
-                    formatFields(new DateFormatter(domainObject), formattedFields, dateFormatConfig.getPattern(),
-                            dateFormatConfig.getFieldsPathConfig());
-                }
-            }
-            for (String fieldName : fieldsInPattern) {
-                String displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig);
-                formattedFields.put(fieldName, displayValue);
-
-            }
-
-            String columnValue = applyColumnPattern(columnPattern, formattedFields);
-            rowItem.setValueByKey(columnConfig.getWidgetId(), columnValue);
+            String displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig);
+            rowItem.setValueByKey(columnConfig.getWidgetId(), displayValue);
         }
         return rowItem;
-    }
-
-    private List<String> takeFieldNamesFromPattern(String columnPattern) {
-        Matcher matcher = fieldPatternMatcher(columnPattern);
-        List<String> fieldNames = new ArrayList<>();
-        while (matcher.find()) {
-            String fieldName = takeFieldNameFromMatchedSequence(matcher);
-            fieldNames.add(fieldName);
-        }
-        return fieldNames;
-    }
-
-    private void formatFields(FieldFormatter fieldFormatter, Map<String, String> formattedFields, String formatPattern,
-                              FieldPathsConfig fieldsPathConfig) {
-        for (FieldPathConfig fieldPathConfig : fieldsPathConfig
-                .getFieldPathConfigsList()) {
-            String fieldName = fieldPathConfig.getValue();
-            if (formatPattern != null) {
-                formattedFields.put(fieldName, fieldFormatter.format(fieldName, formatPattern));
-            }
-        }
-    }
-
-    private String applyColumnPattern(String columnPattern, Map<String, String> formattedFields) {
-        Matcher matcher = fieldPatternMatcher(columnPattern);
-        StringBuffer result = new StringBuffer();
-
-        while (matcher.find()) {
-            String fieldName = takeFieldNameFromMatchedSequence(matcher);
-            String replacement = formattedFields.get(fieldName);
-            if (replacement != null) {
-                matcher.appendReplacement(result, replacement);
-            }
-        }
-
-        matcher.appendTail(result);
-        return result.toString();
-    }
-
-    private String takeFieldNameFromMatchedSequence(Matcher matcher) {
-        String group = matcher.group();
-        return group.substring(1, group.length() - 1);
     }
 
     private Matcher fieldPatternMatcher(String pattern) {
         Pattern fieldPlaceholderPattern = Pattern.compile(FormatHandler.FIELD_PLACEHOLDER_PATTERN);
         return fieldPlaceholderPattern.matcher(pattern);
     }
+
     public Dto fetchWidgetItems(Dto inputParams) {
         LinkedTableTooltipRequest request = (LinkedTableTooltipRequest) inputParams;
         LinkedDomainObjectsTableConfig config = request.getConfig();
