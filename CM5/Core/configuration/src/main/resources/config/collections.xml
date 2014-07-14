@@ -225,7 +225,49 @@
             </criteria>
         </filter>
     </collection>
-    
+
+    <collection name="CitiesWithoutCountry" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                 ci.id,   ci.name, ci.population, ci.year_of_foundation, ci.latitude, ci.longitude, ci.square
+                from
+                    city ci left outer join country co on ci.country = co.id
+                     ::from-clause
+                where
+                    ci.country is null ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from city ci ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="idsIncluded">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ci.id in ({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="idsExcluded">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ci.id not in ({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byNameforTableBrowser">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ci.name like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
     <collection name="Notifications" idField="id">
         <prototype>
             <![CDATA[

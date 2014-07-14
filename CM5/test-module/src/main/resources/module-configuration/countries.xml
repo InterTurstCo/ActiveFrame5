@@ -490,9 +490,8 @@
 
             <table-browser id="17a" read-only="false">
                 <field-path value="city^country"/>
-                <collection-ref name="Cities"/>
-               <!-- <selection-filters row-limit="1" max-tooltip-width="300px" max-tooltip-height="200px">
-                </selection-filters>-->
+                <collection-ref name="CitiesWithoutCountry"/>
+
                 <collection-view-ref name="cities_default_view"/>
 
                 <!-- паттерн отображения уже выбранных значений -->
