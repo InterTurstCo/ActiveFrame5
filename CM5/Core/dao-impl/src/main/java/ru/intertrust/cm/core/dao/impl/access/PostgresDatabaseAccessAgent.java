@@ -396,38 +396,5 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         }
         return false;
     }
-    
-    @Override
-    public boolean isUserInGroup(Id userId, String userGroup, Id contextObjectId) {
-        if (userId == null) {
-            return false;
-        }
 
-        String query =
-                "select gm.person_id, gm.person_id_type from group_member gm inner join user_group ug on gm.usergroup = ug.id "
-                        +
-                        "where ug.group_name =:user_group and ug.object_id = :object_id and ug.object_id_type = :object_id_type";
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("user_group", userGroup);
-        params.put("object_id", ((RdbmsId) contextObjectId).getId());
-        params.put("object_id_type", ((RdbmsId) contextObjectId).getTypeId());
-
-        List<Id> groupMembers = jdbcTemplate.query(query, params, new RowMapper<Id>() {
-            @Override
-            public Id mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Long personId = rs.getLong("person_id");
-                int personObjectType = rs.getInt("person_id_type");
-                RdbmsId id = new RdbmsId(personObjectType, personId);
-                return id;
-            }
-        });
-        if (groupMembers == null || groupMembers.size() == 0) {
-            return false;
-        } else {
-            return groupMembers.contains(userId);
-        }
-
-    }
-    
 }

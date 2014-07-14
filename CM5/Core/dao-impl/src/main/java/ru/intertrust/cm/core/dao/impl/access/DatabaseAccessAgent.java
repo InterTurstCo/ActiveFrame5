@@ -59,14 +59,5 @@ public interface DatabaseAccessAgent {
      * @return
      */
     boolean isAllowedToCreateByStaticGroups(Id userId, String objectType);
-    
-    /**
-     * 
-     * @param userId
-     * @param groupName
-     * @param contextObjectId
-     * @return
-     */
-    public boolean isUserInGroup(Id userId, String groupName, Id contextObjectId);
 
 }
