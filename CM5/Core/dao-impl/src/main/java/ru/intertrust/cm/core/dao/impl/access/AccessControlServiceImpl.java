@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -7,13 +8,28 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.AccessMatrixConfig;
+import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
+import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
+import ru.intertrust.cm.core.config.BasePermit;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.CreateChildConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.ExecuteActionConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.PermitGroup;
+import ru.intertrust.cm.core.config.PermitRole;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.DynamicGroupService;
+import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.access.SystemSubject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
@@ -34,6 +50,12 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Autowired
     private DatabaseAccessAgent databaseAgent;
 
+    @Autowired
+    PermissionServiceDao permissionServiceDao;
+
+    @Autowired
+    DynamicGroupService dynamicGroupService;
+    
     @Autowired
     private UserGroupGlobalCache userGroupCache;
     
@@ -98,25 +120,118 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
     
 
+    /**
+     * Проверяет права на создание ДО контексным динамическим группам (ролям) и безконтексным группам.
+     * Права для контексных групп настраиваются через <create-child> разрешение у родительского типа.
+     * Например,
+     *     <create-child type="address">
+     *          <permit-role name="Contact_Name_Editor_Role" />
+     *     </create-child>
+     * 
+     * Права для статических и безконтексных групп настраиваются через <create> тег.
+     * Например,
+     *     <create>
+     *          <permit-group name="AllPersons" />
+     *     </create>
+     *
+     */
+    
     @Override
-    public AccessToken createDomainObjectCreateToken(String login, String domainObjectType)
+    public AccessToken createDomainObjectCreateToken(String login, DomainObject domainObject)
             throws AccessException {
+
 
         Id personId = getUserIdByLogin(login);
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
+
         boolean isSuperUser = isPersonSuperUser(personId);
 
         if (isSuperUser) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
-        if (!isAllowedToCreateDOFor(personId, domainObjectType)) {
-            throw new AccessException("Creation of object " + domainObjectType + " is not allowed for " + login);
+        String domainObjectType = domainObject.getTypeName();
+        
+        Boolean isAllowed = isAllowedToCreateByDynamicGroupsAndRoles(domainObject, personId, personIdInt);
 
+        if (isAllowed) {
+            return new DomainObjectCreateToken(new UserSubject(personIdInt),
+                    domainObjectType);
         }
 
-        AccessToken token = new DomainObjectCreateToken(new UserSubject(personIdInt), domainObjectType);
-        return token;
+        if (isAllowedToCreateByStaticGroups(personId, domainObjectType)) {
+            return new DomainObjectCreateToken(new UserSubject(personIdInt), domainObjectType);
+        }
+
+        throw new AccessException("Creation of object " + domainObjectType + " is not allowed for " + login);
+    }
+
+    private Boolean isAllowedToCreateByDynamicGroupsAndRoles(DomainObject domainObject, Id personId, Integer personIdInt) {        
+        String domainObjectType = domainObject.getTypeName();
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+        List<ReferenceFieldConfig> referenceFieldConfigs = getReferenceFields(domainObjectTypeConfig);
+
+        if (referenceFieldConfigs != null) {
+            for (ReferenceFieldConfig fieldConfig : referenceFieldConfigs) {
+
+                AccessMatrixConfig accessMatrixConfig =
+                        configurationExplorer.getAccessMatrixByObjectType(((ReferenceFieldConfig) fieldConfig)
+                                .getType());
+
+                if (accessMatrixConfig != null && accessMatrixConfig.getStatus() != null) {
+                    for (AccessMatrixStatusConfig accessMatrixStatus : accessMatrixConfig.getStatus()) {
+                        for (BaseOperationPermitConfig operationPermit : accessMatrixStatus.getPermissions()) {
+                            if (operationPermit instanceof CreateChildConfig) {
+                                if (domainObjectType.equals(((CreateChildConfig) operationPermit).getType())) {
+
+                                    Id parentObject = domainObject.getReference(fieldConfig.getName());
+
+                                    for (BasePermit permit : operationPermit.getPermitConfigs()) {
+                                        String userGroupName = permit.getName();
+
+                                        if (permit instanceof PermitRole) {
+                                            List<Id> contextRoleMembers =
+                                                    permissionServiceDao.getPersons(parentObject, userGroupName);
+
+                                            if (contextRoleMembers.contains(personId)) {
+                                                return true;
+                                            }
+                                        } else if (permit instanceof PermitGroup) {
+                                            List<Id> dynamicGroupMembers =
+                                                    dynamicGroupService.getPersons(parentObject, userGroupName);
+
+                                            if (dynamicGroupMembers.contains(personId)) {
+                                                return true;
+                                            }
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isAllowedToCreateByStaticGroups(Id userId, String objectType) {
+        return databaseAgent.isAllowedToCreateByStaticGroups(userId, objectType);
+    }
+
+    private List<ReferenceFieldConfig> getReferenceFields(DomainObjectTypeConfig domainObjectTypeConfig) {
+        List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
+
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+            }
+        }
+        return referenceFieldConfigs;
     }
 
     private Id getUserIdByLogin(String login) {
@@ -449,9 +564,5 @@ public class AccessControlServiceImpl implements AccessControlService {
         boolean allowsAccess(Id objectId, AccessType type) {
             return true; // Разрешает любой доступ к любому объекту
         }
-    }
-    
-    private boolean isAllowedToCreateDOFor(Id userId, String objectType) {
-        return databaseAgent.isAllowedToCreateDOFor(userId, objectType);
-    }
+    }    
 }

@@ -52,10 +52,21 @@ public interface DatabaseAccessAgent {
     boolean checkUserGroup(int userId, String groupName);
     
     /**
-     * Разрешена ли опрерация создания доменных объектов данного типа для переданоого пользователя.
+     * Разрешена ли опрерация создания доменных объектов данного типа для пользователей из статических и безконтекстных
+     * динамических групп.
      * @param userId идентификатор пользователя
      * @param objectType тип доменного объекта
      * @return
      */
-    boolean isAllowedToCreateDOFor(Id userId, String objectType);
+    boolean isAllowedToCreateByStaticGroups(Id userId, String objectType);
+    
+    /**
+     * 
+     * @param userId
+     * @param groupName
+     * @param contextObjectId
+     * @return
+     */
+    public boolean isUserInGroup(Id userId, String groupName, Id contextObjectId);
+
 }

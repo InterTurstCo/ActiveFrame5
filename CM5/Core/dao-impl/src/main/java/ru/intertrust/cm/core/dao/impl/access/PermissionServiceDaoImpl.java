@@ -232,6 +232,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                         accessType = DomainObjectAccessType.DELETE;
                     } else if (operstion.startsWith("E")) {
                         accessType = new ExecuteActionAccessType(operstion.substring(2));
+                    } else if (operstion.startsWith("C")) {
+                        accessType = new CreateChildAccessType(operstion.substring(2));
                     }
 
                     if (accessType != null) {

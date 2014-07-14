@@ -144,7 +144,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
                 Id objectId = ((GenericDomainObject) domainObject).getId();
                 accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
             } else {
-                accessToken = accessControlService.createDomainObjectCreateToken(user, domainObjectType);
+                accessToken = accessControlService.createDomainObjectCreateToken(user, domainObject);
             }
 
             DomainObject result = domainObjectDao.save(domainObject, accessToken);
