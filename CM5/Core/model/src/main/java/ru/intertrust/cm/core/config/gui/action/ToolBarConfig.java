@@ -13,6 +13,9 @@ import java.util.List;
 @Root(name = "tool-bar")
 public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig {
 
+    @Attribute(name = "name", required = false)
+    private String name;
+
     @Attribute(name = "componentName", required = false)
     private String componentName = "action.tool.bar";
 
@@ -74,6 +77,6 @@ public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig
 
     @Override
     public String getName() {
-        return getId();
+        return name == null ?  getId() : name;
     }
 }
