@@ -1,0 +1,38 @@
+deploy postgresql-jdbc4.jar --force
+
+/subsystem=datasources/data-source=CM5:add(connection-url=jdbc:postgresql://${db.host}:${db.port}/${db.name},datasource-class=org.postgresql.xa.PGXADataSource,driver-name=postgresql-jdbc4.jar,enabled=true,jndi-name="java:jboss/datasources/CM5",user-name="${db.user}",password="${db.password}") 
+data-source enable --name=CM5
+
+/subsystem=security/security-domain=CM5/:add(cache-type=default)  
+/subsystem=security/security-domain=CM5/authentication=classic:add(login-modules=[{"code"=>"org.jboss.security.ClientLoginModule","flag"=>"optional"}, {"code"=>"Remoting","flag"=>"optional","module-options"=>[("password-stacking"=>"useFirstPass")]},        {"code"=>"Database","flag"=>"required","module-options"=>[            ("dsJndiName"=>"java:jboss/datasources/CM5"),            ("principalsQuery"=>"SELECT info.password from authentication_info info where info.user_uid = ?"),("rolesQuery"=>"SELECT 'cm_user', 'Roles' from authentication_info where user_uid = ?"),("hashAlgorithm"=>"MD5"),("hashEncoding"=>"hex")]}])
+
+/subsystem=deployment-scanner/scanner=default:write-attribute(name=deployment-timeout, value=6000)
+/subsystem=transactions/coordinator-environment=:write-attribute(name=default-timeout, value=4000)
+/subsystem=logging/logger=ru.intertrust:add(level=DEBUG)
+/subsystem=logging/logger=org.springframework:add(level=DEBUG)
+/subsystem=logging/logger=org.springframework.core.io.support.PathMatchingResourcePatternResolver:add(level=INFO)
+/subsystem=logging/logger=org.hibernate.engine.StatefulPersistenceContext:add(level=ERROR)
+/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove
+/core-service=management/security-realm=ApplicationRealm/authentication=local:remove
+/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove
+/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")
+/core-service=management/security-realm=ApplicationRealm/authorization=properties:remove
+/subsystem=ejb3:write-attribute(name=default-missing-method-permissions-deny-access, value=false)
+/system-property=server.properties.location:add(value=${server.properties.location})
+/system-property=server.properties.location:write-attribute(name=value, value=${server.properties.location})
+/system-property=spring.profiles.active:add(value=${spring.profiles.active})
+/system-property=spring.profiles.active:write-attribute(name=value, value=${spring.profiles.active})
+/system-property=org.apache.catalina.connector.URI_ENCODING:add(value=UTF-8)
+/system-property=org.apache.catalina.connector.URI_ENCODING:write-attribute(name=value, value=UTF-8)
+/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:add(value=true)
+/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:write-attribute(name=value,value=true)
+
+/extension=org.jboss.as.messaging:add
+/subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="RemoteConnectionFactory")
+/subsystem=ejb3:write-attribute(name="default-mdb-instance-pool", value="mdb-strict-max-pool")
+/:composite(steps=[{"operation"=>"add","address"=>[("socket-binding-group"=>"standard-sockets"),("socket-binding"=>"messaging")],"port"=>5445}])
+/:composite(steps=[{"operation"=>"add","address"=>[("subsystem"=>"messaging")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default")],"persistence-enabled"=>"true","security-enabled"=>"false","journal-file-size"=>102400L,"journal-min-files"=>2},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("address-setting"=>"#")],"address-full-policy"=>"BLOCK","dead-letter-address"=>"jms.queue.DLQ","expiry-address"=>"jms.queue.ExpiryQueue","max-size-bytes"=>10485760,"message-counter-history-day-limit"=>10,"redelivery-delay"=>5000,"max-delivery-attempts"=>3},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("pooled-connection-factory"=>"RemoteConnectionFactory")],"connector"=>{"in-vm"=>undefined},"entries"=>["java:/RemoteConnectionFactory","java:jboss/exported/jms/RemoteConnectionFactory"],"transaction"=>"xa"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("connection-factory"=>"LocalConnectionFactory")],"connector"=>{"netty"=>undefined},"entries"=>["java:/LocalConnectionFactory","java:jboss/exported/jms/LocalConnectionFactory"]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-connector"=>"in-vm")],"server-id"=>0},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-connector"=>"netty")],"socket-binding"=>"messaging"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#"),("role"=>"guest")],"consume"=>true,"create-durable-queue"=>false,"create-non-durable-queue"=>true,"delete-durable-queue"=>false,"delete-non-durable-queue"=>true,"manage"=>false,"send"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-acceptor"=>"in-vm")],"server-id"=>0,"started"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-acceptor"=>"netty")],"socket-binding"=>"messaging","started"=>true}])
+jms-queue add --queue-address=cmjBusinessQueue --entries=queue/cmjBusinessQueue,java:jboss/exported/jms/queue/cmjBusinessQueue
+jms-queue add --queue-address=DLQ --entries=queue/DLQ,java:jboss/exported/jms/queue/DLQ
+
+deploy cm-sochi.ear --force
