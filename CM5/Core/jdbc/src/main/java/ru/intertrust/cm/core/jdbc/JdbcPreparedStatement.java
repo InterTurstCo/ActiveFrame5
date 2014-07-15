@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.jdbc;
 
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -72,8 +73,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 parameter = new LongValue((Integer)value);
             } else if (value instanceof Long) {
                 parameter = new LongValue((Long)value);
-            } else if (value instanceof Long) {
-                parameter = new LongValue((Long)value);
+            } else if (value instanceof Boolean) {
+                parameter = new BooleanValue((Boolean)value);
             } else if (value instanceof Timestamp) {
                 parameter = new DateTimeValue(new Date(((Timestamp)value).getTime()));
             } else if (value instanceof Date) {
@@ -110,9 +111,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setBoolean(int parameterIndex, boolean x) throws SQLException {
-        throw new UnsupportedOperationException();
-
+    public void setBoolean(int parameterIndex, boolean value) throws SQLException {
+        parameters.put(parameterIndex, value);
     }
 
     @Override
