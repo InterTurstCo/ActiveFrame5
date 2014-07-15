@@ -3,12 +3,13 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.gui.api.server.form.BeforeLinkResult;
+import ru.intertrust.cm.core.gui.api.server.form.BeforeUnlinkResult;
 import ru.intertrust.cm.core.gui.api.server.form.DomainObjectLinkContext;
 import ru.intertrust.cm.core.gui.api.server.form.DomainObjectLinkInterceptor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,51 +25,41 @@ public class DefaultConfigurableDomainObjectLinkInterceptor implements DomainObj
     private CrudService crudService;
 
     @Override
-    public boolean beforeLink(DomainObjectLinkContext context) {
+    public BeforeLinkResult beforeLink(DomainObjectLinkContext context) {
         final FieldPathConfig fieldPathConfig = context.getWidgetContext().getFieldPathConfig();
         final OnLinkConfig onLinkConfig = fieldPathConfig.getOnLinkConfig();
         if (onLinkConfig == null) {
-            return true;
+            return new BeforeLinkResult(true, context.getLinkedObject());
         }
         final boolean doLink = onLinkConfig.doLink();
 
-        List<OperationConfig> operationConfigs = null;
-        if (onLinkConfig.getCreateConfig() != null || onLinkConfig.getUpdateConfig() != null) {
-            operationConfigs = new ArrayList<>();
-            if (onLinkConfig.getCreateConfig() != null) {
-                operationConfigs.add(onLinkConfig.getCreateConfig());
-            }
-            if (onLinkConfig.getUpdateConfig() != null) {
-                operationConfigs.add(onLinkConfig.getUpdateConfig());
-            }
-        }
-
+        final List<OperationConfig> operationConfigs = onLinkConfig.getOperationConfigs();
         if (operationConfigs == null) {
-            return doLink;
+            return new BeforeLinkResult(doLink, context.getLinkedObject());
         }
 
-        performCreateUpdateOperations(context, operationConfigs);
-        return doLink;
+        final DomainObject updatedLinkedObject = performCreateUpdateOperations(context, operationConfigs);
+        return new BeforeLinkResult(doLink, updatedLinkedObject);
     }
 
     @Override
-    public boolean beforeUnlink(DomainObjectLinkContext context) {
+    public BeforeUnlinkResult beforeUnlink(DomainObjectLinkContext context) {
         final FieldPathConfig fieldPathConfig = context.getWidgetContext().getFieldPathConfig();
         final OnUnlinkConfig onUnlinkConfig = fieldPathConfig.getOnUnlinkConfig();
         if (onUnlinkConfig == null) {
-            return true;
+            return new BeforeUnlinkResult(true, context.getLinkedObject());
         }
         final boolean doUnlink = onUnlinkConfig.doUnlink();
         final List<OperationConfig> operationConfigs = onUnlinkConfig.getOperationConfigs();
         if (operationConfigs == null) {
-            return doUnlink;
+            return new BeforeUnlinkResult(doUnlink, context.getLinkedObject());
         }
 
-        performCreateUpdateOperations(context, operationConfigs);
-        return doUnlink;
+        final DomainObject updatedUnlinkedObject = performCreateUpdateOperations(context, operationConfigs);
+        return new BeforeUnlinkResult(doUnlink, updatedUnlinkedObject);
     }
 
-    private void performCreateUpdateOperations(DomainObjectLinkContext context, List<OperationConfig> operationConfigs) {
+    private DomainObject performCreateUpdateOperations(DomainObjectLinkContext context, List<OperationConfig> operationConfigs) {
         boolean saveLinkedObject = false;
         for (OperationConfig operationConfig : operationConfigs) {
             if (operationConfig instanceof UpdateConfig) {
@@ -79,9 +70,12 @@ public class DefaultConfigurableDomainObjectLinkInterceptor implements DomainObj
             }
         }
 
+        final DomainObject linkedObject = context.getLinkedObject();
+        DomainObject updatedLinkedObject = linkedObject;
         if (saveLinkedObject) {
-            crudService.save(context.getLinkedObject());
+            updatedLinkedObject = crudService.save(linkedObject);
         }
+        return updatedLinkedObject;
     }
 
     private void updateObject(UpdateConfig updateConfig, DomainObjectLinkContext context) {
@@ -99,6 +93,8 @@ public class DefaultConfigurableDomainObjectLinkInterceptor implements DomainObj
             return;
         }
         setFields(createdObject, fieldValueConfigs, context.getParentObject());
+
+        crudService.save(createdObject);
     }
 
     private void setFields(DomainObject domainObject, List<FieldValueConfig> fieldValueConfigs, DomainObject parentObject) {

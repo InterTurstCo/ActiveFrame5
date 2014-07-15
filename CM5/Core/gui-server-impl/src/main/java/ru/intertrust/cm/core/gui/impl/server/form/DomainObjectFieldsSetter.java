@@ -12,7 +12,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.UniqueKeyValueConfig;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * @author Denis Mitavskiy
@@ -171,7 +174,7 @@ public class DomainObjectFieldsSetter {
             final Date date = DATE_TIME_FORMATTER.parse(value);
             return new DateTimeValue(date);
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid text: " + value);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -188,7 +191,7 @@ public class DomainObjectFieldsSetter {
             final Date date = TIMELESS_DATE_FORMATTER.parse(value);
             return new TimelessDateValue(date, usedTimeZone);
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid text: " + value);
+            throw new IllegalArgumentException(e);
         }
     }
 

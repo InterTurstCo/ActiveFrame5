@@ -1360,16 +1360,16 @@
 
     <xs:complexType name="fieldPathType">
 
-        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="2">
             <xs:element type="con:onUnlinkType" name="on-unlink"
-                        minOccurs="0" maxOccurs="1"
+                        minOccurs="0" maxOccurs="unbounded"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
             <xs:element type="con:onLinkType" name="on-link"
                         minOccurs="0" maxOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
-        </xs:sequence>
+        </xs:choice>
 
                 <xs:attribute type="xs:string" name="value"
                               use="optional"/>
@@ -2500,25 +2500,25 @@
     </xs:complexType>
 
     <xs:complexType name="onLinkType">
-        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element type="con:updateSectionType" name="update"
                         minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
 
             <xs:element type="con:createSectionType" name="create"
                         minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute type="xs:boolean" name="do-link" default="true" use="optional"/>
 
     </xs:complexType>
 
     <xs:complexType name="onUnlinkType">
-        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element type="con:createSectionType" name="create"
                         minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
 
             <xs:element type="con:updateSectionType" name="update"
                         minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute type="xs:boolean" name="do-unlink" default="true" use="optional"/>
 
     </xs:complexType>

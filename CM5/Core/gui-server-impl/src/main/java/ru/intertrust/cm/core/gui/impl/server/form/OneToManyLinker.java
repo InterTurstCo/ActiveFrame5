@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.gui.api.server.form.BeforeLinkResult;
+import ru.intertrust.cm.core.gui.api.server.form.BeforeUnlinkResult;
 import ru.intertrust.cm.core.gui.api.server.form.DomainObjectLinkContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
@@ -53,8 +55,12 @@ public class OneToManyLinker extends ObjectsLinker {
             DomainObject objectToLink = crudService.find(id); // todo: optimize with batch operations
             if (linkInterceptor != null) {
                 final DomainObjectLinkContext context = new DomainObjectLinkContext(formState, parentObject, objectToLink, widgetContext, fieldPath);
-                final boolean doLink = linkInterceptor.beforeLink(context);
-                if (!doLink) {
+                final BeforeLinkResult beforeLinkResult = linkInterceptor.beforeLink(context);
+                if (!beforeLinkResult.doLink) {
+                    continue;
+                }
+                objectToLink = beforeLinkResult.linkedDomainObject;
+                if (objectToLink == null) {
                     continue;
                 }
             }
@@ -68,8 +74,12 @@ public class OneToManyLinker extends ObjectsLinker {
             DomainObject objectToUnlink = crudService.find(id); // todo optimize
             if (linkInterceptor != null) {
                 final DomainObjectLinkContext context = new DomainObjectLinkContext(formState, parentObject, objectToUnlink, widgetContext, fieldPath);
-                final boolean doUnlink = linkInterceptor.beforeUnlink(context);
-                if (!doUnlink) {
+                final BeforeUnlinkResult beforeUnlinkResult = linkInterceptor.beforeUnlink(context);
+                if (!beforeUnlinkResult.doUnlink) {
+                    continue;
+                }
+                objectToUnlink = beforeUnlinkResult.unlinkedDomainObject;
+                if (objectToUnlink == null) {
                     continue;
                 }
             }

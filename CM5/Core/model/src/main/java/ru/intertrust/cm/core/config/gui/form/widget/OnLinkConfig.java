@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
@@ -18,26 +18,18 @@ public class OnLinkConfig implements Dto {
     @Attribute(name = "do-link", required = false)
     private boolean doLink = true;
 
-    @Element(name= "create")
-    private CreateConfig createConfig;
+    @ElementListUnion({
+            @ElementList(entry="create", type=CreateConfig.class, inline=true, required = false),
+            @ElementList(entry="update", type=UpdateConfig.class, inline=true, required = false),
+    })
+    private List<OperationConfig> operationConfigs = new ArrayList<>();
 
-    @Element(name= "update")
-    private UpdateConfig updateConfig;
-
-    public CreateConfig getCreateConfig() {
-        return createConfig;
+    public List<OperationConfig> getOperationConfigs() {
+        return operationConfigs;
     }
 
-    public void setCreateConfig(CreateConfig createConfig) {
-        this.createConfig = createConfig;
-    }
-
-    public UpdateConfig getUpdateConfig() {
-        return updateConfig;
-    }
-
-    public void setUpdateConfig(UpdateConfig updateConfig) {
-        this.updateConfig = updateConfig;
+    public void setOperationConfigs(List<OperationConfig> operationConfigs) {
+        this.operationConfigs = operationConfigs;
     }
 
     public boolean doLink() {
@@ -55,18 +47,16 @@ public class OnLinkConfig implements Dto {
 
         OnLinkConfig that = (OnLinkConfig) o;
 
+        if (operationConfigs != null ? !operationConfigs.equals(that.operationConfigs) : that.operationConfigs != null) return false;
         if (doLink != that.doLink) return false;
-        if (createConfig != null ? !createConfig.equals(that.createConfig) : that.createConfig != null) return false;
-        if (updateConfig != null ? !updateConfig.equals(that.updateConfig) : that.updateConfig != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (doLink ? 1 : 0);
-        result = 31 * result + (createConfig != null ? createConfig.hashCode() : 0);
-        result = 31 * result + (updateConfig != null ? updateConfig.hashCode() : 0);
+        int result = doLink ? 1 : 0;
+        result = 31 * result + (operationConfigs != null ? operationConfigs.hashCode() : 0);
         return result;
     }
 }

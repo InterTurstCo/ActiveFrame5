@@ -18,9 +18,9 @@ public interface DomainObjectLinkInterceptor extends ComponentHandler {
      * чтобы механизм форм их не затёр). Связанный объект можно и удалить, но во избежание конфликтов метод должен в этом
      * случае вернуть false, чтобы механизм форм не попытался произвести операции сохранения.
      * @param context контекст связывания объекта с родительским
-     * @return true, если механизм форм должен установить связь, false - в противном случае
+     * @return результат работы перехватчика события "перед связыванием"
      */
-    boolean beforeLink(DomainObjectLinkContext context);
+    BeforeLinkResult beforeLink(DomainObjectLinkContext context);
 
     /**
      * Данный метод вызывается непосредственно перед тем, как происходит разрыв связи объекта с родительским объектом на форме.
@@ -29,7 +29,7 @@ public interface DomainObjectLinkInterceptor extends ComponentHandler {
      * чтобы механизм форм их не затёр). Связанный объект можно и удалить, но во избежание конфликтов метод должен в этом
      * случае вернуть false, чтобы механизм форм не попытался это сделать ещё раз
      * @param context контекст разрыва связи объекта с родительским
-     * @return true, если механизм форм должен разорвать связь, false - в противном случае
+     * @return результат работы перехватчика события "перед разрывом связи"
      */
-    boolean beforeUnlink(DomainObjectLinkContext context);
+    BeforeUnlinkResult beforeUnlink(DomainObjectLinkContext context);
 }

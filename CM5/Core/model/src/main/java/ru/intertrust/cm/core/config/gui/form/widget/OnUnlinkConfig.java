@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
+import org.simpleframework.xml.ElementListUnion;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
@@ -13,10 +13,13 @@ import java.util.List;
  */
 public class OnUnlinkConfig implements Dto {
 
-    @Attribute(name = "do-unlink", required = false, empty = "true")
-    private boolean doUnlink;
+    @Attribute(name = "do-unlink", required = false)
+    private boolean doUnlink = true;
 
-    @ElementList(inline = true)
+    @ElementListUnion({
+            @ElementList(entry="create", type=CreateConfig.class, inline=true, required = false),
+            @ElementList(entry="update", type=UpdateConfig.class, inline=true, required = false),
+    })
     private List<OperationConfig> operationConfigs = new ArrayList<OperationConfig>();
 
     public boolean doUnlink() {
