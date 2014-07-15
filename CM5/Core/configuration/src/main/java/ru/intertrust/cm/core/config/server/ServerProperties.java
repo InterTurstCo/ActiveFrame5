@@ -1,8 +1,16 @@
 package ru.intertrust.cm.core.config.server;
 
+import java.io.File;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 @Configuration
 public class ServerProperties {
@@ -18,7 +26,7 @@ public class ServerProperties {
         
         
         
-        /*String serverPropertiesLocation = System.getProperty("server.properties.location");
+        String serverPropertiesLocation = System.getProperty("server.properties.location");
 
         String appName = "";
         try {
@@ -42,7 +50,7 @@ public class ServerProperties {
                         serverPropertiesResource
                 };
 
-        configurer.setLocations(resources);*/
+        configurer.setLocations(resources);
         return configurer;
     }
     
