@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- общий спринг-контекст, который наследуется WebApplicationContext-ом. link {/WEB-INF/web.xml} -->
-    <bean id="ear.context" class="org.springframework.context.support.ClassPathXmlApplicationContext">
+    <bean id="ear.context" class="ru.intertrust.cm.core.bootstrap.CmClassPathXmlApplicationContext">
         <constructor-arg>
             <list>
                 <value>classpath*:beans.xml</value>

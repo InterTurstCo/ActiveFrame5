@@ -1,38 +1,40 @@
-package ru.intertrust.cm.core.config.server;
+package ru.intertrust.cm.core.bootstrap;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.beans.BeansException;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.ResourcePropertySource;
 
-import ru.intertrust.cm.core.model.FatalException;
+public class CmClassPathXmlApplicationContext extends ClassPathXmlApplicationContext {
 
-public class ServerPropertiesInitializer  {
-    @Autowired
-    ApplicationContext context;
+    public CmClassPathXmlApplicationContext(String... configLocations) throws BeansException {
+        super(configLocations);
+    }
     
-    @PostConstruct
-    public void initialize() {
-        ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) context;
+    @Override
+    protected ConfigurableEnvironment createEnvironment() {
         try {
+            ConfigurableEnvironment result = super.createEnvironment();
+
             List<PropertySource> properties = getPropertiesResources();
             for (int i = 0; i < properties.size(); i++) {
-                applicationContext.getEnvironment().getPropertySources().addFirst(properties.get(i));
+                result.getPropertySources().addFirst(properties.get(i));
             }
+
+            return result;
         } catch (Exception ex) {
-            throw new FatalException("Error init server properties", ex);
+            throw new RuntimeException("Error init server properties", ex);
         }
     }
 
@@ -51,7 +53,7 @@ public class ServerPropertiesInitializer  {
         if (applicationSpecificServerProp.exists()) {
             serverPropertiesResource = new FileSystemResource(applicationSpecificServerProp);
         } else {
-            serverPropertiesResource = new FileSystemResource(serverPropertiesLocation + "/server.properties");
+            serverPropertiesResource = new FileSystemResource(new File(serverPropertiesLocation, "server.properties"));
         }
 
         List<PropertySource> resources = new ArrayList<PropertySource>();
@@ -59,6 +61,5 @@ public class ServerPropertiesInitializer  {
         resources.add(new ResourcePropertySource(serverPropertiesResource));
 
         return resources;
-
     }
 }
