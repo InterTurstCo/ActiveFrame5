@@ -1,5 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -16,8 +27,6 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
-import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -268,7 +277,7 @@ public class FormSaver extends FormProcessor {
         for (FieldPath fieldPath : fieldPaths) {
             result.put(fieldPath, new ArrayList<Id>());
         }
-        ArrayList<Id> ids = widgetState.getIds();
+        Collection<Id> ids = widgetState.getIds();
         if (ids == null) {
             return result;
         }

@@ -1,8 +1,20 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.regex.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
@@ -16,12 +28,6 @@ import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.regex.Matcher;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -51,7 +57,7 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
     public LinkedHashMap<Id, String> generateWidgetItemsFromCollectionAndIds(SelectionPatternConfig selectionPatternConfig,
                                                                              FormattingConfig formattingConfig,
                                                                              IdentifiableObjectCollection collection,
-                                                                             List<Id> selectedIds) {
+                                                                             Collection<Id> selectedIds) {
         LinkedHashMap<Id, String> listValues = new LinkedHashMap();
         Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
         for (IdentifiableObject collectionObject : collection) {
@@ -68,7 +74,7 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
 
     public WidgetItemsResponse fetchWidgetItems(Dto inputParams) {
         WidgetItemsRequest widgetItemsRequest = (WidgetItemsRequest) inputParams;
-        List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
+        Collection<Id> selectedIds = widgetItemsRequest.getSelectedIds();
         Filter includeIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);
         List<Filter> filters = new ArrayList<>();
         filters.add(includeIds);

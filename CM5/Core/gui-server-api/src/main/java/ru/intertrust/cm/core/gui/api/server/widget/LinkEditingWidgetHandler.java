@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -29,8 +30,8 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
 
     @Override
     public Value getValue(WidgetState state) {
-        ArrayList<Id> ids = ((LinkEditingWidgetState) state).getIds();
-        return ids == null || ids.isEmpty() ? null : new ReferenceValue(ids.get(0));
+        Collection<Id> ids = ((LinkEditingWidgetState) state).getIds();
+        return ids == null || ids.isEmpty() ? null : new ReferenceValue(ids.iterator().next());
     }
 
     protected String getLinkedObjectType(WidgetContext context, FieldPath fieldPath) {

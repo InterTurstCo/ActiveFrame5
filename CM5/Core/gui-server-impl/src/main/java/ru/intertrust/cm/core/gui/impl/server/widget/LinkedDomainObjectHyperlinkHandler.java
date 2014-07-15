@@ -1,10 +1,23 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.regex.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
@@ -22,12 +35,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.regex.Matcher;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -82,7 +89,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     }
 
     private LinkedHashMap<Id, String> generateFilteredHyperlinkItems(LinkedDomainObjectHyperlinkConfig widgetConfig,
-                                                                     List<Id> selectedIds, boolean tooltipContent) {
+                                                                     Collection<Id> selectedIds, boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
         FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
@@ -140,7 +147,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
         collectionRefConfig.setName(collectionName);
         widgetConfig.setCollectionRefConfig(collectionRefConfig);
-        List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
+        Collection<Id> selectedIds = widgetItemsRequest.getSelectedIds();
         LinkedHashMap<Id, String> listValues = generateFilteredHyperlinkItems(widgetConfig, selectedIds, true);
         WidgetItemsResponse response = new WidgetItemsResponse();
         response.setListValues(listValues);

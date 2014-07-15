@@ -1,13 +1,13 @@
 package ru.intertrust.cm.core.gui.api.server.widget;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
-
-import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -21,5 +21,5 @@ public interface WidgetItemsHandler extends ComponentHandler {
     public LinkedHashMap<Id, String> generateWidgetItemsFromCollectionAndIds(SelectionPatternConfig selectionPatternConfig,
                                                                              FormattingConfig formattingConfig,
                                                                              IdentifiableObjectCollection collection,
-                                                                             List<Id> selectedIds);
+                                                                             Collection<Id> selectedIds);
 }

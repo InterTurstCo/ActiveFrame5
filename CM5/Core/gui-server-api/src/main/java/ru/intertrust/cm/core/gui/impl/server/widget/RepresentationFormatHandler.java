@@ -1,8 +1,24 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
@@ -15,12 +31,6 @@ import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
-
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
 
 
 /**
@@ -38,7 +48,7 @@ public class RepresentationFormatHandler implements FormatHandler {
         RepresentationRequest request = (RepresentationRequest) inputParams;
         String selectionPattern = request.getPattern();
         Matcher matcher = pattern.matcher(selectionPattern);
-        List<Id> ids = request.getIds();
+        final Collection<Id> ids = request.getIds();
         Iterator<Id> iterator = ids.iterator();
         StringBuilder sb = new StringBuilder();
         while (iterator.hasNext()) {
@@ -60,8 +70,8 @@ public class RepresentationFormatHandler implements FormatHandler {
         String selectionPattern = request.getPattern();
         FormattingConfig formattingConfig = request.getFormattingConfig();
         Matcher matcher = pattern.matcher(selectionPattern);
-        List<Id> ids = request.getIds();
-        Id id = ids.get(0);
+        Collection<Id> ids = request.getIds();
+        Id id = ids.iterator().next();  // todo ?NPE?
         DomainObject domainObject = crudService.find(id);
         String representation = format(domainObject, matcher, formattingConfig);
         RepresentationResponse response = new RepresentationResponse(id, representation);

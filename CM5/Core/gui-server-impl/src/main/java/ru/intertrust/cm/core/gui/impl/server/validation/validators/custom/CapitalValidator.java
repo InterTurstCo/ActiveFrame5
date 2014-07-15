@@ -1,8 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server.validation.validators.custom;
 
+import java.util.Collection;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -12,9 +15,6 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestBoxState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Пример кастомного серверного валидатора. Проверяет, что столица не является городом другой страны.
@@ -41,9 +41,9 @@ public class CapitalValidator implements ServerValidator {
         }
         if (dtoToValidate instanceof SuggestBoxState) {
             SuggestBoxState state = (SuggestBoxState)dtoToValidate;
-            ArrayList<Id> ids = state.getIds();
+            Collection<Id> ids =  state.getIds();
             if (ids != null && ids.size() == 1) {
-                Id cityId = ids.get(0);
+                Id cityId = ids.iterator().next();
                 CrudService crudService = getCrudService();
                 DomainObject city = crudService.find(cityId);
                 if (city != null) {

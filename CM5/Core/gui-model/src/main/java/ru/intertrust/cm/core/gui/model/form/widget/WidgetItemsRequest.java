@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import java.util.Collection;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-
-import java.util.ArrayList;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class WidgetItemsRequest implements Dto {
     private String selectionPattern;
-    private ArrayList<Id> selectedIds;
+    private Collection<Id> selectedIds;
     private String collectionName;
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     private FormattingConfig formattingConfig;
@@ -28,11 +28,11 @@ public class WidgetItemsRequest implements Dto {
         this.selectionPattern = selectionPattern;
     }
 
-    public ArrayList<Id> getSelectedIds() {
+    public Collection<Id> getSelectedIds() {
         return selectedIds;
     }
 
-    public void setSelectedIds(ArrayList<Id> selectedIds) {
+    public void setSelectedIds(Collection<Id> selectedIds) {
         this.selectedIds = selectedIds;
     }
 

@@ -188,7 +188,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         // данные из полей формы поиска
         Map<String, WidgetState> formWidgetsData = extendedSearchData.getFormWidgetsData();
-        ArrayList<Id> idsWidgetObjects = null;
+        Collection<Id> idsWidgetObjects = null;
         // список значений дат в интервале
         ArrayList<Date> dateBoxList = null;
 

@@ -494,7 +494,4 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
 
         }
     }
-
-
-
 }

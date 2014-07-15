@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import ru.intertrust.cm.core.business.api.dto.Id;
+import java.util.Collection;
 
-import java.util.ArrayList;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
  * If widget is capable of setting links between objects, similarly it can set a single reference field, in case the
@@ -23,6 +23,6 @@ public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
         this.singleChoice = singleChoice;
     }
 
-    public abstract ArrayList<Id> getIds();
+    public abstract Collection<Id> getIds();
 
 }

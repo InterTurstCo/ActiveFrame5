@@ -76,7 +76,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
 
     public WidgetItemsResponse fetchTableBrowserItems(Dto inputParams) {
         WidgetItemsRequest widgetItemsRequest = (WidgetItemsRequest) inputParams;
-        List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
+        Collection<Id> selectedIds = widgetItemsRequest.getSelectedIds();
         Filter includeIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);
         List<Filter> filters = new ArrayList<>();
         filters.add(includeIds);

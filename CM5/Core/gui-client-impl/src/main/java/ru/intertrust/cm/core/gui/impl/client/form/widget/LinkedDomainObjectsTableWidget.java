@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import java.util.Collection;
+import java.util.List;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -9,8 +11,13 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableColumnConfig;
@@ -22,10 +29,18 @@ import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedTableTooltipRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedTableTooltipResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
+import ru.intertrust.cm.core.gui.model.form.widget.TextState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-
-import java.util.List;
 
 
 @ComponentName("linked-domain-objects-table")
@@ -289,7 +304,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                     }
                 } else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
                     LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
-                    List<Id> ids = linkEditingWidgetState.getIds();
+                    Collection<Id> ids = linkEditingWidgetState.getIds();
                     String selectionPattern = summaryTableColumnConfig.getPatternConfig().getValue();
                     getRepresentation(item, summaryTableColumnConfig.getWidgetId(), ids, selectionPattern, model);
                 }
@@ -302,8 +317,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         return new LinkedDomainObjectsTableWidget();
     }
 
-    private void getRepresentation(final RowItem item, final String widgetId, List<Id> ids, String selectionPattern,
-                                   final ListDataProvider<RowItem> model) {
+    private void getRepresentation(final RowItem item, final String widgetId, Collection<Id> ids,
+                                   String selectionPattern, final ListDataProvider<RowItem> model) {
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
         RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, summaryTableConfig);
         Command command = new Command("getRepresentation", "representation-updater", request);

@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import java.util.Collection;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
-
-import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -13,30 +13,30 @@ import java.util.List;
  *         Time: 13:15
  */
 public class RepresentationRequest implements Dto {
-    private List<Id> ids;
+    private Collection<Id> ids;
     private String pattern;
     private FormattingConfig formattingConfig;
     private SummaryTableConfig summaryTableConfig;
     public RepresentationRequest() {
     }
 
-    public RepresentationRequest(List<Id> ids, String pattern, FormattingConfig formattingConfig) {
+    public RepresentationRequest(Collection<Id> ids, String pattern, FormattingConfig formattingConfig) {
         this.ids = ids;
         this.pattern = pattern;
         this.formattingConfig = formattingConfig;
     }
 
-    public RepresentationRequest(List<Id> ids, String pattern, SummaryTableConfig summaryTableConfig) {
+    public RepresentationRequest(Collection<Id> ids, String pattern, SummaryTableConfig summaryTableConfig) {
         this.ids = ids;
         this.pattern = pattern;
         this.summaryTableConfig = summaryTableConfig;
     }
 
-    public List<Id> getIds() {
+    public Collection<Id> getIds() {
         return ids;
     }
 
-    public void setIds(List<Id> ids) {
+    public void setIds(Collection<Id> ids) {
         this.ids = ids;
     }
 
