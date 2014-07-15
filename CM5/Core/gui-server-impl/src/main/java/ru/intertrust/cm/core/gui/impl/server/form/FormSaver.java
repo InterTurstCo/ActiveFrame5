@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -277,7 +276,7 @@ public class FormSaver extends FormProcessor {
         for (FieldPath fieldPath : fieldPaths) {
             result.put(fieldPath, new ArrayList<Id>());
         }
-        Collection<Id> ids = widgetState.getIds();
+        List<Id> ids = widgetState.getIds();
         if (ids == null) {
             return result;
         }

@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import java.util.Collection;
+import java.util.ArrayList;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 
@@ -23,6 +23,6 @@ public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
         this.singleChoice = singleChoice;
     }
 
-    public abstract Collection<Id> getIds();
+    public abstract ArrayList<Id> getIds();
 
 }

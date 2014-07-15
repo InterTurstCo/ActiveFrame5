@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import java.util.Collection;
 import java.util.List;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.FieldUpdater;
@@ -304,7 +303,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                     }
                 } else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
                     LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
-                    Collection<Id> ids = linkEditingWidgetState.getIds();
+                    List<Id> ids = linkEditingWidgetState.getIds();
                     String selectionPattern = summaryTableColumnConfig.getPatternConfig().getValue();
                     getRepresentation(item, summaryTableColumnConfig.getWidgetId(), ids, selectionPattern, model);
                 }
@@ -317,7 +316,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         return new LinkedDomainObjectsTableWidget();
     }
 
-    private void getRepresentation(final RowItem item, final String widgetId, Collection<Id> ids,
+    private void getRepresentation(final RowItem item, final String widgetId, List<Id> ids,
                                    String selectionPattern, final ListDataProvider<RowItem> model) {
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
         RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, summaryTableConfig);

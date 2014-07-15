@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -89,7 +88,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     }
 
     private LinkedHashMap<Id, String> generateFilteredHyperlinkItems(LinkedDomainObjectHyperlinkConfig widgetConfig,
-                                                                     Collection<Id> selectedIds, boolean tooltipContent) {
+                                                                     List<Id> selectedIds, boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
         FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
@@ -147,7 +146,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
         collectionRefConfig.setName(collectionName);
         widgetConfig.setCollectionRefConfig(collectionRefConfig);
-        Collection<Id> selectedIds = widgetItemsRequest.getSelectedIds();
+        List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
         LinkedHashMap<Id, String> listValues = generateFilteredHyperlinkItems(widgetConfig, selectedIds, true);
         WidgetItemsResponse response = new WidgetItemsResponse();
         response.setListValues(listValues);

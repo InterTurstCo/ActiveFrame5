@@ -438,7 +438,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     selectedSuggestions.remove(id);
                     stateListValues.remove(id);
                     SuggestBoxState suggestBoxState = getInitialData();
-                    suggestBoxState.getIds().remove(id);
+                    suggestBoxState.removeSelected(id);
                     suggestBox.setFocus(true);
 
                 }

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -26,8 +27,12 @@ public class SuggestBoxState extends TooltipWidgetState<SuggestBoxConfig> {
     }
 
     @Override
-    public Set<Id> getIds() {
-        return selectedIds;
+    public ArrayList<Id> getIds() {
+        return selectedIds == null ? null : new ArrayList(selectedIds);
+    }
+
+    public void removeSelected(final Id id) {
+        selectedIds.remove(id);
     }
 
     public SuggestBoxConfig getSuggestBoxConfig() {

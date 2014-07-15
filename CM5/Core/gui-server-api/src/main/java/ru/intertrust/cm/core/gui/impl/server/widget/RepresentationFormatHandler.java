@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -48,7 +47,7 @@ public class RepresentationFormatHandler implements FormatHandler {
         RepresentationRequest request = (RepresentationRequest) inputParams;
         String selectionPattern = request.getPattern();
         Matcher matcher = pattern.matcher(selectionPattern);
-        final Collection<Id> ids = request.getIds();
+        final List<Id> ids = request.getIds();
         Iterator<Id> iterator = ids.iterator();
         StringBuilder sb = new StringBuilder();
         while (iterator.hasNext()) {
@@ -70,8 +69,8 @@ public class RepresentationFormatHandler implements FormatHandler {
         String selectionPattern = request.getPattern();
         FormattingConfig formattingConfig = request.getFormattingConfig();
         Matcher matcher = pattern.matcher(selectionPattern);
-        Collection<Id> ids = request.getIds();
-        Id id = ids.iterator().next();  // todo ?NPE?
+        List<Id> ids = request.getIds();
+        Id id = ids.get(0);
         DomainObject domainObject = crudService.find(id);
         String representation = format(domainObject, matcher, formattingConfig);
         RepresentationResponse response = new RepresentationResponse(id, representation);

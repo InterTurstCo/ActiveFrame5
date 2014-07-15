@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.validation.validators.custom;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +41,9 @@ public class CapitalValidator implements ServerValidator {
         }
         if (dtoToValidate instanceof SuggestBoxState) {
             SuggestBoxState state = (SuggestBoxState)dtoToValidate;
-            Collection<Id> ids =  state.getIds();
+            ArrayList<Id> ids =  state.getIds();
             if (ids != null && ids.size() == 1) {
-                Id cityId = ids.iterator().next();
+                Id cityId = ids.get(0);
                 CrudService crudService = getCrudService();
                 DomainObject city = crudService.find(cityId);
                 if (city != null) {

@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +72,7 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
             Value value;
             if (widgetState instanceof LinkEditingWidgetState &&
                     !((LinkEditingWidgetState)widgetState).isSingleChoice()) {
-                Collection<Id> ids = ((LinkEditingWidgetState)widgetState).getIds();
+                List<Id> ids = ((LinkEditingWidgetState)widgetState).getIds();
                 List<Value> values = new ArrayList<>(ids.size());
                 for (Id id : ids) {
                     values.add(new ReferenceValue(id));
