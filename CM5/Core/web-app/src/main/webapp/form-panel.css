@@ -149,11 +149,11 @@
 }
 
 .widget-wrapper > .hierarh-browser-inline {
-    position: absolute;
-    top: 40px;
-    right: 0;
-    bottom: 0;
-    left: 10px;
+    /*position: absolute;*/
+    /*top: 40px;*/
+    /*right: 0;*/
+    /*bottom: 0;*/
+    /*left: 10px;*/
 }
 
 .ext-search-form-style .widget-wrapper {
