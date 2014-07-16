@@ -181,8 +181,10 @@ public class FormPanel implements IsWidget {
         if (!tabs.isEmpty()) {
             final HistoryManager historyManager = Application.getInstance().getHistoryManager();
             final String indexAsStr = historyManager.getValue(TAB_KEY);
-            final int selectedTab = StringUtil.integerFromString(indexAsStr, DEFAULT_TAB);
-            //TODO java.lang.IndexOutOfBoundsException for hyperlinks when form is opened in Popup
+            int selectedTab = StringUtil.integerFromString(indexAsStr, DEFAULT_TAB);
+            if (selectedTab > tabs.size()) {
+                selectedTab = DEFAULT_TAB;
+            }
             bodyTabPanel.selectTab(selectedTab);
             bodyTabPanel.getWidget(selectedTab).getParent().getElement().getParentElement()
                     .addClassName("gwt-TabLayoutPanel-wrapper");
