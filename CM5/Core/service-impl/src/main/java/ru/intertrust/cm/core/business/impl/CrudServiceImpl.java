@@ -4,19 +4,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
@@ -384,6 +378,38 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getDomainObjectType", ex);
             throw new UnexpectedException("CrudService", "getDomainObjectType", "id:" + id, ex);
+        }
+    }
+
+    @Override
+    public DomainObject findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName) {
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+            Id byUniqueKey = domainObjectDao.findByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
+            return find(byUniqueKey);
+        } catch (AccessException | ObjectNotFoundException e) {
+            throw e;
+        } catch (Exception ex){
+            logger.error("Unexpected exception caught in findByUniqueKey", ex);
+            throw new UnexpectedException("CrudService", "findByUniqueKey",
+                    "domainObjectType:" + domainObjectType, ex);
+        }
+    }
+
+    @Override
+    public DomainObject findAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName) {
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+            Id byUniqueKey = domainObjectDao.findByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
+            return findAndLock(byUniqueKey);
+        } catch (AccessException | ObjectNotFoundException e) {
+            throw e;
+        } catch (Exception ex){
+            logger.error("Unexpected exception caught in findAndLockByUniqueKey", ex);
+            throw new UnexpectedException("CrudService", "findAndLockByUniqueKey",
+                    "domainObjectType:" + domainObjectType, ex);
         }
     }
 

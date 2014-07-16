@@ -3,11 +3,13 @@ package ru.intertrust.cm.core.business.api;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Сервис, обеспечивающий базовые CRUD-операции (C-Create-Создание R-Read-Чтение U-Update-Модификация D-Delete-Удаление)
@@ -171,4 +173,27 @@ public interface CrudService {
      * @return строковый тип доменного объекта
      */
     String getDomainObjectType(Id id);
+
+
+    /**
+     * Возвращает доменный объект по его уникальному ключу
+     *
+     * @param domainObjectType типа доменного объекта
+     * @param uniqueKeyValuesByName Map с наименованиями и значениями ключа
+     * @return доменный объект
+     * @throws ObjectNotFoundException,  если объект не найден
+     * @throws AccessException,          если отказано в доступе к объекту
+     */
+    DomainObject findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName);
+
+    /**
+     * Блокирует и возвращает доменный объект по его уникальному ключу
+     *
+     * @param domainObjectType типа доменного объекта
+     * @param uniqueKeyValuesByName Map с наименованиями и значениями ключа
+     * @return доменный объект
+     * @throws ObjectNotFoundException,  если объект не найден
+     * @throws AccessException,          если отказано в доступе к объекту
+     */
+    DomainObject findAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName);
 }

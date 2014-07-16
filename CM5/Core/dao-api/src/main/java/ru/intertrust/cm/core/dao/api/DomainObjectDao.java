@@ -3,12 +3,14 @@ package ru.intertrust.cm.core.dao.api;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * DAO для работы с доменными объектами выполняет операции создания, модификации,
@@ -206,4 +208,14 @@ public interface DomainObjectDao {
      * @param accessToken маркер доступа
      */
     DomainObject setStatus(Id objectId, Id status, AccessToken accessToken);
+
+    /**
+     * Возвращает доменный объект по его уникальному ключу
+     *
+     * @param domainObjectType типа доменного объекта
+     * @param uniqueKeyValuesByName Map с наименованиями и значениями ключа
+     * @return ID доменного объекта
+     * @throws ObjectNotFoundException,  если объект не найден
+     */
+    Id findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken);
 }

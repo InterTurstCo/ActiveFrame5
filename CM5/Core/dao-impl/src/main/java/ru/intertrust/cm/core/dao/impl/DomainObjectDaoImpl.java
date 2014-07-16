@@ -17,37 +17,17 @@ import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
-import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
-import ru.intertrust.cm.core.config.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.ConfigurationException;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.ExtensionService;
-import ru.intertrust.cm.core.dao.api.IdGenerator;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
@@ -99,6 +79,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
+
+    @Autowired
+    private CollectionsDao collectionsDao;
 
     @Autowired
     public void setDomainObjectCacheService(
@@ -1982,4 +1965,84 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         return result;
     }
+
+    @Override
+    public Id findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
+
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
+        if (domainObjectTypeConfig == null) throw new IllegalArgumentException("Unknown domain object type:" + domainObjectType);
+
+        List<UniqueKeyConfig> uniqueKeyConfigs = domainObjectTypeConfig.getUniqueKeyConfigs();
+        UniqueKeyConfig uniqueKeyConfig = findUniqueKeyConfig(domainObjectType, uniqueKeyConfigs, uniqueKeyValuesByName);
+
+        String query = generateFindByUniqueKeyQuery(domainObjectType, uniqueKeyConfig);
+
+        List<Value> params = new ArrayList<>();
+        for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
+            String name = uniqueKeyFieldConfig.getName();
+            Value value = uniqueKeyValuesByName.get(name);
+            if (value instanceof ReferenceValue){
+                RdbmsId id = (RdbmsId) ((ReferenceValue) value).get();
+                params.add(new LongValue(id.getId()));
+                params.add(new LongValue(id.getTypeId()));
+            } else {
+                params.add(value);
+            }
+        }
+
+        IdentifiableObjectCollection identifiableObjectCollection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
+        if (identifiableObjectCollection.size() == 0){
+            throw new ObjectNotFoundException(new RdbmsId());
+        }
+
+        return identifiableObjectCollection.get(0).getId();
+    }
+
+    private UniqueKeyConfig findUniqueKeyConfig(String domainObjectType, List<UniqueKeyConfig> uniqueKeyConfigs, Map<String, Value> uniqueKeyValuesByName) {
+        Set<String> uniqueKeyNamesParams = uniqueKeyValuesByName.keySet();
+        for (UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigs) {
+
+            Set<String> uniqueKeyFieldNames = new HashSet<>();
+            for (UniqueKeyFieldConfig keyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
+                uniqueKeyFieldNames.add(keyFieldConfig.getName());
+            }
+
+            if (uniqueKeyNamesParams.equals(uniqueKeyFieldNames)) {
+                return uniqueKeyConfig;
+            }
+        }
+
+        throw new IllegalArgumentException("The configuration of the domain object type \"" + domainObjectType +
+                "\" has no unique key (" + Arrays.toString(uniqueKeyNamesParams.toArray()) + ")" );
+    }
+
+    private String generateFindByUniqueKeyQuery(String domainObjectType, UniqueKeyConfig uniqueKeyConfig) {
+        String tableAlias = getSqlAlias(domainObjectType);
+
+        StringBuilder query = new StringBuilder();
+        query.append("select ");
+        query.append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(", ");
+        query.append(tableAlias).append(".").append(wrap(TYPE_COLUMN));
+        query.append(" from ");
+        query.append(wrap(tableAlias));
+        query.append(" where ");
+
+        int paramCounter = 0;
+
+        for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
+            if (paramCounter > 0) {
+                query.append(" and ");
+            }
+            String name = uniqueKeyFieldConfig.getName();
+            query.append(tableAlias).append(".").append(wrap(name))
+                    .append(" = {").append(paramCounter++).append("} ");
+            if (FieldType.REFERENCE == configurationExplorer.getFieldConfig(domainObjectType, name).getFieldType()){
+                query.append(" and ").append(tableAlias).append(".").append(wrap(name + REFERENCE_TYPE_POSTFIX))
+                        .append(" = {").append(paramCounter++).append("} ");
+            }
+        }
+
+        return query.toString();
+    }
+
 }
