@@ -3,16 +3,23 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 14.09.13
  *         Time: 14:16
  */
 public abstract class WidgetConfig implements Dto {
+    private static final String MAX_DEFAULT_TOOLTIP_WIDTH = "400px";
+    private static final String MAX_DEFAULT_TOOLTIP_HEIGHT = "300px";
     @Attribute(name = "id", required = false)
     protected String id;
     @Attribute(name = "read-only", required = false)
     protected boolean readOnly;
+    @Attribute(name = "max-tooltip-width", required = false)
+    protected String maxTooltipWidth;
+    @Attribute(name = "max-tooltip-height", required = false)
+    protected String maxTooltipHeight;
     @Element(name = "field-path", required = false)
     protected FieldPathConfig fieldPathConfig;
 
@@ -40,6 +47,23 @@ public abstract class WidgetConfig implements Dto {
         this.readOnly = readOnly;
     }
 
+
+    public String getMaxTooltipWidth() {
+        return maxTooltipWidth == null ? MAX_DEFAULT_TOOLTIP_WIDTH : maxTooltipWidth;
+    }
+
+    public void setMaxTooltipWidth(String maxTooltipWidth) {
+        this.maxTooltipWidth = maxTooltipWidth;
+    }
+
+    public String getMaxTooltipHeight() {
+        return maxTooltipHeight == null ? MAX_DEFAULT_TOOLTIP_HEIGHT : maxTooltipHeight;
+    }
+
+    public void setMaxTooltipHeight(String maxTooltipHeight) {
+        this.maxTooltipHeight = maxTooltipHeight;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -58,6 +82,12 @@ public abstract class WidgetConfig implements Dto {
             return false;
         }
         if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+        if (maxTooltipWidth != null ? !maxTooltipWidth.equals(that.maxTooltipWidth) : that.maxTooltipWidth != null) {
+            return false;
+        }
+        if (maxTooltipHeight != null ? !id.equals(that.maxTooltipHeight) : that.maxTooltipHeight != null) {
             return false;
         }
 

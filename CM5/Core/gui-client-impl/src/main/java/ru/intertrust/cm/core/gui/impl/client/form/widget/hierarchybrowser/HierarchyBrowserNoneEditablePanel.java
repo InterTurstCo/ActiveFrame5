@@ -28,6 +28,7 @@ public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
     private void displayHyperlink(HierarchyBrowserItem item) {
         AbsolutePanel element = new AbsolutePanel();
         element.addStyleName("facebook-element");
+        element.getElement().getStyle().clearOverflow();
         Id id = item.getId();
         String collectionName = item.getNodeCollectionName();
         String itemRepresentation = item.getStringRepresentation();
@@ -52,8 +53,8 @@ public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
         }
     }
     public void addShowTooltipLabel(ClickHandler handler){
-        Button openTooltip = new Button("..");
-        openTooltip.setStyleName("tooltip-button");
+        Button openTooltip = new Button("...");
+        openTooltip.setStyleName("light-button");
         mainBoxPanel.add(openTooltip);
         openTooltip.addClickHandler(handler);
 

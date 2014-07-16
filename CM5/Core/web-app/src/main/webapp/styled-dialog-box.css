@@ -105,6 +105,15 @@
     width: 512px;
 }
 
+.dialog-box-body .form-dialog-box-content {
+    height: 250px;
+}
+
+.buttons-panel {
+    position: absolute;
+    bottom: 0;
+}
+
 .form-buttons-panel {
     padding-bottom: 5px;
     margin-left: 10px;

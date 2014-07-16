@@ -157,7 +157,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             noneEditablePanel.displayHierarchyBrowserItems(hierarchyBrowserItems);
 
         }
-        if(currentState.shouldDrawTooltipButton()) {
+        if (currentState.shouldDrawTooltipButton()) {
             noneEditablePanel.addShowTooltipLabel(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -351,8 +351,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         Id parentId = event.getParentId();
         HierarchyBrowserWidgetState state = createNewState();
         ArrayList<Id> chosenIds = state.getIds();
-        NodeContentManager nodeContentManager = new RefreshNodeContentManager(config,mainPopup, chosenIds,
-                 parentCollectionName, parentId, "", collectionNameNodeMap);
+        NodeContentManager nodeContentManager = new RefreshNodeContentManager(config, mainPopup, chosenIds,
+                parentCollectionName, parentId, "", collectionNameNodeMap);
         nodeContentManager.fetchNodeContent();
     }
 
@@ -509,15 +509,15 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 HierarchyBrowserTooltipResponse response = (HierarchyBrowserTooltipResponse) result;
                 ArrayList<HierarchyBrowserItem> items = response.getItems();
                 SelectionStyleConfig styleConfig = config.getSelectionStyleConfig();
-                TooltipSizer sizer = new TooltipSizer(response.getSelectionFiltersConfig());
+
                 if (itemsView == null) {
                     HierarchyBrowserNoneEditableTooltip tooltip = new HierarchyBrowserNoneEditableTooltip(styleConfig, localEventBus, isDisplayingHyperlinks());
-                    sizer.setWidgetBounds(tooltip);
+                    TooltipSizer.setWidgetBounds(config, tooltip);
                     tooltip.displayItems(items);
                     tooltip.showRelativeTo(impl);
                 } else {
                     HierarchyBrowserEditableTooltip tooltip = new HierarchyBrowserEditableTooltip(styleConfig, localEventBus, isDisplayingHyperlinks());
-                    sizer.setWidgetBounds(tooltip);
+                    TooltipSizer.setWidgetBounds(config, tooltip);
                     ArrayList<Id> selectedIds = response.getSelectedIds();
                     tooltip.displayItems(items, selectedIds);
                     tooltip.showRelativeTo(itemsView);

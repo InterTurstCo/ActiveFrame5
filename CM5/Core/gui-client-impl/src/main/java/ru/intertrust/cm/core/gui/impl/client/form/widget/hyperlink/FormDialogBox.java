@@ -15,14 +15,14 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
  *         Time: 10:25
  */
 public class FormDialogBox extends DialogBox {
-   private PluginPanel formPluginPanel;
-   private  AbsolutePanel buttonsPanel;
+    private PluginPanel formPluginPanel;
+    private AbsolutePanel buttonsPanel;
 
-    public FormDialogBox(String headerTitle){
+    public FormDialogBox(String headerTitle) {
         init(headerTitle);
     }
 
-    private void init(String headerTitle){
+    private void init(String headerTitle) {
         // Enable animation.
         this.setAnimationEnabled(true);
         this.setModal(true);
@@ -42,6 +42,7 @@ public class FormDialogBox extends DialogBox {
         panel.add(formPluginPanel);
         buttonsPanel = new AbsolutePanel();
         buttonsPanel.addStyleName("buttons-panel");
+        buttonsPanel.getElement().getStyle().clearPosition();
         panel.add(buttonsPanel);
         this.add(panel);
     }
@@ -50,15 +51,15 @@ public class FormDialogBox extends DialogBox {
         this.center();
     }
 
-    public void initButton(String text, ClickHandler clickHandler){
+    public void initButton(String text, ClickHandler clickHandler) {
         Button button = new Button(text);
-        button.addStyleName("dialog-box-button");
+        button.addStyleName("dark-button");
         button.removeStyleName("gwt-Button");
         button.addClickHandler(clickHandler);
         buttonsPanel.add(button);
     }
 
-    public FormPlugin createFormPlugin(FormPluginConfig config){
+    public FormPlugin createFormPlugin(FormPluginConfig config) {
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
         formPlugin.setConfig(config);
         formPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {

@@ -56,16 +56,16 @@ public abstract class TooltipWidget extends BaseWidget {
         TooltipWidgetState state = getInitialData();
         LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
         SelectionStyleConfig styleConfig = config.getSelectionStyleConfig();
-        TooltipSizer tooltipSizer = new TooltipSizer(config.getSelectionFiltersConfig());
+
         if (isEditable()) {
             Set<Id> ids = state.getSelectedIds();
             EditableWidgetTooltip tooltip = new EditableWidgetTooltip(styleConfig, eventBus, isDisplayingAsHyperlink(), ids);
-            tooltipSizer.setWidgetBounds(tooltip);
+            TooltipSizer.setWidgetBounds(config, tooltip);
             tooltip.displayItems(listValues);
             tooltip.showRelativeTo(impl);
         } else {
             NoneEditableTooltip noneEditableTooltip = new NoneEditableTooltip(styleConfig, eventBus, isDisplayingAsHyperlink());
-            tooltipSizer.setWidgetBounds(noneEditableTooltip);
+            TooltipSizer.setWidgetBounds(config, noneEditableTooltip);
             noneEditableTooltip.displayItems(listValues);
             noneEditableTooltip.showRelativeTo(impl);
         }

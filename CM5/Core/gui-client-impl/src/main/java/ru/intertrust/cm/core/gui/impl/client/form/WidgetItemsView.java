@@ -146,7 +146,7 @@ public class WidgetItemsView extends Composite {
     }
     public void addShowTooltipButton(ClickHandler handler){
         Button openTooltip = new Button("..");
-        openTooltip.setStyleName("tooltip-button");
+        openTooltip.setStyleName("light-button");
         mainBoxPanel.add(openTooltip);
         openTooltip.addClickHandler(handler);
 

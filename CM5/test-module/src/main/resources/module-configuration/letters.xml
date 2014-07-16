@@ -103,7 +103,7 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
                 <single-choice value="true"/>
-                <clear-all-button  text="Очистить"/>
+                <clear-all-button text="Очистить"/>
                 <default-sort-criteria column-field="name" order="asc"/>
             </suggest-box>
         </widget-config>
@@ -126,7 +126,7 @@
         </prototype>
 
         <counting-prototype>
-            select count(*) from  org_middle om
+            select count(*) from org_middle om
         </counting-prototype>
         <filter name="byText">
             <criteria placeholder="where-clause">
@@ -248,54 +248,53 @@
                 <text>Адресаты:</text>
             </label>
 
-           <!-- <list-box id="addressees">
-                <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
-                <pattern value="{Name}"/>
-            </list-box>-->
+            <!-- <list-box id="addressees">
+                 <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                 <pattern value="{Name}"/>
+             </list-box>-->
             <hierarchy-browser id="2c">
-                <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                <field-path
+                        value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
 
                 <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
                 <!-- Уже выбранные элементы показываются помеченными галочками -->
                 <!-- collection - название коллекции для отображения списка значений узла -->
 
-                <node-collection-def collection="Organizations" domain-object-type="Organization" title = "Создать Организацию">
-                    <root-node-link title = "Организации"/>
+                <node-collection-def collection="Organizations" domain-object-type="Organization"
+                                     title="Создать Организацию">
+                    <root-node-link title="Организации"/>
                     <!-- название фильтра по тексту, введённому пользователем -->
                     <input-text-filter name="byName"/>
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
-                    <selection-filters row-limit="1">
-
-                    </selection-filters>
-                    <node-collection-def collection="Departments" parent-filter="byOrganization" domain-object-type="Department"  >
+                    <selection-filters row-limit="1"></selection-filters>
+                    <node-collection-def collection="Departments" parent-filter="byOrganization"
+                                         domain-object-type="Department">
                         <!-- название фильтра по тексту, введённому пользователем -->
                         <fill-parent-on-add field-to-fill="organization"/>
                         <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
-                        <selection-filters row-limit="1">
 
-                        </selection-filters>
                     </node-collection-def>
-                    <node-collection-def collection="OrganizationsDepartmentsEmployees" parent-filter="byDepAndOrg" domain-object-type="Employee" >
+                    <node-collection-def collection="OrganizationsDepartmentsEmployees" parent-filter="byDepAndOrg"
+                                         domain-object-type="Employee">
                         <!-- название фильтра по тексту, введённому пользователем -->
-                        <fill-parent-on-add field-to-fill="org_middle" collection="org_middle_collection"  filter-by-parent-id="byId"/>
+                        <fill-parent-on-add field-to-fill="org_middle" collection="org_middle_collection"
+                                            filter-by-parent-id="byId"/>
                         <input-text-filter name="byNameAndPosition"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name} {position}"/>
-                        <selection-filters row-limit="1">
 
-                        </selection-filters>
                     </node-collection-def>
                 </node-collection-def>
 
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->
                 <page-size>10</page-size>
                 <single-choice value="false"/>
-                <clear-all-button  text="Очистить"/>
+                <clear-all-button text="Очистить"/>
                 <add-button image="..." text="..."/>
                 <display-values-as-links value="true"/>
             </hierarchy-browser>
@@ -372,16 +371,19 @@
             </combo-box>
 
             <label id="positionLabel">
-                <relates-to widget-id="position" />
+                <relates-to widget-id="position"/>
                 <text>Должность:</text>
             </label>
             <text-box id="position">
                 <field-path value="Position"/>
             </text-box>
             <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
-                <field-path value="department"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="department_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
-                <pattern value="{name} {created_date}"/> <!-- в паттерне ссылки задаются относительно field-path -->
+                <field-path value="department"/>
+                <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
+                <linked-form name="department_default_form"/>
+                <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
+                <pattern value="{name} {created_date}"/>
+                <!-- в паттерне ссылки задаются относительно field-path -->
                 <formatting>
 
                     <date-format pattern="dd-mm-yyyy HH:mm:ss" style="short">
@@ -468,11 +470,11 @@
                             <widget id="Name-Label"/>
                         </td>
                         <td width="100%" h-align="left">
-                        <widget id="Name"/>
-                    </td>
+                            <widget id="Name"/>
+                        </td>
                         <td width="100%" h-align="left">
-                        <widget id="backRef"/>
-                    </td>
+                            <widget id="backRef"/>
+                        </td>
                         <td width="100%" h-align="left">
                             <widget id="backRefLabel"/>
                         </td>
@@ -496,7 +498,7 @@
         <widget-config>
             <label id="Name-Label">
                 <field-path/>
-                <relates-to widget-id="Name" />
+                <relates-to widget-id="Name"/>
                 <text>Название:</text>
             </label>
             <text-box id="Name">
@@ -506,19 +508,23 @@
 
                 <text>BackRef</text>
             </label>
-            <linked-domain-object-hyperlink id = "backRef">
+            <linked-domain-object-hyperlink id="backRef">
                 <field-path value="org_middle^organization"/>
-                <linked-form name="org_middle_form" />
+                <linked-form name="org_middle_form"/>
                 <pattern value="{org_middle|organization.name}"/>
             </linked-domain-object-hyperlink>
             <label id="departmentsLabel">
 
-                <text>Departments: </text>
+                <text>Departments:</text>
             </label>
             <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
-                <field-path value="department^organization"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="organization_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
-                <pattern value="{name} {created_date}"/> <!-- в паттерне ссылки задаются относительно field-path -->
+                <field-path value="department^organization"/>
+                <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
+                <linked-form name="organization_default_form"/>
+                <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
+                <pattern value="{name} {created_date}"/>
+                <!-- в паттерне ссылки задаются относительно field-path -->
+                <selection-filters row-limit="1"></selection-filters>
                 <formatting>
 
                     <date-format pattern="dd-mm-yyyy HH:mm:ss" style="short">
@@ -529,9 +535,7 @@
                     </date-format>
                 </formatting>
                 <collection-ref name="Departments"/>
-                <selection-filters row-limit="1">
 
-                </selection-filters>
             </linked-domain-object-hyperlink>
         </widget-config>
     </form>

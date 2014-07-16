@@ -80,7 +80,9 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         } else {
             widgetItemsView.displayItems();
         }
+        if (shouldDrawTooltipButton()) {
         widgetItemsView.addShowTooltipButton(new ShowTooltipHandler());
+        }
     }
 
     private void setCurrentStateForNoneEditableWidget(TableBrowserState state) {

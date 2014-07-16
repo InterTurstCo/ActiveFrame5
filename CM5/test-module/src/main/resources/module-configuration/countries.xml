@@ -490,10 +490,14 @@
 
             <table-browser id="17a" read-only="false">
                 <field-path value="city^country"/>
-                <collection-ref name="CitiesWithoutCountry"/>
+                <collection-ref name="Cities"/>
 
                 <collection-view-ref name="cities_default_view"/>
-
+                <selection-filters>
+                    <selection-filter name="byName">
+                        <param name="0" value="Москва"/>
+                    </selection-filter>
+                </selection-filters>
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
@@ -508,15 +512,16 @@
                 <single-choice value="false"/>
                 <clear-all-button  text="Очистить"/>
                 <add-button image="..." text="..."/>
-                <default-sort-criteria column-field="name" order="desc"/>
+
                 <display-values-as-links value="true"/>
             </table-browser>
             <!--<linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">-->
-            <linked-domain-objects-table id="city_table" modal-width="500px" modal-height="300px">
+            <linked-domain-objects-table id="city_table" modal-width="500px" modal-height="300px"
+                                         max-tooltip-width="300px">
                 <field-path value="country_most_famous_city^country.city"/>
                 <linked-form name="city_form" inline="true"/>
                 <collection-ref name="Cities"/>
-                <selection-filters row-limit="1"></selection-filters>
+
                 <summary-table>
                     <summary-table-column header="Название" widget-id="2">
                         <pattern value="{name}"/>
