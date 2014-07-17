@@ -10,7 +10,6 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.GenerateReportActionContext;
 import ru.intertrust.cm.core.gui.model.action.GenerateReportActionData;
-import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import java.util.Map;
 
@@ -35,11 +34,10 @@ public class GenerateReportAction extends SimpleServerAction {
     @Override
     protected GenerateReportActionContext appendCurrentContext(ActionContext initialContext) {
         ReportPlugin plugin = (ReportPlugin) getPlugin();
-
-        FormState formState = plugin.getFormState();
         GenerateReportActionContext context = (GenerateReportActionContext) initialContext;
-        context.setFormState(formState);
-        context.setReportName(plugin.getReportName());
+        context.setFormState(plugin.getFormState());
+        String reportName = plugin.getReportName();
+        context.setReportName(reportName);
         return context;
     }
 

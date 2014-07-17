@@ -101,4 +101,8 @@ public class FormState implements Dto {
     public String getWidgetComponent(String widgetId) {
         return this.widgetComponents.get(widgetId);
     }
+
+    public String getRootDomainObjectType() {
+        return getObjects().getRootDomainObject().getTypeName();
+    }
 }

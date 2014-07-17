@@ -294,7 +294,7 @@
         </widget-config>
     </form>
 
-    <form name="report-all" type="report"  report-template="all-employee">
+    <form name="report-all-form" type="report"  report-template="all-employee">
         <markup>
             <header>
                 <table>
@@ -316,7 +316,7 @@
         </widget-config>
     </form>
 
-    <form name="report-params" type="report"  report-template="all-employee-params">
+    <form name="report-params-form" type="report"  report-template="all-employee-params">
         <markup>
             <header>
                 <table>
@@ -376,7 +376,7 @@
         </widget-config>
     </form>
 
-    <form name="report-ds" type="report" report-template="all-employee-ds">
+    <form name="report-ds-form" type="report" report-template="all-employee-ds">
         <markup>
             <header>
                 <table width="800px" height="40px">
@@ -398,7 +398,7 @@
         </widget-config>
     </form>
 
-    <form name="report-scriptlet" type="report" report-template="all-employee-scriptlet">
+    <form name="report-scriptlet-form" type="report" report-template="all-employee-scriptlet">
         <markup>
             <header>
                 <table width="800px" height="40px">
@@ -420,7 +420,7 @@
         </widget-config>
     </form>
 
-    <form name="report-groups" type="report" report-template="employee-groups">
+    <form name="report-groups-form" type="report" report-template="employee-groups">
         <markup>
             <header>
                 <table width="800px" height="40px">
@@ -442,7 +442,7 @@
         </widget-config>
     </form>
 
-    <form name="report-param-list" type="report"  report-template="all-employee-param-list">
+    <form name="report-param-list-form" type="report"  report-template="all-employee-param-list">
         <markup>
             <header>
                 <table>

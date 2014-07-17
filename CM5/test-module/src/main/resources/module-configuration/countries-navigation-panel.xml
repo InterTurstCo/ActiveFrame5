@@ -222,12 +222,12 @@
             <child-links group-name="Отчеты">
                 <link name="Report_all" display-text="Все сотрудники">
                     <plugin>
-                        <report-plugin report-name="all-employee"/>
+                        <report-plugin report-name="all-employee" form-name="report-all-form"/>
                     </plugin>
                 </link>
                 <link name="Report_params" display-text="За период">
                     <plugin>
-                        <report-plugin report-name="all-employee-params"/>
+                        <report-plugin form-name="report-params-form"/>
                     </plugin>
                 </link>
                 <link name="Report_dataSource" display-text="Источник данных">

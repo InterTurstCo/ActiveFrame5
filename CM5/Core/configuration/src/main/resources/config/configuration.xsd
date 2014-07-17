@@ -1014,7 +1014,8 @@
     <xs:complexType name="reportPluginType">
         <xs:complexContent>
             <xs:extension base="con:abstractPluginConfigType">
-                <xs:attribute type="xs:string" name="report-name"/>
+                <xs:attribute type="xs:string" name="report-name" use="optional"/>
+                <xs:attribute type="xs:string" name="form-name" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -50,7 +50,7 @@ public interface GuiService {
     // получение формы расширенного поиска
     FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields, UserInfo userInfo);
 
-    FormDisplayData getReportForm(String reportName, UserInfo userInfo);
+    FormDisplayData getReportForm(String reportName, String formName, UserInfo userInfo);
 
     DomainObject saveForm(FormState formState, UserInfo userInfo);
 

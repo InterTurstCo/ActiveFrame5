@@ -9,8 +9,11 @@ import org.simpleframework.xml.Attribute;
  */
 public class ReportPluginConfig extends PluginConfig {
 
-    @Attribute(name="report-name", required = true)
+    @Attribute(name="report-name", required = false)
     private String reportName;
+
+    @Attribute(name="form-name", required = false)
+    private String formName;
 
     public String getReportName() {
         return reportName;
@@ -18,6 +21,14 @@ public class ReportPluginConfig extends PluginConfig {
 
     public void setReportName(String reportName) {
         this.reportName = reportName;
+    }
+
+    public String getFormName() {
+        return formName;
+    }
+
+    public void setFormName(String formName) {
+        this.formName = formName;
     }
 
     @Override

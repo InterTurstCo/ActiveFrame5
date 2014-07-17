@@ -32,9 +32,14 @@ public class ReportPluginHandler extends PluginHandler {
     public PluginData initialize(Dto config) {
         ReportPluginConfig reportPluginConfig = (ReportPluginConfig) config;
         String reportName = reportPluginConfig.getReportName();
+        String formName = reportPluginConfig.getFormName();
 
-        FormDisplayData formDisplayData = guiService.getReportForm(reportName, GuiContext.get().getUserInfo());
-        ReportPluginData pluginData = new ReportPluginData(reportName, formDisplayData);
+        FormDisplayData formDisplayData = guiService.getReportForm(reportName, formName, GuiContext.get().getUserInfo());
+
+        if (reportName == null) {
+            reportName = formDisplayData.getFormState().getRootDomainObjectType();
+        }
+        ReportPluginData pluginData = new ReportPluginData(reportName, formName, formDisplayData);
 
         List<ActionContext> activeContexts = new ArrayList<>();
         activeContexts.add(new GenerateReportActionContext(PluginHelper.createActionConfig(

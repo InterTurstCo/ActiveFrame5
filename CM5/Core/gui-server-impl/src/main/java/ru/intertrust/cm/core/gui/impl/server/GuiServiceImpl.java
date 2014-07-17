@@ -116,9 +116,9 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    public FormDisplayData getReportForm(String reportName, UserInfo userInfo) {
+    public FormDisplayData getReportForm(String reportName, String formName, UserInfo userInfo) {
         FormRetriever formRetriever = getFormRetriever(userInfo);
-        return formRetriever.getReportForm(reportName);
+        return formRetriever.getReportForm(reportName, formName);
     }
 
     @Override

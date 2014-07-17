@@ -91,11 +91,35 @@ public class FormRetriever extends FormProcessor {
                                                                        formConfig.getMinWidth(), formConfig.getDebug());
     }
 
-    public FormDisplayData getReportForm(String reportName) {
-        FormConfig formConfig = formResolver.findReportFormConfig(reportName, getUserUid());
-        if (formConfig == null) {
-            throw new GuiException("Конфигурация формы для отчета " + reportName + " не найдена!");
+    public FormDisplayData getReportForm(String reportName, String formName) {
+        FormConfig formConfig = null;
+        if (formName != null) {
+            formConfig = configurationExplorer.getConfig(FormConfig.class, formName);
         }
+
+        boolean formIsInvalid = (formConfig == null) ||
+                !FormConfig.TYPE_REPORT.equals(formConfig.getType()) ||
+                (formConfig.getReportTemplate() != null && reportName != null && !formConfig.getReportTemplate().equals(reportName));
+
+
+        if (formIsInvalid) {
+            if (reportName != null) {
+                formConfig = formResolver.findReportFormConfig(reportName, getUserUid());
+            }
+        }
+        if (formConfig == null) {
+            throw new GuiException(String.format("Конфигурация формы отчета не найдена или некорректна! Форма: '%s', отчет: '%s'", formName, reportName));
+        }
+        if (formName == null) {
+            formName = formConfig.getName();
+        }
+        if (reportName == null) {
+            reportName = formConfig.getReportTemplate();
+        }
+        if  (reportName == null) {
+            throw new GuiException("Имя отчета не сконфигурировано ни в плагине, ни форме!");
+        }
+
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
 
         FormObjects formObjects = new FormObjects();
@@ -108,7 +132,7 @@ public class FormRetriever extends FormProcessor {
         HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
 
-        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
+        FormState formState = new FormState(formName, widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
