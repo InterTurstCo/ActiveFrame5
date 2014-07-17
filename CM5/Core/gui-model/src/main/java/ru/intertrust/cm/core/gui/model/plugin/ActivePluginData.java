@@ -20,6 +20,9 @@ public class ActivePluginData extends PluginData {
      * @return список конфигураций действий, отображаемых в "Панели действий"
      */
     public ToolbarContext getToolbarContext() {
+        if (toolbarContext == null) {
+            toolbarContext = new ToolbarContext();
+        }
         return toolbarContext;
     }
 
