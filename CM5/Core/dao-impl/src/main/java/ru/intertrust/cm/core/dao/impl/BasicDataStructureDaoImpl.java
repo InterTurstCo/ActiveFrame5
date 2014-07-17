@@ -85,7 +85,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         }
         jdbcTemplate.update(getQueryHelper().generateCreateAuditTableQuery(config));
 
-        createAutoIndices(config, config.getFieldConfigs(), true);
+        createAutoIndices(config, config.getFieldConfigs(), true, false);
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         String query = getQueryHelper().generateAddColumnsQuery(getName(config.getName(), isAl), fieldConfigList);
         jdbcTemplate.update(query);
 
-        createAutoIndices(config, fieldConfigList, isAl);
+        createAutoIndices(config, fieldConfigList, isAl, true);
     }
 
     @Override
@@ -232,9 +232,9 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         }, getSqlName(domainObjectTypeConfig));
     }
 
-    private int countIndexes(DomainObjectTypeConfig domainObjectTypeConfig) {
+    private int countIndexes(DomainObjectTypeConfig domainObjectTypeConfig, boolean isAl) {
         return jdbcTemplate.queryForObject(generateCountTableIndexes(),
-                new Object[]{getSqlName(domainObjectTypeConfig)}, Integer.class);
+                new Object[]{getSqlName(domainObjectTypeConfig.getName(), isAl)}, Integer.class);
     }
 
     private int countForeignKeys(String domainObjectConfigName) {
@@ -254,7 +254,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
         getQueryHelper().skipAutoIndices(config, indexConfigs);
 
-        int index = countIndexes(config);
+        int index = countIndexes(config, false);
 
         for (IndexConfig indexConfig : indexConfigs) {
             jdbcTemplate.update(getQueryHelper().generateComplexIndexQuery(config, indexConfig, index));
@@ -263,14 +263,16 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     private void createAutoIndices(DomainObjectTypeConfig config) {
-        createAutoIndices(config, config.getFieldConfigs(), false);
+        createAutoIndices(config, config.getFieldConfigs(), false, false);
     }
 
-    private void createAutoIndices(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigs, boolean isAl) {
-        int index = 0;
+    private void createAutoIndices(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigs, boolean isAl, boolean update) {
+
         if (fieldConfigs == null || fieldConfigs.isEmpty()) {
             return;
         }
+
+        int index = update ? countIndexes(config, isAl) : 0;
 
         for (FieldConfig fieldConfig : fieldConfigs) {
             if (!(fieldConfig instanceof ReferenceFieldConfig)) {
