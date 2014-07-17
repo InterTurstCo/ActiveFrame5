@@ -443,6 +443,37 @@
         </fields>
     </domain-object-type>
 
+    <!-- ДО для тестирования поиска по уникальному ключу -->
+    <domain-object-type name="EmployeeTestUniqueKey" extends="Employee" audit-log="true" initial-status="Active">
+        <fields>
+            <string name="newField" length="128"/>
+            <boolean name="booleanField"/>
+            <string name="stringField" length="128"/>
+            <date-time name="dateTimeField"/>
+            <dateTimeWithTimeZone name="dateTimeWithTimeZoneField"/>
+            <decimal name="decimalField"/>
+            <long name="longField"/>
+            <reference name="referenceField" type="Organization"/>
+            <text name="textField"/>
+            <timelessDate name="timelessDateField"/>
+        </fields>
+
+        <uniqueKey>
+            <field name="newField" />
+        </uniqueKey>
+        <uniqueKey>
+            <field name="booleanField" />
+            <field name="stringField" />
+            <field name="dateTimeField" />
+            <field name="dateTimeWithTimeZoneField" />
+            <field name="decimalField" />
+            <field name="longField" />
+            <field name="referenceField" />
+            <field name="textField" />
+            <field name="timelessDateField" />
+        </uniqueKey>
+    </domain-object-type>
+
 
 
 

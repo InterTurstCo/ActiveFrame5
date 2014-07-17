@@ -5,10 +5,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
@@ -23,9 +23,9 @@ import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
 /**
@@ -171,5 +171,92 @@ public class CrudServiceIT extends IntegrationTestBase {
         departmentDomainObject.setString("Name", "department1");
         departmentDomainObject.setReference("Organization", savedOrganizationObject.getId());
         return departmentDomainObject;
+    }
+
+    @Test
+    public void testFindByUniqueKey() throws Exception{
+
+        DomainObject employeeTestUniqueKey = createEmployeeTestUniqueKey();
+        Id organizationId = employeeTestUniqueKey.getReference("referenceField");
+
+        Map<String, Value> paramsSimpleKey = new HashMap<>();
+        paramsSimpleKey.put("newField", new StringValue("key2"));
+
+        DomainObject do1 = crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsSimpleKey);
+        assertEquals(employeeTestUniqueKey.getId(), do1.getId());
+
+        paramsSimpleKey.put("newField", new StringValue("key2err"));
+        try {
+            crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsSimpleKey);
+            assertTrue(false);
+        } catch (ObjectNotFoundException e) {
+            assertTrue(true);
+        }
+
+        Map<String, Value> paramsComplexKey = new HashMap<>();
+        paramsComplexKey.put("booleanField", new BooleanValue(true));
+        paramsComplexKey.put("stringField", new StringValue("str"));
+        paramsComplexKey.put("dateTimeField", new DateTimeValue(new SimpleDateFormat("yyyy-MM-dd").parse("2014-07-08")));
+        paramsComplexKey.put("dateTimeWithTimeZoneField", new DateTimeWithTimeZoneValue(new DateTimeWithTimeZone(2, 2014, 3, 3)));
+        paramsComplexKey.put("longField", new LongValue(1004L));
+        paramsComplexKey.put("referenceField", new ReferenceValue(organizationId));
+        paramsComplexKey.put("textField", new StringValue("txt"));
+        paramsComplexKey.put("timelessDateField", new TimelessDateValue(new TimelessDate(2014, 3, 3)));
+        paramsComplexKey.put("decimalField", new DecimalValue(new BigDecimal("1.2")));
+
+        DomainObject do2 = crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
+        assertEquals(employeeTestUniqueKey.getId(), do2.getId());
+
+        paramsComplexKey.put("textField", new StringValue("key2err"));
+        try {
+            crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
+            assertTrue(false);
+        } catch (ObjectNotFoundException e) {
+            assertTrue(true);
+        }
+
+        paramsComplexKey.put("textField", new StringValue("txt"));
+        DomainObject do3 = crudService.findAndLockByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
+        assertEquals(employeeTestUniqueKey.getId(), do3.getId());
+
+        paramsComplexKey.put("extraField", new StringValue("txt"));
+        try {
+            crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
+            assertTrue(false);
+        } catch (Exception e) {
+            assertTrue(true);
+        }
+
+        crudService.delete(employeeTestUniqueKey.getId());
+        crudService.delete(organizationId);
+
+
+    }
+
+    private DomainObject createEmployeeTestUniqueKey() throws ParseException {
+
+        DomainObject organization = createOrganizationDomainObject();
+        organization = crudService.save(organization);
+
+        DomainObject employee = crudService.createDomainObject("EmployeeTestUniqueKey");
+        employee.setString("Name", "name4");
+        employee.setString("Position", "admin4");
+        employee.setString("Login", "login4");
+        employee.setString("Email", "e-mail4");
+        employee.setString("Phone", "+1132514");
+
+        employee.setString("newField", "key2");
+
+        employee.setBoolean("booleanField", true);
+        employee.setString("stringField", "str");
+        employee.setTimestamp("dateTimeField", new SimpleDateFormat("yyyy-MM-dd").parse("2014-07-08"));
+        employee.setDateTimeWithTimeZone("dateTimeWithTimeZoneField", new DateTimeWithTimeZone(3, 2014, 3, 3));
+        employee.setDecimal("decimalField", new BigDecimal("1.2"));
+        employee.setLong("longField", 1004L);
+        employee.setReference("referenceField", organization.getId());
+        employee.setString("textField", "txt");
+        employee.setTimelessDate("timelessDateField", new TimelessDate(2014, 3, 3));
+
+        return crudService.save(employee);
     }
 }
