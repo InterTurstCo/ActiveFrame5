@@ -148,6 +148,12 @@
     padding: 5px 10px;
 }
 
+.widget-wrapper > input:disabled {
+    background: none;
+    border: none;
+    color: #000;
+}
+
 .widget-wrapper > .hierarh-browser-inline {
     /*position: absolute;*/
     /*top: 40px;*/

@@ -2651,7 +2651,7 @@ td.datePickerMonth {
 }
 
 .menuSeparatorInner {
-    border: 1px solid rgb(211, 211, 211);
-    height: 38px;
+    border-right: 1px solid rgb(211, 211, 211);
+    height: 40px;
     margin: 0 0 0 20px;
 }
