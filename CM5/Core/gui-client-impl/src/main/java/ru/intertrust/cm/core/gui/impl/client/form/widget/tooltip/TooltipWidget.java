@@ -4,6 +4,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkEditingWidgetConfig;
@@ -24,8 +26,9 @@ import java.util.Set;
  *         Time: 21:31
  */
 public abstract class TooltipWidget extends BaseWidget {
+    protected EventBus localEventBus = new SimpleEventBus();
 
-    private void fetchWidgetItems() {
+    protected void fetchWidgetItems() {
         TooltipWidgetState state = getInitialData();
         LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
         WidgetItemsRequest widgetItemsRequest = new WidgetItemsRequest();
@@ -59,12 +62,12 @@ public abstract class TooltipWidget extends BaseWidget {
 
         if (isEditable()) {
             Set<Id> ids = state.getSelectedIds();
-            EditableWidgetTooltip tooltip = new EditableWidgetTooltip(styleConfig, eventBus, isDisplayingAsHyperlink(), ids);
+            EditableWidgetTooltip tooltip = new EditableWidgetTooltip(styleConfig, localEventBus, isDisplayingAsHyperlink(), ids);
             TooltipSizer.setWidgetBounds(config, tooltip);
             tooltip.displayItems(listValues);
             tooltip.showRelativeTo(impl);
         } else {
-            NoneEditableTooltip noneEditableTooltip = new NoneEditableTooltip(styleConfig, eventBus, isDisplayingAsHyperlink());
+            NoneEditableTooltip noneEditableTooltip = new NoneEditableTooltip(styleConfig, localEventBus, isDisplayingAsHyperlink());
             TooltipSizer.setWidgetBounds(config, noneEditableTooltip);
             noneEditableTooltip.displayItems(listValues);
             noneEditableTooltip.showRelativeTo(impl);
@@ -82,6 +85,7 @@ public abstract class TooltipWidget extends BaseWidget {
         TooltipWidgetState state = getInitialData();
         return state.isDisplayingAsHyperlinks();
     }
+
     protected abstract String getTooltipHandlerName();
 
     public class ShowTooltipHandler implements ClickHandler {

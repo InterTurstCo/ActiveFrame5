@@ -29,6 +29,7 @@ public class NoneEditableTooltip extends PopupPanel {
 
     private void init(SelectionStyleConfig selectionStyleConfig) {
         hyperlinkNoneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, eventBus);
+        hyperlinkNoneEditablePanel.setPopupPanel(this);
         this.add(hyperlinkNoneEditablePanel);
         this.setStyleName("tooltip-popup");
 

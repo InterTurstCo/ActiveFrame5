@@ -69,5 +69,9 @@ public class BusinessUniverseConstants {
     public static final String MAX_TOOLTIP_DEFAULT_HEIGHT = "300px";
     //Hyperlink form title, maybe temporary
     public static final String FORM_TITLE = "Item";
+
+
+    public static final String STATE_KEY = "stateKey";
+
     private BusinessUniverseConstants() {}
 }

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -20,14 +21,15 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
  *         Time: 13:15
  */
 public class HyperlinkClickHandler implements ClickHandler {
-    private String title;
+    private static final String TITLE = "Елемент";
     private Id id;
-
+    private PopupPanel popupPanel;
     private EventBus eventBus;
 
-    public HyperlinkClickHandler(String title, Id id, EventBus eventBus) {
-        this.title = title;
+    public HyperlinkClickHandler(Id id, PopupPanel popupPanel, EventBus eventBus) {
+
         this.id = id;
+        this.popupPanel = popupPanel;
         this.eventBus = eventBus;
     }
 
@@ -38,7 +40,7 @@ public class HyperlinkClickHandler implements ClickHandler {
     }
 
     public void onClick() {
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(TITLE);
         final FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectId(id);
         config.getPluginState().setToggleEdit(true);
@@ -64,7 +66,7 @@ public class HyperlinkClickHandler implements ClickHandler {
                 config.setDomainObjectId(id);
                 config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox =
-                        new FormDialogBox("Редактирование " + title);
+                        new FormDialogBox("Редактирование ");
                 final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
@@ -78,7 +80,7 @@ public class HyperlinkClickHandler implements ClickHandler {
                             @Override
                             public void onSuccess() {
                                 editableFormDialogBox.hide();
-                                eventBus.fireEvent(new HyperlinkStateChangedEvent(id));
+                                eventBus.fireEvent(new HyperlinkStateChangedEvent(id, popupPanel));
                             }
                         });
                         action.perform();

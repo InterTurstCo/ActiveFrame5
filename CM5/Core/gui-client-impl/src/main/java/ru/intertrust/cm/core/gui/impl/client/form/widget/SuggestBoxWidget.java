@@ -14,8 +14,6 @@ import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
@@ -37,7 +35,7 @@ import java.util.*;
 
 @ComponentName("suggest-box")
 public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
-    private EventBus localEventBus = new SimpleEventBus();
+
     private SuggestBox suggestBox;
     private String selectionPattern;
     private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
@@ -91,8 +89,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
     protected SuggestBoxState createNewState() {
         SuggestBoxState state = new SuggestBoxState();
 
-            final SuggestBoxState initialState = getInitialData();
-            state.setSelectedIds(initialState.getSelectedIds());
+        final SuggestBoxState initialState = getInitialData();
+        state.setSelectedIds(initialState.getSelectedIds());
 
         return state;
     }
@@ -133,11 +131,13 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
 
     @Override
     public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
+        PopupPanel tooltip = event.getPopupPanel();
+        if (tooltip != null) {
+            tooltip.hide();
+            fetchWidgetItems();
+            return;
+        }
         Id id = event.getId();
-        updateHyperlink(id);
-    }
-
-    private void updateHyperlink(Id id) {
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
         RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, suggestBoxConfig.getFormattingConfig());
@@ -148,9 +148,11 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 RepresentationResponse response = (RepresentationResponse) result;
                 Id id = response.getId();
                 String representation = response.getRepresentation();
-                SuggestBoxState state = createNewState();
+
                 stateListValues.put(id, representation);
+                SuggestBoxState state = createNewState();
                 setCurrentState(state);
+
             }
 
             @Override
@@ -159,6 +161,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             }
         });
     }
+
 
     @Override
     protected String getTooltipHandlerName() {
@@ -223,8 +226,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 noneEditablePanel.displayItems(listValues.values());
 
             }
-            if(shouldDrawTooltipButton()){
-            noneEditablePanel.addShowTooltipLabel(new ShowTooltipHandler());
+            if (shouldDrawTooltipButton()) {
+                noneEditablePanel.addShowTooltipLabel(new ShowTooltipHandler());
             }
         }
     }
@@ -388,9 +391,9 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 }
                 super.add(itemComposite, container);
             }
-            if (shouldDrawTooltipButton()){
+            if (shouldDrawTooltipButton()) {
                 Button openTooltip = new Button("..");
-                openTooltip.setStyleName("tooltip-button");
+                openTooltip.setStyleName("light-button");
                 openTooltip.addClickHandler(new ShowTooltipHandler());
                 super.add(openTooltip, container);
             }
@@ -456,7 +459,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             return new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
-                    HyperlinkClickHandler clickHandler = new HyperlinkClickHandler("Suggestion", itemComposite.getItemId(), localEventBus);
+                    HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getItemId(), null, localEventBus);
                     clickHandler.onClick();
                 }
             };

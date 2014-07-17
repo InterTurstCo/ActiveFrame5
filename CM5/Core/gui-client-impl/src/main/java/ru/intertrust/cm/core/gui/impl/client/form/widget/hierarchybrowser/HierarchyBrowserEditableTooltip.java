@@ -18,6 +18,7 @@ public class HierarchyBrowserEditableTooltip extends PopupPanel {
     private HierarchyBrowserItemsView widgetItemsView;
     private boolean displayAsHyperlinks;
 
+
     public HierarchyBrowserEditableTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
                                            boolean displayAsHyperlinks) {
 
@@ -27,8 +28,9 @@ public class HierarchyBrowserEditableTooltip extends PopupPanel {
         init(selectionStyleConfig);
     }
 
-    private void init(SelectionStyleConfig selectionStyleConfig){
+    private void init(SelectionStyleConfig selectionStyleConfig) {
         widgetItemsView = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
+        widgetItemsView.setPopupPanel(this);
         this.add(widgetItemsView);
         this.setStyleName("tooltip-popup");
 

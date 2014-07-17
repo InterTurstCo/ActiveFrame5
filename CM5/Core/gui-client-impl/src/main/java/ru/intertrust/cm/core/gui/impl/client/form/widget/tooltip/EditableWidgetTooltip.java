@@ -14,11 +14,12 @@ import java.util.Set;
  *         Date: 30.06.2014
  *         Time: 13:38
  */
-public class EditableWidgetTooltip extends PopupPanel{
+public class EditableWidgetTooltip extends PopupPanel {
     private EventBus eventBus;
     private WidgetItemsView widgetItemsView;
     private boolean displayAsHyperlinks;
     private Set<Id> selectedIds;
+
     public EditableWidgetTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlinks,
                                  Set<Id> selectedIds) {
         super(true);
@@ -27,17 +28,20 @@ public class EditableWidgetTooltip extends PopupPanel{
         this.selectedIds = selectedIds;
         init(selectionStyleConfig);
     }
-    private void init(SelectionStyleConfig selectionStyleConfig){
+
+    private void init(SelectionStyleConfig selectionStyleConfig) {
         widgetItemsView = new WidgetItemsView(selectionStyleConfig);
+        widgetItemsView.setPopupPanel(this);
         widgetItemsView.setSelectedIds(selectedIds);
         widgetItemsView.setEventBus(eventBus);
         this.add(widgetItemsView);
         this.setStyleName("tooltip-popup");
 
     }
+
     public void displayItems(LinkedHashMap<Id, String> listValues) {
         widgetItemsView.setListValues(listValues);
-        if(displayAsHyperlinks) {
+        if (displayAsHyperlinks) {
             widgetItemsView.displayHyperlinkItems();
         } else {
             widgetItemsView.displayItems();

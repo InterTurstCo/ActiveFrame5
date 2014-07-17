@@ -5,8 +5,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
@@ -46,7 +44,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private FocusPanel openDialogButton;
     private FocusPanel clearButton;
     private TextBox filterEditor;
-    private EventBus localEventBus = new SimpleEventBus();
+
     private ArrayList<Id> temporaryStateOfSelectedIds = new ArrayList<Id>();
     private TableBrowserState currentState;
     private int dialogWidth;
@@ -86,7 +84,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
             widgetItemsView.displayItems();
         }
         if (shouldDrawTooltipButton()) {
-        widgetItemsView.addShowTooltipButton(new ShowTooltipHandler());
+            widgetItemsView.addShowTooltipButton(new ShowTooltipHandler());
         }
     }
 
@@ -316,6 +314,12 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
     @Override
     public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
+        PopupPanel popupPanel = event.getPopupPanel();
+        if (popupPanel != null) {
+            popupPanel.hide();
+            fetchWidgetItems();
+            return;
+        }
         Id id = event.getId();
         updateHyperlink(id, currentState.getTableBrowserConfig().getSelectionPatternConfig().getValue());
     }

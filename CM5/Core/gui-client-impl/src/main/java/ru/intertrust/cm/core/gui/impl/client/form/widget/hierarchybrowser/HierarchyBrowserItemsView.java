@@ -19,12 +19,13 @@ import java.util.ArrayList;
  *         Time: 13:15
  */
 public class HierarchyBrowserItemsView extends Composite {
-
+    private AbsolutePanel container;
     private AbsolutePanel mainBoxPanel;
     private EventBus eventBus;
     private ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
     private ArrayList<Id> selectedIds;
     private Style.Display displayStyle;
+    private PopupPanel popupPanel;
     private boolean displayAsHyperlinks;
 
     public HierarchyBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlink) {
@@ -35,7 +36,9 @@ public class HierarchyBrowserItemsView extends Composite {
         mainBoxPanel.setStyleName("facebook-main-box");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         mainBoxPanel.getElement().getStyle().clearOverflowY();
-        initWidget(mainBoxPanel);
+        container = new AbsolutePanel();
+        container.add(mainBoxPanel);
+        initWidget(container);
     }
 
     public ArrayList<Id> getSelectedIds() {
@@ -50,6 +53,10 @@ public class HierarchyBrowserItemsView extends Composite {
         return eventBus;
     }
 
+    public void setPopupPanel(PopupPanel popupPanel) {
+        this.popupPanel = popupPanel;
+    }
+
     private void displayChosenItem(final HierarchyBrowserItem item) {
 
         final AbsolutePanel element = new AbsolutePanel();
@@ -60,7 +67,8 @@ public class HierarchyBrowserItemsView extends Composite {
         label.setStyleName("facebook-label");
         if (displayAsHyperlinks) {
             label.addStyleName("facebook-clickable-label");
-            label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler("Collection item", item.getId(), item.getNodeCollectionName(), eventBus));
+            label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler("Collection item", item.getId(),
+                    item.getNodeCollectionName(), eventBus, popupPanel));
         }
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
@@ -78,13 +86,7 @@ public class HierarchyBrowserItemsView extends Composite {
         });
         element.add(label);
         element.add(delBtn);
-        int count = mainBoxPanel.getWidgetCount();
-        if(count == 0 || !(mainBoxPanel.getWidget(count - 1) instanceof Button)) {
-            mainBoxPanel.add(element);
-
-        } else{
-            mainBoxPanel.insert(element, count - 1);
-        }
+        mainBoxPanel.add(element);
     }
 
     private void displayChosenItems() {
@@ -147,9 +149,9 @@ public class HierarchyBrowserItemsView extends Composite {
     }
 
     public void addShowTooltipLabel(ClickHandler handler) {
-        Button openTooltip = new Button("..");
-        openTooltip.setStyleName("tooltip-button");
-        mainBoxPanel.add(openTooltip);
+        Button openTooltip = new Button("...");
+        openTooltip.setStyleName("light-button");
+        container.add(openTooltip);
         openTooltip.addClickHandler(handler);
     }
 }

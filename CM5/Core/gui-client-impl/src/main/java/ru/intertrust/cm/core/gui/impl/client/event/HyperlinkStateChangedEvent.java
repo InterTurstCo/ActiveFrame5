@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.ui.PopupPanel;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
@@ -11,10 +12,12 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 public class HyperlinkStateChangedEvent extends GwtEvent<HyperlinkStateChangedEventHandler> {
 
     public static Type<HyperlinkStateChangedEventHandler> TYPE = new Type<HyperlinkStateChangedEventHandler>();
-    protected Id id;
+    private Id id;
+    private PopupPanel popupPanel;
 
-    public HyperlinkStateChangedEvent(Id id) {
+    public HyperlinkStateChangedEvent(Id id, PopupPanel popupPanel) {
         this.id = id;
+        this.popupPanel = popupPanel;
     }
 
     @Override
@@ -24,10 +27,14 @@ public class HyperlinkStateChangedEvent extends GwtEvent<HyperlinkStateChangedEv
 
     @Override
     protected void dispatch(HyperlinkStateChangedEventHandler handler) {
-           handler.onHyperlinkStateChangedEvent(this);
+        handler.onHyperlinkStateChangedEvent(this);
     }
 
     public Id getId() {
         return id;
+    }
+
+    public PopupPanel getPopupPanel() {
+        return popupPanel;
     }
 }

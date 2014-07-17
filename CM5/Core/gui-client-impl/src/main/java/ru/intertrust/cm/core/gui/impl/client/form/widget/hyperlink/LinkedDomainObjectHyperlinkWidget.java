@@ -1,14 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.SimpleEventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
@@ -25,6 +20,10 @@ import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 14.01.14
@@ -32,7 +31,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
  */
 @ComponentName("linked-domain-object-hyperlink")
 public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
-    private EventBus localEventBus = new SimpleEventBus();
+
     private String selectionPattern;
     private FormattingConfig formattingConfig;
 
@@ -48,6 +47,9 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         formattingConfig = state.getWidgetConfig().getFormattingConfig();
         LinkedHashMap<Id, String> listValues = state.getListValues();
         displayHyperlinks(listValues);
+        if (shouldDrawTooltipButton()) {
+            ((HyperlinkNoneEditablePanel) (impl)).addShowTooltipLabel(new ShowTooltipHandler());
+        }
     }
 
     @Override
@@ -71,35 +73,20 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
 
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
-      return  asEditableWidget(state);
+        return asEditableWidget(state);
     }
 
     @Override
     public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
-        Id id = event.getId();
-        updateHyperlink(id);
-    }
+        PopupPanel popupPanel = event.getPopupPanel();
 
-    private void displayHyperlinks(LinkedHashMap<Id, String> listValues) {
-        if (listValues == null) {
+        if (popupPanel != null) {
+            popupPanel.hide();
+            fetchWidgetItems();
             return;
         }
-        HyperlinkNoneEditablePanel panel = (HyperlinkNoneEditablePanel) impl;
-        panel.cleanPanel();
-        panel.displayHyperlinks(listValues);
-        if(shouldDrawTooltipButton()) {
-            panel.addShowTooltipLabel(new ShowTooltipHandler());
-        }
-    }
+        Id id = event.getId();
 
-    private LinkedHashMap<Id, String> getUpdatedHyperlinks(Id id, String representation) {
-        LinkedDomainObjectHyperlinkState state = getInitialData();
-        LinkedHashMap<Id, String> listValues = state.getListValues();
-        listValues.put(id, representation);
-        return listValues;
-    }
-
-    private void updateHyperlink(Id id) {
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
         RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, formattingConfig);
@@ -122,6 +109,22 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         });
     }
 
+    private void displayHyperlinks(LinkedHashMap<Id, String> listValues) {
+        if (listValues == null) {
+            return;
+        }
+        HyperlinkNoneEditablePanel panel = (HyperlinkNoneEditablePanel) impl;
+        panel.cleanPanel();
+        panel.displayHyperlinks(listValues);
+
+    }
+
+    private LinkedHashMap<Id, String> getUpdatedHyperlinks(Id id, String representation) {
+        LinkedDomainObjectHyperlinkState state = getInitialData();
+        LinkedHashMap<Id, String> listValues = state.getListValues();
+        listValues.put(id, representation);
+        return listValues;
+    }
 
     @Override
     protected String getTooltipHandlerName() {

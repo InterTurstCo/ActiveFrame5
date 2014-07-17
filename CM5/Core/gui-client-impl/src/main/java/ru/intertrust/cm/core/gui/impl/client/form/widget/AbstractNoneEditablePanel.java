@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
  */
 public class AbstractNoneEditablePanel extends Composite {
     protected AbsolutePanel mainBoxPanel;
+    protected AbsolutePanel container;
     protected Style.Display displayStyle;
 
     public AbstractNoneEditablePanel(SelectionStyleConfig selectionStyleConfig) {
@@ -20,7 +21,9 @@ public class AbstractNoneEditablePanel extends Composite {
         mainBoxPanel.setStyleName("facebook-main-box");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
-        initWidget(mainBoxPanel);
+        container = new AbsolutePanel();
+        container.add(mainBoxPanel);
+        initWidget(container);
 
     }
 

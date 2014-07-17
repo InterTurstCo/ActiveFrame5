@@ -1,9 +1,11 @@
-package ru.intertrust.cm.core.gui.impl.client.form.widget;
+package ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;

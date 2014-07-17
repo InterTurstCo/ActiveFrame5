@@ -22,17 +22,22 @@ import java.util.Set;
  */
 public class WidgetItemsView extends Composite {
     private AbsolutePanel mainBoxPanel;
+    private AbsolutePanel container;
     private Style.Display displayStyle;
     private LinkedHashMap<Id, String> listValues;
     private Set<Id> selectedIds = new HashSet<Id>();
     private EventBus eventBus;
+    private PopupPanel popupPanel;
+
     public WidgetItemsView(SelectionStyleConfig selectionStyleConfig) {
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box");
         listValues = new LinkedHashMap<Id, String>();
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
-      //  mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
-        initWidget(mainBoxPanel);
+        //  mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
+        container = new AbsolutePanel();
+        container.add(mainBoxPanel);
+        initWidget(container);
     }
 
     public EventBus getEventBus() {
@@ -57,9 +62,13 @@ public class WidgetItemsView extends Composite {
     }
 
     public void updateHyperlinkItem(Id id, String representation) {
-         listValues.put(id, representation);
-         displayHyperlinkItems();
+        listValues.put(id, representation);
+        displayHyperlinkItems();
 
+    }
+
+    public void setPopupPanel(PopupPanel popupPanel) {
+        this.popupPanel = popupPanel;
     }
 
     public LinkedHashMap<Id, String> getListValues() {
@@ -90,7 +99,7 @@ public class WidgetItemsView extends Composite {
         });
         element.add(label);
         element.add(delBtn);
-        if(displayStyle.equals(Style.Display.INLINE_BLOCK)) {
+        if (displayStyle.equals(Style.Display.INLINE_BLOCK)) {
             element.getElement().getStyle().setFloat(Style.Float.LEFT);
             label.getElement().getStyle().setFloat(Style.Float.LEFT);
             delBtn.getElement().getStyle().setFloat(Style.Float.LEFT);
@@ -100,13 +109,13 @@ public class WidgetItemsView extends Composite {
 
     private void displayChosenRowItemAsHyperlink(Map.Entry<Id, String> entry) {
         final AbsolutePanel element = new AbsolutePanel();
-      //  element.getElement().getStyle().setDisplay(displayStyle);
+        //  element.getElement().getStyle().setDisplay(displayStyle);
         element.setStyleName("facebook-element");
         Label label = new Label(entry.getValue());
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
         final Id id = entry.getKey();
-        label.addClickHandler(new HyperlinkClickHandler("Item", id, eventBus));
+        label.addClickHandler(new HyperlinkClickHandler(id, popupPanel, eventBus));
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
         delBtn.addClickHandler(new ClickHandler() {
@@ -119,7 +128,7 @@ public class WidgetItemsView extends Composite {
         });
         element.add(label);
         element.add(delBtn);
-        if(displayStyle.equals(Style.Display.INLINE_BLOCK)) {
+        if (displayStyle.equals(Style.Display.INLINE_BLOCK)) {
             element.getElement().getStyle().setFloat(Style.Float.LEFT);
             label.getElement().getStyle().setFloat(Style.Float.LEFT);
             delBtn.getElement().getStyle().setFloat(Style.Float.LEFT);
@@ -130,7 +139,7 @@ public class WidgetItemsView extends Composite {
     public void displayItems() {
         mainBoxPanel.clear();
         Set<Map.Entry<Id, String>> entries = listValues.entrySet();
-        for (Map.Entry<Id, String> entry: entries) {
+        for (Map.Entry<Id, String> entry : entries) {
             displayChosenRowItem(entry);
         }
 
@@ -139,15 +148,16 @@ public class WidgetItemsView extends Composite {
     public void displayHyperlinkItems() {
         mainBoxPanel.clear();
         Set<Map.Entry<Id, String>> entries = listValues.entrySet();
-        for (Map.Entry<Id, String> entry: entries) {
+        for (Map.Entry<Id, String> entry : entries) {
             displayChosenRowItemAsHyperlink(entry);
         }
 
     }
-    public void addShowTooltipButton(ClickHandler handler){
+
+    public void addShowTooltipButton(ClickHandler handler) {
         Button openTooltip = new Button("..");
         openTooltip.setStyleName("light-button");
-        mainBoxPanel.add(openTooltip);
+        container.add(openTooltip);
         openTooltip.addClickHandler(handler);
 
 

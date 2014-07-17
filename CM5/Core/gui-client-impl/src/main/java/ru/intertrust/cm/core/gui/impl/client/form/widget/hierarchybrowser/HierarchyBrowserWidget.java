@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
@@ -310,7 +311,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                             @Override
                             public void onSuccess() {
                                 editableFormDialogBox.hide();
-                                localEventBus.fireEvent(new HyperlinkStateChangedEvent(id));
+                                localEventBus.fireEvent(new HyperlinkStateChangedEvent(id, null));
 
                             }
                         });
@@ -441,6 +442,12 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     public void onHierarchyBrowserHyperlinkStateUpdatedEvent(HierarchyBrowserHyperlinkStateUpdatedEvent event) {
+        PopupPanel popupPanel = event.getPopupPanel();
+        if (popupPanel != null) {
+            popupPanel.hide();
+            localEventBus.fireEvent(new HierarchyBrowserShowTooltipEvent(null));
+            return;
+        }
         Id id = event.getId();
         String collectionName = event.getCollectionName();
         HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
