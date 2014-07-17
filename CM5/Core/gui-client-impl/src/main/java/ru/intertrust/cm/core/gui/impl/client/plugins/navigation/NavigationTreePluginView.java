@@ -328,6 +328,9 @@ public class NavigationTreePluginView extends PluginView {
 
             @Override
             public void onSelection(SelectionEvent<TreeItem> event) {
+                if(!Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty()) {
+                    return;
+                }
                 TreeItem tempItem = event.getSelectedItem();
                 if (currentSelectedItem != null && currentSelectedItem != tempItem) {
                     currentSelectedItem.removeStyleName("synchronized");

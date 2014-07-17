@@ -43,6 +43,11 @@ public class HistoryManagerImpl implements HistoryManager {
     }
 
     @Override
+    public void applyUrl() {
+        History.newItem(current.getUrlToken(), false);
+    }
+
+    @Override
     public void setToken(String url) {
         current = HistoryToken.getHistoryToken(url);
     }

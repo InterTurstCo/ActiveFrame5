@@ -1,12 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import com.google.gwt.user.client.Window;
-
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 /**
  * <p>
@@ -67,11 +65,8 @@ public abstract class Action extends BaseComponent {
     public final void perform() {
         final ActionConfig config = getInitialContext().getActionConfig();
         boolean isExecute = true;
-        if (config.isDirtySensitivity() && getPlugin() instanceof IsDomainObjectEditor) {
-            final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
-            if (editor.isDirty()) {
-                isExecute = Window.confirm("Изменения данных не сохранены.\nПродолжить выполнение команды ?");
-            }
+        if (config.isDirtySensitivity()) {
+            isExecute = Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty();
         }
         if (isExecute) {
             execute();

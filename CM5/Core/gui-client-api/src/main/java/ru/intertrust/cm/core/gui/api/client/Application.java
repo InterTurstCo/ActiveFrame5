@@ -38,6 +38,7 @@ public class Application {
     private final EventBus eventBus;
     private final CompactModeState compactModeState;
     private final HistoryManager historyManager;
+    private ActionManager actionManager;
     private String pageNamePrefix;
     private List<String> timeZoneIds;
     private int collectionCountersUpdatePeriod = -1;
@@ -75,6 +76,14 @@ public class Application {
 
     public HistoryManager getHistoryManager() {
         return historyManager;
+    }
+
+    public ActionManager getActionManager() {
+        return actionManager;
+    }
+
+    public void setActionManager(ActionManager actionManager) {
+        this.actionManager = actionManager;
     }
 
     public String getPageName(final String name) {

@@ -32,6 +32,7 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
+import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
@@ -50,7 +51,6 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
@@ -194,6 +194,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 application.setTimeZoneIds(result.getTimeZoneIds());
                 application.setHeaderNotificationPeriod(result.getHeaderNotificationPeriod());
                 application.setCollectionCountersUpdatePeriod(result.getCollectionCountersUpdatePeriod());
+                application.setActionManager(new ActionManagerImpl(centralPluginPanel));
                 History.addValueChangeHandler(new HistoryValueChangeHandler());
             }
 
@@ -253,7 +254,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 centralPluginPanel.setVisibleWidth(centralPanelWidth);
                 //centralPluginPanel.setVisibleHeight(centralPanelHeight);
-                centralPluginPanel.asWidget().getElement().getFirstChildElement().addClassName("central-plugin-panel-table");
+                centralPluginPanel.asWidget().getElement().getFirstChildElement().addClassName
+                        ("central-plugin-panel-table");
                 //centrInner.getElement().getStyle().setHeight(centralPanelHeight - 11, Style.Unit.PX);
                 Application.getInstance().getEventBus().fireEvent(new PluginPanelSizeChangedEvent());
 
@@ -308,9 +310,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
         @Override
         public void onValueChange(ValueChangeEvent<String> event) {
+            final HistoryManager manager = Application.getInstance().getHistoryManager();
+            if (!Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty()) {
+                manager.applyUrl();
+                return;
+            }
             final String url = event.getValue();
             if (url != null && !url.isEmpty()) {
-                final HistoryManager manager = Application.getInstance().getHistoryManager();
                 manager.setToken(event.getValue());
                 if (manager.hasLink()) {
                     if (!navigationTreePlugin.restoreHistory()) {

@@ -15,6 +15,8 @@ public interface HistoryManager {
 
     HistoryManager setMode(Mode mode, String identifier);
 
+    void applyUrl();
+
     boolean isLinkEquals(String link);
 
     boolean hasLink();
