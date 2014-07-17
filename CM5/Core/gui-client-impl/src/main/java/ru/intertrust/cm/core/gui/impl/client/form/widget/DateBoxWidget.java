@@ -51,6 +51,15 @@ public class DateBoxWidget extends BaseWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        final DateBoxState state = getInitialData();
+        final String initValue = state.getDateTimeContext() == null ? null : state.getDateTimeContext().getDateTime();
+        final DateTimeBoxDecorate decorate = (DateTimeBoxDecorate) impl;
+        final String currentValue = decorate.getText();
+        return currentValue == null ? initValue != null : !currentValue.equals(initValue);
+    }
+
+    @Override
     protected WidgetState createNewState() {
         final DateBoxState initial = getInitialData();
         if (isEditable) {

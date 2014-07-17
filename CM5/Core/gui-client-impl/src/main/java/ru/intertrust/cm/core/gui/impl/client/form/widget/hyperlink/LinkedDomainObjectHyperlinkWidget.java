@@ -1,10 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
@@ -20,10 +24,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -54,6 +54,11 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
     public WidgetState createNewState() {
         LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
         return state;
+    }
+
+    @Override
+    protected boolean isChanged() {
+        return false;
     }
 
     @Override

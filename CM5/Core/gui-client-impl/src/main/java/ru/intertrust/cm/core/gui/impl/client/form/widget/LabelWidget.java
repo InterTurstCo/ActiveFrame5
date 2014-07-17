@@ -42,6 +42,11 @@ public class LabelWidget extends BaseWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        return false;
+    }
+
+    @Override
     protected WidgetState createNewState() {
         final LabelState initialState = getInitialData();
         LabelState state = new LabelState();

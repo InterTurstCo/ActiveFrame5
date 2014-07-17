@@ -27,6 +27,14 @@ public class TextAreaWidget extends TextBoxWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        final String initText = ((TextState) getInitialData()).getText();
+        final String initialValue = initText == null ? null : initText.trim();
+        final String currentValue = getTrimmedText((HasText) impl);
+        return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
+    }
+
+    @Override
     protected Widget asEditableWidget(WidgetState state) {
         TextBoxBase widget = ((TextState) state).isEncrypted() ? new PasswordTextBox() : new TextArea();
         widget.addBlurHandler(new BlurHandler() {

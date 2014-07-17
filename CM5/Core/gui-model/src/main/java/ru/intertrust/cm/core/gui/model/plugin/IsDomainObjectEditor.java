@@ -18,4 +18,6 @@ public interface IsDomainObjectEditor {
     void replaceForm(FormPluginConfig formPluginConfig);
 
     FormPluginState getFormPluginState();
+
+    boolean isDirty();
 }

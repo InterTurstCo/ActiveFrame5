@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 public class FavoriteToggleAction extends ToggleAction {
 
     @Override
-    public void execute() {
+    protected void execute() {
         ToggleActionContext actionContext = getInitialContext();
         actionContext.setPushed(!actionContext.isPushed());
     }

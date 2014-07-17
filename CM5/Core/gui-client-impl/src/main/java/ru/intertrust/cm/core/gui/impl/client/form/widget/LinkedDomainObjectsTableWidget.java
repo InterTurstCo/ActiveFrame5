@@ -51,6 +51,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     private ListDataProvider<RowItem> model;
     private boolean tableConfigured = false;
     private boolean isButtonDrawn;
+
     @Override
     public void setCurrentState(WidgetState state) {
         currentState = (LinkedDomainObjectsTableState) state;
@@ -74,21 +75,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         }
     }
 
-    private void configureTable(SummaryTableConfig summaryTableConfig) {
-
-        for (final SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfig()) {
-            TextColumn<RowItem> column = new TextColumn<RowItem>() {
-                @Override
-                public String getValue(RowItem object) {
-                    return object.getValueByKey(summaryTableColumnConfig.getWidgetId());
-                }
-            };
-            table.addColumn(column, summaryTableColumnConfig.getHeader());
-        }
-        if (isEditable()) {
-            table.addColumn(buildEditButtonColumn(), "");
-            table.addColumn(buildDeleteButtonColumn(), "");
-        }
+    @Override
+    protected boolean isChanged() {
+        final List<Id> initialValue = ((LinkedDomainObjectsTableState) getInitialData()).getIds();
+        final List<Id> currentValue = currentState.getIds();
+        return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
     }
 
     @Override
@@ -107,6 +98,22 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         VerticalPanel hp = new VerticalPanel();
         hp.add(table);
         return hp;
+    }
+
+    private void configureTable(SummaryTableConfig summaryTableConfig) {
+        for (final SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfig()) {
+            TextColumn<RowItem> column = new TextColumn<RowItem>() {
+                @Override
+                public String getValue(RowItem object) {
+                    return object.getValueByKey(summaryTableColumnConfig.getWidgetId());
+                }
+            };
+            table.addColumn(column, summaryTableColumnConfig.getHeader());
+        }
+        if (isEditable()) {
+            table.addColumn(buildEditButtonColumn(), "");
+            table.addColumn(buildDeleteButtonColumn(), "");
+        }
     }
 
     private Column<RowItem, String> buildEditButtonColumn() {

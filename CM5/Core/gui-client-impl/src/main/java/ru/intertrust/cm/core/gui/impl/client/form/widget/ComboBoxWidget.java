@@ -57,6 +57,19 @@ public class ComboBoxWidget extends BaseWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        final ListBox listBox = (ListBox) impl;
+        final Id selectedId;
+        if (listBox.getItemCount() == 0) {
+            selectedId = null;
+        } else {
+            selectedId = idMap.get(listBox.getValue(listBox.getSelectedIndex()));
+        }
+        final ComboBoxState state = getInitialData();
+        return selectedId == null ? state.getSelectedId() != null : !selectedId.equals(state.getSelectedId());
+    }
+
+    @Override
     protected ComboBoxState createNewState() {
         ComboBoxState state = new ComboBoxState();
         if (!isEditable()) {

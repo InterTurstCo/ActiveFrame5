@@ -25,7 +25,7 @@ public class GenerateReportAction extends SimpleServerAction {
     private static final String SEPARATOR = "~";
 
     @Override
-    public void execute() {
+    protected void execute() {
         ReportPlugin plugin = (ReportPlugin) getPlugin();
         plugin.updateFormState();
 

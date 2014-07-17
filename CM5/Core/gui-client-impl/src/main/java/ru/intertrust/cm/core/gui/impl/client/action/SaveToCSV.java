@@ -24,7 +24,7 @@ public class SaveToCSV extends Action {
     }
 
     @Override
-    public void execute() {
+    protected void execute() {
         eventBus = plugin.getLocalEventBus();
         eventBus.fireEvent(new SaveToCsvEvent());
 

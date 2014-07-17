@@ -66,6 +66,11 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         }
     }
 
+    @Override
+    protected boolean isChanged() {
+        return false;
+    }
+
     private void setCurrentStateForEditableWidget(TableBrowserState state) {
 
         widgetItemsView.setListValues(state.getListValues());

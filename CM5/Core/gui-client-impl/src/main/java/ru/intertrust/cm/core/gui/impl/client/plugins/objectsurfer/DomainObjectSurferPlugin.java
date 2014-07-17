@@ -214,6 +214,11 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         }
     }
 
+    @Override
+    public boolean isDirty() {
+        return getFormPlugin().isDirty();
+    }
+
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {
 
         @Override

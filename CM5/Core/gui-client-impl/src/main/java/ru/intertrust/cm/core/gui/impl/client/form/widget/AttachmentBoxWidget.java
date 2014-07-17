@@ -68,6 +68,15 @@ public class AttachmentBoxWidget extends BaseWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
+        List<AttachmentItem> currentValues = attachmentUploaderView.getAttachments();
+        List<AttachmentItem> initValues = getInitialData() == null
+                ? null : ((AttachmentBoxState) getInitialData()).getAttachments();
+        return currentValues == null ? initValues != null : !currentValues.equals(initValues);
+    }
+
+    @Override
     protected WidgetState createNewState() {
         if (isEditable()) {
             AttachmentBoxState currentState = new AttachmentBoxState();

@@ -81,7 +81,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
                                 eventBus.fireEvent(new HierarchyBrowserHyperlinkStateUpdatedEvent(id, collectionName));
                             }
                         });
-                        action.execute();
+                        action.perform();
 
                     }
                 });

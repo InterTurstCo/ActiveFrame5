@@ -3,8 +3,6 @@ package ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.client;
 import ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.client.component.tree.systemTree.resources.SystemTreeStyles;
 import ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.client.module.root.view.sidebar.SidebarView;
 
-import ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.entity.sidebar.MyButton;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
@@ -19,19 +17,19 @@ import com.google.gwt.user.client.ui.TreeItem;
 
 public class TreeTest {//implements EntryPoint {
 /*
-    
+
     interface MyTreeImages extends TreeImages {
-        
+
         @Resource("treeOpen.png")
         AbstractImagePrototype treeOpen();
-        
+
         @Resource("treeClosed.png")
         AbstractImagePrototype treeClosed();
       }
-    
-    
-    
-    
+
+
+
+
 
     public static int WIDTH = 190;
 
@@ -123,18 +121,18 @@ public class TreeTest {//implements EntryPoint {
         NavigationTreeStyles.I.styles().ensureInjected();
         @SuppressWarnings("deprecation")
         TreeImages images = GWT.create(MyTreeImages.class);
-        
+
         tree = new Tree(images);
-       
-        
+
+
 
         tree.setAnimationEnabled(true);
         tree.setStyleName("folder-list");
 
-        
-        
+
+
         TreeItem i1 = new TreeItem("Контроль Исполнения");
-        
+
         TreeItem i2 = new TreeItem(textWrap("Отчеты ", 0, "tree-cell"));
         TreeItem i3 = new TreeItem(textWrap("Статистика использования", 0, "tree-cell"));
 

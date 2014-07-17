@@ -33,6 +33,16 @@ public class ListBoxWidget extends BaseWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        final ListBoxState initialState = (ListBoxState) getInitialData();
+        final Set<Id> initialValue = initialState.getSelectedIdsSet();
+        final StateHandler stateHandler = new ListBoxStateHandler();
+        final ListBoxState currentState = stateHandler.getState(impl, initialState, idMap);
+        final Set<Id> currentValue = currentState.getSelectedIdsSet();
+        return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
+    }
+
+    @Override
     protected ListBoxState createNewState() {
         final ListBoxState state = getStateHandler().getState(impl, (ListBoxState) getInitialData(), idMap);
         return state;
@@ -79,12 +89,6 @@ public class ListBoxWidget extends BaseWidget {
         return (StateHandler<T>) (isEditable ? new ListBoxStateHandler() : new LabelStateHandler());
     }
 
-    private interface StateHandler<T extends Widget> {
-        ListBoxState getState(T widget, ListBoxState initialState, HashMap<String, Id> idMap);
-
-        HashMap<String, Id> setState(T widget, ListBoxState state);
-    }
-
     @Override
     public Object getValue() {
         if (isEditable()) {
@@ -95,6 +99,12 @@ public class ListBoxWidget extends BaseWidget {
             }
         }
         return null;
+    }
+
+    private interface StateHandler<T extends Widget> {
+        ListBoxState getState(T widget, ListBoxState initialState, HashMap<String, Id> idMap);
+
+        HashMap<String, Id> setState(T widget, ListBoxState state);
     }
 
     private static class LabelStateHandler implements StateHandler<Label> {

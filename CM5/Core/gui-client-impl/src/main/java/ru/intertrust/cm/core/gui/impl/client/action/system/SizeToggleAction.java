@@ -18,7 +18,7 @@ import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 public class SizeToggleAction extends ToggleAction {
 
     @Override
-    public void execute() {
+    protected void execute() {
         final CompactModeState compactModeState = Application.getInstance().getCompactModeState();
         final ToggleActionContext actionContext = getInitialContext();
         if (!compactModeState.isExpanded()) {

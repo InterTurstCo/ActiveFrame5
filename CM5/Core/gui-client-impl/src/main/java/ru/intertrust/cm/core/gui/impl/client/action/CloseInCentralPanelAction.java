@@ -16,7 +16,7 @@ import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 public class CloseInCentralPanelAction extends Action {
 
     @Override
-    public void execute() {
+    protected void execute() {
         plugin.getOwner().asWidget().setWidth("100%");
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         final Id objectId = editor.getRootDomainObject().getId();

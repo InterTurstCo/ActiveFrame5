@@ -11,6 +11,8 @@ import com.google.gwt.user.client.ui.HasAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -31,7 +33,7 @@ import java.util.List;
 public abstract class SimpleServerAction extends Action {
     private List<ActionSuccessListener> successListeners = new ArrayList<ActionSuccessListener>();
 
-    public void execute() {
+    protected void execute() {
         AsyncCallback<Dto> callback = new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
@@ -57,6 +59,10 @@ public abstract class SimpleServerAction extends Action {
             try {
                 ActionContext currentContext = appendCurrentContext(initialContext);
                 Command command = new Command("executeAction", this.getName(), currentContext);
+                final AbstractActionConfig abstractActionConfig = getInitialContext().getActionConfig();
+                if (abstractActionConfig instanceof ActionConfig) {
+                    command.setDirtySensitivity(((ActionConfig) abstractActionConfig).isDirtySensitivity());
+                }
                 BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
             } catch (GuiException e) {
                 Window.alert(e.getMessage());

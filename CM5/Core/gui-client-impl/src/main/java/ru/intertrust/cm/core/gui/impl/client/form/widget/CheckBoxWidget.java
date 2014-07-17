@@ -27,6 +27,13 @@ public class CheckBoxWidget extends BaseWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        final Boolean currentValue = ((CheckBox) impl).getValue();
+        final CheckBoxState state = getInitialData();
+        return currentValue == null ? state.isSelected() != null : !currentValue.equals(state.isSelected());
+    }
+
+    @Override
     protected WidgetState createNewState() {
         CheckBoxState state = new CheckBoxState();
         Boolean isSelected = ((CheckBox)impl).getValue();

@@ -18,7 +18,7 @@ import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 public class ToggleEditOnAction extends ToggleAction {
 
     @Override
-    public void execute() {
+    protected void execute() {
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         final Id id = editor.getFormState().getObjects().getRootNode().getDomainObject().getId();
         final FormPluginConfig config;
@@ -49,8 +49,6 @@ public class ToggleEditOnAction extends ToggleAction {
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
         formPlugin.setConfig(config);
         formPlugin.setDisplayActionToolBar(true);
-        formPlugin.setTemporaryWidth(getPlugin().getOwner().getVisibleWidth());
-        formPlugin.setTemporaryHeight(getPlugin().getOwner().getVisibleHeight());
         formPlugin.setLocalEventBus(plugin.getLocalEventBus());
         return formPlugin;
     }

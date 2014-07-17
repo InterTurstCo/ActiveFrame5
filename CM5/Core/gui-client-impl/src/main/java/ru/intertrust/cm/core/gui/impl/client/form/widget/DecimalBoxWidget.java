@@ -27,6 +27,14 @@ public class DecimalBoxWidget extends TextBoxWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        final BigDecimal initialNumber = ((DecimalBoxState) getInitialData()).getNumber();
+        final String initialValue = initialNumber == null ? null : initialNumber.toString().trim();
+        final String currentValue = getTrimmedText((HasText) impl);
+        return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
+    }
+
+    @Override
     protected WidgetState createNewState() {
         DecimalBoxState data = new DecimalBoxState();
         String text = getTrimmedText((HasText) impl);

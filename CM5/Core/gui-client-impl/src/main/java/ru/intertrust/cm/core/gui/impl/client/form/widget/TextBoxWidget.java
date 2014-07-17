@@ -25,6 +25,14 @@ public class TextBoxWidget extends BaseWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        final String initData = ((TextState) getInitialData()).getText();
+        final String initValue = initData == null ? null : initData.trim();
+        final String currentValue = getTrimmedText((HasText) impl);
+        return initValue == null ? currentValue != null : !initValue.equals(currentValue);
+    }
+
+    @Override
     protected WidgetState createNewState() {
         TextState data = new TextState();
         data.setText(getTrimmedText((HasText) impl));

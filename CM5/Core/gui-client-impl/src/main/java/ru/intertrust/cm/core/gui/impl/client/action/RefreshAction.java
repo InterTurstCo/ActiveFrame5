@@ -10,8 +10,9 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
  */
 @ComponentName("refresh.action")
 public class RefreshAction extends Action {
+
     @Override
-    public void execute() {
+    protected void execute() {
         Window.alert("Will be implements");
     }
 

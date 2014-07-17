@@ -27,8 +27,6 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginState;
  */
 @ComponentName("form.plugin")
 public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor, PluginPanelSizeChangedEventHandler {
-    private int temporaryWidth;
-    private int temporaryHeight;
     // поле для локальной шины событий
     protected EventBus eventBus;
 
@@ -44,22 +42,6 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     }
 
     public FormPlugin() {
-    }
-
-    public int getTemporaryWidth() {
-        return temporaryWidth;
-    }
-
-    public void setTemporaryWidth(int temporaryWidth) {
-        this.temporaryWidth = temporaryWidth;
-    }
-
-    public int getTemporaryHeight() {
-        return temporaryHeight;
-    }
-
-    public void setTemporaryHeight(int temporaryHeight) {
-        this.temporaryHeight = temporaryHeight;
     }
 
     @Override
@@ -150,5 +132,11 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         final FormPluginView view = (FormPluginView) getView();
         view.updateViewFromHistory();
         return false;
+    }
+
+    @Override
+    public boolean isDirty() {
+        final FormPluginView view = (FormPluginView) getView();
+        return view.isDirty();
     }
 }

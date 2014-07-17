@@ -25,6 +25,14 @@ public class IntegerBoxWidget extends TextBoxWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        final Long initLong = ((IntegerBoxState) getInitialData()).getNumber();
+        final String initValue = initLong == null ? null : initLong.toString().trim();
+        final String currentValue = getTrimmedText((HasText) impl);
+        return initValue == null ? currentValue != null : !initValue.equals(currentValue);
+    }
+
+    @Override
     protected WidgetState createNewState() {
         IntegerBoxState data = new IntegerBoxState();
         String text = getTrimmedText((HasText) impl);

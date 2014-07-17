@@ -75,6 +75,13 @@ public class RadioButtonWidget extends BaseWidget {
     }
 
     @Override
+    protected boolean isChanged() {
+        final Id initialValue = ((RadioButtonState) getInitialData()).getSelectedId();
+        final Id currentValue = createNewState().getSelectedId();
+        return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
+    }
+
+    @Override
     protected RadioButtonState createNewState() {
         RadioButtonState state = new RadioButtonState();
         state.setLayout(layout);

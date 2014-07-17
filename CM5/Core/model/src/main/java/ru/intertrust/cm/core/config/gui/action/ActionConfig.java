@@ -170,6 +170,10 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
         return immediate;
     }
 
+    public void setImmediate(boolean immediate) {
+        this.immediate = immediate;
+    }
+
     public String getAction() {
         return action;
     }
@@ -192,6 +196,10 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
 
     public boolean isDirtySensitivity() {
         return dirtySensitivity;
+    }
+
+    public void setDirtySensitivity(boolean dirtySensitivity) {
+        this.dirtySensitivity = dirtySensitivity;
     }
 
     public List<AbstractActionConfig> getChildren() {

@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
@@ -48,10 +49,6 @@ public class FormPanel implements IsWidget {
     private EventBus eventBus;
     private BaseComponent owner;
 
-    public void setClassForPluginPanel(String styleName) {
-        panel.getElement().addClassName(styleName);
-    }
-
     public FormPanel(FormDisplayData formDisplayData, FormPluginState state, EventBus eventBus) {
         this.formDisplayData = formDisplayData;
         this.state = state;
@@ -60,16 +57,22 @@ public class FormPanel implements IsWidget {
         build();
     }
 
-    public void updateSizes(int width, int height) {
-
-    }
-
     @Override
     public Widget asWidget() {
         return panel;
     }
 
+    public void setClassForPluginPanel(String styleName) {
+        panel.getElement().addClassName(styleName);
+    }
 
+    public BaseComponent getOwner() {
+        return owner;
+    }
+
+    public void setOwner(BaseComponent owner) {
+        this.owner = owner;
+    }
 
     public List<BaseWidget> getWidgets() {
         return widgets;
@@ -97,6 +100,14 @@ public class FormPanel implements IsWidget {
         }
     }
 
+    public boolean isDirty() {
+        for (BaseWidget widget : widgets) {
+            if (widget.isDirty()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private FlowPanel build() {
 
@@ -366,13 +377,5 @@ public class FormPanel implements IsWidget {
 
     private boolean isExtraStyleRequired() {
         return state.isEditable() && state.isToggleEdit();
-    }
-
-    public BaseComponent getOwner() {
-        return owner;
-    }
-
-    public void setOwner(BaseComponent owner) {
-        this.owner = owner;
     }
 }

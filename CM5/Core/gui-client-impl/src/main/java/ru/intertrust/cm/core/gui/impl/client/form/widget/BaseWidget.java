@@ -32,6 +32,14 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
 
     private Map<String, String> messages;
 
+    public final boolean isDirty() {
+        if (isEditable()) {
+            return isChanged();
+        } else {
+            return false;
+        }
+    }
+
     public <T extends WidgetState> T getInitialData() {
         return (T) initialData;
     }
@@ -171,6 +179,8 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     public WidgetState getFullClientStateCopy(){
         return getCurrentState();
     }
+
+    protected abstract boolean isChanged();
 
     protected abstract WidgetState createNewState();
 

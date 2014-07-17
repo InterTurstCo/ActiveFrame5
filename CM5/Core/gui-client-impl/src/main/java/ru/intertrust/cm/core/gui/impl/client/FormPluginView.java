@@ -86,15 +86,12 @@ public class FormPluginView extends PluginView {
         return result;
     }
 
-    void update(FormState formState) {
-        formPanel.update(formState);
+    public boolean isDirty() {
+        return formPanel.isDirty();
     }
 
-    @Override
-    public void onPluginPanelResize() {
-        int formWidth = ((FormPlugin) plugin).getTemporaryWidth();
-        int formHeight = ((FormPlugin) plugin).getTemporaryHeight();
-        formPanel.updateSizes(formWidth, formHeight);
+    public void update(FormState formState) {
+        formPanel.update(formState);
     }
 
     public void updateViewFromHistory() {

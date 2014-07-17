@@ -71,6 +71,13 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         }
     }
 
+    @Override
+    protected boolean isChanged() {
+        final List<Id> initialValue = ((HierarchyBrowserWidgetState) getInitialData()).getIds();
+        final List<Id> currentValue = ((HierarchyBrowserView) impl).getSelectedIds();
+        return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
+    }
+
     private void setCurrentStateForEditableWidget() {
         final HierarchyBrowserView view = (HierarchyBrowserView) impl;
         final HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
@@ -307,7 +314,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
                             }
                         });
-                        action.execute();
+                        action.perform();
 
                     }
                 });
@@ -420,7 +427,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                         localEventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName));
                     }
                 });
-                action.execute();
+                action.perform();
 
             }
         });

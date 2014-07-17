@@ -144,6 +144,8 @@ public abstract class PluginView implements IsWidget {
         config.setTooltip(shortDesc);
         config.setDisplay(ActionDisplayType.toggleButton);
         config.setOrder(order);
+        config.setDirtySensitivity(false);
+        config.setImmediate(true);
         return config;
     }
 
@@ -201,7 +203,7 @@ public abstract class PluginView implements IsWidget {
             final Action action = ComponentRegistry.instance.get(componentName);
             action.setInitialContext(context);
             action.setPlugin(plugin);
-            action.execute();
+            action.perform();
             if (ActionDisplayType.toggleButton  == config.getDisplay()) {
                 parent.getElement().setInnerHTML(ComponentHelper.createActionHtmlItem(context).asString());
             }

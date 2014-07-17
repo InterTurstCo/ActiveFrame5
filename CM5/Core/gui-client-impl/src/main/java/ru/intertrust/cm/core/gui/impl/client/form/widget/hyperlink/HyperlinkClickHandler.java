@@ -81,7 +81,7 @@ public class HyperlinkClickHandler implements ClickHandler {
                                 eventBus.fireEvent(new HyperlinkStateChangedEvent(id));
                             }
                         });
-                        action.execute();
+                        action.perform();
 
                     }
                 });

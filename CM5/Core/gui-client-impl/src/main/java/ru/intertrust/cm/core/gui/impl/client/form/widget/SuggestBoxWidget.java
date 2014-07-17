@@ -81,6 +81,13 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
     }
 
     @Override
+    protected boolean isChanged() {
+        final Map<Id, String> initialValue = ((SuggestBoxState) getInitialData()).getListValues();
+        final Map<Id, String> currentValue = ((SuggestPresenter) impl).selectedSuggestions;
+        return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
+    }
+
+    @Override
     protected SuggestBoxState createNewState() {
         SuggestBoxState state = new SuggestBoxState();
 

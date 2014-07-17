@@ -11,6 +11,7 @@ public class Command implements Dto {
     private String name;
     private String componentName;
     private Dto parameter;
+    private boolean dirtySensitivity;
 
     public Command() {
     }
@@ -45,11 +46,20 @@ public class Command implements Dto {
         this.parameter = parameter;
     }
 
+    public boolean isDirtySensitivity() {
+        return dirtySensitivity;
+    }
+
+    public void setDirtySensitivity(boolean dirtySensitivity) {
+        this.dirtySensitivity = dirtySensitivity;
+    }
+
     @Override
     public String toString() {
-        return "Command {" +
-                "componentName='" + componentName + '\'' +
-                ", parameter=" + parameter +
-                '}';
+        return "Command {"
+                + "componentName='" + componentName + '\''
+                + ", parameter=" + parameter
+                + ", dirtySensitivity=" + dirtySensitivity
+                + '}';
     }
 }

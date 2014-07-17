@@ -126,7 +126,7 @@ public class AttachmentUploaderView extends Composite {
                 Plugin panelOwner = (Plugin) formPanel.getOwner();
                 action.setPlugin(panelOwner);
                 action.setAttachmentItem(attachmentItem);
-                action.execute();
+                action.perform();
             }
         });
         return actionLinkButton;
