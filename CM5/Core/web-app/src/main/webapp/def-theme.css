@@ -2529,8 +2529,19 @@ td.datePickerMonth {
 }
 
 .Caption {
+    background: #356a9e;
+    background: -moz-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #356a9e), color-stop(100%, #1f2b5d));
+    background: -webkit-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    background: -o-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    background: -ms-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    filter: progid\:DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#356a9e", endColorstr\= "#1f2b5d", GradientType\=0 \);
+    background: linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    border-radius: 7px;
+    color: #fafafa;
     display: block;
-    height: 15px;
+    padding: 12px 15px;
+    z-index: 1;
 }
 
 .Caption:hover {
