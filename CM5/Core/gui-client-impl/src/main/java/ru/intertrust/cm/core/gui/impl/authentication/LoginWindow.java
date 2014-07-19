@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.authentication;
 
-import java.util.Date;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.*;
@@ -15,19 +14,21 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 import ru.intertrust.cm.core.model.AuthenticationException;
 
+import java.util.Date;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 25.07.13
  *         Time: 14:47
  */
 @ComponentName("login.window")
-public class LoginWindow implements Component{
+public class LoginWindow implements Component {
     private DialogBox loginDialog;
     protected TextBox loginField;
     protected PasswordTextBox passwordField;
     private Label message;
-    //private Button loginButton;
     private FocusPanel loginButton;
+
     public DialogBox getLoginDialog() {
         return loginDialog;
     }
@@ -36,11 +37,11 @@ public class LoginWindow implements Component{
         this.loginDialog = loginDialog;
     }
 
-    public void show(){
+    public void show() {
         loginDialog.show();
     }
 
-    public void center(){
+    public void center() {
         loginDialog.center();
     }
 
@@ -130,11 +131,6 @@ public class LoginWindow implements Component{
         memoryPanel.add(labelCheckBox);
         enterPanel.add(loginButton);
 
-        ListBox languageListBox = new ListBox();
-        languageListBox.getElement().addClassName("auth-ListBox");
-
-        //languagePanel.add(languageListBox);
-
         loginDialog.add(rootPanel);
 
         loginDialog.addDomHandler(new KeyDownHandler() {
@@ -179,6 +175,16 @@ public class LoginWindow implements Component{
         }
     }
 
+    private String getQueryStringWithLocalization() {
+        StringBuilder queryParam = new StringBuilder(Window.Location.getQueryString());
+        if (queryParam.length() == 0) {
+            queryParam.append("?locale=ru");
+        } else if (!queryParam.toString().contains("locale")) {
+            queryParam.append("&locale=ru");
+        }
+        return queryParam.toString();
+    }
+
     protected void login() {
 
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
@@ -187,8 +193,9 @@ public class LoginWindow implements Component{
             @Override
             public void onSuccess(Void result) {
                 //todo: переадресация должна уметь задаваться на стадии открытия LoginPage. пока хардкод
+
                 String path = GWT.getHostPageBaseURL();
-                Window.Location.assign(path + "BusinessUniverse.html" + Window.Location.getQueryString());
+                Window.Location.replace(path + "BusinessUniverse.html" + getQueryStringWithLocalization());
 
             }
 
