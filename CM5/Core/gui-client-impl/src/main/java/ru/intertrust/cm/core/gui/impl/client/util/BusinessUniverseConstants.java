@@ -35,7 +35,7 @@ public class BusinessUniverseConstants {
     public static final String LOGIN_PAGE = "Login.html";
     public static final String USER_THEME_NAME = "userThemeName";
 
-    public static final int START_SIDEBAR_WIDTH = 140;
+    public static final int START_SIDEBAR_WIDTH = 110;
     public static final String CLOSED = "closed";
     public static final String OPEN = "open";
     public static final String UNDEFINED_COLLECTION_NAME = "undefined";
@@ -64,14 +64,24 @@ public class BusinessUniverseConstants {
     public static final int CLEAR_BUTTON_WIDTH = 28;
     public static final int SEARCH_CONTAINER_MARGIN_WIDTH = 20;
 
-    //Tooltip default sizes
-    public static final String MAX_TOOLTIP_DEFAULT_WIDTH = "400px";
-    public static final String MAX_TOOLTIP_DEFAULT_HEIGHT = "300px";
     //Hyperlink form title, maybe temporary
     public static final String FORM_TITLE = "Item";
 
-
+    //Linked Table Widget
     public static final String STATE_KEY = "stateKey";
 
+    //themes folders
+    public static final String DEFAULT_THEME_FOLDER = "resources/defaulttheme/";
+    public static final String LIGHT_THEME_FOLDER = "resources/lighttheme/";
+    public static final String DARK_THEME_FOLDER = "resources/darktheme/";
+
+    //theme preview picture name
+    public static final String THEME_PREVIEW_PICTURE = "images/theme-preview.png";
+    // Navigation styles
+    public static final String LEFT_SECTION_ACTIVE_STYLE = "left-section-active";
+    public static final String LEFT_SECTION_STYLE = "left-section";
+
+    public static final String CENTRAL_SECTION_STYLE = "central-div-panel-test";
+    public static final String CENTRAL_SECTION_ACTIVE_STYLE = "central-div-panel-test-active";
     private BusinessUniverseConstants() {}
 }

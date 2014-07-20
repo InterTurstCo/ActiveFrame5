@@ -6,17 +6,18 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.themes.BundleWrapper;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.themes.def.datagrid.DataGridResources;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
 import ru.intertrust.cm.core.gui.impl.client.themes.light.datagrid.LightDataGridResources;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 30.05.14
  *         Time: 18:27
  */
 @ComponentName(GlobalThemesManager.THEME_LIGHT)
-    public class LightThemeBundleWrapper implements BundleWrapper {
+public class LightThemeBundleWrapper implements BundleWrapper {
     private static final LightThemeBundle themeBundle = GWT.create(LightThemeBundle.class);
     private static final LightDataGridResources dataGridResources = GWT.create(LightDataGridResources.class);
 
@@ -34,7 +35,8 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
     public CssResource getMainCss() {
         return themeBundle.mainCss();
     }
-    public  LightThemeBundle getThemeBundle() {
+
+    public LightThemeBundle getThemeBundle() {
         return themeBundle;
     }
 
@@ -51,5 +53,10 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
     @Override
     public CssResource getNavigationTreeCss() {
         return themeBundle.navigationTreeCss();
+    }
+
+    @Override
+    public String getResourceFolder() {
+        return BusinessUniverseConstants.LIGHT_THEME_FOLDER;
     }
 }

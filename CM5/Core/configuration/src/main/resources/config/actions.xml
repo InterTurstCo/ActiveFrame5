@@ -3,19 +3,19 @@
                xmlns:act="https://cm5.intertrust.ru/config/action">
 
     <act:action id="aRefresh" componentName="refresh.action" display="button"
-                text="Обновить" image="icons/refresh.png" tooltip="Обновить данные"
+                text="Обновить" image="images/icons/refresh.png" tooltip="Обновить данные"
                 order="10" merged="false" dirtySensitivity="true"/>
     <act:action id="aCreate" componentName="create.new.object.action"
-                text="Создать" tooltip="Создать новый" image="icons/icon-create.png" order="100"
+                text="Создать" tooltip="Создать новый" image="images/icons/icon-create.png" order="100"
                 dirtySensitivity="true"/>
     <act:action id="aSave" componentName="save.action" order="200" dirtySensitivity="false"
-                text="Сохранить" tooltip="Сохранить изменения" image="icons/icon-save.png"/>
+                text="Сохранить" tooltip="Сохранить изменения" image="images/icons/icon-save.png"/>
     <act:action id="aDelete" componentName="delete.action" order="300"
-                text="Удалить" image="icons/icon-delete.png" dirtySensitivity="true"/>
+                text="Удалить" image="images/icons/icon-delete.png" dirtySensitivity="true"/>
     <act:action id="aToggleEditOff" componentName="close.in.central.panel.action" order="100"
-                text="Закрыть" image="icons/icon-edit-close.png"/>
+                text="Закрыть" image="images/icons/icon-edit-close.png"/>
     <act:action id="aToggleEditOn" componentName="toggle.edit.on.action" order="150" dirtySensitivity="false"
-                text="Редактировать" image="icons/icon-edit.png"/>
+                text="Редактировать" image="images/icons/icon-edit.png"/>
 
     <!-- Обобщённое и упрощённое для кодирования действие, которое должно выполнить некоторую стандартную операцию на сервер-сайде -->
     <!--<simple-action name="send.for.approval.action" action-handler="generic.workflow.action" text="Отправить на согласование" image="approve.png">
@@ -68,7 +68,7 @@
         <act:action-separator order="50"/>
         <act:action-ref actionId="aDelete"/>
         <act:action componentName="save-csv.action" order="500" dirtySensitivity="false" immediate="true"
-                    text="Выгрузить в CSV" image="icons/icon-csv_download.png"/>
+                    text="Выгрузить в CSV" image="images/icons/icon-csv_download.png"/>
     </act:tool-bar>
 
     <act:tool-bar plugin="form.plugin">

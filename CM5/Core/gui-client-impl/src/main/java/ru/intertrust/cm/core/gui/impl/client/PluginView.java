@@ -112,7 +112,7 @@ public abstract class PluginView implements IsWidget {
     /**
      * Перерисовует cодержимое плагин панели после изменения размеров панели
      */
-    public  void onPluginPanelResize(){
+    public void onPluginPanelResize() {
 
     }
 
@@ -125,11 +125,11 @@ public abstract class PluginView implements IsWidget {
     private List<ActionContext> getDefaultSystemContexts() {
         final List<ActionContext> contexts = new ArrayList<ActionContext>();
         final ToggleActionContext fstCtx = new ToggleActionContext(createActionConfig(
-                "size.toggle.action", "Распахнуть/Свернуть", "icons/form-fullsize.png", 1000));
+                "size.toggle.action", "Распахнуть/Свернуть", "images/icons/form-fullsize.png", 1000));
         fstCtx.setPushed(Application.getInstance().getCompactModeState().isExpanded());
         contexts.add(fstCtx);
         contexts.add(new ToggleActionContext(createActionConfig(
-                "favorite.toggle.action", "Показать/Скрыть избранное", "icons/favorite-panel.png", 1001)));
+                "favorite.toggle.action", "Показать/Скрыть избранное", "images/icons/favorite-panel.png", 1001)));
         return contexts;
     }
 
@@ -204,7 +204,7 @@ public abstract class PluginView implements IsWidget {
             action.setInitialContext(context);
             action.setPlugin(plugin);
             action.perform();
-            if (ActionDisplayType.toggleButton  == config.getDisplay()) {
+            if (ActionDisplayType.toggleButton == config.getDisplay()) {
                 parent.getElement().setInnerHTML(ComponentHelper.createActionHtmlItem(context).asString());
             }
         }

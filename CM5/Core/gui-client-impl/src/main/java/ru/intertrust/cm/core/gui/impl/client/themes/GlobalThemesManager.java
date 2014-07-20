@@ -3,14 +3,12 @@ package ru.intertrust.cm.core.gui.impl.client.themes;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
 import ru.intertrust.cm.core.config.ThemeConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +25,7 @@ public class GlobalThemesManager {
     public static final String THEME_LIGHT = "light-theme";
     private static Map<String, ThemeConfig> themeNameImageMap;
 
-    public static String getCurrentThemeComponentName(){
+    public static String getCurrentThemeComponentName() {
         return bundleWrapper.getName();
     }
 
@@ -64,7 +62,8 @@ public class GlobalThemesManager {
         }
         return THEME_DEFAULT;
     }
-    private static Map<String, ThemeConfig> initThemesMap(ThemesConfig themesConfig){
+
+    private static Map<String, ThemeConfig> initThemesMap(ThemesConfig themesConfig) {
         if (themesConfig == null) {
             return null;
         }
@@ -90,5 +89,9 @@ public class GlobalThemesManager {
 
     public static CssResource getNavigationTreeStyles() {
         return bundleWrapper.getNavigationTreeCss();
+    }
+
+    public static String getResourceFolder() {
+        return bundleWrapper.getResourceFolder();
     }
 }

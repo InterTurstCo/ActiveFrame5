@@ -922,7 +922,7 @@ td.datePickerMonth {
     left: 0;
     right: 0;
     bottom: 0;
-    margin: 70px 11px 11px 140px;
+    margin: 70px 11px 11px 130px;
 }
 
 .central-div-panel-test-full {
@@ -946,7 +946,7 @@ td.datePickerMonth {
     left: 0;
     right: 0;
     bottom: 0;
-    margin: 70px 11px 11px 349px;
+    margin: 70px 11px 11px 375px;
 }
 
 #action-bar-id {
@@ -1000,18 +1000,15 @@ td.datePickerMonth {
 .navigation-dynamic-panel {
     left: 15px;
     padding-top: 20px;
-    width: 140px;
+    width: 0px;
 
-    /*overflow-y: auto;*/
-    /*height: 1000px;*/
 }
 .navigation-dynamic-panel-expanded {
     left: 15px;
     padding-top: 20px;
-    width: 140px;
     overflow-y: auto;
     overflow-x: hidden;
-    /*height: 1000px;*/
+
 }
 
 .navigation-dynamic-panel::-webkit-scrollbar,
@@ -1038,7 +1035,7 @@ td.datePickerMonth {
 
 .group-tree {
     font-weight: bold;
-    margin-left: 130px;
+    /*margin-left: 130px;*/
     margin-top: 10px;
     padding: 0 0 15px;
     display: block;
@@ -1360,6 +1357,10 @@ td.datePickerMonth {
 .before-target-target {
 }
 
+#sidebar :nth-child(2) {
+    position: inherit !important;
+}
+
 #sidebar ul {
     list-style: none;
     margin: 0;
@@ -1507,7 +1508,7 @@ td.datePickerMonth {
  *  this
 **/
 #sidebar {
-    position: absolute;
+    /* position: absolute;*/
     overflow: hidden;
     left: 0;
     top: 0;
@@ -1522,7 +1523,7 @@ td.datePickerMonth {
     position: absolute;
     z-index: 0;
     left: 0;
-  /*  width: 106px;*/
+    width: 110px;
     top: 0;
     bottom: 0;
     border-right: 3px solid #232264;
@@ -1664,14 +1665,11 @@ td.datePickerMonth {
 
 .tree-label {
     float: left;
-    margin-left: -20px !important;
+    margin-left: -20px;
     margin-right: 120px;
-    padding-left: 20px !important;
+    padding: 8px 8px 0 20px;
     text-decoration: none !important;
-    padding-right: 8px;
-    padding-left: 5px;
     cursor: pointer;
-    padding-top: 8px;
 }
 .tree-item-padding-style{
     padding-left: 15px !important;
@@ -2024,8 +2022,8 @@ a:active .icon.back {
     float: none;
     height: 16px;
     width: 16px;
-    left: 140px !important;
-    top: 10px !important;
+    left: 10px;
+    top: 15px;
     border-bottom: none !important;
     background: no-repeat center center;
     vertical-align: bottom;
@@ -2191,24 +2189,32 @@ a:active .icon.back {
 }
 
 .icon.pin-pressed {
+    display: block;
+    z-index: 111;
     background-image: url(css/icons/pin-pressed.png);
     cursor: pointer;
     left: 5px;
 }
 
 .icon.pin-normal {
+    display: block;
+    z-index: 111;
     background-image: url(css/icons/pin-normal.png);
     cursor: pointer;
     left: 5px;
 }
 
 .icon.pin-pressed:hover {
+    display: block;
+    z-index: 111;
     background-image: url(css/icons/pin-pressed-hover.png);
     cursor: pointer;
     left: 5px;
 }
 
 .icon.pin-normal:hover {
+    display: block;
+    z-index: 111;
     background-image: url(css/icons/pin-normal-hover.png);
     cursor: pointer;
     left: 5px;
@@ -2665,4 +2671,29 @@ td.datePickerMonth {
     border-right: 1px solid rgb(211, 211, 211);
     height: 40px;
     margin: 0 0 0 20px;
+}
+
+.focus-container {
+    margin-left: 135px;
+    /*background: #4c93c9;
+    background: -moz-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9), color-stop(51%, #3b649a), color-stop(100%, #232464));
+    background: -webkit-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -o-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -ms-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0);
+    background: linear-gradient(478 BCC);*/
+}
+
+.navigation-scroll {
+    position: absolute !important;
+
+}
+
+.tree-hidden {
+    display: none;
+}
+
+.tree-shown {
+    display: table-cell;
 }

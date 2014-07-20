@@ -18,13 +18,14 @@ import java.util.Map;
  *         Date: 14.05.14
  *         Time: 10:25
  */
-public class ThemePopup extends PopupPanel{
-     private String userThemeComponentName;
-     private Panel  imageContainer;
+public class ThemePopup extends PopupPanel {
+    private String userThemeComponentName;
+    private Panel imageContainer;
 
     public ThemePopup(Map<String, ThemeConfig> themeMap) {
         initPopup(themeMap);
     }
+
     private void initPopup(Map<String, ThemeConfig> themeMap) {
 
         this.setStyleName("theme-popup");
@@ -40,17 +41,17 @@ public class ThemePopup extends PopupPanel{
         userThemeComponentName = currentThemeComponentName;
         for (ThemeConfig themeConfig : themeMap.values()) {
             String themeName = themeConfig.getDisplayName();
-            RadioButton radioButton= new RadioButton("Theme", themeName);
+            RadioButton radioButton = new RadioButton("Theme", themeName);
             radioButton.addClickHandler(new RadioButtonClickHandler(themeConfig));
             radioButtonPanel.add(radioButton);
-            String imagePath = themeConfig.getImg();
+            String imagePath = GlobalThemesManager.getResourceFolder() + BusinessUniverseConstants.THEME_PREVIEW_PICTURE;
             Image image = new Image(imagePath);
             imageContainer.add(image);
             String componentName = themeConfig.getComponentName();
-            image.getElement().setId(componentName + imagePath);
-            if(currentThemeComponentName.equalsIgnoreCase(componentName)) {
-                    image.setVisible(true);
-                    radioButton.setValue(true, false);
+            image.getElement().setId(componentName);
+            if (currentThemeComponentName.equalsIgnoreCase(componentName)) {
+                image.setVisible(true);
+                radioButton.setValue(true, false);
 
             } else {
                 image.setVisible(false);
@@ -72,14 +73,14 @@ public class ThemePopup extends PopupPanel{
                 }
             }
 
-        }) ;
+        });
         buttonPanel.add(select);
         Button cancel = new Button("Отменить");
         cancel.setStyleName("dark-button");
         cancel.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-               ThemePopup.this.hide();
+                ThemePopup.this.hide();
             }
         });
         buttonPanel.add(cancel);
@@ -90,12 +91,13 @@ public class ThemePopup extends PopupPanel{
         this.add(container);
         this.show();
     }
+
     private void changeImageVisibility(ThemeConfig themeConfig) {
-        String imageId = themeConfig.getComponentName() + themeConfig.getImg();
+        String imageId = themeConfig.getComponentName();
         for (Widget widget : imageContainer) {
             Element element = widget.getElement();
             if (element.getId().equalsIgnoreCase(imageId)) {
-                 widget.setVisible(true);
+                widget.setVisible(true);
             } else {
                 widget.setVisible(false);
             }
@@ -107,7 +109,7 @@ public class ThemePopup extends PopupPanel{
         private ThemeConfig themeConfig;
 
         private RadioButtonClickHandler(ThemeConfig themeConfig) {
-            this.themeConfig= themeConfig;
+            this.themeConfig = themeConfig;
         }
 
         @Override

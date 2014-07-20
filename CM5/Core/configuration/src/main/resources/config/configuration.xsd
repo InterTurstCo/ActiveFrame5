@@ -443,7 +443,6 @@
     <xs:complexType name="themeType">
         <xs:attribute name="display-name" use="required" type="xs:string"/>
         <xs:attribute name="component-name" use="required" type="xs:string"/>
-        <xs:attribute name="img" use="required" type="xs:string"/>
         <xs:attribute name="default-theme" use="optional" type="xs:boolean"/>
     </xs:complexType>
     <xs:complexType name="collectionCountRefreshType">

@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.datagrid.DataGridResources;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 
 /**
@@ -25,6 +26,7 @@ public class DefaultThemeBundleWrapper implements BundleWrapper {
     public Component createNew() {
         return new DefaultThemeBundleWrapper();
     }
+
     @Override
     public String getName() {
         return GlobalThemesManager.THEME_DEFAULT;
@@ -42,15 +44,20 @@ public class DefaultThemeBundleWrapper implements BundleWrapper {
     }
 
     public DataGrid.Resources getDataGridResources() {
-        return  dataGridResources;
+        return dataGridResources;
     }
 
     public SplitterStyles getSplitterStyles() {
-          return themeBundle.splitterCss();
+        return themeBundle.splitterCss();
     }
 
     @Override
     public CssResource getNavigationTreeCss() {
         return themeBundle.navigationTreeCss();
+    }
+
+    @Override
+    public String getResourceFolder() {
+        return BusinessUniverseConstants.DEFAULT_THEME_FOLDER;
     }
 }

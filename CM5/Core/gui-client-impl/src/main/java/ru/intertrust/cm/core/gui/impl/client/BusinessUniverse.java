@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import java.util.logging.Logger;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -15,13 +14,8 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
@@ -33,17 +27,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyle;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyleHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -55,6 +39,8 @@ import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import java.util.logging.Logger;
 
 /**
  * @author Denis Mitavskiy
@@ -146,7 +132,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 glEventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
                 navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
                 navigationTreePanel.open(navigationTreePlugin);
-                String logoImagePath = result.getLogoImagePath();
+                String logoImagePath = GlobalThemesManager.getResourceFolder() + result.getLogoImagePath();
                 CurrentUserInfo currentUserInfo = getUserInfo(result);
                 header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig));
                 left.add(navigationTreePanel);
@@ -155,28 +141,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                     @Override
                     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
 
-                        left.setStyleName("left-section-active");
-                        if (event.getSideBarWidts() == BusinessUniverseConstants.START_SIDEBAR_WIDTH) {
-                            centralDivPanel.setStyleName("central-div-panel-test");
-
-                        } else {
-                            centralDivPanel.setStyleName("central-div-panel-test-active");
-
-                        }
-
+                        left.setStyleName(event.getStyleForLeftSector());
+                        centralDivPanel.setStyleName(event.getStyleForCenterSector());
                         glEventBus.fireEvent(new PluginPanelSizeChangedEvent());
 
                     }
                 });
 
-                glEventBus.addHandler(SideBarResizeEventStyle.TYPE, new SideBarResizeEventStyleHandler() {
-                    @Override
-                    public void sideBarSetStyleEvent(SideBarResizeEventStyle event) {
-
-                        left.setStyleName(event.getStyleMouseOver());
-                        //left.getElement().getStyle().clearWidth();
-                    }
-                });
 
                 // обработчик окончания расширенного поиска
                 glEventBus.addHandler(ExtendedSearchCompleteEvent.TYPE, new ExtendedSearchCompleteEventHandler() {

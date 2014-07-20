@@ -5,10 +5,10 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
-
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionDisplayType;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 
@@ -32,7 +32,7 @@ public final class ComponentHelper {
         final ActionConfig actionConfig = context.getActionConfig();
         final SimplePanel wrapper = new SimplePanel();
         if (actionConfig.getImageUrl() != null) {
-            final String imageUrl = getImageAttr(actionConfig.getImageUrl(), context);
+            final String imageUrl = GlobalThemesManager.getResourceFolder() + getImageAttr(actionConfig.getImageUrl(), context);
             final Image image = new Image(imageUrl);
             if (actionConfig.getImageClass() != null) {
                 image.setStyleName(actionConfig.getImageClass());

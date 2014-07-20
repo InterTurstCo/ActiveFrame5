@@ -9,14 +9,16 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.datagrid.DataGridResources;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 19.05.14
  *         Time: 17:15
  */
 @ComponentName(GlobalThemesManager.THEME_DARK)
-    public class DarkThemeBundleWrapper implements BundleWrapper {
+public class DarkThemeBundleWrapper implements BundleWrapper {
     private static final DarkThemeBundle themeBundle = GWT.create(DarkThemeBundle.class);
     private static final DataGridResources dataGridResources = GWT.create(DataGridResources.class);
 
@@ -52,5 +54,10 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
     @Override
     public CssResource getNavigationTreeCss() {
         return themeBundle.navigationTreeCss();
+    }
+
+    @Override
+    public String getResourceFolder() {
+        return BusinessUniverseConstants.DARK_THEME_FOLDER;
     }
 }

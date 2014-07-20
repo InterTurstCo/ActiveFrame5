@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.animation.client.Animation;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Panel;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,20 +14,25 @@ import com.google.gwt.user.client.ui.FocusPanel;
 public class ResizeTreeAnimation extends Animation {
     private int startWidth = 0;
     private int desiredWidth = 0;
-    private FocusPanel resizedWidget;
+    private Panel resizedWidget;
+    boolean expanded;
 
 
-    public ResizeTreeAnimation(int desiredWidth, FocusPanel resizedWidget) {
+    public ResizeTreeAnimation(int desiredWidth, Panel resizedWidget) {
         this.resizedWidget = resizedWidget;
         this.startWidth = resizedWidget.getOffsetWidth();
         this.desiredWidth = desiredWidth;
+        expanded = startWidth < desiredWidth;
     }
 
     @Override
     protected void onUpdate(double progress) {
         double width = extractProportionalLength(progress);
         resizedWidget.setWidth(width+ Style.Unit.PX.getType());
-
+        if (width == desiredWidth) {
+            String styleName = expanded ? "navigation-dynamic-panel-expanded" : "navigation-dynamic-panel";
+            resizedWidget.setStyleName(styleName);
+        }
     }
 
     private double extractProportionalLength(double progress) {
@@ -35,7 +40,7 @@ public class ResizeTreeAnimation extends Animation {
         return outWidth;
     }
 
-    public FocusPanel getResizedWidget() {
+    public Panel getResizedWidget() {
         return resizedWidget;
     }
 

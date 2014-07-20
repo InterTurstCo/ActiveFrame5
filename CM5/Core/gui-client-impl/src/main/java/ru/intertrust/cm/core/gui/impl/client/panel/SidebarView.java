@@ -1,7 +1,5 @@
-/*
-        * Copyright 2011-2012 InterTrust LTD. All rights reserved. Visit our web-site: www.intertrust.ru.
-        */
-        package ru.intertrust.cm.core.gui.impl.client.panel;
+
+package ru.intertrust.cm.core.gui.impl.client.panel;
 
 import com.google.gwt.animation.client.Animation;
 import com.google.gwt.dom.client.Element;
@@ -26,10 +24,8 @@ import java.util.Iterator;
  */
 public class SidebarView extends Composite {
 
-    public final static String DIV_CONTENT_ID = "content";
     public final static String DIV_SIDEBAR_ID = "sidebar";
     public final static String DIV_TASKSWRAP_ID = "tasks-wrap";
-    private HashMap<String, String> hasImg = new HashMap<String, String>();
 
     private LayoutPanel sidebarPanel = new LayoutPanel();
     private ScrollPanel scrollPanel = new ScrollPanel();
@@ -44,7 +40,6 @@ public class SidebarView extends Composite {
 
     public final static int SB_ELEM_HEIGHT = 84;
     public final static int BUT_RESERV_HEIGHT = 30;
-    private int currentItemsCount = 0;
 
     public SidebarView() {
         createSideBar();
@@ -58,11 +53,6 @@ public class SidebarView extends Composite {
         });
     }
 
-    public int getWidgetIndex(Widget w) {
-        int result = menuItems.getWidgetIndex(w);
-        return result;
-    }
-
     public Widget getWidgetMenuItems(int index) {
         return menuItems.getWidget(index);
     }
@@ -71,16 +61,14 @@ public class SidebarView extends Composite {
         return menuItems;
     }
 
-    public HashMap<String, HTML> getNavigationMap() {
-        return navigationMap;
-    }
-
     public void createSideBar() {
 
         HTMLPanel support = new HTMLPanel("");
         sidebarPanel.add(support);
         support.addStyleName("gradient");
+
         support.add(scrollPanel);
+        scrollPanel.setStyleName("navigation-scroll");
         scrollPanel.add(tasksWrap);
         tasksWrap.add(menuItems);
         support.add(arrsPanel);
@@ -92,14 +80,6 @@ public class SidebarView extends Composite {
         DOM.appendChild(arrsPanelElement, arrTop);
         DOM.appendChild(arrsPanelElement, arrBottom);
 
-    }
-
-    public void putNavigationMap(String name, HTML h) {
-        navigationMap.put(name, h);
-    }
-
-    public HashMap<String, String> getHasImg() {
-        return hasImg;
     }
 
     private void init() {
@@ -209,11 +189,6 @@ public class SidebarView extends Composite {
         }
     }
 
-    /**
-     * Sidebar content correct function. See main.js for details
-     *
-     * @author labotski, alex oreshkevich
-     */
     private strictfp void sidebarContentCorrect() {
         int clientHeight = Window.getClientHeight();
         if (clientHeight < 50) {
@@ -266,10 +241,6 @@ public class SidebarView extends Composite {
             return outPosition;
         }
 
-        /**
-         * @param duration
-         * @param Position
-         */
         public void run(int duration, int position) {
             this.scrollPosition = position;
             super.run(duration);
@@ -292,10 +263,6 @@ public class SidebarView extends Composite {
             return outPosition;
         }
 
-        /**
-         * @param duration
-         * @param Position
-         */
         public void run(int duration, int position) {
             this.scrollPosition = position;
             super.run(duration);
