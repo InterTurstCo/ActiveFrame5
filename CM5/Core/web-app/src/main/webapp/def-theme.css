@@ -109,23 +109,6 @@ h1 {
     height: 33px;
 }
 
-/*.section-suggest-box {*/
-/*position: fixed;*/
-/*z-index: 0;*/
-/*top: 50px;*/
-/*left: 170px;*/
-/*right: 430px;*/
-/*overflow-y: auto;*/
-/*overflow-x: hidden;*/
-/*box-shadow: 4px 6px 10px 0 rgba(128, 128, 128, .2);*/
-/*padding: 9px 25px 9px 35px;*/
-/*background: #fffdf0;*/
-/*border: 1px solid;*/
-/*border-color: #fff1ca #ffedbe #ffedbe;*/
-/*border-radius: 0 0 5px 5px;*/
-
-/*}*/
-
 .header-first-action-button {
     background: url(images/matugalnik.png) no-repeat scroll 5px 2px;
     cursor: pointer;
@@ -474,9 +457,9 @@ h1 {
     background-image: url(css/filter-btn.png);
     background-repeat: no-repeat;
     background-position: 50% 50%;
-    border: 1px solid #c0c4cf !important;
-    border-radius: 3px 3px 3px 3px !important;
-    box-shadow: none !important;
+    border: 1px solid #c0c4cf;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: none;
     float: right;
     margin: 3px 5px 0 5px;
 }
@@ -702,6 +685,153 @@ td.datePickerMonth {
     border: solid black 1px;
 }
 
+/**
+  * Action Bar
+**/
+.decorated-action-link .actionBar-refresh {
+    background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 3px 0 0 10px;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-refresh {*/
+    /*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-refresh {*/
+    /*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -70px;*/
+/*}*/
+
+.decorated-action-link .actionBar-create {
+    background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 3px 0 0 10px;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-create {*/
+    /*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-create {*/
+    /*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -70px;*/
+/*}*/
+
+.decorated-action-link .actionBar-edit {
+    background: url("resources/defaulttheme/images/icons/icon-edit.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 3px 0 0 10px;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-edit {*/
+    /*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-edit {*/
+    /*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -70px;*/
+/*}*/
+
+.decorated-action-link .actionBar-close {
+    background: url("resources/defaulttheme/images/icons/icon-edit-close.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 3px 0 0 10px;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-close {*/
+    /*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-close {*/
+    /*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -70px;*/
+/*}*/
+
+.decorated-action-link .actionBar-save {
+    background: url("resources/defaulttheme/images/icons/icon-save.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 3px 0 0 10px;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-save {*/
+    /*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-save {*/
+    /*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -70px;*/
+/*}*/
+
+.decorated-action-link .actionBar-delete {
+    background: url("resources/defaulttheme/images/icons/icon-delete.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 3px 0 0 10px;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-delete {*/
+    /*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-delete {*/
+    /*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -70px;*/
+/*}*/
+
+.decorated-action-link .actionBar-csvUpload {
+    background: url("resources/defaulttheme/images/icons/icon-csv_download.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 3px 0 0 10px;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-csvUpload {*/
+    /*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-csvUpload {*/
+    /*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -70px;*/
+/*}*/
+
+.action-bar-right-side .actionBar-fullsize-on {
+    background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 0;
+    float: right;
+    height: 35px;
+    margin: 3px 0 0 10px;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-fullsize-on {*/
+    /*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-fullsize-on {*/
+    /*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -70px;*/
+/*}*/
+
+.action-bar-right-side .actionBar-favoritePanel-on {
+    background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 0;
+    float: right;
+    height: 35px;
+    margin: 3px 10px 0 0;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-favoritePanel-on {*/
+    /*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-favoritePanel-on {*/
+    /*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -70px;*/
+/*}*/
+
 .action-bar-button {
 
 }
@@ -775,16 +905,15 @@ td.datePickerMonth {
 }
 
 .action-bar-right-side img {
-    padding: 7px 5px 7px 0;
+    padding: 3px 5px 0 0;
     cursor: pointer;
 }
 
 .decorated-action-link .action-bar-button {
+    border: none;
     float: left;
-    margin-left: 3px;
-    margin-top: 10px;
-    border-bottom: 1px dotted black;
-}
+    margin: 15px 0 0 0;
+    text-decoration: none;}
 
 .decorated-action-link img {
     border: none !important;
@@ -2010,10 +2139,8 @@ a:active .icon.back {
 .action-bar-menu {
     height: 0 !important;
     vertical-align: middle;
-
     padding-top: 10px;
     padding-left: 10px;
-
 }
 
 .icon {
@@ -2022,8 +2149,8 @@ a:active .icon.back {
     float: none;
     height: 16px;
     width: 16px;
-    left: 10px;
-    top: 15px;
+    left: 15px;
+    top: 0;
     border-bottom: none !important;
     background: no-repeat center center;
     vertical-align: bottom;
@@ -2193,7 +2320,6 @@ a:active .icon.back {
     z-index: 111;
     background-image: url(css/icons/pin-pressed.png);
     cursor: pointer;
-    left: 5px;
 }
 
 .icon.pin-normal {
@@ -2201,7 +2327,6 @@ a:active .icon.back {
     z-index: 111;
     background-image: url(css/icons/pin-normal.png);
     cursor: pointer;
-    left: 5px;
 }
 
 .icon.pin-pressed:hover {
@@ -2209,7 +2334,6 @@ a:active .icon.back {
     z-index: 111;
     background-image: url(css/icons/pin-pressed-hover.png);
     cursor: pointer;
-    left: 5px;
 }
 
 .icon.pin-normal:hover {
@@ -2217,7 +2341,6 @@ a:active .icon.back {
     z-index: 111;
     background-image: url(css/icons/pin-normal-hover.png);
     cursor: pointer;
-    left: 5px;
 }
 
 /**

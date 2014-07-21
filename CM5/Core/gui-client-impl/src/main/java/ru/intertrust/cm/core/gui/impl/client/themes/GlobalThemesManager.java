@@ -23,6 +23,7 @@ public class GlobalThemesManager {
     public static final String THEME_DEFAULT = "default-theme";
     public static final String THEME_DARK = "dark-theme";
     public static final String THEME_LIGHT = "light-theme";
+    public static final String THEME_LUCEM = "lucem-theme";
     private static Map<String, ThemeConfig> themeNameImageMap;
 
     public static String getCurrentThemeComponentName() {

@@ -73,6 +73,7 @@ public class BusinessUniverseConstants {
     //themes folders
     public static final String DEFAULT_THEME_FOLDER = "resources/defaulttheme/";
     public static final String LIGHT_THEME_FOLDER = "resources/lighttheme/";
+    public static final String LUCEM_THEME_FOLDER = "resources/lucemtheme/";
     public static final String DARK_THEME_FOLDER = "resources/darktheme/";
 
     //theme preview picture name

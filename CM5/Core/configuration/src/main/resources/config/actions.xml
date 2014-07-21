@@ -3,72 +3,26 @@
                xmlns:act="https://cm5.intertrust.ru/config/action">
 
     <act:action id="aRefresh" componentName="refresh.action" display="button"
-                text="Обновить" image="images/icons/refresh.png" tooltip="Обновить данные"
+                text="Обновить" imageClass="actionBar-refresh" tooltip="Обновить данные"
                 order="10" merged="false" dirtySensitivity="true"/>
     <act:action id="aCreate" componentName="create.new.object.action"
-                text="Создать" tooltip="Создать новый" image="images/icons/icon-create.png" order="100"
+                text="Создать" tooltip="Создать новый" imageClass="actionBar-create" order="100"
                 dirtySensitivity="true"/>
     <act:action id="aSave" componentName="save.action" order="200" dirtySensitivity="false"
-                text="Сохранить" tooltip="Сохранить изменения" image="images/icons/icon-save.png"/>
+                text="Сохранить" tooltip="Сохранить изменения" imageClass="actionBar-save"/>
     <act:action id="aDelete" componentName="delete.action" order="300"
-                text="Удалить" image="images/icons/icon-delete.png" dirtySensitivity="true"/>
+                text="Удалить" imageClass="actionBar-delete" dirtySensitivity="true"/>
     <act:action id="aToggleEditOff" componentName="close.in.central.panel.action" order="100"
-                text="Закрыть" image="images/icons/icon-edit-close.png"/>
+                text="Закрыть" imageClass="actionBar-close"/>
     <act:action id="aToggleEditOn" componentName="toggle.edit.on.action" order="150" dirtySensitivity="false"
-                text="Редактировать" image="images/icons/icon-edit.png"/>
-
-    <!-- Обобщённое и упрощённое для кодирования действие, которое должно выполнить некоторую стандартную операцию на сервер-сайде -->
-    <!--<simple-action name="send.for.approval.action" action-handler="generic.workflow.action" text="Отправить на согласование" image="approve.png">
-        &lt;!&ndash; То, что выполняется на клиенте и сервере непосредственно перед выполнением абстрактного метода
-        public abstract T executeAction(E context);
-        По умолчанию, ничего делать не надо - просто вызвается данный метод &ndash;&gt;
-        <before-execution>
-            &lt;!&ndash; Текст-подтверждение перед выполнением данного действия &ndash;&gt;
-            <confirmation-message text="Отправить на согласование?"/>
-
-            &lt;!&ndash; Производить ли валидацию формы (по умолчанию - да) &ndash;&gt;
-            <perform-validation value="false"/>
-
-            &lt;!&ndash; Доменный объект, который требуется создать перед выполнением данного действия. При этом перед выполнением
-            открывается форма редактирования этого доменного объекта
-            form-name - параметр не обязательный, но позволяет выбрать форму, отличную от "по умолчанию"
-            &ndash;&gt;
-            <domain-object-to-create type="doc_sign" form-name="sign_default_form">
-                &lt;!&ndash; Не обязательный параметр. Определяет связь родительского объекта с созданным. Прямая ссылка - родитель
-                 ссылается на созданный, обратная - созданный ссылается на родителя (влияет на последовательность и необходимость сохранения)
-                 родительского объекта. Нужно учесть, что ссылки могут быть NOT NULL и их нужно проставить до сохранения самих объектов &ndash;&gt;
-                <reference type="direct/back" field-name="ref_name"/>
-            </domain-object-to-create>
-
-            &lt;!&ndash; Не обязательный атрибут, по умолчанию "true" - определяет, требуется ли сохранять доменный объект
-            контекста действия (открытый доменный объект) перед выполнением действия. Значение игнорируется, если конфигурация требует сохранения объекта
-             в других случаях &ndash;&gt;
-            <save-context value="false"/>
-        </before-execution>
-
-        &lt;!&ndash; После выполнения данного действия.
-         По умолчанию, если сервер сообщение не вернул, вывести "Выполнено" &ndash;&gt;
-        <after-execution>
-            &lt;!&ndash; Текст-подтверждение после выполнения данного действия. Если не указан, то текст формируется в серверным обработчиком
-            (помещается в возвращаемые данные) &ndash;&gt;
-            <on-success-message text="Документ {name} (Автор: {author.last_name author.first_name}) отправлен на согласование"/>
-
-            &lt;!&ndash; Текст, выводимый в случае ошибки. Если не указан, то формируется серверным обработчиком в исключении &ndash;&gt;
-            <on-error text="Не удачно"/>
-        </after-execution>
-
-        &lt;!&ndash; Дополнительные параметры, передаваемые действию &ndash;&gt;
-        <action-params>
-            <param name="throw.exception.if.after.noon" value="true"/>
-        </action-params>
-    </simple-action>-->
+                text="Редактировать" imageClass="actionBar-edit"/>
 
     <act:tool-bar plugin="collection.plugin">
         <act:action-ref actionId="aRefresh"/>
         <act:action-separator order="50"/>
         <act:action-ref actionId="aDelete"/>
         <act:action componentName="save-csv.action" order="500" dirtySensitivity="false" immediate="true"
-                    text="Выгрузить в CSV" image="images/icons/icon-csv_download.png"/>
+                    text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
     </act:tool-bar>
 
     <act:tool-bar plugin="form.plugin">

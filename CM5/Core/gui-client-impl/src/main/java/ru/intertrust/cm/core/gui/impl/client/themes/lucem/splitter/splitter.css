@@ -1,0 +1,335 @@
+#gwt-splitter {
+    overflow: visible;
+    top: 30%;
+    left: 0;
+    right: 0;
+    border-collapse: collapse;
+    z-index: 11;
+
+}
+
+.gwt-splitter-shadow {
+    /*border: 1px solid #9EAFBF;*/
+    position: absolute;
+    z-Index: 999;
+    right: 0;
+    /*top: 6px !important;*/
+    left: 0;
+    margin-top: -1px;
+}
+
+.gwt-SplitLayoutPanel-VDragger {
+    /*   top: 6px !important;*/
+    background: url("css/splitter/horizontal-line.png") top left repeat-x;
+    cursor: row-resize;
+}
+
+.gwt-SplitLayoutPanel-VDraggerTop {
+
+    background: url("css/splitter/horizontal-top-thin.png") top left repeat-x;
+    cursor: row-resize;
+}
+
+.gwt-SplitLayoutPanel-VDraggerBottom {
+    /*top: 12px !important;*/
+    background: url("css/splitter/horizontal-bottom-thin.png") top left repeat-x;
+    cursor: row-resize;
+}
+
+.gwt-SplitLayoutPanel-HDragger {
+    /*  left: 6px !important;*/
+    background: url("css/splitter/vertical-line.png") top left repeat-y;
+    cursor: col-resize;
+}
+
+.gwt-SplitLayoutPanel-HDraggerLeft {
+    background: url("css/splitter/vertical-left-thin.png") top left repeat-y;
+    cursor: col-resize;
+}
+
+.gwt-SplitLayoutPanel-HDraggerRight {
+    /*  left: 12px !important;*/
+    background: url("css/splitter/vertical-right-thin.png") top left repeat-y;
+    cursor: col-resize;
+}
+
+.splitter-arrow {
+    cursor: pointer;
+    position: absolute;
+    z-index: 90;
+    width: 14px;
+    height: 14px;
+}
+
+.left-arrow-vert {
+    left: 5px;
+    top: 15px;
+    right: 0;
+    background: url("css/splitter/button-right.png") no-repeat;
+}
+
+.left-arrow-vert:hover {
+    display: block !important;
+    left: 5px;
+    top: 15px;
+    right: 0;
+    background: url("css/splitter/button-right-hover.png") no-repeat;
+}
+
+.left-arrow-horiz {
+    right: 15px;
+    top: 5px;
+    background: url("css/splitter/button-down.png") no-repeat;
+}
+
+.left-arrow-horiz:hover {
+    display: block !important;
+    right: 15px;
+    top: 5px;
+    background: url("css/splitter/button-down-hover.png") no-repeat;
+}
+
+.right-arrow-vert {
+    bottom: 15px;
+    left: 4px;
+    right: 0;
+    background: url("css/splitter/button-left.png") no-repeat;
+}
+
+.right-arrow-vert:hover {
+    display: block !important;
+    bottom: 15px;
+    left: 4px;
+    right: 0;
+    background: url("css/splitter/button-left-hover.png") no-repeat;
+}
+
+.right-arrow-horiz {
+    top: 4px;
+    left: 15px;
+    background: url("css/splitter/button-up.png") no-repeat;
+}
+
+.right-arrow-horiz:hover {
+    display: block !important;
+    top: 4px;
+    left: 15px;
+    background: url("css/splitter/button-up-hover.png") no-repeat;
+}
+
+.central-panel-horiz {
+    width: 89px;
+    height: 22px;
+    position: absolute;
+    left: 47.5%;
+    top: -7px;
+    background: url("css/splitter/horizontal-middle-thick.png") no-repeat;
+}
+
+.central-panel-horiz-bottom {
+    width: 89px;
+    height: 22px;
+    position: absolute;
+    left: 47.5%;
+    top: -12px;
+    background: url("css/splitter/horizontal-bottom-thick.png") no-repeat;
+}
+
+.central-panel-horiz-top {
+    width: 89px;
+    height: 22px;
+    position: absolute;
+    left: 47.9%;
+    top: 0;
+    background: url("css/splitter/horizontal-top-thick.png") no-repeat;
+}
+
+.change-mode-horiz {
+    width: 55px;
+    height: 22px;
+    position: absolute !important;
+    left: 0;
+    top: -7px;
+    background: url("css/splitter/horizontal-middle-thick.png") no-repeat -55px 0;
+}
+
+.change-mode-horiz-bottom {
+    display: block;
+    width: 55px;
+    height: 22px;
+    position: absolute;
+    left: 0;
+    top: -12px;
+    background: url("css/splitter/horizontal-bottom-thick.png") no-repeat -55px 0;
+}
+
+.change-mode-horiz-top {
+    width: 55px;
+    height: 22px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: url("css/splitter/horizontal-top-thick.png") no-repeat -55px 0;
+}
+
+.change-mode-horiz-button {
+    left: 5px;
+    top: 4px;
+    right: 0;
+    background: url("css/splitter/horizontal-mode.png") no-repeat 0 0;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+}
+
+.change-mode-horiz-button:hover {
+    left: 5px;
+    top: 4px;
+    right: 0;
+    background: url("css/splitter/horizontal-mode-hover.png") no-repeat 0 0;
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+}
+
+.central-panel-horiz-dots {
+    background: url("css/splitter/horizontal-dots.png") no-repeat;
+    height: 22px;
+    position: absolute;
+    top: -7px;
+    left: 47.5%;
+    width: 89px;
+}
+
+.central-panel-vert {
+    width: 22px;
+    height: 89px;
+    position: absolute;
+    top: 47.5%;
+    left: -7px;
+    background: url("css/splitter/vertical-middle-thick.png") no-repeat;
+}
+
+.central-panel-vert-right {
+    width: 22px;
+    height: 89px;
+    position: absolute;
+    top: 47.5%;
+    left: -12px;
+    background: url("css/splitter/vertical-right-thick.png") no-repeat;
+}
+
+.central-panel-vert-left {
+    width: 22px;
+    height: 89px;
+    position: absolute;
+    top: 47.5%;
+    left: 0;
+    background: url("css/splitter/vertical-left-thick.png") no-repeat;
+}
+
+.change-mode-vert {
+    width: 22px;
+    height: 55px;
+    position: absolute;
+    top: 0;
+    left: -7px;
+    background: url("css/splitter/vertical-middle-thick.png") no-repeat 0 -55px;
+}
+
+.change-mode-vert-right {
+    width: 22px;
+    height: 55px;
+    position: absolute;
+    top: 0;
+    left: -12px;
+    background: url("css/splitter/vertical-right-thick.png") no-repeat 0 -55px;
+}
+
+.change-mode-vert-left {
+    width: 22px;
+    height: 55px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url("css/splitter/vertical-left-thick.png") no-repeat 0 -55px;
+}
+
+.change-mode-vert-button {
+    left: 4px;
+    top: 4px;
+    right: 0;
+    background: url("css/splitter/vertical-mode.png") no-repeat 0 0;
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+}
+
+.change-mode-vert-left .change-mode-vert-button {
+    left: 3px;
+}
+
+.change-mode-vert-left .change-mode-vert-button:hover {
+    left: 3px;
+}
+
+.change-mode-vert-button:hover {
+    left: 4px;
+    top: 4px;
+    right: 0;
+    background: url("css/splitter/vertical-mode-hover.png") no-repeat 0 0;
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+}
+
+.central-panel-vert-dots {
+    background: url("css/splitter/vertical-dots.png") no-repeat;
+    height: 89px;
+    position: absolute;
+    left: -7px;
+    top: 47.5%;
+    width: 22px;
+}
+
+.touch-dummy-button {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: -3px;
+    top: -3px;
+}
+
+.touch-dummy-splitter {
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    left: -15px;
+}
+
+.splitter-right-arrow-button {
+
+}
+
+.splitter-left-arrow-button {
+
+}
+
+.splitter-center {
+    font: bold;
+}
+
+.splitter-right-arrow-button {
+
+}
+
+.splitter-left-arrow-button {
+
+}
+
+.splitter-center {
+    font: bold;
+}
