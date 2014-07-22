@@ -150,7 +150,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in save", ex);
+            logger.error("Unexpected exception caught in save", ex.getMessage());
             throw new UnexpectedException("CrudService", "save", "domainObject:" + domainObject, ex);
         }
     }
