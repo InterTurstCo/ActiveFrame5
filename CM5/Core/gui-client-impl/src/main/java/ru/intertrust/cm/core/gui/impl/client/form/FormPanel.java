@@ -20,7 +20,6 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
@@ -94,7 +93,8 @@ public class FormPanel implements IsWidget {
 
     public void updateViewFromHistory() {
         final HistoryManager historyManager = Application.getInstance().getHistoryManager();
-        final Integer tabNum = StringUtil.integerFromString((String) historyManager.getValue(TAB_KEY), DEFAULT_TAB);
+        final Integer tabNum = StringUtil.integerFromString(
+                historyManager.getValue(getFormIdentifier(), TAB_KEY), DEFAULT_TAB);
         if (bodyTabPanel.getTabBar().getSelectedTab() != tabNum) {
             bodyTabPanel.selectTab(tabNum);
         }
@@ -178,8 +178,8 @@ public class FormPanel implements IsWidget {
                 Widget selectedWidget = selectedPanel.getWidget(0);
                 Object marker = selectedWidget.getLayoutData();
                 final HistoryItem historyItem = new HistoryItem(
-                        HistoryItem.Type.SESSION, TAB_KEY, numberOfSelected.toString());
-                Application.getInstance().getHistoryManager().addHistoryItems(historyItem);
+                        HistoryItem.Type.USER_INTERFACE, TAB_KEY, numberOfSelected.toString());
+                Application.getInstance().getHistoryManager().addHistoryItems(getFormIdentifier(), historyItem);
                 if (BusinessUniverseConstants.FOOTER_LONG.equals(marker)) {
                     footer.setStyleName("form-footer-long");
                 } else if (BusinessUniverseConstants.FOOTER_SHORT.equals(marker)) {
@@ -191,7 +191,7 @@ public class FormPanel implements IsWidget {
         });
         if (!tabs.isEmpty()) {
             final HistoryManager historyManager = Application.getInstance().getHistoryManager();
-            final String indexAsStr = historyManager.getValue(TAB_KEY);
+            final String indexAsStr = historyManager.getValue(getFormIdentifier(), TAB_KEY);
             int selectedTab = StringUtil.integerFromString(indexAsStr, DEFAULT_TAB);
             if (selectedTab > tabs.size()) {
                 selectedTab = DEFAULT_TAB;
@@ -377,5 +377,9 @@ public class FormPanel implements IsWidget {
 
     private boolean isExtraStyleRequired() {
         return state.isEditable() && state.isToggleEdit();
+    }
+
+    private String getFormIdentifier() {
+        return formDisplayData.getFormState().getName();
     }
 }

@@ -180,15 +180,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
         Application.getInstance().showLoadingIndicator();
-        final HistoryManager manager = Application.getInstance().getHistoryManager();
-        final Plugin currentPlugin = centralPluginPanel.getCurrentPlugin();
-        if (currentPlugin != null) {
-            currentPlugin.getConfig().setHistoryValues(manager.getValues());
-        }
         PluginConfig pluginConfig = event.getPluginConfig();
         String pluginName = pluginConfig.getComponentName();
         Plugin plugin = ComponentRegistry.instance.get(pluginName);
         plugin.setConfig(pluginConfig);
+        final HistoryManager manager = Application.getInstance().getHistoryManager();
         manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
                 .setLink(event.getLinkName());
         plugin.setDisplayActionToolBar(true);

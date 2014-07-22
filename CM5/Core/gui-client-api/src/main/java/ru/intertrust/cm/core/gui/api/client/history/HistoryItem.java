@@ -6,13 +6,13 @@ package ru.intertrust.cm.core.gui.api.client.history;
  */
 public class HistoryItem {
 
-    public static enum Type {URL, SESSION}
+    public static enum Type {URL, USER_INTERFACE, PLUGIN_CONDITION}
 
     private final Type type;
     private final String name;
-    private final Object value;
+    private final String value;
 
-    public HistoryItem(final Type type, final String name, final Object value) {
+    public HistoryItem(final Type type, final String name, final String value) {
         this.type = type;
         this.name = name;
         this.value = value;
@@ -26,7 +26,7 @@ public class HistoryItem {
         return name;
     }
 
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 
