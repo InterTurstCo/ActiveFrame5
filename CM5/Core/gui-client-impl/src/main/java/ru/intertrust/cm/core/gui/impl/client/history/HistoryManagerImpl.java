@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.history;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.google.gwt.user.client.History;
@@ -21,7 +20,7 @@ public class HistoryManagerImpl implements HistoryManager {
     private static final String IDS_KEY = "ids";
     private static final String ID_DELIMITER = ",";
 
-    private HistoryToken current = new HistoryToken();
+    private HistoryToken current = new HistoryToken(HistoryToken.UNKNOWN_LINK);
     private Mode mode = Mode.APPLY;
     private String identifier;
 
@@ -68,7 +67,7 @@ public class HistoryManagerImpl implements HistoryManager {
     }
 
     @Override
-    public void setSelectedIds(Id... ids) {
+    public void setSelectedIds(final Id... ids) {
         final StringBuilder builder = new StringBuilder();
         if (ids != null && ids.length > 0) {
             boolean isFirst = true;
@@ -82,14 +81,14 @@ public class HistoryManagerImpl implements HistoryManager {
                 }
             }
         }
-        addHistoryItems(
-                new HistoryItem(HistoryItem.Type.URL, IDS_KEY, builder.length() == 0 ? null : builder.toString()));
+        final String idsAsStr = builder.length() == 0 ? null : builder.toString();
+        addHistoryItems(null, new HistoryItem(HistoryItem.Type.URL, IDS_KEY, idsAsStr));
     }
 
     @Override
     public List<Id> getSelectedIds() {
         final List<Id> result = new ArrayList<>();
-        final String idsAsStr = getValue(IDS_KEY);
+        final String idsAsStr = getValue(null, IDS_KEY);
         if (idsAsStr != null) {
             final String[] idStrArray = idsAsStr.split(ID_DELIMITER);
             for (String idStr : idStrArray) {
@@ -110,32 +109,23 @@ public class HistoryManagerImpl implements HistoryManager {
     }
 
     @Override
-    public void addHistoryItems(HistoryItem... items) {
-        current.addItems(items);
+    public void addHistoryItems(final String identifier, final HistoryItem... items) {
+        current.addItems(identifier, items);
         if (Mode.APPLY == mode) {
             History.newItem(current.getUrlToken(), false);
         }
     }
 
     @Override
-    public <T> T getValue(String key) {
-        final HistoryItem item = current.getItem(key);
-        return item == null ? null : (T) item.getValue();
+    public String getValue(final String identifier, final String key) {
+        final HistoryItem item = current.getItem(identifier, key);
+        return item == null ? null : item.getValue();
     }
 
     @Override
-    public Map<String, Object> getValues() {
-        final Map<String, Object> result = new HashMap<>();
-        for (Map.Entry<String, HistoryItem> entry : current.getItems().entrySet()) {
-            if (entry.getValue() != null && entry.getValue().getValue() != null
-                    && HistoryItem.Type.URL == entry.getValue().getType()) {
-                if (IDS_KEY.equals(entry.getKey())) {
-                    result.put(IDS_KEY, getSelectedIds());
-                } else {
-                    result.put(entry.getKey(), entry.getValue().getValue());
-                }
-            }
-        }
+    public Map<String, String> getValues(String identifier) {
+        final Map<String, String> result = current.getItems(identifier);
+        result.remove(IDS_KEY);
         return result;
     }
 }

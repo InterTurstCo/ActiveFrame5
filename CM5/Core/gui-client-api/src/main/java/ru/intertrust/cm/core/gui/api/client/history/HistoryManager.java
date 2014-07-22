@@ -29,9 +29,9 @@ public interface HistoryManager {
 
     List<Id> getSelectedIds();
 
-    void addHistoryItems(HistoryItem... items);
+    void addHistoryItems(String identifier, HistoryItem... items);
 
-    <T> T getValue(String key);
+    String getValue(String identifier, String key);
 
-    Map<String, Object> getValues();
+    Map<String, String> getValues(String identifier);
 }

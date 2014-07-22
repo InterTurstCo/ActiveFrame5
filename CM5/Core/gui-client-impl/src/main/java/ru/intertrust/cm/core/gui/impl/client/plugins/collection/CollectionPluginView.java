@@ -24,6 +24,7 @@ import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
@@ -55,6 +56,8 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 public class CollectionPluginView extends PluginView {
     public static final int FETCHED_ROW_COUNT = 25;
+    private static final String SORT_FIELD_KEY = "sf";
+    private static final String SORT_DIRECT_KEY = "sd";
 
     private CollectionDataGrid tableBody;
     private List<CollectionRowItem> items;
@@ -221,6 +224,10 @@ public class CollectionPluginView extends PluginView {
                 boolean ascending = event.isSortAscending();
                 String field = column.getFieldName();
                 sortCollectionState = new SortCollectionState(0, FETCHED_ROW_COUNT, dataStoreName, ascending, false, field);
+                final HistoryManager historyManager = Application.getInstance().getHistoryManager();
+                historyManager.addHistoryItems(getCollectionIdentifier(),
+                        new HistoryItem(HistoryItem.Type.PLUGIN_CONDITION, SORT_FIELD_KEY, field),
+                        new HistoryItem(HistoryItem.Type.PLUGIN_CONDITION, SORT_DIRECT_KEY, Boolean.toString(ascending)));
                 clearAllTableData();
                 scroll.scrollToTop();
 
@@ -660,6 +667,10 @@ public class CollectionPluginView extends PluginView {
             }
         }
         return -1;
+    }
+
+    private String getCollectionIdentifier() {
+        return ((CollectionPluginData) plugin.getInitialData()).getCollectionName();
     }
 }
 

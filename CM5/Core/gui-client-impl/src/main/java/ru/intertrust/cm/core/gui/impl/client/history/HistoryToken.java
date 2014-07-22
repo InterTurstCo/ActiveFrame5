@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.history;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.storage.client.Storage;
 
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
@@ -19,18 +21,14 @@ class HistoryToken {
     private static final String LINK_KEY = "link";
 
     private String link;
-    private final Map<String, HistoryItem> itemMap = new HashMap<>();
-
-    public HistoryToken() {
-        this(UNKNOWN_LINK);
-    }
+    private final Map<String, String> urlMap = new HashMap<>();
+    private UserSettingsObject userSettingsObject = JavaScriptObject.createObject().cast();
 
     public HistoryToken(final String link) {
         this.link = link;
         final Storage storage = Storage.getLocalStorageIfSupported();
         if (storage != null) {
-            final String storageToken = storage.getItem(link);
-            parseTokenString(storageToken, this);
+            userSettingsObject = loadSessionData(this);
         }
     }
 
@@ -38,29 +36,65 @@ class HistoryToken {
         return (link != null && !link.isEmpty()) ? link : UNKNOWN_LINK;
     }
 
-    public void addItems(HistoryItem... items) {
+    public void addItems(final String identifier, final HistoryItem... items) {
         boolean sessionDataChanged = false;
         for (HistoryItem item : items) {
-            itemMap.put(item.getName(), item);
-            if (HistoryItem.Type.SESSION == item.getType()) {
+            if (HistoryItem.Type.URL == item.getType()) {
+                urlMap.put(item.getName(), item.getValue());
+            } else {
+                UserSettingsObject settings = (UserSettingsObject) userSettingsObject.getAttr(identifier);
+                if (settings == null) {
+                    settings = JavaScriptObject.createObject().cast();
+                    userSettingsObject.setAttr(identifier, settings);
+                }
+                final JavaScriptObject historyItemObject = getObject(item);
+                settings.setAttr(item.getName(), historyItemObject);
                 sessionDataChanged = true;
             }
         }
         if (sessionDataChanged && !UNKNOWN_LINK.equals(getLink())) {
-            final Storage storage = Storage.getLocalStorageIfSupported();
-            if (storage != null) {
-                final String storageToken = tokenToStringByType(HistoryItem.Type.SESSION, this);
-                storage.setItem(getLink(), storageToken);
-            }
+            updateSessionData();
         }
     }
 
-    public Map<String, HistoryItem> getItems() {
-        return Collections.unmodifiableMap(itemMap);
+    public HistoryItem getItem(final String identifier, final String key) {
+        final String urlValue = urlMap.get(key);
+        if (urlValue != null) {
+            return new HistoryItem(HistoryItem.Type.URL, key, urlValue);
+        } else {
+            final HistoryItem result;
+            final UserSettingsObject settings = (UserSettingsObject) userSettingsObject.getAttr(identifier);
+            if (settings != null && settings.getAttr(key) != null) {
+                result = getHistoryItem(key, (JavaScriptObject) settings.getAttr(key));
+            } else {
+                result = null;
+            }
+            return result;
+        }
     }
 
-    public HistoryItem getItem(final String key) {
-        return itemMap.get(key);
+    /**
+     * Возвращает все значения содержащиеся в url и все значения содержащиеся в {@link UserSettingsObject}
+     * с типом {@link HistoryItem.Type#PLUGIN_CONDITION} и идентификатором, указанным во входном параметре.
+     * @param identifier
+     * @return
+     */
+    public Map<String, String> getItems(final String identifier) {
+        final Map<String, String> result = new HashMap<>();
+        for (Map.Entry<String, String> entry : urlMap.entrySet()) {
+            if (!LINK_KEY.equals(entry.getKey())) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+        }
+        final UserSettingsObject itemsObj = userSettingsObject.getAttr(identifier).cast();
+        final JSONObject jsonObj = new JSONObject(itemsObj);
+        for (String key : jsonObj.keySet()) {
+            final HistoryItemObject historyItemObject = itemsObj.getAttr(key).cast();
+            if (!HistoryItem.Type.USER_INTERFACE.name().equals(historyItemObject.getType())) {
+                result.put(key, historyItemObject.getValue());
+            }
+        }
+        return result;
     }
 
     public String getUrlToken() {
@@ -68,53 +102,115 @@ class HistoryToken {
         if (!UNKNOWN_LINK.equals(getLink())) {
             builder.append(LINK_KEY).append(ASSIGN_KEY).append(link).append(DELIMITER_KEY);
         }
-        builder.append(tokenToStringByType(HistoryItem.Type.URL, this));
-        return builder.toString();
+        for (Map.Entry<String, String> entry : urlMap.entrySet()) {
+            if (entry.getValue() != null) {
+                builder.append(entry.getKey()).append(ASSIGN_KEY).append(entry.getValue()).append(DELIMITER_KEY);
+            }
+        }
+        return builder.length() == 0 ? "" : builder.toString();
     }
 
     public static HistoryToken getHistoryToken(final String urlToken) {
-        final HistoryToken token = new HistoryToken();
-        parseTokenString(urlToken, token);
+        final HistoryToken result = new HistoryToken(UNKNOWN_LINK);
+        if (urlToken != null && !urlToken.isEmpty()) {
+            final String[] items = urlToken.split(DELIMITER_KEY);
+            for (String item : items) {
+                final String[] itemData = item.split(ASSIGN_KEY);
+                if (itemData.length == 2) {
+                    if (LINK_KEY.equals(itemData[0])) {
+                        result.link = itemData[1];
+                    } else {
+                        result.urlMap.put(itemData[0], itemData[1]);
+                    }
+                }
+            }
+        }
         final Storage storage = Storage.getLocalStorageIfSupported();
         if (storage != null) {
-            final String storageToken = storage.getItem(token.getLink());
-            parseTokenString(storageToken, token);
+            result.userSettingsObject = loadSessionData(result);
         }
-        return token;
+        return result;
     }
 
     @Override
     public String toString() {
         return new StringBuilder(HistoryToken.class.getSimpleName())
                 .append(": link=").append(link)
-                .append(", itemMap=").append(itemMap)
+                .append(", urlMap=").append(urlMap)
                 .toString();
     }
 
-    private static void parseTokenString(final String tokenAsStr, final HistoryToken token) {
-        if (tokenAsStr != null && !tokenAsStr.isEmpty()) {
-            final String[] items = tokenAsStr.split(DELIMITER_KEY);
-            for (String item : items) {
-                final String[] itemData = item.split(ASSIGN_KEY);
-                if (itemData.length == 2) {
-                    if (LINK_KEY.equals(itemData[0])) {
-                        token.link = itemData[1];
-                    } else {
-                        token.itemMap.put(itemData[0], new HistoryItem(HistoryItem.Type.URL, itemData[0], itemData[1]));
+    private static UserSettingsObject loadSessionData(HistoryToken token) {
+        UserSettingsObject result = JavaScriptObject.createObject().cast();
+        final Storage storage = Storage.getLocalStorageIfSupported();
+        if (storage != null) {
+            final String storageData = storage.getItem(token.getLink());
+            if (storageData != null) {
+                try {
+                    JSONValue jsonValue = JSONParser.parseStrict(storageData);
+                    if (jsonValue != null) {
+                        result = (UserSettingsObject) jsonValue.isObject().getJavaScriptObject();
                     }
+                } catch (Exception ignored) {
                 }
             }
         }
+        return result;
     }
 
-    private static String tokenToStringByType(final HistoryItem.Type type, final HistoryToken token) {
-        final StringBuilder builder = new StringBuilder();
-        for (Map.Entry<String, HistoryItem> entry : token.itemMap.entrySet()) {
-            if (type == entry.getValue().getType() && entry.getValue().getValue() != null) {
-                builder.append(DELIMITER_KEY).append(entry.getKey()).append(ASSIGN_KEY)
-                        .append(entry.getValue().getValue());
-            }
+    private void updateSessionData() {
+        final Storage storage = Storage.getLocalStorageIfSupported();
+        if (storage != null) {
+            final JSONObject jsonObj = new JSONObject(userSettingsObject);
+            storage.setItem(link, jsonObj.toString());
         }
-        return builder.length() == 0 ? "" : builder.substring(1);
     }
+
+    private JavaScriptObject getObject(final HistoryItem item) {
+        final HistoryItemObject result = JavaScriptObject.createObject().cast();
+        result.setType(item.getType().name());
+        result.setValue(item.getValue());
+        return result;
+    }
+
+    private static HistoryItem getHistoryItem(final String name, final JavaScriptObject object) {
+        HistoryItemObject historyObject = object.cast();
+        final HistoryItem.Type itemType = HistoryItem.Type.valueOf(historyObject.getType());
+        return new HistoryItem(itemType, name, historyObject.getValue());
+    }
+
+    private static class HistoryItemObject extends JavaScriptObject {
+        protected HistoryItemObject(){}
+
+        public final native String getType() /*-{
+            return this.type;
+        }-*/;
+
+        public final native void setType(String type) /*-{
+            this.type = type;
+        }-*/;
+
+        public final native String getValue() /*-{
+            return this.value;
+        }-*/;
+
+        public final native void setValue(String value) /*-{
+            this.value = value;
+        }-*/;
+    }
+
+    private static class UserSettingsObject extends JavaScriptObject {
+
+        protected UserSettingsObject() {
+        }
+
+        public final native JavaScriptObject getAttr(String key) /*-{
+            return this[key];
+        }-*/;
+
+        public final native void setAttr(String key, JavaScriptObject object) /*-{
+            this[key] = object;
+        }-*/;
+    }
+
 }
