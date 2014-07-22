@@ -367,32 +367,25 @@
                 <single-choice value="false"/>
             </linked-domain-objects-table>
         </widget-config>
-        <!--<form-objects-remover handler="custom">
-            <on-delete do-delete="true">
+        <form-objects-remover>
+            <on-delete do-delete="false">
                 <update>
-                    <field name="string_field" value="active"/>
-                    <field name="long_field" value="777"/>
-                    <field name="decimal_field" value="3.14"/>
-                    <field name="boolean_field" value="true"/>
-                    <field name="date_time_field" value="2014-07-09 17:32 Europe/Kiev"/>
-                    <field name="date_w_tz_field" set-current-moment="true"/>
-                    <field name="timeless_date_field" set-current-moment="true"/>
-                    <field name="a1_2" set-base-object="true"/>
-                    <field name="a_person" set-current-user="true"/>
+                    <field name="name1" value="inactive"/>
                 </update>
                 <create type="g1">
+                    <field name="name1" value="test-delete"/>
                     <field name="string_field" value="active"/>
                     <field name="long_field" value="777"/>
                     <field name="decimal_field" value="3.14"/>
                     <field name="boolean_field" value="true"/>
-                    <field name="date_time_field" value="2014-07-09 17:32" time-zone-id="Europe/Kiev"/>
+                    <field name="date_time_field" value="2014-07-22 15:00:10.000" time-zone-id="Europe/Kiev"/>
                     <field name="date_w_tz_field" set-current-moment="true"/>
                     <field name="timeless_date_field" set-current-moment="true"/>
                     <field name="a1_2" set-base-object="true"/>
                     <field name="a_person" set-current-user="true"/>
                 </create>
             </on-delete>
-        </form-objects-remover>-->
+        </form-objects-remover>
     </form>
 
     <form name="f1_form" domain-object-type="f1" is-default="true">

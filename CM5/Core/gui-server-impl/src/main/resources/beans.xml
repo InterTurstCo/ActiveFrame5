@@ -33,7 +33,7 @@
 
     <bean id="actionConfigBuilder" class="ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder" scope="prototype"/>
 
-    <bean id="formObjectsRemover" class="ru.intertrust.cm.core.gui.impl.server.form.FormObjectsRemover" scope="prototype"/>
+    <bean id="defaultFormObjectsRemover" class="ru.intertrust.cm.core.gui.impl.server.form.DefaultFormObjectsRemover" scope="prototype"/>
 
     <bean id="formResolver" class="ru.intertrust.cm.core.gui.impl.server.form.FormResolver" scope="singleton"
           lazy-init="true"/>

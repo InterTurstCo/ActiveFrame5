@@ -10,8 +10,10 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.FormObjectsRemoverConfig;
+import ru.intertrust.cm.core.config.gui.form.OnDeleteConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.gui.api.server.form.FormObjectsRemover;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -55,42 +57,42 @@ import java.util.List;
  *         Date: 05.05.14
  *         Time: 13:06
  */
-public class FormObjectsRemover extends FormProcessor {
+public class DefaultFormObjectsRemover extends FormProcessor implements FormObjectsRemover {
     @Autowired
-    private FormResolver formResolver;
+    protected FormResolver formResolver;
     @Autowired
-    private FormRetriever formRetriever;
+    protected FormRetriever formRetriever;
 
-    private FormConfig formConfig;
-    private FormState initialFormState;
-    private FormObjects formObjects;
-    private HashMap<FieldPath, ObjectWithReferences> rootAndOneToOneToDelete;
-    private HashSet<FieldPath> oneToOneToUnlink;
+    protected FormConfig formConfig;
+    protected FormState initialFormState;
+    protected FormState currentFormState;
+    protected FormObjects formObjects;
+    protected HashMap<FieldPath, ObjectWithReferences> rootAndOneToOneToDelete;
+    protected HashSet<FieldPath> oneToOneToUnlink;
 
-    private HashMap<FieldPath, FieldPathConfig> fieldPathConfigs;
-    private HashMap<FieldPath, WidgetState> fieldPathStates;
-    private boolean attachmentsDeleted;
+    protected HashMap<FieldPath, FieldPathConfig> fieldPathConfigs;
+    protected HashMap<FieldPath, WidgetState> fieldPathStates;
+    protected boolean attachmentsDeleted;
 
-    public FormObjectsRemover() {
+    public DefaultFormObjectsRemover() {
         this.rootAndOneToOneToDelete = new HashMap<>();
         this.oneToOneToUnlink = new HashSet<>();
     }
 
-    public void deleteForm(FormState initialFormState) {
-        this.formConfig = configurationExplorer.getConfig(FormConfig.class, initialFormState.getName());
-        this.initialFormState = initialFormState;
+    public void deleteForm(FormState currentFormState) {
+        this.currentFormState = currentFormState;
+        this.formConfig = configurationExplorer.getConfig(FormConfig.class, currentFormState.getName());
+        this.initialFormState = formRetriever.getForm(currentFormState.getObjects().getRootDomainObject().getId()).getFormState();
         this.formObjects = initialFormState.getObjects();
         deleteForm();
     }
 
-    public void deleteForm(Id id) {
-        this.formConfig = formResolver.findEditingFormConfig(id, getUserUid());
-        this.initialFormState = formRetriever.getForm(id).getFormState();
-        this.formObjects = initialFormState.getObjects();
-        deleteForm();
-    }
+    protected void deleteForm() {
+        final boolean doDelete = performBeforeDeleteOperations();
+        if (!doDelete) {
+            return;
+        }
 
-    private void deleteForm() {
         buildCaches();
 
         ArrayList<FieldPath> multiBackReferencesToDelete = new ArrayList<>();
@@ -105,6 +107,35 @@ public class FormObjectsRemover extends FormProcessor {
         cleanUpRootReferences();
         deleteMultiBackReferences(multiBackReferencesToDelete);
         deleteRootWithOneToOneChain();
+    }
+
+    protected boolean performBeforeDeleteOperations() {
+        final FormObjectsRemoverConfig formObjectsRemoverConfig = formConfig.getFormObjectsRemoverConfig();
+        if (formObjectsRemoverConfig == null) {
+            return true;
+        }
+
+        final OnDeleteConfig onDelete = formObjectsRemoverConfig.getOnDelete();
+        if (onDelete == null) {
+            return true;
+        }
+
+        final List<OperationConfig> operationConfigs = onDelete.getOperationConfigs();
+        boolean saveRoot = false;
+        for (OperationConfig operationConfig : operationConfigs) {
+            if (operationConfig instanceof UpdateConfig) {
+                updateRootObject((UpdateConfig) operationConfig);
+                saveRoot = true;
+            } else if (operationConfig instanceof CreateConfig) {
+                createObject((CreateConfig) operationConfig);
+            }
+        }
+
+        if (saveRoot) {
+            final DomainObject savedRoot = crudService.save(formObjects.getRootDomainObject());
+            formObjects.getRootNode().setDomainObject(savedRoot);
+        }
+        return onDelete.doDelete();
     }
 
     private void buildCaches() {
@@ -322,5 +353,28 @@ public class FormObjectsRemover extends FormProcessor {
 
     private DomainObject getSingleDomainObject(FieldPath fieldPath) {
         return ((SingleObjectNode) formObjects.getNode(fieldPath)).getDomainObject();
+    }
+
+    private void updateRootObject(UpdateConfig updateConfig) {
+        final List<FieldValueConfig> fieldValueConfigs = updateConfig.getFieldValueConfigs();
+        if (fieldValueConfigs == null || fieldValueConfigs.isEmpty()) {
+            return;
+        }
+        setFields(formObjects.getRootDomainObject(), fieldValueConfigs);
+    }
+
+    private void createObject(CreateConfig createConfig) {
+        DomainObject createdObject = crudService.createDomainObject(createConfig.getType());
+        final List<FieldValueConfig> fieldValueConfigs = createConfig.getFieldValueConfigs();
+        if (fieldValueConfigs == null || fieldValueConfigs.isEmpty()) {
+            return;
+        }
+        setFields(createdObject, fieldValueConfigs);
+
+        crudService.save(createdObject);
+    }
+
+    private void setFields(DomainObject domainObject, List<FieldValueConfig> fieldValueConfigs) {
+        ((DomainObjectFieldsSetter) applicationContext.getBean("domainObjectFieldsSetter", domainObject, fieldValueConfigs, formObjects.getRootDomainObject())).setFields();
     }
 }

@@ -1,11 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.form.FormObjectsRemoverConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
-import ru.intertrust.cm.core.gui.impl.server.form.FormObjectsRemover;
+import ru.intertrust.cm.core.gui.api.server.form.FormObjectsRemover;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 
 /**
  * User: IPetrov
@@ -15,11 +20,22 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
  */
 @ComponentName("delete.action")
 public class DeleteActionHandler extends ActionHandler<ActionContext, DeleteActionData> {
+    @Autowired
+    protected ConfigurationExplorer configurationExplorer;
 
     @Override
     public DeleteActionData executeAction(ActionContext context) {
-        final FormObjectsRemover remover = (FormObjectsRemover) applicationContext.getBean("formObjectsRemover");
-        remover.deleteForm(context.getRootObjectId());
+        FormState currentFormState = ((SaveActionContext) context).getFormState();
+        final FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, currentFormState.getName());
+        final FormObjectsRemoverConfig formObjectsRemoverConfig = formConfig.getFormObjectsRemoverConfig();
+        String removerComponent = "defaultFormObjectsRemover";
+        if (formObjectsRemoverConfig != null) {
+            final String handler = formObjectsRemoverConfig.getHandler();
+            if (handler != null && !handler.isEmpty()) {
+                removerComponent = handler;
+            }
+        }
+        ((FormObjectsRemover) applicationContext.getBean(removerComponent)).deleteForm(currentFormState);
 
         DeleteActionData result = new DeleteActionData();
         result.setId(context.getRootObjectId());

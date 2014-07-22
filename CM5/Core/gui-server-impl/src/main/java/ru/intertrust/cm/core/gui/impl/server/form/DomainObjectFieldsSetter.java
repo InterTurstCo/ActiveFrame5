@@ -64,7 +64,9 @@ public class DomainObjectFieldsSetter {
             return;
         }
         if (fieldValueConfig.isSetBaseObject()) {
-            linkedObject.setReference(fieldName, baseObject);
+            if (baseObject != null) {
+                linkedObject.setReference(fieldName, baseObject);
+            }
             return;
         }
         if (fieldValueConfig.isSetCurrentUser()) {

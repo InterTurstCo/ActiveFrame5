@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-               xmlns:act="https://cm5.intertrust.ru/config/action">
+        >
     <!-- Test 2 - back references 1:1 -->
     <domain-object-type name="a2">
         <fields>
@@ -181,6 +181,7 @@
                 <field-path value="b2|a2.c2|b2.name2"/>
             </text-box>
         </widget-config>
+        <form-objects-remover handler="custom.form.remover"/>
     </form>
 
     <collection name="a2_collection" idField="id">

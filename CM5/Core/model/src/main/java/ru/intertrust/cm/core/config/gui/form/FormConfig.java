@@ -51,6 +51,9 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Element(name = "widget-config")
     private WidgetConfigurationConfig widgetConfigurationConfig;
 
+    @Element(name = "form-objects-remover", required = false)
+    private FormObjectsRemoverConfig formObjectsRemoverConfig;
+
     public String getType() {
         return type != null ? type : TYPE_EDIT;
     }
@@ -115,6 +118,14 @@ public class FormConfig implements Dto, TopLevelConfig {
         this.widgetConfigurationConfig = widgetConfigurationConfig;
     }
 
+    public FormObjectsRemoverConfig getFormObjectsRemoverConfig() {
+        return formObjectsRemoverConfig;
+    }
+
+    public void setFormObjectsRemoverConfig(FormObjectsRemoverConfig formObjectsRemoverConfig) {
+        this.formObjectsRemoverConfig = formObjectsRemoverConfig;
+    }
+
     public ToolBarConfig getToolbarConfig() {
         return toolbarConfig;
     }
@@ -156,21 +167,17 @@ public class FormConfig implements Dto, TopLevelConfig {
                 widgetConfigurationConfig) : that.widgetConfigurationConfig != null) {
             return false;
         }
+        if (formObjectsRemoverConfig != null ? !formObjectsRemoverConfig.equals(that.
+                formObjectsRemoverConfig) : that.formObjectsRemoverConfig != null) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
-        result = 31 * result + (isDefault ? 1 : 0);
-        result = 31 * result + (debug ? 1 : 0);
-        result = 31 * result + (markup != null ? markup.hashCode() : 0);
-        result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (widgetConfigurationConfig != null ? widgetConfigurationConfig.hashCode() : 0);
-        return result;
+        return name != null ? name.hashCode() : 0;
     }
 
     @Override

@@ -1188,6 +1188,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:widgetConfigType" name="widget-config"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:formObjectsRemoverConfigType" name="form-objects-remover" minOccurs="0" maxOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name"/>
         <xs:attribute type="xs:string" name="domain-object-type"/>
@@ -1910,6 +1912,22 @@
         <xs:choice maxOccurs="unbounded" minOccurs="0">
             <xs:element ref="con:widget" maxOccurs="unbounded"/>
         </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="formObjectsRemoverConfigType">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element name="on-delete" type="con:onDeleteConfigType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="handler"/>
+    </xs:complexType>
+    <xs:complexType name="onDeleteConfigType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element type="con:updateSectionType" name="update"
+                        minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
+
+            <xs:element type="con:createSectionType" name="create"
+                        minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+        <xs:attribute type="xs:boolean" name="do-delete" default="true" use="optional"/>
     </xs:complexType>
 
     <xs:element type="con:templateBasedWidgetType"
