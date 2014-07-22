@@ -44,7 +44,7 @@ public class ThemePopup extends PopupPanel {
             RadioButton radioButton = new RadioButton("Theme", themeName);
             radioButton.addClickHandler(new RadioButtonClickHandler(themeConfig));
             radioButtonPanel.add(radioButton);
-            String imagePath = GlobalThemesManager.getResourceFolder() + BusinessUniverseConstants.THEME_PREVIEW_PICTURE;
+            String imagePath = themeConfig.getImg();
             Image image = new Image(imagePath);
             imageContainer.add(image);
             String componentName = themeConfig.getComponentName();

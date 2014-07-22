@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
  *         Time: 10:25
  */
 public interface BundleWrapper extends Component {
+
     public CssResource getMainCss();
 
     public ThemeBundle getThemeBundle();
@@ -23,4 +24,5 @@ public interface BundleWrapper extends Component {
     public CssResource getNavigationTreeCss();
 
     public String getResourceFolder();
+
 }

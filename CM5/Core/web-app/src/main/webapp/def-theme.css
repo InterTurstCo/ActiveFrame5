@@ -310,12 +310,14 @@ h1 {
     margin: 5px 0 0 0;
     /*width: 150px;*/
 }
+
 .search-container-long {
     display: inline-block;
     overflow: hidden;
     margin: 5px 0 0 0;
     /*width: 230px;*/
 }
+
 .search-data-box-long {
     border: 1px solid #8D97A5;
     background: rgba(255, 255, 255, 0.5);
@@ -327,7 +329,7 @@ h1 {
     margin: 0;
     padding: 3px;
     vertical-align: middle;
-   /* width: 240px;*/
+    /* width: 240px;*/
 }
 
 .search-box:focus,
@@ -697,11 +699,11 @@ td.datePickerMonth {
 }
 
 /*.gwt-MenuItem:hover .actionBar-refresh {*/
-    /*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -35px;*/
+/*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -35px;*/
 /*}*/
 
 /*.gwt-MenuItem:active .actionBar-refresh {*/
-    /*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -70px;*/
+/*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -70px;*/
 /*}*/
 
 .decorated-action-link .actionBar-create {
@@ -713,11 +715,11 @@ td.datePickerMonth {
 }
 
 /*.gwt-MenuItem:hover .actionBar-create {*/
-    /*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -35px;*/
+/*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -35px;*/
 /*}*/
 
 /*.gwt-MenuItem:active .actionBar-create {*/
-    /*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -70px;*/
+/*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -70px;*/
 /*}*/
 
 .decorated-action-link .actionBar-edit {
@@ -729,11 +731,11 @@ td.datePickerMonth {
 }
 
 /*.gwt-MenuItem:hover .actionBar-edit {*/
-    /*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -35px;*/
+/*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -35px;*/
 /*}*/
 
 /*.gwt-MenuItem:active .actionBar-edit {*/
-    /*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -70px;*/
+/*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -70px;*/
 /*}*/
 
 .decorated-action-link .actionBar-close {
@@ -745,11 +747,11 @@ td.datePickerMonth {
 }
 
 /*.gwt-MenuItem:hover .actionBar-close {*/
-    /*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -35px;*/
+/*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -35px;*/
 /*}*/
 
 /*.gwt-MenuItem:active .actionBar-close {*/
-    /*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -70px;*/
+/*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -70px;*/
 /*}*/
 
 .decorated-action-link .actionBar-save {
@@ -761,11 +763,11 @@ td.datePickerMonth {
 }
 
 /*.gwt-MenuItem:hover .actionBar-save {*/
-    /*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -35px;*/
+/*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -35px;*/
 /*}*/
 
 /*.gwt-MenuItem:active .actionBar-save {*/
-    /*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -70px;*/
+/*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -70px;*/
 /*}*/
 
 .decorated-action-link .actionBar-delete {
@@ -777,11 +779,11 @@ td.datePickerMonth {
 }
 
 /*.gwt-MenuItem:hover .actionBar-delete {*/
-    /*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -35px;*/
+/*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -35px;*/
 /*}*/
 
 /*.gwt-MenuItem:active .actionBar-delete {*/
-    /*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -70px;*/
+/*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -70px;*/
 /*}*/
 
 .decorated-action-link .actionBar-csvUpload {
@@ -793,11 +795,11 @@ td.datePickerMonth {
 }
 
 /*.gwt-MenuItem:hover .actionBar-csvUpload {*/
-    /*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -35px;*/
+/*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -35px;*/
 /*}*/
 
 /*.gwt-MenuItem:active .actionBar-csvUpload {*/
-    /*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -70px;*/
+/*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -70px;*/
 /*}*/
 
 .action-bar-right-side .actionBar-fullsize-on {
@@ -809,11 +811,11 @@ td.datePickerMonth {
 }
 
 /*.gwt-MenuItem:hover .actionBar-fullsize-on {*/
-    /*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -35px;*/
+/*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -35px;*/
 /*}*/
 
 /*.gwt-MenuItem:active .actionBar-fullsize-on {*/
-    /*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -70px;*/
+/*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -70px;*/
 /*}*/
 
 .action-bar-right-side .actionBar-favoritePanel-on {
@@ -825,11 +827,11 @@ td.datePickerMonth {
 }
 
 /*.gwt-MenuItem:hover .actionBar-favoritePanel-on {*/
-    /*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -35px;*/
+/*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -35px;*/
 /*}*/
 
 /*.gwt-MenuItem:active .actionBar-favoritePanel-on {*/
-    /*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -70px;*/
+/*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -70px;*/
 /*}*/
 
 .action-bar-button {
@@ -867,7 +869,7 @@ td.datePickerMonth {
 }
 
 .H_td_ExtSearch .header-third-action-button {
-    background: url(css/i/ext-search.png) no-repeat scroll center center;
+    /*background: url(css/i/ext-search.png) no-repeat scroll center center;*/
     cursor: pointer;
     float: right;
     height: 32px;
@@ -882,7 +884,7 @@ td.datePickerMonth {
 }
 
 .H_td_ExtSearch .header-third-action-button:hover {
-    background: url(css/i/ext-search.png) center center no-repeat #fffdf0;
+    /* background: url(css/i/ext-search.png) center center no-repeat #fffdf0;*/
     border: 1px solid;
     border-color: #fff1ca #ffedbe #ffedbe;
     border-radius: 5px;
@@ -913,7 +915,8 @@ td.datePickerMonth {
     border: none;
     float: left;
     margin: 15px 0 0 0;
-    text-decoration: none;}
+    text-decoration: none;
+}
 
 .decorated-action-link img {
     border: none !important;
@@ -1132,6 +1135,7 @@ td.datePickerMonth {
     width: 0px;
 
 }
+
 .navigation-dynamic-panel-expanded {
     left: 15px;
     padding-top: 20px;
@@ -1147,7 +1151,7 @@ td.datePickerMonth {
 
 .navigation-dynamic-panel::-webkit-scrollbar-track,
 .navigation-dynamic-panel-expanded::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
 }
 
@@ -1155,7 +1159,7 @@ td.datePickerMonth {
 .navigation-dynamic-panel-expanded::-webkit-scrollbar-thumb {
     background: #8ba4c3;
     border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.7);
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.7);
 }
 
 .group-tree td {
@@ -1800,10 +1804,12 @@ td.datePickerMonth {
     text-decoration: none !important;
     cursor: pointer;
 }
-.tree-item-padding-style{
+
+.tree-item-padding-style {
     padding-left: 15px !important;
 }
-.tree-items-navigation{
+
+.tree-items-navigation {
     overflow: visible;
 }
 
@@ -2762,9 +2768,11 @@ td.datePickerMonth {
     right: 105px !important;
     top: 55px !important;
 }
-.loading-attachment{
+
+.loading-attachment {
     display: inline-block;
 }
+
 .configuration-deployed-item div,
 .configuration-deployed-item img {
     display: inline-block;
@@ -2778,6 +2786,7 @@ td.datePickerMonth {
 .settings-item .gwt-Label {
     cursor: pointer;
 }
+
 .tooltip-popup {
     background: #fafafa;;
     border: 1px solid #999;
@@ -2785,6 +2794,7 @@ td.datePickerMonth {
     padding: 2px;
     z-index: 45;
 }
+
 .tooltip-button {
     cursor: pointer;
 

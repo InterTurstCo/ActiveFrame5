@@ -49,6 +49,7 @@ public class GlobalThemesManager {
             bundleWrapper = ComponentRegistry.instance.get("default-theme");
         }
         bundleWrapper.getMainCss().ensureInjected();
+        bundleWrapper.getThemeBundle().commonCss().ensureInjected();
     }
 
     private static String findDefaultTheme(ThemesConfig themesConfig) {

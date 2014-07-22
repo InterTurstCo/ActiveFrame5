@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
  *         Time: 17:15
  */
 public interface ThemeBundle extends ClientBundle {
+
     public CssResource mainCss();
 
     public CssResource navigationTreeCss();
@@ -25,5 +26,9 @@ public interface ThemeBundle extends ClientBundle {
 
     ImageResource restartRequiredIm();
 
+    @Source("images/ext-search.png")
+    ImageResource extendedSearchIm();
 
+    @Source("common.css")
+    public CommonCssResource commonCss();
 }

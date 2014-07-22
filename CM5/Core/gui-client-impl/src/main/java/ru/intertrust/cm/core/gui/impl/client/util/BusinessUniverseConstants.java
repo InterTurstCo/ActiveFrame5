@@ -76,13 +76,13 @@ public class BusinessUniverseConstants {
     public static final String LUCEM_THEME_FOLDER = "resources/lucemtheme/";
     public static final String DARK_THEME_FOLDER = "resources/darktheme/";
 
-    //theme preview picture name
-    public static final String THEME_PREVIEW_PICTURE = "images/theme-preview.png";
     // Navigation styles
     public static final String LEFT_SECTION_ACTIVE_STYLE = "left-section-active";
     public static final String LEFT_SECTION_STYLE = "left-section";
 
     public static final String CENTRAL_SECTION_STYLE = "central-div-panel-test";
     public static final String CENTRAL_SECTION_ACTIVE_STYLE = "central-div-panel-test-active";
-    private BusinessUniverseConstants() {}
+
+    private BusinessUniverseConstants() {
+    }
 }

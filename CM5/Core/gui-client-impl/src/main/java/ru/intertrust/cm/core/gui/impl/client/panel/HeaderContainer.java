@@ -10,15 +10,14 @@ import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DARK;
-import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DEFAULT;
-import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.getCurrentTheme;
+import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.*;
 
 /**
  * Entry point classes define <code>createHeader()</code>
@@ -51,7 +50,7 @@ public class HeaderContainer extends SimplePanel {
         });
 
         thirdImage = new FocusPanel();
-        thirdImage.setStyleName("header-third-action-button");
+        thirdImage.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().headerExtendedSearch());
         thirdImage.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
