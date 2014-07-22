@@ -17,6 +17,9 @@ public class ThemeConfig implements Dto {
     @Attribute(name = "component-name", required = true)
     private String componentName;
 
+    @Attribute(name = "img", required = false)
+    private String img;
+
     @Attribute(name = "default-theme", required = false)
     private boolean defaultTheme;
 
@@ -34,6 +37,14 @@ public class ThemeConfig implements Dto {
 
     public void setComponentName(String componentName) {
         this.componentName = componentName;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
     }
 
     public boolean isDefaultTheme() {
@@ -58,7 +69,9 @@ public class ThemeConfig implements Dto {
         if (defaultTheme != that.defaultTheme) {
             return false;
         }
-
+        if (img != null ? !img.equals(that.img) : that.img != null) {
+            return false;
+        }
         if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) {
             return false;
         }
@@ -72,7 +85,8 @@ public class ThemeConfig implements Dto {
     @Override
     public int hashCode() {
         int result = displayName != null ? displayName.hashCode() : 31;
-        result = 31 * result + (componentName != null ? componentName.hashCode() : 31);
+        result = 31 * result + (componentName!= null ? componentName.hashCode() : 31);
+        result = 31 * result + (img != null ? img.hashCode() : 31);
         result = 31 * result + (defaultTheme ? 1 : 31);
         return result;
     }
