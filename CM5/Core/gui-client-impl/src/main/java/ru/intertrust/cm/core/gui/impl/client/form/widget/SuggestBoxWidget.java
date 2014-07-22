@@ -177,8 +177,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
 
     @Override
     protected Widget asEditableWidget(final WidgetState state) {
-        final SuggestBoxState suggestBoxState = (SuggestBoxState) state;
-        commonInitialization(suggestBoxState);
+        commonInitialization((SuggestBoxState) state);
         final SuggestPresenter presenter = new SuggestPresenter();
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
         suggestBox = new SuggestBox(oracle, new TextBox(), new CmjDefaultSuggestionDisplay());
@@ -191,6 +190,10 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 Id id = selectedItem.getId();
                 presenter.insert(id, replacementString);
                 stateListValues.put(id, replacementString);
+                final SuggestBoxState suggestBoxState = SuggestBoxWidget.this.getInitialData();
+                if (suggestBoxState.isSingleChoice()) {
+                    suggestBoxState.getSelectedIds().clear();
+                }
                 suggestBoxState.getSelectedIds().add(id);
                 SuggestBox sourceObject = (SuggestBox) event.getSource();
                 sourceObject.setText("");
@@ -290,7 +293,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
 
         private SuggestPresenter() {
             Element row = DOM.createTR();
-            this.selectedSuggestions = new HashMap<Id, String>();
+            this.selectedSuggestions = new HashMap<>();
             setStyleName("suggest-container-block");
             container = DOM.createTD();
             DOM.appendChild(row, container);
@@ -448,7 +451,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     selectedSuggestions.remove(id);
                     stateListValues.remove(id);
                     SuggestBoxState suggestBoxState = getInitialData();
-                    suggestBoxState.removeSelected(id);
+                    suggestBoxState.getSelectedIds().remove(id);
                     suggestBox.setFocus(true);
 
                 }

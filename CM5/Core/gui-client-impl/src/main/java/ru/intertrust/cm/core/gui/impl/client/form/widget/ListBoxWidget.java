@@ -34,7 +34,7 @@ public class ListBoxWidget extends BaseWidget {
 
     @Override
     protected boolean isChanged() {
-        final ListBoxState initialState = (ListBoxState) getInitialData();
+        final ListBoxState initialState = getInitialData();
         final Set<Id> initialValue = initialState.getSelectedIdsSet();
         final StateHandler stateHandler = new ListBoxStateHandler();
         final ListBoxState currentState = stateHandler.getState(impl, initialState, idMap);

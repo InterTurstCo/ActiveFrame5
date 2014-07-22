@@ -31,10 +31,6 @@ public class SuggestBoxState extends TooltipWidgetState<SuggestBoxConfig> {
         return selectedIds == null ? null : new ArrayList(selectedIds);
     }
 
-    public void removeSelected(final Id id) {
-        selectedIds.remove(id);
-    }
-
     public SuggestBoxConfig getSuggestBoxConfig() {
         return suggestBoxConfig;
     }
