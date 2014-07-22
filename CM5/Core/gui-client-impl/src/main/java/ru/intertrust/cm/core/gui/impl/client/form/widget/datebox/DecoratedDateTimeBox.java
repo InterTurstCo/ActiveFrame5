@@ -29,9 +29,9 @@ import java.util.List;
  *         Date: 16.06.2014
  *         Time: 22:53
  */
-public class DateTimeBoxDecorate extends Composite {
+public class DecoratedDateTimeBox extends Composite {
 
-    private DateBox dateBox;
+    private DecoratedDateBox dateBox;
     private OneDatePickerPopup picker;
     private FocusPanel dateBtn;
     private AbsolutePanel root;
@@ -39,7 +39,7 @@ public class DateTimeBoxDecorate extends Composite {
     private DateBoxWidget parentWidget;
     private EventBus eventBus;
 
-    public DateTimeBoxDecorate(DateBoxWidget parentWidget) {
+    public DecoratedDateTimeBox(DateBoxWidget parentWidget) {
         root = new AbsolutePanel();
         this.parentWidget = parentWidget;
         initWidget(root);
@@ -77,7 +77,7 @@ public class DateTimeBoxDecorate extends Composite {
         final DateTimeFormat dtFormat = DateTimeFormat.getFormat(pattern);
 
         DateBox.Format format = new DateBox.DefaultFormat(dtFormat);
-        dateBox = new DateBox();
+        dateBox = new DecoratedDateBox();
         dateBox.setFormat(format);
         dateBox.setValue(date);
         dateBox.getTextBox().addStyleName("date-text-box");
@@ -92,12 +92,6 @@ public class DateTimeBoxDecorate extends Composite {
                 parentWidget.validate();
             }
         }, BlurEvent.getType());
-        dateBox.getTextBox().addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                dateBox.hideDatePicker();
-            }
-        });
 
         root.add(dateBox);
         root.add(dateBtn);

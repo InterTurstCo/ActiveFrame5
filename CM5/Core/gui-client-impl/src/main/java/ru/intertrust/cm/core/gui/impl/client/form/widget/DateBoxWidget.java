@@ -7,7 +7,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DateTimeBoxDecorate;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DecoratedDateTimeBox;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
@@ -32,7 +32,7 @@ public class DateBoxWidget extends BaseWidget {
     public void setCurrentState(WidgetState currentState) {
         final DateBoxState dbState = (DateBoxState) currentState;
         if (isEditable) {
-            DateTimeBoxDecorate dateBoxDecorate = (DateTimeBoxDecorate) impl;
+            DecoratedDateTimeBox dateBoxDecorate = (DecoratedDateTimeBox) impl;
             dateBoxDecorate.setValue(dbState);
         } else {
             if (dbState.getDateTimeContext().getDateTime() != null) {
@@ -54,7 +54,7 @@ public class DateBoxWidget extends BaseWidget {
     protected boolean isChanged() {
         final DateBoxState state = getInitialData();
         final String initValue = state.getDateTimeContext() == null ? null : state.getDateTimeContext().getDateTime();
-        final DateTimeBoxDecorate decorate = (DateTimeBoxDecorate) impl;
+        final DecoratedDateTimeBox decorate = (DecoratedDateTimeBox) impl;
         final String currentValue = decorate.getText();
         return currentValue == null ? initValue != null : !currentValue.equals(initValue);
     }
@@ -63,7 +63,7 @@ public class DateBoxWidget extends BaseWidget {
     protected WidgetState createNewState() {
         final DateBoxState initial = getInitialData();
         if (isEditable) {
-            final DateTimeBoxDecorate decorate = (DateTimeBoxDecorate) impl;
+            final DecoratedDateTimeBox decorate = (DecoratedDateTimeBox) impl;
             initial.getDateTimeContext().setDateTime(decorate.getText());
             final String selectedTimezoneId = decorate.getSelectedTimeZoneId();
             if (selectedTimezoneId != null) {
@@ -77,7 +77,7 @@ public class DateBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        DateTimeBoxDecorate dateBoxDecorate = new  DateTimeBoxDecorate(this);
+        DecoratedDateTimeBox dateBoxDecorate = new DecoratedDateTimeBox(this);
         return dateBoxDecorate;
     }
 
@@ -90,7 +90,7 @@ public class DateBoxWidget extends BaseWidget {
 
     @Override
     public Object getValue() {
-        Date value = ((DateTimeBoxDecorate) impl).getValue();
+        Date value = ((DecoratedDateTimeBox) impl).getValue();
         return value != null ? value.getTime() + "" : null;
     }
 
@@ -102,12 +102,12 @@ public class DateBoxWidget extends BaseWidget {
             errorString = impl.getTitle() + errorString;
         }
         impl.setTitle(errorString);
-        ((DateTimeBoxDecorate)impl).getDateBox().addStyleName("validation-error");
+        ((DecoratedDateTimeBox) impl).getDateBox().addStyleName("validation-error");
     }
 
     @Override
     public void clearErrors() {
         impl.setTitle(null);
-        ((DateTimeBoxDecorate)impl).getDateBox().removeStyleName("validation-error");
+        ((DecoratedDateTimeBox) impl).getDateBox().removeStyleName("validation-error");
     }
 }

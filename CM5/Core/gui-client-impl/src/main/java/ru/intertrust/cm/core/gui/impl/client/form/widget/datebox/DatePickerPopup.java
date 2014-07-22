@@ -63,7 +63,8 @@ public class DatePickerPopup extends PopupPanel {
         }
         @Override
         public void onClose(CloseEvent<PopupPanel> event) {
-            container.setStyleName("composite-date-time-container-shown");
+            container.setStyleName("composite-date-time-container-hidden");
         }
     }
+
 }
