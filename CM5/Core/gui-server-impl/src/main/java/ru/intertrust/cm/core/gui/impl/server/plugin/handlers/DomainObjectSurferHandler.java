@@ -19,15 +19,17 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
+import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.SELECTED_IDS_KEY;
+
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferHandler extends ActivePluginHandler {
-    private static final String IDS_KEY = "ids";
 
     @Autowired
     private ApplicationContext applicationContext;
 
     public ActivePluginData initialize(Dto params) {
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) params;
+        config.getCollectionViewerConfig().addHistoryValues(config.getHistoryValues());
 
         final CollectionPluginHandler collectionPluginHandler =
                 (CollectionPluginHandler) applicationContext.getBean("collection.plugin");
@@ -39,15 +41,16 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
             formPluginConfig = new FormPluginConfig(config.getDomainObjectTypeToCreate());
         } else {
             final List<Id> selectedIds = new ArrayList<>();
-            final List<Id> selectedFromHistory = config.getHistoryValue(IDS_KEY);
+            final List<Id> selectedFromHistory = config.getHistoryValue(SELECTED_IDS_KEY);
             if (selectedFromHistory != null && !selectedFromHistory.isEmpty()) {
-                selectedIds.addAll((List) config.getHistoryValue(IDS_KEY));
+                selectedIds.addAll((List) config.getHistoryValue(SELECTED_IDS_KEY));
             } else {
                 selectedIds.add(items.get(0).getId());
             }
             formPluginConfig = new FormPluginConfig(selectedIds.get(0));
             collectionPluginData.setChosenIds(selectedIds);
         }
+        formPluginConfig.addHistoryValues(config.getHistoryValues());
         final FormPluginState fpState = new FormPluginState();
         formPluginConfig.setPluginState(fpState);
         fpState.setToggleEdit(config.isToggleEdit());

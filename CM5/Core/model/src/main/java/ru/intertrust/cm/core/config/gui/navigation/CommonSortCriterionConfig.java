@@ -10,7 +10,8 @@ import ru.intertrust.cm.core.business.api.dto.SortCriterion;
  *         Time: 12:05 PM
  */
 public class CommonSortCriterionConfig implements Dto {
-    private static final String DESCENDING = "desc";
+    public static final String DESCENDING = "desc";
+    public static final String ASCENDING = "asc";
 
     @Attribute(name = "order", required = false)
     private String order;

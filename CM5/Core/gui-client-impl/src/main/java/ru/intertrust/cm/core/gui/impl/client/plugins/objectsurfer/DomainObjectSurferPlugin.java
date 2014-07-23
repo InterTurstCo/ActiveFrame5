@@ -9,6 +9,7 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -37,6 +38,8 @@ import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 import ru.intertrust.cm.core.gui.model.plugin.IsIdentifiableObjectList;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginState;
+
+import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.SELECTED_IDS_KEY;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,
@@ -205,10 +208,13 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public void fillHistoryData() {
+        final DomainObjectSurferConfig config = (DomainObjectSurferConfig) getConfig();
         final HistoryManager manager = Application.getInstance().getHistoryManager();
         if (!manager.getSelectedIds().isEmpty()) {
-            getConfig().setHistoryValue("ids", manager.getSelectedIds());
+            config.addHistoryValue(SELECTED_IDS_KEY, manager.getSelectedIds());
         }
+        config.getCollectionViewerConfig().addHistoryValues(
+                manager.getValues(config.getCollectionViewerConfig().getCollectionRefConfig().getName()));
     }
 
     @Override

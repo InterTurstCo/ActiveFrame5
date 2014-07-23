@@ -7,7 +7,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
-import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.*;

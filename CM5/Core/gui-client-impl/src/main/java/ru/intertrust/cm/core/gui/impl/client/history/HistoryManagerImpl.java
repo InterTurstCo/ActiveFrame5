@@ -9,7 +9,8 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
-import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
+import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.*;
 
 /**
  * @author Sergey.Okolot
@@ -17,7 +18,6 @@ import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
  */
 public class HistoryManagerImpl implements HistoryManager {
 
-    private static final String IDS_KEY = "ids";
     private static final String ID_DELIMITER = ",";
 
     private HistoryToken current = new HistoryToken(HistoryToken.UNKNOWN_LINK);
@@ -82,13 +82,13 @@ public class HistoryManagerImpl implements HistoryManager {
             }
         }
         final String idsAsStr = builder.length() == 0 ? null : builder.toString();
-        addHistoryItems(null, new HistoryItem(HistoryItem.Type.URL, IDS_KEY, idsAsStr));
+        addHistoryItems(null, new HistoryItem(HistoryItem.Type.URL, SELECTED_IDS_KEY, idsAsStr));
     }
 
     @Override
     public List<Id> getSelectedIds() {
         final List<Id> result = new ArrayList<>();
-        final String idsAsStr = getValue(null, IDS_KEY);
+        final String idsAsStr = getValue(null, SELECTED_IDS_KEY);
         if (idsAsStr != null) {
             final String[] idStrArray = idsAsStr.split(ID_DELIMITER);
             for (String idStr : idStrArray) {
@@ -125,7 +125,7 @@ public class HistoryManagerImpl implements HistoryManager {
     @Override
     public Map<String, String> getValues(String identifier) {
         final Map<String, String> result = current.getItems(identifier);
-        result.remove(IDS_KEY);
+        result.remove(SELECTED_IDS_KEY);
         return result;
     }
 }

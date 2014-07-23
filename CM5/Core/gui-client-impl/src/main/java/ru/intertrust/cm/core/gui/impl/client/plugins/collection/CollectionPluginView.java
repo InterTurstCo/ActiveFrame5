@@ -44,6 +44,7 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.*;
 
 import java.util.*;
 
@@ -56,8 +57,6 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 public class CollectionPluginView extends PluginView {
     public static final int FETCHED_ROW_COUNT = 25;
-    private static final String SORT_FIELD_KEY = "sf";
-    private static final String SORT_DIRECT_KEY = "sd";
 
     private CollectionDataGrid tableBody;
     private List<CollectionRowItem> items;

@@ -16,7 +16,7 @@ public abstract class PluginConfig implements Dto {
 
     public abstract String getComponentName();
 
-    public void setHistoryValue(final String key, final Object value) {
+    public void addHistoryValue(final String key, final Object value) {
         historyData.put(key, value);
     }
 
@@ -24,7 +24,11 @@ public abstract class PluginConfig implements Dto {
         return historyData == null ? null : (T) historyData.get(key);
     }
 
-    public void setHistoryValues(final Map<String, Object> values) {
+    public <T>  void addHistoryValues(final Map<String, T> values) {
         historyData.putAll(values);
+    }
+
+    public Map<String, Object> getHistoryValues() {
+        return historyData;
     }
 }

@@ -21,6 +21,10 @@ public class DefaultSortCriteriaConfig extends CommonSortCriterionConfig {
         this.columnField = columnField;
     }
 
+    public boolean isEmpty() {
+        return columnField == null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

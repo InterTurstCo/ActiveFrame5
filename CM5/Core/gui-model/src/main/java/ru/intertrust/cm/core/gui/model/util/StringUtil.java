@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client.util;
+package ru.intertrust.cm.core.gui.model.util;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class StringUtil {
     }
 
     public static Boolean booleanFromString(final String booleanAsStr, final Boolean defaultValue) {
-        boolean result = defaultValue;
+        Boolean result = defaultValue;
         try {
             result = Boolean.valueOf(booleanAsStr);
         } catch (Exception ignored) {}

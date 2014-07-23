@@ -20,15 +20,16 @@ public class SortOrderBuilder {
 
     public static SortOrder getInitSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig,
                                              CollectionDisplayConfig collectionDisplayConfig) {
-        if (defaultSortCriteriaConfig == null){
-            return null;
+        if (!defaultSortCriteriaConfig.isEmpty()) {
+            SortCriteriaConfig sortCriteriaConfig = getSortCriteriaIfExists(defaultSortCriteriaConfig, collectionDisplayConfig);
+
+            if (sortCriteriaConfig == null) {
+                return getSimpleSortOrder(defaultSortCriteriaConfig);
+            } else {
+                return getComplexSortOrder(sortCriteriaConfig);
+            }
         }
-        SortCriteriaConfig sortCriteriaConfig = getSortCriteriaIfExists(defaultSortCriteriaConfig, collectionDisplayConfig);
-        if (sortCriteriaConfig == null) {
-            return getSimpleSortOrder(defaultSortCriteriaConfig);
-        }   else {
-            return getComplexSortOrder(sortCriteriaConfig);
-        }
+        return null;
     }
 
     public static SortOrder getSimpleSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
@@ -100,8 +101,6 @@ public class SortOrderBuilder {
                 sortOrder.add(new SortCriterion(fieldName, SortCriterion.Order.DESCENDING));
             }
         }
-
         return sortOrder;
-
     }
 }

@@ -17,7 +17,7 @@ import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
-import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;

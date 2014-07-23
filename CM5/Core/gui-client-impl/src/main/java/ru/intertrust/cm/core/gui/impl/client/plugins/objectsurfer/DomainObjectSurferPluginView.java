@@ -20,15 +20,13 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
-import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.*;
 
 public class DomainObjectSurferPluginView extends PluginView {
-    private static final String SPLITTER_IDENTIFIER_KEY = "sp";
-    private static final String SPLITTER_SIZE_KEY = "ss";
-    private static final String SPLITTER_TYPE_KEY = "sd";
 
     private int surferWidth;
     private int surferHeight;

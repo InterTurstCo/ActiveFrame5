@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
-import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;

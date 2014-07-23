@@ -59,6 +59,9 @@ public class CollectionViewerConfig extends PluginConfig {
     }
 
     public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+        if (defaultSortCriteriaConfig == null) {
+            defaultSortCriteriaConfig = new DefaultSortCriteriaConfig();
+        }
         return defaultSortCriteriaConfig;
     }
 
