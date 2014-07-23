@@ -58,12 +58,23 @@ public abstract class WidgetHandler implements ComponentHandler {
        Boolean singleChoiceAnalyzed = null;
        for (FieldPath fieldPath : fieldPaths) {
            if (singleChoiceAnalyzed != null) {
-              if (singleChoiceAnalyzed != (fieldPath.isOneToOneReference() || fieldPath.isField())){
+              if (singleChoiceAnalyzed != (fieldPath.isOneToOneDirectReference() || fieldPath.isField())){
                   throw new GuiException("Multiply fieldPaths should be all reference type or all backreference type");
               }
            }
-            singleChoiceAnalyzed = fieldPath.isOneToOneReference() || fieldPath.isField();
+            singleChoiceAnalyzed = fieldPath.isOneToOneDirectReference() || fieldPath.isField();
        }
        return singleChoiceAnalyzed || singleChoiceFromConfig;
+    }
+
+    protected boolean isNullable(WidgetContext widgetContext) {
+        FieldPath[] fieldPaths = widgetContext.getFieldPaths();
+        if (fieldPaths.length > 1) {
+            throw new GuiException("Only single field-path is supported");
+        }
+        if (fieldPaths[0].isField() || fieldPaths[0].isOneToOneDirectReference()) {
+            return !configurationService.getFieldConfig(widgetContext.getFormObjects().getRootDomainObjectType(), fieldPaths[0].getFieldName()).isNotNull();
+        }
+        return true;
     }
 }

@@ -48,6 +48,9 @@ public class ListBoxHandler extends ListWidgetHandler {
             }
         }
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
+        if (singleChoice) {
+            idDisplayMapping.put(null, "");
+        }
 
         ListBoxState result = new ListBoxState();
         result.setFieldPaths(fieldPaths);

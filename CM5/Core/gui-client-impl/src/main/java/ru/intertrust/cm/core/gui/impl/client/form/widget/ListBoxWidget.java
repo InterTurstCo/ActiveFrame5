@@ -146,7 +146,9 @@ public class ListBoxWidget extends BaseWidget {
             for (int index = 0; index < listBox.getItemCount(); index++) {
                 if (listBox.isItemSelected(index)) {
                     final Id id = idMap.get(listBox.getValue(index));
-                    selectedIds.get(initialState.getFieldPathIndex(id)).add(id);
+                    if (id != null) {
+                        selectedIds.get(initialState.getFieldPathIndex(id)).add(id);
+                    }
                 }
             }
             result.setSelectedIds(selectedIds);

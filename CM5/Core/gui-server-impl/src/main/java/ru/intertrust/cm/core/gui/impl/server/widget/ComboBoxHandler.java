@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -34,9 +33,6 @@ public class ComboBoxHandler extends ListWidgetHandler {
         ComboBoxState widgetState = new ComboBoxState();
         setupInitialState(widgetState, context);
 
-        Map<Id, String> idDisplayMapping = widgetState.getListValues();
-        idDisplayMapping.put(null, "");
-
         return widgetState;
     }
 
@@ -45,6 +41,7 @@ public class ComboBoxHandler extends ListWidgetHandler {
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
 
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
+        idDisplayMapping.put(null, "");
         widgetState.setListValues(idDisplayMapping);
         String field = fieldPath.getFieldName();
         String objectType = context.getFormObjects().getNode(fieldPath.getParentPath()).getType();
