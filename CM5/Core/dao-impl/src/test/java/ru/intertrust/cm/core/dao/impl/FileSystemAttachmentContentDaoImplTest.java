@@ -1,31 +1,52 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.dao.exception.DaoException;
+
 /**
  * @author Vlad
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 @ContextConfiguration(locations = {"classpath:test_beans.xml"})
 public class FileSystemAttachmentContentDaoImplTest {
 
+    private static final String NOT_ATTACHMENT_TYPE = "NotAttachment";
     static private final String TEST_OUT_DIR = System.getProperty("test.cnf.testOutDir");
     final static private String PATH_NAME = "Path";
 
+    @InjectMocks
+    FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
+    
+    @Mock
+    private ConfigurationExplorerImpl configurationExplorer;
+
+    
+    
     @Test
     public void saveContent() throws IOException {
         GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
@@ -43,7 +64,8 @@ public class FileSystemAttachmentContentDaoImplTest {
 
     @Test
     public void loadContent() throws IOException {
-        FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
+        when(configurationExplorer.isAttachmentType(anyString())).thenReturn(true);
+
         contentDao.setAttachmentSaveLocation(TEST_OUT_DIR);
         byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
         String path = createAndCopyToFile(new ByteArrayInputStream(expBytes));
@@ -66,9 +88,26 @@ public class FileSystemAttachmentContentDaoImplTest {
                 inputStream.close();
             }
         }
-        Assert.assertArrayEquals(expBytes, bos.toByteArray());
+        Assert.assertArrayEquals(expBytes, bos.toByteArray());        
     }
 
+    @Test
+    public void testLoadContentForNotAttachment() throws IOException {
+        
+        when(configurationExplorer.isAttachmentType(NOT_ATTACHMENT_TYPE)).thenReturn(false);
+        DomainObject domainObject = new GenericDomainObject();
+        InputStream inputStream = null;
+        ((GenericDomainObject) domainObject).setTypeName(NOT_ATTACHMENT_TYPE);
+        try {
+            inputStream = contentDao.loadContent(domainObject);
+            Assert.fail("Exception shoul be thrown");
+        } catch (DaoException ex) {
+            Assert.assertEquals("Wrong exception is thrown", ex.getMessage(), "DomainObject is not attachment: "
+                    + domainObject);
+        }
+
+    }
+    
     @Test
     public void deleteContent() throws IOException {
         FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();

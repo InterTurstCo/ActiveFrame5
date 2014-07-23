@@ -36,9 +36,13 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     
     @Autowired
     ConfigurationExplorer configurationExplorer;
-    
+        
     @Autowired
     private UserTransactionService userTransactionService;
+    
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
 
     public void setAttachmentSaveLocation(String attachmentSaveLocation) {
         this.attachmentSaveLocation = attachmentSaveLocation;
@@ -73,6 +77,10 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     @Override
     public InputStream loadContent(DomainObject domainObject) {
         try {
+            if (!configurationExplorer.isAttachmentType(domainObject.getTypeName())) {
+                throw new DaoException("DomainObject is not attachment: " + domainObject);
+
+            }
             if (isPathEmptyInDo(domainObject)) {
                 throw new DaoException("The path is empty");
             }
