@@ -26,14 +26,14 @@ public class StringUtil {
     }
 
     public static Integer integerFromString(final String intAsStr, final Integer defaultValue) {
-        Integer result = null;
+        Integer result = defaultValue;
         if (intAsStr != null && !intAsStr.isEmpty()) {
             try {
                 result = Integer.valueOf(intAsStr);
             } catch (Exception ignored) {
             }
         }
-        return result == null ? defaultValue : result;
+        return result;
     }
 
     public static Id idFromString(final String idAsStr) {
@@ -43,6 +43,14 @@ public class StringUtil {
                 result = new RdbmsId(idAsStr.trim());
             } catch (Exception ignored) {}
         }
+        return result;
+    }
+
+    public static Boolean booleanFromString(final String booleanAsStr, final Boolean defaultValue) {
+        boolean result = defaultValue;
+        try {
+            result = Boolean.valueOf(booleanAsStr);
+        } catch (Exception ignored) {}
         return result;
     }
 

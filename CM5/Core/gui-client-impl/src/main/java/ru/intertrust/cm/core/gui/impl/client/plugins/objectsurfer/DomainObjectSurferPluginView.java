@@ -11,20 +11,24 @@ import com.google.web.bindery.event.shared.EventBus;
 
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
+import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 public class DomainObjectSurferPluginView extends PluginView {
+    private static final String SPLITTER_IDENTIFIER_KEY = "sp";
+    private static final String SPLITTER_SIZE_KEY = "ss";
+    private static final String SPLITTER_TYPE_KEY = "sd";
 
     private int surferWidth;
     private int surferHeight;
@@ -47,15 +51,9 @@ public class DomainObjectSurferPluginView extends PluginView {
         surferWidth = plugin.getOwner().getVisibleWidth();
         surferHeight = plugin.getOwner().getVisibleHeight();
         initSplitter();
-        splitterPanel.addNorth(splitterFirstWidget, surferHeight / 2);
-        splitterPanel.add(formFlowPanel);
-        splitterSetSize();
         formFlowPanel.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalEventBus();
-
-
         addSplitterWidgetResizeHandler();
-
     }
 
     private void initSplitter() {
@@ -63,16 +61,17 @@ public class DomainObjectSurferPluginView extends PluginView {
             @Override
             public void onResize() {
                 super.onResize();
-                eventBus.fireEvent(new SplitterInnerScrollEvent(splitterFirstWidget.getOffsetHeight(),
-                        splitterFirstWidget.getOffsetWidth(), formFlowPanel.getOffsetHeight(),
-                        formFlowPanel.getOffsetWidth(), splitterPanel.isSplitType()));
-
-                if (!splitterPanel.isSplitType()) {
-                    horizontalSplitterSavedSize = splitterFirstWidget.getOffsetHeight();
-                }
+                final int historySize;
                 if (splitterPanel.isSplitType()) {
-                    verticalSplitterSavedSize = splitterFirstWidget.getOffsetWidth();
+                    verticalSplitterSavedSize = historySize = splitterFirstWidget.getOffsetWidth();
+
+                } else {
+                    horizontalSplitterSavedSize = historySize = splitterFirstWidget.getOffsetHeight();
                 }
+                final HistoryManager manager = Application.getInstance().getHistoryManager();
+                manager.addHistoryItems(SPLITTER_IDENTIFIER_KEY, new HistoryItem(
+                        HistoryItem.Type.USER_INTERFACE, SPLITTER_SIZE_KEY, Integer.toString(historySize)));
+
             }
         };
     }
@@ -99,8 +98,13 @@ public class DomainObjectSurferPluginView extends PluginView {
         eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
-                checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(), event.getFirstWidgetHeight(), event.isArrowsPress());
-
+                checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(), event.getFirstWidgetHeight(),
+                        event.isArrowsPress());
+                final int size = event.isType() ? event.getFirstWidgetWidth() : event.getFirstWidgetHeight();
+                final HistoryManager manager = Application.getInstance().getHistoryManager();
+                manager.addHistoryItems(SPLITTER_IDENTIFIER_KEY,
+                        new HistoryItem(HistoryItem.Type.USER_INTERFACE, SPLITTER_TYPE_KEY, Boolean.toString(event.isType())),
+                        new HistoryItem(HistoryItem.Type.USER_INTERFACE, SPLITTER_SIZE_KEY, Integer.toString(size)));
             }
         });
 
@@ -160,6 +164,20 @@ public class DomainObjectSurferPluginView extends PluginView {
         flowPanel.add(container);
 
         container.add(splitterPanel);
+        final HistoryManager manager = Application.getInstance().getHistoryManager();
+        final boolean splitterType = StringUtil.booleanFromString(
+                manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_TYPE_KEY), Boolean.FALSE);
+        final Integer splitterSize =
+                StringUtil.integerFromString(manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_SIZE_KEY), null);
+        if (splitterType) {
+            splitterPanel.addWest(splitterFirstWidget, splitterSize == null ? surferWidth / 2 : splitterSize);
+
+        } else {
+            splitterPanel.addNorth(splitterFirstWidget, splitterSize == null ? surferHeight / 2 : splitterSize);
+        }
+        splitterPanel.add(formFlowPanel);
+        splitterSetSize();
+
 
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
 
@@ -212,5 +230,4 @@ public class DomainObjectSurferPluginView extends PluginView {
                 .setMode(HistoryManager.Mode.APPLY, plugin.getClass().getSimpleName());
         return flowPanel;
     }
-
 }

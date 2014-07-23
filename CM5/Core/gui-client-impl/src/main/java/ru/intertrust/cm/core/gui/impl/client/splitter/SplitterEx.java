@@ -13,15 +13,15 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
 
 
 public class SplitterEx extends DockLayoutPanel {
 
-   
+
     protected boolean splitType;
     protected int sizeFromInsert;
 

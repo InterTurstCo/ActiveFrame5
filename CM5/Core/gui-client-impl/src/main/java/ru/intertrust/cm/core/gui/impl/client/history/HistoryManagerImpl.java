@@ -26,18 +26,18 @@ public class HistoryManagerImpl implements HistoryManager {
 
     @Override
     public HistoryManager setMode(final Mode mode, final String identifier) {
-            if (Mode.WRITE == mode) {
-                if (this.identifier == null) {
-                    this.mode = mode;
-                    this.identifier = identifier;
-                }
-            } else if (Mode.APPLY == mode) {
-                if (this.identifier == null || this.identifier.equals(identifier)) {
-                    this.mode = mode;
-                    this.identifier = null;
-                    History.newItem(current.getUrlToken(), false);
-                }
+        if (Mode.WRITE == mode) {
+            if (this.identifier == null) {
+                this.mode = mode;
+                this.identifier = identifier;
             }
+        } else if (Mode.APPLY == mode) {
+            if (this.identifier == null || this.identifier.equals(identifier)) {
+                this.mode = mode;
+                this.identifier = null;
+                History.newItem(current.getUrlToken(), false);
+            }
+        }
         return this;
     }
 
