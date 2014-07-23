@@ -1838,6 +1838,10 @@ td.datePickerMonth {
     width: 100%;
 }
 
+.dialog-box-body .frm-pnl-top {
+    bottom: 40px;
+}
+
 .frm-pnl {
     overflow: auto;
     position: absolute;
