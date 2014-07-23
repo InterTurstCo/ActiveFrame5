@@ -75,8 +75,10 @@ public class DateUtil {
         if (timePattern == null) {
             return new SimpleDateFormat(datePattern);
         }
-
-        return new SimpleDateFormat(datePattern + timePattern);
+        StringBuilder patternBuilder = new StringBuilder(datePattern);
+        patternBuilder.append(" ");
+        patternBuilder.append(timePattern);
+        return new SimpleDateFormat(patternBuilder.toString());
     }
 
 }

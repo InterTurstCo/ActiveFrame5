@@ -74,7 +74,7 @@ public class RangeDatePickerPopup extends DatePickerPopup {
             }
         });
         this.addCloseHandler(new HideDateTimePickerCloseHandler(container));
-        submit.setStyleName("composite-datetime-submit-button dark-button");
+        submit.setStyleName("dark-button");
         container.add(submit);
         return container;
     }

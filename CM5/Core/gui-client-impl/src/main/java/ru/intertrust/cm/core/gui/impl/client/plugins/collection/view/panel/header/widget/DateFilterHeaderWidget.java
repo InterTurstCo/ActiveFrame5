@@ -61,8 +61,10 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
         if (timePattern == null) {
             return DateTimeFormat.getFormat(datePattern);
         }
-
-        return DateTimeFormat.getFormat(datePattern + timePattern);
+        StringBuilder patternBuilder = new StringBuilder(datePattern);
+        patternBuilder.append(" ");
+        patternBuilder.append(timePattern);
+        return DateTimeFormat.getFormat(patternBuilder.toString());
     }
 
     public DatePickerPopup getDateBox() {

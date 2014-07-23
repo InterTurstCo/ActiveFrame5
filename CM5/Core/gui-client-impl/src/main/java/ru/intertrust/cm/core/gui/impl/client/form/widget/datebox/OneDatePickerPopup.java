@@ -41,6 +41,7 @@ public class OneDatePickerPopup extends DatePickerPopup {
 
         container.add(dateTimePicker);
         Button submit = new Button(BusinessUniverseConstants.DATETIME_PICKER_BUTTON);
+        submit.setStyleName("dark-button");
         submit.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
