@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
 /**
@@ -16,6 +17,8 @@ public class DateBoxState extends ValueEditingWidgetState {
     private String pattern;
     private boolean displayTimeZoneChoice;
     private boolean displayTime;
+    private DateBoxConfig dateBoxConfig;
+
     public DateTimeContext getDateTimeContext() {
         return dateTimeContext;
     }
@@ -48,6 +51,14 @@ public class DateBoxState extends ValueEditingWidgetState {
         this.displayTime = displayTime;
     }
 
+    public DateBoxConfig getDateBoxConfig() {
+        return dateBoxConfig;
+    }
+
+    public void setDateBoxConfig(DateBoxConfig dateBoxConfig) {
+        this.dateBoxConfig = dateBoxConfig;
+    }
+
     @Override
     public int hashCode() {
         int result = (dateTimeContext == null ? 17 : dateTimeContext.hashCode());
@@ -76,6 +87,9 @@ public class DateBoxState extends ValueEditingWidgetState {
             return false;
         }
         if (displayTime != other.displayTime) {
+            return false;
+        }
+        if (dateBoxConfig == null ? other.dateBoxConfig != null : dateBoxConfig.equals(other.dateBoxConfig)) {
             return false;
         }
         return true;

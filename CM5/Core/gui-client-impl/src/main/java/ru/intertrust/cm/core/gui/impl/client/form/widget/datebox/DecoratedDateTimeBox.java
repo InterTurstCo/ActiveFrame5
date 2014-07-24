@@ -14,6 +14,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeEndConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeStartConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEventHandler;
@@ -32,7 +34,7 @@ import java.util.List;
 public class DecoratedDateTimeBox extends Composite {
 
     private DecoratedDateBox dateBox;
-    private OneDatePickerPopup picker;
+    private DatePickerPopup picker;
     private FocusPanel dateBtn;
     private AbsolutePanel root;
     private ListBox timeZoneChooser;
@@ -54,6 +56,10 @@ public class DecoratedDateTimeBox extends Composite {
         }
     }
 
+    public void setValue(Date date) {
+        dateBox.setValue(date);
+    }
+
     public String getText() {
         final String result = dateBox.getValue() == null ? null
                 : DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN).format(dateBox.getValue());
@@ -67,7 +73,10 @@ public class DecoratedDateTimeBox extends Composite {
     private void initRoot(final DateBoxState state) {
 
         root.setStyleName("wrap-date");
-        eventBus = new SimpleEventBus();
+        RangeStartConfig rangeStartConfig = state.getDateBoxConfig().getRangeStartConfig();
+        RangeEndConfig rangeEndConfig = state.getDateBoxConfig().getRangeEndConfig();
+        boolean isSearchRangePopup = rangeStartConfig != null || rangeEndConfig != null;
+        eventBus = isSearchRangePopup ? parentWidget.getEventBus() : new SimpleEventBus();
         final ClickHandler showDatePickerHandler = new ShowDatePickerHandler();
 
         dateBtn = new FocusPanel();
@@ -82,7 +91,11 @@ public class DecoratedDateTimeBox extends Composite {
         dateBox.setValue(date);
         dateBox.getTextBox().addStyleName("date-text-box");
         boolean showSeconds = TimeUtil.showSeconds(pattern);
-        picker = new OneDatePickerPopup(date, eventBus, state.isDisplayTime(), showSeconds);
+
+        picker = isSearchRangePopup
+                ? new FormRangeDatePicker(date, null, eventBus, state.isDisplayTime(),
+                showSeconds, rangeStartConfig, rangeEndConfig)
+                : new OneDatePicker(date, eventBus, state.isDisplayTime(), showSeconds);
 
         dateBtn.addClickHandler(showDatePickerHandler);
         Event.sinkEvents(dateBox.getElement(), Event.ONBLUR);

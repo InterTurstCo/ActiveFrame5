@@ -4,6 +4,8 @@
         <fields>
             <string name="subject" length="128"/>
             <string name="password" length="128" encrypted="true"/>
+            <date-time name="actual_start_period"/>
+            <date-time name="actual_end_period"/>
         </fields>
     </domain-object-type>
 
@@ -157,7 +159,7 @@
         <prototype>
             <![CDATA[
                     select
-                        l.id, l.subject, l.created_date
+                        l.id, l.subject, l.created_date, l.actual_start_period, l.actual_end_period
                     from
                         letter l
                 ]]>
@@ -173,6 +175,8 @@
             <column field="id" name="id" type="integer" sortable="false"/>
             <column field="subject" name="Тема" editable="false" type="string" sortable="true"/>
             <column field="created_date" name="Дата" editable="false" type="string" sortable="true"/>
+            <column field="actual_start_period" name="Актуально с" editable="false" type="datetime" sortable="true"/>
+            <column field="actual_end_period" name="Актуально по" editable="false" type="datetime" sortable="true"/>
         </display>
     </collection-view>
 
@@ -207,6 +211,20 @@
                                     </td>
                                     <td h-align="left">
                                         <widget id="addressees"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="actual_start_period_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="actual_start_period"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="actual_end_period_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="actual_end_period"/>
                                     </td>
                                 </tr>
                             </table>
@@ -248,10 +266,7 @@
                 <text>Адресаты:</text>
             </label>
 
-            <!-- <list-box id="addressees">
-                 <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
-                 <pattern value="{Name}"/>
-             </list-box>-->
+
             <hierarchy-browser id="2c">
                 <field-path
                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
@@ -298,6 +313,20 @@
                 <add-button image="..." text="..."/>
                 <display-values-as-links value="true"/>
             </hierarchy-browser>
+            <label id="actual_start_period_label">
+                <text>Актуально с:</text>
+            </label>
+            <label id="actual_end_period_label">
+                <text>Актуально по:</text>
+            </label>
+            <date-box id="actual_start_period">
+                <field-path value="actual_start_period"/>
+                <range-end widget-id="actual_end_period"/>
+            </date-box>
+            <date-box id="actual_end_period">
+                <field-path value="actual_end_period"/>
+                <range-start widget-id="actual_start_period"/>
+            </date-box>
         </widget-config>
     </form>
 

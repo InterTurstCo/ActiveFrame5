@@ -39,6 +39,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         boolean displayTime = fieldType == FieldType.TIMELESSDATE ? false : config.isDisplayTimeBox();
         state.setDisplayTime(displayTime);
         state.setDateTimeContext(context);
+        state.setDateBoxConfig(config);
         return state;
     }
 

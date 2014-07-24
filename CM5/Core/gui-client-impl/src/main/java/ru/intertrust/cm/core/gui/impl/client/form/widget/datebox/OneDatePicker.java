@@ -16,9 +16,9 @@ import java.util.Date;
  *         Date: 15.06.2014
  *         Time: 23:12
  */
-public class OneDatePickerPopup extends DatePickerPopup {
+public class OneDatePicker extends DatePickerPopup {
 
-    public OneDatePickerPopup(Date date, EventBus eventBus, boolean showTime, boolean showSeconds) {
+    public OneDatePicker(Date date, EventBus eventBus, boolean showTime, boolean showSeconds) {
         super(eventBus);
 
         initWidget(date, showTime, showSeconds);
@@ -48,7 +48,7 @@ public class OneDatePickerPopup extends DatePickerPopup {
                 Date date = dateTimePicker.getFullDate();
                 eventBus.fireEvent(new DateSelectedEvent(date));
 
-                OneDatePickerPopup.this.hide();
+                OneDatePicker.this.hide();
             }
         });
         this.addCloseHandler(new HideDateTimePickerCloseHandler(container));

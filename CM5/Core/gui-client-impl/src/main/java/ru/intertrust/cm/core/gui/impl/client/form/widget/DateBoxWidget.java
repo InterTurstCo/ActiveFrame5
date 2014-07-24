@@ -6,12 +6,16 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeEndConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeStartConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DecoratedDateTimeBox;
-import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.util.Date;
@@ -22,15 +26,15 @@ import java.util.Date;
  *         Time: 12:25
  */
 @ComponentName("date-box")
-public class DateBoxWidget extends BaseWidget {
-
+public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEventHandler {
+    private DateBoxState dbState;
     @Override
     public Component createNew() {
         return new DateBoxWidget();
     }
 
     public void setCurrentState(WidgetState currentState) {
-        final DateBoxState dbState = (DateBoxState) currentState;
+        dbState = (DateBoxState) currentState;
         if (isEditable) {
             DecoratedDateTimeBox dateBoxDecorate = (DecoratedDateTimeBox) impl;
             dateBoxDecorate.setValue(dbState);
@@ -78,6 +82,7 @@ public class DateBoxWidget extends BaseWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         DecoratedDateTimeBox dateBoxDecorate = new DecoratedDateTimeBox(this);
+        eventBus.addHandler(FormRangeDateSelectedEvent.TYPE, this);
         return dateBoxDecorate;
     }
 
@@ -109,5 +114,49 @@ public class DateBoxWidget extends BaseWidget {
     public void clearErrors() {
         impl.setTitle(null);
         ((DecoratedDateTimeBox) impl).getDateBox().removeStyleName("validation-error");
+    }
+
+    @Override
+    public void onFormRangeDateSelected(FormRangeDateSelectedEvent event) {
+        DecoratedDateTimeBox dateBoxDecorate = (DecoratedDateTimeBox) impl;
+        handleIfCurrentWidgetIsStartOfRange(dateBoxDecorate, event);
+        handleIfCurrentWidgetIsEndOfRange(dateBoxDecorate, event);
+    }
+
+    private void handleIfCurrentWidgetIsEndOfRange(DecoratedDateTimeBox dateBoxDecorate, FormRangeDateSelectedEvent event) {
+
+        RangeStartConfig rangeStartConfigFromState = dbState.getDateBoxConfig().getRangeStartConfig();
+        if (rangeStartConfigFromState != null) {
+            if (rangeStartConfigFromState.equals(event.getRangeStartConfig())) {
+                dateBoxDecorate.setValue(event.getEndDate());
+            }
+
+            RangeEndConfig rangeEndConfigFromEvent = event.getRangeEndConfig();
+            if (rangeEndConfigFromEvent == null) {
+                return;
+            }
+            String widgetId = dbState.getDateBoxConfig().getId();
+            if (widgetId.equalsIgnoreCase(rangeEndConfigFromEvent.getWidgetId())) {
+                dateBoxDecorate.setValue(event.getEndDate());
+            }
+        }
+    }
+
+    private void handleIfCurrentWidgetIsStartOfRange(DecoratedDateTimeBox dateBoxDecorate, FormRangeDateSelectedEvent event) {
+        RangeEndConfig rangeEndConfigFromState = dbState.getDateBoxConfig().getRangeEndConfig();
+        if (rangeEndConfigFromState != null) {
+            if (rangeEndConfigFromState.equals(event.getRangeEndConfig())) {
+                dateBoxDecorate.setValue(event.getStartDate());
+            }
+
+            RangeStartConfig rangeStartConfigFromEvent = event.getRangeStartConfig();
+            if (rangeStartConfigFromEvent == null) {
+                return;
+            }
+            String widgetId = dbState.getDateBoxConfig().getId();
+            if (widgetId.equalsIgnoreCase(rangeStartConfigFromEvent.getWidgetId())) {
+                dateBoxDecorate.setValue(event.getStartDate());
+            }
+        }
     }
 }

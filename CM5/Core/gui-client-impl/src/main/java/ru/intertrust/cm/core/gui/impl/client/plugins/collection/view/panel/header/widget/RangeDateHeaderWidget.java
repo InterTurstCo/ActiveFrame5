@@ -7,7 +7,7 @@ import com.google.gwt.user.client.Window;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.RangeDatePickerPopup;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.CollectionRangeDatePicker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.util.HeaderWidgetUtil;
@@ -55,7 +55,7 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
             } catch (IllegalArgumentException ex) {
                 Window.alert("Неверный формат времени! Попробуйте " + dateTimeFormat.getPattern());
             }
-            popupDatePicker = new RangeDatePickerPopup(startDate, endDate, eventBus, showTime, showSeconds);
+            popupDatePicker = new CollectionRangeDatePicker(startDate, endDate, eventBus, showTime, showSeconds);
         }
 
         initHandlers(eventBus);

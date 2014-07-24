@@ -7,7 +7,9 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEvent;
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeEndConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeStartConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 import java.util.ArrayList;
@@ -18,29 +20,32 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 
 /**
  * @author Yaroslav Bondarchuk
- *         Date: 23.06.2014
- *         Time: 0:48
+ *         Date: 24.07.2014
+ *         Time: 0:38
  */
-public class RangeDatePickerPopup extends DatePickerPopup {
-    public RangeDatePickerPopup(Date startDate, Date endDate, EventBus eventBus, boolean showTime, boolean showSeconds) {
-        super(eventBus);
-        initWidget(startDate, endDate, showTime, showSeconds);
+public class FormRangeDatePicker extends RangeDatePicker {
+    private RangeStartConfig rangeStartConfig;
+    private RangeEndConfig rangeEndConfig;
+
+    public FormRangeDatePicker(Date startDate, Date endDate, EventBus eventBus, boolean showTime,
+                               boolean showSeconds) {
+        super(startDate, endDate, eventBus, showTime, showSeconds);
     }
 
-    private void initWidget(Date startDate, Date endDate, boolean showTime, boolean showSeconds) {
-
+    @Override
+    protected void initWidget(Date startDate, Date endDate, boolean showTime, boolean showSeconds) {
         Panel container = new AbsolutePanel();
 
-        Panel forTodayPanel = initDateSelector(FOR_TODAY_LABEL, new RangeEnumDateClickHandler(FOR_TODAY_LABEL));
+        Panel forTodayPanel = initDateSelector(FOR_TODAY_LABEL, new FormRangeEnumDateClickHandler(FOR_TODAY_LABEL));
         container.add(forTodayPanel);
 
-        Panel forYesterdayPanel = initDateSelector(FOR_YESTERDAY_LABEL, new RangeEnumDateClickHandler(FOR_YESTERDAY_LABEL));
+        Panel forYesterdayPanel = initDateSelector(FOR_YESTERDAY_LABEL, new FormRangeEnumDateClickHandler(FOR_YESTERDAY_LABEL));
         container.add(forYesterdayPanel);
 
-        Panel forLastWeekPanel = initDateSelector(FOR_LAST_WEEK_LABEL, new RangeEnumDateClickHandler(FOR_LAST_WEEK_LABEL));
+        Panel forLastWeekPanel = initDateSelector(FOR_LAST_WEEK_LABEL, new FormRangeEnumDateClickHandler(FOR_LAST_WEEK_LABEL));
         container.add(forLastWeekPanel);
 
-        Panel forLastYearPanel = initDateSelector(FOR_LAST_YEAR_LABEL, new RangeEnumDateClickHandler(FOR_LAST_YEAR_LABEL));
+        Panel forLastYearPanel = initDateSelector(FOR_LAST_YEAR_LABEL, new FormRangeEnumDateClickHandler(FOR_LAST_YEAR_LABEL));
         container.add(forLastYearPanel);
 
         Panel dateRangePanel = initDateSelectorWithPicker(CHOSE_DATE_RANGE_LABEL);
@@ -53,10 +58,16 @@ public class RangeDatePickerPopup extends DatePickerPopup {
 
         this.add(container);
         this.setStyleName("composite-datetime-picker");
-
     }
 
-    private Panel initDatePickerPanel(final DateTimePicker startDateTimePicker, final DateTimePicker endDateTimePicker) {
+    public FormRangeDatePicker(Date startDate, Date endDate, EventBus eventBus, boolean showTime,
+                               boolean showSeconds, RangeStartConfig rangeStartConfig, RangeEndConfig rangeEndConfig) {
+        super(startDate, endDate, eventBus, showTime, showSeconds);
+        this.rangeStartConfig = rangeStartConfig;
+        this.rangeEndConfig = rangeEndConfig;
+    }
+
+    protected Panel initDatePickerPanel(final DateTimePicker startDateTimePicker, final DateTimePicker endDateTimePicker) {
         final Panel container = new AbsolutePanel();
 
         container.setStyleName("composite-date-time-container-hidden");
@@ -68,9 +79,9 @@ public class RangeDatePickerPopup extends DatePickerPopup {
             public void onClick(ClickEvent event) {
                 Date startDate = startDateTimePicker.getFullDate();
                 Date endDate = endDateTimePicker.getFullDate();
-                eventBus.fireEvent(new RangeDateSelectedEvent(startDate, endDate));
+                eventBus.fireEvent(new FormRangeDateSelectedEvent(startDate, endDate, rangeStartConfig, rangeEndConfig));
                 container.setStyleName("composite-date-time-container-hidden");
-                RangeDatePickerPopup.this.hide();
+                FormRangeDatePicker.this.hide();
             }
         });
         this.addCloseHandler(new HideDateTimePickerCloseHandler(container));
@@ -79,18 +90,20 @@ public class RangeDatePickerPopup extends DatePickerPopup {
         return container;
     }
 
-    private class RangeEnumDateClickHandler implements ClickHandler {
-        String dateDescription;
+    private class FormRangeEnumDateClickHandler implements ClickHandler {
+        private String dateDescription;
 
-        private RangeEnumDateClickHandler(String dateDescription) {
+
+        private FormRangeEnumDateClickHandler(String dateDescription) {
             this.dateDescription = dateDescription;
+
         }
 
         @Override
         public void onClick(ClickEvent clickEvent) {
             List<Date> dates = getRequiredDate(dateDescription);
-            eventBus.fireEvent(new RangeDateSelectedEvent(dates.get(0), dates.get(1)));
-            RangeDatePickerPopup.this.hide();
+            eventBus.fireEvent(new FormRangeDateSelectedEvent(dates.get(0), dates.get(1), rangeStartConfig, rangeEndConfig));
+            FormRangeDatePicker.this.hide();
         }
 
         private List<Date> getRequiredDate(String dateDescription) {
@@ -105,15 +118,14 @@ public class RangeDatePickerPopup extends DatePickerPopup {
                 case FOR_YESTERDAY_LABEL:
                     CalendarUtil.addDaysToDate(startDate, -2);
                     CalendarUtil.addDaysToDate(endDate, -1);
-                    break;
+                    return getRangeDateList(startDate, endDate);
                 case FOR_LAST_WEEK_LABEL:
                     CalendarUtil.addDaysToDate(startDate, -7);
-                    getRangeDateList(startDate, endDate);
-                    break;
+                    return getRangeDateList(startDate, endDate);
+
                 case FOR_LAST_YEAR_LABEL:
                     CalendarUtil.addDaysToDate(startDate, -365);
-                    getRangeDateList(startDate, endDate);
-                    break;
+                    return getRangeDateList(startDate, endDate);
 
 
             }
