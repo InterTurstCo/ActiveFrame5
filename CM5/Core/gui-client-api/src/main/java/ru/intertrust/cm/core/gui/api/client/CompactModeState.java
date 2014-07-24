@@ -9,9 +9,16 @@ package ru.intertrust.cm.core.gui.api.client;
 public class CompactModeState {
 
     private int left;
-    private int leftOffset;
-    private int topOffset;
     private boolean expanded;
+    private boolean navigationTreePanelExpanded;
+
+    public boolean isNavigationTreePanelExpanded() {
+        return navigationTreePanelExpanded;
+    }
+
+    public void setNavigationTreePanelExpanded(boolean navigationTreePanelExpanded) {
+        this.navigationTreePanelExpanded = navigationTreePanelExpanded;
+    }
 
     public int getLeft() {
         return left;
@@ -19,22 +26,6 @@ public class CompactModeState {
 
     public void setLeft(int left) {
         this.left = left;
-    }
-
-    public int getLeftOffset() {
-        return leftOffset;
-    }
-
-    public void setLeftOffset(int leftOffset) {
-        this.leftOffset = leftOffset;
-    }
-
-    public int getTopOffset() {
-        return topOffset;
-    }
-
-    public void setTopOffset(int topOffset) {
-        this.topOffset = topOffset;
     }
 
     public boolean isExpanded() {

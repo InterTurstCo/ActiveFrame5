@@ -96,7 +96,6 @@ public class NavigationTreePluginView extends PluginView {
                     pinButtonClick = true;
                     pinButton.setStyleName("icon pin-pressed");
                     eventBus.fireEvent(new SideBarResizeEvent(END_WIDGET_WIDTH, LEFT_SECTION_ACTIVE_STYLE, CENTRAL_SECTION_ACTIVE_STYLE));
-
                     navigationTreesPanel.setStyleName("navigation-dynamic-panel-expanded");
                 } else {
                     pinButtonClick = false;
@@ -104,6 +103,7 @@ public class NavigationTreePluginView extends PluginView {
                     eventBus.fireEvent(new SideBarResizeEvent(START_WIDGET_WIDTH, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
                     navigationTreesPanel.setStyleName("navigation-dynamic-panel");
                 }
+                Application.getInstance().getCompactModeState().setNavigationTreePanelExpanded(pinButtonClick);
             }
         });
 
