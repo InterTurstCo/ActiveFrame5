@@ -51,21 +51,23 @@
         </notification-type>
     </notification>
 
-
-     <!-- <notification name="NotificationAddresseeClassName">
+    <notification name="NotificationAddresseeClassName">
         <notification-type name="NotificationType" priority="HIGH">
             <addressee>
                 <find-person>
-                    <class-name>ClassName
+                    <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
+                        <find-person-settings>
+                              <domain-object-field-addressee field-name="testField"/>
+                        </find-person-settings>
                     </class-name>
                 </find-person>
             </addressee>
             <triggers>
-                <trigger refName="TriggerReadConfig" >
+                <trigger refName="TriggerReadConfig">
                 </trigger>
             </triggers>
         </notification-type>
-    </notification> -->
+    </notification>
 
      <!-- <notification name="NotificationAddresseeContextRole">
         <notification-type name="NotificationType" priority="HIGH">

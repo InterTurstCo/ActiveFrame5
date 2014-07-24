@@ -59,10 +59,10 @@ public class DomainObjectFinderServiceImpl implements DomainObjectFinderService 
                 DomainObjectFinder findObjects = finderClass.newInstance();
                 result = findObjects.findObjects(contextDomainObjectId);
             } else if (findObjectsConfig.getFindObjectType() instanceof FindObjectsQueryConfig) {
-                //Поиск с помощью запроса
+                // Поиск с помощью запроса
                 FindObjectsQueryConfig config = (FindObjectsQueryConfig) findObjectsConfig.getFindObjectType();
                 List<Value> params = new ArrayList<Value>();
-                if (contextDomainObjectId != null){
+                if (contextDomainObjectId != null) {
                     params.add(new ReferenceValue(contextDomainObjectId));
                 }
                 IdentifiableObjectCollection collection =

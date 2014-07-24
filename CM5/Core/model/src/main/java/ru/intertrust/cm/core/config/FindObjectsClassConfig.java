@@ -4,15 +4,15 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.convert.Convert;
 
-import ru.intertrust.cm.core.config.converter.CollectorSettingsConverter;
+import ru.intertrust.cm.core.config.converter.FindObjectSettingsConverter;
 
 public class FindObjectsClassConfig implements FindObjectsType {
 
     @Element(name = "find-person-settings", required = false)
-    @Convert(CollectorSettingsConverter.class)
+    @Convert(FindObjectSettingsConverter.class)
     private FindObjectSettings settings;
 
-    @Attribute(required = true, name = "class-name")
+    @Attribute(required = true, name = "name")
     private String className;
 
     public FindObjectSettings getSettings() {

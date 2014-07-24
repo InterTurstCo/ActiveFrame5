@@ -1,7 +1,9 @@
-package ru.intertrust.cm.core.config;
+package ru.intertrust.cm.test.configuration;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
+
+import ru.intertrust.cm.core.config.FindObjectSettings;
 
 
 /**

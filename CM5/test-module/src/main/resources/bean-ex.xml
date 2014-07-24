@@ -26,6 +26,8 @@
         </constructor-arg>
     </bean>
 
+    <bean id="applicationContextProvider" class="ru.intertrust.testmodule.spring.ApplicationContextProvider" />
+          
     <bean id="test-bean" class="ru.intertrust.testmodule.spring.TestSpringBeanInSecondContext" />
 
 </beans>
