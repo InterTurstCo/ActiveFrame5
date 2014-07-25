@@ -10,15 +10,13 @@ import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
-import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.*;
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.*;
 
 /**
  * @author Sergey.Okolot
  *         Created on 01.07.2014 15:24.
  */
 public class HistoryManagerImpl implements HistoryManager {
-
-    private static final String ID_DELIMITER = ",";
 
     private HistoryToken current = new HistoryToken(HistoryToken.UNKNOWN_LINK);
     private Mode mode = Mode.APPLY;
@@ -74,7 +72,7 @@ public class HistoryManagerImpl implements HistoryManager {
             for (Id id : ids) {
                 if (id != null) {
                     if (!isFirst) {
-                        builder.append(ID_DELIMITER);
+                        builder.append(ARRAY_DELIMITER);
                     }
                     isFirst = false;
                     builder.append(id.toStringRepresentation());
@@ -90,7 +88,7 @@ public class HistoryManagerImpl implements HistoryManager {
         final List<Id> result = new ArrayList<>();
         final String idsAsStr = getValue(null, SELECTED_IDS_KEY);
         if (idsAsStr != null) {
-            final String[] idStrArray = idsAsStr.split(ID_DELIMITER);
+            final String[] idStrArray = idsAsStr.split(ARRAY_DELIMITER);
             for (String idStr : idStrArray) {
                 final Id id = StringUtil.idFromString(idStr);
                 if (id != null) {

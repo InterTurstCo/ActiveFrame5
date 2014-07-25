@@ -47,8 +47,7 @@ class HistoryToken {
                     settings = JavaScriptObject.createObject().cast();
                     userSettingsObject.setAttr(identifier, settings);
                 }
-                final JavaScriptObject historyItemObject = getObject(item);
-                settings.setAttr(item.getName(), historyItemObject);
+                settings.setAttr(item.getName(), HistoryItemObject.createObject(item.getType().name(), item.getValue()));
                 sessionDataChanged = true;
             }
         }
@@ -65,7 +64,7 @@ class HistoryToken {
             final HistoryItem result;
             final UserSettingsObject settings = (UserSettingsObject) userSettingsObject.getAttr(identifier);
             if (settings != null && settings.getAttr(key) != null) {
-                result = getHistoryItem(key, (JavaScriptObject) settings.getAttr(key));
+                result = getHistoryItem(key, settings.getAttr(key));
             } else {
                 result = null;
             }
@@ -149,7 +148,7 @@ class HistoryToken {
                 try {
                     JSONValue jsonValue = JSONParser.parseStrict(storageData);
                     if (jsonValue != null) {
-                        result = (UserSettingsObject) jsonValue.isObject().getJavaScriptObject();
+                        result = jsonValue.isObject().getJavaScriptObject().cast();
                     }
                 } catch (Exception ignored) {
                 }
@@ -166,13 +165,6 @@ class HistoryToken {
         }
     }
 
-    private JavaScriptObject getObject(final HistoryItem item) {
-        final HistoryItemObject result = JavaScriptObject.createObject().cast();
-        result.setType(item.getType().name());
-        result.setValue(item.getValue());
-        return result;
-    }
-
     private static HistoryItem getHistoryItem(final String name, final JavaScriptObject object) {
         HistoryItemObject historyObject = object.cast();
         final HistoryItem.Type itemType = HistoryItem.Type.valueOf(historyObject.getType());
@@ -182,35 +174,16 @@ class HistoryToken {
     private static class HistoryItemObject extends JavaScriptObject {
         protected HistoryItemObject(){}
 
-        public final native String getType() /*-{
-            return this.type;
+        public static native HistoryItemObject createObject(final String type, final String value) /*-{
+            return {type: type, value: value};
         }-*/;
 
-        public final native void setType(String type) /*-{
-            this.type = type;
+        public final native String getType() /*-{
+            return this.type;
         }-*/;
 
         public final native String getValue() /*-{
             return this.value;
         }-*/;
-
-        public final native void setValue(String value) /*-{
-            this.value = value;
-        }-*/;
     }
-
-    private static class UserSettingsObject extends JavaScriptObject {
-
-        protected UserSettingsObject() {
-        }
-
-        public final native JavaScriptObject getAttr(String key) /*-{
-            return this[key];
-        }-*/;
-
-        public final native void setAttr(String key, JavaScriptObject object) /*-{
-            this[key] = object;
-        }-*/;
-    }
-
 }

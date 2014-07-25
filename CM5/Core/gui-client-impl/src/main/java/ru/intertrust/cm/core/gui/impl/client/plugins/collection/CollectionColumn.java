@@ -10,8 +10,10 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
  *         Time: 22:59
  */
 public abstract class CollectionColumn <CollectionRowItem, T> extends Column<CollectionRowItem, T> {
+
     protected String fieldName;
     protected boolean resizable = true;
+    private int width;
     protected int minWidth = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
     protected int maxWidth = BusinessUniverseConstants.MAX_COLUMN_WIDTH;
     protected boolean moveable = true;
@@ -40,6 +42,14 @@ public abstract class CollectionColumn <CollectionRowItem, T> extends Column<Col
 
     public void setResizable(Boolean resizable) {
         this.resizable = resizable;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
     }
 
     public int getMinWidth() {

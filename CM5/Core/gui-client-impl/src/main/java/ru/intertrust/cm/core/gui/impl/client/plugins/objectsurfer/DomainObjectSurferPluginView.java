@@ -24,7 +24,7 @@ import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.*;
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.*;
 
 public class DomainObjectSurferPluginView extends PluginView {
 

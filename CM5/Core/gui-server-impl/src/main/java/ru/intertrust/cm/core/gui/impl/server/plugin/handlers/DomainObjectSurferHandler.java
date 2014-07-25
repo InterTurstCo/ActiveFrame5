@@ -19,7 +19,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
-import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.SELECTED_IDS_KEY;
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SELECTED_IDS_KEY;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferHandler extends ActivePluginHandler {

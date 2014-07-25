@@ -1,22 +1,40 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
@@ -27,7 +45,25 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.FilterEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.history.UserSettingsObject;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
@@ -43,12 +79,16 @@ import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.*;
 
-import java.util.*;
-
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MIN_WIDTH;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSED;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN;
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SORT_DIRECT_KEY;
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SORT_FIELD_KEY;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -89,12 +129,15 @@ public class CollectionPluginView extends PluginView {
         DataGrid.Resources resources = GlobalThemesManager.getDataGridResources();
         tableBody = new CollectionDataGrid(15, resources, eventBus);
         tableWidth = plugin.getOwner().getVisibleWidth();
-
+        final CollectionColumnWidthChangedHandler changedWidthHandler = new CollectionColumnWidthChangedHandler();
+        eventBus.addHandler(ComponentWidthChangedEvent.TYPE, changedWidthHandler);
+        final CollectionColumnOrderChangedHandler orderChangedHandler = new CollectionColumnOrderChangedHandler();
+        eventBus.addHandler(ComponentOrderChangedEvent.TYPE, orderChangedHandler);
     }
 
     private void updateSizes() {
         tableWidth = plugin.getOwner().getVisibleWidth();
-        CollectionDataGridUtils.addjustColumnsWidth(tableWidth, tableBody);
+        CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody);
 
     }
 
@@ -418,10 +461,17 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumnsWithoutCheckBoxes(
             LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap) {
-        List<CollectionColumnHeader> headers = new ArrayList<CollectionColumnHeader>();
-        for (String field : domainObjectFieldPropertiesMap.keySet()) {
-            CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
-            CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
+        final UserSettingsObject userSettingsForColumn =
+                checkUpdates(getUserSettingsObjectForColumns(), domainObjectFieldPropertiesMap.keySet());
+        final JSONObject jsonObject = new JSONObject(userSettingsForColumn);
+        List<CollectionColumnHeader> headers = new ArrayList<>();
+        for (String field : jsonObject.keySet()) {
+            final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
+            final CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
+            final ColumnSettingsObject columnSettingsObject = userSettingsForColumn.getAttr(field).cast();
+            if (columnSettingsObject != null && columnSettingsObject.getWidth() > 0) {
+                column.setWidth(columnSettingsObject.getWidth());
+            }
             List<String> initialFilterValues = (List<String>) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
             HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
@@ -434,19 +484,27 @@ public class CollectionPluginView extends PluginView {
                 tableBody.getColumnSortList().push(new ColumnSortList.ColumnSortInfo(column, ascending));
                 sortCollectionState = new SortCollectionState(0, FETCHED_ROW_COUNT, column.getDataStoreName(), ascending, true, field);
             }
-
-
         }
         headerController.setHeaders(headers);
-        CollectionDataGridUtils.addjustColumnsWidth(tableWidth, tableBody);
+        CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody);
         String panelStatus = getPanelState();
         if (panelStatus.equalsIgnoreCase(OPEN)) {
             headerController.changeFiltersInputsVisibility(true);
             filterButton.setValue(true);
             headerController.updateFilterValues();
         }
+    }
 
-
+    private UserSettingsObject getUserSettingsObjectForColumns() {
+        final String columnSettingsAsString = Application.getInstance().getHistoryManager()
+                .getValue(getCollectionIdentifier(), UserSettingsHelper.COLUMN_SETTINGS_KEY);
+        UserSettingsObject result = UserSettingsObject.createObject().cast();
+        if (columnSettingsAsString != null && !columnSettingsAsString.isEmpty()) {
+            try {
+                result = JSONParser.parseStrict(columnSettingsAsString).isObject().getJavaScriptObject().cast();
+            } catch (Exception ignored) {}
+        }
+        return result;
     }
 
     private String getPanelState() {
@@ -670,6 +728,82 @@ public class CollectionPluginView extends PluginView {
 
     private String getCollectionIdentifier() {
         return ((CollectionPluginData) plugin.getInitialData()).getCollectionName();
+    }
+
+    private UserSettingsObject checkUpdates(UserSettingsObject userSettingsObject, Collection<String> configFields) {
+        final JSONObject jsonObject = new JSONObject(userSettingsObject);
+        final List<String> historyFields = new ArrayList<>();
+        for (Iterator<String> it = jsonObject.keySet().iterator(); it.hasNext();) {
+            historyFields.add(it.next());
+        }
+        boolean updated = false;
+        final List<String> copyConfigList = new ArrayList<>(configFields);
+        copyConfigList.removeAll(historyFields);
+        if (!copyConfigList.isEmpty()) {
+            historyFields.addAll(copyConfigList);
+            updated = true;
+        }
+        for (Iterator<String> it = historyFields.iterator(); it.hasNext();) {
+            if (!configFields.contains(it.next())) {
+                it.remove();
+                updated = true;
+            }
+        }
+        if (updated) {
+            UserSettingsObject result = JavaScriptObject.createObject().cast();
+            for (String field: historyFields) {
+                result.setAttr(field, getColumnSettingsObject(userSettingsObject, field));
+            }
+            final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
+                    UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(result).toString());
+            Application.getInstance().getHistoryManager().addHistoryItems(getCollectionIdentifier(), item);
+            return result;
+        } else {
+            return userSettingsObject;
+        }
+    }
+
+    private static ColumnSettingsObject getColumnSettingsObject(final UserSettingsObject userSettingsObject, final String key) {
+        ColumnSettingsObject result = userSettingsObject.getAttr(key).cast();
+        if (result == null) {
+            result = ColumnSettingsObject.createObject();
+            userSettingsObject.setAttr(key, result);
+        }
+        return result;
+    }
+
+    private class CollectionColumnWidthChangedHandler implements ComponentWidthChangedHandler {
+        @Override
+        public void handleEvent(ComponentWidthChangedEvent event) {
+            if (event.getComponent() instanceof CollectionColumn) {
+                final UserSettingsObject userSettingsObject = getUserSettingsObjectForColumns();
+                final String field = ((CollectionColumn) event.getComponent()).getFieldName();
+                final ColumnSettingsObject columnSettingsObject = getColumnSettingsObject(userSettingsObject, field);
+                columnSettingsObject.setWidth(event.getWidth());
+                final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
+                        UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(userSettingsObject).toString());
+                Application.getInstance().getHistoryManager().addHistoryItems(getCollectionIdentifier(), item);
+            }
+        }
+    }
+
+    private class CollectionColumnOrderChangedHandler implements ComponentOrderChangedHandler {
+        @Override
+        public void handleEvent(ComponentOrderChangedEvent event) {
+            if (event.getComponent() instanceof CollectionColumn) {
+                final UserSettingsObject currentSettingsObject = getUserSettingsObjectForColumns();
+                final UserSettingsObject newSettingsObject = UserSettingsObject.createObject().cast();
+                for (int index = 0; index < tableBody.getColumnCount(); index++) {
+                    final CollectionColumn column = (CollectionColumn) tableBody.getColumn(index);
+                    final ColumnSettingsObject columnSettingsObject =
+                            getColumnSettingsObject(currentSettingsObject, column.getFieldName());
+                    newSettingsObject.setAttr(column.getFieldName(), columnSettingsObject);
+                }
+                final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
+                        UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(newSettingsObject).toString());
+                Application.getInstance().getHistoryManager().addHistoryItems(getCollectionIdentifier(), item);
+            }
+        }
     }
 }
 

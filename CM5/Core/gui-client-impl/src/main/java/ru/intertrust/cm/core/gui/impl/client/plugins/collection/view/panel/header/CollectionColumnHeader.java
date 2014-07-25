@@ -19,6 +19,9 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.web.bindery.event.shared.EventBus;
+
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DatePickerPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
@@ -529,25 +532,24 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         }
     }
 
-    protected void changeColumnWidth(int newWidth) {
+    private void changeColumnWidth(final int newWidth) {
         table.setColumnWidth(column, newWidth + "px");
         widget.setFilterInputWidth(newWidth - SEARCH_CONTAINER_MARGIN_WIDTH);
         saveFilterValue();
         table.redraw();
         updateFilterValue();
-
+        eventBus.fireEvent(new ComponentWidthChangedEvent(column, newWidth));
 
     }
 
-    protected void columnMoved(int fromIndex, int toIndex) {
+    private void columnMoved(int fromIndex, int toIndex) {
         CollectionColumn toReplace = (CollectionColumn) table.getColumn(fromIndex);
         if (toReplace instanceof CollectionParameterizedColumn) {
             saveFilterValue();
             table.removeColumn(fromIndex);
             table.insertColumn(toIndex, column, this);
             updateFilterValue();
+            eventBus.fireEvent(new ComponentOrderChangedEvent(toReplace, fromIndex, toIndex));
         }
     }
-
-
 }

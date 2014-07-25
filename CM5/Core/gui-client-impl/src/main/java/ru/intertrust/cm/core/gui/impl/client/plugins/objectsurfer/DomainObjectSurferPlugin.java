@@ -39,7 +39,7 @@ import ru.intertrust.cm.core.gui.model.plugin.IsIdentifiableObjectList;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 
-import static ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings.SELECTED_IDS_KEY;
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SELECTED_IDS_KEY;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,

@@ -14,18 +14,9 @@ import java.util.Set;
  */
 public class CollectionDataGridUtils {
 
-    private static int adjustWidth(int calculatedWidth, int minWidth, int maxWidth) {
-        if (calculatedWidth < minWidth) {
+    private CollectionDataGridUtils() {}
 
-            return minWidth;
-        }
-        if (calculatedWidth > maxWidth) {
-            return  maxWidth;
-        }
-        return  calculatedWidth;
-    }
-
-    public static void addjustColumnsWidth(int tableWidth, CollectionDataGrid tableBody){
+    public static void adjustColumnsWidth(int tableWidth, CollectionDataGrid tableBody){
         int numberOfColumns = tableBody.getColumnCount();
         int numberOfColumnsForIteration = numberOfColumns;
         int tableWidthAvailable = tableWidth;
@@ -81,5 +72,15 @@ public class CollectionDataGridUtils {
             columnCalculationMapCorrected.put(column, columnWidth);
         }
         return  columnCalculationMapCorrected;
+    }
+
+    private static int adjustWidth(int calculatedWidth, int minWidth, int maxWidth) {
+        if (calculatedWidth < minWidth) {
+            return minWidth;
+        }
+        if (calculatedWidth > maxWidth) {
+            return  maxWidth;
+        }
+        return  calculatedWidth;
     }
 }

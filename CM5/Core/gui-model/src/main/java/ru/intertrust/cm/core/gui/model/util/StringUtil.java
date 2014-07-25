@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
  *         Time: 17:14
  */
 public class StringUtil {
-   private StringUtil() {}; // un-instantiable
+   private StringUtil() {} // un-instantiable
 
     public static String join(List<?> list, String delimiter) {
         StringBuilder sb = new StringBuilder();
@@ -53,5 +53,4 @@ public class StringUtil {
         } catch (Exception ignored) {}
         return result;
     }
-
 }

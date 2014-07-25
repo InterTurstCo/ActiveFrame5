@@ -59,7 +59,7 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
-import ru.intertrust.cm.core.gui.model.util.UserInterfaceSettings;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -101,13 +101,13 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         collectionViewerConfig.getSearchAreaRefConfig();
         DefaultSortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getDefaultSortCriteriaConfig();
         final Boolean historySortDirection = StringUtil.booleanFromString(
-                (String) collectionViewerConfig.getHistoryValue(UserInterfaceSettings.SORT_DIRECT_KEY), null);
+                (String) collectionViewerConfig.getHistoryValue(UserSettingsHelper.SORT_DIRECT_KEY), null);
         if (historySortDirection != null) {
             sortCriteriaConfig.setOrder(historySortDirection
                     ? CommonSortCriterionConfig.ASCENDING
                     : CommonSortCriterionConfig.DESCENDING);
         }
-        final String historySortField = collectionViewerConfig.getHistoryValue(UserInterfaceSettings.SORT_FIELD_KEY);
+        final String historySortField = collectionViewerConfig.getHistoryValue(UserSettingsHelper.SORT_FIELD_KEY);
         if (historySortField != null) {
             sortCriteriaConfig.setColumnField(historySortField);
         }
@@ -115,7 +115,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         LinkedHashMap<String, CollectionColumnProperties> columnPropertyMap =
                 getDomainObjectFieldPropertiesMap(collectionViewConfig, sortCriteriaConfig, initialFiltersConfig);
         pluginData.setDomainObjectFieldPropertiesMap(columnPropertyMap);
-        List<Filter> filters = new ArrayList<Filter>();
+        List<Filter> filters = new ArrayList<>();
         String filterName = collectionViewerConfig.getFilterName();
         String filterValue = collectionViewerConfig.getFilterValue();
         if (filterName != null && filterValue.length() > 0) {
