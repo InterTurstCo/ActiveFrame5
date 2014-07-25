@@ -12,7 +12,7 @@ public class ColumnSettingsObject extends JavaScriptObject {
     }
 
     public static native ColumnSettingsObject createObject() /*-{
-        return {width: -1};
+        return {width: 0};
     }-*/;
 
     public final native int getWidth() /*-{

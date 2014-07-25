@@ -29,7 +29,7 @@ public class StringUtil {
         Integer result = defaultValue;
         if (intAsStr != null && !intAsStr.isEmpty()) {
             try {
-                result = Integer.valueOf(intAsStr);
+                result = Integer.valueOf(intAsStr.replaceAll("\\D+", ""));
             } catch (Exception ignored) {
             }
         }

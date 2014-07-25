@@ -110,7 +110,7 @@ public class CollectionPluginView extends PluginView {
     private SortCollectionState sortCollectionState;
     private ToggleButton filterButton = new ToggleButton();
     private HandlerRegistration scrollHandlerRegistration;
-    private Map<String, List<String>> filtersMap = new HashMap<String, List<String>>();
+    private Map<String, List<String>> filtersMap = new HashMap<>();
     private String simpleSearchQuery = "";
     private String searchArea = "";
     private CollectionColumnHeaderController headerController;
@@ -118,7 +118,6 @@ public class CollectionPluginView extends PluginView {
     // локальная шина событий
     private EventBus eventBus;
     private CollectionCsvController csvController;
-    private CollectionColumn<CollectionRowItem, Boolean> checkColumn;
     private SetSelectionModel<CollectionRowItem> selectionModel;
     private FilterPanelConfig filterPanelConfig;
 
@@ -417,7 +416,7 @@ public class CollectionPluginView extends PluginView {
         treeLinkWidget.add(filterButton);
         AbsolutePanel containerForToolbar = new AbsolutePanel();
         containerForToolbar.addStyleName("search-header");
-        if (searchArea != null && searchArea.length() > 0) {
+        if (searchArea != null && !searchArea.isEmpty()) {
             FlowPanel simpleSearch = new FlowPanel();
             SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
             treeLinkWidget.add(simpleSearchPanel);
@@ -435,8 +434,8 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumnsWithCheckBoxes(
             final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldsOnColumnNamesMap) {
-        checkColumn = new CollectionColumn<CollectionRowItem, Boolean>(
-                new CheckboxCell(true, true)) {
+        final CollectionColumn<CollectionRowItem, Boolean> checkColumn =
+                new CollectionColumn<CollectionRowItem, Boolean>(new CheckboxCell(true, true)) {
             @Override
             public Boolean getValue(CollectionRowItem object) {
                 return selectionModel.isSelected(object);
@@ -469,10 +468,11 @@ public class CollectionPluginView extends PluginView {
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             final CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
             final ColumnSettingsObject columnSettingsObject = userSettingsForColumn.getAttr(field).cast();
-            if (columnSettingsObject != null && columnSettingsObject.getWidth() > 0) {
+            if (columnSettingsObject != null) {
                 column.setWidth(columnSettingsObject.getWidth());
             }
-            List<String> initialFilterValues = (List<String>) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
+            final List<String> initialFilterValues =
+                    (List) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
             HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             headers.add(collectionColumnHeader);
