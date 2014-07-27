@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
+import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.JsonUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -43,13 +45,13 @@ import java.util.*;
 public class JsonExportToCsv {
 
     @Autowired
-    CollectionsService collectionsService;
+    private CollectionsService collectionsService;
 
     @Autowired
-    SearchService searchService;
+    private SearchService searchService;
 
     @Autowired
-    ConfigurationService configurationService;
+    private FilterBuilder filterBuilder;
 
     private static final String DEFAULT_ENCODING = "ANSI-1251";
 
@@ -57,6 +59,7 @@ public class JsonExportToCsv {
     @RequestMapping(value = "json-export-to-csv", method = RequestMethod.POST )
     public void generateCsv(@ModelAttribute("json") String stringCsvRequest,HttpServletResponse response)
             throws IOException, ParseException, ServletException {
+
         ObjectMapper mapper = new ObjectMapper();
         JsonCsvRequest csvRequest = mapper.readValue(stringCsvRequest, JsonCsvRequest.class);
         String collectionName = csvRequest.getCollectionName();
@@ -73,7 +76,7 @@ public class JsonExportToCsv {
         List<JsonColumnProperties> columnParams = csvRequest.getColumnProperties();
         Map<String, CollectionColumnProperties> columnPropertiesMap = JsonUtil.convertToColumnPropertiesMap(columnParams);
         JsonInitialFilters jsonInitialFilters = csvRequest.getJsonInitialFilters();
-        List<Filter> filters = JsonUtil.prepareFilters(columnParams, columnPropertiesMap, jsonInitialFilters);
+        List<Filter> filters = prepareFilters(columnParams, columnPropertiesMap, jsonInitialFilters);
         IdentifiableObjectCollection collections;
         int rowCount = csvRequest.getRowCount();
         if (simpleSearchQuery.isEmpty()){
@@ -130,6 +133,32 @@ public class JsonExportToCsv {
 
         writer.flush();
 
+    }
+
+    public List<Filter> prepareFilters(List<JsonColumnProperties> jsonPropertiesList,
+                                       Map<String, CollectionColumnProperties> columnPropertiesMap,
+                                       JsonInitialFilters jsonInitialFilters) throws ParseException {
+        List<Filter> filters = new ArrayList<>();
+        List<String> excludedFilterFields = new ArrayList<>();
+
+        for (JsonColumnProperties jsonProperties : jsonPropertiesList) {
+            List<String> filterValues = jsonProperties.getFilterValues();
+            String fieldName = jsonProperties.getFieldName();
+            CollectionColumnProperties columnProperties = columnPropertiesMap.get(fieldName);
+            if (filterValues != null && filterValues.size() > 0) {
+                Filter filter = FilterBuilderUtil.prepareSearchFilter(filterValues, columnProperties);
+                filters.add(filter);
+                excludedFilterFields.add(fieldName);
+            } else {
+                List<String> initialFilterValues = (List<String>) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
+                if (initialFilterValues != null) {
+                    excludedFilterFields.add(fieldName);
+                }
+            }
+        }
+        InitialFiltersConfig initialFiltersConfig = JsonUtil.convertToInitialFiltersConfig(jsonInitialFilters);
+        filterBuilder.prepareInitialFilters(initialFiltersConfig, excludedFilterFields, filters);
+        return filters;
     }
 
     private Map<String, Value> getRowValues(IdentifiableObject identifiableObject,
