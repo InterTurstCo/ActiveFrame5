@@ -1,13 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
+
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -49,7 +45,10 @@ public class CollectionDataGridUtils {
                 it.remove();
             }
         }
-        columnWidthAverage = tableWidth / (tableBody.getColumnCount() - processingColumnCount);
+        if (tableBody.getColumnCount() - processingColumnCount != 0) {
+            columnWidthAverage = tableWidth / (tableBody.getColumnCount() - processingColumnCount);
+        }
+
         if (columnWidthAverage < BusinessUniverseConstants.MIN_COLUMN_WIDTH) {
             columnWidthAverage = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
         }
