@@ -8,7 +8,6 @@ package ru.intertrust.cm.core.business.api.dto.util;
 public class ModelConstants {
     //domain object field types
     public static final String STRING_TYPE = "string";
-    public static final String INTEGER_TYPE = "integer";
     public static final String TEXT_TYPE = "text";
     public static final String LONG_TYPE = "long";
     public static final String DECIMAL_TYPE = "decimal";
@@ -19,4 +18,8 @@ public class ModelConstants {
     public static final String DATE_TIME_WITH_TIME_ZONE_TYPE = "dateTimeWithTimeZone";
     public static final String PASSWORD_TYPE = "password";
     public static final String LIST_TYPE = "list";
+    // calculating values for collection plugin
+    public static final int INIT_ROWS_NUMBER = 55;
+    public static final int ONE_ROW_SIZE = 10;
+
 }

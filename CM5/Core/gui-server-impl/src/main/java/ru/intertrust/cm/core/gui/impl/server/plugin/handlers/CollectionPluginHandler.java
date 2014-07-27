@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
@@ -45,7 +46,6 @@ import java.util.*;
 public class CollectionPluginHandler extends ActivePluginHandler {
     static final String COMPONENT_NAME = "collection.plugin";
 
-    private static final int INIT_ROWS_NUMBER = 25;
 
     @Autowired
     CollectionsService collectionsService;
@@ -109,10 +109,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
         // todo: по-моему условие singleChoice && !displayChosenValues вполне говорит само за себя :) в следующем условии тоже
         filters = addFilterByText(collectionViewerConfig, filters);
+        int initRowsNumber = ModelConstants.INIT_ROWS_NUMBER;
+        pluginData.setRowsChunk(initRowsNumber);
         if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {
             filters = addFilterExcludeIds(collectionViewerConfig, filters);
             ArrayList<CollectionRowItem> items =
-                    getRows(collectionName, 0, INIT_ROWS_NUMBER, filters, order, columnPropertyMap);
+                    getRows(collectionName, 0, initRowsNumber, filters, order, columnPropertyMap);
             pluginData.setItems(items);
         }
 
@@ -120,7 +122,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             SelectionFiltersConfig selectionFiltersConfig = collectionViewerConfig.getSelectionFiltersConfig();
             filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             ArrayList<CollectionRowItem> items = getRows(collectionName,
-                    0, INIT_ROWS_NUMBER, filters, order, columnPropertyMap);
+                    0, initRowsNumber, filters, order, columnPropertyMap);
             pluginData.setChosenIds(collectionViewerConfig.getExcludedIds());
             pluginData.setItems(items);
         }
@@ -131,6 +133,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         } else {
             pluginData.setSearchArea("");
         }
+
         pluginData.setToolbarContext(getToolbarContext(collectionViewerConfig));
         return pluginData;
     }

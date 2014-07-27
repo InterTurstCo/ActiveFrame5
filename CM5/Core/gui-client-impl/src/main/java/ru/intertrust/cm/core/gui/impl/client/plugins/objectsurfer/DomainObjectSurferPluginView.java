@@ -1,15 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
-import java.util.ArrayList;
-import java.util.logging.Logger;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
@@ -21,9 +19,9 @@ import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+
+import java.util.logging.Logger;
+
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.*;
 
 public class DomainObjectSurferPluginView extends PluginView {
@@ -82,13 +80,12 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     private void updateSizes() {
         surferWidth = plugin.getOwner().getVisibleWidth();
-            // -11 px  из BusinessUniverse отражаются на размере плагина и выражены как высота actionBar + 11 px
-        surferHeight = plugin.getOwner().getVisibleHeight()-(getActionToolBar().getOffsetHeight()+11);
+        // -11 px  из BusinessUniverse отражаются на размере плагина и выражены как высота actionBar + 11 px
+        surferHeight = plugin.getOwner().getVisibleHeight() - (getActionToolBar().getOffsetHeight() + 11);
     }
 
     protected void splitterSetSize() {
         splitterPanel.setSize(surferWidth + "px", surferHeight + "px");
-      //  checkLastSplitterPosition(splitterPanel.isSplitType(), surferWidth, surferHeight / 2, false);
 
     }
 
@@ -156,7 +153,6 @@ public class DomainObjectSurferPluginView extends PluginView {
 
         flowPanel = new AbsolutePanel();
         flowPanel.setStyleName("centerTopBottomDividerRoot");
-        //final VerticalPanel container = new VerticalPanel();
         AbsolutePanel container = new AbsolutePanel();
         container.setStyleName("centerTopBottomDividerRootInnerDiv");
         flowPanel.add(container);
@@ -185,29 +181,16 @@ public class DomainObjectSurferPluginView extends PluginView {
             formPluginPanel.setVisibleHeight(surferHeight / 2);
             formPluginPanel.setVisibleWidth(surferWidth);
             final Plugin collectionViewerPlugin = domainObjectSurferPlugin.getCollectionPlugin();
-            collectionViewerPlugin.setConfig(config.getCollectionViewerConfig());
+            PluginConfig collectionPluginConfig = config.getCollectionViewerConfig();
+            collectionViewerPlugin.setConfig(collectionPluginConfig);
 
-
-            PluginPanel collectionViewerPluginPanel  = new PluginPanel() {
+            PluginPanel collectionViewerPluginPanel = new PluginPanel() {
                 @Override
                 public void beforePluginOpening() {
-                    CollectionPluginData collectionPluginData = collectionViewerPlugin.getInitialData();
-                    ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
-                    FormPluginConfig formPluginConfig;
-                    if (items == null || items.size() == 0) {
-                        // TODO: New approach needed, collection type is no longer available
-                        // open empty form for collection domain object type
-                        // config = new SomeActivePluginConfig(collectionPluginData.getCollectionConfig()
-                        // .getDomainObjectType());
-                        formPluginConfig = new FormPluginConfig(config.getDomainObjectTypeToCreate());
-                    } else {
-                        formPluginConfig = new FormPluginConfig(items.get(0).getId());
-                    }
-                    FormPlugin formPlugin = (FormPlugin) domainObjectSurferPlugin.getFormPlugin();
+
+                    FormPlugin formPlugin = domainObjectSurferPlugin.getFormPlugin();
 
                     formPluginPanel.open(formPlugin);
-
-                    //noname div
 
                     formPluginPanel.asWidget().addStyleName("form-container");
 

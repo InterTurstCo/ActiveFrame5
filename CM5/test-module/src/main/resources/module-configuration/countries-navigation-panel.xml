@@ -26,11 +26,11 @@
                             <collection-viewer>
                                 <collection-ref name="Cities"/>
                                 <default-sort-criteria column-field="population" order="desc"/>
-                                <initial-filters>
-                                    <initial-filter name="byPopulation">
-                                        <param name="0" value="11500000" type="long"/>
-                                    </initial-filter>
-                                </initial-filters>
+                                <!--  <initial-filters>
+                                      <initial-filter name="byPopulation">
+                                          <param name="0" value="11500000" type="long"/>
+                                      </initial-filter>
+                                  </initial-filters>-->
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -136,12 +136,12 @@
             <child-links>
 
                 <link name="Calendar" display-text="calendar">
-                       <plugin>
-                            <custom name="calendar.plugin">
+                    <plugin>
+                        <custom name="calendar.plugin">
 
-                            </custom>
+                        </custom>
 
-                       </plugin>
+                    </plugin>
                 </link>
             </child-links>
         </link>
@@ -180,34 +180,34 @@
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="notification">
                             <collection-viewer>
-                                <collection-ref name="Notifications" />
-                                <default-sort-criteria column-field="subject" order="desc" />
+                                <collection-ref name="Notifications"/>
+                                <default-sort-criteria column-field="subject" order="desc"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>
-                        <collection-counter />
+                        <collection-counter/>
                     </decorations>
                 </link>
                 <link name="link_agent_esd" display-text="Агент СЭД">
-                    <plugin>                        
+                    <plugin>
                         <domain-object-surfer domain-object-type-to-create="agent_esd">
                             <collection-viewer>
                                 <collection-ref name="col_agent_esd"/>
-                                <default-sort-criteria column-field="name" order="asc"/>                                                                                           
+                                <default-sort-criteria column-field="name" order="asc"/>
                             </collection-viewer>
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
-            <!--    <link name="Custom_Plugin" display-text="Плагин">
-                    <plugin>
-                        <custom name="some.plugin">
-                            <attribute name="label_value" value="Кастомный плагин"/>
+                <!--    <link name="Custom_Plugin" display-text="Плагин">
+                        <plugin>
+                            <custom name="some.plugin">
+                                <attribute name="label_value" value="Кастомный плагин"/>
 
-                        </custom>
-                    </plugin>
-                </link>-->
+                            </custom>
+                        </plugin>
+                    </link>-->
             </child-links>
 
             <child-links>
@@ -488,15 +488,16 @@
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
-                </link><link name="Module13" display-text="модули">
-                <plugin>
-                    <domain-object-surfer domain-object-type-to-create="SS_Module">
-                        <collection-viewer>
-                            <collection-ref name="SS_Module_Collection"/>
-                        </collection-viewer>
-                    </domain-object-surfer>
-                </plugin>
-            </link>
+                </link>
+                <link name="Module13" display-text="модули">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_Module">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
                 <link name="Module14" display-text="модули">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="SS_Module">

@@ -1,15 +1,15 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -29,7 +29,7 @@ public class CollectionPluginData extends ActivePluginData {
     private String collectionViewConfigName;
     private InitialFiltersConfig initialFiltersConfig;
     private FilterPanelConfig filterPanelConfig;
-
+    private int rowsChunk;
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<>();
     }
@@ -121,5 +121,13 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setFilterPanelConfig(FilterPanelConfig filterPanelConfig) {
         this.filterPanelConfig = filterPanelConfig;
+    }
+
+    public int getRowsChunk() {
+        return rowsChunk;
+    }
+
+    public void setRowsChunk(int rowsChunk) {
+        this.rowsChunk = rowsChunk;
     }
 }
