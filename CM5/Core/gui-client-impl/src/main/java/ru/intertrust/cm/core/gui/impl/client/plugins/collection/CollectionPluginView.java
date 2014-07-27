@@ -109,7 +109,7 @@ public class CollectionPluginView extends PluginView {
     /*This method is invoked when splitter changes position
         so we have to check if scroll is visible. If no load more rows
      */
-    private void fetchMoreItemsIfRequired() {
+    public void fetchMoreItemsIfRequired() {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             public void execute() {
                 int scrollMinVertical = tableBody.getScrollPanel().getMinimumVerticalScrollPosition();
@@ -578,7 +578,7 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    private void collectionRowRequestCommand(CollectionRowsRequest collectionRowsRequest) {
+    private void collectionRowRequestCommand(final CollectionRowsRequest collectionRowsRequest) {
         lastScrollPos = 0;
         scrollHandlerRegistration.removeHandler();
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
@@ -603,6 +603,9 @@ public class CollectionPluginView extends PluginView {
                 headerController.setFocus();
                 headerController.updateFilterValues();
                 Application.getInstance().hideLoadingIndicator();
+                if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {
+                    return;
+                }
                 fetchMoreItemsIfRequired();
             }
         });

@@ -15,8 +15,11 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 
@@ -202,8 +205,14 @@ public class DomainObjectSurferPluginView extends PluginView {
             };
             collectionViewerPluginPanel.setVisibleWidth(surferWidth);
             collectionViewerPluginPanel.setVisibleHeight(surferHeight / 2);
-
+            collectionViewerPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
+                @Override
+                public void onViewCreation(PluginViewCreatedEvent source) {
+                    ((CollectionPluginView) collectionViewerPlugin.getView()).fetchMoreItemsIfRequired();
+                }
+            });
             collectionViewerPluginPanel.open(collectionViewerPlugin);
+
 
         }
         Application.getInstance().hideLoadingIndicator();
