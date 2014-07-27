@@ -1,54 +1,25 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CommonSortCriterionConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.DateUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -60,6 +31,10 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -86,6 +61,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     @Autowired
     private ActionConfigBuilder actionConfigBuilder;
+
+    @Autowired
+    private FilterBuilder filterBuilder;
 
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
@@ -123,7 +101,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             filters.add(inputFilter);
         }
         pluginData.setInitialFiltersConfig(initialFiltersConfig);
-        FilterBuilder.prepareInitialFilters(initialFiltersConfig, null, filters);
+        filterBuilder.prepareInitialFilters(initialFiltersConfig, null, filters);
         pluginData.setDefaultSortCriteriaConfig(sortCriteriaConfig);
         pluginData.setFilterPanelConfig(collectionViewerConfig.getFilterPanelConfig());
         CollectionDisplayConfig collectionDisplayConfig = collectionViewConfig.getCollectionDisplayConfig();
@@ -140,7 +118,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
         if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)) {
             SelectionFiltersConfig selectionFiltersConfig = collectionViewerConfig.getSelectionFiltersConfig();
-            FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+            filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             ArrayList<CollectionRowItem> items = getRows(collectionName,
                     0, INIT_ROWS_NUMBER, filters, order, columnPropertyMap);
             pluginData.setChosenIds(collectionViewerConfig.getExcludedIds());
@@ -247,7 +225,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
         List<Id> excludedIds = collectionViewerConfig.getExcludedIds();
         Set<Id> idsExcluded = new HashSet<Id>(excludedIds);
-        Filter filterExcludeIds = FilterBuilder.prepareFilter(idsExcluded, FilterBuilder.EXCLUDED_IDS_FILTER);
+        Filter filterExcludeIds = FilterBuilderUtil.prepareFilter(idsExcluded, FilterBuilderUtil.EXCLUDED_IDS_FILTER);
         filters.add(filterExcludeIds);
         return filters;
     }
@@ -413,10 +391,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         InitialFiltersConfig initialFiltersConfig = collectionRowsRequest.getInitialFiltersConfig();
         Set<String> userFilterNamesWithInputs = filtersMap == null ? null : filtersMap.keySet();
         List<String> excludedInitialFilterNames = prepareExcludedInitialFilterNames(userFilterNamesWithInputs, properties);
-        FilterBuilder.prepareInitialFilters(initialFiltersConfig, excludedInitialFilterNames, filters);
+        filterBuilder.prepareInitialFilters(initialFiltersConfig, excludedInitialFilterNames, filters);
         Set<Id> includedIds = collectionRowsRequest.getIncludedIds();
         if (!includedIds.isEmpty()) {
-            Filter includedIdsFilter = FilterBuilder.prepareFilter(includedIds, FilterBuilder.INCLUDED_IDS_FILTER);
+            Filter includedIdsFilter = FilterBuilderUtil.prepareFilter(includedIds, FilterBuilderUtil.INCLUDED_IDS_FILTER);
             filters.add(includedIdsFilter);
         }
         if (collectionRowsRequest.isSortable()) {
@@ -447,10 +425,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         Set<String> fieldNames = filtersMap.keySet();
         for (String fieldName : fieldNames) {
             List<String> filterValues = filtersMap.get(fieldName);
-            if(filterValuesAreValid(filterValues)) {
+            if (filterValuesAreValid(filterValues)) {
                 CollectionColumnProperties columnProperties = properties.get(fieldName);
                 try {
-                    Filter filter = FilterBuilder.prepareSearchFilter(filterValues, columnProperties);
+                    Filter filter = FilterBuilderUtil.prepareSearchFilter(filterValues, columnProperties);
                     filters.add(filter);
                 } catch (ParseException e) {
                     e.printStackTrace();  //for developers only
@@ -461,13 +439,14 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         }
         return filters;
     }
-    private boolean filterValuesAreValid(List<String> filterValues ){
-        if(filterValues == null || filterValues.isEmpty()){
+
+    private boolean filterValuesAreValid(List<String> filterValues) {
+        if (filterValues == null || filterValues.isEmpty()) {
             return false;
         }
 
         for (String filterValue : filterValues) {
-            if(filterValue == null || filterValue.isEmpty()){
+            if (filterValue == null || filterValue.isEmpty()) {
                 return false;
             }
         }

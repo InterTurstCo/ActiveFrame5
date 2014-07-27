@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.FillParentOnAddConfig;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserUpdaterContext;
 
@@ -37,7 +37,7 @@ public class HierarchyBrowserDomainObjectUpdater implements DomainObjectUpdater 
     private Id getIdFromCollection(Id idToReferWith, FillParentOnAddConfig fillParentOnAddConfig) {
         String collection = fillParentOnAddConfig.getCollection();
         String filterByParentId = fillParentOnAddConfig.getFilterByParentId();
-        Filter referenceFilter = FilterBuilder.prepareReferenceFilter(idToReferWith, filterByParentId);
+        Filter referenceFilter = FilterBuilderUtil.prepareReferenceFilter(idToReferWith, filterByParentId);
         List<Filter> filters = new ArrayList<>();
         filters.add(referenceFilter);
         IdentifiableObjectCollection identifiableObjects = collectionsService.findCollection(collection, null, filters);

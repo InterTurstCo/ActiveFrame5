@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-        xmlns:act="https://cm5.intertrust.ru/config/action">
+               xmlns:act="https://cm5.intertrust.ru/config/action">
     <domain-object-type name="country" initial-status="Active">
         <fields>
             <string name="name" length="128"/>
@@ -9,7 +9,7 @@
             <long name="population"/>
             <boolean name="is_country_rich"/>
             <decimal name="square" precision="15" scale="2"/>
-            <reference name="capital" type="city" />
+            <reference name="capital" type="city"/>
             <reference name="most_famous_city" type="city"/>
             <reference name="country_union" type="country_union"/>
             <string name="description" length="1024"/>
@@ -265,7 +265,9 @@
                         <tab-group>
                             <table>
                                 <tr>
-                                    <td><widget id = "15" width = "600px"/></td>
+                                    <td>
+                                        <widget id="15" width="600px"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -289,7 +291,7 @@
         <widget-config>
             <label id="1">
                 <field-path value="id"/>
-               <pattern value="{created_date}"/>
+                <pattern value="{created_date}"/>
                 <all-values-empty-message value="empty"/>
                 <formatting>
 
@@ -343,30 +345,30 @@
             <label id="7a">
                 <text>Известный город:</text>
             </label>
-           <!-- <suggest-box id="8a">
-                <field-path value="country_most_famous_city^country.city"/>
-               &lt;!&ndash; <field-path value="most_famous_city"/>&ndash;&gt;
-                &lt;!&ndash; а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;
-                <collection-ref name="Cities"/>
+            <!-- <suggest-box id="8a">
+                 <field-path value="country_most_famous_city^country.city"/>
+                &lt;!&ndash; <field-path value="most_famous_city"/>&ndash;&gt;
+                 &lt;!&ndash; а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;
+                 <collection-ref name="Cities"/>
 
-                &lt;!&ndash; паттерн отображения значений выпадающего списка &ndash;&gt;
-                <drop-down-pattern value="{name} {population}"/>
+                 &lt;!&ndash; паттерн отображения значений выпадающего списка &ndash;&gt;
+                 <drop-down-pattern value="{name} {population}"/>
 
-                &lt;!&ndash; паттерн отображения уже выбранных значений &ndash;&gt;
-                <selection-pattern value="{name} {population} {year_of_foundation}"/>
+                 &lt;!&ndash; паттерн отображения уже выбранных значений &ndash;&gt;
+                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
-                &lt;!&ndash; название фильтра по тексту, введённому пользователем &ndash;&gt;
-                <input-text-filter name="byText"/>
+                 &lt;!&ndash; название фильтра по тексту, введённому пользователем &ndash;&gt;
+                 <input-text-filter name="byText"/>
 
-                &lt;!&ndash; количество элементов, показываемых на одной странице выпадающего списка &ndash;&gt;
-                <page-size>30</page-size>
+                 &lt;!&ndash; количество элементов, показываемых на одной странице выпадающего списка &ndash;&gt;
+                 <page-size>30</page-size>
 
-                &lt;!&ndash;name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
-                    Если тэг отсутствует, то используется "inline"-вариант. &ndash;&gt;
-                <selection-style name="inline"/>
-                <clear-all-button  text="Очистить"/>
-                <display-values-as-links value="true"/>
-            </suggest-box>-->
+                 &lt;!&ndash;name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
+                     Если тэг отсутствует, то используется "inline"-вариант. &ndash;&gt;
+                 <selection-style name="inline"/>
+                 <clear-all-button  text="Очистить"/>
+                 <display-values-as-links value="true"/>
+             </suggest-box>-->
             <suggest-box id="suggest_capital">
                 <field-path value="city^country"/>
 
@@ -388,7 +390,7 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
-                <clear-all-button  text="Очистить"/>
+                <clear-all-button text="Очистить"/>
                 <default-sort-criteria column-field="name" order="asc"/>
             </suggest-box>
 
@@ -471,12 +473,12 @@
                 <text>Города:</text>
             </label>
 
-           <!-- <list-box id="14"> &lt;!&ndash; в поле City.country надо сохранить Id текущей страны??? &ndash;&gt;
-                <field-path value="city^country"/>
-                &lt;!&ndash; редактирует названи&ndash;&gt;
-                <pattern value="{name} ({population} чел.)"/>
-               <single-choice value="true"/>
-            </list-box>-->
+            <!-- <list-box id="14"> &lt;!&ndash; в поле City.country надо сохранить Id текущей страны??? &ndash;&gt;
+                 <field-path value="city^country"/>
+                 &lt;!&ndash; редактирует названи&ndash;&gt;
+                 <pattern value="{name} ({population} чел.)"/>
+                <single-choice value="true"/>
+             </list-box>-->
             <attachment-box id="15">
                 <field-path value="country_attachment^country"/>
                 <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
@@ -494,7 +496,7 @@
                 <collection-view-ref name="cities_default_view"/>
                 <selection-filters>
                     <selection-filter name="byName">
-                        <param name="0" value="Москва"/>
+                        <param type="string" name="0" value="Москва"/>
                     </selection-filter>
                 </selection-filters>
                 <!-- паттерн отображения уже выбранных значений -->
@@ -509,7 +511,7 @@
                 <display-chosen-values value="false"/>
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
-                <clear-all-button  text="Очистить"/>
+                <clear-all-button text="Очистить"/>
                 <add-button image="..." text="..."/>
 
                 <display-values-as-links value="true"/>
@@ -745,23 +747,27 @@
     <collection-view name="countries_default_view" collection="Countries" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
-            <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName" min-width="300px" text-break-style="cut"/>
-            <column field="independence_day" name="День Независимости" type="datetime" editable="false" resizable="true" min-width="270px"
-                    sortable="true" search-filter="byIndependenceDay" date-pattern="dd.MM.yyyy" time-pattern="hh:mmТ" date-range="true"/>
+            <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName"
+                    min-width="300px" text-break-style="cut"/>
+            <column field="independence_day" name="День Независимости" type="datetime" editable="false" resizable="true"
+                    min-width="270px"
+                    sortable="true" search-filter="byIndependenceDay" date-pattern="dd.MM.yyyy" time-pattern="hh:mmТ"
+                    date-range="true"/>
             <column field="population" name="Популяция" type="long" editable="false" sortable="true"
                     search-filter="byPopulation">
-                <renderer component-name="default.image.renderer" />
+                <renderer component-name="default.image.renderer"/>
                 <image-mappings>
-                    <mapping value="" image="cancel.png" />
-                    <mapping value="0" image="addButton.png" />
-                    <mapping value="45469800" image="sign.png" />
-                    <mapping value="143548980" image="CMJSpinner.gif" />
+                    <mapping value="" image="cancel.png"/>
+                    <mapping value="0" image="addButton.png"/>
+                    <mapping value="45469800" image="sign.png"/>
+                    <mapping value="143548980" image="CMJSpinner.gif"/>
                 </image-mappings>
             </column>
             <column field="country_union_name" name="Состоит" type="string" editable="false" sortable="false"/>
             <column field="description" name="Описание" type="string" editable="false" sortable="true"
                     search-filter="byDescription"/>
-            <column field="square" name="Площадь" type="string" editable="false" sortable="true" search-filter="bySquare"/>
+            <column field="square" name="Площадь" type="string" editable="false" sortable="true"
+                    search-filter="bySquare"/>
         </display>
     </collection-view>
 

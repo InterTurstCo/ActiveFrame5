@@ -9,9 +9,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -34,7 +35,10 @@ import java.util.regex.Matcher;
 public class SuggestBoxHandler extends ListWidgetHandler {
 
     @Autowired
-    CollectionsService collectionsService;
+    private CollectionsService collectionsService;
+
+    @Autowired
+    private FilterBuilder filterBuilder;
 
     @Override
     public SuggestBoxState getInitialState(WidgetContext context) {
@@ -49,10 +53,10 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
             List<Filter> filters = new ArrayList<Filter>();
             Set<Id> idsIncluded = new HashSet<Id>(selectedIds);
-            Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, FilterBuilder.INCLUDED_IDS_FILTER);
+            Filter idsIncludedFilter = FilterBuilderUtil.prepareFilter(idsIncluded, FilterBuilderUtil.INCLUDED_IDS_FILTER);
             filters.add(idsIncludedFilter);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            boolean hasSelectionFilters = FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+            boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == 0;
             IdentifiableObjectCollection collection = noLimit
@@ -81,7 +85,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         List<Filter> filters = new ArrayList<>();
 
         if (!suggestionRequest.getExcludeIds().isEmpty()) {
-            filters.add(FilterBuilder.prepareFilter(suggestionRequest.getExcludeIds(), FilterBuilder.EXCLUDED_IDS_FILTER));
+            filters.add(FilterBuilderUtil.prepareFilter(suggestionRequest.getExcludeIds(), FilterBuilderUtil.EXCLUDED_IDS_FILTER));
         }
 
         filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));

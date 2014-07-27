@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 
 /**
  * Перечисление типов полей доменных объектов, реализованных в системе.
@@ -8,7 +9,6 @@ import ru.intertrust.cm.core.business.api.dto.util.ListValue;
  * @author apirozhkov
  */
 public enum FieldType {
-
     STRING(StringValue.class),
     TEXT(StringValue.class),
     LONG(LongValue.class),
@@ -43,7 +43,7 @@ public enum FieldType {
      * @param clazz Класс &mdash; потомок {@link Value}
      * @return константа, определяющая тип поля
      * @throws IllegalArgumentException если для заданного класса не определена константа типа поля
-     * @throws NullPointerException если параметр равен null
+     * @throws NullPointerException     если параметр равен null
      */
     public static FieldType find(Class<? extends Value> clazz) {
         for (FieldType type : FieldType.class.getEnumConstants()) {
@@ -52,5 +52,35 @@ public enum FieldType {
             }
         }
         throw new IllegalArgumentException("Unknown field value class: " + clazz.getName());
+    }
+
+    public static FieldType forTypeName(String typeName) {
+        switch (typeName) {
+            case ModelConstants.STRING_TYPE:
+                return STRING;
+            case ModelConstants.TEXT_TYPE:
+                return TEXT;
+            case ModelConstants.LONG_TYPE:
+                return LONG;
+            case ModelConstants.BOOLEAN_TYPE:
+                return BOOLEAN;
+            case ModelConstants.DECIMAL_TYPE:
+                return DECIMAL;
+            case ModelConstants.DATE_TIME_WITH_TIME_ZONE_TYPE:
+                return DATETIMEWITHTIMEZONE;
+            case ModelConstants.DATE_TIME_TYPE:
+                return DATETIME;
+            case ModelConstants.TIMELESS_DATE_TYPE:
+                return TIMELESSDATE;
+            case ModelConstants.REFERENCE_TYPE:
+                return REFERENCE;
+            case ModelConstants.PASSWORD_TYPE:
+                return PASSWORD;
+            case ModelConstants.LIST_TYPE:
+                return LIST;
+            default:
+                throw new IllegalArgumentException("Unsupported Field Type: " + typeName);
+        }
+
     }
 }

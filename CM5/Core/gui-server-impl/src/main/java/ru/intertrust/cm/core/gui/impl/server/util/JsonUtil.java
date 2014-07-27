@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
-import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
@@ -10,7 +9,6 @@ import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.*;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,32 +20,6 @@ import java.util.Map;
  *         Time: 16:15
  */
 public class JsonUtil {
-    public static List<Filter> prepareFilters(List<JsonColumnProperties> jsonPropertiesList,
-                                              Map<String, CollectionColumnProperties> columnPropertiesMap,
-                                              JsonInitialFilters jsonInitialFilters) throws ParseException {
-        List<Filter> filters = new ArrayList<>();
-        List<String> excludedFilterFields = new ArrayList<>();
-
-        for (JsonColumnProperties jsonProperties : jsonPropertiesList) {
-            List<String> filterValues = jsonProperties.getFilterValues();
-            String fieldName = jsonProperties.getFieldName();
-            CollectionColumnProperties columnProperties = columnPropertiesMap.get(fieldName);
-            if (filterValues!= null && filterValues.size() > 0) {
-                Filter filter = FilterBuilder.prepareSearchFilter(filterValues, columnProperties);
-                filters.add(filter);
-                excludedFilterFields.add(fieldName);
-            } else {
-                List<String> initialFilterValues = (List<String>) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
-                if (initialFilterValues != null) {
-                    excludedFilterFields.add(fieldName);
-                }
-            }
-        }
-        InitialFiltersConfig initialFiltersConfig = convertToInitialFiltersConfig(jsonInitialFilters);
-        FilterBuilder.prepareInitialFilters(initialFiltersConfig, excludedFilterFields, filters);
-        return filters;
-    }
-
 
     private static CollectionColumnProperties convertToColumnProperties(JsonColumnProperties jsonProperties) {
         CollectionColumnProperties properties = new CollectionColumnProperties();
@@ -102,7 +74,7 @@ public class JsonUtil {
 
     }
 
-    private static InitialFiltersConfig convertToInitialFiltersConfig(JsonInitialFilters jsonInitialFilters) {
+    public static InitialFiltersConfig convertToInitialFiltersConfig(JsonInitialFilters jsonInitialFilters) {
         if (jsonInitialFilters == null) {
             return null;
         }

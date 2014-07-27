@@ -1,34 +1,26 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
+
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -41,6 +33,9 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
     @Autowired
     CollectionsService collectionsService;
 
+    @Autowired
+    private FilterBuilder filterBuilder;
+
     @Override
     public TableBrowserState getInitialState(WidgetContext context) {
         TableBrowserState state = new TableBrowserState();
@@ -52,13 +47,13 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         LinkedHashMap<Id, String> listValues = null;
         if (!selectedIds.isEmpty()) {
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
-            Filter includeIds = FilterBuilder.prepareFilter(selectedIdsSet, FilterBuilder.INCLUDED_IDS_FILTER);
+            Filter includeIds = FilterBuilderUtil.prepareFilter(selectedIdsSet, FilterBuilderUtil.INCLUDED_IDS_FILTER);
             List<Filter> filters = new ArrayList<>();
             filters.add(includeIds);
             DefaultSortCriteriaConfig defaultSortCriteriaConfig = widgetConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            boolean hasSelectionFilters = FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+            boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == 0;
             IdentifiableObjectCollection collection = noLimit
@@ -86,14 +81,14 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
     public WidgetItemsResponse fetchTableBrowserItems(Dto inputParams) {
         WidgetItemsRequest widgetItemsRequest = (WidgetItemsRequest) inputParams;
         List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
-        Filter includeIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);
+        Filter includeIds = FilterBuilderUtil.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilderUtil.INCLUDED_IDS_FILTER);
         List<Filter> filters = new ArrayList<>();
         filters.add(includeIds);
         String collectionName = widgetItemsRequest.getCollectionName();
         DefaultSortCriteriaConfig defaultSortCriteriaConfig = widgetItemsRequest.getDefaultSortCriteriaConfig();
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
         SelectionFiltersConfig selectionFiltersConfig = widgetItemsRequest.getSelectionFiltersConfig();
-        boolean selectionFiltersWereApplied = FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        boolean selectionFiltersWereApplied = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
         boolean hasLostItems = false;

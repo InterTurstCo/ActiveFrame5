@@ -1,19 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.*;
 import static ru.intertrust.cm.core.gui.impl.server.util.DateUtil.prepareDateTimeWithTimeZone;
 import static ru.intertrust.cm.core.gui.impl.server.util.DateUtil.prepareTimeZone;
 
@@ -22,12 +19,9 @@ import static ru.intertrust.cm.core.gui.impl.server.util.DateUtil.prepareTimeZon
  *         Date: 16.01.14
  *         Time: 13:15
  */
-public class FilterBuilder {
+public class FilterBuilderUtil {
     public static final String EXCLUDED_IDS_FILTER = "idsExcluded";
     public static final String INCLUDED_IDS_FILTER = "idsIncluded";
-    private static final String TIMELESS_DATE_TYPE = "timelessDate";
-    private static final String DATE_TIME_TYPE = "datetime";
-    private static final String DATE_TIME_WITH_TIME_ZONE_TYPE = "dateTimeWithTimeZone";
 
     public static Filter prepareFilter(Set<Id> ids, String type) {
         List<ReferenceValue> idsCriterion = new ArrayList<>();
@@ -62,22 +56,21 @@ public class FilterBuilder {
             case DATE_TIME_WITH_TIME_ZONE_TYPE:
                 prepareDateTimeWithTimeZoneFilter(filter, filterValues, columnProperties);
                 break;
+            case LONG_TYPE:
+                prepareLongFilter(filter, filterValues);
+                break;
+            case DECIMAL_TYPE:
+                prepareDecimalFilter(filter, filterValues);
+                break;
+            case BOOLEAN_TYPE:
+                prepareBooleanFilter(filter, filterValues);
+                break;
             default:
-                prepareTextFilter(filter, filterValues);
+                prepareStringFilter(filter, filterValues);
                 break;
         }
 
         return filter;
-    }
-
-    public static void prepareInitialFilters(InitialFiltersConfig initialFiltersConfig, List<String> excludedInitialFilterNames,
-                                             List<Filter> filters) {
-        prepareInitialOrSelectionFilters(initialFiltersConfig, excludedInitialFilterNames, filters);
-    }
-
-    public static boolean prepareSelectionFilters(SelectionFiltersConfig selectionFiltersConfig, List<String> excludedInitialFilterNames,
-                                               List<Filter> filters) {
-       return prepareInitialOrSelectionFilters(selectionFiltersConfig, excludedInitialFilterNames, filters);
     }
 
 
@@ -191,12 +184,49 @@ public class FilterBuilder {
         return patternBuilder.toString();
     }
 
-    private static void prepareTextFilter(Filter filter, List<String> filterValues) {
+    private static void prepareStringFilter(Filter filter, List<String> filterValues) {
         for (int i = 0; i < filterValues.size(); i++) {
             String filterValue = filterValues.get(i);
             if (!"".equalsIgnoreCase(filterValue)) {
                 Value value = new StringValue("%" + filterValue + "%");
-                filter.addCriterion(0, value);
+                filter.addCriterion(i, value);
+            }
+
+        }
+
+    }
+
+    private static void prepareLongFilter(Filter filter, List<String> filterValues) {
+        for (int i = 0; i < filterValues.size(); i++) {
+            String filterValue = filterValues.get(i);
+            if (!"".equalsIgnoreCase(filterValue)) {
+                Value value = new LongValue(Long.valueOf(filterValue));
+                filter.addCriterion(i, value);
+            }
+
+        }
+
+    }
+
+    private static void prepareDecimalFilter(Filter filter, List<String> filterValues) {
+        for (int i = 0; i < filterValues.size(); i++) {
+            String filterValue = filterValues.get(i);
+            if (!"".equalsIgnoreCase(filterValue)) {
+                Value value = new DecimalValue(new BigDecimal(filterValue));
+                filter.addCriterion(i, value);
+            }
+
+        }
+
+    }
+
+    private static void prepareBooleanFilter(Filter filter, List<String> filterValues) {
+        for (int i = 0; i < filterValues.size(); i++) {
+            String filterValue = filterValues.get(i);
+            if (!"".equalsIgnoreCase(filterValue)) {
+                Value value = new BooleanValue(filterValue == null || filterValue.isEmpty() ? null
+                        : "true".equals(filterValue));
+                filter.addCriterion(i, value);
             }
 
         }
@@ -253,40 +283,6 @@ public class FilterBuilder {
         }
 
 
-    }
-
-    private static boolean prepareInitialOrSelectionFilters(AbstractFiltersConfig abstractFiltersConfig, List<String> excludedInitialFilterNames,
-                                                         List<Filter> filters) {
-        if (abstractFiltersConfig == null) {
-            return false;
-        }
-        List<AbstractFilterConfig> abstractFilterConfigs = abstractFiltersConfig.getAbstractFilterConfigs();
-        if (abstractFilterConfigs != null && !abstractFilterConfigs.isEmpty()) {
-            for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
-                String filterName = abstractFilterConfig.getName();
-                if (excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)) {
-                    Filter initialFilter = prepareInitialOrSelectionFilter(abstractFilterConfig);
-                    filters.add(initialFilter);
-                }
-            } return true;
-        }
-        return false;
-    }
-
-    private static Filter prepareInitialOrSelectionFilter(AbstractFilterConfig abstractFilterConfig) {
-        String filterName = abstractFilterConfig.getName();
-        Filter initFilter = new Filter();
-        initFilter.setFilter(filterName);
-        List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
-        if (paramConfigs != null && !paramConfigs.isEmpty()) {
-            for (ParamConfig paramConfig : paramConfigs) {
-                Integer name = paramConfig.getName();
-                String value = paramConfig.getValue();
-                initFilter.addCriterion(name, new StringValue(value));
-            }
-
-        }
-        return initFilter;
     }
 
 }

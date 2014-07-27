@@ -227,7 +227,7 @@
         <filter name="byPopulation">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    ci.population = {0}
+                    ci.population > {0}
                 ]]>
             </criteria>
         </filter>

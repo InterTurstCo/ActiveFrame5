@@ -1,32 +1,28 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.regex.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetItemsHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -37,8 +33,12 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
 public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
     @Autowired
     protected FormatHandler formatHandler;
+
     @Autowired
     protected CollectionsService collectionsService;
+
+    @Autowired
+    private FilterBuilder filterBuilder;
 
     public LinkedHashMap<Id, String> generateWidgetItemsFromCollection(SelectionPatternConfig selectionPatternConfig,
                                                                        FormattingConfig formattingConfig,
@@ -74,21 +74,21 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
     public WidgetItemsResponse fetchWidgetItems(Dto inputParams) {
         WidgetItemsRequest widgetItemsRequest = (WidgetItemsRequest) inputParams;
         List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
-        Filter includeIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);
+        Filter includeIds = FilterBuilderUtil.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilderUtil.INCLUDED_IDS_FILTER);
         List<Filter> filters = new ArrayList<>();
         filters.add(includeIds);
         String collectionName = widgetItemsRequest.getCollectionName();
         DefaultSortCriteriaConfig defaultSortCriteriaConfig = widgetItemsRequest.getDefaultSortCriteriaConfig();
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
         SelectionFiltersConfig selectionFiltersConfig = widgetItemsRequest.getSelectionFiltersConfig();
-        boolean selectionFiltersWereApplied = FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        boolean selectionFiltersWereApplied = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
         boolean hasLostItems = false;
         if (limit != 0) {
-                collection = collectionsService.findCollection(collectionName, sortOrder, filters, limit,
-                        WidgetConstants.UNBOUNDED_LIMIT); //limit becomes offset for tooltip
-                hasLostItems = collection.size() != (selectedIds.size() - limit);
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters, limit,
+                    WidgetConstants.UNBOUNDED_LIMIT); //limit becomes offset for tooltip
+            hasLostItems = collection.size() != (selectedIds.size() - limit);
 
         } else {
             collection = collectionsService.findCollection(collectionName, sortOrder, filters);

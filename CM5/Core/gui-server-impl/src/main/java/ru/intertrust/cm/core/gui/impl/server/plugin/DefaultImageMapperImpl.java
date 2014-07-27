@@ -1,19 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.MappingConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.DefaultImageMapper;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -48,11 +45,11 @@ public class DefaultImageMapperImpl implements DefaultImageMapper {
 
     private Map<Value, ImagePathValue> initMapDependingOnType(final List<MappingConfig> mappingConfigs,
                                                               final String fieldType) {
-        if (fieldType.equalsIgnoreCase("string")) {
+        if (fieldType.equalsIgnoreCase(ModelConstants.STRING_TYPE)) {
             return initStringValues(mappingConfigs);
-        } else if (fieldType.equalsIgnoreCase("boolean")) {
+        } else if (fieldType.equalsIgnoreCase(ModelConstants.BOOLEAN_TYPE)) {
             return initBooleanValues(mappingConfigs);
-        } else if (fieldType.equalsIgnoreCase("long")) {
+        } else if (fieldType.equalsIgnoreCase(ModelConstants.LONG_TYPE)) {
             return initLongValues(mappingConfigs);
         }
         return null;

@@ -7,10 +7,11 @@ import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
@@ -30,6 +31,9 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     private CollectionsService collectionsService;
+
+    @Autowired
+    private FilterBuilder filterBuilder;
 
     @Override
     public HierarchyBrowserWidgetState getInitialState(WidgetContext context) {
@@ -80,7 +84,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         filters = addIncludeIdsFilter(selectedIds, filters);
         NodeCollectionDefConfig nodeConfig = collectionNameNodeMap.get(collectionName);
         SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
-        FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
         if(limit == 0) {
@@ -164,7 +168,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             DefaultSortCriteriaConfig sortCriteriaConfig = nodeCollectionDefConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
             SelectionFiltersConfig selectionFiltersConfig = nodeCollectionDefConfig.getSelectionFiltersConfig();
-            FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+            filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             IdentifiableObjectCollection collection = collectionsService.
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
 
@@ -195,14 +199,14 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     }
 
     private List<Filter> addParentFilter(Id parentId, String filterByParentName, List<Filter> filters) {
-        Filter parentFilter = FilterBuilder.prepareReferenceFilter(parentId, filterByParentName);
+        Filter parentFilter = FilterBuilderUtil.prepareReferenceFilter(parentId, filterByParentName);
         filters.add(parentFilter);
         return filters;
     }
 
     private List<Filter> addIncludeIdsFilter(List<Id> includedIds, List<Filter> filters) {
         Set<Id> idsIncluded = new HashSet<Id>(includedIds);
-        Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, FilterBuilder.INCLUDED_IDS_FILTER);
+        Filter idsIncludedFilter = FilterBuilderUtil.prepareFilter(idsIncluded, FilterBuilderUtil.INCLUDED_IDS_FILTER);
         filters.add(idsIncludedFilter);
         return filters;
     }

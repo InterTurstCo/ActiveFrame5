@@ -9,11 +9,12 @@ import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -36,6 +37,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     CollectionsService collectionsService;
+
+    @Autowired
+    private FilterBuilder filterBuilder;
 
     @Override
     public LinkedDomainObjectsTableState getInitialState(WidgetContext context) {
@@ -70,8 +74,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                                                    List<Id> selectedIds, boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
-        FilterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
-        Filter includedIds = FilterBuilder.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilder.INCLUDED_IDS_FILTER);
+        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        Filter includedIds = FilterBuilderUtil.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilderUtil.INCLUDED_IDS_FILTER);
         filters.add(includedIds);
 
         String collectionName = widgetConfig.getCollectionRefConfig().getName();

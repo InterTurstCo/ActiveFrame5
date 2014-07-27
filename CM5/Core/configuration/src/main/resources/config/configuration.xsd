@@ -1676,6 +1676,7 @@
     <xs:complexType name="paramType">
         <xs:attribute name="name" use="required" type="xs:integer"/>
         <xs:attribute name="value" use="required" type="xs:string"/>
+        <xs:attribute name="type" use="required" type="con:columnFieldTypeEnum"/>
     </xs:complexType>
 
     <xs:complexType name="filterPanelType">
@@ -2293,7 +2294,20 @@
         <xs:attribute type="xs:boolean" name="date-range" use="optional"/>
 
     </xs:complexType>
-
+    <xs:simpleType name="columnFieldTypeEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="integer"/>
+            <xs:enumeration value="string"/>
+            <xs:enumeration value="boolean"/>
+            <xs:enumeration value="text"/>
+            <xs:enumeration value="datetime"/>
+            <xs:enumeration value="dateTimeWithTimeZone"/>
+            <xs:enumeration value="timelessDate"/>
+            <xs:enumeration value="reference"/>
+            <xs:enumeration value="long"/>
+            <xs:enumeration value="decimal"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="mappingType">
         <xs:attribute type="xs:string" name="value"/>
         <xs:attribute type="xs:string" name="image"/>
