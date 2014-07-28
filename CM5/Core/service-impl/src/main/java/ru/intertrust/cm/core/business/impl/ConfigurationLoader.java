@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
@@ -12,6 +14,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
  * @author vmatsukevich Date: 5/6/13 Time: 9:36 AM
  */
 public class ConfigurationLoader {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationLoader.class);
 
     @Autowired
     private ConfigurationLoadService configurationLoadService;
@@ -70,19 +73,24 @@ public class ConfigurationLoader {
      * @throws Exception
      */
     public void update() throws Exception {
-        configurationLoadService.updateConfiguration();
+        try {
+            configurationLoadService.updateConfiguration();
 
-        // Вызов точки расширения
-        if (springApplicationContext.getContext() != null) {
-            ExtensionService extensionService = springApplicationContext.getContext()
-                    .getBean(ExtensionService.class);
-            OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(
-                    OnLoadConfigurationExtensionHandler.class, null);
-            extension.onLoad();
+            // Вызов точки расширения
+            if (springApplicationContext.getContext() != null) {
+                ExtensionService extensionService = springApplicationContext.getContext()
+                        .getBean(ExtensionService.class);
+                OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(
+                        OnLoadConfigurationExtensionHandler.class, null);
+                extension.onLoad();
+            }
+
+            //Установка флага загруженности конфигурации
+            configurationLoaded = true;
+        } catch (Throwable throwable) {
+            logger.error("Unexpected exception", throwable);
+            throw throwable;
         }
-
-        //Установка флага загруженности конфигурации
-        configurationLoaded = true;
     }
     
     /**
