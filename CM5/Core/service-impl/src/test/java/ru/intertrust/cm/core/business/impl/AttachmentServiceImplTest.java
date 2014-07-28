@@ -64,8 +64,10 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class AttachmentServiceImplTest {
 
+    private static final String ATTACHMENT_SERVICE_RMI_NAME = "AttachmentServiceRmi";
     static private final String TEST_OUT_DIR = System.getProperty("test.cnf.testOutDir");
     static private final int PORT_RMI = Integer.parseInt(System.getProperty("test.cnf.portRmi"));
+
     private static final int BUF_SIZE = 0x1000;
     private static String absDirPath;
     private static Long suffix;
@@ -250,6 +252,7 @@ public class AttachmentServiceImplTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+        System.out.println("RMI_PORT used: " + PORT_RMI);
         suffix = 0l;
         absDirPath = Paths.get(TEST_OUT_DIR, "/AttachmentServiceImplTest").toAbsolutePath().toString();
         File dir = new File(absDirPath);
@@ -265,19 +268,22 @@ public class AttachmentServiceImplTest {
             Registry registry = LocateRegistry.createRegistry(PORT_RMI);
             serviceRmi = new AttachmentServiceRmiImpl();
             serviceRmi.setAttachmentService(attachmentService);
-            registry.rebind("AttachmentServiceRmi", UnicastRemoteObject.exportObject(serviceRmi, 0));
-            stubAttachmentService = (AttachmentServiceRmi) LocateRegistry.getRegistry(PORT_RMI).lookup("AttachmentServiceRmi");
+            registry.rebind(ATTACHMENT_SERVICE_RMI_NAME, UnicastRemoteObject.exportObject(serviceRmi, 0));
+            stubAttachmentService = (AttachmentServiceRmi) LocateRegistry.getRegistry(PORT_RMI).lookup(ATTACHMENT_SERVICE_RMI_NAME);
         }
     }
 
-    @After
-    public void setDown() throws RemoteException, NotBoundException {
-        //UnicastRemoteObject.unexportObject(serviceRmi, true);
+    @AfterClass
+    public static void setDownRmi() throws RemoteException, NotBoundException {    
+        Registry registry = LocateRegistry.getRegistry(PORT_RMI);
+        registry.unbind(ATTACHMENT_SERVICE_RMI_NAME);
+        System.out.println("Unbound AttachmentServiceRmi");
+        UnicastRemoteObject.unexportObject(serviceRmi, true);
+
     }
 
     @Autowired
     private AttachmentService attachmentService;
-
 
     public interface AttachmentServiceRmi extends Remote {
         String saveAttachment(RemoteInputStream inputStream, DomainObject domainObject) throws RemoteException;
