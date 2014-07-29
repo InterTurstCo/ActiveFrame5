@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -36,6 +37,9 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
 
     @Autowired
     private CrudService crudService;
+
+    @Autowired
+    private PersonManagementService personManagementService;
 
     private FormsCache editingFormsCache;
     private FormsCache searchFormsCache;
@@ -99,6 +103,19 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         }
 
         // todo define strategy of finding a form by role. which role? context role? or may be a static group?
+        List<DomainObject> userGroups = personManagementService.getPersonGroups(personManagementService.getPersonId(userUid));
+        for (DomainObject userGroup : userGroups) {
+            List<Pair<FormConfig, Integer>> groupFormConfigs = cache.getRoleFormConfigs(userGroup.getString("group_name"), targetTypeName);
+            if (groupFormConfigs != null && groupFormConfigs.size() != 0) {
+                if (groupFormConfigs.size() > 1) {
+                    log.warn("There's " + groupFormConfigs.size()
+                            + " forms defined for Domain Object Type: " + targetTypeName + " and User: " + userUid);
+                    //TODO: priorities
+                }
+                return groupFormConfigs.get(0).getFirst();
+            }
+        }
+
         List<FormConfig> allFormConfigs = cache.getAllFormConfigs(targetTypeName);
         if (allFormConfigs == null || allFormConfigs.size() == 0) {
             log.warn("There's no default form defined for Domain Object Type: " + targetTypeName);
@@ -135,7 +152,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
     private class FormsCache {
         private CaseInsensitiveHashMap<FormConfig> defaultFormByDomainObjectType;
         private CaseInsensitiveHashMap<List<FormConfig>> allFormsByDomainObjectType;
-        private HashMap<Pair<String, String>, List<FormConfig>> formsByRoleAndDomainObjectType;
+        private HashMap<Pair<String, String>, List<Pair<FormConfig, Integer>>> formsByRoleAndDomainObjectType;
         private HashMap<Pair<String, String>, List<FormConfig>> formsByUserAndDomainObjectType;
 
 
@@ -202,7 +219,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
             return allFormsByDomainObjectType.get(targetTypeName);
         }
 
-        private List<FormConfig> getRoleFormConfigs(String roleName, String domainObjectType) {
+        private List<Pair<FormConfig, Integer>> getRoleFormConfigs(String roleName, String domainObjectType) {
             return formsByRoleAndDomainObjectType.get(new Pair<>(roleName, domainObjectType));
         }
 
@@ -237,12 +254,12 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
             for (RoleConfig roleConfig : roleConfigs) {
                 String roleName = roleConfig.getName();
                 Pair<String, String> roleAndDomainObjectType = new Pair<>(roleName, domainObjectType);
-                List<FormConfig> roleFormConfigs = formsByRoleAndDomainObjectType.get(roleAndDomainObjectType);
+                List<Pair<FormConfig, Integer>> roleFormConfigs = formsByRoleAndDomainObjectType.get(roleAndDomainObjectType);
                 if (roleFormConfigs == null) {
                     roleFormConfigs = new ArrayList<>();
                     formsByRoleAndDomainObjectType.put(roleAndDomainObjectType, roleFormConfigs);
                 }
-                roleFormConfigs.add(formConfig);
+                roleFormConfigs.add(new Pair<>(formConfig, roleConfig.getPriority()));
             }
         }
 

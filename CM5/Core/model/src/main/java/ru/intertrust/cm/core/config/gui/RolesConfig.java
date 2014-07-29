@@ -14,7 +14,7 @@ import java.util.List;
  * Time: 15:33
  * To change this template use File | Settings | File Templates.
  */
-@Root(name = "roles")
+@Root(name = "groups")
 public class RolesConfig implements Dto{
     @ElementList(inline = true)
     private List<RoleConfig> roleConfigList = new ArrayList<RoleConfig>();

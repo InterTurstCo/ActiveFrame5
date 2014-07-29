@@ -1254,7 +1254,7 @@
         <xs:sequence>
             <xs:element type="con:usersType" name="users"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:rolesType" name="roles"
+            <xs:element type="con:rolesType" name="groups"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="domain-object-type"/>
@@ -1336,6 +1336,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="value"/>
+                <xs:attribute type="xs:integer" name="priority"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -1466,6 +1467,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="name"/>
+                <xs:attribute type="xs:integer" name="priority"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -1878,7 +1880,7 @@
     </xs:complexType>
     <xs:complexType name="rolesType">
         <xs:sequence>
-            <xs:element type="con:roleType" name="role"
+            <xs:element type="con:roleType" name="group"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
@@ -2337,7 +2339,7 @@
     <xs:complexType name="collectionMappingType">
         <xs:sequence>
             <xs:element type="con:usersType" name="users"/>
-            <xs:element type="con:rolesType" name="roles"/>
+            <xs:element type="con:rolesType" name="groups"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="collection"/>
         <xs:attribute type="xs:string" name="view"/>

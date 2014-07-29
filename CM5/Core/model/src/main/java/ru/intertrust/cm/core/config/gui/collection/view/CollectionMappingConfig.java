@@ -22,7 +22,7 @@ public class CollectionMappingConfig implements Dto {
     @Element(name = "users")
     private UsersConfig usersConfig;
 
-    @Element(name = "roles")
+    @Element(name = "groups")
     private ru.intertrust.cm.core.config.gui.RolesConfig rolesConfig;
 
     @Override

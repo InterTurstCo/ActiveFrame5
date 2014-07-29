@@ -1077,9 +1077,9 @@
             <users>
                 <user uid="admin"/>
             </users>
-            <roles>
-                <role name="Minister"/>
-            </roles>
+            <groups>
+                <group name="Minister"/>
+            </groups>
         </form-mapping>
 
     </form-mappings>
@@ -1088,9 +1088,9 @@
             <users>
                 <user uid="admin"/>
             </users>
-            <roles>
-                <role name="Minister"/>
-            </roles>
+            <groups>
+                <group name="Minister"/>
+            </groups>
         </form-mapping>
     </form-mappings>
     <form-mappings name="SO_Parent_SU_Mapping">
@@ -1098,9 +1098,9 @@
             <users>
                 <user uid="admin"/>
             </users>
-            <roles>
-                <role name="Minister"/>
-            </roles>
+            <groups>
+                <group name="Minister"/>
+            </groups>
         </form-mapping>
     </form-mappings>
     <form-mappings name="SS_Module_Mapping">
@@ -1108,9 +1108,9 @@
             <users>
                 <user uid="admin"/>
             </users>
-            <roles>
-                <role name="Minister"/>
-            </roles>
+            <groups>
+                <group name="Minister"/>
+            </groups>
         </form-mapping>
     </form-mappings>
     <form-mappings name="SS_ModuleType_Mapping">
@@ -1118,9 +1118,9 @@
             <users>
                 <user uid="admin"/>
             </users>
-            <roles>
-                <role name="Minister"/>
-            </roles>
+            <groups>
+                <group name="Minister"/>
+            </groups>
         </form-mapping>
     </form-mappings>
     <collection name="SO_StructureUnit_Collection" idField="id">

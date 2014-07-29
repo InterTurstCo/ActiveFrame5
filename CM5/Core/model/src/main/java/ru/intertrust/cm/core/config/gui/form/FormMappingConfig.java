@@ -23,7 +23,7 @@ public class FormMappingConfig implements Dto {
     @Element(name = "users")
     private UsersConfig usersConfig;
 
-    @Element(name = "roles")
+    @Element(name = "groups")
     private RolesConfig rolesConfig;
 
     public UsersConfig getUsersConfig() {

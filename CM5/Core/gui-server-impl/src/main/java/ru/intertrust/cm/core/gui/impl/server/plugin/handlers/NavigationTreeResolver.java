@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.gui.UserConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
+import sun.net.www.content.audio.x_aiff;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -129,9 +130,18 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
             if (groupConfigs == null || groupConfigs.size() == 0) {
                 return;
             }
+            int maxPriority = Integer.MIN_VALUE;
+            String maxPriorityGroupName = null;
             for (GroupConfig groupConfig : groupConfigs) {
                 String groupName = groupConfig.getName();
-                navigationsByUserGroup.put(groupName, navigationPanelMappingName);
+                int priority = groupConfig.getPriority() != null ? groupConfig.getPriority() : 0;
+                if (priority > maxPriority) {
+                    maxPriority = priority;
+                    maxPriorityGroupName = groupName;
+                }
+            }
+            if (maxPriorityGroupName != null) {
+                navigationsByUserGroup.put(maxPriorityGroupName, navigationPanelMappingName);
             }
         }
     }
@@ -160,16 +170,19 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
     public NavigationConfig getNavigationPanel(String currentUser) {
         NavigationConfig navConfig = null;
         if (currentUser != null && !currentUser.isEmpty()) {
-            navConfig = getNavigationPanelByUser(currentUser);
-        } else {
-
+            navConfig = configurationExplorer.getConfig(NavigationConfig.class,
+                    navigationPanelsCache.navigationsByUser.get(currentUser));
+        }
+        if (navConfig == null) {
             List<DomainObject> userGroups = personManagementService.getPersonGroups(personManagementService.getPersonId(currentUser));
-
             for (DomainObject userGroup : userGroups) {
-                navConfig = getNavigationPanelByUserGroup(userGroup.getTypeName());
+                navConfig = getNavigationPanelByUserGroup(userGroup.getString("group_name"));
                 if (navConfig != null)
                     break;
             }
+        }
+        if (navConfig == null) {
+            navConfig = navigationPanelsCache.getDefaultNavigationPanel();
         }
         return navConfig;
     }

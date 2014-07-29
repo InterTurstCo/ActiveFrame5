@@ -797,9 +797,9 @@
             <users>
                 <user uid="admin"/>
             </users>
-            <roles>
-                <role name="Minister"/>
-            </roles>
+            <groups>
+                <group name="Administrators"/>
+            </groups>
         </form-mapping>
     </form-mappings>
 
@@ -808,9 +808,9 @@
             <users>
                 <user uid="admin"/>
             </users>
-            <roles>
-                <role name="Minister"/>
-            </roles>
+            <groups>
+                <group name="Minister" priority="100"/>
+            </groups>
         </form-mapping>
     </form-mappings>
 

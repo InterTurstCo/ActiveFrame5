@@ -42,9 +42,9 @@
             <users>
                 <user uid="admin"/>
             </users>
-            <roles>
-                <role name="Minister"/>
-            </roles>
+            <groups>
+                <group name="Minister"/>
+            </groups>
         </form-mapping>
     </form-mappings>
 </configuration>

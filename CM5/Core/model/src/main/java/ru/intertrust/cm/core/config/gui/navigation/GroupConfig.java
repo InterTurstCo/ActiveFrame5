@@ -12,6 +12,9 @@ public class GroupConfig implements Dto {
     @Attribute(name = "value")
     private String value;
 
+    @Attribute(name = "priority", required = false)
+    private Integer priority;
+
     public String getName() {
         return value;
     }
@@ -20,20 +23,36 @@ public class GroupConfig implements Dto {
         this.value = value;
     }
 
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         GroupConfig that = (GroupConfig) o;
-
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
-
+        if (priority != null ? !priority.equals(that.priority) : that.priority != null) {
+            return false;
+        }
+        if (value != null ? !value.equals(that.value) : that.value != null) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        int result = value != null ? value.hashCode() : 0;
+        result = 31 * result + (priority != null ? priority.hashCode() : 0);
+        return result;
     }
 }

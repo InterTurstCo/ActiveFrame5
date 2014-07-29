@@ -9,10 +9,13 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
-@Root(name = "role")
+@Root(name = "group")
 public class RoleConfig implements Dto {
     @Attribute(name = "name")
     private String name;
+
+    @Attribute(name = "priority", required = false)
+    private Integer priority;
 
     public String getName() {
         return name;
@@ -20,6 +23,14 @@ public class RoleConfig implements Dto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 
     @Override
@@ -30,18 +41,21 @@ public class RoleConfig implements Dto {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         RoleConfig that = (RoleConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-
+        if (priority != null ? !priority.equals(that.priority) : that.priority != null) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (priority != null ? priority.hashCode() : 0);
+        return result;
     }
 }

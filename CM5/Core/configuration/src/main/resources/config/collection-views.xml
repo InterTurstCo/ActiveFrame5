@@ -19,9 +19,9 @@
             <users>
                 <user uid="admin" />
             </users>
-            <roles>
-                <role name="Minister" />
-            </roles>
+            <groups>
+                <group name="Minister" />
+            </groups>
         </collection-mapping>
     </collection-mappings>
 </configuration>

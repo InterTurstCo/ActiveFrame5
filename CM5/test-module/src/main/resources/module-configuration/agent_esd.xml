@@ -539,9 +539,9 @@
             <users>
                 <user uid="admin" />
             </users>
-            <roles>
-                <role name="Agent_Esd_Editor" />
-            </roles>
+            <groups>
+                <group name="Agent_Esd_Editor" />
+            </groups>
         </form-mapping>
     </form-mappings>
     
