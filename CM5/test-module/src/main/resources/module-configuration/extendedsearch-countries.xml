@@ -4,6 +4,13 @@
           min-width="500px" is-default = "true">
         <markup>
             <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="1"/>
+                        </td>
+                    </tr>
+                </table>
             </header>
             <body display-single-tab="false">
                 <tab name="">

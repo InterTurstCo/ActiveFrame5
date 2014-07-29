@@ -104,7 +104,7 @@
             <header>
                 <table>
                     <tr>
-                        <td width="100px" h-align="righ">
+                        <td width="100px" h-align="right">
                             <widget id="a_name1_label"/>
                         </td>
                         <td width="100%" h-align="left">
@@ -393,7 +393,7 @@
             <header>
                 <table>
                     <tr>
-                        <td width="100px" h-align="righ">
+                        <td width="100px" h-align="right">
                             <widget id="f_name1_label"/>
                         </td>
                         <td width="100%" h-align="left">

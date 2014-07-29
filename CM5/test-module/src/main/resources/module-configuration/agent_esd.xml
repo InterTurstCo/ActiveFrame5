@@ -610,7 +610,7 @@
             <header>
                 <table>                                        
                     <tr><td><widget id="header"/></td></tr>
-                    <tr><td><widget id="codeV"/></td></tr>
+                    <!-- <tr><td><widget id="codeV"/></td></tr> -->
                      <tr>                                         
                         <td><widget id="record_stateV"/></td>
                     </tr>    
@@ -795,14 +795,14 @@
                 <display-values-as-links value="true"/>
             </hierarchy-browser> 
             
-            <label id="codeV">
-                <field-path value="code"/>              
+       <!--     <label id="codeV">
+                <field-path value="code"/>
                 <pattern value="Код: {code}"/>
                 <font-weight value="normal"/>
                 <font-style value="normal"/>
                 <font-size value="12px"/>
-             </label>   
-                                          
+             </label>
+           -->
         </widget-config>
     </form>
     
@@ -925,9 +925,10 @@
                                 </tr> -->
                                 <tr>                                    
                                     <td h-align="left">                                     
-                                        <widget width="100%" id= "hierarchy_contact_name"/> 
+                                        <!--<widget width="100%" id= "hierarchy_contact_name"/> -->
+                                        <widget width="100%" id= "name-Label"/>
                                      </td>                                                           
-                                </tr>                                                              
+                                </tr>
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -937,11 +938,12 @@
                     <single-entry-group>
                         <tab-group>
                             <table>
-                                <tr>                                    
+                                <tr>
                                     <td h-align="left">                                     
-                                        <widget width="100%" id= "table_esd"/>                                      
+                                        <!--<widget width="100%" id= "table_esd"/>-->
+                                        <widget width="100%" id= "name-Label"/>
                                     </td> 
-                                </tr>                                                              
+                                </tr>
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -990,7 +992,7 @@
                 <field-path/>
                 <text>Состояние записи:</text>
              </label>               
-             <suggest-box id="record_state">                
+             <!--<suggest-box id="record_state">
                 <field-path value="record_state"/>                              
                 <collection-ref name="col_record_state"/>                
                 <drop-down-pattern value="{description}"/>
@@ -998,7 +1000,7 @@
                 <input-text-filter name="byText"/>
                 <page-size>30</page-size>
                 <selection-style name="inline"/>
-            </suggest-box>
+            </suggest-box>-->
             
              <label id="record_stateV">
                 <field-path value="record_state, record_state.description"/>

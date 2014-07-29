@@ -3,6 +3,13 @@
     <form name="extendedsearch_form" domain-object-type="Employee" type="search" debug="false" min-width="500px" is-default = "true">
         <markup>
             <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="1"/>
+                        </td>
+                    </tr>
+                </table>
             </header>
             <body display-single-tab="false">
                 <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->

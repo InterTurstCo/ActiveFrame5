@@ -210,7 +210,8 @@
                                         <widget id="addressees_label"/>
                                     </td>
                                     <td h-align="left">
-                                        <widget id="addressees"/>
+                                        <widget id="addressees_label"/>
+                                        <!--<widget id="addressees"/>-->
                                     </td>
                                 </tr>
                                 <tr>

@@ -169,7 +169,8 @@
                                         <widget id="2"/>
                                     </td>
                                     <td>
-                                        <widget id="3" width="600px"/>
+                                        <!--<widget id="3" width="600px"/>-->
+                                        <widget id="test"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -178,7 +179,8 @@
                                         <widget id="4" width="200px"/>
                                     </td>
                                     <td>
-                                        <widget id="5" width="600px"/>
+                                        <!--<widget id="5" width="600px"/>-->
+                                        <widget id="test"/>
                                     </td>
                                 </tr>
 
@@ -207,17 +209,21 @@
 
                 <text>Код:</text>
             </label>
-            <text-box id="3">
+            <!-- <text-box id="3">
                 <field-path value="Code"/>
-            </text-box>
+            </text-box> -->
 
             <!--IsCodeNumIndex-->
             <label id="4">
                 <text>Код является номенклатурным индексом:</text>
             </label>
-            <check-box id="5">
+            <!-- <check-box id="5">
                 <field-path value="IsCodeNumIndex"/>
             </check-box>
+            -->
+            <label id="test">
+                <text>TEST</text>
+            </label>
 
         </widget-config>
     </form>
@@ -300,7 +306,8 @@
                                  </tr>-->
                                 <tr>
                                     <td width="100%" h-align="left">
-                                        <widget id="36"/>
+                                        <!--<widget id="36"/>-->
+                                        <widget id="test"/>
                                     </td>
                                 </tr>
 
@@ -356,10 +363,12 @@
                                 <tr>
                                     <!-- для тестов -->
                                     <td h-align="right">
-                                        <widget id="30"/>
+                                        <!--<widget id="30"/>-->
+                                        <widget id="test"/>
                                     </td>
                                     <td width="100%" h-align="left">
-                                        <widget id="31"/>
+                                        <!--<widget id="31"/>-->
+                                        <widget id="test"/>
                                     </td>
                                 </tr>
 
@@ -473,6 +482,10 @@
 
             <label id="32">
                 <text>SO_Parent_SU:</text>
+            </label>
+
+            <label id="test">
+                <text>TEST</text>
             </label>
 
             <linked-domain-objects-table id="SO_Parent_SU">
