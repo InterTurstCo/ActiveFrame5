@@ -12,13 +12,8 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
@@ -30,15 +25,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -151,7 +138,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                         left.setStyleName(event.getStyleForLeftSector());
                         centralDivPanel.setStyleName(event.getStyleForCenterSector());
-                        glEventBus.fireEvent(new PluginPanelSizeChangedEvent());
 
                     }
                 });
@@ -190,12 +176,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         Application.getInstance().showLoadingIndicator();
         PluginConfig pluginConfig = event.getPluginConfig();
         String pluginName = pluginConfig.getComponentName();
-        Plugin plugin = ComponentRegistry.instance.get(pluginName);
+        final Plugin plugin = ComponentRegistry.instance.get(pluginName);
         plugin.setConfig(pluginConfig);
         final HistoryManager manager = Application.getInstance().getHistoryManager();
         manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
                 .setLink(event.getLinkName());
         plugin.setDisplayActionToolBar(true);
+
         centralPluginPanel.open(plugin);
     }
 

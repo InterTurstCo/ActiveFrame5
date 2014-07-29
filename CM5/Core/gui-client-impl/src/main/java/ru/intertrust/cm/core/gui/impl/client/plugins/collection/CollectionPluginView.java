@@ -106,7 +106,7 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    /*This method is invoked when splitter changes position
+    /*This method is invoked when splitter changes position and after initialization of BusinessUniverse
         so we have to check if scroll is visible. If no load more rows
      */
     public void fetchMoreItemsIfRequired() {
@@ -158,6 +158,14 @@ public class CollectionPluginView extends PluginView {
         Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
         root.addStyleName("collection-plugin-view-container");
         addHandlers();
+        final com.google.gwt.user.client.Timer timer = new com.google.gwt.user.client.Timer() {
+            @Override
+            public void run() {
+                fetchMoreItemsIfRequired();
+                this.cancel();
+            }
+        };
+        timer.scheduleRepeating(1000);
         return root;
     }
 
