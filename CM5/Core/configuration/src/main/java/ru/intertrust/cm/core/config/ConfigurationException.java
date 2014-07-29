@@ -10,9 +10,6 @@ import ru.intertrust.cm.core.model.FatalException;
  */
 public class ConfigurationException extends FatalException {
 
-    public ConfigurationException() {
-    }
-
     public ConfigurationException(String message) {
         super(message);
     }

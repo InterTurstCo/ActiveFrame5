@@ -73,7 +73,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         try {
             configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString, false);
             if (configuration == null) {
-                throw new ConfigurationException();
+                throw new ConfigurationException("Failed to deserialize configuration");
             }
         } catch (ConfigurationException e) {
             throw new ConfigurationException("Configuration loading aborted: failed to deserialize configuration", e);

@@ -82,7 +82,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             try {
                 oldConfiguration = configurationSerializer.deserializeTrustedConfiguration(oldConfigurationString, true);
                 if (oldConfiguration == null) {
-                    throw new ConfigurationException();
+                    throw new ConfigurationException("Failed to deserialize last successfully loaded configuration");
                 }
             } catch (ConfigurationException e) {
                 throw new ConfigurationException("Configuration loading aborted: failed to deserialize last loaded " +
