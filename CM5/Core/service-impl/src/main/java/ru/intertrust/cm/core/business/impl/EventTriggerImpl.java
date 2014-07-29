@@ -79,6 +79,7 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
             List<FieldModification> changedFields) {
 
         Collection<NamedTriggerConfig> namedTriggerConfigs = configurationExplorer.getConfigs(NamedTriggerConfig.class);
+        //TODO Optimize. Cache trigger config by name in Map
         for(NamedTriggerConfig namedTriggerConfig : namedTriggerConfigs) {
             if(namedTriggerConfig.getName().equals(triggerName)) {
                 if (isTriggered(namedTriggerConfig.getTrigger(), eventType, domainObject, changedFields)) {
@@ -120,9 +121,9 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
                         return true;
                     }
 
-                    // если список измененных полей пустой, изменение любого поля вызывает это событие
+                    // если список измененных полей пустой, то событие не инициируется
                     if (changedFields == null || changedFields.size() == 0) {
-                        return true;
+                        return false;
                     }
 
                     for (TriggerFieldConfig triggerFieldConfig : triggerConfigConfig.
