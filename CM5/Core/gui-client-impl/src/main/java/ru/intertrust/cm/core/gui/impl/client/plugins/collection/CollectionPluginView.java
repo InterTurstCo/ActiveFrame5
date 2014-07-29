@@ -317,10 +317,8 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(SaveToCsvEvent.TYPE, new SaveToCsvEventHandler() {
             @Override
             public void saveToCsv(SaveToCsvEvent saveToCsvEvent) {
-
                 JSONObject requestObj = new JSONObject();
-                int rowCount = items.size();
-                JsonUtil.prepareJsonAttributes(requestObj, collectionName, simpleSearchQuery, searchArea, rowCount);
+                JsonUtil.prepareJsonAttributes(requestObj, collectionName, simpleSearchQuery, searchArea);
                 JsonUtil.prepareJsonSortCriteria(requestObj, fieldPropertiesMap, sortCollectionState);
                 JsonUtil.prepareJsonColumnProperties(requestObj, fieldPropertiesMap, filtersMap);
                 JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig);
@@ -421,10 +419,8 @@ public class CollectionPluginView extends PluginView {
 
         }
 
-        filterButton.removeStyleName("gwt-Button");
-        filterButton.removeStyleName("gwt-ToggleButton");
-        filterButton.removeStyleName("gwt-ToggleButton-Up");
-        filterButton.addStyleName("show-filter-button");
+
+        filterButton.setStyleName("show-filter-button");
         root.add(treeLinkWidget);
         root.add(tableBody);
 

@@ -12,11 +12,11 @@ public class JsonCsvRequest {
     private String simpleSearchQuery;
     private String simpleSearchArea;
     private String sortedFieldName;
-    private Integer rowCount;
     private boolean ascend;
     private List<JsonColumnProperties> columnProperties;
     private JsonSortCriteria sortCriteria;
     private JsonInitialFilters jsonInitialFilters;
+
     public JsonCsvRequest() {
     }
 
@@ -74,14 +74,6 @@ public class JsonCsvRequest {
 
     public void setSortCriteria(JsonSortCriteria sortCriteria) {
         this.sortCriteria = sortCriteria;
-    }
-
-    public Integer getRowCount() {
-        return rowCount;
-    }
-
-    public void setRowCount(Integer rowCount) {
-        this.rowCount = rowCount;
     }
 
     public JsonInitialFilters getJsonInitialFilters() {

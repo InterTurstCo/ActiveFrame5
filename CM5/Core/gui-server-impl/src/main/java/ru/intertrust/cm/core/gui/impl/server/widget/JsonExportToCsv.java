@@ -54,10 +54,11 @@ public class JsonExportToCsv {
     private FilterBuilder filterBuilder;
 
     private static final String DEFAULT_ENCODING = "ANSI-1251";
+    private static final int CHUNK_SIZE = 10;
 
     @ResponseBody
-    @RequestMapping(value = "json-export-to-csv", method = RequestMethod.POST )
-    public void generateCsv(@ModelAttribute("json") String stringCsvRequest,HttpServletResponse response)
+    @RequestMapping(value = "json-export-to-csv", method = RequestMethod.POST)
+    public void generateCsv(@ModelAttribute("json") String stringCsvRequest, HttpServletResponse response)
             throws IOException, ParseException, ServletException {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -77,18 +78,10 @@ public class JsonExportToCsv {
         Map<String, CollectionColumnProperties> columnPropertiesMap = JsonUtil.convertToColumnPropertiesMap(columnParams);
         JsonInitialFilters jsonInitialFilters = csvRequest.getJsonInitialFilters();
         List<Filter> filters = prepareFilters(columnParams, columnPropertiesMap, jsonInitialFilters);
-        IdentifiableObjectCollection collections;
-        int rowCount = csvRequest.getRowCount();
-        if (simpleSearchQuery.isEmpty()){
-            collections = collectionsService.findCollection(collectionName, sortOrder, filters, 0, rowCount);
 
-        }   else {
-            collections = searchService.search(simpleSearchQuery, area, collectionName, 1000);
-        }
-
-        response.setHeader("Content-Disposition", "attachment; filename=" + collectionName+".csv");
+        response.setHeader("Content-Disposition", "attachment; filename=" + collectionName + ".csv");
         response.setContentType("application/csv");
-        response.addHeader("Access-Control-Allow-Origin","");
+        response.addHeader("Access-Control-Allow-Origin", "");
         OutputStream resOut = response.getOutputStream();
         OutputStream buffer = new BufferedOutputStream(resOut);
         OutputStreamWriter writer = new OutputStreamWriter(buffer, Charset.forName(DEFAULT_ENCODING));
@@ -96,43 +89,76 @@ public class JsonExportToCsv {
         //Создание заголовков таблицы
         printHeader(writer, columnPropertiesMap);
         writer.append(" \n");
-        printBody(writer, collections, columnPropertiesMap);
+        if (simpleSearchQuery.isEmpty()) {
+            printBodyBatch(writer, collectionName, sortOrder, filters, columnPropertiesMap);
+        } else {
+            IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, area, collectionName, CHUNK_SIZE);
+            printBody(writer, collection, columnPropertiesMap);
+        }
+
+        writer.flush();
         writer.close();
 
     }
 
-    private void  printHeader(OutputStreamWriter writer,  Map<String, CollectionColumnProperties> columnPropertiesMap)
+    private void printHeader(OutputStreamWriter writer, Map<String, CollectionColumnProperties> columnPropertiesMap)
             throws IOException {
-             Set<String> fieldNames = columnPropertiesMap.keySet();
-        for(String fieldName : fieldNames) {
+        Set<String> fieldNames = columnPropertiesMap.keySet();
+        for (String fieldName : fieldNames) {
             CollectionColumnProperties properties = columnPropertiesMap.get(fieldName);
             String columnName = (String) properties.getProperty(CollectionColumnProperties.NAME_KEY);
-            writer.append(columnName+";");
+            writer.append(columnName + ";");
         }
     }
 
-    private void printBody(OutputStreamWriter writer, IdentifiableObjectCollection collections,
+    private void printBodyBatch(OutputStreamWriter writer, String collectionName, SortOrder sortOrder, List<Filter> filters,
+                                Map<String, CollectionColumnProperties> columnPropertiesMap) throws IOException {
+        int offset = 0;
+        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters,
+                offset, CHUNK_SIZE);
+        while (collection.size() != 0) {
+            printBody(writer, collection, columnPropertiesMap);
+            offset += CHUNK_SIZE;
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters,
+                    offset, CHUNK_SIZE);
+        }
+
+    }
+
+    private void printBody(OutputStreamWriter writer, IdentifiableObjectCollection collection,
                            Map<String, CollectionColumnProperties> columnPropertiesMap) throws IOException {
-        for (int row = 0; row < collections.size(); row++) {
-            IdentifiableObject identifiableObject = collections.get(row);
-            Map<String, Value> rowValues = getRowValues(identifiableObject, columnPropertiesMap) ;
+        for (int row = 0; row < collection.size(); row++) {
+            IdentifiableObject identifiableObject = collection.get(row);
+            Map<String, Value> rowValues = getRowValues(identifiableObject, columnPropertiesMap);
             Set<String> fields = rowValues.keySet();
             for (String field : fields) {
-                    Value value = rowValues.get(field);
+                Value value = rowValues.get(field);
 
-                    if (value.get() == null) {
-                        writer.append(" ");
-                    } else {
-                        writer.append(value.get().toString());
-                    }
-                    writer.append(";");
+                if (value.get() == null) {
+                    writer.append(" ");
+                } else {
+                    writer.append(value.get().toString());
+                }
+                writer.append(";");
 
             }
             writer.append("\n");
         }
 
-        writer.flush();
+    }
 
+    private boolean areFilterValuesValid(List<String> filterValues) {
+        if (filterValues == null) {
+            return false;
+        }
+        boolean valid = true;
+        for (String filterValue : filterValues) {
+            if (filterValue.isEmpty()) {
+                valid = false;
+                break;
+            }
+        }
+        return valid;
     }
 
     public List<Filter> prepareFilters(List<JsonColumnProperties> jsonPropertiesList,
@@ -145,12 +171,13 @@ public class JsonExportToCsv {
             List<String> filterValues = jsonProperties.getFilterValues();
             String fieldName = jsonProperties.getFieldName();
             CollectionColumnProperties columnProperties = columnPropertiesMap.get(fieldName);
-            if (filterValues != null && filterValues.size() > 0) {
+            if (areFilterValuesValid(filterValues)) {
                 Filter filter = FilterBuilderUtil.prepareSearchFilter(filterValues, columnProperties);
                 filters.add(filter);
                 excludedFilterFields.add(fieldName);
             } else {
-                List<String> initialFilterValues = (List<String>) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
+                List<String> initialFilterValues = (List<String>) columnProperties.
+                        getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
                 if (initialFilterValues != null) {
                     excludedFilterFields.add(fieldName);
                 }
@@ -162,7 +189,7 @@ public class JsonExportToCsv {
     }
 
     private Map<String, Value> getRowValues(IdentifiableObject identifiableObject,
-                                              Map<String, CollectionColumnProperties> columnPropertiesMap) {
+                                            Map<String, CollectionColumnProperties> columnPropertiesMap) {
 
         LinkedHashMap<String, Value> values = new LinkedHashMap<>();
         Set<String> fields = columnPropertiesMap.keySet();
