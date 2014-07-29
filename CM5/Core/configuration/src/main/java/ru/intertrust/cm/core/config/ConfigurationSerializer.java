@@ -135,7 +135,7 @@ public class ConfigurationSerializer {
                             schemaInputStreams);
             schemaValidator.validate();
             final InputStream is = getStreamFromUrl(moduleUrl, configurationFilePath);
-            final Configuration result = createSerializerInstance().read(Configuration.class, is);
+            final Configuration result = createSerializerInstance().read(ErrorIgnoringConfiguration.class, is);
             return result;
         } catch (Exception ex) {
             throw new ConfigurationException("Error load " + configurationFilePath, ex);

@@ -5,6 +5,7 @@ import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
 import org.simpleframework.xml.stream.InputNode;
+import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.ErrorIgnoringConfiguration;
@@ -19,6 +20,8 @@ import java.util.List;
  *         Time: 8:26 PM
  */
 public class ErrorIgnoringConfigurationConverter extends ListConverter<ErrorIgnoringConfiguration> {
+
+    private final static org.slf4j.Logger logger = LoggerFactory.getLogger(ErrorIgnoringConfigurationConverter.class);
 
     /**
      * {@inheritDoc}
@@ -44,6 +47,8 @@ public class ErrorIgnoringConfigurationConverter extends ListConverter<ErrorIgno
             } catch(Exception e) {
                 if (DomainObjectTypeConfig.class.equals(nodeClass)) {
                     throw e;
+                } else {
+                    logger.error("Failed to serialize configuration item", e);
                 }
             }
 

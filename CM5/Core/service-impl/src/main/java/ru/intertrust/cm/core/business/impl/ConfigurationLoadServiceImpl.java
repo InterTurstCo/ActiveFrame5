@@ -80,7 +80,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
 
             Configuration oldConfiguration;
             try {
-                oldConfiguration = configurationSerializer.deserializeTrustedConfiguration(oldConfigurationString, false);
+                oldConfiguration = configurationSerializer.deserializeTrustedConfiguration(oldConfigurationString, true);
                 if (oldConfiguration == null) {
                     throw new ConfigurationException();
                 }
