@@ -27,10 +27,10 @@ public class CloseInCentralPanelAction extends Action {
         if (parent instanceof DomainObjectSurferPlugin) {
             IsDomainObjectEditor parentEditor = (IsDomainObjectEditor) parent;
             DomainObject domainObject = parentEditor.getRootDomainObject( );
-            if (domainObject != null) {
-            Id parentId = domainObject.getId();
-                if (plugin.getLocalEventBus() != null){
-            plugin.getLocalEventBus().fireEvent(new CollectionRowSelectedEvent(parentId));
+            if (domainObject != null && domainObject.getId() != null) {
+                Id parentId = domainObject.getId();
+                if (plugin.getLocalEventBus() != null) {
+                    plugin.getLocalEventBus().fireEvent(new CollectionRowSelectedEvent(parentId));
                 }
             }
         }
