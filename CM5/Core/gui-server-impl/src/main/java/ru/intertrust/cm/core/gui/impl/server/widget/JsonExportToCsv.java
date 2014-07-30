@@ -54,7 +54,7 @@ public class JsonExportToCsv {
     private FilterBuilder filterBuilder;
 
     private static final String DEFAULT_ENCODING = "ANSI-1251";
-    private static final int CHUNK_SIZE = 10;
+    private static final int CHUNK_SIZE = 1000;
 
     @ResponseBody
     @RequestMapping(value = "json-export-to-csv", method = RequestMethod.POST)
