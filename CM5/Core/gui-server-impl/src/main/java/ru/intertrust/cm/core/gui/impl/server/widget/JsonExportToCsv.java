@@ -96,7 +96,6 @@ public class JsonExportToCsv {
             printBody(writer, collection, columnPropertiesMap);
         }
 
-        writer.flush();
         writer.close();
 
     }
@@ -145,6 +144,7 @@ public class JsonExportToCsv {
             writer.append("\n");
         }
 
+        writer.flush();
     }
 
     private boolean areFilterValuesValid(List<String> filterValues) {
