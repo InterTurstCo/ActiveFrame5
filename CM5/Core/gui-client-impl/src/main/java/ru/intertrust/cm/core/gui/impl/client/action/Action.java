@@ -65,7 +65,7 @@ public abstract class Action extends BaseComponent {
     public final void perform() {
         final ActionConfig config = getInitialContext().getActionConfig();
         boolean isExecute = true;
-        if (config.isDirtySensitivity()) {
+        if (config != null && config.isDirtySensitivity()) {
             isExecute = Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty();
         }
         if (isExecute) {
