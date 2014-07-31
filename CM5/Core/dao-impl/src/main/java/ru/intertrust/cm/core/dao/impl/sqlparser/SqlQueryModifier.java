@@ -696,7 +696,8 @@ public class SqlQueryModifier {
     }
 
     private static boolean isEvaluatedExpression(Expression expressionValue) {
-        return expressionValue instanceof StringValue || expressionValue instanceof Function || expressionValue instanceof Concat || expressionValue instanceof CaseExpression || expressionValue instanceof CastExpression;
+        return expressionValue instanceof StringValue || expressionValue instanceof Function || expressionValue instanceof Concat
+                || expressionValue instanceof CaseExpression || expressionValue instanceof CastExpression;
     }
 
     private FieldConfig getFieldConfig(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
