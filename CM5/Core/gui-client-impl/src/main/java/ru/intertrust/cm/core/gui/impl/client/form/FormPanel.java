@@ -11,17 +11,16 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
-import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ import java.util.Map;
  *         Date: 15.09.13
  *         Time: 14:53
  */
-public class FormPanel implements IsWidget {
+public class FormPanel extends WidgetsContainer implements IsWidget {
     private static final String TAB_KEY = "tb";
     private static final int DEFAULT_TAB = 0;
 
@@ -46,7 +45,6 @@ public class FormPanel implements IsWidget {
     private List<TabConfig> tabs;
     private final FormPluginState state;
     private EventBus eventBus;
-    private BaseComponent owner;
 
     public FormPanel(FormDisplayData formDisplayData, FormPluginState state, EventBus eventBus) {
         this.formDisplayData = formDisplayData;
@@ -63,14 +61,6 @@ public class FormPanel implements IsWidget {
 
     public void setClassForPluginPanel(String styleName) {
         panel.getElement().addClassName(styleName);
-    }
-
-    public BaseComponent getOwner() {
-        return owner;
-    }
-
-    public void setOwner(BaseComponent owner) {
-        this.owner = owner;
     }
 
     public List<BaseWidget> getWidgets() {
@@ -302,7 +292,7 @@ public class FormPanel implements IsWidget {
                 widget.setMessages(messages);
                 widget.setEventBus(eventBus);
                 widget.setState(widgetState);
-                widget.setOwner(this);
+                widget.setContainer(this);
                 widgets.add(widget);
                 AbsolutePanel wrapper = new AbsolutePanel();
                 wrapper.addStyleName("widget-wrapper");

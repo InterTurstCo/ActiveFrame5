@@ -50,7 +50,7 @@ public class FormPluginView extends PluginView {
         final FormPluginState pluginState = plugin.getFormPluginState();
 
         formPanel = new FormPanel(formDisplayData, pluginState, eventBus);
-        formPanel.setOwner(plugin);
+        formPanel.setPlugin(plugin);
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, FormPlugin.class.getSimpleName());
     }

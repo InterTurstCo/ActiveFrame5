@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.attachment;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -9,12 +8,10 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypeConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.action.AttachmentAction;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.AttachmentBoxWidget;
@@ -22,7 +19,6 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandl
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -111,7 +107,7 @@ public class AttachmentUploaderView extends Composite {
         initWidget(root);
     }
 
-    private Button buildActionLink(ActionLinkConfig actionLinkConfig, final AttachmentBoxWidget owner, final AttachmentItem attachmentItem) {
+    private Button buildActionLink(ActionLinkConfig actionLinkConfig, final AttachmentBoxWidget widget, final AttachmentItem attachmentItem) {
         Button actionLinkButton = new Button();
         actionLinkButton.removeStyleName("gwt-Button");
         actionLinkButton.addStyleName("dialog-box-button");
@@ -121,10 +117,7 @@ public class AttachmentUploaderView extends Composite {
             @Override
             public void onClick(ClickEvent event) {
                 AttachmentAction action = ComponentRegistry.instance.get(actionName);
-                ru.intertrust.cm.core.gui.impl.client.form.FormPanel formPanel =
-                        (ru.intertrust.cm.core.gui.impl.client.form.FormPanel) owner.getOwner();
-                Plugin panelOwner = (Plugin) formPanel.getOwner();
-                action.setPlugin(panelOwner);
+                action.setPlugin(widget.getContainer().getPlugin());
                 action.setAttachmentItem(attachmentItem);
                 action.perform();
             }

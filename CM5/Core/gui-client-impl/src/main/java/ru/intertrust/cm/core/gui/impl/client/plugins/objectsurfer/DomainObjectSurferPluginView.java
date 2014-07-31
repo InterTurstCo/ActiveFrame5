@@ -7,11 +7,9 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
-import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
-import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -30,16 +28,16 @@ public class DomainObjectSurferPluginView extends PluginView {
     private int surferHeight;
     private int horizontalSplitterSavedSize = -1;
     private int verticalSplitterSavedSize = -1;
-    private FlowPanel formFlowPanel = new FlowPanel();
-    private SimplePanel splitterFirstWidget = new SimplePanel();
+    private FlowPanel sourthRootWidget = new FlowPanel();
+    private SimplePanel northRootWidget = new SimplePanel();
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
     //локальная шина событий
     private EventBus eventBus;
     private EventBus globalEventBus = Application.getInstance().getEventBus();
-    private SplitterEx splitterPanel;
+    private SplitterEx dockLayoutPanel;
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
     //private FlowPanel flowPanel;
-    private AbsolutePanel flowPanel;
+    private AbsolutePanel rootSurferPanel;
 
     public DomainObjectSurferPluginView(Plugin plugin) {
         super(plugin);
@@ -47,22 +45,21 @@ public class DomainObjectSurferPluginView extends PluginView {
         surferWidth = plugin.getOwner().getVisibleWidth();
         surferHeight = plugin.getOwner().getVisibleHeight();
         initSplitter();
-        formFlowPanel.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
+        sourthRootWidget.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalEventBus();
         addSplitterWidgetResizeHandler();
     }
 
     private void initSplitter() {
-        splitterPanel = new SplitterEx(8, domainObjectSurferPlugin.getLocalEventBus()) {
+        dockLayoutPanel = new SplitterEx(8, domainObjectSurferPlugin.getLocalEventBus()) {
             @Override
             public void onResize() {
                 super.onResize();
                 final int historySize;
-                if (splitterPanel.isSplitType()) {
-                    verticalSplitterSavedSize = historySize = splitterFirstWidget.getOffsetWidth();
-
+                if (dockLayoutPanel.isSplitType()) {
+                    verticalSplitterSavedSize = historySize = northRootWidget.getOffsetWidth();
                 } else {
-                    horizontalSplitterSavedSize = historySize = splitterFirstWidget.getOffsetHeight();
+                    horizontalSplitterSavedSize = historySize = northRootWidget.getOffsetHeight();
                 }
                 final HistoryManager manager = Application.getInstance().getHistoryManager();
                 manager.addHistoryItems(SPLITTER_IDENTIFIER_KEY, new HistoryItem(
@@ -85,7 +82,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     protected void splitterSetSize() {
-        splitterPanel.setSize(surferWidth + "px", surferHeight + "px");
+        dockLayoutPanel.setSize(surferWidth + "px", surferHeight + "px");
 
     }
 
@@ -105,110 +102,80 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     }
 
-    private void checkLastSplitterPosition(boolean type, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {
+    private void checkLastSplitterPosition(boolean isVertical, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {
         if (!arrowButton) {
             if (horizontalSplitterSavedSize >= 0) {
                 firstWidgetHeight = horizontalSplitterSavedSize;
             }
-
             if (verticalSplitterSavedSize >= 0) {
                 firstWidgetWidth = verticalSplitterSavedSize;
-                splitterPanel.setSizeFromInsert(firstWidgetWidth);
-
+                dockLayoutPanel.setSizeFromInsert(firstWidgetWidth);
             }
         }
-
-        if (type && arrowButton) {
+        if (isVertical && arrowButton) {
             verticalSplitterSavedSize = firstWidgetWidth;
-
         } else {
             horizontalSplitterSavedSize = firstWidgetHeight;
         }
 
-        reDrawSplitter(type, firstWidgetWidth, firstWidgetHeight);
-
+        reDrawSplitter(isVertical, firstWidgetWidth, firstWidgetHeight);
     }
 
-    private void reDrawSplitter(boolean type, int firstWidgetWidth, int firstWidgetHeight) {
-
-        if (type) {
-            splitterPanel.remove(0);
-            splitterPanel.insertWest(splitterFirstWidget, firstWidgetWidth, splitterPanel.getWidget(0));
-
+    private void reDrawSplitter(boolean isVertical, int firstWidgetWidth, int firstWidgetHeight) {
+        if (isVertical) {
+            dockLayoutPanel.remove(0);
+            dockLayoutPanel.insertWest(northRootWidget, firstWidgetWidth, dockLayoutPanel.getWidget(0));
         } else {
-
             if (firstWidgetHeight > surferHeight) {
-                firstWidgetHeight = surferHeight - splitterPanel.getSplitterSize();
+                firstWidgetHeight = surferHeight - dockLayoutPanel.getSplitterSize();
             }
-
-            splitterPanel.remove(0);
-            splitterPanel.insertNorth(splitterFirstWidget, firstWidgetHeight - splitterPanel.getSplitterSize(), splitterPanel.getWidget(0));
-
-
+            dockLayoutPanel.remove(0);
+            dockLayoutPanel.insertNorth(northRootWidget, firstWidgetHeight - dockLayoutPanel.getSplitterSize(), dockLayoutPanel.getWidget(0));
         }
     }
 
     @Override
     public IsWidget getViewWidget() {
-
-        flowPanel = new AbsolutePanel();
-        flowPanel.setStyleName("centerTopBottomDividerRoot");
+        rootSurferPanel = new AbsolutePanel();
+        rootSurferPanel.setStyleName("centerTopBottomDividerRoot");
         AbsolutePanel container = new AbsolutePanel();
         container.setStyleName("centerTopBottomDividerRootInnerDiv");
-        flowPanel.add(container);
+        rootSurferPanel.add(container);
 
-        container.add(splitterPanel);
+        container.add(dockLayoutPanel);
         final HistoryManager manager = Application.getInstance().getHistoryManager();
-        final boolean splitterType = StringUtil.booleanFromString(
-                manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_TYPE_KEY), Boolean.FALSE);
-        final Integer splitterSize =
-                StringUtil.integerFromString(manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_SIZE_KEY), null);
-        if (splitterType) {
-            splitterPanel.addWest(splitterFirstWidget, splitterSize == null ? surferWidth / 2 : splitterSize);
-
+        final boolean isVertical = StringUtil.booleanFromString(manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_TYPE_KEY), Boolean.FALSE);
+        final Integer splitterSize = StringUtil.integerFromString(manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_SIZE_KEY), null);
+        if (isVertical) {
+            dockLayoutPanel.addWest(northRootWidget, splitterSize == null ? surferWidth / 2 : splitterSize);
         } else {
-            splitterPanel.addNorth(splitterFirstWidget, splitterSize == null ? surferHeight / 2 : splitterSize);
+            dockLayoutPanel.addNorth(northRootWidget, splitterSize == null ? surferHeight / 2 : splitterSize);
         }
-        splitterPanel.add(formFlowPanel);
+        dockLayoutPanel.add(sourthRootWidget);
         splitterSetSize();
-
 
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
 
         if (config != null) {
             log.info("plugin config, collection = " + config.getCollectionViewerConfig().getCollectionRefConfig().getName());
-            final PluginPanel formPluginPanel = new PluginPanel();
-            formPluginPanel.setVisibleHeight(surferHeight / 2);
-            formPluginPanel.setVisibleWidth(surferWidth);
-            final Plugin collectionViewerPlugin = domainObjectSurferPlugin.getCollectionPlugin();
-            PluginConfig collectionPluginConfig = config.getCollectionViewerConfig();
-            collectionViewerPlugin.setConfig(collectionPluginConfig);
 
-            PluginPanel collectionViewerPluginPanel = new PluginPanel() {
-                @Override
-                public void beforePluginOpening() {
-
-                    FormPlugin formPlugin = domainObjectSurferPlugin.getFormPlugin();
-
-                    formPluginPanel.open(formPlugin);
-
-                    formPluginPanel.asWidget().addStyleName("form-container");
-
-                    splitterFirstWidget.add(this.asWidget());
-
-                    formFlowPanel.add(formPluginPanel.asWidget());
-
-                }
-            };
+            PluginPanel collectionViewerPluginPanel = new PluginPanel();
             collectionViewerPluginPanel.setVisibleWidth(surferWidth);
             collectionViewerPluginPanel.setVisibleHeight(surferHeight / 2);
-            collectionViewerPluginPanel.open(collectionViewerPlugin);
+            collectionViewerPluginPanel.open(domainObjectSurferPlugin.getCollectionPlugin());
 
+            final PluginPanel formPluginPanel = new PluginPanel();
+            formPluginPanel.setVisibleWidth(surferWidth);
+            formPluginPanel.setVisibleHeight(surferHeight / 2);
+            formPluginPanel.open(domainObjectSurferPlugin.getFormPlugin());
+            formPluginPanel.asWidget().addStyleName("form-container");
 
+            northRootWidget.add(collectionViewerPluginPanel);
+            sourthRootWidget.add(formPluginPanel);
         }
         Application.getInstance().hideLoadingIndicator();
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, plugin.getClass().getSimpleName());
-        return flowPanel;
+        return rootSurferPanel;
     }
 }

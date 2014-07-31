@@ -125,8 +125,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
                 glEventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
                 glEventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
-                navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
-                navigationTreePanel.open(navigationTreePlugin);
                 String logoImagePath = GlobalThemesManager.getResourceFolder() + result.getLogoImagePath();
                 CurrentUserInfo currentUserInfo = getUserInfo(result);
                 header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig));
@@ -152,14 +150,19 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 });
                 addStickerPanel();
                 addWindowResizeListener();
-                RootLayoutPanel.get().add(root);
-                RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
                 final Application application = Application.getInstance();
                 application.setPageNamePrefix(result.getPageNamePrefix());
                 application.setTimeZoneIds(result.getTimeZoneIds());
                 application.setHeaderNotificationPeriod(result.getHeaderNotificationPeriod());
                 application.setCollectionCountersUpdatePeriod(result.getCollectionCountersUpdatePeriod());
                 application.setActionManager(new ActionManagerImpl(centralPluginPanel));
+
+                RootLayoutPanel.get().add(root);
+                RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
+
+                navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
+                navigationTreePanel.open(navigationTreePlugin);
+
                 History.addValueChangeHandler(new HistoryValueChangeHandler());
             }
 
