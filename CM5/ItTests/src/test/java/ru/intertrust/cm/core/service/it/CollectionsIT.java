@@ -251,13 +251,6 @@ public class CollectionsIT extends IntegrationTestBase {
         params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
         
         collection = collectionService.findCollectionByQuery(query, params);
-
-        query = "select t.created_by, '' as test from(select '' as created_by, '' as test2 from schedule) t ";
-        params = new ArrayList<Value>();
-        
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-        assertTrue(collection.size() > 0);
         
         query = "select id from person where created_by = {0}";
         params = new ArrayList<Value>();
@@ -286,8 +279,14 @@ public class CollectionsIT extends IntegrationTestBase {
         
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
+
+        query = "select t.created_by, '' as test from (select coalesce('<id>' || substring(created_by.name, 1, 5) || ':' || '</>', '<id></><shortName></>') " +
+        		" as created_by, '' as test2 from schedule s inner join schedule created_by on s.id = created_by.id) t ";
+        params = new ArrayList<Value>();
         
-        
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
     }
     
     @Test
