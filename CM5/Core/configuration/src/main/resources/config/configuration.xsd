@@ -2289,6 +2289,7 @@
         <xs:attribute type="xs:string" name="date-pattern" use="optional"/>
         <xs:attribute type="xs:string" name="time-pattern" use="optional"/>
         <xs:attribute type="xs:string" name="time-zone-id" use="optional"/>
+        <xs:attribute type="xs:string" name="width" use="optional"/>
         <xs:attribute type="xs:string" name="min-width" default="200px"/>
         <xs:attribute type="xs:string" name="max-width"/>
         <xs:attribute type="xs:boolean" name="resizable" default="true"/>

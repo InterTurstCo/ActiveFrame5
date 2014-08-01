@@ -34,7 +34,7 @@ public class ColumnFormatter {
             converter.init(columnProperties.getProperties());
             collectionColumn = new TextCollectionColumn(new TextCell(getCssStyleForText(textBreakStyle)), field, resizable, converter);
         }
-        adjustColumnMinAndMaxWidth(collectionColumn, columnProperties);
+        setColumnWidthProperties(collectionColumn, columnProperties);
         String columnName = (String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY);
         collectionColumn.setDataStoreName(columnName);
         boolean sortable = (Boolean) columnProperties.getProperty(CollectionColumnProperties.SORTABLE);
@@ -50,7 +50,7 @@ public class ColumnFormatter {
         return "";
     }
 
-    private static void adjustColumnMinAndMaxWidth(
+    private static void setColumnWidthProperties(
             final CollectionColumn column, final CollectionColumnProperties columnProperties) {
         final Integer minWidth = StringUtil.integerFromString(
                 (String) columnProperties.getProperty(CollectionColumnProperties.MIN_WIDTH), null);
@@ -62,5 +62,7 @@ public class ColumnFormatter {
         if (maxWidth != null) {
             column.setMaxWidth(maxWidth);
         }
+        column.setWidth(StringUtil.integerFromString(
+                (String) columnProperties.getProperty(CollectionColumnProperties.WIDTH), 0));
     }
 }

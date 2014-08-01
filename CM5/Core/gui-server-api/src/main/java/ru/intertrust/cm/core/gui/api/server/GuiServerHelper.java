@@ -68,6 +68,7 @@ public final class GuiServerHelper {
                 .addProperty(CollectionColumnProperties.DATE_PATTERN, config.getDatePattern())
                 .addProperty(CollectionColumnProperties.TIME_PATTERN, config.getTimePattern())
                 .addProperty(CollectionColumnProperties.TIME_ZONE_ID, config.getTimeZoneId())
+                .addProperty(CollectionColumnProperties.WIDTH, config.getWidth())
                 .addProperty(CollectionColumnProperties.MIN_WIDTH, config.getMinWidth())
                 .addProperty(CollectionColumnProperties.MAX_WIDTH, config.getMaxWidth())
                 .addProperty(CollectionColumnProperties.RESIZABLE, config.isResizable())
@@ -100,13 +101,13 @@ public final class GuiServerHelper {
         }
         return null;
     }
-   
+
     private static List<String> getInitialFilterValue(String filterName, List<AbstractFilterConfig> abstractFilterConfigs){
         List<ParamConfig> paramConfigs = findFilterInitParams(filterName, abstractFilterConfigs);
         List<String> initialFilterValues = getInitialFilterValueFromParamConfigs(paramConfigs);
         return initialFilterValues;
     }
-    
+
     private static List<String> getInitialFilterValueFromParamConfigs(List<ParamConfig> paramConfigs) {
         if(paramConfigs == null || paramConfigs.isEmpty()) {
             return null;

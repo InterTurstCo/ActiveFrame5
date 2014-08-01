@@ -13,7 +13,7 @@ public class RefreshAction extends Action {
 
     @Override
     protected void execute() {
-        Window.alert("Will be implements");
+        Window.alert("Will be implemented");
     }
 
     @Override

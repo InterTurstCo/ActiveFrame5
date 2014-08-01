@@ -45,6 +45,9 @@ public class CollectionColumnConfig implements Dto {
     @Attribute(name = "search-filter", required = false)
     private String searchFilter;
 
+    @Attribute(name = "width", required = false)
+    private String width;
+
     @Attribute(name = "min-width", required = false)
     private String minWidth;
 
@@ -158,6 +161,14 @@ public class CollectionColumnConfig implements Dto {
 
     public void setTimeZoneId(String timeZoneId) {
         this.timeZoneId = timeZoneId;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
     }
 
     public String getMinWidth() {

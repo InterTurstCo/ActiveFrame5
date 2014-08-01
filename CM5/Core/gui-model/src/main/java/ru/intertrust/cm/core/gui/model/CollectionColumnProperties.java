@@ -23,6 +23,7 @@ public class CollectionColumnProperties implements Dto {
     public static final String TIME_PATTERN = "timePattern";
     public static final String TIME_ZONE_ID = "timeZoneId";
     public static final String NAME_KEY = "name";
+    public static final String WIDTH = "width";
     public static final String MIN_WIDTH = "minWidth";
     public static final String MAX_WIDTH = "maxWidth";
     public static final String RESIZABLE = "resizable";

@@ -31,41 +31,32 @@ public class CollectionDataGridUtils {
                 unProcessingColumnList.add(column);
             }
         }
-        int unProcessingColumnCount = unProcessingColumnList.size();
-        if (unProcessingColumnCount != 0) {
-            int columnWidthAverage = tableWidth / unProcessingColumnCount;
-
-
-            for (Iterator<CollectionColumn> it = unProcessingColumnList.iterator(); it.hasNext(); ) {
-                final CollectionColumn column = it.next();
-                if (column.getMinWidth() > columnWidthAverage) {
-                    widthMap.put(column, column.getMinWidth());
-                    tableWidth -= column.getMinWidth();
-                    it.remove();
-
-                } else if (column.getMaxWidth() < columnWidthAverage) {
-                    widthMap.put(column, column.getMaxWidth());
-                    tableWidth -= column.getMaxWidth();
-                    it.remove();
-                }
-            }
-
-            if (unProcessingColumnCount != 0 && tableWidth > 0) {
-                columnWidthAverage = tableWidth / unProcessingColumnCount;
-            }
-            if (columnWidthAverage < BusinessUniverseConstants.MIN_COLUMN_WIDTH) {
-                columnWidthAverage = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
-            }
-            for (Iterator<CollectionColumn> it = unProcessingColumnList.iterator(); it.hasNext(); ) {
-                final CollectionColumn column = it.next();
-                widthMap.put(column, columnWidthAverage);
+        int unfinishedColumnCount = tableBody.getColumnCount() - processingColumnCount;
+        int columnWidthAverage =  unfinishedColumnCount < 1 ? 0 : tableWidth / unfinishedColumnCount;
+        for (Iterator<CollectionColumn> it = unProcessingColumnList.iterator(); it.hasNext();) {
+            final CollectionColumn column = it.next();
+            if (column.getMinWidth() > columnWidthAverage) {
+                widthMap.put(column, column.getMinWidth());
+                tableWidth -= column.getMinWidth();
+                processingColumnCount++;
+                it.remove();
+            } else if (column.getMaxWidth() < columnWidthAverage) {
+                widthMap.put(column, column.getMaxWidth());
+                tableWidth -= column.getMaxWidth();
+                processingColumnCount++;
+                it.remove();
             }
         }
+        unfinishedColumnCount = tableBody.getColumnCount() - processingColumnCount;
+        columnWidthAverage = unfinishedColumnCount < 1 ? 0 : tableWidth / unfinishedColumnCount;
+        if (columnWidthAverage < BusinessUniverseConstants.MIN_COLUMN_WIDTH) {
+            columnWidthAverage = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
+        }
+        for (CollectionColumn column : unProcessingColumnList) {
+            widthMap.put(column, columnWidthAverage);
+        }
         for (Map.Entry<CollectionColumn, Integer> entry : widthMap.entrySet()) {
-            CollectionColumn column = entry.getKey();
-            int calculatedWidth = entry.getValue();
-            tableBody.setColumnWidth(column, calculatedWidth + "px");
-            column.setCalculatedWidth(calculatedWidth);
+            tableBody.setColumnWidth(entry.getKey(), entry.getValue() + "px");
         }
     }
 

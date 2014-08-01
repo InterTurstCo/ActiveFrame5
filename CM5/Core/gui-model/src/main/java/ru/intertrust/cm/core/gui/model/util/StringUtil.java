@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.gui.model.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.ARRAY_DELIMITER;
 
 /**
  * @author Lesia Puhova
@@ -52,5 +55,38 @@ public class StringUtil {
             result = Boolean.valueOf(booleanAsStr);
         } catch (Exception ignored) {}
         return result;
+    }
+
+    public static List<Id> idsStrToList(final String arrayIdStr) throws Exception {
+        final List<Id> result = new ArrayList<>();
+        if (arrayIdStr != null && !arrayIdStr.isEmpty()) {
+            final String[] idStrArray = arrayIdStr.split(ARRAY_DELIMITER);
+            for (String idStr : idStrArray) {
+                final Id id = StringUtil.idFromString(idStr);
+                if (id != null) {
+                    result.add(id);
+                } else {
+                    throw new Exception("Неправильный формат Id " + idStr);
+                }
+            }
+        }
+        return result;
+    }
+
+    public static String idArrayToStr(Id... ids) {
+        final StringBuilder builder = new StringBuilder();
+        if (ids != null && ids.length > 0) {
+            boolean isFirst = true;
+            for (Id id : ids) {
+                if (id != null) {
+                    if (!isFirst) {
+                        builder.append(ARRAY_DELIMITER);
+                    }
+                    isFirst = false;
+                    builder.append(id.toStringRepresentation());
+                }
+            }
+        }
+        return builder.length() == 0 ? null : builder.toString();
     }
 }

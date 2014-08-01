@@ -57,6 +57,14 @@ public abstract class PluginView implements IsWidget {
             return;
         }
         actionToolBar.clear();
+        // todo по просьбе Алексея
+        final AbsolutePanel divExt = new AbsolutePanel();
+        divExt.setTitle("I'll be back");
+        divExt.setWidth("20px");
+        divExt.setHeight("inherit");
+        divExt.getElement().getStyle().setFloat(Style.Float.LEFT);
+        actionToolBar.add(divExt);
+        // end todo по просьбе Алексея
         final ActivePluginData initialData = plugin.getInitialData();
         final ToolbarContext toolbarContext;
         if (initialData == null) {

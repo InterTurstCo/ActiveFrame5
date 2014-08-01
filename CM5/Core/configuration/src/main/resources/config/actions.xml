@@ -18,16 +18,16 @@
                 text="Редактировать" imageClass="actionBar-edit"/>
 
     <act:tool-bar plugin="collection.plugin">
-        <act:action-ref actionId="aRefresh"/>
-        <act:action-separator order="50"/>
+        <!--<act:action-ref actionId="aRefresh"/>-->
+        <!--<act:action-separator order="50"/>-->
         <act:action-ref actionId="aDelete"/>
         <act:action componentName="save-csv.action" order="500" dirtySensitivity="false" immediate="true"
                     text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
     </act:tool-bar>
 
     <act:tool-bar plugin="form.plugin">
-        <act:action-ref actionId="aRefresh"/>
-        <act:action-separator order="50"/>
+        <!--<act:action-ref actionId="aRefresh"/>-->
+        <!--<act:action-separator order="50"/>-->
         <act:action-ref actionId="aCreate" rendered="not toggle-edit or (toggle-edit and preview)" merged="true"/>
         <act:action-ref actionId="aSave" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
         <act:action-ref actionId="aDelete" rendered="not toggle-edit or (toggle-edit and preview)" merged="false"/>

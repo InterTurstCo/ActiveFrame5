@@ -1,9 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -15,22 +21,50 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CommonSortCriterionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
-import ru.intertrust.cm.core.gui.impl.client.history.UserSettingsObject;
+import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.FilterEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
@@ -44,18 +78,20 @@ import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
+import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnOrderActionContext;
+import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnWidthActionContext;
+import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
-import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.*;
-
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
-import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SORT_DIRECT_KEY;
-import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SORT_FIELD_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MIN_WIDTH;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSED;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -263,13 +299,20 @@ public class CollectionPluginView extends PluginView {
                 boolean ascending = event.isSortAscending();
                 String field = column.getFieldName();
                 sortCollectionState = new SortCollectionState(0, rowsChunk, dataStoreName, ascending, false, field);
-                final HistoryManager historyManager = Application.getInstance().getHistoryManager();
-                historyManager.addHistoryItems(getCollectionIdentifier(),
-                        new HistoryItem(HistoryItem.Type.PLUGIN_CONDITION, SORT_FIELD_KEY, field),
-                        new HistoryItem(HistoryItem.Type.PLUGIN_CONDITION, SORT_DIRECT_KEY, Boolean.toString(ascending)));
                 clearAllTableData();
                 scroll.scrollToTop();
-
+                final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
+                collectionViewerConfig.getDefaultSortCriteriaConfig().setColumnField(field);
+                collectionViewerConfig.getDefaultSortCriteriaConfig().setOrder(
+                        ascending ? CommonSortCriterionConfig.ASCENDING : CommonSortCriterionConfig.DESCENDING);
+                final CollectionSortOrderActionContext context = new CollectionSortOrderActionContext();
+                context.setActionConfig(createActionConfig());
+                context.setCollectionName(collectionName);
+                context.setCollectionViewName(getCollectionIdentifier());
+                context.setCollectionViewerConfig(collectionViewerConfig);
+                final Action action = ComponentRegistry.instance.get(CollectionSortOrderActionContext.COMPONENT_NAME);
+                action.setInitialContext(context);
+                action.perform();
             }
         });
 
@@ -465,16 +508,10 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumnsWithoutCheckBoxes(
             LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap) {
-        final UserSettingsObject userSettingsForColumn =
-                checkUpdates(UserSettingsUtil.getUserSettingsObjectForColumns(getCollectionIdentifier()),
-                        domainObjectFieldPropertiesMap.keySet());
-        final JSONObject jsonObject = new JSONObject(userSettingsForColumn);
         List<ColumnHeaderBlock> columnHeaderBlocks = new ArrayList<ColumnHeaderBlock>();
-        for (String field : jsonObject.keySet()) {
+        for (String field : domainObjectFieldPropertiesMap.keySet()) {
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             final CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
-            final ColumnSettingsObject columnSettingsObject = userSettingsForColumn.getAttr(field).cast();
-
             final List<String> initialFilterValues =
                     (List) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
             HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
@@ -734,74 +771,56 @@ public class CollectionPluginView extends PluginView {
     }
 
     private String getCollectionIdentifier() {
-        return ((CollectionPluginData) plugin.getInitialData()).getCollectionName();
-    }
-
-    private UserSettingsObject checkUpdates(UserSettingsObject userSettingsObject, Collection<String> configFields) {
-        final JSONObject jsonObject = new JSONObject(userSettingsObject);
-        final List<String> historyFields = new ArrayList<>();
-        for (Iterator<String> it = jsonObject.keySet().iterator(); it.hasNext(); ) {
-            historyFields.add(it.next());
-        }
-        boolean updated = false;
-        final List<String> copyConfigList = new ArrayList<>(configFields);
-        copyConfigList.removeAll(historyFields);
-        if (!copyConfigList.isEmpty()) {
-            historyFields.addAll(copyConfigList);
-            updated = true;
-        }
-        for (Iterator<String> it = historyFields.iterator(); it.hasNext(); ) {
-            if (!configFields.contains(it.next())) {
-                it.remove();
-                updated = true;
-            }
-        }
-        if (updated) {
-            UserSettingsObject result = JavaScriptObject.createObject().cast();
-            for (String field : historyFields) {
-                result.setAttr(field, UserSettingsUtil.getColumnSettingsObject(userSettingsObject, field));
-            }
-            final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
-                    UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(result).toString());
-            Application.getInstance().getHistoryManager().addHistoryItems(getCollectionIdentifier(), item);
-            return result;
-        } else {
-            return userSettingsObject;
-        }
+        return ((CollectionPluginData) plugin.getInitialData()).getCollectionViewConfigName();
     }
 
     private class CollectionColumnWidthChangedHandler implements ComponentWidthChangedHandler {
         @Override
         public void handleEvent(ComponentWidthChangedEvent event) {
             if (event.getComponent() instanceof CollectionColumn) {
-                final UserSettingsObject userSettingsObject = UserSettingsUtil.getUserSettingsObjectForColumns(getCollectionIdentifier());
-                final String field = ((CollectionColumn) event.getComponent()).getFieldName();
-                final ColumnSettingsObject columnSettingsObject = UserSettingsUtil.getColumnSettingsObject(userSettingsObject, field);
-                columnSettingsObject.setWidth(event.getWidth());
-                final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
-                        UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(userSettingsObject).toString());
-                Application.getInstance().getHistoryManager().addHistoryItems(getCollectionIdentifier(), item);
+                updateWidthSettings(((CollectionColumn) event.getComponent()).getFieldName(), event.getWidth());
             }
         }
     }
 
     private class CollectionColumnOrderChangedHandler implements ComponentOrderChangedHandler {
+
         @Override
         public void handleEvent(ComponentOrderChangedEvent event) {
             if (event.getComponent() instanceof CollectionColumn) {
-                final UserSettingsObject currentSettingsObject = UserSettingsUtil.getUserSettingsObjectForColumns(getCollectionIdentifier());
-                final UserSettingsObject newSettingsObject = UserSettingsObject.createObject().cast();
+                final CollectionColumnOrderActionContext context = new CollectionColumnOrderActionContext();
+                context.setCollectionName(collectionName);
+                context.setCollectionViewName(getCollectionIdentifier());
+                context.setActionConfig(createActionConfig());
                 for (int index = 0; index < tableBody.getColumnCount(); index++) {
                     final CollectionColumn column = (CollectionColumn) tableBody.getColumn(index);
-                    final ColumnSettingsObject columnSettingsObject =
-                            UserSettingsUtil.getColumnSettingsObject(currentSettingsObject, column.getFieldName());
-                    newSettingsObject.setAttr(column.getFieldName(), columnSettingsObject);
+                    context.addOrder(column.fieldName);
                 }
-                final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
-                        UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(newSettingsObject).toString());
-                Application.getInstance().getHistoryManager().addHistoryItems(getCollectionIdentifier(), item);
+                final Action action = ComponentRegistry.instance.get(CollectionColumnOrderActionContext.COMPONENT_NAME);
+                action.setInitialContext(context);
+                action.perform();
             }
         }
+    }
+
+    private void updateWidthSettings(final String field, final int width) {
+        final CollectionColumnWidthActionContext context = new CollectionColumnWidthActionContext();
+        context.setActionConfig(createActionConfig());
+        context.setCollectionName(collectionName);
+        context.setCollectionViewName(getCollectionIdentifier());
+        context.setField(field);
+        context.setWidth(width + "px");
+        CollectionColumnWidthAction action =
+                ComponentRegistry.instance.get(CollectionColumnWidthActionContext.COMPONENT_NAME);
+        action.setInitialContext(context);
+        action.perform();
+    }
+
+    private ActionConfig createActionConfig() {
+        final ActionConfig config = new ActionConfig();
+        config.setDirtySensitivity(false);
+        config.setImmediate(true);
+        return config;
     }
 }
 
