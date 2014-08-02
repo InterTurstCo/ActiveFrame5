@@ -4,8 +4,22 @@
 
     <inherits name="ru.intertrust.cm.core.gui.impl.Login"/>
 
+    <source path="authentication"/>
+
+    <define-property name="show.clear.settings.button" values="true,false"/>
+    <set-property name="show.clear.settings.button" value="true"/>
+
     <entry-point class='ru.intertrust.cm.core.gui.impl.authentication.LoginPage'/>
 
-    <source path="authentication"/>
+    <replace-with class="ru.intertrust.cm.core.gui.impl.authentication.DebugLoginPageImpl">
+        <when-type-is class="ru.intertrust.cm.core.gui.impl.authentication.LoginPage"/>
+        <when-property-is name="show.clear.settings.button" value="true"/>
+    </replace-with>
+
+    <replace-with class="ru.intertrust.cm.core.gui.impl.authentication.LoginPageImpl">
+        <when-type-is class="ru.intertrust.cm.core.gui.impl.authentication.LoginPage"/>
+        <when-property-is name="show.clear.settings.button" value="false"/>
+    </replace-with>
+
 
 </module>

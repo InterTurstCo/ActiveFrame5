@@ -12,7 +12,7 @@ public class ColumnSettingsObject extends JavaScriptObject {
     }
 
     public static native ColumnSettingsObject createObject() /*-{
-        return {width: 0};
+        return {width: 0, visible: true};
     }-*/;
 
     public final native int getWidth() /*-{
@@ -21,5 +21,13 @@ public class ColumnSettingsObject extends JavaScriptObject {
 
     public final native void setWidth(final int width) /*-{
         this.width = width;
+    }-*/;
+
+    public final native boolean isVisible() /*-{
+        return this.visible;
+    }-*/;
+
+    public final native void setVisible(final boolean visible) /*-{
+        this.visible = visible;
     }-*/;
 }

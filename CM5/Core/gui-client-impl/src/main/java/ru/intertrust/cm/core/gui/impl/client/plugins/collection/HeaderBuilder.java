@@ -39,7 +39,7 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
     /**
      * Create a new DefaultHeaderBuilder for the header of footer section.
      *
-     * @param table the table being built
+     * @param table    the table being built
      * @param isFooter true if building the footer, false if the header
      */
     public HeaderBuilder(AbstractCellTable<T> table, boolean isFooter) {
@@ -90,9 +90,7 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
         boolean isSortable = false;
         boolean isSorted = false;
         StringBuilder classesBuilder = new StringBuilder(className);
-      /*  classesBuilder.append(" width = \"") ;
-        classesBuilder.append(column.getMaxWidth());
-        classesBuilder.append("px\"; ");*/
+
         classesBuilder.append(" " + (isFooter ? style.firstColumnFooter() : style.firstColumnHeader()));
         if (!isFooter && column.isSortable()) {
             isSortable = true;
@@ -119,7 +117,6 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
                 TableCellBuilder th =
                         tr.startTH().colSpan(prevColspan).className(classesBuilder.toString());
 
-       //    th.style().width(column.getMinWidth(), com.google.gwt.dom.client.Style.Unit.PX);
                 enableColumnHandlers(th, column);
                 if (prevHeader != null) {
                     // Build the header.
@@ -154,7 +151,7 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
             classesBuilder.append(sortableStyle);
         }
         if (isSorted) {
-          classesBuilder.append(sortedStyle);
+            classesBuilder.append(sortedStyle);
         }
 
         // The first and last columns could be the same column.
@@ -179,7 +176,8 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
 
     /**
      * Append the extra style names for the header.
-     * @param header the header that may contain extra styles, it can be null
+     *
+     * @param header         the header that may contain extra styles, it can be null
      * @param classesBuilder the string builder for the TD classes
      */
     private <H> void appendExtraStyles(Header<H> header, StringBuilder classesBuilder) {
@@ -192,8 +190,9 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
             classesBuilder.append(headerStyleNames);
         }
     }
+
     protected final void renderCustomSortableHeader(ElementBuilderBase<?> out, Context context,
-                                             CollectionColumnHeader header, boolean isSorted, boolean isSortAscending) {
+                                                    CollectionColumnHeader header, boolean isSorted, boolean isSortAscending) {
         ElementBuilderBase<?> headerContainer = out;
 
         renderHeader(headerContainer, context, header);

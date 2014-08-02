@@ -11,7 +11,6 @@ import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
@@ -33,6 +32,7 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.history.UserSettingsObject;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidget;
@@ -40,6 +40,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.heade
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
@@ -78,7 +79,7 @@ public class CollectionPluginView extends PluginView {
     private Map<String, List<String>> filtersMap = new HashMap<>();
     private String simpleSearchQuery = "";
     private String searchArea = "";
-    private CollectionColumnHeaderController headerController;
+    private CollectionColumnHeaderController columnHeaderController;
     private int lastScrollPos = -1;
     // локальная шина событий
     private EventBus eventBus;
@@ -123,7 +124,6 @@ public class CollectionPluginView extends PluginView {
                 }
             }
         });
-
 
     }
 
@@ -195,7 +195,7 @@ public class CollectionPluginView extends PluginView {
         Id newSelectedFormId = null;
         selectionModel.clear();
         if (!selectedFromHistoryIds.isEmpty()) {
-            for(CollectionRowItem item : items) {
+            for (CollectionRowItem item : items) {
                 if (selectedFromHistoryIds.contains(item.getId())) {
                     selectionModel.setSelected(item, true);
                     if (newSelectedFormId == null) {
@@ -212,7 +212,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createTableColumns() {
-        headerController = new CollectionColumnHeaderController();
+        columnHeaderController = new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody);
         if (singleChoice) {
             createTableColumnsWithoutCheckBoxes(fieldPropertiesMap);
         } else {
@@ -231,8 +231,8 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
                 tableBody.redraw();
-                headerController.setFocus();
-                headerController.updateFilterValues();
+                columnHeaderController.setFocus();
+                columnHeaderController.updateFilterValues();
                 tableBody.flush();
                 fetchMoreItemsIfRequired();
             }
@@ -294,7 +294,7 @@ public class CollectionPluginView extends PluginView {
         filterButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                headerController.changeFiltersInputsVisibility(filterButton.getValue());
+                columnHeaderController.changeFiltersInputsVisibility(filterButton.getValue());
 
             }
         });
@@ -331,7 +331,8 @@ public class CollectionPluginView extends PluginView {
 
     private void onKeyEnterPressed() {
         filtersMap.clear();
-        for (CollectionColumnHeader header : headerController.getHeaders()) {
+        for (ColumnHeaderBlock block : columnHeaderController.getColumnHeaderBlocks()) {
+            CollectionColumnHeader header = block.getHeader();
             List<String> filterValues = header.getHeaderWidget().getFilterValues();
             if (filterValues != null) {
                 filtersMap.put(header.getHeaderWidget().getFieldName(), filterValues);
@@ -343,8 +344,8 @@ public class CollectionPluginView extends PluginView {
 
     private void onKeyEscapePressed() {
         filterButton.setValue(false);
-        headerController.clearFilters();
-        headerController.changeFiltersInputsVisibility(false);
+        columnHeaderController.clearFilters();
+        columnHeaderController.changeFiltersInputsVisibility(false);
         lastScrollPos = 0;
         filtersMap.clear();
         clearAllTableData();
@@ -410,6 +411,18 @@ public class CollectionPluginView extends PluginView {
         AbsolutePanel treeLinkWidget = new AbsolutePanel();
         treeLinkWidget.addStyleName("collection-plugin-view-container");
         treeLinkWidget.add(filterButton);
+
+        final Button columnManagerButton = new Button();
+        columnManagerButton.setStyleName("columnSettingsButton");
+        columnManagerButton.addStyleName("show-filter-button");
+
+        columnManagerButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                columnHeaderController.showPopup(columnManagerButton);
+            }
+        });
+        treeLinkWidget.add(columnManagerButton);
         AbsolutePanel containerForToolbar = new AbsolutePanel();
         containerForToolbar.addStyleName("search-header");
         if (searchArea != null && !searchArea.isEmpty()) {
@@ -418,8 +431,6 @@ public class CollectionPluginView extends PluginView {
             treeLinkWidget.add(simpleSearchPanel);
 
         }
-
-
         filterButton.setStyleName("show-filter-button");
         root.add(treeLinkWidget);
         root.add(tableBody);
@@ -430,11 +441,11 @@ public class CollectionPluginView extends PluginView {
             final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldsOnColumnNamesMap) {
         final CollectionColumn<CollectionRowItem, Boolean> checkColumn =
                 new CollectionColumn<CollectionRowItem, Boolean>(new CheckboxCell(true, true)) {
-            @Override
-            public Boolean getValue(CollectionRowItem object) {
-                return selectionModel.isSelected(object);
-            }
-        };
+                    @Override
+                    public Boolean getValue(CollectionRowItem object) {
+                        return selectionModel.isSelected(object);
+                    }
+                };
 
         checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
@@ -455,21 +466,27 @@ public class CollectionPluginView extends PluginView {
     private void createTableColumnsWithoutCheckBoxes(
             LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap) {
         final UserSettingsObject userSettingsForColumn =
-                checkUpdates(getUserSettingsObjectForColumns(), domainObjectFieldPropertiesMap.keySet());
+                checkUpdates(UserSettingsUtil.getUserSettingsObjectForColumns(getCollectionIdentifier()),
+                        domainObjectFieldPropertiesMap.keySet());
         final JSONObject jsonObject = new JSONObject(userSettingsForColumn);
-        List<CollectionColumnHeader> headers = new ArrayList<>();
+        List<ColumnHeaderBlock> columnHeaderBlocks = new ArrayList<ColumnHeaderBlock>();
         for (String field : jsonObject.keySet()) {
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             final CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
             final ColumnSettingsObject columnSettingsObject = userSettingsForColumn.getAttr(field).cast();
-            if (columnSettingsObject != null) {
-                column.setWidth(columnSettingsObject.getWidth());
-            }
+
             final List<String> initialFilterValues =
                     (List) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
             HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
-            headers.add(collectionColumnHeader);
+            ColumnHeaderBlock block = new ColumnHeaderBlock(collectionColumnHeader, column);
+            if (columnSettingsObject != null) {
+                column.setUserWidth(columnSettingsObject.getWidth());
+                boolean visible = columnSettingsObject.isVisible();
+                column.setVisible(visible);
+                block.setShouldChangeVisibilityState(!visible);
+            }
+            columnHeaderBlocks.add(block);
             tableBody.addColumn(column, collectionColumnHeader);
             SortedMarker sortedMarker = (SortedMarker) columnProperties.getProperty(CollectionColumnProperties.SORTED_MARKER);
             if (sortedMarker != null) {
@@ -479,26 +496,15 @@ public class CollectionPluginView extends PluginView {
                 sortCollectionState = new SortCollectionState(0, rowsChunk, column.getDataStoreName(), ascending, true, field);
             }
         }
-        headerController.setHeaders(headers);
+        columnHeaderController.setColumnHeaderBlocks(columnHeaderBlocks);
         CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody);
+        columnHeaderController.changeVisibilityOfColumns();
         String panelStatus = getPanelState();
         if (panelStatus.equalsIgnoreCase(OPEN)) {
-            headerController.changeFiltersInputsVisibility(true);
+            columnHeaderController.changeFiltersInputsVisibility(true);
             filterButton.setValue(true);
-            headerController.updateFilterValues();
+            columnHeaderController.updateFilterValues();
         }
-    }
-
-    private UserSettingsObject getUserSettingsObjectForColumns() {
-        final String columnSettingsAsString = Application.getInstance().getHistoryManager()
-                .getValue(getCollectionIdentifier(), UserSettingsHelper.COLUMN_SETTINGS_KEY);
-        UserSettingsObject result = UserSettingsObject.createObject().cast();
-        if (columnSettingsAsString != null && !columnSettingsAsString.isEmpty()) {
-            try {
-                result = JSONParser.parseStrict(columnSettingsAsString).isObject().getJavaScriptObject().cast();
-            } catch (Exception ignored) {}
-        }
-        return result;
     }
 
     private String getPanelState() {
@@ -599,13 +605,13 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
-                headerController.saveFilterValues();
+                columnHeaderController.saveFilterValues();
                 insertMoreRows(collectionRowItems);
                 tableBody.flush();
                 final ScrollPanel scroll = tableBody.getScrollPanel();
                 scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
-                headerController.setFocus();
-                headerController.updateFilterValues();
+                columnHeaderController.setFocus();
+                columnHeaderController.updateFilterValues();
                 Application.getInstance().hideLoadingIndicator();
                 if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {
                     return;
@@ -734,7 +740,7 @@ public class CollectionPluginView extends PluginView {
     private UserSettingsObject checkUpdates(UserSettingsObject userSettingsObject, Collection<String> configFields) {
         final JSONObject jsonObject = new JSONObject(userSettingsObject);
         final List<String> historyFields = new ArrayList<>();
-        for (Iterator<String> it = jsonObject.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = jsonObject.keySet().iterator(); it.hasNext(); ) {
             historyFields.add(it.next());
         }
         boolean updated = false;
@@ -744,7 +750,7 @@ public class CollectionPluginView extends PluginView {
             historyFields.addAll(copyConfigList);
             updated = true;
         }
-        for (Iterator<String> it = historyFields.iterator(); it.hasNext();) {
+        for (Iterator<String> it = historyFields.iterator(); it.hasNext(); ) {
             if (!configFields.contains(it.next())) {
                 it.remove();
                 updated = true;
@@ -752,8 +758,8 @@ public class CollectionPluginView extends PluginView {
         }
         if (updated) {
             UserSettingsObject result = JavaScriptObject.createObject().cast();
-            for (String field: historyFields) {
-                result.setAttr(field, getColumnSettingsObject(userSettingsObject, field));
+            for (String field : historyFields) {
+                result.setAttr(field, UserSettingsUtil.getColumnSettingsObject(userSettingsObject, field));
             }
             final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
                     UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(result).toString());
@@ -764,22 +770,13 @@ public class CollectionPluginView extends PluginView {
         }
     }
 
-    private static ColumnSettingsObject getColumnSettingsObject(final UserSettingsObject userSettingsObject, final String key) {
-        ColumnSettingsObject result = userSettingsObject.getAttr(key).cast();
-        if (result == null) {
-            result = ColumnSettingsObject.createObject();
-            userSettingsObject.setAttr(key, result);
-        }
-        return result;
-    }
-
     private class CollectionColumnWidthChangedHandler implements ComponentWidthChangedHandler {
         @Override
         public void handleEvent(ComponentWidthChangedEvent event) {
             if (event.getComponent() instanceof CollectionColumn) {
-                final UserSettingsObject userSettingsObject = getUserSettingsObjectForColumns();
+                final UserSettingsObject userSettingsObject = UserSettingsUtil.getUserSettingsObjectForColumns(getCollectionIdentifier());
                 final String field = ((CollectionColumn) event.getComponent()).getFieldName();
-                final ColumnSettingsObject columnSettingsObject = getColumnSettingsObject(userSettingsObject, field);
+                final ColumnSettingsObject columnSettingsObject = UserSettingsUtil.getColumnSettingsObject(userSettingsObject, field);
                 columnSettingsObject.setWidth(event.getWidth());
                 final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
                         UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(userSettingsObject).toString());
@@ -792,12 +789,12 @@ public class CollectionPluginView extends PluginView {
         @Override
         public void handleEvent(ComponentOrderChangedEvent event) {
             if (event.getComponent() instanceof CollectionColumn) {
-                final UserSettingsObject currentSettingsObject = getUserSettingsObjectForColumns();
+                final UserSettingsObject currentSettingsObject = UserSettingsUtil.getUserSettingsObjectForColumns(getCollectionIdentifier());
                 final UserSettingsObject newSettingsObject = UserSettingsObject.createObject().cast();
                 for (int index = 0; index < tableBody.getColumnCount(); index++) {
                     final CollectionColumn column = (CollectionColumn) tableBody.getColumn(index);
                     final ColumnSettingsObject columnSettingsObject =
-                            getColumnSettingsObject(currentSettingsObject, column.getFieldName());
+                            UserSettingsUtil.getColumnSettingsObject(currentSettingsObject, column.getFieldName());
                     newSettingsObject.setAttr(column.getFieldName(), columnSettingsObject);
                 }
                 final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,

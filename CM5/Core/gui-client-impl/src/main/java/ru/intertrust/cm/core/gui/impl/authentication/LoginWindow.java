@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -28,7 +29,7 @@ public class LoginWindow implements Component {
     protected PasswordTextBox passwordField;
     private Label message;
     private FocusPanel loginButton;
-
+    private AbsolutePanel rootPanel;
     public DialogBox getLoginDialog() {
         return loginDialog;
     }
@@ -69,7 +70,6 @@ public class LoginWindow implements Component {
         loginField.setWidth("140px");
         passwordField.setWidth("140px");
 
-        //loginButton = new Button("Войти");
         loginButton = new FocusPanel();
 
         Label titleLogin = new Label("Войти");
@@ -81,11 +81,10 @@ public class LoginWindow implements Component {
             }
         });
 
-        //setText(" Аутентификация");
         loginDialog.setAnimationEnabled(true);
         loginDialog.setGlassEnabled(true);
 
-        AbsolutePanel rootPanel = new AbsolutePanel();
+        rootPanel = new AbsolutePanel();
         rootPanel.setStyleName("auth_LoginPage_wrapper");
         AbsolutePanel decoratedContentPanel = new AbsolutePanel();
         decoratedContentPanel.setStyleName("auth_LoginPage_block");
@@ -213,6 +212,28 @@ public class LoginWindow implements Component {
         final UserUidWithPassword credentials =
                 new UserUidWithPassword(loginField.getText(), passwordField.getText(), timezone);
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().login(credentials, callback);
+    }
+
+    public void addClearUserSettingsButton() {
+        FocusPanel clearUserSettingsButton = new FocusPanel();
+        clearUserSettingsButton.setStyleName("dark-button");
+        clearUserSettingsButton.addStyleName("clearUserSettings");
+        Label titleClearUserSettings = new Label("Очистить настройки");
+        titleClearUserSettings.getElement().addClassName("auth_button_title");
+        clearUserSettingsButton.add(titleClearUserSettings);
+
+        clearUserSettingsButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Storage storage = Storage.getLocalStorageIfSupported();
+                if (storage == null) {
+                    return;
+                }
+                storage.clear();
+
+            }
+        });
+        rootPanel.add(clearUserSettingsButton);
     }
 
     @Override

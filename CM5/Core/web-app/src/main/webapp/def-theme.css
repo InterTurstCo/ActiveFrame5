@@ -2834,3 +2834,24 @@ td.datePickerMonth {
 .tree-shown {
     display: table-cell;
 }
+
+.columnSettingsPopup {
+    width: 150px;
+}
+
+.columnSettingsPopup .gwt-CheckBox {
+    display: block;
+}
+
+.columnSettingsPopup .dark-button {
+    float: right;
+}
+
+.columnSettingPopupPanel {
+
+}
+
+.columnSettingsButton {
+
+}
+
