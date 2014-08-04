@@ -30,6 +30,9 @@ public class LoginWindow implements Component {
     private Label message;
     private FocusPanel loginButton;
     private AbsolutePanel rootPanel;
+    private AbsolutePanel enterPanel;
+    private AbsolutePanel loginAndPasswordPanel;
+
     public DialogBox getLoginDialog() {
         return loginDialog;
     }
@@ -88,7 +91,7 @@ public class LoginWindow implements Component {
         rootPanel.setStyleName("auth_LoginPage_wrapper");
         AbsolutePanel decoratedContentPanel = new AbsolutePanel();
         decoratedContentPanel.setStyleName("auth_LoginPage_block");
-        AbsolutePanel loginAndPasswordPanel = new AbsolutePanel();
+        loginAndPasswordPanel = new AbsolutePanel();
         loginAndPasswordPanel.setStyleName("auth_wrapper");
         AbsolutePanel settingsPanel = new AbsolutePanel();
         settingsPanel.setStyleName("auth_add_settings");
@@ -101,8 +104,8 @@ public class LoginWindow implements Component {
 
         Label labelCheckBox = new Label("Запомнить меня");
         labelCheckBox.setStyleName("auth_checkbox_title");
-        AbsolutePanel enterPanel = new AbsolutePanel();
-        enterPanel.setStyleName("dark-button");
+//        enterPanel = new AbsolutePanel();
+//        enterPanel.setStyleName("dark-button");
         AbsolutePanel languagePanel = new AbsolutePanel();
         languagePanel.setStyleName("auth_language");
 
@@ -115,7 +118,7 @@ public class LoginWindow implements Component {
         loginAndPasswordPanel.add(labelLoginPanel);
         loginAndPasswordPanel.add(labelPasswordPanel);
         loginAndPasswordPanel.add(memoryPanel);
-        loginAndPasswordPanel.add(enterPanel);
+        //loginAndPasswordPanel.add(enterPanel);
         loginAndPasswordPanel.add(languagePanel);
 
         labelLoginPanel.add(loginName);
@@ -128,7 +131,8 @@ public class LoginWindow implements Component {
         memoryPanel.add(memoryCheckbox);
 
         memoryPanel.add(labelCheckBox);
-        enterPanel.add(loginButton);
+
+
 
         loginDialog.add(rootPanel);
 
@@ -216,7 +220,7 @@ public class LoginWindow implements Component {
 
     public void addClearUserSettingsButton() {
         FocusPanel clearUserSettingsButton = new FocusPanel();
-        clearUserSettingsButton.setStyleName("dark-button");
+        clearUserSettingsButton.setStyleName("light-button");
         clearUserSettingsButton.addStyleName("clearUserSettings");
         Label titleClearUserSettings = new Label("Очистить настройки");
         titleClearUserSettings.getElement().addClassName("auth_button_title");
@@ -233,7 +237,15 @@ public class LoginWindow implements Component {
 
             }
         });
-        rootPanel.add(clearUserSettingsButton);
+        //rootPanel.add(clearUserSettingsButton);
+
+
+        loginAndPasswordPanel.add(clearUserSettingsButton);
+        enterPanel = new AbsolutePanel();
+        enterPanel.setStyleName("dark-button");
+
+        loginAndPasswordPanel.add(enterPanel);
+        enterPanel.add(loginButton);
     }
 
     @Override
