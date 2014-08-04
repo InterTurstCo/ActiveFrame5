@@ -84,6 +84,8 @@ public class HistoryManagerImpl implements HistoryManager {
     public void setLink(String link) {
         if (!this.link.equals(link)) {
             this.link = link;
+            sessionData = loadSessionData();
+            urlMap.clear();
             if (Mode.APPLY == mode) {
                 History.newItem(getUrlToken(), false);
             }
@@ -132,7 +134,7 @@ public class HistoryManagerImpl implements HistoryManager {
             }
         }
         if (sessionDataChanged) {
-            Storage storage = Storage.getSessionStorageIfSupported();
+            Storage storage = Storage.getLocalStorageIfSupported();
             if (storage != null) {
                 storage.setItem(link, new JSONObject(sessionData).toString());
             }
@@ -147,9 +149,10 @@ public class HistoryManagerImpl implements HistoryManager {
         String result;
         result = urlMap.get(key);
         if (result == null) {
-            HistoryItemObject itemObject = sessionData.getAttr(identifier).cast();
-            if (itemObject != null) {
-                result = itemObject.getValue();
+            UserSettingsObject settingObject = sessionData.getAttr(identifier).cast();
+            if (settingObject != null) {
+                final HistoryItemObject itemObject = settingObject.getAttr(key).cast();
+                result = itemObject == null ? null : itemObject.getValue();
             }
         }
         return result;
@@ -183,7 +186,7 @@ public class HistoryManagerImpl implements HistoryManager {
 
     private UserSettingsObject loadSessionData() {
         UserSettingsObject result = UserSettingsObject.createObject().cast();
-        final Storage storage = Storage.getSessionStorageIfSupported();
+        final Storage storage = Storage.getLocalStorageIfSupported();
         if (storage != null) {
             final String storageData = storage.getItem(link);
             if (storageData != null && !storageData.isEmpty()) {

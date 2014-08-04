@@ -17,10 +17,11 @@ public class UserSettingsHelper {
     public static final String SPLITTER_TYPE_KEY = "spltD";
     /* collection */
     public static final String SELECTED_IDS_KEY = "ids";
-    /* domain object */
+    /* user settings domain object */
     public static final String DO_COLLECTION_VIEW_FIELD_KEY = "collection_view";
     public static final String DO_COLLECTION_VIEWER_FIELD_KEY = "collection_viewer";
-
+    public static final String DO_SPLITTER_ORIENTATION_FIELD_KEY = "splitter_orientation";
+    public static final String DO_SPLITTER_POSITION_FIELD_KEY = "splitter_position";
 
     private UserSettingsHelper() {}
 }

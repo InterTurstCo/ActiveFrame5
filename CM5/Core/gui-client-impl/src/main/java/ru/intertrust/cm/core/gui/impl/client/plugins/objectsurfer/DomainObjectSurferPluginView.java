@@ -1,28 +1,31 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import java.util.logging.Logger;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
+
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
-import ru.intertrust.cm.core.gui.model.util.StringUtil;
-
-import java.util.logging.Logger;
-
-import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.*;
+import ru.intertrust.cm.core.gui.model.action.system.SplitterSettingsActionContext;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 
 public class DomainObjectSurferPluginView extends PluginView {
+    private static final int SCHEDULE_TIMEOUT = 3000;
 
     private int surferWidth;
     private int surferHeight;
@@ -38,6 +41,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
     //private FlowPanel flowPanel;
     private AbsolutePanel rootSurferPanel;
+    private Timer timeoutTimer;
 
     public DomainObjectSurferPluginView(Plugin plugin) {
         super(plugin);
@@ -55,16 +59,13 @@ public class DomainObjectSurferPluginView extends PluginView {
             @Override
             public void onResize() {
                 super.onResize();
-                final int historySize;
+                final int splitterSize;
                 if (dockLayoutPanel.isSplitType()) {
-                    verticalSplitterSavedSize = historySize = northRootWidget.getOffsetWidth();
+                    verticalSplitterSavedSize = splitterSize = northRootWidget.getOffsetWidth();
                 } else {
-                    horizontalSplitterSavedSize = historySize = northRootWidget.getOffsetHeight();
+                    horizontalSplitterSavedSize = splitterSize = northRootWidget.getOffsetHeight();
                 }
-                final HistoryManager manager = Application.getInstance().getHistoryManager();
-                manager.addHistoryItems(SPLITTER_IDENTIFIER_KEY, new HistoryItem(
-                        HistoryItem.Type.USER_INTERFACE, SPLITTER_SIZE_KEY, Integer.toString(historySize)));
-
+                storeSplitterSettings(dockLayoutPanel.isSplitType(), splitterSize);
             }
         };
     }
@@ -93,13 +94,9 @@ public class DomainObjectSurferPluginView extends PluginView {
                 checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(), event.getFirstWidgetHeight(),
                         event.isArrowsPress());
                 final int size = event.isType() ? event.getFirstWidgetWidth() : event.getFirstWidgetHeight();
-                final HistoryManager manager = Application.getInstance().getHistoryManager();
-                manager.addHistoryItems(SPLITTER_IDENTIFIER_KEY,
-                        new HistoryItem(HistoryItem.Type.USER_INTERFACE, SPLITTER_TYPE_KEY, Boolean.toString(event.isType())),
-                        new HistoryItem(HistoryItem.Type.USER_INTERFACE, SPLITTER_SIZE_KEY, Integer.toString(size)));
+                storeSplitterSettings(event.isType(), size);
             }
         });
-
     }
 
     private void checkLastSplitterPosition(boolean isVertical, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {
@@ -143,9 +140,9 @@ public class DomainObjectSurferPluginView extends PluginView {
         rootSurferPanel.add(container);
 
         container.add(dockLayoutPanel);
-        final HistoryManager manager = Application.getInstance().getHistoryManager();
-        final boolean isVertical = StringUtil.booleanFromString(manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_TYPE_KEY), Boolean.FALSE);
-        final Integer splitterSize = StringUtil.integerFromString(manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_SIZE_KEY), null);
+        final DomainObjectSurferPluginData initialData = plugin.getInitialData();
+        final boolean isVertical = Integer.valueOf(1).equals(initialData.getSplitterOrientation());
+        final Integer splitterSize = initialData.getSplitterPosition();
         if (isVertical) {
             dockLayoutPanel.addWest(northRootWidget, splitterSize == null ? surferWidth / 2 : splitterSize);
         } else {
@@ -177,5 +174,30 @@ public class DomainObjectSurferPluginView extends PluginView {
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, plugin.getClass().getSimpleName());
         return rootSurferPanel;
+    }
+
+    private void storeSplitterSettings(final boolean vertical, final int size) {
+        if (timeoutTimer == null) {
+            timeoutTimer = new Timer() {
+                @Override
+                public void run() {
+                    timeoutTimer.cancel();
+                    timeoutTimer = null;
+                    final ActionConfig actionConfig = new ActionConfig();
+                    actionConfig.setImmediate(true);
+                    actionConfig.setDirtySensitivity(false);
+                    final SplitterSettingsActionContext actionContext = new SplitterSettingsActionContext();
+                    actionContext.setOrientation(vertical ? Long.valueOf(1) : Long.valueOf(0));
+                    actionContext.setPosition(Long.valueOf(size));
+                    actionContext.setActionConfig(actionConfig);
+                    final Action action = ComponentRegistry.instance.get(SplitterSettingsActionContext.COMPONENT_NAME);
+                    action.setInitialContext(actionContext);
+                    action.perform();
+                }
+            };
+        } else {
+            timeoutTimer.cancel();
+        }
+        timeoutTimer.schedule(SCHEDULE_TIMEOUT);
     }
 }

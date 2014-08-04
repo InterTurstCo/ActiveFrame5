@@ -5,10 +5,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
@@ -19,6 +23,8 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DO_SPLITTER_ORIENTATION_FIELD_KEY;
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DO_SPLITTER_POSITION_FIELD_KEY;
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SELECTED_IDS_KEY;
 
 @ComponentName("domain.object.surfer.plugin")
@@ -26,6 +32,8 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
 
     @Autowired
     private ApplicationContext applicationContext;
+    @Autowired private CurrentUserAccessor currentUserAccessor;
+    @Autowired private CollectionsService collectionsService;
 
     public ActivePluginData initialize(Dto params) {
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) params;
@@ -63,6 +71,12 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(config.isToggleEdit());
         result.setPluginState(dosState);
+        final IdentifiableObject identifiableObject = PluginHelper.getDomainObjectSurferSettingsIdentifiableObject(
+                currentUserAccessor.getCurrentUser(), collectionsService);
+        if (identifiableObject != null) {
+            result.setSplitterOrientation(identifiableObject.getLong(DO_SPLITTER_ORIENTATION_FIELD_KEY).intValue());
+            result.setSplitterPosition(identifiableObject.getLong(DO_SPLITTER_POSITION_FIELD_KEY).intValue());
+        }
         return result;
     }
 }

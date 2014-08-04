@@ -65,6 +65,29 @@ public class PluginHelper {
         return null;
     }
 
+    public static IdentifiableObject getDomainObjectSurferSettingsIdentifiableObject(final String userLogin,
+                    final CollectionsService collectionsService) {
+        final List<Filter> filters = new ArrayList<>();
+        filters.add(Filter.create("byPerson", 0, new StringValue(userLogin)));
+        final IdentifiableObjectCollection collection =
+                collectionsService.findCollection("bu_user_settings_collection", null, filters);
+        return collection.size() == 0 ? null : collection.get(0);
+    }
+
+    public static DomainObject getDomainObjectSurferSettingsDomainObject(final CurrentUserAccessor currentUserAccessor,
+                    final CollectionsService collectionsService, final CrudService crudService) {
+        final IdentifiableObject identifiableObject =
+                getDomainObjectSurferSettingsIdentifiableObject(currentUserAccessor.getCurrentUser(), collectionsService);
+        final DomainObject result;
+        if (identifiableObject != null) {
+            result = crudService.find(identifiableObject.getId());
+        } else {
+            result = crudService.createDomainObject("bu_user_settings");
+            result.setReference("person", currentUserAccessor.getCurrentUserId());
+        }
+        return result;
+    }
+
     public static IdentifiableObject getCollectionSettingIdentifiableObject(final String collectionName,
                                                                             final String viewName,
                                                                             final String userLogin,

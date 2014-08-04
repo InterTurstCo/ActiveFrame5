@@ -7,6 +7,11 @@ public class DomainObjectSurferPluginData extends ActivePluginData {
     private CollectionPluginData collectionPluginData;
     private FormPluginData formPluginData;
     private DomainObjectSurferConfig domainObjectSurferConfig;
+    private Integer splitterPosition;
+    /**
+     * 0 - горизонтальная, 1 - вертикальная
+     */
+    private Integer splitterOrientation;
 
     public DomainObjectSurferConfig getDomainObjectSurferConfig() {
         return domainObjectSurferConfig;
@@ -30,6 +35,22 @@ public class DomainObjectSurferPluginData extends ActivePluginData {
 
     public void setFormPluginData(FormPluginData formPluginData) {
         this.formPluginData = formPluginData;
+    }
+
+    public Integer getSplitterPosition() {
+        return splitterPosition;
+    }
+
+    public void setSplitterPosition(Integer splitterPosition) {
+        this.splitterPosition = splitterPosition;
+    }
+
+    public Integer getSplitterOrientation() {
+        return splitterOrientation;
+    }
+
+    public void setSplitterOrientation(Integer splitterOrientation) {
+        this.splitterOrientation = splitterOrientation;
     }
 
     @Override
