@@ -22,6 +22,7 @@ import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -36,9 +37,12 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CommonSortCriterionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -79,6 +83,7 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnOrderActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnWidthActionContext;
+import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
@@ -104,7 +109,6 @@ public class CollectionPluginView extends PluginView {
     private LinkedHashMap<String, CollectionColumnProperties> fieldPropertiesMap;
     private VerticalPanel root = new VerticalPanel();
     private String collectionName;
-    private InitialFiltersConfig initialFiltersConfig;
     private int listCount;
     private int tableWidth;
     private boolean singleChoice = true;
@@ -167,7 +171,6 @@ public class CollectionPluginView extends PluginView {
     public IsWidget getViewWidget() {
         CollectionPluginData collectionPluginData = plugin.getInitialData();
         rowsChunk = collectionPluginData.getRowsChunk();
-        initialFiltersConfig = collectionPluginData.getInitialFiltersConfig();
         collectionName = collectionPluginData.getCollectionName();
         fieldPropertiesMap = collectionPluginData.getDomainObjectFieldPropertiesMap();
         singleChoice = collectionPluginData.isSingleChoice();
@@ -351,6 +354,7 @@ public class CollectionPluginView extends PluginView {
                 } else {
                     onKeyEnterPressed();
                 }
+                updateFilterConfig();
             }
         });
 
@@ -359,6 +363,8 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(SaveToCsvEvent.TYPE, new SaveToCsvEventHandler() {
             @Override
             public void saveToCsv(SaveToCsvEvent saveToCsvEvent) {
+                final InitialFiltersConfig initialFiltersConfig =
+                        ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
                 JSONObject requestObj = new JSONObject();
                 JsonUtil.prepareJsonAttributes(requestObj, collectionName, simpleSearchQuery, searchArea);
                 JsonUtil.prepareJsonSortCriteria(requestObj, fieldPropertiesMap, sortCollectionState);
@@ -391,7 +397,52 @@ public class CollectionPluginView extends PluginView {
         lastScrollPos = 0;
         filtersMap.clear();
         clearAllTableData();
+    }
 
+    private void updateFilterConfig() {
+        final CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
+        final List<AbstractFilterConfig> configs = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : filtersMap.entrySet()) {
+            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+                final InitialFilterConfig initialFilterConfig = new InitialFilterConfig();
+                initialFilterConfig.setName((String) fieldPropertiesMap.get(
+                        entry.getKey()).getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY));
+                final List<ParamConfig> paramConfigs = new ArrayList<>();
+                for (int index = 0; index < entry.getValue().size(); index++) {
+                    final ParamConfig paramConfig = new ParamConfig();
+                    paramConfig.setName(Integer.valueOf(index));
+                    final String paramValue = entry.getValue().get(index).trim();
+                    if (!paramValue.isEmpty()) {
+                        paramConfig.setValue(entry.getValue().get(index));
+                        paramConfig.setType((String) fieldPropertiesMap.get(
+                                entry.getKey()).getProperty(CollectionColumnProperties.TYPE_KEY));
+                        paramConfigs.add(paramConfig);
+                    }
+                }
+                if (!paramConfigs.isEmpty()) {
+                    initialFilterConfig.setParamConfigs(paramConfigs);
+                    configs.add(initialFilterConfig);
+                }
+            }
+        }
+        if (configs.isEmpty()) {
+            config.setInitialFiltersConfig(null);
+        } else {
+            final InitialFiltersConfig initialFiltersConfig = new InitialFiltersConfig();
+            initialFiltersConfig.setAbstractFilterConfigs(configs);
+            config.setInitialFiltersConfig(initialFiltersConfig);
+        }
+        final Action action = ComponentRegistry.instance.get(CollectionFiltersActionContext.COMPONENT_NAME);
+        final CollectionFiltersActionContext context = new CollectionFiltersActionContext();
+        context.setCollectionName(collectionName);
+        context.setCollectionViewName(getCollectionIdentifier());
+        context.setCollectionViewerConfig(config);
+        final ActionConfig actionConfig = new ActionConfig();
+        actionConfig.setImmediate(true);
+        actionConfig.setDirtySensitivity(false);
+        context.setActionConfig(actionConfig);
+        action.setInitialContext(context);
+        action.perform();
     }
 
     private void clearAllTableData() {
@@ -453,6 +504,17 @@ public class CollectionPluginView extends PluginView {
         AbsolutePanel treeLinkWidget = new AbsolutePanel();
         treeLinkWidget.addStyleName("collection-plugin-view-container");
         treeLinkWidget.add(filterButton);
+        final Button columnManagerButton = new Button();
+        columnManagerButton.setStyleName("columnSettingsButton");
+        columnManagerButton.addStyleName("show-filter-button");
+
+        columnManagerButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                columnHeaderController.showPopup(columnManagerButton);
+            }
+        });
+        treeLinkWidget.add(columnManagerButton);
         AbsolutePanel containerForToolbar = new AbsolutePanel();
         containerForToolbar.addStyleName("search-header");
         if (searchArea != null && !searchArea.isEmpty()) {
@@ -531,6 +593,8 @@ public class CollectionPluginView extends PluginView {
     }
 
     private String getPanelState() {
+        final InitialFiltersConfig initialFiltersConfig =
+                ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
         if (filterPanelConfig == null && initialFiltersConfig == null) {
             return CLOSED;
         } else if (filterPanelConfig == null && initialFiltersConfig != null) {
@@ -578,6 +642,8 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createCollectionData() {
+        final InitialFiltersConfig initialFiltersConfig =
+                ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, rowsChunk, collectionName,
                 fieldPropertiesMap, simpleSearchQuery, searchArea);
         collectionRowsRequest.setFiltersMap(filtersMap);
@@ -606,6 +672,8 @@ public class CollectionPluginView extends PluginView {
                 : collectionColumnProperties.getDescSortCriteriaConfig();
         collectionRowsRequest.setSortCriteriaConfig(sortCriteriaConfig);
         collectionRowsRequest.setFiltersMap(filtersMap);
+        final InitialFiltersConfig initialFiltersConfig =
+                ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         collectionRowRequestCommand(collectionRowsRequest);
 
