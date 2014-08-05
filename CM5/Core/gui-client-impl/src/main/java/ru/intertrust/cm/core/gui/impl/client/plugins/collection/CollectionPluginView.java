@@ -163,13 +163,14 @@ public class CollectionPluginView extends PluginView {
                 }
             }
         });
-
     }
 
 
     @Override
     public IsWidget getViewWidget() {
-        CollectionPluginData collectionPluginData = plugin.getInitialData();
+        final CollectionPluginData collectionPluginData = plugin.getInitialData();
+        final CollectionViewerConfig collectionViewerConfig =  (CollectionViewerConfig) plugin.getConfig();
+        collectionViewerConfig.setInitialFiltersConfig(collectionPluginData.getInitialFiltersConfig());
         rowsChunk = collectionPluginData.getRowsChunk();
         collectionName = collectionPluginData.getCollectionName();
         fieldPropertiesMap = collectionPluginData.getDomainObjectFieldPropertiesMap();
@@ -355,6 +356,7 @@ public class CollectionPluginView extends PluginView {
                     onKeyEnterPressed();
                 }
                 updateFilterConfig();
+                clearAllTableData();
             }
         });
 
@@ -387,7 +389,6 @@ public class CollectionPluginView extends PluginView {
 
             }
         }
-        clearAllTableData();
     }
 
     private void onKeyEscapePressed() {
@@ -396,7 +397,6 @@ public class CollectionPluginView extends PluginView {
         columnHeaderController.changeFiltersInputsVisibility(false);
         lastScrollPos = 0;
         filtersMap.clear();
-        clearAllTableData();
     }
 
     private void updateFilterConfig() {
