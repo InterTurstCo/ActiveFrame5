@@ -33,7 +33,7 @@ public class AttachmentUploaderView extends Composite {
     private Style.Display displayStyle;
     private Image progressbar;
     private Label percentage;
-    private Image addFile;
+    private FocusPanel addFile;
     private FileUpload fileUpload;
     private FormPanel submitForm;
     private boolean singleChoice;
@@ -254,9 +254,9 @@ public class AttachmentUploaderView extends Composite {
     }
 
     private void initUploadButton() {
-        addFile = new Image("icons/icon-create.png");
+        addFile = new FocusPanel();
+        addFile.addStyleName("attPlImgCreate");
         Style style = addFile.getElement().getStyle();
-        style.setMarginBottom(7, Style.Unit.PX);
         addFile.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

@@ -453,17 +453,15 @@ h1 {
 }
 
 .show-filter-button {
-    width: 23px;
-    height: 23px;
-    background-color: #f0f4ff;
-    background-image: url(css/filter-btn.png);
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+    background: #f0f4ff url(css/filter-btn.png) no-repeat 50% 50%;
     border: 1px solid #c0c4cf;
     border-radius: 3px 3px 3px 3px;
     box-shadow: none;
+    cursor: pointer;
     float: right;
+    height: 23px;
     margin: 3px 5px 0 5px;
+    width: 23px;
 }
 
 .search-header {
@@ -473,7 +471,6 @@ h1 {
 .horizont-container {
     background-color: #f0f4ff;
     padding: 5px 0 0 0;
-    border: 5 none;
     height: 32px;
 }
 
@@ -690,6 +687,11 @@ td.datePickerMonth {
 /**
   * Action Bar
 **/
+
+/* hover's */
+.gwt-MenuItem:hover {
+    cursor: pointer;
+}
 .decorated-action-link .actionBar-refresh {
     background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 0;
     float: left;
@@ -1018,6 +1020,7 @@ td.datePickerMonth {
     top: 0;
     left: 0;
     bottom: 0;
+    /*width: 140px;*/
     margin-top: 60px;
 }
 
@@ -1041,8 +1044,8 @@ td.datePickerMonth {
     position: absolute !important;
     bottom: 0;
     top: 0;
+    /*width: 140px;*/
     margin-top: 60px;
-
 }
 
 .central-div-panel-test {
@@ -1286,12 +1289,11 @@ td.datePickerMonth {
 **/
 .facebook-main-box {
     color: #000;
-    /* border: 1px solid #ccc;*/
     overflow: auto;
     background: rgba(255, 255, 255, 0.70);
     min-height: 24px;
-    padding: 1px 2px !important;
-    margin: 5px 5px 5px 5px;
+    padding: 1px 2px;
+    margin: 5px;
 }
 
 .facebook-element {
@@ -1814,6 +1816,7 @@ td.datePickerMonth {
 }
 
 .not-edit-date-text-label {
+    display: inline;
     min-height: 24px;
     margin: 5px;
 }

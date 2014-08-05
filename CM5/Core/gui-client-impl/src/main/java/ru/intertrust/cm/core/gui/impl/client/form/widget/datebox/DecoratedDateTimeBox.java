@@ -73,6 +73,7 @@ public class DecoratedDateTimeBox extends Composite {
     private void initRoot(final DateBoxState state) {
 
         root.setStyleName("wrap-date");
+        root.getElement().getStyle().clearPosition();
         RangeStartConfig rangeStartConfig = state.getDateBoxConfig().getRangeStartConfig();
         RangeEndConfig rangeEndConfig = state.getDateBoxConfig().getRangeEndConfig();
         boolean isSearchRangePopup = rangeStartConfig != null || rangeEndConfig != null;

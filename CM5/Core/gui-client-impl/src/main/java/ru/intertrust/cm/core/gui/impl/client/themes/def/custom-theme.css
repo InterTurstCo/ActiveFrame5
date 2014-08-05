@@ -313,10 +313,12 @@
 }
 
 .gwt-TextBox {
-
     display: inline-block;
     box-sizing: border-box;
-/*    margin: 5px 10px;*/
+    /*width: 100%;*/
+}
+
+.form-panel-header .widget-wrapper .gwt-TextBox {
     width: 100%;
 }
 
