@@ -520,6 +520,11 @@
                         </td>
                         <!-- text-box (Название) -->
                     </tr>
+                    <tr>
+                        <td>
+                            <widget id="cmfive1377"/>
+                        </td>
+                    </tr>
                 </table>
             </header>
             <body display-single-tab="false">
@@ -567,6 +572,9 @@
                 <collection-ref name="Departments"/>
 
             </linked-domain-object-hyperlink>
+            <date-box id="cmfive1377">
+                <field-path value="created_date"/>
+            </date-box>
         </widget-config>
     </form>
 

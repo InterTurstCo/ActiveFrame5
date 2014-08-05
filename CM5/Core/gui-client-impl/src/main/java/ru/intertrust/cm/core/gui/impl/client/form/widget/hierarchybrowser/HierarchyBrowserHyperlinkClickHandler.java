@@ -47,7 +47,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
         config.setDomainObjectId(id);
         config.getPluginState().setToggleEdit(true);
         config.getPluginState().setInCentralPanel(true);
-        final FormPlugin plugin = noneEditableFormDialogBox.createFormPlugin(config);
+        final FormPlugin plugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
             @Override
@@ -69,7 +69,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
                 config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox =
                         new FormDialogBox("Редактирование " + title);
-                final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config);
+                final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
