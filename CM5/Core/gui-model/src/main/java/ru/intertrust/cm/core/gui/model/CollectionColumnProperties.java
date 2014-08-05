@@ -33,11 +33,13 @@ public class CollectionColumnProperties implements Dto {
     public static final String FIELD_NAME = "field";
     public static final String INITIAL_FILTER_VALUES = "initialFilterValues";
     public static final String DATE_RANGE = "range-date";
+    public static final String HIDDEN = "hidden";
     private AscSortCriteriaConfig ascSortCriteriaConfig;
     private DescSortCriteriaConfig descSortCriteriaConfig;
     private HashMap<String, Object> properties = new HashMap<String, Object>();
     private RendererConfig rendererConfig;
     private ImageMappingsConfig imageMappingsConfig;
+
     public AscSortCriteriaConfig getAscSortCriteriaConfig() {
         return ascSortCriteriaConfig;
     }

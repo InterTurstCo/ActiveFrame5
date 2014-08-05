@@ -10,4 +10,6 @@ import com.google.gwt.resources.client.CssResource;
  */
 public interface CommonCssResource extends CssResource {
     String headerExtendedSearch();
+
+    String columnSettingsButton();
 }

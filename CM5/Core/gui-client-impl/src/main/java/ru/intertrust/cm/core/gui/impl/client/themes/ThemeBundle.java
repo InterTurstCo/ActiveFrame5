@@ -29,6 +29,9 @@ public interface ThemeBundle extends ClientBundle {
     @Source("images/ext-search.png")
     ImageResource extendedSearchIm();
 
+    @Source("images/columnSettingsIm.png")
+    ImageResource columnSettingsIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

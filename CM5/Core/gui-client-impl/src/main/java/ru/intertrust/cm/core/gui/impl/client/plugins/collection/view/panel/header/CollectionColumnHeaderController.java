@@ -5,17 +5,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
-import ru.intertrust.cm.core.gui.impl.client.history.UserSettingsObject;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.ColumnSettingsObject;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
-import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
-import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 import java.util.List;
 
@@ -27,12 +20,10 @@ import java.util.List;
 public class CollectionColumnHeaderController {
     private List<ColumnHeaderBlock> columnHeaderBlocks;
     private CollectionDataGrid dataGrid;
-    private String collectionIdentifier;
     private ColumnSelectorPopup popup;
 
-    public CollectionColumnHeaderController(String collectionIdentifier, CollectionDataGrid dataGrid) {
+    public CollectionColumnHeaderController(CollectionDataGrid dataGrid) {
         this.dataGrid = dataGrid;
-        this.collectionIdentifier = collectionIdentifier;
 
     }
 
@@ -155,8 +146,6 @@ public class CollectionColumnHeaderController {
             for (int i = 0; i < columnHeaderBlocks.size(); i++) {
 
                 popup.hide();
-                // FIXME merge
-//                handleHistory();
                 changeVisibilityOfColumns();
             }
         }
@@ -188,23 +177,6 @@ public class CollectionColumnHeaderController {
             dataGrid.redraw();
         }
     }
-    // FIXME merge
-//
-//    public void handleHistory() {
-//
-//        final UserSettingsObject userSettingsObject = UserSettingsUtil.getUserSettingsObjectForColumns(collectionIdentifier);
-//        for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
-//            String field = columnHeaderBlock.getHeader().getHeaderWidget().getFieldName();
-//            final ColumnSettingsObject columnSettingsObject = UserSettingsUtil.getColumnSettingsObject(userSettingsObject, field);
-//            columnSettingsObject.setVisible(columnHeaderBlock.getColumn().isVisible());
-//        }
-//
-//        final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
-//                UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(userSettingsObject).toString());
-//        Application.getInstance().getHistoryManager().addHistoryItems(collectionIdentifier, item);
-//
-//
-//    }
-//
+
 
 }

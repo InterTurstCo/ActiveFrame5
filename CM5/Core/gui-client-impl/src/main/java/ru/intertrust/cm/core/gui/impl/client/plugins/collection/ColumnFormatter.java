@@ -16,7 +16,8 @@ import ru.intertrust.cm.core.gui.model.util.StringUtil;
 public class ColumnFormatter {
     private static final String CUT_STYLE = "cut";
 
-    private ColumnFormatter() {}
+    private ColumnFormatter() {
+    }
 
     public static CollectionColumn createFormattedColumn(CollectionColumnProperties columnProperties) {
         String field = (String) columnProperties.getProperty(CollectionColumnProperties.FIELD_NAME);
@@ -39,7 +40,8 @@ public class ColumnFormatter {
         collectionColumn.setDataStoreName(columnName);
         boolean sortable = (Boolean) columnProperties.getProperty(CollectionColumnProperties.SORTABLE);
         collectionColumn.setSortable(sortable);
-
+        boolean hidden = (Boolean) columnProperties.getProperty(CollectionColumnProperties.HIDDEN);
+        collectionColumn.setVisible(!hidden);
         return collectionColumn;
     }
 

@@ -545,6 +545,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     private void changeColumnWidth(final int newWidth) {
         table.setColumnWidth(column, newWidth + "px");
+        column.setCalculatedWidth(newWidth);
         widget.setFilterInputWidth(newWidth - SEARCH_CONTAINER_MARGIN_WIDTH);
         saveFilterValue();
         table.redraw();

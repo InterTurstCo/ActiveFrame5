@@ -12,7 +12,8 @@ import java.util.*;
  */
 public class CollectionDataGridUtils {
 
-    private CollectionDataGridUtils() {}
+    private CollectionDataGridUtils() {
+    }
 
     public static void adjustColumnsWidth(int tableWidth, CollectionDataGrid tableBody) {
         final Map<CollectionColumn, Integer> widthMap = new HashMap<>();
@@ -31,8 +32,8 @@ public class CollectionDataGridUtils {
             }
         }
         int unfinishedColumnCount = tableBody.getColumnCount() - processingColumnCount;
-        int columnWidthAverage =  unfinishedColumnCount < 1 ? 0 : tableWidth / unfinishedColumnCount;
-        for (Iterator<CollectionColumn> it = unProcessingColumnList.iterator(); it.hasNext();) {
+        int columnWidthAverage = unfinishedColumnCount < 1 ? 0 : tableWidth / unfinishedColumnCount;
+        for (Iterator<CollectionColumn> it = unProcessingColumnList.iterator(); it.hasNext(); ) {
             final CollectionColumn column = it.next();
             if (column.getMinWidth() > columnWidthAverage) {
                 widthMap.put(column, column.getMinWidth());
@@ -55,7 +56,10 @@ public class CollectionDataGridUtils {
             widthMap.put(column, columnWidthAverage);
         }
         for (Map.Entry<CollectionColumn, Integer> entry : widthMap.entrySet()) {
-            tableBody.setColumnWidth(entry.getKey(), entry.getValue() + "px");
+            CollectionColumn column = entry.getKey();
+            int calculatedWidth = entry.getValue();
+            tableBody.setColumnWidth(column, calculatedWidth + "px");
+            column.setCalculatedWidth(calculatedWidth);
         }
     }
 

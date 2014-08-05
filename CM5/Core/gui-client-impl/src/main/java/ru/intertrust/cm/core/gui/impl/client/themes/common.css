@@ -2,5 +2,16 @@
     gwt-image: "extendedSearchIm";
     height: 32px;
     width: 32px;
+}
 
+@sprite .columnSettingsButton {
+    gwt-image: "columnSettingsIm";
+    border: 1px solid #c0c4cf;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: none;
+    cursor: pointer;
+    float: right;
+    height: 23px;
+    margin: 3px 5px 0 5px;
+    width: 23px;
 }

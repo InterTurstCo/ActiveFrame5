@@ -1,33 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
@@ -35,23 +12,14 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
-import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.DateUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
-import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -61,6 +29,10 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -322,12 +294,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         if (collectionDisplay != null) {
             List<CollectionColumnConfig> columnConfigs = collectionDisplay.getColumnConfig();
             for (CollectionColumnConfig columnConfig : columnConfigs) {
-                if (!columnConfig.isHidden()) {
-                    final String field = columnConfig.getField();
-                    final CollectionColumnProperties properties =
-                            GuiServerHelper.collectionColumnConfigToProperties(columnConfig, sortCriteriaConfig, initialFiltersConfig);
-                    columnPropertiesMap.put(field, properties);
-                }
+                final String field = columnConfig.getField();
+                final CollectionColumnProperties properties =
+                        GuiServerHelper.collectionColumnConfigToProperties(columnConfig, sortCriteriaConfig, initialFiltersConfig);
+                columnPropertiesMap.put(field, properties);
             }
             return columnPropertiesMap;
 

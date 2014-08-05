@@ -1,12 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -21,54 +14,24 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CommonSortCriterionConfig;
-import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
-import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.FilterEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
@@ -91,11 +54,9 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MIN_WIDTH;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSED;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN;
+import java.util.*;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -158,7 +119,7 @@ public class CollectionPluginView extends PluginView {
                     if (sortCollectionState != null) {
                         sortCollectionState.setResetCollection(false);
                     }
-                    collectionData();
+                    fetchData();
 
                 }
             }
@@ -251,7 +212,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createTableColumns() {
-        columnHeaderController = new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody);
+        columnHeaderController = new CollectionColumnHeaderController(tableBody);
         if (singleChoice) {
             createTableColumnsWithoutCheckBoxes(fieldPropertiesMap);
         } else {
@@ -333,7 +294,8 @@ public class CollectionPluginView extends PluginView {
                     simpleSearchQuery = event.getText();
 
                 }
-                createCollectionData();
+                CollectionRowsRequest request = createCollectionRowsRequest();
+                collectionRowRequestCommand(request);
             }
         });
         //показать/спрятать панель поиска в таблицы
@@ -449,15 +411,16 @@ public class CollectionPluginView extends PluginView {
         items.clear();
         listCount = 0;
         lastScrollPos = 0;
-        collectionData();
+        fetchData();
     }
 
-    private void collectionData() {
-        if (sortCollectionState == null) {
-            createCollectionData();
-        } else {
-            createSortedCollectionData();
-        }
+    private void fetchData() {
+        CollectionRowsRequest request = createRequest();
+        collectionRowRequestCommand(request);
+    }
+
+    public CollectionRowsRequest createRequest() {
+        return sortCollectionState == null ? createCollectionRowsRequest() : createSortedCollectionRowsRequest();
     }
 
     // метод для удаления из коллекции
@@ -505,9 +468,7 @@ public class CollectionPluginView extends PluginView {
         treeLinkWidget.addStyleName("collection-plugin-view-container");
         treeLinkWidget.add(filterButton);
         final Button columnManagerButton = new Button();
-        columnManagerButton.setStyleName("columnSettingsButton");
-        columnManagerButton.addStyleName("show-filter-button");
-
+        columnManagerButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().columnSettingsButton());
         columnManagerButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -565,13 +526,7 @@ public class CollectionPluginView extends PluginView {
             HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             ColumnHeaderBlock block = new ColumnHeaderBlock(collectionColumnHeader, column);
-            // FIXME merge
-//            if (columnSettingsObject != null) {
-//                column.setUserWidth(columnSettingsObject.getWidth());
-//                boolean visible = columnSettingsObject.isVisible();
-//                column.setVisible(visible);
-//                block.setShouldChangeVisibilityState(!visible);
-//            }
+            block.setShouldChangeVisibilityState(!column.isVisible());
             columnHeaderBlocks.add(block);
             tableBody.addColumn(column, collectionColumnHeader);
             SortedMarker sortedMarker = (SortedMarker) columnProperties.getProperty(CollectionColumnProperties.SORTED_MARKER);
@@ -641,17 +596,18 @@ public class CollectionPluginView extends PluginView {
         this.eventBus = eventBus;
     }
 
-    private void createCollectionData() {
+    private CollectionRowsRequest createCollectionRowsRequest() {
         final InitialFiltersConfig initialFiltersConfig =
                 ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, rowsChunk, collectionName,
                 fieldPropertiesMap, simpleSearchQuery, searchArea);
         collectionRowsRequest.setFiltersMap(filtersMap);
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
-        collectionRowRequestCommand(collectionRowsRequest);
+        return collectionRowsRequest;
+
     }
 
-    private void createSortedCollectionData() {
+    private CollectionRowsRequest createSortedCollectionRowsRequest() {
         CollectionRowsRequest collectionRowsRequest;
         String field = sortCollectionState.getField();
         boolean ascending = sortCollectionState.isAscend();
@@ -675,7 +631,7 @@ public class CollectionPluginView extends PluginView {
         final InitialFiltersConfig initialFiltersConfig =
                 ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
-        collectionRowRequestCommand(collectionRowsRequest);
+        return collectionRowsRequest;
 
     }
 
@@ -809,7 +765,7 @@ public class CollectionPluginView extends PluginView {
                     sortCollectionState.setResetCollection(false);
                 }
 
-                collectionData();
+                fetchData();
             }
         }
 
