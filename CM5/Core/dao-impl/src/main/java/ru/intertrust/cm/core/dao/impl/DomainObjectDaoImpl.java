@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.business.api.util.MD5Utils;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
@@ -922,11 +923,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         // Если тип доменного объекта является наследником linkedType, то необходимо извлечь доменный объект этого типа
-        for (int i = 0; i < domainObjects.size(); i ++) {
+        for (int i = 0; i < domainObjects.size(); i++) {
             DomainObject domainObject = domainObjects.get(i);
             if (!linkedType.equals(domainObject.getTypeName())) {
                 domainObjectCacheService.removeObjectFromCache(domainObject.getId());
-                domainObjects.set(i, find(domainObject.getId(), accessToken));
+                String user = currentUserAccessor.getCurrentUser();
+                AccessToken accessTokenToFind = accessControlService.createAccessToken(user, domainObject.getId(), DomainObjectAccessType.READ);
+                domainObjects.set(i, find(domainObject.getId(), accessTokenToFind));
             }
         }
 
