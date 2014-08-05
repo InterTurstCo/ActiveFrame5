@@ -74,7 +74,6 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.heade
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
-import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
@@ -454,25 +453,12 @@ public class CollectionPluginView extends PluginView {
         AbsolutePanel treeLinkWidget = new AbsolutePanel();
         treeLinkWidget.addStyleName("collection-plugin-view-container");
         treeLinkWidget.add(filterButton);
-
-        final Button columnManagerButton = new Button();
-        columnManagerButton.setStyleName("columnSettingsButton");
-        columnManagerButton.addStyleName("show-filter-button");
-
-        columnManagerButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                columnHeaderController.showPopup(columnManagerButton);
-            }
-        });
-        treeLinkWidget.add(columnManagerButton);
         AbsolutePanel containerForToolbar = new AbsolutePanel();
         containerForToolbar.addStyleName("search-header");
         if (searchArea != null && !searchArea.isEmpty()) {
             FlowPanel simpleSearch = new FlowPanel();
             SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
             treeLinkWidget.add(simpleSearchPanel);
-
         }
         filterButton.setStyleName("show-filter-button");
         root.add(treeLinkWidget);
@@ -517,12 +503,13 @@ public class CollectionPluginView extends PluginView {
             HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             ColumnHeaderBlock block = new ColumnHeaderBlock(collectionColumnHeader, column);
-            if (columnSettingsObject != null) {
-                column.setUserWidth(columnSettingsObject.getWidth());
-                boolean visible = columnSettingsObject.isVisible();
-                column.setVisible(visible);
-                block.setShouldChangeVisibilityState(!visible);
-            }
+            // FIXME merge
+//            if (columnSettingsObject != null) {
+//                column.setUserWidth(columnSettingsObject.getWidth());
+//                boolean visible = columnSettingsObject.isVisible();
+//                column.setVisible(visible);
+//                block.setShouldChangeVisibilityState(!visible);
+//            }
             columnHeaderBlocks.add(block);
             tableBody.addColumn(column, collectionColumnHeader);
             SortedMarker sortedMarker = (SortedMarker) columnProperties.getProperty(CollectionColumnProperties.SORTED_MARKER);
@@ -535,7 +522,6 @@ public class CollectionPluginView extends PluginView {
         }
         columnHeaderController.setColumnHeaderBlocks(columnHeaderBlocks);
         CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody);
-        columnHeaderController.changeVisibilityOfColumns();
         String panelStatus = getPanelState();
         if (panelStatus.equalsIgnoreCase(OPEN)) {
             columnHeaderController.changeFiltersInputsVisibility(true);

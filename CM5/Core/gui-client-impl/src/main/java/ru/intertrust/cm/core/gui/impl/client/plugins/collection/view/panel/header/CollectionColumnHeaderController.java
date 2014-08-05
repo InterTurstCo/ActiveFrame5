@@ -155,7 +155,8 @@ public class CollectionColumnHeaderController {
             for (int i = 0; i < columnHeaderBlocks.size(); i++) {
 
                 popup.hide();
-                handleHistory();
+                // FIXME merge
+//                handleHistory();
                 changeVisibilityOfColumns();
             }
         }
@@ -187,22 +188,23 @@ public class CollectionColumnHeaderController {
             dataGrid.redraw();
         }
     }
-
-    public void handleHistory() {
-
-        final UserSettingsObject userSettingsObject = UserSettingsUtil.getUserSettingsObjectForColumns(collectionIdentifier);
-        for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
-            String field = columnHeaderBlock.getHeader().getHeaderWidget().getFieldName();
-            final ColumnSettingsObject columnSettingsObject = UserSettingsUtil.getColumnSettingsObject(userSettingsObject, field);
-            columnSettingsObject.setVisible(columnHeaderBlock.getColumn().isVisible());
-        }
-
-        final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
-                UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(userSettingsObject).toString());
-        Application.getInstance().getHistoryManager().addHistoryItems(collectionIdentifier, item);
-
-
-    }
-
+    // FIXME merge
+//
+//    public void handleHistory() {
+//
+//        final UserSettingsObject userSettingsObject = UserSettingsUtil.getUserSettingsObjectForColumns(collectionIdentifier);
+//        for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
+//            String field = columnHeaderBlock.getHeader().getHeaderWidget().getFieldName();
+//            final ColumnSettingsObject columnSettingsObject = UserSettingsUtil.getColumnSettingsObject(userSettingsObject, field);
+//            columnSettingsObject.setVisible(columnHeaderBlock.getColumn().isVisible());
+//        }
+//
+//        final HistoryItem item = new HistoryItem(HistoryItem.Type.USER_INTERFACE,
+//                UserSettingsHelper.COLUMN_SETTINGS_KEY, new JSONObject(userSettingsObject).toString());
+//        Application.getInstance().getHistoryManager().addHistoryItems(collectionIdentifier, item);
+//
+//
+//    }
+//
 
 }

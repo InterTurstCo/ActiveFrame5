@@ -62,7 +62,7 @@ public class ColumnFormatter {
         if (maxWidth != null) {
             column.setMaxWidth(maxWidth);
         }
-        column.setWidth(StringUtil.integerFromString(
+        column.setUserWidth(StringUtil.integerFromString(
                 (String) columnProperties.getProperty(CollectionColumnProperties.WIDTH), 0));
     }
 }

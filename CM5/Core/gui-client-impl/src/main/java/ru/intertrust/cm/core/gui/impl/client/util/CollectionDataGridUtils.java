@@ -12,19 +12,18 @@ import java.util.*;
  */
 public class CollectionDataGridUtils {
 
-    private CollectionDataGridUtils() {
-    }
+    private CollectionDataGridUtils() {}
 
     public static void adjustColumnsWidth(int tableWidth, CollectionDataGrid tableBody) {
         final Map<CollectionColumn, Integer> widthMap = new HashMap<>();
         final List<CollectionColumn> unProcessingColumnList = new ArrayList<>();
-
+        int processingColumnCount = 0;
         for (int index = 0; index < tableBody.getColumnCount(); index++) {
             final CollectionColumn column = (CollectionColumn) tableBody.getColumn(index);
             if (column.getUserWidth() > 0 || !column.isVisible()) {
                 final int columnWidth = adjustWidth(column.getUserWidth(), column.getMinWidth(), column.getMaxWidth());
                 column.setUserWidth(columnWidth);
-
+                processingColumnCount++;
                 tableWidth -= columnWidth;
                 widthMap.put(column, columnWidth);
             } else {

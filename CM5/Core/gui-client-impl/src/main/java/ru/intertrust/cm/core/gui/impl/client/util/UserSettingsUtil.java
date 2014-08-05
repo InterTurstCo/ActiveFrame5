@@ -23,17 +23,18 @@ public class UserSettingsUtil {
         return result;
     }
 
-    public static UserSettingsObject getUserSettingsObjectForColumns(String collectionIdentifier) {
-        final String columnSettingsAsString = Application.getInstance().getHistoryManager()
-                .getValue(collectionIdentifier, UserSettingsHelper.COLUMN_SETTINGS_KEY);
-        UserSettingsObject result = UserSettingsObject.createObject().cast();
-        if (columnSettingsAsString != null && !columnSettingsAsString.isEmpty()) {
-            try {
-                result = JSONParser.parseStrict(columnSettingsAsString).isObject().getJavaScriptObject().cast();
-            } catch (Exception ignored) {
-            }
-        }
-        return result;
-    }
+    // FIXME merge
+//    public static UserSettingsObject getUserSettingsObjectForColumns(String collectionIdentifier) {
+//        final String columnSettingsAsString = Application.getInstance().getHistoryManager()
+//                .getValue(collectionIdentifier, UserSettingsHelper.COLUMN_SETTINGS_KEY);
+//        UserSettingsObject result = UserSettingsObject.createObject().cast();
+//        if (columnSettingsAsString != null && !columnSettingsAsString.isEmpty()) {
+//            try {
+//                result = JSONParser.parseStrict(columnSettingsAsString).isObject().getJavaScriptObject().cast();
+//            } catch (Exception ignored) {
+//            }
+//        }
+//        return result;
+//    }
 
 }
