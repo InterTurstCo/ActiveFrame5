@@ -417,6 +417,25 @@
 
     <xs:complexType name="businessUniverseType">
         <xs:choice maxOccurs="unbounded">
+
+            <xs:element name="login-screen">
+                <xs:complexType>
+                    <xs:attribute name="display-product-version" use="required"
+                                  type="xs:boolean"/>
+                    <xs:attribute name="display-core-version" use="required"
+                                  type="xs:boolean"/>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="product-title">
+                <xs:complexType>
+                    <xs:attribute name="style" use="required"
+                                  type="xs:string"/>
+                    <xs:attribute name="image" use="required"
+                                  type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+
             <xs:element name="logo" type="con:logoType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -478,7 +497,22 @@
     </xs:complexType>
     <!-- Global Config-->
     <xs:complexType name="globalConfigType">
-        <xs:sequence>
+    <xs:sequence>
+        <xs:element name="product">
+            <xs:complexType>
+                <xs:attribute name="title" use="required"
+                              type="xs:string"/>
+            </xs:complexType>
+        </xs:element>
+
+        <xs:element name="product-version">
+            <xs:complexType>
+                <xs:attribute name="archive" use="required"
+                              type="xs:string"/>
+            </xs:complexType>
+        </xs:element>
+
+
             <xs:element name="audit-log">
                 <xs:complexType>
                     <xs:attribute name="enable" use="optional"

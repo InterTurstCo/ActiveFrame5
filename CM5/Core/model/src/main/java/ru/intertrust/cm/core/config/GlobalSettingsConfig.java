@@ -17,6 +17,12 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     private static final long serialVersionUID = -8166587368979922484L;
     public static final String NAME = "global-settings";
 
+    @Element(name = "product", required = false)
+    private ProductTitle productTitle;
+
+    @Element(name = "product-version", required = false)
+    private ProductVersion productVersion;
+
     @Element(name = "audit-log", required = true)
     private AuditLog auditLog;
 
@@ -59,34 +65,29 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         GlobalSettingsConfig that = (GlobalSettingsConfig) o;
 
-        if (auditLog != null ? !auditLog.equals(that.auditLog) : that.auditLog != null) {
+        if (auditLog != null ? !auditLog.equals(that.auditLog) : that.auditLog != null) return false;
+        if (productTitle != null ? !productTitle.equals(that.productTitle) : that.productTitle != null) return false;
+        if (productVersion != null ? !productVersion.equals(that.productVersion) : that.productVersion != null)
             return false;
-        }
-        if (sqlTrace != null ? !sqlTrace.equals(that.sqlTrace) : that.sqlTrace != null) {
+        if (searchLanguages != null ? !searchLanguages.equals(that.searchLanguages) : that.searchLanguages != null)
             return false;
-        }
-        if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null) {
+        if (sqlTrace != null ? !sqlTrace.equals(that.sqlTrace) : that.sqlTrace != null) return false;
+        if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
             return false;
-        }
-        if (searchLanguages != null ? !searchLanguages.equals(that.searchLanguages) : that.searchLanguages != null) {
-            return false;
-        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = auditLog != null ? auditLog.hashCode() : 0;
+        int result = productTitle != null ? productTitle.hashCode() : 0;
+        result = 31 * result + (productVersion != null ? productVersion.hashCode() : 0);
+        result = 31 * result + (auditLog != null ? auditLog.hashCode() : 0);
         result = 31 * result + (sqlTrace != null ? sqlTrace.hashCode() : 0);
         result = 31 * result + (transactionTrace != null ? transactionTrace.hashCode() : 0);
         result = 31 * result + (searchLanguages != null ? searchLanguages.hashCode() : 0);

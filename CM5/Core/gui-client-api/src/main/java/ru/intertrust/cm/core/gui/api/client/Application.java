@@ -43,6 +43,15 @@ public class Application {
     private List<String> timeZoneIds;
     private int collectionCountersUpdatePeriod = -1;
     private int headerNotificationPeriod = -1;
+    private String version;
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
     private Application() {
         // создаем шину сообщений

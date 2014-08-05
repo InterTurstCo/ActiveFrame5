@@ -21,8 +21,14 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.net.URL;
 import java.util.*;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 /**
  * @author Denis Mitavskiy
@@ -35,6 +41,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
     private static final String DEFAULT_THEME_NAME = "default";
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
+    private java.util.Properties prop = new java.util.Properties();
+
     @EJB
     private GuiService guiService;
 
@@ -46,6 +54,38 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     private SoftReference<List<String>> refTimeZoneIds;
 
+    private String getManifestInfo(){
+        Enumeration resEnum;
+        try {
+            resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
+            while (resEnum.hasMoreElements()) {
+                try {
+                    URL url = (URL)resEnum.nextElement();
+                    InputStream is = url.openStream();
+                    if (is != null) {
+                        Manifest manifest = new Manifest(is);
+                        Attributes mainAttribs = manifest.getMainAttributes();
+                       //
+                        String version = mainAttribs.getValue("Implementation-Version");
+
+                        if(version != null) {
+                            return version;
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    //
+                }
+            }
+        } catch (IOException ioE) {
+            //
+        }
+        return null;
+    }
+
+
+
+
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
@@ -53,6 +93,10 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         final BusinessUniverseConfig businessUniverseConfig =
                 configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
         addLogoImagePath(businessUniverseConfig, initialization);
+        //addApplicationVersion
+
+        initialization.setApplicationVersion(getManifestInfo());
+
         addSettingsPopupConfig(businessUniverseConfig, initialization);
         if (businessUniverseConfig != null) {
             initialization.setCollectionCountersUpdatePeriod(

@@ -11,6 +11,10 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
  */
 @Root(name = "business-universe")
 public class BusinessUniverseConfig implements TopLevelConfig {
+
+    @Element(name = "login-screen", required = false)
+    private LoginScreenConfig loginScreenConfig;
+
     @Element(name = "logo", required = false)
     private LogoConfig logoConfig;
 
@@ -90,6 +94,9 @@ public class BusinessUniverseConfig implements TopLevelConfig {
                 that.settingsPopupConfig != null) {
             return false;
         }
+        if (loginScreenConfig != null ? !loginScreenConfig.equals(that.loginScreenConfig) : that.loginScreenConfig != null) {
+            return false;
+        }
 
         return true;
     }
@@ -102,6 +109,9 @@ public class BusinessUniverseConfig implements TopLevelConfig {
         result = 31 * result + collectionCountRefreshConfig.hashCode();
         result = 31 * result + collectionCountCacheRefreshConfig.hashCode();
         result = 31 * result + (settingsPopupConfig == null ? 31 : settingsPopupConfig.hashCode());
+
+                result = result * 31 +
+                (loginScreenConfig == null ? 31 : loginScreenConfig.hashCode());
         return result;
     }
 

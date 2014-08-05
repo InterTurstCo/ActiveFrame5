@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 import ru.intertrust.cm.core.model.AuthenticationException;
-
 import java.util.Date;
 
 /**
