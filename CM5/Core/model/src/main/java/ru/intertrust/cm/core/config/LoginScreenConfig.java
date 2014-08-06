@@ -9,10 +9,10 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class LoginScreenConfig implements Dto{
 
-    @Attribute(name = "display-product-version", required = true)
+    @Attribute(name = "display-product-version", required = false)
     private boolean DisplayProductVersion;
 
-    @Attribute(name = "display-core-version", required = true)
+    @Attribute(name = "display-core-version", required = false)
     private boolean DisplaycoreVersion;
 
     @Element(name = "product-title", required = true)
@@ -51,8 +51,7 @@ public class LoginScreenConfig implements Dto{
 
         if (DisplayProductVersion != that.DisplayProductVersion) return false;
         if (DisplaycoreVersion != that.DisplaycoreVersion) return false;
-        if (productTitleConfig != null ? !productTitleConfig.equals(that.productTitleConfig) : that.productTitleConfig != null)
-            return false;
+        if (!productTitleConfig.equals(that.productTitleConfig)) return false;
 
         return true;
     }
@@ -61,7 +60,7 @@ public class LoginScreenConfig implements Dto{
     public int hashCode() {
         int result = (DisplayProductVersion ? 1 : 0);
         result = 31 * result + (DisplaycoreVersion ? 1 : 0);
-        result = 31 * result + (productTitleConfig != null ? productTitleConfig.hashCode() : 0);
+        result = 31 * result + productTitleConfig.hashCode();
         return result;
     }
 }

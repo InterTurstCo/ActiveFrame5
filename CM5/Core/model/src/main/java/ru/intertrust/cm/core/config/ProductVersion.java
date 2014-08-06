@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class ProductVersion implements Dto{
 
-    @Attribute(name = "archive", required = true)
+    @Attribute(name = "archive", required = false)
     private String title;
 
     public String getTitle() {

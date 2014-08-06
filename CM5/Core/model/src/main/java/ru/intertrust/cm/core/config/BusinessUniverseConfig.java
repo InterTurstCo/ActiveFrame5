@@ -42,6 +42,14 @@ public class BusinessUniverseConfig implements TopLevelConfig {
         return headerNotificationRefreshConfig;
     }
 
+    public LoginScreenConfig getLoginScreenConfig() {
+        return loginScreenConfig;
+    }
+
+    public void setLoginScreenConfig(LoginScreenConfig loginScreenConfig) {
+        this.loginScreenConfig = loginScreenConfig;
+    }
+
     public CollectionCountRefreshConfig getCollectionCountRefreshConfig() {
         return collectionCountRefreshConfig;
     }

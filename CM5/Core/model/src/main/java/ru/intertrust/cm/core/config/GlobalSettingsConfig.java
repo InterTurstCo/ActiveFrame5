@@ -63,6 +63,22 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         return searchLanguages;
     }
 
+    public ProductTitle getProductTitle() {
+        return productTitle;
+    }
+
+    public void setProductTitle(ProductTitle productTitle) {
+        this.productTitle = productTitle;
+    }
+
+    public ProductVersion getProductVersion() {
+        return productVersion;
+    }
+
+    public void setProductVersion(ProductVersion productVersion) {
+        this.productVersion = productVersion;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

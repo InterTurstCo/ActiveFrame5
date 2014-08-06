@@ -8,10 +8,10 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class ProductTitleConfig implements Dto{
 
-    @Attribute(name = "style", required = true)
+    @Attribute(name = "style", required = false)
     private String style;
 
-    @Attribute(name = "image", required = true)
+    @Attribute(name = "image", required = false)
     private String image;
 
     public String getStyle() {

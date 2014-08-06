@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class ProductTitle implements Dto {
 
-    @Attribute(name = "title", required = true)
+    @Attribute(name = "title", required = false)
     private String archive;
 
     public String getArchive() {
@@ -26,13 +26,13 @@ public class ProductTitle implements Dto {
 
         ProductTitle that = (ProductTitle) o;
 
-        if (!archive.equals(that.archive)) return false;
+        if (archive != null ? !archive.equals(that.archive) : that.archive != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return archive.hashCode();
+        return archive != null ? archive.hashCode() : 0;
     }
 }

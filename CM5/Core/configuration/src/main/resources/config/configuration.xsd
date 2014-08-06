@@ -417,25 +417,9 @@
 
     <xs:complexType name="businessUniverseType">
         <xs:choice maxOccurs="unbounded">
-
-            <xs:element name="login-screen">
-                <xs:complexType>
-                    <xs:attribute name="display-product-version" use="required"
-                                  type="xs:boolean"/>
-                    <xs:attribute name="display-core-version" use="required"
-                                  type="xs:boolean"/>
-                </xs:complexType>
-            </xs:element>
-
-            <xs:element name="product-title">
-                <xs:complexType>
-                    <xs:attribute name="style" use="required"
-                                  type="xs:string"/>
-                    <xs:attribute name="image" use="required"
-                                  type="xs:string"/>
-                </xs:complexType>
-            </xs:element>
-
+            <xs:element name="login-screen" type="con:logoScreenType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="logo" type="con:logoType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -464,6 +448,18 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="logoScreenType">
+            <xs:sequence minOccurs="1">
+                <xs:element name="product-title"
+                            type="con:productTitleType" />
+            </xs:sequence>
+            <xs:attribute name="display-product-version" use="required"
+                          type="xs:boolean"/>
+            <xs:attribute name="display-core-version" use="required"
+                          type="xs:boolean"/>
+    </xs:complexType>
+
     <xs:complexType name="themesType">
         <xs:sequence minOccurs="1">
             <xs:element name="theme"
@@ -487,6 +483,13 @@
     <xs:complexType name="logoType">
         <xs:attribute name="image" use="required" type="xs:string"/>
     </xs:complexType>
+    <xs:complexType name="productTitleType">
+        <xs:attribute name="style" use="required"
+                      type="xs:string"/>
+        <xs:attribute name="image" use="required"
+                      type="xs:string"/>
+    </xs:complexType>
+
 
     <xs:complexType name="urlConfigType">
         <xs:simpleContent>
