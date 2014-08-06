@@ -12,9 +12,9 @@
         </search-languages>
     </global-settings>
     <business-universe>
-        <login-screen display-product-version="true" display-core-version="true"/>
-        <product-title style="text/image" image="some-image.png"/>
-        <logo image="images/logo.png"/>
+        <!--<login-screen display-product-version="true" display-core-version="true"/>-->
+        <!--<product-title style="text/image" image="some-image.png"/>-->
+        <!--<logo image="images/logo.png"/>-->
         <settings-popup>
             <themes>
                 <theme display-name="Основная тема" component-name="default-theme" default-theme="true"
