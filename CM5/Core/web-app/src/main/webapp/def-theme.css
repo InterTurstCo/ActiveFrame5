@@ -263,8 +263,8 @@ h1 {
     border-bottom: 1px solid #4073AD !important;
 }
 
-.dataGridHeaderRow:hover th {
-    border-right: 1px dashed #ffffff;
+.dataGridHeaderRow th:hover {
+    border-right: 1px solid #ffffff;
 }
 
 .right-arrow-horiz:first-child {
