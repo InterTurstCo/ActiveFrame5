@@ -4,6 +4,7 @@ import org.simpleframework.xml.ElementList;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -51,6 +52,12 @@ public class CollectionDisplayConfig implements Dto {
             }
         }
         columnConfig = result;
+    }
+
+    public void updateColumnHidden(final Collection<String> hiddenFields) {
+        for (CollectionColumnConfig config : columnConfig) {
+            config.setHidden(hiddenFields.contains(config.getField()));
+        }
     }
 
     @Override

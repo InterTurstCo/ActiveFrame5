@@ -1,16 +1,25 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header;
 
+import java.util.List;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.UIObject;
+
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
-
-import java.util.List;
+import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnHiddenActionContext;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -18,11 +27,16 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 public class CollectionColumnHeaderController {
+    private final String collectionName;
+    private final String collectionViewName;
     private List<ColumnHeaderBlock> columnHeaderBlocks;
     private CollectionDataGrid dataGrid;
     private ColumnSelectorPopup popup;
 
-    public CollectionColumnHeaderController(CollectionDataGrid dataGrid) {
+    public CollectionColumnHeaderController(final String collectionName, final String collectionViewName,
+                                            final CollectionDataGrid dataGrid) {
+        this.collectionName = collectionName;
+        this.collectionViewName = collectionViewName;
         this.dataGrid = dataGrid;
 
     }
@@ -33,6 +47,7 @@ public class CollectionColumnHeaderController {
 
     public void setColumnHeaderBlocks(List<ColumnHeaderBlock> columnHeaderBlocks) {
         this.columnHeaderBlocks = columnHeaderBlocks;
+        changeVisibilityOfColumns();
     }
 
     public void changeFiltersInputsVisibility(boolean showFilter) {
@@ -86,6 +101,52 @@ public class CollectionColumnHeaderController {
             popup = new ColumnSelectorPopup();
         }
         popup.showRelativeTo(target);
+    }
+
+    private void changeVisibilityOfColumns() {
+        boolean shouldBeRedrawn = false;
+        for (int i = 0; i < columnHeaderBlocks.size(); i++) {
+            ColumnHeaderBlock columnHeaderBlock = columnHeaderBlocks.get(i);
+            CollectionColumn collectionColumn = columnHeaderBlock.getColumn();
+            boolean visible = collectionColumn.isVisible();
+            boolean shouldChangeVisibilityState = columnHeaderBlock.shouldChangeVisibilityState();
+
+            if (visible && shouldChangeVisibilityState) {
+                dataGrid.setColumnWidth(collectionColumn, collectionColumn.getCalculatedWidth(), Style.Unit.PX);
+                columnHeaderBlock.setShouldChangeVisibilityState(false);
+                collectionColumn.setVisible(true);
+                shouldBeRedrawn = true;
+
+            }
+            if (!visible && shouldChangeVisibilityState) {
+                dataGrid.setColumnWidth(collectionColumn, 0, Style.Unit.PX);
+                columnHeaderBlock.setShouldChangeVisibilityState(true);
+                collectionColumn.setVisible(false);
+                shouldBeRedrawn = true;
+            }
+        }
+        if (shouldBeRedrawn) {
+            dataGrid.redraw();
+        }
+    }
+
+    private void storeUserSettings() {
+        final ActionConfig actionConfig = new ActionConfig();
+        actionConfig.setImmediate(true);
+        actionConfig.setDirtySensitivity(false);
+        final CollectionColumnHiddenActionContext actionContext = new CollectionColumnHiddenActionContext();
+        actionContext.setCollectionName(collectionName);
+        actionContext.setActionConfig(actionConfig);
+        actionContext.setCollectionViewName(collectionViewName);
+        for (int index = 0; index < columnHeaderBlocks.size(); index++) {
+            final CollectionColumn column = columnHeaderBlocks.get(index).getColumn();
+            if (!column.isVisible()) {
+                actionContext.putHidden(column.getFieldName());
+            }
+        }
+        final Action action = ComponentRegistry.instance.get(CollectionColumnHiddenActionContext.COMPONENT_NAME);
+        action.setInitialContext(actionContext);
+        action.perform();
     }
 
 
@@ -142,41 +203,9 @@ public class CollectionColumnHeaderController {
 
         @Override
         public void onClick(ClickEvent event) {
-
-            for (int i = 0; i < columnHeaderBlocks.size(); i++) {
-
-                popup.hide();
-                changeVisibilityOfColumns();
-            }
+            popup.hide();
+            changeVisibilityOfColumns();
+            storeUserSettings();
         }
     }
-
-    public void changeVisibilityOfColumns() {
-        boolean shouldBeRedrawn = false;
-        for (int i = 0; i < columnHeaderBlocks.size(); i++) {
-            ColumnHeaderBlock columnHeaderBlock = columnHeaderBlocks.get(i);
-            CollectionColumn collectionColumn = columnHeaderBlock.getColumn();
-            boolean visible = collectionColumn.isVisible();
-            boolean shouldChangeVisibilityState = columnHeaderBlock.shouldChangeVisibilityState();
-
-            if (visible && shouldChangeVisibilityState) {
-                dataGrid.setColumnWidth(collectionColumn, collectionColumn.getCalculatedWidth(), Style.Unit.PX);
-                columnHeaderBlock.setShouldChangeVisibilityState(false);
-                collectionColumn.setVisible(true);
-                shouldBeRedrawn = true;
-
-            }
-            if (!visible && shouldChangeVisibilityState) {
-                dataGrid.setColumnWidth(collectionColumn, 0, Style.Unit.PX);
-                columnHeaderBlock.setShouldChangeVisibilityState(true);
-                collectionColumn.setVisible(false);
-                shouldBeRedrawn = true;
-            }
-        }
-        if (shouldBeRedrawn) {
-            dataGrid.redraw();
-        }
-    }
-
-
 }

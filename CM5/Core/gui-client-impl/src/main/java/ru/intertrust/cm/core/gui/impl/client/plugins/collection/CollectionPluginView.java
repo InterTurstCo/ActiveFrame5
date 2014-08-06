@@ -212,7 +212,8 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createTableColumns() {
-        columnHeaderController = new CollectionColumnHeaderController(tableBody);
+        columnHeaderController =
+                new CollectionColumnHeaderController(collectionName, getCollectionIdentifier(), tableBody);
         if (singleChoice) {
             createTableColumnsWithoutCheckBoxes(fieldPropertiesMap);
         } else {
@@ -537,8 +538,8 @@ public class CollectionPluginView extends PluginView {
                 sortCollectionState = new SortCollectionState(0, rowsChunk, column.getDataStoreName(), ascending, true, field);
             }
         }
-        columnHeaderController.setColumnHeaderBlocks(columnHeaderBlocks);
         CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody);
+        columnHeaderController.setColumnHeaderBlocks(columnHeaderBlocks);
         String panelStatus = getPanelState();
         if (panelStatus.equalsIgnoreCase(OPEN)) {
             columnHeaderController.changeFiltersInputsVisibility(true);
