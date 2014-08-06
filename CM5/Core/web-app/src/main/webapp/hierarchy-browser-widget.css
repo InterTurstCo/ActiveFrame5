@@ -36,7 +36,15 @@
 }
 
 .hierarh-browser-border {
-    border: 2px solid #ededed;
+    border: 1px solid #bbb;
+    min-height: 25px;
+    margin: 6px 6px 0 0;
+    padding: 0 0 0 5px;
+    min-width: 155px;
+}
+
+.hierarh-browser-border .facebook-main-box {
+    margin: 0;
 }
 
 .hierarh-browser-inline-margin-left {
@@ -300,11 +308,9 @@
 }
 
 .hierar-clear-button {
-
 }
 
 .hierar-add-button {
-    margin-left: 15px;
 }
 
 .decorated-right-div > table tr {

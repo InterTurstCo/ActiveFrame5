@@ -52,16 +52,6 @@
 /*}*/
 
 .gwt-SuggestBox {
-    /*
-    height: 15px;
-    padding: 9px 25px 9px 40px !important;
-    position: relative;
-    border: 1px solid;
-    border-color: #fff1ca #ffedbe #ffedbe;
-    border-radius: 5px;
-    background: url(images/ext-search2.png) no-repeat scroll 4px 0px #fffdf0;
-    outline: none;
-    */
 }
 
 .suggestPopupMiddleLeft,
@@ -218,8 +208,9 @@ html>body .gwt-SuggestBoxPopup {
 
 td .gwt-SuggestBox {
     display: inline-block;
-    padding: 7px !important;
+    padding: 7px;
     border: none;
     margin: 0;
-    font-family: Arial;
+    font-family: Arial, sans-serif;
+    width: 20px;
 }

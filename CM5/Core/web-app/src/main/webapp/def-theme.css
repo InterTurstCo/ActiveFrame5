@@ -385,7 +385,9 @@ h1 {
 }
 
 .table-browser-filter-editor {
-    height: 25px;
+    border: 1px solid #bbb;
+    min-height: 25px;
+    margin: 0 5px 0 0;
     padding: 0 0 0 5px;
 }
 
@@ -1263,7 +1265,7 @@ td.datePickerMonth {
     background: url(images/arrow-down.png) no-repeat center transparent;
     cursor: pointer;
     display: inline-block;
-    height: 30px;
+    height: 35px;
     margin-left: -20px;
     min-width: 20px;
     width: 20px;
@@ -1799,11 +1801,11 @@ td.datePickerMonth {
 }
 
 .tree-label {
-    float: left;
-    margin-left: -20px;
-    margin-right: 120px;
-    padding: 8px 8px 0 20px;
-    text-decoration: none !important;
+    /*float: left;*/
+    /*margin-left: -20px;*/
+    /*margin-right: 120px;*/
+    /*padding: 8px 8px 0 20px;*/
+    /*text-decoration: none !important;*/
     cursor: pointer;
 }
 
