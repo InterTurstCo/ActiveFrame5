@@ -265,36 +265,38 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
         @Override
         public void onValueChange(ValueChangeEvent<String> event) {
-            final HistoryManager manager = Application.getInstance().getHistoryManager();
-            if (!Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty()) {
-                manager.applyUrl();
-                return;
-            }
-            final String url = event.getValue();
-            if (url != null && !url.isEmpty()) {
-                manager.setToken(event.getValue());
-                if (manager.hasLink()) {
-                    if (!navigationTreePlugin.restoreHistory()) {
-                        final Plugin plugin = centralPluginPanel.getCurrentPlugin();
-                        plugin.restoreHistory();
-                    }
-                } else if (!manager.getSelectedIds().isEmpty()){
-                    final Id selectedId = manager.getSelectedIds().get(0);
-                    final FormPluginConfig formPluginConfig = new FormPluginConfig(selectedId);
-                    final FormPluginState formPluginState = new FormPluginState();
-                    formPluginState.setInCentralPanel(Application.getInstance().getCompactModeState().isExpanded());
-                    formPluginConfig.setPluginState(formPluginState);
+            if (!"logout".equals(event.getValue())) {
+                final HistoryManager manager = Application.getInstance().getHistoryManager();
+                if (!Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty()) {
+                    manager.applyUrl();
+                    return;
+                }
+                final String url = event.getValue();
+                if (url != null && !url.isEmpty()) {
+                    manager.setToken(event.getValue());
+                    if (manager.hasLink()) {
+                        if (!navigationTreePlugin.restoreHistory()) {
+                            final Plugin plugin = centralPluginPanel.getCurrentPlugin();
+                            plugin.restoreHistory();
+                        }
+                    } else if (!manager.getSelectedIds().isEmpty()) {
+                        final Id selectedId = manager.getSelectedIds().get(0);
+                        final FormPluginConfig formPluginConfig = new FormPluginConfig(selectedId);
+                        final FormPluginState formPluginState = new FormPluginState();
+                        formPluginState.setInCentralPanel(Application.getInstance().getCompactModeState().isExpanded());
+                        formPluginConfig.setPluginState(formPluginState);
 
-                    final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
-                    formPlugin.setConfig(formPluginConfig);
-                    formPlugin.setDisplayActionToolBar(true);
-                    formPlugin.setLocalEventBus((EventBus) GWT.create(SimpleEventBus.class));
-                    manager.setMode(HistoryManager.Mode.WRITE, FormPlugin.class.getSimpleName());
-                    navigationTreePlugin.clearCurrentSelectedItemValue();
-                    Window.setTitle("Форма документа");
-                    centralPluginPanel.open(formPlugin);
-                } else {
-                    throw new HistoryException("Переход по данным '" + url + "' невозможет");
+                        final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+                        formPlugin.setConfig(formPluginConfig);
+                        formPlugin.setDisplayActionToolBar(true);
+                        formPlugin.setLocalEventBus((EventBus) GWT.create(SimpleEventBus.class));
+                        manager.setMode(HistoryManager.Mode.WRITE, FormPlugin.class.getSimpleName());
+                        navigationTreePlugin.clearCurrentSelectedItemValue();
+                        Window.setTitle("Форма документа");
+                        centralPluginPanel.open(formPlugin);
+                    } else {
+                        throw new HistoryException("Переход по данным '" + url + "' невозможет");
+                    }
                 }
             }
         }

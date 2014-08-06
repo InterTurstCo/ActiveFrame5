@@ -64,6 +64,7 @@ public class HistoryManagerImpl implements HistoryManager {
     @Override
     public void setToken(final String url) {
         link = UNKNOWN_LINK;
+        urlMap.clear();
         if (url != null && !url.isEmpty()) {
             final String[] items = url.split(DELIMITER_KEY);
             for (String item : items) {
