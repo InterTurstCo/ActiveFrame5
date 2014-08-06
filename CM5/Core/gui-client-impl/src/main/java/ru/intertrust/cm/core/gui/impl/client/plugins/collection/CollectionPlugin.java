@@ -1,12 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.EventBus;
-
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
+
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -26,6 +31,7 @@ public class CollectionPlugin extends Plugin {
 
     /**
      * получение локальной шины событий плагину.
+     *
      * @return
      */
     @Override
@@ -39,6 +45,25 @@ public class CollectionPlugin extends Plugin {
     @Override
     public PluginView createView() {
         return new CollectionPluginView(this);
+
+    }
+
+    public CollectionRowsRequest getCollectionRowRequest() {
+        return ((CollectionPluginView) getView()).createRequest();
+    }
+
+    public void refreshCollection(List<CollectionRowItem> collectionRowItems) {
+        Application.getInstance().showLoadingIndicator();
+        CollectionPluginView view = ((CollectionPluginView) getView());
+        view.clearScrollHandler();
+        view.handleCollectionRowsResponse(collectionRowItems, true);
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                Application.getInstance().hideLoadingIndicator();
+
+            }
+        });
 
     }
 

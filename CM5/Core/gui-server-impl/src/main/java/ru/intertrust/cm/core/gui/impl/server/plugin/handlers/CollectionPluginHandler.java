@@ -24,7 +24,7 @@ import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
-import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
+import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
@@ -345,43 +345,28 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public Dto generateCollectionRowItems(Dto dto) {
         // 21.01 12:50 (DB) -> if 21.01 selected -> it's a date between 21.01 00:00 and 22.01 00:00
-        CollectionRowsRequest collectionRowsRequest = (CollectionRowsRequest) dto;
-        LinkedHashMap<String, CollectionColumnProperties> properties = collectionRowsRequest.getColumnProperties();
-        ArrayList<CollectionRowItem> list;
-        final String collectionName = collectionRowsRequest.getCollectionName();
+        CollectionRowsRequest request = (CollectionRowsRequest) dto;
+        LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
 
-        final int offset = collectionRowsRequest.getOffset();
-        final int limit = collectionRowsRequest.getLimit();
-        //  final List<Filter> filters = transformDateFilters(collectionRowsRequest.getFilterList());
-        Map<String, List<String>> filtersMap = collectionRowsRequest.getFiltersMap();
+        final int offset = request.getOffset();
+        final int limit = request.getLimit();
+        Map<String, List<String>> filtersMap = request.getFiltersMap();
         List<Filter> filters = prepareSearchFilters(filtersMap, properties);
-        InitialFiltersConfig initialFiltersConfig = collectionRowsRequest.getInitialFiltersConfig();
+        InitialFiltersConfig initialFiltersConfig = request.getInitialFiltersConfig();
         Set<String> userFilterNamesWithInputs = filtersMap == null ? null : filtersMap.keySet();
         List<String> excludedInitialFilterNames = prepareExcludedInitialFilterNames(userFilterNamesWithInputs, properties);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, excludedInitialFilterNames, filters);
-        Set<Id> includedIds = collectionRowsRequest.getIncludedIds();
+        Set<Id> includedIds = request.getIncludedIds();
         if (!includedIds.isEmpty()) {
             Filter includedIdsFilter = FilterBuilderUtil.prepareFilter(includedIds, FilterBuilderUtil.INCLUDED_IDS_FILTER);
             filters.add(includedIdsFilter);
         }
-        if (collectionRowsRequest.isSortable()) {
-            list = getRows(collectionName, offset, limit, filters, getSortOrder(collectionRowsRequest), properties);
-        } else {
-            if (collectionRowsRequest.getSimpleSearchQuery().length() > 0) {
-                list = getSimpleSearchRows(collectionName, offset, limit, filters,
-                        collectionRowsRequest.getSimpleSearchQuery(), collectionRowsRequest.getSearchArea(),
-                        properties);
-            } else {
-                list = getRows(collectionName, offset, limit, filters, null, properties);
-                CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
-                collectionRowItemList.setCollectionRows(list);
-            }
+        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit);
 
-        }
-        CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
-        collectionRowItemList.setCollectionRows(list);
+        CollectionRowsResponse collectionRowsResponse = new CollectionRowsResponse();
+        collectionRowsResponse.setCollectionRows(result);
 
-        return collectionRowItemList;
+        return collectionRowsResponse;
     }
 
     private List<Filter> prepareSearchFilters(Map<String, List<String>> filtersMap, LinkedHashMap<String, CollectionColumnProperties> properties) {
@@ -434,5 +419,67 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         textFilter.setFilter(name);
         textFilter.addCriterion(0, new StringValue(text + "%"));
         return textFilter;
+    }
+
+    public CollectionRowsResponse refreshCollection(CollectionRowsRequest request, Id id) {
+        LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
+        int offsetFromRequest = request.getOffset();
+        int limitFromRequest = request.getLimit();
+        int offset = 0;
+        int limit = offsetFromRequest + limitFromRequest;
+        Map<String, List<String>> filtersMap = request.getFiltersMap();
+        List<Filter> filters = prepareSearchFilters(filtersMap, properties);
+        InitialFiltersConfig initialFiltersConfig = request.getInitialFiltersConfig();
+        Set<String> userFilterNamesWithInputs = filtersMap == null ? null : filtersMap.keySet();
+        List<String> excludedInitialFilterNames = prepareExcludedInitialFilterNames(userFilterNamesWithInputs, properties);
+        filterBuilder.prepareInitialFilters(initialFiltersConfig, excludedInitialFilterNames, filters);
+        Set<Id> includedIds = request.getIncludedIds();
+        if (!includedIds.isEmpty()) {
+            Filter includedIdsFilter = FilterBuilderUtil.prepareFilter(includedIds, FilterBuilderUtil.INCLUDED_IDS_FILTER);
+            filters.add(includedIdsFilter);
+        }
+        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit);
+        if (doesNotContainSelectedId(id, result)) {
+            int additionalOffset = limit;
+            List<CollectionRowItem> additionalItems = generateRowItems(request, properties, filters, additionalOffset, 200);
+            result.addAll(additionalItems);
+        }
+        CollectionRowsResponse collectionRowsResponse = new CollectionRowsResponse();
+        collectionRowsResponse.setCollectionRows(result);
+
+        return collectionRowsResponse;
+
+    }
+
+    private ArrayList<CollectionRowItem> generateRowItems(CollectionRowsRequest request,
+                                                          LinkedHashMap<String, CollectionColumnProperties> properties,
+                                                          List<Filter> filters, int offset, int limit) {
+        ArrayList<CollectionRowItem> list;
+        String collectionName = request.getCollectionName();
+        if (request.isSortable()) {
+            list = getRows(collectionName, offset, limit, filters, getSortOrder(request), properties);
+        } else {
+            if (request.getSimpleSearchQuery().length() > 0) {
+                list = getSimpleSearchRows(collectionName, offset, limit, filters,
+                        request.getSimpleSearchQuery(), request.getSearchArea(),
+                        properties);
+            } else {
+                list = getRows(collectionName, offset, limit, filters, null, properties);
+
+            }
+
+        }
+        return list;
+
+    }
+
+    private boolean doesNotContainSelectedId(Id id, List<CollectionRowItem> items) {
+        boolean result = true;
+        for (CollectionRowItem item : items) {
+            if (item.getId().equals(id)) {
+                result = false;
+            }
+        }
+        return result;
     }
 }

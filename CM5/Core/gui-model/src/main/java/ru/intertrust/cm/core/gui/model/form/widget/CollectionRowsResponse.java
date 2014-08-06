@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * Time: 14:19
  * To change this template use File | Settings | File Templates.
  */
-public class CollectionRowItemList implements Dto {
+public class CollectionRowsResponse implements Dto {
     ArrayList<CollectionRowItem> collectionRows;
 
     public ArrayList<CollectionRowItem> getCollectionRows() {

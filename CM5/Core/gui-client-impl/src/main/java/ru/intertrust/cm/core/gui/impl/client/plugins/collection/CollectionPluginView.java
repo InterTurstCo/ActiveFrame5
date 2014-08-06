@@ -48,7 +48,7 @@ import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnOrderAction
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnWidthActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
-import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
+import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
@@ -130,7 +130,7 @@ public class CollectionPluginView extends PluginView {
     @Override
     public IsWidget getViewWidget() {
         final CollectionPluginData collectionPluginData = plugin.getInitialData();
-        final CollectionViewerConfig collectionViewerConfig =  (CollectionViewerConfig) plugin.getConfig();
+        final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
         collectionViewerConfig.setInitialFiltersConfig(collectionPluginData.getInitialFiltersConfig());
         rowsChunk = collectionPluginData.getRowsChunk();
         collectionName = collectionPluginData.getCollectionName();
@@ -186,6 +186,7 @@ public class CollectionPluginView extends PluginView {
         }
         return selectedIds;
     }
+
 
     public boolean restoreHistory() {
         final HistoryManager manager = Application.getInstance().getHistoryManager();
@@ -636,9 +637,14 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    private void collectionRowRequestCommand(final CollectionRowsRequest collectionRowsRequest) {
+    public void clearScrollHandler() {
         lastScrollPos = 0;
         scrollHandlerRegistration.removeHandler();
+    }
+
+    private void collectionRowRequestCommand(final CollectionRowsRequest collectionRowsRequest) {
+
+        clearScrollHandler();
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
         Application.getInstance().showLoadingIndicator();
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
@@ -651,15 +657,10 @@ public class CollectionPluginView extends PluginView {
 
             @Override
             public void onSuccess(Dto result) {
-                CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
-                List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
-                columnHeaderController.saveFilterValues();
-                insertMoreRows(collectionRowItems);
-                tableBody.flush();
-                final ScrollPanel scroll = tableBody.getScrollPanel();
-                scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
-                columnHeaderController.setFocus();
-                columnHeaderController.updateFilterValues();
+                CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
+                List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
+
+                handleCollectionRowsResponse(collectionRowItems, false);
                 Application.getInstance().hideLoadingIndicator();
                 if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {
                     return;
@@ -667,6 +668,22 @@ public class CollectionPluginView extends PluginView {
                 fetchMoreItemsIfRequired();
             }
         });
+    }
+
+    public void handleCollectionRowsResponse(List<CollectionRowItem> collectionRowItems, boolean clearPreviousRows) {
+        columnHeaderController.saveFilterValues();
+        if (clearPreviousRows) {
+            insertRows(collectionRowItems);
+        } else {
+            insertMoreRows(collectionRowItems);
+        }
+        tableBody.flush();
+        final ScrollPanel scroll = tableBody.getScrollPanel();
+        scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
+        columnHeaderController.setFocus();
+        columnHeaderController.updateFilterValues();
+
+
     }
 
     private void collectionOneRowRequestCommand(CollectionRowsRequest collectionRowsRequest) {
@@ -681,8 +698,8 @@ public class CollectionPluginView extends PluginView {
 
             @Override
             public void onSuccess(Dto result) {
-                CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
-                List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
+                CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
+                List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
                 if (collectionRowItems.isEmpty()) { //it happens when the updated item doesn't belong to the collection anymore
                     // перерисовка таблицы(коллекции)
                     tableBody.setRowData(items);
