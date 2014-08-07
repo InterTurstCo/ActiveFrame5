@@ -29,11 +29,10 @@ public class CollectionSortOrderActionHandler extends ActionHandler<CollectionSo
 
     @Override
     public ActionData executeAction(CollectionSortOrderActionContext context) {
-
-        if (context.getCollectionName() == null) {
-            throw new GuiException("Неизвестный тип коллекции");
+        if (context.getLink() == null) {
+            throw new GuiException("Неизвестный url");
         }
-        final DomainObject domainObject = PluginHelper.getCollectionSettingsDomainObject(context.getCollectionName(),
+        final DomainObject domainObject = PluginHelper.getCollectionSettingsDomainObject(context.getLink(),
                 context.getCollectionViewName(), currentUserAccessor, crudService, collectionsService);
         CollectionViewerConfig collectionViewerConfig = null;
         if (domainObject.getString(DO_COLLECTION_VIEWER_FIELD_KEY) != null) {

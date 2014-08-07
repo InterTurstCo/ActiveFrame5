@@ -66,11 +66,14 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
+        final String link = collectionViewerConfig.getHistoryValue(UserSettingsHelper.LINK_KEY);
         CollectionRefConfig collectionRefConfig = collectionViewerConfig.getCollectionRefConfig();
         String collectionName = collectionRefConfig.getName();
-        CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
+        final CollectionViewConfig collectionViewConfig =
+                getViewForCurrentCollection(collectionViewerConfig, collectionName, link);
         final IdentifiableObject identifiableObject = PluginHelper.getCollectionSettingIdentifiableObject(
-                collectionName, collectionViewConfig.getName(), currentUserAccessor.getCurrentUser(), collectionsService);
+                link, collectionViewConfig.getName(), currentUserAccessor.getCurrentUser(),
+                collectionsService);
         if (identifiableObject != null) {
             final CollectionViewerConfig storedConfig = PluginHelper.deserializeFromXml(CollectionViewerConfig.class,
                     identifiableObject.getString(UserSettingsHelper.DO_COLLECTION_VIEWER_FIELD_KEY));
@@ -135,7 +138,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         return pluginData;
     }
 
-    public CollectionPluginData getExtendedCollectionPluginData(String collectionName,
+    public CollectionPluginData getExtendedCollectionPluginData(String collectionName, final String link,
                                                                 ArrayList<CollectionRowItem> items) {
         CollectionRefConfig refConfig = new CollectionRefConfig();
         refConfig.setName(collectionName);
@@ -148,7 +151,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionPluginData pluginData = new CollectionPluginData();
         pluginData.setSingleChoice(singleChoice);
         pluginData.setDisplayChosenValues(displayChosenValues);
-        CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
+        final CollectionViewConfig collectionViewConfig =
+                getViewForCurrentCollection(collectionViewerConfig, collectionName, link);
 
         final LinkedHashMap<String, CollectionColumnProperties> map =
                 getDomainObjectFieldPropertiesMap(collectionViewConfig, null, null);
@@ -225,12 +229,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     }
 
     private CollectionViewConfig getViewForCurrentCollection(CollectionViewerConfig collectionViewerConfig,
-                                                             String collectionName) {
+                                                             String collectionName, final String link) {
         final CollectionViewRefConfig collectionViewRefConfig = collectionViewerConfig.getCollectionViewRefConfig();
         final String viewName = collectionViewRefConfig == null ? null : collectionViewRefConfig.getName();
 
         return PluginHelper.findCollectionViewConfig(collectionName, viewName, currentUserAccessor.getCurrentUser(),
-                configurationService, collectionsService);
+                link, configurationService, collectionsService);
     }
 
     private LinkedHashMap<String, Value> getRowValues(final IdentifiableObject identifiableObject,

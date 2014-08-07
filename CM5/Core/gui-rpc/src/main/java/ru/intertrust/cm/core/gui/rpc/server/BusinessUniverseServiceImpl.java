@@ -96,7 +96,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
         addInformationToInitializationObject(initialization);
         final BusinessUniverseConfig businessUniverseConfig =
-                configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
+                configurationService.getConfig(BusinessUniverseConfig.class, BusinessUniverseConfig.NAME);
         addLogoImagePath(businessUniverseConfig, initialization);
         //addApplicationVersion
 

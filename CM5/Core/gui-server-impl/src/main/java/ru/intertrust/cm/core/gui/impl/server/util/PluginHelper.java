@@ -88,12 +88,12 @@ public class PluginHelper {
         return result;
     }
 
-    public static IdentifiableObject getCollectionSettingIdentifiableObject(final String collectionName,
+    public static IdentifiableObject getCollectionSettingIdentifiableObject(final String link,
                                                                             final String viewName,
                                                                             final String userLogin,
                                                                             final CollectionsService collectionsService) {
         final List<Filter> filters = new ArrayList<>();
-        filters.add(Filter.create("byLink", 0, new StringValue(collectionName)));
+        filters.add(Filter.create("byLink", 0, new StringValue(link)));
         filters.add(Filter.create("byCollectionViewName", 0, new StringValue(viewName)));
         filters.add(Filter.create("byPerson", 0, new StringValue(userLogin)));
         final IdentifiableObjectCollection collection =
@@ -101,17 +101,16 @@ public class PluginHelper {
         return collection.size() == 0 ? null : collection.get(0);
     }
 
-    public static DomainObject getCollectionSettingsDomainObject(final String collectionName,
-                                           final String viewName,
+    public static DomainObject getCollectionSettingsDomainObject(final String link, final String viewName,
                                            final CurrentUserAccessor currentUserAccessor,
                                            final CrudService crudService,
                                            final CollectionsService collectionsService) {
-        final IdentifiableObject identifiableObject = getCollectionSettingIdentifiableObject(collectionName,
+        final IdentifiableObject identifiableObject = getCollectionSettingIdentifiableObject(link,
                 viewName, currentUserAccessor.getCurrentUser(), collectionsService);
         final DomainObject result;
         if (identifiableObject == null) {
             result = crudService.createDomainObject("bu_nav_link_collection");
-            result.setValue("link", new StringValue(collectionName));
+            result.setValue("link", new StringValue(link));
             result.setValue("collection_view_name", new StringValue(viewName));
             result.setValue("person", new ReferenceValue(currentUserAccessor.getCurrentUserId()));
         } else {
@@ -121,13 +120,13 @@ public class PluginHelper {
     }
 
     public static CollectionViewConfig findCollectionViewConfig(final String collectionName, String collectionViewName,
-                                                                final String userLogin,
+                                                                final String userLogin, final String link,
                                                                 final ConfigurationService configurationService,
                                                                 final CollectionsService collectionsService) {
         if (collectionViewName == null) {
             collectionViewName = findDefaultCollectionViewName(collectionName, configurationService);
         }
-        final IdentifiableObject identifiableObject = getCollectionSettingIdentifiableObject(collectionName,
+        final IdentifiableObject identifiableObject = getCollectionSettingIdentifiableObject(link,
                 collectionViewName, userLogin, collectionsService);
         CollectionViewConfig result = null;
         if (identifiableObject != null) {

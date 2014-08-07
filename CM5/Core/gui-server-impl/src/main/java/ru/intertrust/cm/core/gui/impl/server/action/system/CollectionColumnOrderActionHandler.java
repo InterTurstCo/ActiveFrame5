@@ -32,10 +32,10 @@ public class CollectionColumnOrderActionHandler extends ActionHandler<Collection
 
     @Override
     public ActionData executeAction(CollectionColumnOrderActionContext context) {
-        if (context.getCollectionName() == null) {
-            throw new GuiException("Неизвестный тип коллекции");
+        if (context.getLink() == null) {
+            throw new GuiException("Неизвестный url");
         }
-        final DomainObject object = PluginHelper.getCollectionSettingsDomainObject(context.getCollectionName(),
+        final DomainObject object = PluginHelper.getCollectionSettingsDomainObject(context.getLink(),
                 context.getCollectionViewName(), currentUserAccessor, crudService, collectionsService);
         CollectionViewConfig collectionViewConfig = null;
         if (object.getString(DO_COLLECTION_VIEW_FIELD_KEY) != null) {

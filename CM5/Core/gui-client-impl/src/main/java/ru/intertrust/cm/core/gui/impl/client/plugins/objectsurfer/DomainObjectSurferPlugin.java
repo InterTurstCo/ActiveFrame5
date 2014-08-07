@@ -25,6 +25,7 @@ import ru.intertrust.cm.core.gui.model.plugin.*;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.LINK_KEY;
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SELECTED_IDS_KEY;
 
 @ComponentName("domain.object.surfer.plugin")
@@ -200,6 +201,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         if (!manager.getSelectedIds().isEmpty()) {
             config.addHistoryValue(SELECTED_IDS_KEY, manager.getSelectedIds());
         }
+        config.addHistoryValue(LINK_KEY, manager.getLink());
         config.getCollectionViewerConfig().addHistoryValues(
                 manager.getValues(config.getCollectionViewerConfig().getCollectionRefConfig().getName()));
     }

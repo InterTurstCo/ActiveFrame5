@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.UIObject;
 
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
@@ -27,15 +28,13 @@ import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnHiddenActio
  *         Time: 12:05 PM
  */
 public class CollectionColumnHeaderController {
-    private final String collectionName;
     private final String collectionViewName;
     private List<ColumnHeaderBlock> columnHeaderBlocks;
     private CollectionDataGrid dataGrid;
     private ColumnSelectorPopup popup;
 
-    public CollectionColumnHeaderController(final String collectionName, final String collectionViewName,
+    public CollectionColumnHeaderController(final String collectionViewName,
                                             final CollectionDataGrid dataGrid) {
-        this.collectionName = collectionName;
         this.collectionViewName = collectionViewName;
         this.dataGrid = dataGrid;
 
@@ -135,8 +134,8 @@ public class CollectionColumnHeaderController {
         actionConfig.setImmediate(true);
         actionConfig.setDirtySensitivity(false);
         final CollectionColumnHiddenActionContext actionContext = new CollectionColumnHiddenActionContext();
-        actionContext.setCollectionName(collectionName);
         actionContext.setActionConfig(actionConfig);
+        actionContext.setLink(Application.getInstance().getHistoryManager().getLink());
         actionContext.setCollectionViewName(collectionViewName);
         for (int index = 0; index < columnHeaderBlocks.size(); index++) {
             final CollectionColumn column = columnHeaderBlocks.get(index).getColumn();

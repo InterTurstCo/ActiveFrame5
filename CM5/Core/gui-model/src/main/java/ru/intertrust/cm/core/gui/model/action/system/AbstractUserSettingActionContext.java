@@ -8,15 +8,15 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
  */
 public class AbstractUserSettingActionContext extends ActionContext {
 
-    private String collectionName;
+    private String link;
     private String collectionViewName;
 
-    public String getCollectionName() {
-        return collectionName;
+    public String getLink() {
+        return link;
     }
 
-    public void setCollectionName(String collectionName) {
-        this.collectionName = collectionName;
+    public void setLink(String link) {
+        this.link = link;
     }
 
     public String getCollectionViewName() {

@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
  */
 @Root(name = "business-universe")
 public class BusinessUniverseConfig implements TopLevelConfig {
+    public static final String NAME = "business_universe";
 
     @Element(name = "login-screen", required = false)
     private LoginScreenConfig loginScreenConfig;
@@ -125,6 +126,6 @@ public class BusinessUniverseConfig implements TopLevelConfig {
 
     @Override
     public String getName() {
-        return "business_universe";
+        return NAME;
     }
 }

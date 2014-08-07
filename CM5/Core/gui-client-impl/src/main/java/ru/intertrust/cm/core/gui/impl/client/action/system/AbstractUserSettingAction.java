@@ -20,6 +20,7 @@ public abstract class AbstractUserSettingAction extends Action {
 
             @Override
             public void onSuccess(Dto result) {
+                onSuccessHandler(result);
             }
 
             @Override
@@ -35,4 +36,6 @@ public abstract class AbstractUserSettingAction extends Action {
     public boolean isValid() {
         return true;
     }
+
+    protected void onSuccessHandler(Dto result) {}
 }
