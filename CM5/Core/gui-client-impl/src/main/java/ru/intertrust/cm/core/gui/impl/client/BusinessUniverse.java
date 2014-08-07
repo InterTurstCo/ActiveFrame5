@@ -112,6 +112,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 center.add(left);
 
                 center.add(centralDivPanel);
+                center.getElement().addClassName("testuporia");
                 navigationTreePanel = new PluginPanel();
                 // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");

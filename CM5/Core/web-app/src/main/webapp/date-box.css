@@ -2,7 +2,7 @@
     border: 1px solid #bbb;
     float: left;
     margin: 3px 0;
-    padding: 0 0 0 5px;
+    padding: 7px 0 6px 10px;
     position: relative;
     width: 150px;
 }
@@ -14,7 +14,7 @@
     height: 16px;
     /*margin: 0 10px 4px -25px;*/
     position: absolute;
-    top: 4px;
+    top: 10px;
     right: 6px;
     /*vertical-align: middle;*/
     width: 16px;

@@ -694,11 +694,12 @@ td.datePickerMonth {
 .gwt-MenuItem:hover {
     cursor: pointer;
 }
+
 .decorated-action-link .actionBar-refresh {
     background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 0;
     float: left;
     height: 35px;
-    margin: 3px 0 0 10px;
+    margin: 4px 0 0 0;
     width: 35px;
 }
 
@@ -714,7 +715,7 @@ td.datePickerMonth {
     background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 0;
     float: left;
     height: 35px;
-    margin: 3px 0 0 10px;
+    margin: 4px 0 0 0;
     width: 35px;
 }
 
@@ -730,7 +731,7 @@ td.datePickerMonth {
     background: url("resources/defaulttheme/images/icons/icon-edit.png") no-repeat 0 0;
     float: left;
     height: 35px;
-    margin: 3px 0 0 10px;
+    margin: 4px 0 0 0;
     width: 35px;
 }
 
@@ -746,7 +747,7 @@ td.datePickerMonth {
     background: url("resources/defaulttheme/images/icons/icon-edit-close.png") no-repeat 0 0;
     float: left;
     height: 35px;
-    margin: 3px 0 0 10px;
+    margin: 4px 0 0 0;
     width: 35px;
 }
 
@@ -762,7 +763,7 @@ td.datePickerMonth {
     background: url("resources/defaulttheme/images/icons/icon-save.png") no-repeat 0 0;
     float: left;
     height: 35px;
-    margin: 3px 0 0 10px;
+    margin: 4px 0 0 0;
     width: 35px;
 }
 
@@ -774,11 +775,27 @@ td.datePickerMonth {
 /*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -70px;*/
 /*}*/
 
+.decorated-action-link .actionBar-sign {
+    background: url("resources/defaulttheme/images/icons/icon-sign.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+
+/*.gwt-MenuItem:hover .actionBar-sign {*/
+/*background: url("resources/defaulttheme/images/icons/icon-sign.png") no-repeat 0 -35px;*/
+/*}*/
+
+/*.gwt-MenuItem:active .actionBar-sign {*/
+/*background: url("resources/defaulttheme/images/icons/icon-sign.png") no-repeat 0 -70px;*/
+/*}*/
+
 .decorated-action-link .actionBar-delete {
     background: url("resources/defaulttheme/images/icons/icon-delete.png") no-repeat 0 0;
     float: left;
     height: 35px;
-    margin: 3px 0 0 10px;
+    margin: 4px 0 0 0;
     width: 35px;
 }
 
@@ -794,7 +811,7 @@ td.datePickerMonth {
     background: url("resources/defaulttheme/images/icons/icon-csv_download.png") no-repeat 0 0;
     float: left;
     height: 35px;
-    margin: 3px 0 0 10px;
+    margin: 4px 0 0 0;
     width: 35px;
 }
 
@@ -810,7 +827,7 @@ td.datePickerMonth {
     background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 0;
     float: right;
     height: 35px;
-    margin: 3px 0 0 10px;
+    margin: 4px 0 0 0;
     width: 35px;
 }
 
@@ -918,7 +935,7 @@ td.datePickerMonth {
 .decorated-action-link .action-bar-button {
     border: none;
     float: left;
-    margin: 15px 0 0 0;
+    margin: 14px 15px 14px 0;
     text-decoration: none;
 }
 
@@ -937,11 +954,8 @@ td.datePickerMonth {
 
 .decorated-action-link .action-bar-button a {
     text-decoration: none;
-
-    cursor: pointer;
     cursor: pointer;
     color: black;
-
 }
 
 .decorated-action-link .action-bar-button a:hover,
@@ -956,12 +970,13 @@ td.datePickerMonth {
     height: 100%;
     width: 100%;
     display: block;
-    height: auto;
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    margin-top: 40px;
+    /*height: auto;*/
+    /*position: absolute !important;*/
+    /*top: 0;*/
+    /*left: 0;*/
+    /*bottom: 0;*/
+    /*margin-top: 40px;*/
+    margin-top: 5px;
 }
 
 .H_td_logout a {
@@ -1117,13 +1132,13 @@ td.datePickerMonth {
 
 .centerTopBottomDividerRootInnerDiv {
     display: block;
-    height: auto;
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
+    height: 100%;
+    /*height: auto;*/
+    /*position: absolute !important;*/
+    /*top: 0;*/
+    /*left: 0;*/
+    /*right: 0;*/
+    /*bottom: 0;*/
 }
 
 .left-tree-item-div {
@@ -1207,6 +1222,11 @@ td.datePickerMonth {
     float: left;
 }
 
+.rightSectionWrapper {
+    height: 100%;
+    width: 100%;
+}
+
 .footer-section {
 }
 
@@ -1265,7 +1285,7 @@ td.datePickerMonth {
     background: url(images/arrow-down.png) no-repeat center transparent;
     cursor: pointer;
     display: inline-block;
-    height: 35px;
+    height: 36px;
     margin-left: -20px;
     min-width: 20px;
     width: 20px;
@@ -2589,7 +2609,7 @@ td.datePickerMonth {
 }
 
 .radio-button-widget {
-    padding: 3px 0 3px 8px;
+    padding: 7px 0 6px 8px;
     border: 1px solid #bbb;
     font-family: Arial, Helvetica, sans-serif;
     overflow: hidden;
@@ -2812,7 +2832,7 @@ td.datePickerMonth {
 .menuSeparatorInner {
     border-right: 1px solid rgb(211, 211, 211);
     height: 40px;
-    margin: 0 0 0 20px;
+    margin: 0;
 }
 
 .focus-container {
