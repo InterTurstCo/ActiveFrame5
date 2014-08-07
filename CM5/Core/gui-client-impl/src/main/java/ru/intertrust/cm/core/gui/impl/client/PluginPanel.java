@@ -31,6 +31,10 @@ public class PluginPanel implements IsWidget {
     public PluginPanel() {
     }
 
+    void setStyle(String styleName){
+        impl.setStyleName(styleName);
+    }
+
     public void setClassForPluginPanel(String styleName) {
         impl.getElement().addClassName(styleName);
     }

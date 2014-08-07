@@ -118,6 +118,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 // данному плагину устанавливается глобальная шина событий
                 navigationTreePlugin.setEventBus(glEventBus);
                 centralPluginPanel = new CentralPluginPanel();
+                centralPluginPanel.setStyle("rightSectionWrapper");
                 centralDivPanel.add(centralPluginPanel);
                 centralPluginWidth = Window.getClientWidth() - 160;
                 centralPluginHeight = Window.getClientHeight();
