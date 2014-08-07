@@ -1,17 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.themes;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.cellview.client.DataGrid;
+
 import ru.intertrust.cm.core.config.ThemeConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -36,15 +34,13 @@ public class GlobalThemesManager {
 
     public static void initTheme(ThemesConfig themesConfig) {
         themeNameImageMap = initThemesMap(themesConfig);
-        Storage stockStore = Storage.getLocalStorageIfSupported();
-        String defaultThemeComponent = findDefaultTheme(themesConfig);
-        if (stockStore != null) {
-            String themeComponent = stockStore.getItem(BusinessUniverseConstants.USER_THEME_NAME);
-            bundleWrapper = (BundleWrapper) (themeComponent == null ? ComponentRegistry.instance.get(defaultThemeComponent)
-                    : ComponentRegistry.instance.get(themeComponent));
+        final String userTheme;
+        if (themesConfig.getSelectedTheme() == null) {
+            userTheme = findDefaultTheme(themesConfig);
         } else {
-            bundleWrapper = ComponentRegistry.instance.get(defaultThemeComponent);
+            userTheme = themesConfig.getSelectedTheme();
         }
+        bundleWrapper = ComponentRegistry.instance.get(userTheme);
         if (bundleWrapper == null) {
             bundleWrapper = ComponentRegistry.instance.get("default-theme");
         }
@@ -53,7 +49,7 @@ public class GlobalThemesManager {
     }
 
     private static String findDefaultTheme(ThemesConfig themesConfig) {
-        if (themesConfig == null) {
+        if (themesConfig.getThemes() == null || themesConfig.getThemes().isEmpty()) {
             return THEME_DEFAULT;
         }
         List<ThemeConfig> themesConfigList = themesConfig.getThemes();

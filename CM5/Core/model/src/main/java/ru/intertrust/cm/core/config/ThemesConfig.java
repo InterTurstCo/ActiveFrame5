@@ -16,12 +16,22 @@ public class ThemesConfig implements Dto {
     @ElementList(inline = true, name ="theme", required = true)
     private List<ThemeConfig> themes;
 
+    private String selectedTheme;
+
     public List<ThemeConfig> getThemes() {
         return themes;
     }
 
     public void setThemes(List<ThemeConfig> themes) {
         this.themes = themes;
+    }
+
+    public String getSelectedTheme() {
+        return selectedTheme;
+    }
+
+    public void setSelectedTheme(String selectedTheme) {
+        this.selectedTheme = selectedTheme;
     }
 
     @Override

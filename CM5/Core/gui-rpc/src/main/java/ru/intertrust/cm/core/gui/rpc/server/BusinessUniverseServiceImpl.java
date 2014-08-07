@@ -19,23 +19,29 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
 
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.LogoConfig;
+import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
 /**
@@ -57,39 +63,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     private ConfigurationService configurationService;
 
+    @EJB private CollectionsService collectionsService;
+
     private SoftReference<List<String>> refTimeZoneIds;
-
-    private String getManifestInfo(){
-        Enumeration resEnum;
-        try {
-            resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
-            while (resEnum.hasMoreElements()) {
-                try {
-                    URL url = (URL)resEnum.nextElement();
-                    InputStream is = url.openStream();
-                    if (is != null) {
-                        Manifest manifest = new Manifest(is);
-                        Attributes mainAttribs = manifest.getMainAttributes();
-                       //
-                        String version = mainAttribs.getValue("Implementation-Version");
-
-                        if(version != null) {
-                            return version;
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    //
-                }
-            }
-        } catch (IOException ioE) {
-            //
-        }
-        return null;
-    }
-
-
-
 
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
@@ -174,12 +150,29 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         businessUniverseInitialization.setLogoImagePath(logoImagePath);
         return;
     }
+
     private void addSettingsPopupConfig(BusinessUniverseConfig businessUniverseConfig,
                                         BusinessUniverseInitialization businessUniverseInitialization) {
-        if (businessUniverseConfig != null) {
-                   businessUniverseInitialization.setSettingsPopupConfig(businessUniverseConfig.getSettingsPopupConfig());
-        }
 
+        String userTheme = null;
+        final IdentifiableObject userSettings = PluginHelper
+                .getUserSettingsIdentifiableObject(guiService.getUserUid(), collectionsService);
+        if (userSettings != null) {
+            userTheme = userSettings.getString(UserSettingsHelper.DO_THEME_FIELD_KEY);
+        }
+        if (userTheme != null) {
+            final SettingsPopupConfig settingsPopupConfig =
+                    businessUniverseConfig == null || businessUniverseConfig.getSettingsPopupConfig() == null
+                            ? new SettingsPopupConfig()
+                            : businessUniverseConfig.getSettingsPopupConfig();
+            final ThemesConfig themesConfig = settingsPopupConfig.getThemesConfig() == null
+                    ? new ThemesConfig()
+                    : settingsPopupConfig.getThemesConfig();
+            themesConfig.setSelectedTheme(userTheme);
+            businessUniverseInitialization.setSettingsPopupConfig(settingsPopupConfig);
+        } else if (businessUniverseConfig != null) {
+            businessUniverseInitialization.setSettingsPopupConfig(businessUniverseConfig.getSettingsPopupConfig());
+        }
     }
 
     private UserInfo getUserInfo() {
@@ -204,5 +197,34 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
             refTimeZoneIds = new SoftReference<>(result);
         }
         return result;
+    }
+
+    private String getManifestInfo(){
+        Enumeration resEnum;
+        try {
+            resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
+            while (resEnum.hasMoreElements()) {
+                try {
+                    URL url = (URL)resEnum.nextElement();
+                    InputStream is = url.openStream();
+                    if (is != null) {
+                        Manifest manifest = new Manifest(is);
+                        Attributes mainAttribs = manifest.getMainAttributes();
+                        //
+                        String version = mainAttribs.getValue("Implementation-Version");
+
+                        if(version != null) {
+                            return version;
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    //
+                }
+            }
+        } catch (IOException ioE) {
+            //
+        }
+        return null;
     }
 }

@@ -24,6 +24,7 @@
     <domain-object-type name="bu_user_settings">
         <fields>
             <reference name="person" type="person"/>
+            <string name="theme" length="128"/>
             <long name="splitter_orientation"/>
             <long name="splitter_position"/>
         </fields>
@@ -41,7 +42,7 @@
     <collection name="bu_user_settings_collection" idField="id">
         <prototype>
             <![CDATA[
-                    select bus.id, bus.splitter_orientation, bus.splitter_position
+                    select bus.id, bus.theme, bus.splitter_orientation, bus.splitter_position
                     from bu_user_settings bus
                     inner join Person p on (p.id = bus.person)
                     ::from-clause

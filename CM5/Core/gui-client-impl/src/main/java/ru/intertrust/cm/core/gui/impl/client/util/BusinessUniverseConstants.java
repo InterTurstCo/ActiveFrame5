@@ -33,7 +33,6 @@ public class BusinessUniverseConstants {
     public static final String HEADER_CLEAR_BUTTON_ID_PART = "clear-button";
     public static final String HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART = "date-picker";
     public static final String LOGIN_PAGE = "Login.html";
-    public static final String USER_THEME_NAME = "userThemeName";
 
     public static final int START_SIDEBAR_WIDTH = 110;
     public static final String CLOSED = "closed";

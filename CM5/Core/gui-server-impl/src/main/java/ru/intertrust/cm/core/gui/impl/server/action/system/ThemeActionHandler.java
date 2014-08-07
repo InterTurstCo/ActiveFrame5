@@ -10,33 +10,31 @@ import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.system.SplitterSettingsActionContext;
+import ru.intertrust.cm.core.gui.model.action.system.ThemeActionContext;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
  * @author Sergey.Okolot
- *         Created on 01.08.2014 17:00.
+ *         Created on 07.08.2014 17:08.
  */
-@ComponentName(SplitterSettingsActionContext.COMPONENT_NAME)
-public class SplitterSettingsActionHandler extends ActionHandler<SplitterSettingsActionContext, ActionData> {
+@ComponentName(ThemeActionContext.COMPONENT_NAME)
+public class ThemeActionHandler extends ActionHandler<ThemeActionContext, ActionData> {
 
     @Autowired private CrudService crudService;
     @Autowired private CollectionsService collectionsService;
     @Autowired private CurrentUserAccessor currentUserAccessor;
 
-
     @Override
-    public ActionData executeAction(SplitterSettingsActionContext context) {
+    public ActionData executeAction(ThemeActionContext context) {
         final DomainObject domainObject = PluginHelper.getUserSettingsDomainObject(
                 currentUserAccessor, collectionsService, crudService);
-        domainObject.setLong(UserSettingsHelper.DO_SPLITTER_POSITION_FIELD_KEY, context.getPosition());
-        domainObject.setLong(UserSettingsHelper.DO_SPLITTER_ORIENTATION_FIELD_KEY, context.getOrientation());
+        domainObject.setString(UserSettingsHelper.DO_THEME_FIELD_KEY, context.getThemeName());
         crudService.save(domainObject);
         return null;
     }
 
     @Override
-    public SplitterSettingsActionContext getActionContext() {
-        return new SplitterSettingsActionContext();
+    public ThemeActionContext getActionContext() {
+        return new ThemeActionContext();
     }
 }

@@ -65,8 +65,8 @@ public class PluginHelper {
         return null;
     }
 
-    public static IdentifiableObject getDomainObjectSurferSettingsIdentifiableObject(final String userLogin,
-                    final CollectionsService collectionsService) {
+    public static IdentifiableObject getUserSettingsIdentifiableObject(final String userLogin,
+                                                                       final CollectionsService collectionsService) {
         final List<Filter> filters = new ArrayList<>();
         filters.add(Filter.create("byPerson", 0, new StringValue(userLogin)));
         final IdentifiableObjectCollection collection =
@@ -74,10 +74,11 @@ public class PluginHelper {
         return collection.size() == 0 ? null : collection.get(0);
     }
 
-    public static DomainObject getDomainObjectSurferSettingsDomainObject(final CurrentUserAccessor currentUserAccessor,
-                    final CollectionsService collectionsService, final CrudService crudService) {
+    public static DomainObject getUserSettingsDomainObject(final CurrentUserAccessor currentUserAccessor,
+                                                           final CollectionsService collectionsService,
+                                                           final CrudService crudService) {
         final IdentifiableObject identifiableObject =
-                getDomainObjectSurferSettingsIdentifiableObject(currentUserAccessor.getCurrentUser(), collectionsService);
+                getUserSettingsIdentifiableObject(currentUserAccessor.getCurrentUser(), collectionsService);
         final DomainObject result;
         if (identifiableObject != null) {
             result = crudService.find(identifiableObject.getId());

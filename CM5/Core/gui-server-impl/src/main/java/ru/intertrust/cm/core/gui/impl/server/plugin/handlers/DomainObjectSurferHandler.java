@@ -71,11 +71,15 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(config.isToggleEdit());
         result.setPluginState(dosState);
-        final IdentifiableObject identifiableObject = PluginHelper.getDomainObjectSurferSettingsIdentifiableObject(
+        final IdentifiableObject identifiableObject = PluginHelper.getUserSettingsIdentifiableObject(
                 currentUserAccessor.getCurrentUser(), collectionsService);
         if (identifiableObject != null) {
-            result.setSplitterOrientation(identifiableObject.getLong(DO_SPLITTER_ORIENTATION_FIELD_KEY).intValue());
-            result.setSplitterPosition(identifiableObject.getLong(DO_SPLITTER_POSITION_FIELD_KEY).intValue());
+            final Long splitterOrientation = identifiableObject.getLong(DO_SPLITTER_ORIENTATION_FIELD_KEY);
+            final Long splitterPosition = identifiableObject.getLong(DO_SPLITTER_POSITION_FIELD_KEY);
+            if (splitterOrientation != null && splitterPosition != null) {
+                result.setSplitterOrientation(splitterOrientation.intValue());
+                result.setSplitterPosition(splitterPosition.intValue());
+            }
         }
         return result;
     }
