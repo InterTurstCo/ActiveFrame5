@@ -225,13 +225,6 @@ public class ExtensionServiceImpl implements ExtensionService{
                 if (filteredExtension != null && filteredExtension.size() > 0) {
                     result.addAll(filteredExtension);
                 }
-
-                // Проверяем наличие обработчиков точек расширения, в которых не
-                // указали фильтр, если такие есть то добавляем их при любом
-                // значение переданного фильтра
-                if (oneTypeExtensions.containsKey("")) {
-                    result.addAll(oneTypeExtensions.get(""));
-                }
             } else {
                 // Если фильтр не указан то получаем обработчики
                 // зарегистрированные со всеми значениями фильтрв и добавляем их

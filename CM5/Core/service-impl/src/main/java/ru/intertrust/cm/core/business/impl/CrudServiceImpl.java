@@ -94,6 +94,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
             //Точка расширения после создания
             List<String> parentTypes = getAllParentTypes(name);
+            //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
+            parentTypes.add("");
             for (String typeName : parentTypes) {
                 AfterCreateExtentionHandler extension = extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, typeName);
                 extension.onAfterCreate(domainObject);

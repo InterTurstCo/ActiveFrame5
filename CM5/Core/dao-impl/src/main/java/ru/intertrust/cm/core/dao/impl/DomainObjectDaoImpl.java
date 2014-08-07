@@ -236,7 +236,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         // Вызов точки расширения до сохранения
         List<String> parentTypes = getAllParentTypes(domainObjects[0].getTypeName());
-
+        //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
+        parentTypes.add("");
         for (int i = 0; i < domainObjects.length; i++) {
             for (String typeName : parentTypes) {
                 BeforeSaveExtensionHandler beforeSaveExtension = extensionService
@@ -467,6 +468,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             // Точка расширения до удаления
             parentTypes = getAllParentTypes(domainObjectTypeConfig.getName());
+            //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
+            parentTypes.add("");
             for (String typeName : parentTypes) {
                 BeforeDeleteExtensionHandler beforeDeleteEH = extensionService
                         .getExtentionPoint(BeforeDeleteExtensionHandler.class, typeName);
