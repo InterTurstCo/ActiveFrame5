@@ -387,8 +387,8 @@ h1 {
 .table-browser-filter-editor {
     border: 1px solid #bbb;
     min-height: 25px;
-    margin: 0 5px 0 0;
-    padding: 0 0 0 5px;
+    margin: 6px 6px 0 0;
+    padding: 6px 0 6px 5px;
 }
 
 .common-add-button {
