@@ -1801,11 +1801,11 @@ td.datePickerMonth {
 }
 
 .tree-label {
-    /*float: left;*/
-    /*margin-left: -20px;*/
-    /*margin-right: 120px;*/
-    /*padding: 8px 8px 0 20px;*/
-    /*text-decoration: none !important;*/
+    float: left;
+    margin-left: -20px;
+    margin-right: 120px;
+    padding: 8px 8px 0 20px;
+    text-decoration: none !important;
     cursor: pointer;
 }
 

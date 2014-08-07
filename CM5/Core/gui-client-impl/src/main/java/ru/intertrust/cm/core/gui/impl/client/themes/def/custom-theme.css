@@ -327,62 +327,62 @@
 }
 
 
-.gwt-custom-TreeItem-selected {
-    display: inline-block !important;
-}
+/*.gwt-custom-TreeItem-selected {*/
+    /*display: inline-block !important;*/
+/*}*/
 
-.gwt-custom-TreeItem-selected .tree-label {
-    background: url(images/folder-list-selected-bg-right.png) no-repeat scroll right 0;
-    color: #fff;
-    height: 25px;
-    padding-right: 15px;
-}
+/*.gwt-custom-TreeItem-selected .tree-label {*/
+    /*background: url(images/folder-list-selected-bg-right.png) no-repeat scroll right 0;*/
+    /*color: #fff;*/
+    /*height: 25px;*/
+    /*padding-right: 15px;*/
+/*}*/
 
-.gwt-custom-TreeItem-selected .treeItemTitle {
-    background: url(images/folder-list-selected-bg-left.png) no-repeat scroll left 0;
-}
+/*.gwt-custom-TreeItem-selected .treeItemTitle {*/
+    /*background: url(images/folder-list-selected-bg-left.png) no-repeat scroll left 0;*/
+/*}*/
 
-.treeItemTitle {
-    height: 25px;
-    padding: 6px 0 2px 7px;
-}
+/*.treeItemTitle {*/
+    /*height: 25px;*/
+    /*padding: 6px 0 2px 7px;*/
+/*}*/
 
-.treeItemCounter {
-    background: #757575;
-    display: inline-block;
-    position: absolute;
-    top: 0;
-    right: 0;
-}
+/*.treeItemCounter {*/
+    /*background: #757575;*/
+    /*display: inline-block;*/
+    /*position: absolute;*/
+    /*top: 0;*/
+    /*right: 0;*/
+/*}*/
 
 .gwt-custom-TreeItem-selected .tree-label:after {
-    /*content: open-quote;*/
-    /*display: block;*/
-    /*position: absolute;*/
-    /*width: 27px;*/
-    /*height: 25px;*/
-    /*background: url(images/folder-list-selected-bg.png) right top no-repeat;*/
-    /*right: -11px;*/
-    /*font-size: 0px;*/
-    /*top: 4px;*/
-    /*margin-left: 5px;*/
+    content: open-quote;
+    display: block;
+    position: absolute;
+    width: 27px;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) right top no-repeat;
+    right: -11px;
+    font-size: 0px;
+    top: 4px;
+    margin-left: 5px;
 }
 
 .gwt-custom-TreeItem-selected .tree-label:before {
-    /*content: open-quote;*/
-    /*display: block;*/
-    /*position: absolute;*/
-    /*height: 25px;*/
-    /*background: url(images/folder-list-selected-bg.png) left top no-repeat;*/
-    /*left: 13px;*/
-    /*right: 0;*/
-    /*top: 4px;*/
-    /*font-size: 0px;*/
-    /*margin-left: 5px;*/
+    content: open-quote;
+    display: block;
+    position: absolute;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) left top no-repeat;
+    left: 13px;
+    right: 0;
+    top: 4px;
+    font-size: 0px;
+    margin-left: 5px;
 }
 
 .gwt-custom-TreeItem-selected .tree-label {
-    /*text-decoration: underline !important;*/
+    text-decoration: underline !important;
 }
 
 .gwt-custom-TreeItem-selected .tree-label,
