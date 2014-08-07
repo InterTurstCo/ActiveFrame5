@@ -501,14 +501,14 @@
     <!-- Global Config-->
     <xs:complexType name="globalConfigType">
     <xs:sequence>
-        <xs:element name="product">
+        <xs:element name="product" minOccurs="0">
             <xs:complexType>
                 <xs:attribute name="title" use="required"
                               type="xs:string"/>
             </xs:complexType>
         </xs:element>
 
-        <xs:element name="product-version">
+        <xs:element name="product-version" minOccurs="0">
             <xs:complexType>
                 <xs:attribute name="archive" use="required"
                               type="xs:string"/>
