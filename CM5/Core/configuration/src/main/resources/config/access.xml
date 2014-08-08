@@ -8,6 +8,8 @@
 
     <static-group name="Superusers" />
 
+    <static-group name="test-group-1"/>
+
     <!-- Динамические группы пользователей - вычисляются системой -->
     <!-- Безконтекстные группы не поддерживаются. Это статичная группа заполняемая точкой расширения на сохранение объектов -->
     <dynamic-group name="AllPersons">
@@ -175,6 +177,16 @@
                 <get-group name="PersonAndDelegates">
                     <doel>Boss</doel>
                 </get-group>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="test-group-2">
+        <members>
+            <track-domain-objects type="Person" status="Active">
+                <get-person>
+                    <query>select id from person where login = 'person3'</query>
+                </get-person>
             </track-domain-objects>
         </members>
     </dynamic-group>

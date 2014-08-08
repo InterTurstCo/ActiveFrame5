@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.GroupsConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
 
 /**
@@ -23,7 +24,7 @@ public class CollectionMappingConfig implements Dto {
     private UsersConfig usersConfig;
 
     @Element(name = "groups")
-    private ru.intertrust.cm.core.config.gui.RolesConfig rolesConfig;
+    private GroupsConfig groupsConfig;
 
     @Override
     public boolean equals(Object o) {
@@ -39,7 +40,7 @@ public class CollectionMappingConfig implements Dto {
         if (collection != null ? !collection.equals(that.collection) : that.collection != null) {
             return false;
         }
-        if (rolesConfig != null ? !rolesConfig.equals(that.rolesConfig) : that.rolesConfig != null) {
+        if (groupsConfig != null ? !groupsConfig.equals(that.groupsConfig) : that.groupsConfig != null) {
             return false;
         }
         if (usersConfig != null ? !usersConfig.equals(that.usersConfig) : that.usersConfig != null) {
@@ -57,7 +58,7 @@ public class CollectionMappingConfig implements Dto {
         int result = collection != null ? collection.hashCode() : 0;
         result = 31 * result + (view != null ? view.hashCode() : 0);
         result = 31 * result + (usersConfig != null ? usersConfig.hashCode() : 0);
-        result = 31 * result + (rolesConfig != null ? rolesConfig.hashCode() : 0);
+        result = 31 * result + (groupsConfig != null ? groupsConfig.hashCode() : 0);
         return result;
     }
 }

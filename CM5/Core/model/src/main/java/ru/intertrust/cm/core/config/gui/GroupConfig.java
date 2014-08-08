@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 12:05 PM
  */
 @Root(name = "group")
-public class RoleConfig implements Dto {
+public class GroupConfig implements Dto {
     @Attribute(name = "name")
     private String name;
 
@@ -41,7 +41,7 @@ public class RoleConfig implements Dto {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        RoleConfig that = (RoleConfig) o;
+        GroupConfig that = (GroupConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;

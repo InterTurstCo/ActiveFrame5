@@ -12,8 +12,8 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
-import ru.intertrust.cm.core.config.gui.RoleConfig;
-import ru.intertrust.cm.core.config.gui.RolesConfig;
+import ru.intertrust.cm.core.config.gui.GroupConfig;
+import ru.intertrust.cm.core.config.gui.GroupsConfig;
 import ru.intertrust.cm.core.config.gui.UserConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -243,23 +243,23 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         }
 
         private void fillRoleAndDomainObjectTypeFormMappings(FormMappingConfig formMapping, String domainObjectType, FormConfig formConfig) {
-            RolesConfig rolesConfig = formMapping.getRolesConfig();
-            if (rolesConfig == null) {
+            GroupsConfig groupsConfig = formMapping.getGroupsConfig();
+            if (groupsConfig == null) {
                 return;
             }
-            List<RoleConfig> roleConfigs = rolesConfig.getRoleConfigList();
-            if (roleConfigs == null || roleConfigs.size() == 0) {
+            List<GroupConfig> groupConfigs = groupsConfig.getGroupConfigList();
+            if (groupConfigs == null || groupConfigs.size() == 0) {
                 return;
             }
-            for (RoleConfig roleConfig : roleConfigs) {
-                String roleName = roleConfig.getName();
+            for (GroupConfig groupConfig : groupConfigs) {
+                String roleName = groupConfig.getName();
                 Pair<String, String> roleAndDomainObjectType = new Pair<>(roleName, domainObjectType);
                 List<Pair<FormConfig, Integer>> roleFormConfigs = formsByRoleAndDomainObjectType.get(roleAndDomainObjectType);
                 if (roleFormConfigs == null) {
                     roleFormConfigs = new ArrayList<>();
                     formsByRoleAndDomainObjectType.put(roleAndDomainObjectType, roleFormConfigs);
                 }
-                roleFormConfigs.add(new Pair<>(formConfig, roleConfig.getPriority()));
+                roleFormConfigs.add(new Pair<>(formConfig, groupConfig.getPriority()));
             }
         }
 

@@ -15,16 +15,16 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @Root(name = "groups")
-public class RolesConfig implements Dto{
+public class GroupsConfig implements Dto{
     @ElementList(inline = true)
-    private List<RoleConfig> roleConfigList = new ArrayList<RoleConfig>();
+    private List<GroupConfig> groupConfigList = new ArrayList<GroupConfig>();
 
-    public List<RoleConfig> getRoleConfigList() {
-        return roleConfigList;
+    public List<GroupConfig> getGroupConfigList() {
+        return groupConfigList;
     }
 
-    public void setRoleConfigList(List<RoleConfig> roleConfigList) {
-        this.roleConfigList = roleConfigList;
+    public void setGroupConfigList(List<GroupConfig> groupConfigList) {
+        this.groupConfigList = groupConfigList;
     }
 
     @Override
@@ -36,9 +36,9 @@ public class RolesConfig implements Dto{
             return false;
         }
 
-        RolesConfig that = (RolesConfig) o;
+        GroupsConfig that = (GroupsConfig) o;
 
-        if (roleConfigList != null ? !roleConfigList.equals(that.roleConfigList) : that.roleConfigList != null) {
+        if (groupConfigList != null ? !groupConfigList.equals(that.groupConfigList) : that.groupConfigList != null) {
             return false;
         }
 
@@ -47,6 +47,6 @@ public class RolesConfig implements Dto{
 
     @Override
     public int hashCode() {
-        return roleConfigList != null ? roleConfigList.hashCode() : 0;
+        return groupConfigList != null ? groupConfigList.hashCode() : 0;
     }
 }

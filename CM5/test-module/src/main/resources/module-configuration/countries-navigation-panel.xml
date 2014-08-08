@@ -1087,7 +1087,7 @@
 
     </navigation>
     <!--Test Navigation config-->
-    <navigation-panel-mappings>
+    <navigation-panel-mappings name="nav-panel-map1">
         <navigation-panel-mapping name="panel">
             <users>
                 <user uid="admin"/>
@@ -1098,23 +1098,24 @@
         </navigation-panel-mapping>
     </navigation-panel-mappings>
 
-    <navigation-panel-mappings>
+    <navigation-panel-mappings name="nav-panel-map2">
         <navigation-panel-mapping name="panel_1">
             <users>
                 <user uid="person1"/>
             </users>
             <groups>
-                <group-name value="Administrators"/>
+                <group-name value="test-group-1" priority="10"/>
             </groups>
         </navigation-panel-mapping>
     </navigation-panel-mappings>
-    <navigation-panel-mappings>
+
+    <navigation-panel-mappings name="nav-panel-map3">
         <navigation-panel-mapping name="panel_2">
             <users>
                 <user uid="person2"/>
             </users>
             <groups>
-                <group-name value="Группа"/>
+                <group-name value="test-group-2" priority="50"/>
             </groups>
         </navigation-panel-mapping>
     </navigation-panel-mappings>
