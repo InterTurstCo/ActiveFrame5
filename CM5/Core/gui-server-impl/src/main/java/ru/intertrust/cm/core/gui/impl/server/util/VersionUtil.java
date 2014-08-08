@@ -29,7 +29,6 @@ public class VersionUtil {
             while (resEnum.hasMoreElements()) {
                 URL url = (URL) resEnum.nextElement();
                 boolean isCoreVersionJar = url.getPath().contains("dao-api-");
-                System.out.println(url.getPath());
                 if (!isCoreVersionJar) {
                     continue;
                 }
