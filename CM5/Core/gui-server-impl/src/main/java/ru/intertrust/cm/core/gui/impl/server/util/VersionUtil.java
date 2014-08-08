@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
+import ru.intertrust.cm.core.gui.model.GuiException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -13,7 +15,7 @@ import java.util.jar.Manifest;
  */
 public class VersionUtil {
 
-    private static String APPLICATION_VERSION = "7.7.77-77-SNAPSHOT";
+    private static String PLATFORM_VERSION = null;
 
     public VersionUtil() {
     }
@@ -25,20 +27,25 @@ public class VersionUtil {
             //resEnum = getClass().getClassLoader().getResources(JarFile.MANIFEST_NAME);
 
             while (resEnum.hasMoreElements()) {
+                URL url = (URL) resEnum.nextElement();
+                boolean isCoreVersionJar = url.getPath().contains("dao-api-");
+                System.out.println(url.getPath());
+                if (!isCoreVersionJar) {
+                    continue;
+                }
+                InputStream is = url.openStream();
                 try {
-                    URL url = (URL) resEnum.nextElement();
-                    InputStream is = url.openStream();
                     if (is != null) {
                         Manifest manifest = new Manifest(is);
                         Attributes mainAttribs = manifest.getMainAttributes();
-                        String version = mainAttribs.getValue("Implementation-Version");
-
-                        if (version != null && mainAttribs.getValue("Implementation-Title").equals("dao-api")) {
-                            return version;
-                        }
+                        return mainAttribs.getValue("Implementation-Version");
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Throwable e) {
+                    throw new GuiException(e);
+                } finally {
+                    if (is != null) {
+                        is.close();
+                    }
                 }
             }
         } catch (IOException ioE) {
@@ -47,14 +54,12 @@ public class VersionUtil {
         return null;
     }
 
+    // При запуске из Idea в проекте платформы это работать не будет, потому что не собираются JAR-ы библиотек, а лишь компилируются
     public String getApplicationVersion() {
-        if (getManifestInfo()!= null){
-            APPLICATION_VERSION = getManifestInfo();
+        if (PLATFORM_VERSION != null) {
+            return PLATFORM_VERSION;
         }
-        return APPLICATION_VERSION;
-    }
-
-    public void setApplicationVersion(String APPLICATION_VERSION) {
-        this.APPLICATION_VERSION = APPLICATION_VERSION;
+        PLATFORM_VERSION = getManifestInfo();
+        return PLATFORM_VERSION;
     }
 }
