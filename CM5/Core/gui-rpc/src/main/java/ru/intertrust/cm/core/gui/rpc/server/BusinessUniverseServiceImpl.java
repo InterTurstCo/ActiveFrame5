@@ -73,12 +73,12 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         addInformationToInitializationObject(initialization);
         final BusinessUniverseConfig businessUniverseConfig =
                 configurationService.getConfig(BusinessUniverseConfig.class, BusinessUniverseConfig.NAME);
+
         addLogoImagePath(businessUniverseConfig, initialization);
-        //addApplicationVersion
-
-        initialization.setApplicationVersion(getManifestInfo());
-
+        String version = guiService.getApplicationVersion();
+        initialization.setApplicationVersion(version);
         addSettingsPopupConfig(businessUniverseConfig, initialization);
+
         if (businessUniverseConfig != null) {
             initialization.setCollectionCountersUpdatePeriod(
                     businessUniverseConfig.getCollectionCountRefreshConfig() == null
@@ -199,32 +199,4 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         return result;
     }
 
-    private String getManifestInfo(){
-        Enumeration resEnum;
-        try {
-            resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
-            while (resEnum.hasMoreElements()) {
-                try {
-                    URL url = (URL)resEnum.nextElement();
-                    InputStream is = url.openStream();
-                    if (is != null) {
-                        Manifest manifest = new Manifest(is);
-                        Attributes mainAttribs = manifest.getMainAttributes();
-                        //
-                        String version = mainAttribs.getValue("Implementation-Version");
-
-                        if(version != null) {
-                            return version;
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    //
-                }
-            }
-        } catch (IOException ioE) {
-            //
-        }
-        return null;
-    }
 }

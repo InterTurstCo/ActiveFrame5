@@ -65,7 +65,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
     public void onModuleLoad() {
 
-        AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
+        final AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
                 GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
@@ -129,7 +129,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 glEventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
                 String logoImagePath = GlobalThemesManager.getResourceFolder() + result.getLogoImagePath();
                 CurrentUserInfo currentUserInfo = getUserInfo(result);
-                header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig));
+                String version = result.getApplicationVersion();
+                header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version));
                 left.add(navigationTreePanel);
 
                 glEventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {

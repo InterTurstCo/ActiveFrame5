@@ -28,7 +28,7 @@ public class HeaderContainer extends SimplePanel {
     private InformationDialogBox dialogBox;
     private SettingsPopupConfig settingsPopupConfig;
 
-    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig) {
+    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig, final String version) {
         this.settingsPopupConfig = settingsPopupConfig;
         addUserInfoToDialog(currentUserInfo);
 

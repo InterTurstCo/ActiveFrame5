@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
@@ -16,6 +17,7 @@ import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.NavigationTreeResolver;
+import ru.intertrust.cm.core.gui.impl.server.util.VersionUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -146,5 +148,11 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         guiCtx.setUserInfo(userInfo);
         return (FormRetriever) applicationContext.getBean("formRetriever");
     }
+
+    public String getApplicationVersion() {
+              VersionUtil version =  (VersionUtil) applicationContext.getBean("applicationVersion");
+        return version.getAPPLICATION_VERSION();
+    }
+
 
 }

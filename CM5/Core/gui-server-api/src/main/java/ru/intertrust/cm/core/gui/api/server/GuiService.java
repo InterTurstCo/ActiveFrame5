@@ -58,4 +58,6 @@ public interface GuiService {
 
     FormConfig getFormConfig(String typeName, String searchType);
 
+    String getApplicationVersion();
+
 }
