@@ -34,7 +34,6 @@ public class VersionUtil {
                         String version = mainAttribs.getValue("Implementation-Version");
 
                         if (version != null && mainAttribs.getValue("Implementation-Title").equals("dao-api")) {
-                            System.out.println("Application Version: " + version);
                             return version;
                         }
                     }
@@ -48,14 +47,14 @@ public class VersionUtil {
         return null;
     }
 
-    public String getAPPLICATION_VERSION() {
+    public String getApplicationVersion() {
         if (getManifestInfo()!= null){
             APPLICATION_VERSION = getManifestInfo();
         }
         return APPLICATION_VERSION;
     }
 
-    public void setAPPLICATION_VERSION(String APPLICATION_VERSION) {
+    public void setApplicationVersion(String APPLICATION_VERSION) {
         this.APPLICATION_VERSION = APPLICATION_VERSION;
     }
 }

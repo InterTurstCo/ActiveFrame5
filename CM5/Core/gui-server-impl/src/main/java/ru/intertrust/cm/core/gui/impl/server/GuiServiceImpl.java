@@ -7,7 +7,6 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
@@ -151,7 +150,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     public String getApplicationVersion() {
               VersionUtil version =  (VersionUtil) applicationContext.getBean("applicationVersion");
-        return version.getAPPLICATION_VERSION();
+        return version.getApplicationVersion();
     }
 
 

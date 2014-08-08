@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.panel;
 
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -27,6 +28,7 @@ public class HeaderContainer extends SimplePanel {
     public static final int FIRST_ROW = 0;
     private InformationDialogBox dialogBox;
     private SettingsPopupConfig settingsPopupConfig;
+    private PopupPanel popupPanel;
 
     public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig, final String version) {
         this.settingsPopupConfig = settingsPopupConfig;
@@ -75,13 +77,35 @@ public class HeaderContainer extends SimplePanel {
         final HorizontalPanel linksPanel = new HorizontalPanel();
         final AbsolutePanel decoratedSettings = new AbsolutePanel();
         final Image settingsImage = new Image(getCurrentTheme().settingsIm());
-
+        final Image versionImage = new Image("css/images/help.png");
 
         decoratedSettings.add(settingsImage);
         AbsolutePanel decoratedHelp = new AbsolutePanel();
         decoratedHelp.setStyleName("decorated-help");
-        Anchor help = new Anchor("Help", "Help");
-        decoratedHelp.add(help);
+        //Anchor help = new Anchor("Help", "Help");
+        //decoratedHelp.add(help);
+        decoratedHelp.add(versionImage);
+
+        popupPanel = new PopupPanel();
+        popupPanel.add(new Label(version));
+        popupPanel.getElement().addClassName("application-version");
+        popupPanel.getElement().getStyle().setBorderStyle(Style.BorderStyle.SOLID);
+        popupPanel.getElement().getStyle().setZIndex(99);
+        popupPanel.getElement().getStyle().setBackgroundColor("whitesmoke");
+        popupPanel.getElement().getStyle().setBorderColor("black");
+
+        versionImage.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+
+                if(!popupPanel.isShowing()) {
+                    popupPanel.showRelativeTo(versionImage);
+                }
+                else{
+                    popupPanel.hide();
+                }
+            }
+        });
 
         linksPanel.add(decoratedSettings);
         linksPanel.add(decoratedHelp);
@@ -160,7 +184,6 @@ public class HeaderContainer extends SimplePanel {
     public void addUserInfoToDialog(CurrentUserInfo currentUserInfo) {
         dialogBox = new InformationDialogBox(currentUserInfo.getCurrentLogin(), currentUserInfo.getFirstName(), currentUserInfo.getLastName(), currentUserInfo.getMail());
     }
-
 
 
 }
