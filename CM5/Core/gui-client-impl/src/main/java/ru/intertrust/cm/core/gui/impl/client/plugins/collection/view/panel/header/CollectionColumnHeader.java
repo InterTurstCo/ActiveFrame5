@@ -202,7 +202,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     @Override
     public void onBrowserEvent(Context context, Element target, NativeEvent event) {
-
+        if (!column.isVisible()) {
+            return;  // there are no handled events for not visible column
+        }
         initElements();
         String eventType = event.getType();
         if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown") && widget.hasFilter()) {
