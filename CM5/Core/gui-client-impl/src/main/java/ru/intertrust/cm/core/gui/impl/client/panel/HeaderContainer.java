@@ -9,6 +9,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -98,10 +99,9 @@ public class HeaderContainer extends SimplePanel {
             @Override
             public void onClick(ClickEvent clickEvent) {
 
-                if(!popupPanel.isShowing()) {
+                if (!popupPanel.isShowing()) {
                     popupPanel.showRelativeTo(versionImage);
-                }
-                else{
+                } else {
                     popupPanel.hide();
                 }
             }
@@ -154,7 +154,7 @@ public class HeaderContainer extends SimplePanel {
 
             @Override
             public void onFailure(Throwable caught) {
-                Window.alert("Error logout!");
+                ApplicationWindow.errorAlert(BusinessUniverseConstants.LOGOUT_ERROR_MESSAGE);
             }
         };
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().logout(callback);

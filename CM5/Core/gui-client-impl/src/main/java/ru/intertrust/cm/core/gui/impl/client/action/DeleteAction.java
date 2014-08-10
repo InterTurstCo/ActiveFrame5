@@ -1,10 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -58,7 +59,7 @@ public class DeleteAction extends SimpleServerAction {
             }
             config.setPluginState(editor.getFormPluginState());
             editor.replaceForm(config);
-            Window.alert("Строка удалена!!!");
+            ApplicationWindow.infoAlert(BusinessUniverseConstants.ROW_IS_DELETED_MESSAGE);
         }
     }
 }

@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.action.system;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -25,7 +25,7 @@ public abstract class AbstractUserSettingAction extends Action {
 
             @Override
             public void onFailure(Throwable caught) {
-                Window.alert("Невозможно сохранить настройки пользователя");
+                ApplicationWindow.errorAlert(BusinessUniverseConstants.COULD_NOT_SAVE_USER_SETTINGS_MESSAGE);
             }
         };
         Command command = new Command("executeAction", this.getName(), getInitialContext());
@@ -37,5 +37,6 @@ public abstract class AbstractUserSettingAction extends Action {
         return true;
     }
 
-    protected void onSuccessHandler(Dto result) {}
+    protected void onSuccessHandler(Dto result) {
+    }
 }

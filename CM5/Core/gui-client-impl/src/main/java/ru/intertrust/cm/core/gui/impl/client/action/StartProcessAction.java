@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -43,6 +44,6 @@ public class StartProcessAction extends SimpleServerAction {
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         }
-        Window.alert("Process Started!!!");
+        ApplicationWindow.infoAlert(BusinessUniverseConstants.PROCESS_IS_STARTED_MESSAGE);
     }
 }

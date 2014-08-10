@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.plugins.reportupload.ReportUploadPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -31,7 +32,7 @@ public class DeployReportAction extends SimpleServerAction {
 
     @Override
     protected void onSuccess(ActionData result) {
-        Window.alert("Report template successfully uploaded");
+        ApplicationWindow.infoAlert(BusinessUniverseConstants.REPORT_IS_UPLOADED_MESSAGE);
         final ReportUploadPlugin plugin = (ReportUploadPlugin) getPlugin();
         plugin.clear();
     }

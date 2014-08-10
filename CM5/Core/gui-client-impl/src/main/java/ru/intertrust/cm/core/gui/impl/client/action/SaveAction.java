@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -39,7 +40,7 @@ public class SaveAction extends SimpleServerAction {
         SaveActionContext context = (SaveActionContext) initialContext;
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         context.setFormState(formState);
-        context.setPluginState(editor. getFormPluginState());
+        context.setPluginState(editor.getFormPluginState());
         return context;
     }
 
@@ -54,7 +55,7 @@ public class SaveAction extends SimpleServerAction {
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         }
-        Window.alert("Saved!!!");
+        ApplicationWindow.infoAlert(BusinessUniverseConstants.SAVED_MESSAGE);
     }
 
     @Override
@@ -62,19 +63,18 @@ public class SaveAction extends SimpleServerAction {
         Plugin plugin = null;
         if (getPlugin() instanceof FormPlugin) {
             plugin = this.getPlugin();
-        }
-        else if (getPlugin() instanceof DomainObjectSurferPlugin) {
+        } else if (getPlugin() instanceof DomainObjectSurferPlugin) {
             plugin = ((DomainObjectSurferPlugin) getPlugin()).getFormPlugin();
         }
         if (plugin != null) {
             PluginView view = plugin.getView();
-            FormPanel panel = (FormPanel)view.getViewWidget();
+            FormPanel panel = (FormPanel) view.getViewWidget();
             ValidationResult validationResult = new ValidationResult();
             for (BaseWidget widget : panel.getWidgets()) {
                 validationResult.append(widget.validate());
             }
             if (validationResult.hasErrors()) {
-                Window.alert("Please correct validation errors before saving");
+                ApplicationWindow.errorAlert(BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE);
                 return false;
             }
         }

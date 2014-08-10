@@ -6,10 +6,9 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 
 import java.util.List;
-
-import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 
 /**
  * Утилитный класс, который обеспечивает доступ к "глобальным" объектам приложения
@@ -66,7 +65,7 @@ public class Application {
      * Метод получения экземпляра класса                                        ;
      */
     public static Application getInstance() {
-        if(ourInstance == null) {
+        if (ourInstance == null) {
             ourInstance = new Application();
         }
         return ourInstance;
@@ -75,7 +74,7 @@ public class Application {
     /*
      * Метод получения "глобальной" шины событий
      */
-    public EventBus getEventBus( ) {
+    public EventBus getEventBus() {
         return eventBus;
     }
 
@@ -131,18 +130,18 @@ public class Application {
         }
     }
 
-    public void showLoadingIndicator(){
+    public void showLoadingIndicator() {
         timer.schedule(1000);
 
     }
 
-    public void hideLoadingIndicator(){
-          timer.cancel();
-          glassPopupPanel.hide();
+    public void hideLoadingIndicator() {
+        timer.cancel();
+        glassPopupPanel.hide();
 
     }
 
-    private void createGlassPopup(){
+    private void createGlassPopup() {
         glassPopupPanel.setGlassEnabled(true);
         glassPopupPanel.setGlassStyleName("glass");
         glassPopupPanel.setStyleName("PopupPanelPreloader");
@@ -152,4 +151,5 @@ public class Application {
         glassPopupPanel.add(image);
         glassPopupPanel.center();
     }
+
 }

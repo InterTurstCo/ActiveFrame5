@@ -15,7 +15,9 @@ import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
+import ru.intertrust.cm.core.gui.api.client.ActionManager;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
@@ -57,6 +59,7 @@ public class NavigationTreePluginView extends PluginView {
     private static Timer timer;
     private HTML pinButton;
     private FocusPanel navigationTreeContainer;
+
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
     }
@@ -175,7 +178,7 @@ public class NavigationTreePluginView extends PluginView {
             public void run() {
                 collectionCountersRequest.setCounterKeys(counterKeys);
                 collectionCountersRequest.setLastUpdatedTime(lastCountersUpdateTime);
-                BusinessUniverseServiceAsync.Impl.executeCommand(collectionsCountersCommand, new AsyncCallback<Dto>() {
+                BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(collectionsCountersCommand, new AsyncCallback<Dto>() {
                     @Override
                     public void onSuccess(Dto result) {
                         CollectionCountersResponse response = (CollectionCountersResponse) result;
@@ -186,7 +189,7 @@ public class NavigationTreePluginView extends PluginView {
                             counterObject.decorate(countersValues.get(identifier));
                         }
                         for (CounterDecorator counterObject : rootCounterDecorators) {
-                            if (counterObject.getCounterKey().getCollectionName() != null){
+                            if (counterObject.getCounterKey().getCollectionName() != null) {
                                 CounterKey identifier = counterObject.getCounterKey();
                                 counterObject.decorate(countersValues.get(identifier));
                             }
@@ -203,6 +206,7 @@ public class NavigationTreePluginView extends PluginView {
             }
         };
         timer.scheduleRepeating(collectionCountersUpdatePeriodMillis);
+
     }
 
     private void updateCounterKeys() {
@@ -211,7 +215,7 @@ public class NavigationTreePluginView extends PluginView {
             counterKeys.put(counterDecorator.getCounterKey(), null);
         }
         for (CounterDecorator rootCounterDecorator : rootCounterDecorators) {
-            if (rootCounterDecorator.getCounterKey().getCollectionName() !=null){
+            if (rootCounterDecorator.getCounterKey().getCollectionName() != null) {
                 counterKeys.put(rootCounterDecorator.getCounterKey(), null);
             }
         }
@@ -219,7 +223,7 @@ public class NavigationTreePluginView extends PluginView {
 
     public String getSelectedLinkName() {
         if (currentSelectedItem != null) {
-            final Map<String, Object> userObject  = (Map<String, Object>) currentSelectedItem.getUserObject();
+            final Map<String, Object> userObject = (Map<String, Object>) currentSelectedItem.getUserObject();
             return (String) userObject.get(TREE_ITEM_NAME);
         }
         return null;
@@ -294,55 +298,74 @@ public class NavigationTreePluginView extends PluginView {
         navigationTreeContainer.getElement().getStyle().setColor("white");
     }
 
+    private void handleItemSelection(TreeItem tempItem) {
+        if (currentSelectedItem != null && currentSelectedItem != tempItem) {
+            currentSelectedItem.removeStyleName("synchronized");
+            currentSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
+        }
+        TreeItem parent = tempItem.getParentItem();
+        tempItem.getTree().setSelectedItem(parent, false);
+
+        currentSelectedItem = tempItem;
+        boolean state = tempItem.getState();
+        tempItem.setState(!state, false);
+        tempItem.setStyleName("synchronized");
+        int childCount = tempItem.getChildCount();
+        if (childCount != 0) {
+            for (int i = 0; i < childCount; i++) {
+                tempItem.getChild(i).addStyleName("gwt-custom-white");
+            }
+        }
+        tempItem.getElement().getStyle().clearPaddingLeft();
+        tempItem.getElement().getStyle().clearPadding();
+        tempItem.addStyleName("tree-item-padding-style");
+        tempItem.addStyleName("gwt-custom-white");
+        tempItem.getElement().getFirstChildElement().addClassName("gwt-custom-TreeItem-selected");
+        Map<String, Object> treeItemUserObject = (Map<String, Object>) tempItem.getUserObject();
+        if (treeItemUserObject != null) {
+            final String pageTitle = Application.getInstance().getPageName(
+                    (String) treeItemUserObject.get(TREE_ITEM_ORIGINAL_TEXT));
+            Window.setTitle(pageTitle);
+            final PluginConfig pluginConfig =
+                    (PluginConfig) treeItemUserObject.get(TREE_ITEM_PLUGIN_CONFIG);
+            final String linkName = (String) treeItemUserObject.get(TREE_ITEM_NAME);
+            Application.getInstance().getEventBus().fireEventFromSource(
+                    new NavigationTreeItemSelectedEvent(pluginConfig, linkName),
+                    plugin);
+        }
+    }
+
     private SelectionHandler<TreeItem> createSelectionHandler() {
         return new SelectionHandler<TreeItem>() {
 
             @Override
-            public void onSelection(SelectionEvent<TreeItem> event) {
-                if(!Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty()) {
-                    return;
-                }
-                TreeItem tempItem = event.getSelectedItem();
-                if (currentSelectedItem != null && currentSelectedItem != tempItem) {
-                    currentSelectedItem.removeStyleName("synchronized");
-                    currentSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
-                }
-                TreeItem parent = tempItem.getParentItem();
-                tempItem.getTree().setSelectedItem(parent, false);
+            public void onSelection(final SelectionEvent<TreeItem> event) {
+                ActionManager actionManager = Application.getInstance().getActionManager();
+                final TreeItem tempItem = event.getSelectedItem();
+                if (actionManager.isEditorDirty()) {
 
-                currentSelectedItem = tempItem;
-                boolean state = tempItem.getState();
-                tempItem.setState(!state, false);
-                tempItem.setStyleName("synchronized");
-                int childCount = tempItem.getChildCount();
-                if (childCount != 0) {
-                    for (int i = 0; i < childCount; i++) {
-                        tempItem.getChild(i).addStyleName("gwt-custom-white");
-                    }
+                    actionManager.executeIfUserAgree(new ConfirmCallback() {
+                        @Override
+                        public void onAffirmative() {
+                            handleItemSelection(tempItem);
+
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            //nothing to do
+                        }
+                    });
+                } else {
+                    handleItemSelection(tempItem);
                 }
-                tempItem.getElement().getStyle().clearPaddingLeft();
-                tempItem.getElement().getStyle().clearPadding();
-                tempItem.addStyleName("tree-item-padding-style");
-                tempItem.addStyleName("gwt-custom-white");
-                tempItem.getElement().getFirstChildElement().addClassName("gwt-custom-TreeItem-selected");
-                Map<String, Object> treeItemUserObject = (Map<String, Object>) tempItem.getUserObject();
-                if (treeItemUserObject != null) {
-                    final String pageTitle = Application.getInstance().getPageName(
-                            (String) treeItemUserObject.get(TREE_ITEM_ORIGINAL_TEXT));
-                    Window.setTitle(pageTitle);
-                    final PluginConfig pluginConfig =
-                            (PluginConfig) treeItemUserObject.get(TREE_ITEM_PLUGIN_CONFIG);
-                    final String linkName = (String) treeItemUserObject.get(TREE_ITEM_NAME);
-                    Application.getInstance().getEventBus().fireEventFromSource(
-                            new NavigationTreeItemSelectedEvent(pluginConfig, linkName),
-                            plugin);
-                }
+
             }
         };
     }
 
     private LinkConfig buildRootLinks(final List<LinkConfig> linkConfigList,
-                                final String selectedRootLinkName, final SidebarView sideBarView) {
+                                      final String selectedRootLinkName, final SidebarView sideBarView) {
         LinkConfig result = null;
         final ClickHandler clickHandler = new RootNodeButtonClickHandler();
         for (LinkConfig linkConfig : linkConfigList) {
@@ -383,7 +406,8 @@ public class NavigationTreePluginView extends PluginView {
                 if (config.getName().equals(childToOpen)) {
                     if (config.getPluginDefinition() != null) {
                         if (config.getPluginDefinition().getPluginConfig() instanceof DomainObjectSurferConfig) {
-                            return ((DomainObjectSurferConfig) config.getPluginDefinition().getPluginConfig()).getCollectionViewerConfig().getCollectionRefConfig().getName();
+                            return ((DomainObjectSurferConfig) config.getPluginDefinition().getPluginConfig()).
+                                    getCollectionViewerConfig().getCollectionRefConfig().getName();
                         }
                     }
                 }

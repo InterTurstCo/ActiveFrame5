@@ -12,4 +12,10 @@ public interface CommonCssResource extends CssResource {
     String headerExtendedSearch();
 
     String columnSettingsButton();
+
+    String infoDialogIm();
+
+    String errorDialogIm();
+
+    String confirmDialogIm();
 }

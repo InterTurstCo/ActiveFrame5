@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -78,7 +77,7 @@ public class FormPluginView extends PluginView {
                     WidgetState state = deepClone ? widget.getFullClientStateCopy() : widget.getCurrentState();
                     result.put(id, state);
                 } catch (GuiException e) {
-                    Window.alert(e.getMessage()); // todo something more interesting
+                    ApplicationWindow.errorAlert(e.getMessage()); // todo something more interesting
                 }
             }
         }

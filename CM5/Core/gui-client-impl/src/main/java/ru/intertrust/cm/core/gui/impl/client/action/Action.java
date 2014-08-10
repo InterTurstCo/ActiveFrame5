@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.gui.api.client.ActionManager;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
+import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
@@ -64,13 +66,28 @@ public abstract class Action extends BaseComponent {
 
     public final void perform() {
         final ActionConfig config = getInitialContext().getActionConfig();
-        boolean isExecute = true;
+
+        boolean isEditorDirty = false;
+        ActionManager actionManager = Application.getInstance().getActionManager();
         if (config != null && config.isDirtySensitivity()) {
-            isExecute = Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty();
+            isEditorDirty = actionManager.isEditorDirty();
         }
-        if (isExecute) {
+        if(isEditorDirty) {
+            actionManager.executeIfUserAgree(new ConfirmCallback() {
+                @Override
+                public void onAffirmative() {
+                    execute();
+                }
+
+                @Override
+                public void onCancel() {
+                    //nothing to do
+                }
+            });
+        } else {
             execute();
         }
+
     }
 
     protected abstract void execute();

@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import ru.intertrust.cm.core.gui.api.client.ApplicationContext;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -14,7 +14,6 @@ import java.util.HashMap;
  * User: IPetrov
  * Date: 03.01.14
  * Time: 14:32
- *
  */
 public class BusinessUniverseContext extends ApplicationContext {
 
@@ -39,7 +38,7 @@ public class BusinessUniverseContext extends ApplicationContext {
 
             @Override
             public void onFailure(Throwable caught) {
-                Window.alert("BusinessUniverseContext не получил конфигурацию для поиска !!!");
+                ApplicationWindow.errorAlert(BusinessUniverseConstants.BUSINESS_UNIVERSE_CONTEXT_EXCEPTION_MESSAGE);
             }
         };
         Command command = new Command("searchConfigurations", "extended.search.plugin", extendedSearchData);

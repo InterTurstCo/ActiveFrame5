@@ -1,10 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import com.google.gwt.user.client.Window;
-
 import ru.intertrust.cm.core.gui.api.client.ActionManager;
+import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 /**
@@ -20,15 +21,20 @@ public class ActionManagerImpl implements ActionManager {
     }
 
     @Override
-    public boolean isExecuteIfWorkplaceDirty() {
-        boolean isExecute = true;
+    public void executeIfUserAgree(ConfirmCallback confirmCallback) {
+        ApplicationWindow.confirm(BusinessUniverseConstants.DATA_IS_NOT_SAVED_CONFIRM_MESSAGE, confirmCallback);
+    }
+
+    public boolean isEditorDirty() {
+        boolean result = false;
         final Plugin plugin = workplace.getCurrentPlugin();
         if (plugin instanceof IsDomainObjectEditor) {
             final IsDomainObjectEditor editor = (IsDomainObjectEditor) plugin;
             if (editor.isDirty()) {
-                isExecute = Window.confirm("Изменения данных не сохранены.\nПродолжить выполнение команды ?");
+                result = true;
             }
         }
-        return isExecute;
+        return result;
+
     }
 }

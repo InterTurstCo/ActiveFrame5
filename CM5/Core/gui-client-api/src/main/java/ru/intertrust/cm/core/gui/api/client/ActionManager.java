@@ -7,8 +7,10 @@ package ru.intertrust.cm.core.gui.api.client;
 public interface ActionManager {
 
     /**
-     * Определяет возможность выполнения действий, если имеются несохраненные данные.
-     * @return TRUE - выполнить действие, FALSE - запретить выполнение действия.
+     * Выыполняет действий по согласию пользователся, если имеются несохраненные данные.
+     *
      */
-    boolean isExecuteIfWorkplaceDirty();
+    public void executeIfUserAgree(ConfirmCallback confirmCallback);
+
+    boolean isEditorDirty();
 }

@@ -18,10 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
-import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.BaseComponent;
-import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.*;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
@@ -72,7 +69,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                     @Override
                     public void onUncaughtException(Throwable ex) {
                         if (ex.getCause() instanceof HistoryException) {
-                            Window.alert(ex.getCause().getMessage());
+                            ApplicationWindow.errorAlert(ex.getCause().getMessage());
                         } else {
                             GWT.log("Uncaught exception escaped", ex);
                         }
@@ -265,41 +262,62 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         return new BusinessUniverse();
     }
 
+    private void handleHistory(String url) {
+        final HistoryManager manager = Application.getInstance().getHistoryManager();
+        if (url != null && !url.isEmpty()) {
+            manager.setToken(url);
+            if (manager.hasLink()) {
+                if (!navigationTreePlugin.restoreHistory()) {
+                    final Plugin plugin = centralPluginPanel.getCurrentPlugin();
+                    plugin.restoreHistory();
+                }
+            } else if (!manager.getSelectedIds().isEmpty()) {
+                final Id selectedId = manager.getSelectedIds().get(0);
+                final FormPluginConfig formPluginConfig = new FormPluginConfig(selectedId);
+                final FormPluginState formPluginState = new FormPluginState();
+                formPluginState.setInCentralPanel(Application.getInstance().getCompactModeState().isExpanded());
+                formPluginConfig.setPluginState(formPluginState);
+
+                final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+                formPlugin.setConfig(formPluginConfig);
+                formPlugin.setDisplayActionToolBar(true);
+                formPlugin.setLocalEventBus((EventBus) GWT.create(SimpleEventBus.class));
+                manager.setMode(HistoryManager.Mode.WRITE, FormPlugin.class.getSimpleName());
+                navigationTreePlugin.clearCurrentSelectedItemValue();
+                Window.setTitle("Форма документа");
+                centralPluginPanel.open(formPlugin);
+            } else {
+                throw new HistoryException("Переход по данным '" + url + "' невозможет");
+            }
+        }
+
+    }
+
     private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
         @Override
-        public void onValueChange(ValueChangeEvent<String> event) {
+        public void onValueChange(final ValueChangeEvent<String> event) {
             if (!"logout".equals(event.getValue())) {
                 final HistoryManager manager = Application.getInstance().getHistoryManager();
-                if (!Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty()) {
-                    manager.applyUrl();
-                    return;
-                }
+                ActionManager actionManager = Application.getInstance().getActionManager();
                 final String url = event.getValue();
-                if (url != null && !url.isEmpty()) {
-                    manager.setToken(event.getValue());
-                    if (manager.hasLink()) {
-                        if (!navigationTreePlugin.restoreHistory()) {
-                            final Plugin plugin = centralPluginPanel.getCurrentPlugin();
-                            plugin.restoreHistory();
-                        }
-                    } else if (!manager.getSelectedIds().isEmpty()) {
-                        final Id selectedId = manager.getSelectedIds().get(0);
-                        final FormPluginConfig formPluginConfig = new FormPluginConfig(selectedId);
-                        final FormPluginState formPluginState = new FormPluginState();
-                        formPluginState.setInCentralPanel(Application.getInstance().getCompactModeState().isExpanded());
-                        formPluginConfig.setPluginState(formPluginState);
 
-                        final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
-                        formPlugin.setConfig(formPluginConfig);
-                        formPlugin.setDisplayActionToolBar(true);
-                        formPlugin.setLocalEventBus((EventBus) GWT.create(SimpleEventBus.class));
-                        manager.setMode(HistoryManager.Mode.WRITE, FormPlugin.class.getSimpleName());
-                        navigationTreePlugin.clearCurrentSelectedItemValue();
-                        Window.setTitle("Форма документа");
-                        centralPluginPanel.open(formPlugin);
-                    } else {
-                        throw new HistoryException("Переход по данным '" + url + "' невозможет");
-                    }
+                if (actionManager.isEditorDirty()) {
+                    actionManager.executeIfUserAgree(new ConfirmCallback() {
+                        @Override
+                        public void onAffirmative() {
+                            handleHistory(url);
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            manager.applyUrl();
+
+                        }
+                    });
+
+
+                } else {
+                    handleHistory(url);
                 }
             }
         }
