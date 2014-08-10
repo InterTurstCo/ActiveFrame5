@@ -500,11 +500,11 @@
                 <collection-ref name="Cities"/>
 
                 <collection-view-ref name="cities_default_view"/>
-                <selection-filters>
+                <!--<selection-filters>
                     <selection-filter name="byName">
                         <param type="string" name="0" value="Москва"/>
                     </selection-filter>
-                </selection-filters>
+                </selection-filters>-->
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
@@ -518,7 +518,7 @@
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
-                <add-button image="..." text="..."/>
+                <add-button image="..." text="Добавить"/>
 
                 <display-values-as-links value="true"/>
             </table-browser>
