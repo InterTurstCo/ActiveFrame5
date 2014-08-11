@@ -11,8 +11,10 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
  */
 
 public class DebugLoginPageImpl implements LoginPage {
+    private LoginWindow loginWindow;
     public void onModuleLoad() {
-        final LoginWindow loginWindow = (LoginWindow) ComponentRegistry.instance.get("login.window");
+        loginWindow = (LoginWindow) ComponentRegistry.instance.get("login.window");
+        loginWindow.getGlobalAndLoginWindowConfiguration();
         loginWindow.addClearUserSettingsButton();
         loginWindow.center();
         loginWindow.show();

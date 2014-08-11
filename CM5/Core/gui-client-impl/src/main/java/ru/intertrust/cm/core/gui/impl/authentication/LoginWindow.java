@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 import ru.intertrust.cm.core.model.AuthenticationException;
 import java.util.Date;
@@ -22,7 +23,7 @@ import java.util.Date;
  *         Time: 14:47
  */
 @ComponentName("login.window")
-public class LoginWindow implements Component {
+public class LoginWindow  implements Component{
     private DialogBox loginDialog;
     protected TextBox loginField;
     protected PasswordTextBox passwordField;
@@ -31,6 +32,15 @@ public class LoginWindow implements Component {
     private AbsolutePanel rootPanel;
     private AbsolutePanel enterPanel;
     private AbsolutePanel loginAndPasswordPanel;
+    private String version = "";
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
     public DialogBox getLoginDialog() {
         return loginDialog;
@@ -49,12 +59,11 @@ public class LoginWindow implements Component {
     }
 
     public LoginWindow() {
-
-
-        String version = "";
+        //getGlobalAndLoginWindowConfiguration();
+        //String version = "";
         loginDialog = new DialogBox();
         loginDialog.getElement().addClassName("auth-DialogBox");
-        loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
+        //loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
 
         //loginDialog.setText(" Аутентификация");
         loginField = new TextBox();
@@ -128,11 +137,7 @@ public class LoginWindow implements Component {
         CheckBox memoryCheckbox = new CheckBox();
         memoryCheckbox.getElement().addClassName("auth-CheckBox");
         memoryPanel.add(memoryCheckbox);
-
         memoryPanel.add(labelCheckBox);
-
-
-
         loginDialog.add(rootPanel);
 
         loginDialog.addDomHandler(new KeyDownHandler() {
@@ -165,6 +170,24 @@ public class LoginWindow implements Component {
             }
         };
         timer.scheduleRepeating(100);
+    }
+
+    public void getGlobalAndLoginWindowConfiguration() {
+
+        AsyncCallback<LoginWindowInitialization> callback = new AsyncCallback<LoginWindowInitialization>() {
+
+            @Override
+            public void onSuccess(LoginWindowInitialization loginWindowInitialization) {
+                version = loginWindowInitialization.getVersion();
+                loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        };
+        BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().getLoginWindowInitialization(callback);
     }
 
     public static native String getActiveElement() /*-{

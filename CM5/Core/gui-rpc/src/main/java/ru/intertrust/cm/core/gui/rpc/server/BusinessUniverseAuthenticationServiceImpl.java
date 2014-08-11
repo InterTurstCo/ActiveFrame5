@@ -1,11 +1,16 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
+import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl;
+import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
+import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationService;
 import ru.intertrust.cm.core.model.AuthenticationException;
 
+import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
 
 /**
@@ -17,6 +22,12 @@ import javax.servlet.annotation.WebServlet;
         urlPatterns = "/remote/BusinessUniverseAuthenticationService")
 public class BusinessUniverseAuthenticationServiceImpl extends BaseService
         implements BusinessUniverseAuthenticationService {
+    @EJB
+    private GuiService guiService;
+
+    @EJB
+    private ConfigurationService configurationService;
+
     @Override
     public void login(UserCredentials userCredentials) throws AuthenticationException {
         LoginService guiService = new ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl(); // todo - get rid
@@ -27,4 +38,11 @@ public class BusinessUniverseAuthenticationServiceImpl extends BaseService
         LoginService guiService = new LoginServiceImpl();
         guiService.logout(getThreadLocalRequest());
     }
+
+    @Override
+    public LoginWindowInitialization getLoginWindowInitialization(){
+        LoginWindowInitialization initialization = new LoginWindowInitialization();
+        initialization.setVersion(guiService.getApplicationVersion());
+        return initialization;
+    };
 }
