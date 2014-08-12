@@ -9,14 +9,14 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 public class ProductTitle implements Dto {
 
     @Attribute(name = "title", required = false)
-    private String archive;
+    private String title;
 
-    public String getArchive() {
-        return archive;
+    public String getTitle() {
+        return title;
     }
 
-    public void setArchive(String archive) {
-        this.archive = archive;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override
@@ -26,13 +26,13 @@ public class ProductTitle implements Dto {
 
         ProductTitle that = (ProductTitle) o;
 
-        if (archive != null ? !archive.equals(that.archive) : that.archive != null) return false;
+        if (title != null ? !title.equals(that.title) : that.title != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return archive != null ? archive.hashCode() : 0;
+        return title != null ? title.hashCode() : 0;
     }
 }

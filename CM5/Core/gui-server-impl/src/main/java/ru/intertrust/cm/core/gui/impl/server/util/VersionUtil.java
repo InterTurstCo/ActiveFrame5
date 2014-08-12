@@ -16,19 +16,20 @@ import java.util.jar.Manifest;
 public class VersionUtil {
 
     private static String PLATFORM_VERSION = null;
+    private static String PRODUCT_VERSION = null;
+    private static String ALIAS_PLATFORM_JAR = "dao-api-";
 
     public VersionUtil() {
     }
 
-    private String getManifestInfo() {
+    public String getManifestInfo(String JarName) {
         Enumeration resEnum;
         try {
             resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
-            //resEnum = getClass().getClassLoader().getResources(JarFile.MANIFEST_NAME);
 
             while (resEnum.hasMoreElements()) {
                 URL url = (URL) resEnum.nextElement();
-                boolean isCoreVersionJar = url.getPath().contains("dao-api-");
+                boolean isCoreVersionJar = url.getPath().contains(JarName);
                 if (!isCoreVersionJar) {
                     continue;
                 }
@@ -58,7 +59,15 @@ public class VersionUtil {
         if (PLATFORM_VERSION != null) {
             return PLATFORM_VERSION;
         }
-        PLATFORM_VERSION = getManifestInfo();
+        PLATFORM_VERSION = getManifestInfo(ALIAS_PLATFORM_JAR);
+        return PLATFORM_VERSION;
+    }
+
+    public String getProductVersion(String jarName) {
+        if (PRODUCT_VERSION != null) {
+            return PRODUCT_VERSION;
+        }
+        PRODUCT_VERSION = getManifestInfo(jarName);
         return PLATFORM_VERSION;
     }
 }

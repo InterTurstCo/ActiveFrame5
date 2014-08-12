@@ -46,7 +46,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     @Override
     public NavigationConfig getNavigationConfiguration() {
         NavigationTreeResolver navigationTreeResolver = (NavigationTreeResolver)
-                                                                  applicationContext.getBean("navigationTreeResolver");
+                applicationContext.getBean("navigationTreeResolver");
         return navigationTreeResolver.getNavigationPanel(sessionContext.getCallerPrincipal().getName());
 /*
         String navigationPanelName = "panel";
@@ -133,7 +133,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     @Override
     public String getUserUid() {
-            return sessionContext.getCallerPrincipal().getName();
+        return sessionContext.getCallerPrincipal().getName();
     }
 
     @Override
@@ -148,10 +148,13 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         return (FormRetriever) applicationContext.getBean("formRetriever");
     }
 
-    public String getApplicationVersion() {
-              VersionUtil version =  (VersionUtil) applicationContext.getBean("applicationVersion");
+    public String getCoreVersion() {
+        VersionUtil version = (VersionUtil) applicationContext.getBean("applicationVersion");
         return version.getApplicationVersion();
     }
 
-
+    public String getProductVersion(String jarName) {
+        VersionUtil version = (VersionUtil) applicationContext.getBean("applicationVersion");
+        return version.getProductVersion(jarName);
+    }
 }

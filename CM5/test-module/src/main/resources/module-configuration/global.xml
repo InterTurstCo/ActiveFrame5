@@ -2,7 +2,7 @@
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <global-settings>
         <product title="Платформа CM Сочи"/>
-        <product-version archive="test-module.jar"/>
+        <product-version archive="zookeeper-3.4.5.jar"/>
         <audit-log enable="false"/>
         <sql-trace enable="false" resolveParameters="true" minRows="1" minTime="1000"/>
         <transaction-trace enable="false" minTime="100"/>
@@ -12,8 +12,8 @@
         </search-languages>
     </global-settings>
     <business-universe>
-        <login-screen display-product-version="true" display-core-version="true">
-                <product-title style="text/image" image="some-image.png"/>
+        <login-screen display-product-version="false" display-core-version="false">
+                <product-title style="image" image="css/images/cm-logo.png"/>
         </login-screen>
         <logo image="images/logo.png"/>
         <settings-popup>

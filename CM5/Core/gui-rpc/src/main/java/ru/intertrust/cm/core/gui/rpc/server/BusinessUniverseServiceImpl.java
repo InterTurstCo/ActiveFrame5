@@ -1,19 +1,12 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.SoftReference;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
@@ -75,7 +68,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                 configurationService.getConfig(BusinessUniverseConfig.class, BusinessUniverseConfig.NAME);
 
         addLogoImagePath(businessUniverseConfig, initialization);
-        String version = guiService.getApplicationVersion();
+        String version = guiService.getCoreVersion();
         initialization.setApplicationVersion(version);
         addSettingsPopupConfig(businessUniverseConfig, initialization);
 

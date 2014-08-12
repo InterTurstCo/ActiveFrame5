@@ -10,6 +10,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.config.LoginScreenConfig;
+import ru.intertrust.cm.core.config.ProductTitleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
@@ -32,14 +34,17 @@ public class LoginWindow  implements Component{
     private AbsolutePanel rootPanel;
     private AbsolutePanel enterPanel;
     private AbsolutePanel loginAndPasswordPanel;
-    private String version = "";
+    private String coreVersion = "";
+    private String productVersion = "";
+    private String textApplicationLogo = "";
+    private String authSmallLogo = "auth_small_logo";
 
     public String getVersion() {
-        return version;
+        return coreVersion;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setVersion(String coreVersion) {
+        this.coreVersion = coreVersion;
     }
 
     public DialogBox getLoginDialog() {
@@ -178,8 +183,37 @@ public class LoginWindow  implements Component{
 
             @Override
             public void onSuccess(LoginWindowInitialization loginWindowInitialization) {
-                version = loginWindowInitialization.getVersion();
-                loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
+
+                if(loginWindowInitialization.getLoginScreenConfig() != null) {
+                    LoginScreenConfig logoConfig = loginWindowInitialization.getLoginScreenConfig();
+                    ProductTitleConfig productTitleConfig = logoConfig.getProductTitleConfig();
+
+                    if(logoConfig.isDisplaycoreVersion()){
+                        coreVersion = "core v. " + loginWindowInitialization.getVersion();
+                    }
+
+                    if(logoConfig.isDisplayProductVersion()){
+                        productVersion = "product v. " + loginWindowInitialization.getProductVersion();
+                    }
+
+                    if(productTitleConfig.getStyle().equals("text")){
+                        if(loginWindowInitialization.getGlobalProductTitle() != null){
+                            textApplicationLogo = loginWindowInitialization.getGlobalProductTitle().getTitle();
+                            authSmallLogo = "";
+                        }
+
+                    }
+
+                    if(productTitleConfig.getStyle().equals("image")){
+                        if(loginWindowInitialization.getGlobalProductTitle() != null){
+                            authSmallLogo = "<img src=" + productTitleConfig.getImage() + " />";
+                            textApplicationLogo = "";
+                        }
+                    }
+
+                }
+
+                loginDialog.setHTML("<span>" + authSmallLogo + textApplicationLogo + " </span>" + "<span class = 'auth_version'>" + coreVersion + productVersion+"</span>");
             }
 
             @Override
