@@ -91,12 +91,15 @@ public class WidgetConfigurationLogicalValidator {
 
             if (pathPart.contains("^")) {
                 widget.setDomainObjectFieldToValidate(pathPart);
-                widgetHasBackReferenceLink(widget);
+                widgetHasBackReferenceLink(widget, "\\^");
+                validateLogicDependingOnFieldPath(widget, logicalErrors);
+            } else if (pathPart.contains("|")) {
+                widget.setDomainObjectFieldToValidate(pathPart);
+                widgetHasBackReferenceLink(widget, "\\|");
                 validateLogicDependingOnFieldPath(widget, logicalErrors);
             } else {
                 widget.setDomainObjectFieldToValidate(pathPart);
                 validateLogicDependingOnFieldPath(widget, logicalErrors);
-
             }
         }
     }
@@ -195,8 +198,8 @@ public class WidgetConfigurationLogicalValidator {
         return fieldConfig;
     }
 
-    private void widgetHasBackReferenceLink(WidgetConfigurationToValidate widget) {
-        String[] domainObjectTypeAndField = widget.getDomainObjectFieldToValidate().split("\\^");
+    private void widgetHasBackReferenceLink(WidgetConfigurationToValidate widget, String delimeter) {
+        String[] domainObjectTypeAndField = widget.getDomainObjectFieldToValidate().split(delimeter);
         String domainObjectType = domainObjectTypeAndField[0];
         String domainObjectField = domainObjectTypeAndField[1];
         widget.setDomainObjectTypeToValidate(domainObjectType);

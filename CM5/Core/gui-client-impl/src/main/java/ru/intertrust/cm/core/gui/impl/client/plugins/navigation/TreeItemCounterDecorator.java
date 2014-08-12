@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TreeItem;
-
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 
 import java.util.Map;
@@ -23,18 +24,24 @@ public class TreeItemCounterDecorator implements CounterDecorator {
     public void decorate(Long counterValue) {
 
         Label label = new Label();
-        label.setStyleName("tree-label");
+        // label.setStyleName("tree-label");
         label.removeStyleName("gwt-Label");
         Map userObjects = (Map) treeItem.getUserObject();
         Object originalText = userObjects.get("originalText");
-        String text;
-        if (counterValue == null || counterValue == 0) {
-            text = originalText.toString();
-        } else {
-            text = originalText + " " + counterValue;
-        }
+        Panel container = new AbsolutePanel();
+        container.setStyleName("tree-label");
+        container.addStyleName("treeItemSelectionDecorator");
+        String text = originalText.toString();
         label.setText(text);
-        treeItem.setWidget(label);
+        label.setStyleName("treeItemTitle");
+        container.add(label);
+        if (counterValue != null || counterValue != 0) {
+            Label counterLabel = new Label(counterValue.toString());
+            counterLabel.setStyleName("treeItemCounter");
+            container.add(counterLabel);
+        }
+
+        treeItem.setWidget(container);
     }
 
     public void setCounterKey(CounterKey counterKey) {

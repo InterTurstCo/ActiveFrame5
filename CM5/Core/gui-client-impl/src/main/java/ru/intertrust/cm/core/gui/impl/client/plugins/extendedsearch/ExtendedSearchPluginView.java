@@ -2,17 +2,18 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
@@ -202,7 +203,7 @@ public class ExtendedSearchPluginView extends PluginView {
 
             @Override
             public void onFailure(Throwable caught) {
-                Window.alert(" Ошибка расширенного поиска " + caught.getMessage());
+                ApplicationWindow.errorAlert(BusinessUniverseConstants.EXTENDED_SEARCH_ERROR_MESSAGE + caught.getMessage());
             }
         };
         Command command = new Command("searchFormDataProcessor", this.plugin.getName(), extendedSearchData);

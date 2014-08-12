@@ -22,6 +22,15 @@ public class BusinessUniverseInitialization implements Dto {
     private List<String> timeZoneIds;
     private Integer collectionCountersUpdatePeriod;
     private Integer headerNotificationPeriod;
+    private String applicationVersion;
+
+    public String getApplicationVersion() {
+        return applicationVersion;
+    }
+
+    public void setApplicationVersion(String applicationVersion) {
+        this.applicationVersion = applicationVersion;
+    }
 
     public String getCurrentLogin() {
         return currentLogin;

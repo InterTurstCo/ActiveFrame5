@@ -26,8 +26,8 @@
     </act:tool-bar>
 
     <act:tool-bar plugin="form.plugin">
-        <act:action-ref actionId="aRefresh"/>
-        <act:action-separator order="50"/>
+        <!--<act:action-ref actionId="aRefresh"/>-->
+        <!--<act:action-separator order="50"/>-->
         <act:action-ref actionId="aCreate" rendered="not toggle-edit or (toggle-edit and preview)" merged="true"/>
         <act:action-ref actionId="aSave" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
         <act:action-ref actionId="aDelete" rendered="not toggle-edit or (toggle-edit and preview)" merged="false"/>

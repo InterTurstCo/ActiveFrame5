@@ -80,7 +80,7 @@ public class ActionConfigBuilder {
             }
             referenceMap.put(config.getId(), config);
         }
-        final ActionConfig result = PluginHelper.cloneConfig(config);
+        final ActionConfig result = PluginHelper.cloneActionConfig(config);
         if (!actionRefConfig.isShowText()) {
             result.setText(null);
         }

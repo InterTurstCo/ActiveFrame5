@@ -72,5 +72,15 @@
     </access-matrix>
 
     <access-matrix type="test_resolution" matrix-reference-field="document"/>
+
+    <access-matrix type="department_test">
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+        </status>
+    </access-matrix>
+
+    <access-matrix type="employee_test" matrix-reference-field="Department"/>
     
 </configuration>

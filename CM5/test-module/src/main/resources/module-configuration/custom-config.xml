@@ -27,11 +27,13 @@
                 <table>
                     <tr>
                         <td h-align="right">
-                            <widget id="1"/>
+                            <!--<widget id="1"/>-->
+                            <widget id="test"/>
                         </td>
                         <!-- label (????????) -->
                         <td width="100%" h-align="left">
-                            <widget id="2"/>
+                            <!--<widget id="2"/>-->
+                            <widget id="test"/>
                         </td>
                         <!-- text-box (????????) -->
                     </tr>
@@ -44,7 +46,8 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <widget id="17a" width="600px"/>
+                                        <!--<widget id="17a" width="600px"/>-->
+                                        <widget id="test"/>
                                     </td>
                                 </tr>
                             </table>
@@ -55,10 +58,13 @@
         </markup>
         <widget-config>
 
-            <custom:test-space-bar name="spaceBar1"/>
+            <!--<custom:test-space-bar name="spaceBar1"/>-->
 
             <label id="7a">
                 <text>Известный город:</text>
+            </label>
+            <label id="test">
+                <text>TEST</text>
             </label>
             <suggest-box id="suggest_capital">
                 <field-path value="capital"/>

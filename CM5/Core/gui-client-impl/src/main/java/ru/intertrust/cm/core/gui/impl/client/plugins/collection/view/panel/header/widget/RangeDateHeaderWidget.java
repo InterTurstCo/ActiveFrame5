@@ -3,13 +3,14 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.head
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.CollectionRangeDatePicker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.HeaderWidgetUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
@@ -53,7 +54,8 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
 
                 }
             } catch (IllegalArgumentException ex) {
-                Window.alert("Неверный формат времени! Попробуйте " + dateTimeFormat.getPattern());
+                ApplicationWindow.errorAlert(BusinessUniverseConstants.WRONG_DATE_FORMAT_ERROR_MESSAGE
+                        + dateTimeFormat.getPattern());
             }
             popupDatePicker = new CollectionRangeDatePicker(startDate, endDate, eventBus, showTime, showSeconds);
         }

@@ -172,6 +172,8 @@
       <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
    </collection>
    <global-settings>
+      <product title="Платформа CM Сочи"/>
+      <product-version archive="test-module.jar"/>
       <audit-log enable="false"/>
       <sql-trace enable="true" resolveParameters="true" minTime="0" minRows="0"/>
       <transaction-trace enable="true" minTime="0"/>

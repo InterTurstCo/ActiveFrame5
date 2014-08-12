@@ -82,13 +82,14 @@ public class FormLogicalValidatorTest {
                 + "Couldn't find widget with id '36'\n"
                 + "Couldn't find widget with id '30'\n"
                 + "Couldn't find widget with id '31'\n"
-                + "Collection 'SO_StructureUnit_Collection' for hierarchy-browser with id 'SO_Parent_SU' wasn't found\n");
-        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
+                + "Collection 'SO_StructureUnit_Collection' for hierarchy-browser with id 'SO_Parent_SU' wasn't found\n"
+                + "Configuration of collection-view with name 'cities_default_view' was validated with errors.Count: 1 Content:\n"
+                + "Couldn't find collection with name 'Cities'\n"
+        );
 
-        FormLogicalValidator formValidator = new FormLogicalValidator();
-        formValidator.setConfigurationExplorer(configurationExplorer);
         try {
-            formValidator.validate();
+            ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
+
         } catch (ConfigurationException e) {
             assertEquals(expectedMessage, e.getMessage());
         }

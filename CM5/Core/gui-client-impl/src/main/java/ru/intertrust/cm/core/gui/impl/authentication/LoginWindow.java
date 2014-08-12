@@ -4,16 +4,19 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.config.LoginScreenConfig;
+import ru.intertrust.cm.core.config.ProductTitleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 import ru.intertrust.cm.core.model.AuthenticationException;
-
 import java.util.Date;
 
 /**
@@ -22,12 +25,27 @@ import java.util.Date;
  *         Time: 14:47
  */
 @ComponentName("login.window")
-public class LoginWindow implements Component {
+public class LoginWindow  implements Component{
     private DialogBox loginDialog;
     protected TextBox loginField;
     protected PasswordTextBox passwordField;
     private Label message;
     private FocusPanel loginButton;
+    private AbsolutePanel rootPanel;
+    private AbsolutePanel enterPanel;
+    private AbsolutePanel loginAndPasswordPanel;
+    private String coreVersion = "";
+    private String productVersion = "";
+    private String textApplicationLogo = "";
+    private String authSmallLogo = "auth_small_logo";
+
+    public String getVersion() {
+        return coreVersion;
+    }
+
+    public void setVersion(String coreVersion) {
+        this.coreVersion = coreVersion;
+    }
 
     public DialogBox getLoginDialog() {
         return loginDialog;
@@ -46,12 +64,11 @@ public class LoginWindow implements Component {
     }
 
     public LoginWindow() {
-
-
-        String version = "";
+        //getGlobalAndLoginWindowConfiguration();
+        //String version = "";
         loginDialog = new DialogBox();
         loginDialog.getElement().addClassName("auth-DialogBox");
-        loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
+        //loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
 
         //loginDialog.setText(" Аутентификация");
         loginField = new TextBox();
@@ -69,7 +86,6 @@ public class LoginWindow implements Component {
         loginField.setWidth("140px");
         passwordField.setWidth("140px");
 
-        //loginButton = new Button("Войти");
         loginButton = new FocusPanel();
 
         Label titleLogin = new Label("Войти");
@@ -81,15 +97,14 @@ public class LoginWindow implements Component {
             }
         });
 
-        //setText(" Аутентификация");
         loginDialog.setAnimationEnabled(true);
         loginDialog.setGlassEnabled(true);
 
-        AbsolutePanel rootPanel = new AbsolutePanel();
+        rootPanel = new AbsolutePanel();
         rootPanel.setStyleName("auth_LoginPage_wrapper");
         AbsolutePanel decoratedContentPanel = new AbsolutePanel();
         decoratedContentPanel.setStyleName("auth_LoginPage_block");
-        AbsolutePanel loginAndPasswordPanel = new AbsolutePanel();
+        loginAndPasswordPanel = new AbsolutePanel();
         loginAndPasswordPanel.setStyleName("auth_wrapper");
         AbsolutePanel settingsPanel = new AbsolutePanel();
         settingsPanel.setStyleName("auth_add_settings");
@@ -102,8 +117,8 @@ public class LoginWindow implements Component {
 
         Label labelCheckBox = new Label("Запомнить меня");
         labelCheckBox.setStyleName("auth_checkbox_title");
-        AbsolutePanel enterPanel = new AbsolutePanel();
-        enterPanel.setStyleName("dark-button");
+//        enterPanel = new AbsolutePanel();
+//        enterPanel.setStyleName("dark-button");
         AbsolutePanel languagePanel = new AbsolutePanel();
         languagePanel.setStyleName("auth_language");
 
@@ -116,7 +131,7 @@ public class LoginWindow implements Component {
         loginAndPasswordPanel.add(labelLoginPanel);
         loginAndPasswordPanel.add(labelPasswordPanel);
         loginAndPasswordPanel.add(memoryPanel);
-        loginAndPasswordPanel.add(enterPanel);
+        //loginAndPasswordPanel.add(enterPanel);
         loginAndPasswordPanel.add(languagePanel);
 
         labelLoginPanel.add(loginName);
@@ -127,10 +142,7 @@ public class LoginWindow implements Component {
         CheckBox memoryCheckbox = new CheckBox();
         memoryCheckbox.getElement().addClassName("auth-CheckBox");
         memoryPanel.add(memoryCheckbox);
-
         memoryPanel.add(labelCheckBox);
-        enterPanel.add(loginButton);
-
         loginDialog.add(rootPanel);
 
         loginDialog.addDomHandler(new KeyDownHandler() {
@@ -163,6 +175,53 @@ public class LoginWindow implements Component {
             }
         };
         timer.scheduleRepeating(100);
+    }
+
+    public void getGlobalAndLoginWindowConfiguration() {
+
+        AsyncCallback<LoginWindowInitialization> callback = new AsyncCallback<LoginWindowInitialization>() {
+
+            @Override
+            public void onSuccess(LoginWindowInitialization loginWindowInitialization) {
+
+                if(loginWindowInitialization.getLoginScreenConfig() != null) {
+                    LoginScreenConfig logoConfig = loginWindowInitialization.getLoginScreenConfig();
+                    ProductTitleConfig productTitleConfig = logoConfig.getProductTitleConfig();
+
+                    if(logoConfig.isDisplaycoreVersion()){
+                        coreVersion = "core v. " + loginWindowInitialization.getVersion();
+                    }
+
+                    if(logoConfig.isDisplayProductVersion()){
+                        productVersion = "product v. " + loginWindowInitialization.getProductVersion();
+                    }
+
+                    if(productTitleConfig.getStyle().equals("text")){
+                        if(loginWindowInitialization.getGlobalProductTitle() != null){
+                            textApplicationLogo = loginWindowInitialization.getGlobalProductTitle().getTitle();
+                            authSmallLogo = "";
+                        }
+
+                    }
+
+                    if(productTitleConfig.getStyle().equals("image")){
+                        if(loginWindowInitialization.getGlobalProductTitle() != null){
+                            authSmallLogo = "<img src=" + productTitleConfig.getImage() + " />";
+                            textApplicationLogo = "";
+                        }
+                    }
+
+                }
+
+                loginDialog.setHTML("<span>" + authSmallLogo + textApplicationLogo + " </span>" + "<span class = 'auth_version'>" + coreVersion + productVersion+"</span>");
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        };
+        BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().getLoginWindowInitialization(callback);
     }
 
     public static native String getActiveElement() /*-{
@@ -213,6 +272,36 @@ public class LoginWindow implements Component {
         final UserUidWithPassword credentials =
                 new UserUidWithPassword(loginField.getText(), passwordField.getText(), timezone);
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().login(credentials, callback);
+    }
+
+    public void addClearUserSettingsButton() {
+        FocusPanel clearUserSettingsButton = new FocusPanel();
+        clearUserSettingsButton.setStyleName("light-button");
+        clearUserSettingsButton.addStyleName("clearUserSettings");
+        Label titleClearUserSettings = new Label("Очистить настройки");
+        titleClearUserSettings.getElement().addClassName("auth_button_title");
+        clearUserSettingsButton.add(titleClearUserSettings);
+
+        clearUserSettingsButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Storage storage = Storage.getLocalStorageIfSupported();
+                if (storage == null) {
+                    return;
+                }
+                storage.clear();
+
+            }
+        });
+        //rootPanel.add(clearUserSettingsButton);
+
+
+        loginAndPasswordPanel.add(clearUserSettingsButton);
+        enterPanel = new AbsolutePanel();
+        enterPanel.setStyleName("dark-button");
+
+        loginAndPasswordPanel.add(enterPanel);
+        enterPanel.add(loginButton);
     }
 
     @Override

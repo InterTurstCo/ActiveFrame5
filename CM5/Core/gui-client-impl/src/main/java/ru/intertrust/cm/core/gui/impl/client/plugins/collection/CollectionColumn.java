@@ -9,19 +9,22 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
  *         Date: 21.01.14
  *         Time: 22:59
  */
-public abstract class CollectionColumn <CollectionRowItem, T> extends Column<CollectionRowItem, T> {
+public abstract class CollectionColumn<CollectionRowItem, T> extends Column<CollectionRowItem, T> {
 
     protected String fieldName;
     protected boolean resizable = true;
-    private int width;
+    private int userWidth;
+    private int calculatedWidth;
     protected int minWidth = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
     protected int maxWidth = BusinessUniverseConstants.MAX_COLUMN_WIDTH;
     protected boolean moveable = true;
+    protected boolean visible;
+
     public CollectionColumn(AbstractCell cell) {
         super(cell);
     }
 
-    public CollectionColumn( AbstractCell cell, String fieldName, boolean resizable) {
+    public CollectionColumn(AbstractCell cell, String fieldName, boolean resizable) {
         super(cell);
         this.fieldName = fieldName;
         this.resizable = resizable;
@@ -44,12 +47,12 @@ public abstract class CollectionColumn <CollectionRowItem, T> extends Column<Col
         this.resizable = resizable;
     }
 
-    public int getWidth() {
-        return width;
+    public int getUserWidth() {
+        return userWidth;
     }
 
-    public void setWidth(int width) {
-        this.width = width;
+    public void setUserWidth(int userWidth) {
+        this.userWidth = userWidth;
     }
 
     public int getMinWidth() {
@@ -68,6 +71,14 @@ public abstract class CollectionColumn <CollectionRowItem, T> extends Column<Col
         this.maxWidth = maxWidth;
     }
 
+    public int getCalculatedWidth() {
+        return calculatedWidth;
+    }
+
+    public void setCalculatedWidth(int calculatedWidth) {
+        this.calculatedWidth = calculatedWidth;
+    }
+
     public boolean isMoveable() {
         return moveable;
     }
@@ -76,10 +87,22 @@ public abstract class CollectionColumn <CollectionRowItem, T> extends Column<Col
         this.moveable = moveable;
     }
 
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CollectionColumn)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CollectionColumn)) {
+            return false;
+        }
 
         CollectionColumn that = (CollectionColumn) o;
 

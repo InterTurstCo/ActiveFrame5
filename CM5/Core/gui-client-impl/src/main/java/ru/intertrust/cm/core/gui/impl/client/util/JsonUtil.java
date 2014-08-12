@@ -105,12 +105,12 @@ public class JsonUtil {
 
     }
 
-    public static void prepareJsonAttributes(JSONObject requestObj, String collectionName,
-                                              String simpleSearchQuery, String searchArea, int rowCount) {
+    public static void prepareJsonAttributes(JSONObject requestObj, String collectionName, String simpleSearchQuery,
+                                             String searchArea) {
+
         requestObj.put("collectionName", new JSONString(collectionName));
         requestObj.put("simpleSearchQuery", new JSONString(simpleSearchQuery));
         requestObj.put("simpleSearchArea", new JSONString(searchArea));
-        requestObj.put("rowCount", new JSONNumber(rowCount));
     }
 
     public static void prepareJsonInitialFilters(JSONObject requestObj, InitialFiltersConfig initialFiltersConfig) {

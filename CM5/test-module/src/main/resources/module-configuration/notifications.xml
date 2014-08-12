@@ -32,12 +32,14 @@
             <header>
                 <table width="500px" height="200px">
                     <tr>
-                        <td width="100pxx" h-align="righ">
-                            <widget id="1"/>
+                        <td width="100px" h-align="right">
+                            <!--<widget id="1"/>-->
+                            <widget id="test"/>
                         </td>
                         <!-- label (Название) -->
                         <td width="100%" h-align="left">
-                            <widget id="2"/>
+                            <!--<widget id="2"/>-->
+                            <widget id="test"/>
                         </td>
                         <!-- text-box (Название) -->
                     </tr>
@@ -100,11 +102,13 @@
                             <table>
                                 <tr>
                                     <td h-align="right">
-                                        <widget id="11"/>
+                                        <!--<widget id="11"/>-->
+                                        <widget id="test"/>
                                     </td>
                                     <!-- label () -->
                                     <td colspan="3" h-align="left">
-                                        <widget id="12"/>
+                                        <!--<widget id="12"/>-->
+                                        <widget id="test"/>
                                     </td>
                                     <!-- decimal-box () -->
                                 </tr>
@@ -115,7 +119,10 @@
 
             </body>
         </markup>
-        <widget-config>           
+        <widget-config>
+            <label id="test">
+                <text>TEST</text>
+            </label>
             <label id="3">
                 <text>Заголовок:</text>
             </label>

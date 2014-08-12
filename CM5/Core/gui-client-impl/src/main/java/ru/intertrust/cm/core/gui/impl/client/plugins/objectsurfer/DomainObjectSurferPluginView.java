@@ -1,48 +1,47 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import java.util.logging.Logger;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
+
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
-import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
-import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
-import ru.intertrust.cm.core.gui.model.util.StringUtil;
-
-import java.util.logging.Logger;
-
-import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.*;
+import ru.intertrust.cm.core.gui.model.action.system.SplitterSettingsActionContext;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 
 public class DomainObjectSurferPluginView extends PluginView {
+    private static final int SCHEDULE_TIMEOUT = 3000;
 
     private int surferWidth;
     private int surferHeight;
     private int horizontalSplitterSavedSize = -1;
     private int verticalSplitterSavedSize = -1;
-    private FlowPanel formFlowPanel = new FlowPanel();
-    private SimplePanel splitterFirstWidget = new SimplePanel();
+    private FlowPanel sourthRootWidget = new FlowPanel();
+    private SimplePanel northRootWidget = new SimplePanel();
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
     //локальная шина событий
     private EventBus eventBus;
     private EventBus globalEventBus = Application.getInstance().getEventBus();
-    private SplitterEx splitterPanel;
+    private SplitterEx dockLayoutPanel;
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
     //private FlowPanel flowPanel;
-    private AbsolutePanel flowPanel;
+    private AbsolutePanel rootSurferPanel;
+    private Timer timeoutTimer;
 
     public DomainObjectSurferPluginView(Plugin plugin) {
         super(plugin);
@@ -50,27 +49,23 @@ public class DomainObjectSurferPluginView extends PluginView {
         surferWidth = plugin.getOwner().getVisibleWidth();
         surferHeight = plugin.getOwner().getVisibleHeight();
         initSplitter();
-        formFlowPanel.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
+        sourthRootWidget.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalEventBus();
         addSplitterWidgetResizeHandler();
     }
 
     private void initSplitter() {
-        splitterPanel = new SplitterEx(8, domainObjectSurferPlugin.getLocalEventBus()) {
+        dockLayoutPanel = new SplitterEx(8, domainObjectSurferPlugin.getLocalEventBus()) {
             @Override
             public void onResize() {
                 super.onResize();
-                final int historySize;
-                if (splitterPanel.isSplitType()) {
-                    verticalSplitterSavedSize = historySize = splitterFirstWidget.getOffsetWidth();
-
+                final int splitterSize;
+                if (dockLayoutPanel.isSplitType()) {
+                    verticalSplitterSavedSize = splitterSize = northRootWidget.getOffsetWidth();
                 } else {
-                    horizontalSplitterSavedSize = historySize = splitterFirstWidget.getOffsetHeight();
+                    horizontalSplitterSavedSize = splitterSize = northRootWidget.getOffsetHeight();
                 }
-                final HistoryManager manager = Application.getInstance().getHistoryManager();
-                manager.addHistoryItems(SPLITTER_IDENTIFIER_KEY, new HistoryItem(
-                        HistoryItem.Type.USER_INTERFACE, SPLITTER_SIZE_KEY, Integer.toString(historySize)));
-
+                storeSplitterSettings(dockLayoutPanel.isSplitType(), splitterSize);
             }
         };
     }
@@ -88,7 +83,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     protected void splitterSetSize() {
-        splitterPanel.setSize(surferWidth + "px", surferHeight + "px");
+        dockLayoutPanel.setSize(surferWidth + "px", surferHeight + "px");
 
     }
 
@@ -99,125 +94,110 @@ public class DomainObjectSurferPluginView extends PluginView {
                 checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(), event.getFirstWidgetHeight(),
                         event.isArrowsPress());
                 final int size = event.isType() ? event.getFirstWidgetWidth() : event.getFirstWidgetHeight();
-                final HistoryManager manager = Application.getInstance().getHistoryManager();
-                manager.addHistoryItems(SPLITTER_IDENTIFIER_KEY,
-                        new HistoryItem(HistoryItem.Type.USER_INTERFACE, SPLITTER_TYPE_KEY, Boolean.toString(event.isType())),
-                        new HistoryItem(HistoryItem.Type.USER_INTERFACE, SPLITTER_SIZE_KEY, Integer.toString(size)));
+                storeSplitterSettings(event.isType(), size);
             }
         });
-
     }
 
-    private void checkLastSplitterPosition(boolean type, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {
+    private void checkLastSplitterPosition(boolean isVertical, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {
         if (!arrowButton) {
             if (horizontalSplitterSavedSize >= 0) {
                 firstWidgetHeight = horizontalSplitterSavedSize;
             }
-
             if (verticalSplitterSavedSize >= 0) {
                 firstWidgetWidth = verticalSplitterSavedSize;
-                splitterPanel.setSizeFromInsert(firstWidgetWidth);
-
+                dockLayoutPanel.setSizeFromInsert(firstWidgetWidth);
             }
         }
-
-        if (type && arrowButton) {
+        if (isVertical && arrowButton) {
             verticalSplitterSavedSize = firstWidgetWidth;
-
         } else {
             horizontalSplitterSavedSize = firstWidgetHeight;
         }
 
-        reDrawSplitter(type, firstWidgetWidth, firstWidgetHeight);
-
+        reDrawSplitter(isVertical, firstWidgetWidth, firstWidgetHeight);
     }
 
-    private void reDrawSplitter(boolean type, int firstWidgetWidth, int firstWidgetHeight) {
-
-        if (type) {
-            splitterPanel.remove(0);
-            splitterPanel.insertWest(splitterFirstWidget, firstWidgetWidth, splitterPanel.getWidget(0));
-
+    private void reDrawSplitter(boolean isVertical, int firstWidgetWidth, int firstWidgetHeight) {
+        if (isVertical) {
+            dockLayoutPanel.remove(0);
+            dockLayoutPanel.insertWest(northRootWidget, firstWidgetWidth, dockLayoutPanel.getWidget(0));
         } else {
-
             if (firstWidgetHeight > surferHeight) {
-                firstWidgetHeight = surferHeight - splitterPanel.getSplitterSize();
+                firstWidgetHeight = surferHeight - dockLayoutPanel.getSplitterSize();
             }
-
-            splitterPanel.remove(0);
-            splitterPanel.insertNorth(splitterFirstWidget, firstWidgetHeight - splitterPanel.getSplitterSize(), splitterPanel.getWidget(0));
-
-
+            dockLayoutPanel.remove(0);
+            dockLayoutPanel.insertNorth(northRootWidget, firstWidgetHeight - dockLayoutPanel.getSplitterSize(), dockLayoutPanel.getWidget(0));
         }
     }
 
     @Override
     public IsWidget getViewWidget() {
-
-        flowPanel = new AbsolutePanel();
-        flowPanel.setStyleName("centerTopBottomDividerRoot");
+        rootSurferPanel = new AbsolutePanel();
+        rootSurferPanel.setStyleName("centerTopBottomDividerRoot");
         AbsolutePanel container = new AbsolutePanel();
         container.setStyleName("centerTopBottomDividerRootInnerDiv");
-        flowPanel.add(container);
+        rootSurferPanel.add(container);
 
-        container.add(splitterPanel);
-        final HistoryManager manager = Application.getInstance().getHistoryManager();
-        final boolean splitterType = StringUtil.booleanFromString(
-                manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_TYPE_KEY), Boolean.FALSE);
-        final Integer splitterSize =
-                StringUtil.integerFromString(manager.getValue(SPLITTER_IDENTIFIER_KEY, SPLITTER_SIZE_KEY), null);
-        if (splitterType) {
-            splitterPanel.addWest(splitterFirstWidget, splitterSize == null ? surferWidth / 2 : splitterSize);
-
+        container.add(dockLayoutPanel);
+        final DomainObjectSurferPluginData initialData = plugin.getInitialData();
+        final boolean isVertical = Integer.valueOf(1).equals(initialData.getSplitterOrientation());
+        final Integer splitterSize = initialData.getSplitterPosition();
+        if (isVertical) {
+            dockLayoutPanel.addWest(northRootWidget, splitterSize == null ? surferWidth / 2 : splitterSize);
         } else {
-            splitterPanel.addNorth(splitterFirstWidget, splitterSize == null ? surferHeight / 2 : splitterSize);
+            dockLayoutPanel.addNorth(northRootWidget, splitterSize == null ? surferHeight / 2 : splitterSize);
         }
-        splitterPanel.add(formFlowPanel);
+        dockLayoutPanel.add(sourthRootWidget);
         splitterSetSize();
-
 
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
 
         if (config != null) {
             log.info("plugin config, collection = " + config.getCollectionViewerConfig().getCollectionRefConfig().getName());
-            final PluginPanel formPluginPanel = new PluginPanel();
-            formPluginPanel.setVisibleHeight(surferHeight / 2);
-            formPluginPanel.setVisibleWidth(surferWidth);
-            final Plugin collectionViewerPlugin = domainObjectSurferPlugin.getCollectionPlugin();
-            PluginConfig collectionPluginConfig = config.getCollectionViewerConfig();
-            collectionViewerPlugin.setConfig(collectionPluginConfig);
 
-            PluginPanel collectionViewerPluginPanel = new PluginPanel() {
-                @Override
-                public void beforePluginOpening() {
-
-                    FormPlugin formPlugin = domainObjectSurferPlugin.getFormPlugin();
-
-                    formPluginPanel.open(formPlugin);
-
-                    formPluginPanel.asWidget().addStyleName("form-container");
-
-                    splitterFirstWidget.add(this.asWidget());
-
-                    formFlowPanel.add(formPluginPanel.asWidget());
-
-                }
-            };
+            PluginPanel collectionViewerPluginPanel = new PluginPanel();
             collectionViewerPluginPanel.setVisibleWidth(surferWidth);
             collectionViewerPluginPanel.setVisibleHeight(surferHeight / 2);
-            collectionViewerPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
-                @Override
-                public void onViewCreation(PluginViewCreatedEvent source) {
-                    ((CollectionPluginView) collectionViewerPlugin.getView()).fetchMoreItemsIfRequired();
-                }
-            });
-            collectionViewerPluginPanel.open(collectionViewerPlugin);
+            collectionViewerPluginPanel.open(domainObjectSurferPlugin.getCollectionPlugin());
 
+            final PluginPanel formPluginPanel = new PluginPanel();
+            formPluginPanel.setVisibleWidth(surferWidth);
+            formPluginPanel.setVisibleHeight(surferHeight / 2);
+            formPluginPanel.open(domainObjectSurferPlugin.getFormPlugin());
+            formPluginPanel.asWidget().addStyleName("form-container");
 
+            northRootWidget.add(collectionViewerPluginPanel);
+            sourthRootWidget.add(formPluginPanel);
         }
         Application.getInstance().hideLoadingIndicator();
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, plugin.getClass().getSimpleName());
-        return flowPanel;
+        return rootSurferPanel;
+    }
+
+    private void storeSplitterSettings(final boolean vertical, final int size) {
+        if (timeoutTimer == null) {
+            timeoutTimer = new Timer() {
+                @Override
+                public void run() {
+                    timeoutTimer.cancel();
+                    timeoutTimer = null;
+                    final ActionConfig actionConfig = new ActionConfig();
+                    actionConfig.setImmediate(true);
+                    actionConfig.setDirtySensitivity(false);
+                    final SplitterSettingsActionContext actionContext = new SplitterSettingsActionContext();
+                    actionContext.setOrientation(vertical ? Long.valueOf(1) : Long.valueOf(0));
+                    actionContext.setPosition(Long.valueOf(size));
+                    actionContext.setActionConfig(actionConfig);
+                    final Action action = ComponentRegistry.instance.get(SplitterSettingsActionContext.COMPONENT_NAME);
+                    action.setInitialContext(actionContext);
+                    action.perform();
+                }
+            };
+        } else {
+            timeoutTimer.cancel();
+        }
+        timeoutTimer.schedule(SCHEDULE_TIMEOUT);
     }
 }

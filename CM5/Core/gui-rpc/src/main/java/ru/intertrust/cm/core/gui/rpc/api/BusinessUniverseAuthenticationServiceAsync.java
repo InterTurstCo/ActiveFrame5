@@ -5,6 +5,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
+import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
 import ru.intertrust.cm.core.model.AuthenticationException;
 
 /**
@@ -15,6 +16,7 @@ import ru.intertrust.cm.core.model.AuthenticationException;
 public interface BusinessUniverseAuthenticationServiceAsync {
     void login(UserCredentials userCredentials, AsyncCallback<Void> async) throws AuthenticationException;
     void logout(AsyncCallback<Void> async);
+    void getLoginWindowInitialization(AsyncCallback<LoginWindowInitialization> callback);
 
     public static class Impl {
         private static final BusinessUniverseAuthenticationServiceAsync instance;

@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -10,8 +12,6 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
-
-import com.google.gwt.user.client.Window;
 
 /**
  * @author Denis Mitavskiy
@@ -39,6 +39,6 @@ public class CompleteTaskAction extends SimpleServerAction {
         Plugin plugin = getPlugin();
         ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
         plugin.setToolbarContext(formPluginData.getToolbarContext());
-        Window.alert("Task Completed!!!");
+        ApplicationWindow.infoAlert(BusinessUniverseConstants.TASK_COMPLETE_MESSAGE);
     }
 }

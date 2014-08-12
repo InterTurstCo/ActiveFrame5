@@ -22,6 +22,7 @@
                     jndi-name="java:module/SearchService!ru.intertrust.cm.core.business.api.SearchService"
                     business-interface="ru.intertrust.cm.core.business.api.SearchService"/>
 
+    <bean id="applicationVersion" class="ru.intertrust.cm.core.gui.impl.server.util.VersionUtil" scope="singleton" />
 
     <bean id="formRetriever" class="ru.intertrust.cm.core.gui.impl.server.form.FormRetriever" scope="prototype"/>
 

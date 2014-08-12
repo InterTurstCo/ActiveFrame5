@@ -1,14 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -21,6 +16,10 @@ import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * <p>
@@ -61,7 +60,7 @@ public abstract class Plugin extends BaseComponent {
 
     public void onDataLoadFailure() {
         Application.getInstance().hideLoadingIndicator();
-        Window.alert("Ошибка инициализации плагина " + this.getName());
+        ApplicationWindow.errorAlert("Ошибка инициализации плагина " + this.getName());
     }
 
     /**
@@ -202,7 +201,6 @@ public abstract class Plugin extends BaseComponent {
     }
 
     /**
-     *
      * @return TRUE - Обработка события восстановления данных истории завершена и дальше по цепочке обработка не
      * требуется, FALSE - событие восстановления данных истории должно быть передано дальше по цепочкею
      */

@@ -16,7 +16,8 @@ import ru.intertrust.cm.core.gui.model.util.StringUtil;
 public class ColumnFormatter {
     private static final String CUT_STYLE = "cut";
 
-    private ColumnFormatter() {}
+    private ColumnFormatter() {
+    }
 
     public static CollectionColumn createFormattedColumn(CollectionColumnProperties columnProperties) {
         String field = (String) columnProperties.getProperty(CollectionColumnProperties.FIELD_NAME);
@@ -34,12 +35,13 @@ public class ColumnFormatter {
             converter.init(columnProperties.getProperties());
             collectionColumn = new TextCollectionColumn(new TextCell(getCssStyleForText(textBreakStyle)), field, resizable, converter);
         }
-        adjustColumnMinAndMaxWidth(collectionColumn, columnProperties);
+        setColumnWidthProperties(collectionColumn, columnProperties);
         String columnName = (String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY);
         collectionColumn.setDataStoreName(columnName);
         boolean sortable = (Boolean) columnProperties.getProperty(CollectionColumnProperties.SORTABLE);
         collectionColumn.setSortable(sortable);
-
+        boolean hidden = (Boolean) columnProperties.getProperty(CollectionColumnProperties.HIDDEN);
+        collectionColumn.setVisible(!hidden);
         return collectionColumn;
     }
 
@@ -50,7 +52,7 @@ public class ColumnFormatter {
         return "";
     }
 
-    private static void adjustColumnMinAndMaxWidth(
+    private static void setColumnWidthProperties(
             final CollectionColumn column, final CollectionColumnProperties columnProperties) {
         final Integer minWidth = StringUtil.integerFromString(
                 (String) columnProperties.getProperty(CollectionColumnProperties.MIN_WIDTH), null);
@@ -62,5 +64,7 @@ public class ColumnFormatter {
         if (maxWidth != null) {
             column.setMaxWidth(maxWidth);
         }
+        column.setUserWidth(StringUtil.integerFromString(
+                (String) columnProperties.getProperty(CollectionColumnProperties.WIDTH), 0));
     }
 }

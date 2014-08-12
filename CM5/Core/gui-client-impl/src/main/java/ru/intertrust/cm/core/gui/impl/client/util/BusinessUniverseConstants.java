@@ -33,7 +33,6 @@ public class BusinessUniverseConstants {
     public static final String HEADER_CLEAR_BUTTON_ID_PART = "clear-button";
     public static final String HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART = "date-picker";
     public static final String LOGIN_PAGE = "Login.html";
-    public static final String USER_THEME_NAME = "userThemeName";
 
     public static final int START_SIDEBAR_WIDTH = 110;
     public static final String CLOSED = "closed";
@@ -82,6 +81,23 @@ public class BusinessUniverseConstants {
 
     public static final String CENTRAL_SECTION_STYLE = "central-div-panel-test";
     public static final String CENTRAL_SECTION_ACTIVE_STYLE = "central-div-panel-test-active";
+
+    //alert messages
+    public static final String TASK_COMPLETE_MESSAGE = "Задача успешно завершена";
+    public static final String ROW_IS_DELETED_MESSAGE = "Строка удалена";
+    public static final String REPORT_IS_UPLOADED_MESSAGE = "Репорт успешно загружен";
+    public static final String CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE = "Исправьте ошибки перед сохранением";
+    public static final String SAVED_MESSAGE = "Успешно сохранено";
+    public static final String EVENT_IS_SENT_MESSAGE = "Событие отправлно";
+    public static final String SYSTEM_EXCEPTION_MESSAGE = "Ошибка системы";
+    public static final String BUSINESS_UNIVERSE_CONTEXT_EXCEPTION_MESSAGE = "BusinessUniverseContext не получил конфигурацию для поиска";
+    public static final String DONE_SUCCESSFULLY_MESSAGE = "Успешно выполнено";
+    public static final String PROCESS_IS_STARTED_MESSAGE = "Процесс запущен";
+    public static final String COULD_NOT_SAVE_USER_SETTINGS_MESSAGE = "Невозможно сохранить настройки пользователя";
+    public static final String LOGOUT_ERROR_MESSAGE = "Ошибка выхода из приложения";
+    public static final String EXTENDED_SEARCH_ERROR_MESSAGE = "Ошибка расширенного поиска ";
+    public static final String WRONG_DATE_FORMAT_ERROR_MESSAGE = "Неверный формат времени! Попробуйте ";
+    public static final String DATA_IS_NOT_SAVED_CONFIRM_MESSAGE= "Изменения данных не сохранены.\nПродолжить выполнение команды ?";
 
     private BusinessUniverseConstants() {
     }

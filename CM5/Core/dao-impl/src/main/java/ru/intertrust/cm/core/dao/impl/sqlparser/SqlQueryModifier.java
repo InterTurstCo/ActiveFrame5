@@ -1,17 +1,50 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 
-import net.sf.jsqlparser.expression.*;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_POSTFIX;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import net.sf.jsqlparser.expression.Alias;
+import net.sf.jsqlparser.expression.CaseExpression;
+import net.sf.jsqlparser.expression.CastExpression;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.JdbcNamedParameter;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.NullValue;
+import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.*;
-import ru.intertrust.cm.core.business.api.dto.*;
+import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.select.SubSelect;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
+import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
@@ -22,12 +55,6 @@ import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.ObjectCloner;
-
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 
 
 /**
@@ -601,7 +628,7 @@ public class SqlQueryModifier {
         } else if (plainSelect.getFromItem() instanceof Table) {
             Table fromItem = (Table) plainSelect.getFromItem();
 
-            if (forSubSelect && hasStringExpressionWithSameAlias(plainSelect, column)) {
+            if (forSubSelect && hasEvaluatedExpressionWithSameAliasInSubselect(plainSelect, column)) {
                 return null;
             }
             //TODO do we need condition for forSubSelect here?
@@ -641,14 +668,21 @@ public class SqlQueryModifier {
         return null;
     }
 
-    private static boolean hasStringExpressionWithSameAlias(PlainSelect plainSelect, Column column) {
-        if (plainSelect.getSelectItems() != null) {
-            for (SelectItem selectItem : plainSelect.getSelectItems()) {
+    /**
+     * Проверяет, объявлена ли колонка (основного SQL запроса) в подзапросе как вычисляемая колонка
+     * @param plainSubSelect
+     * @param column
+     * @return
+     */
+    private static boolean hasEvaluatedExpressionWithSameAliasInSubselect(PlainSelect plainSubSelect, Column column) {
+        if (plainSubSelect.getSelectItems() != null) {
+            for (SelectItem selectItem : plainSubSelect.getSelectItems()) {
                 if (!SelectExpressionItem.class.equals(selectItem.getClass())) {
                     continue;
                 }
                 SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
-                if (selectExpressionItem.getExpression() instanceof StringValue) {
+                Expression expressionValue = selectExpressionItem.getExpression();
+                if (isEvaluatedExpression(expressionValue)) {
 
                     if (selectExpressionItem.getAlias() != null) {
                         if (column.getColumnName().equalsIgnoreCase(selectExpressionItem.getAlias().getName())) {
@@ -659,6 +693,11 @@ public class SqlQueryModifier {
             }
         }
         return false;
+    }
+
+    private static boolean isEvaluatedExpression(Expression expressionValue) {
+        return expressionValue instanceof StringValue || expressionValue instanceof Function || expressionValue instanceof Concat
+                || expressionValue instanceof CaseExpression || expressionValue instanceof CastExpression;
     }
 
     private FieldConfig getFieldConfig(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {

@@ -6,6 +6,7 @@ package ru.intertrust.cm.core.gui.impl.client.themes.lucem;
  *         Time: 12:55
  */
 
+import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
@@ -39,4 +40,7 @@ public interface LucemThemeBundle extends ThemeBundle{
     @Override
     @Source("images/confirm.png")
     ImageResource doneIm();
+
+    @ClientBundle.Source("images/confirmDialogDefIm.png")
+    ImageResource confirmDialogWindowIm();
 }

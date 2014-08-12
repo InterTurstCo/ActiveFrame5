@@ -27,7 +27,8 @@ public final class GuiServerHelper {
     /**
      * Don't create instance of helper class.
      */
-    private GuiServerHelper() {}
+    private GuiServerHelper() {
+    }
 
     public static Calendar timelessDateToCalendar(final TimelessDate timelessDate, final TimeZone timeZone) {
         final Calendar calendar = Calendar.getInstance(timeZone);
@@ -55,7 +56,7 @@ public final class GuiServerHelper {
     }
 
     public static CollectionColumnProperties collectionColumnConfigToProperties(CollectionColumnConfig config,
-                DefaultSortCriteriaConfig sortCriteriaConfig, InitialFiltersConfig initialFiltersConfig) {
+                                                                                DefaultSortCriteriaConfig sortCriteriaConfig, InitialFiltersConfig initialFiltersConfig) {
         CollectionColumnProperties properties = new CollectionColumnProperties();
         String sortedField = getSortedField(sortCriteriaConfig);
         String field = config.getField();
@@ -64,21 +65,23 @@ public final class GuiServerHelper {
         properties.addProperty(CollectionColumnProperties.FIELD_NAME, field)
                 .addProperty(CollectionColumnProperties.NAME_KEY, columnName)
                 .addProperty(CollectionColumnProperties.TYPE_KEY, config.getType())
-                .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY,searchFilterName)
+                .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, searchFilterName)
                 .addProperty(CollectionColumnProperties.DATE_PATTERN, config.getDatePattern())
                 .addProperty(CollectionColumnProperties.TIME_PATTERN, config.getTimePattern())
                 .addProperty(CollectionColumnProperties.TIME_ZONE_ID, config.getTimeZoneId())
+                .addProperty(CollectionColumnProperties.WIDTH, config.getWidth())
                 .addProperty(CollectionColumnProperties.MIN_WIDTH, config.getMinWidth())
                 .addProperty(CollectionColumnProperties.MAX_WIDTH, config.getMaxWidth())
                 .addProperty(CollectionColumnProperties.RESIZABLE, config.isResizable())
                 .addProperty(CollectionColumnProperties.TEXT_BREAK_STYLE, config.getTextBreakStyle())
                 .addProperty(CollectionColumnProperties.SORTABLE, config.isSortable())
-                .addProperty(CollectionColumnProperties.DATE_RANGE, config.isDateRange());;
+                .addProperty(CollectionColumnProperties.DATE_RANGE, config.isDateRange())
+                .addProperty(CollectionColumnProperties.HIDDEN, config.isHidden());
         if (field.equalsIgnoreCase(sortedField)) {
             properties.addProperty(
                     CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));
         }
-        if(initialFiltersConfig != null){
+        if (initialFiltersConfig != null) {
             List<AbstractFilterConfig> abstractFilterConfigs = (List<AbstractFilterConfig>) initialFiltersConfig.getAbstractFilterConfigs();
             List<String> initialFilterValues = getInitialFilterValue(searchFilterName, abstractFilterConfigs);
             properties.addProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES, initialFilterValues);
@@ -89,26 +92,27 @@ public final class GuiServerHelper {
         properties.setRendererConfig(config.getRendererConfig());
         return properties;
     }
+
     private static List<ParamConfig> findFilterInitParams(String filterName, List<AbstractFilterConfig> abstractFilterConfigs) {
-         if (filterName == null || abstractFilterConfigs == null) {
-             return null;
-         }
+        if (filterName == null || abstractFilterConfigs == null) {
+            return null;
+        }
         for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
-              if (filterName.equalsIgnoreCase(abstractFilterConfig.getName())){
-                  return abstractFilterConfig.getParamConfigs();
-              }
+            if (filterName.equalsIgnoreCase(abstractFilterConfig.getName())) {
+                return abstractFilterConfig.getParamConfigs();
+            }
         }
         return null;
     }
-   
-    private static List<String> getInitialFilterValue(String filterName, List<AbstractFilterConfig> abstractFilterConfigs){
+
+    private static List<String> getInitialFilterValue(String filterName, List<AbstractFilterConfig> abstractFilterConfigs) {
         List<ParamConfig> paramConfigs = findFilterInitParams(filterName, abstractFilterConfigs);
         List<String> initialFilterValues = getInitialFilterValueFromParamConfigs(paramConfigs);
         return initialFilterValues;
     }
-    
+
     private static List<String> getInitialFilterValueFromParamConfigs(List<ParamConfig> paramConfigs) {
-        if(paramConfigs == null || paramConfigs.isEmpty()) {
+        if (paramConfigs == null || paramConfigs.isEmpty()) {
             return null;
         }
         List<String> initialFilterValues = new ArrayList<>();

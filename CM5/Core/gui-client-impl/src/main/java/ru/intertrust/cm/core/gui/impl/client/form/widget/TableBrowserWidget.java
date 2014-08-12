@@ -217,7 +217,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 temporaryStateOfSelectedIds.clear();
                 widgetItemsView.getListValues().clear();
                 widgetItemsView.displayItems();
-                ((TableBrowserState) getCurrentState()).getIds().clear();
+                currentState.getSelectedIds().clear();
 
             }
         });
@@ -236,7 +236,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         if (tableBrowserConfig.getClearAllButtonConfig() != null) {
             String img = tableBrowserConfig.getAddButtonConfig().getImage();
             String text = tableBrowserConfig.getAddButtonConfig().getText();
-            if (text == null || text.equals("...") || text.length() == 0) {
+            if (text == null ||  text.length() == 0) {
                 text = "Добавить";
             }
             addButton = new ButtonForm(openDialogButton, img, text);

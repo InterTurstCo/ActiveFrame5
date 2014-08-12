@@ -182,10 +182,45 @@ public class ConfigurationStorageBuilder {
             }
         }
 
+        //В случае если не найдена матрица, то возможно это абстракный тип и надо поискать матрицы для потомков.
+        if (matrixConfig == null){
+            //Получаем все потомки
+            List<String> childTypes = getChildTypes(childTypeName);
+            //Ищим первую матрицу у потомков и проверяем ее тип
+            for (String childType : childTypes) {
+                matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childType);
+                if (matrixConfig != null){
+                    //у потомка заимствованные права, значит и у родителя заимствованные права, получаем тип откуда заимсвует права потомок
+                    if (matrixConfig.getMatrixReference() != null){
+                        result = fillMatrixReferenceTypeNameMap(childType);
+                    }
+                    //Выходим из цикла при первой же обнаруженной матрице
+                    break;
+                }
+            }
+        }
+        
         if (result != null) {
             configurationStorage.matrixReferenceTypeNameMap.put(childTypeName, result);
         }
 
+        return result;
+    }
+
+    /**
+     * Получение всех дочерних типов с учетом иерархии наследования
+     * @param typeName
+     * @return
+     */
+    private List<String> getChildTypes(String typeName) {
+        List<String> result = new ArrayList<String>();
+        Collection<DomainObjectTypeConfig> allTypes = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+        for (DomainObjectTypeConfig domainObjectTypeConfig : allTypes) {
+            if (domainObjectTypeConfig.getExtendsAttribute() != null && domainObjectTypeConfig.getExtendsAttribute().equalsIgnoreCase(typeName)){
+                result.add(domainObjectTypeConfig.getName());
+                result.addAll(getChildTypes(domainObjectTypeConfig.getName()));
+            }
+        }
         return result;
     }
 

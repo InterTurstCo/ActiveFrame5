@@ -413,11 +413,21 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     public void onClick(ClickEvent event) {
                         stateListValues.clear();
                         selectedSuggestions.clear();
-
+                        SuggestBoxState suggestBoxState = getInitialData();
+                        suggestBoxState.getSelectedIds().clear();
+                        clearAllItems();
                     }
                 });
             }
+        }
 
+        public void clearAllItems() {
+            for (Iterator<Widget> it = getChildren().iterator(); it.hasNext(); ) {
+                final Widget widget = it.next();
+                if (widget instanceof SelectedItemComposite) {
+                    it.remove();
+                }
+            }
         }
 
         public void insert(final Id itemId, final String itemName) {
@@ -429,12 +439,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             if (singleChoice) {
                 selectedSuggestions.clear();
                 stateListValues.clear();
-                for (Iterator<Widget> it = getChildren().iterator(); it.hasNext(); ) {
-                    final Widget widget = it.next();
-                    if (widget instanceof SelectedItemComposite) {
-                        it.remove();
-                    }
-                }
+                clearAllItems();
             }
             selectedSuggestions.put(itemId, itemName);
             int index = shouldDrawTooltipButton() ? container.getChildCount() - 2 : container.getChildCount() - 1;

@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -38,6 +39,6 @@ public class SendProcessEventAction extends SimpleServerAction {
         Plugin plugin = getPlugin();
         ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
         plugin.setToolbarContext(formPluginData.getToolbarContext());
-        Window.alert("Event Sent!!!");
+        ApplicationWindow.infoAlert(BusinessUniverseConstants.EVENT_IS_SENT_MESSAGE);
     }
 }

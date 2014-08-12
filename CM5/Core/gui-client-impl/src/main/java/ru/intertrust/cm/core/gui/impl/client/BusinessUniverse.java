@@ -12,33 +12,17 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
-import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.BaseComponent;
-import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.*;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -78,14 +62,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
     public void onModuleLoad() {
 
-        AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
+        final AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
                 GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
                     @Override
                     public void onUncaughtException(Throwable ex) {
                         if (ex.getCause() instanceof HistoryException) {
-                            Window.alert(ex.getCause().getMessage());
+                            ApplicationWindow.errorAlert(ex.getCause().getMessage());
                         } else {
                             GWT.log("Uncaught exception escaped", ex);
                         }
@@ -125,12 +109,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 center.add(left);
 
                 center.add(centralDivPanel);
+                center.getElement().addClassName("testuporia");
                 navigationTreePanel = new PluginPanel();
                 // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 // данному плагину устанавливается глобальная шина событий
                 navigationTreePlugin.setEventBus(glEventBus);
                 centralPluginPanel = new CentralPluginPanel();
+                centralPluginPanel.setStyle("rightSectionWrapper");
                 centralDivPanel.add(centralPluginPanel);
                 centralPluginWidth = Window.getClientWidth() - 160;
                 centralPluginHeight = Window.getClientHeight();
@@ -138,11 +124,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
                 glEventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
                 glEventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
-                navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
-                navigationTreePanel.open(navigationTreePlugin);
                 String logoImagePath = GlobalThemesManager.getResourceFolder() + result.getLogoImagePath();
                 CurrentUserInfo currentUserInfo = getUserInfo(result);
-                header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig));
+                String version = result.getApplicationVersion();
+                header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version));
                 left.add(navigationTreePanel);
 
                 glEventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
@@ -151,7 +136,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                         left.setStyleName(event.getStyleForLeftSector());
                         centralDivPanel.setStyleName(event.getStyleForCenterSector());
-                        glEventBus.fireEvent(new PluginPanelSizeChangedEvent());
 
                     }
                 });
@@ -166,14 +150,19 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 });
                 addStickerPanel();
                 addWindowResizeListener();
-                RootLayoutPanel.get().add(root);
-                RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
                 final Application application = Application.getInstance();
                 application.setPageNamePrefix(result.getPageNamePrefix());
                 application.setTimeZoneIds(result.getTimeZoneIds());
                 application.setHeaderNotificationPeriod(result.getHeaderNotificationPeriod());
                 application.setCollectionCountersUpdatePeriod(result.getCollectionCountersUpdatePeriod());
                 application.setActionManager(new ActionManagerImpl(centralPluginPanel));
+
+                RootLayoutPanel.get().add(root);
+                RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
+
+                navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
+                navigationTreePanel.open(navigationTreePlugin);
+
                 History.addValueChangeHandler(new HistoryValueChangeHandler());
             }
 
@@ -190,12 +179,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         Application.getInstance().showLoadingIndicator();
         PluginConfig pluginConfig = event.getPluginConfig();
         String pluginName = pluginConfig.getComponentName();
-        Plugin plugin = ComponentRegistry.instance.get(pluginName);
+        final Plugin plugin = ComponentRegistry.instance.get(pluginName);
         plugin.setConfig(pluginConfig);
         final HistoryManager manager = Application.getInstance().getHistoryManager();
         manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
                 .setLink(event.getLinkName());
         plugin.setDisplayActionToolBar(true);
+
         centralPluginPanel.open(plugin);
     }
 
@@ -272,39 +262,62 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         return new BusinessUniverse();
     }
 
+    private void handleHistory(String url) {
+        final HistoryManager manager = Application.getInstance().getHistoryManager();
+        if (url != null && !url.isEmpty()) {
+            manager.setToken(url);
+            if (manager.hasLink()) {
+                if (!navigationTreePlugin.restoreHistory()) {
+                    final Plugin plugin = centralPluginPanel.getCurrentPlugin();
+                    plugin.restoreHistory();
+                }
+            } else if (!manager.getSelectedIds().isEmpty()) {
+                final Id selectedId = manager.getSelectedIds().get(0);
+                final FormPluginConfig formPluginConfig = new FormPluginConfig(selectedId);
+                final FormPluginState formPluginState = new FormPluginState();
+                formPluginState.setInCentralPanel(Application.getInstance().getCompactModeState().isExpanded());
+                formPluginConfig.setPluginState(formPluginState);
+
+                final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+                formPlugin.setConfig(formPluginConfig);
+                formPlugin.setDisplayActionToolBar(true);
+                formPlugin.setLocalEventBus((EventBus) GWT.create(SimpleEventBus.class));
+                manager.setMode(HistoryManager.Mode.WRITE, FormPlugin.class.getSimpleName());
+                navigationTreePlugin.clearCurrentSelectedItemValue();
+                Window.setTitle("Форма документа");
+                centralPluginPanel.open(formPlugin);
+            } else {
+                throw new HistoryException("Переход по данным '" + url + "' невозможет");
+            }
+        }
+
+    }
+
     private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
         @Override
-        public void onValueChange(ValueChangeEvent<String> event) {
-            final HistoryManager manager = Application.getInstance().getHistoryManager();
-            if (!Application.getInstance().getActionManager().isExecuteIfWorkplaceDirty()) {
-                manager.applyUrl();
-                return;
-            }
-            final String url = event.getValue();
-            if (url != null && !url.isEmpty()) {
-                manager.setToken(event.getValue());
-                if (manager.hasLink()) {
-                    if (!navigationTreePlugin.restoreHistory()) {
-                        final Plugin plugin = centralPluginPanel.getCurrentPlugin();
-                        plugin.restoreHistory();
-                    }
-                } else if (!manager.getSelectedIds().isEmpty()){
-                    final Id selectedId = manager.getSelectedIds().get(0);
-                    final FormPluginConfig formPluginConfig = new FormPluginConfig(selectedId);
-                    final FormPluginState formPluginState = new FormPluginState();
-                    formPluginState.setInCentralPanel(Application.getInstance().getCompactModeState().isExpanded());
-                    formPluginConfig.setPluginState(formPluginState);
+        public void onValueChange(final ValueChangeEvent<String> event) {
+            if (!"logout".equals(event.getValue())) {
+                final HistoryManager manager = Application.getInstance().getHistoryManager();
+                ActionManager actionManager = Application.getInstance().getActionManager();
+                final String url = event.getValue();
 
-                    final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
-                    formPlugin.setConfig(formPluginConfig);
-                    formPlugin.setDisplayActionToolBar(true);
-                    formPlugin.setLocalEventBus((EventBus) GWT.create(SimpleEventBus.class));
-                    manager.setMode(HistoryManager.Mode.WRITE, FormPlugin.class.getSimpleName());
-                    navigationTreePlugin.clearCurrentSelectedItemValue();
-                    Window.setTitle("Форма документа");
-                    centralPluginPanel.open(formPlugin);
+                if (actionManager.isEditorDirty()) {
+                    actionManager.executeIfUserAgree(new ConfirmCallback() {
+                        @Override
+                        public void onAffirmative() {
+                            handleHistory(url);
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            manager.applyUrl();
+
+                        }
+                    });
+
+
                 } else {
-                    throw new HistoryException("Переход по данным '" + url + "' невозможет");
+                    handleHistory(url);
                 }
             }
         }

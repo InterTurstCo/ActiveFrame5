@@ -88,25 +88,35 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     }
 
     public void validateGui() {
+        StringBuilder errorLogBuilder = new StringBuilder();
+
         try {
             navigationPanelLogicalValidator.setConfigurationExplorer(this);
             navigationPanelLogicalValidator.validate();
         } catch (ConfigurationException e) {
-            logger.error(e.getMessage());
+            errorLogBuilder.append(e.getMessage());
         }
+
         try {
             formLogicalValidator.setConfigurationExplorer(this);
             formLogicalValidator.validate();
         } catch (ConfigurationException e) {
-            logger.error(e.getMessage());
+            errorLogBuilder.append(e.getMessage());
         }
 
         try {
             CollectionViewLogicalValidator collectionLogicalValidator = new CollectionViewLogicalValidator(this);
             collectionLogicalValidator.validate();
         } catch (ConfigurationException e) {
-            logger.error(e.getMessage());
+            errorLogBuilder.append(e.getMessage());
         }
+
+        String errorLog = errorLogBuilder.toString();
+        if (errorLog.length() > 0){
+            throw new ConfigurationException(errorLog);
+        }
+
+        logger.info("GUI configuration has passed logical validation");
     }
 
     /**

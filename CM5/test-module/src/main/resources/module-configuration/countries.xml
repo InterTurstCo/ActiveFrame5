@@ -156,7 +156,8 @@
                                     </td>
                                     <!-- label (Столица) -->
                                     <td colspan="3" h-align="left">
-                                        <widget id="8"/>
+                                        <!--<widget id="8"/>-->
+                                        <widget id="test"/>
                                     </td>
                                     <!-- suggest-box (Столица) -->
                                     <td colspan="3" h-align="left">
@@ -230,18 +231,22 @@
                                         <widget id="best_desc_label"/>
                                     </td>
                                     <td h-align="left">
-                                        <widget id="best_friend_desc"/>
+                                        <!--<widget id="best_friend_desc"/>-->
+                                        <widget id="test"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <widget id="best_desc_back_label"/>
+                                        <!--<widget id="best_desc_back_label"/>-->
+                                        <widget id="test"/>
                                     </td>
                                     <td h-align="left">
-                                        <widget id="best_friend_desc_back"/>
+                                        <!--<widget id="best_friend_desc_back"/>-->
+                                        <widget id="test"/>
                                     </td>
                                     <td h-align="left">
-                                        <widget id="16"/>
+                                        <!--<widget id="16"/>-->
+                                        <widget id="test"/>
                                     </td>
                                 </tr>
                             </table>
@@ -253,7 +258,8 @@
                                         <widget id="12"/>
                                     </td>
                                     <td h-align="left">
-                                        <widget id="14"/>
+                                        <!--<widget id="14"/>-->
+                                        <widget id="test"/>
                                     </td>
                                 </tr>
                             </table>
@@ -494,11 +500,11 @@
                 <collection-ref name="Cities"/>
 
                 <collection-view-ref name="cities_default_view"/>
-                <selection-filters>
+                <!--<selection-filters>
                     <selection-filter name="byName">
                         <param type="string" name="0" value="Москва"/>
                     </selection-filter>
-                </selection-filters>
+                </selection-filters>-->
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
@@ -512,7 +518,7 @@
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
-                <add-button image="..." text="..."/>
+                <add-button image="..." text="Добавить"/>
 
                 <display-values-as-links value="true"/>
             </table-browser>
@@ -554,7 +560,7 @@
             <header>
                 <table>
                     <tr>
-                        <td width="100px" h-align="righ">
+                        <td width="100px" h-align="right">
                             <widget id="1"/>
                         </td>
                         <!-- label (Название) -->

@@ -1,12 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
@@ -57,6 +59,14 @@ public abstract class PluginView implements IsWidget {
             return;
         }
         actionToolBar.clear();
+        // todo по просьбе Алексея
+        final AbsolutePanel divExt = new AbsolutePanel();
+        divExt.setTitle("I'll be back");
+        divExt.setWidth("20px");
+        divExt.setHeight("inherit");
+        divExt.getElement().getStyle().setFloat(Style.Float.LEFT);
+        actionToolBar.add(divExt);
+        // end todo по просьбе Алексея
         final ActivePluginData initialData = plugin.getInitialData();
         final ToolbarContext toolbarContext;
         if (initialData == null) {
@@ -68,14 +78,12 @@ public abstract class PluginView implements IsWidget {
         toolbarContext.sortActionContexts();
         final MenuBarExt leftMenuBar = new MenuBarExt();
         leftMenuBar.setStyleName("decorated-action-link");
-        leftMenuBar.getElement().getStyle().setFloat(Style.Float.LEFT);
         for (ActionContext context : toolbarContext.getContexts(ToolbarContext.FacetName.LEFT)) {
             leftMenuBar.addActionItem(context);
         }
         actionToolBar.add(leftMenuBar);
         final MenuBarExt rightMenuBar = new MenuBarExt();
         rightMenuBar.setStyleName("action-bar-right-side");
-        rightMenuBar.getElement().getStyle().setFloat(Style.Float.RIGHT);
         for (ActionContext context : toolbarContext.getContexts(ToolbarContext.FacetName.RIGHT)) {
             rightMenuBar.addActionItem(context);
         }
@@ -106,7 +114,15 @@ public abstract class PluginView implements IsWidget {
         }
         panel.add(getViewWidget());
         viewWidget = panel;
+        addExtraStyleClassIfThisIsDomainObjectSurfer();
         return viewWidget;
+    }
+
+    private void addExtraStyleClassIfThisIsDomainObjectSurfer() {
+        if(plugin instanceof DomainObjectSurferPlugin) {
+            Node node = viewWidget.getElement().getFirstChildElement().getLastChild();
+            node.getFirstChild().getParentElement().addClassName("domainObjectSurferExtraClass");
+        }
     }
 
     /**

@@ -6,15 +6,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.gui.UserConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
-import sun.net.www.content.audio.x_aiff;
+import ru.intertrust.cm.core.config.gui.navigation.GroupConfig;
+import ru.intertrust.cm.core.config.gui.navigation.GroupsConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationPanelMappingConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationPanelMappingsConfig;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by IPetrov on 05.03.14.
@@ -49,8 +57,8 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
     private class NavigationPanelsCache {
         // Имя пользователя - имя панели навигации
         private HashMap<String, String> navigationsByUser;
-        // Имя группы пользователя - имя панели навигации
-        private HashMap<String, String> navigationsByUserGroup;
+        // <Имя группы пользователя, <имя панели навигации, приоритет>>
+        private HashMap<String, Pair<String, Integer>> navigationsByUserGroup;
         private NavigationConfig defaultNavigationPanel;
 
         private NavigationPanelsCache() {
@@ -130,40 +138,34 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
             if (groupConfigs == null || groupConfigs.size() == 0) {
                 return;
             }
-            int maxPriority = Integer.MIN_VALUE;
-            String maxPriorityGroupName = null;
             for (GroupConfig groupConfig : groupConfigs) {
-                String groupName = groupConfig.getName();
                 int priority = groupConfig.getPriority() != null ? groupConfig.getPriority() : 0;
-                if (priority > maxPriority) {
-                    maxPriority = priority;
-                    maxPriorityGroupName = groupName;
+                navigationsByUserGroup.put(groupConfig.getName(), new Pair(navigationPanelMappingName, priority));
+            }
+        }
+    }
+
+    private NavigationConfig getNavigationPanelByUserGroup(List<DomainObject> userGroups) {
+        Pair<String, Integer> maxPriorityPair = new Pair("", Integer.MIN_VALUE);
+        for (DomainObject userGroup : userGroups) {
+            String groupName = userGroup.getString("group_name");
+            Pair<String, Integer> pair = navigationPanelsCache.navigationsByUserGroup.get(groupName);
+
+            if (pair != null && pair.getSecond() > maxPriorityPair.getSecond()) {
+                maxPriorityPair = pair;
+            }
+
+            List<DomainObject> allParentGroups = personManagementService.getAllParentGroup(personManagementService.getGroupId(groupName));
+            for (DomainObject parentGroup : allParentGroups) {
+                pair = navigationPanelsCache.navigationsByUserGroup.get(parentGroup.getString("group_name"));
+                if (pair != null && pair.getSecond() > maxPriorityPair.getSecond()) {
+                    maxPriorityPair = pair;
                 }
             }
-            if (maxPriorityGroupName != null) {
-                navigationsByUserGroup.put(maxPriorityGroupName, navigationPanelMappingName);
-            }
         }
-    }
-
-    public NavigationConfig getNavigationPanelByUser(String userUid) {
         NavigationConfig navigationConfig = configurationExplorer.getConfig(NavigationConfig.class,
-                navigationPanelsCache.navigationsByUser.get(userUid));
-        if (navigationConfig == null) {
-            return navigationPanelsCache.getDefaultNavigationPanel();
-        }
-        return navigationConfig;
-    }
+                maxPriorityPair.getFirst());
 
-    public NavigationConfig getNavigationPanelByUserGroup(String groupName) {
-        NavigationConfig navigationConfig = null;
-        List<DomainObject> allParentGroups = personManagementService.getAllParentGroup(personManagementService.getGroupId(groupName));
-        for (DomainObject parentGroup : allParentGroups) {
-            navigationConfig = configurationExplorer.getConfig(NavigationConfig.class,
-                               navigationPanelsCache.navigationsByUserGroup.get(parentGroup.getTypeName()/*groupName*/));
-            if (navigationConfig != null)
-                break;
-        }
         return navigationConfig;
     }
 
@@ -175,11 +177,7 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
         }
         if (navConfig == null) {
             List<DomainObject> userGroups = personManagementService.getPersonGroups(personManagementService.getPersonId(currentUser));
-            for (DomainObject userGroup : userGroups) {
-                navConfig = getNavigationPanelByUserGroup(userGroup.getString("group_name"));
-                if (navConfig != null)
-                    break;
-            }
+            navConfig = getNavigationPanelByUserGroup(userGroups);
         }
         if (navConfig == null) {
             navConfig = navigationPanelsCache.getDefaultNavigationPanel();

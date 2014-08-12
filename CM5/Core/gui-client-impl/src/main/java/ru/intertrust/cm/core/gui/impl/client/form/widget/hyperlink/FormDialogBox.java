@@ -5,6 +5,8 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -36,6 +38,7 @@ public class FormDialogBox extends DialogBox {
         VerticalPanel panel = new VerticalPanel();
         panel.addStyleName("form-dialog-box-content");
         formPluginPanel = new PluginPanel();
+        formPluginPanel.asWidget().addStyleName("frm-pnl-top");
         panel.add(formPluginPanel);
         buttonsPanel = new AbsolutePanel();
         buttonsPanel.addStyleName("buttons-panel");
@@ -59,8 +62,9 @@ public class FormDialogBox extends DialogBox {
 
     }
 
-    public FormPlugin createFormPlugin(FormPluginConfig config) {
+    public FormPlugin createFormPlugin(FormPluginConfig config, final EventBus eventBus) {
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+        formPlugin.setLocalEventBus(eventBus);
         formPlugin.setConfig(config);
         formPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override

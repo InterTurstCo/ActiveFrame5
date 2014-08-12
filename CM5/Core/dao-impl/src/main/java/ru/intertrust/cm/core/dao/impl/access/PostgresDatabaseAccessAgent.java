@@ -375,7 +375,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         }
 
         String query =
-                "select gm.person_id, gm.person_id_type from group_member gm inner join user_group ug on gm.usergroup = ug.id where ug.group_name in (:groups)";
+                "select gm.person_id, gm.person_id_type from group_member gm inner join user_group ug on gm.usergroup = ug.id " +
+                        "inner join group_group gg on (gg.child_group_id = gm.usergroup) where ug.group_name in (:groups)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("groups", userGroups);
 

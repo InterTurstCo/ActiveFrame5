@@ -56,7 +56,7 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
         final HistoryManager historyManager = Application.getInstance().getHistoryManager();
         final NavigationTreePluginView view = (NavigationTreePluginView) getView();
         final String selectedLinkName = view.getSelectedLinkName();
-        if (!historyManager.isLinkEquals(selectedLinkName)) {
+        if (!selectedLinkName.equals(historyManager.getLink())) {
             final NavigationTreePluginData data = getInitialData();
             final List<LinkConfig> linkConfigs = data.getNavigationConfig().getLinkConfigList();
             String rootName = null;
@@ -64,7 +64,7 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
             boolean notExists = true;
             for (LinkConfig linkConfig : linkConfigs) {
                 rootName = linkConfig.getName();
-                if (historyManager.isLinkEquals(rootName)) {
+                if (rootName.equals(historyManager.getLink())) {
                     notExists = false;
                     break;
                 } else {
@@ -90,7 +90,7 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
         for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
             final List<LinkConfig> linkConfigs = childLinksConfig.getLinkConfigList();
             for (LinkConfig linkConfig : linkConfigs) {
-                if (manager.isLinkEquals(linkConfig.getName())) {
+                if (linkConfig.getName().equals(manager.getLink())) {
                     return linkConfig.getName();
                 }
                 final String childLink = findChildLink(linkConfig.getChildLinksConfigList(), manager);

@@ -1,16 +1,25 @@
 package ru.intertrust.cm.core.gui.impl.client.panel;
 
+import java.util.Map;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.config.ThemeConfig;
-import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
-import java.util.Map;
+import ru.intertrust.cm.core.config.ThemeConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.model.action.system.ThemeActionContext;
 
 
 /**
@@ -29,7 +38,7 @@ public class ThemePopup extends PopupPanel {
     private void initPopup(Map<String, ThemeConfig> themeMap) {
 
         this.setStyleName("theme-popup");
-        AbsolutePanel container = new AbsolutePanel();
+        final AbsolutePanel container = new AbsolutePanel();
         AbsolutePanel themePreview = new AbsolutePanel();
         themePreview.setStyleName("preview-top");
         VerticalPanel radioButtonPanel = new VerticalPanel();
@@ -66,13 +75,16 @@ public class ThemePopup extends PopupPanel {
         select.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                Storage stockStore = Storage.getLocalStorageIfSupported();
-                if (stockStore != null) {
-                    stockStore.setItem(BusinessUniverseConstants.USER_THEME_NAME, userThemeComponentName);
-                    Window.Location.reload();
-                }
+                final ActionConfig actionConfig = new ActionConfig();
+                actionConfig.setDirtySensitivity(false);
+                actionConfig.setImmediate(true);
+                final ThemeActionContext context = new ThemeActionContext();
+                context.setActionConfig(actionConfig);
+                context.setThemeName(userThemeComponentName);
+                final Action action = ComponentRegistry.instance.get(ThemeActionContext.COMPONENT_NAME);
+                action.setInitialContext(context);
+                action.perform();
             }
-
         });
         buttonPanel.add(select);
         Button cancel = new Button("Отменить");

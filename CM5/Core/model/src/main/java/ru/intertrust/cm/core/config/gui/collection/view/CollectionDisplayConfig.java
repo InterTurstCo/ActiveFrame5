@@ -4,6 +4,8 @@ import org.simpleframework.xml.ElementList;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -14,7 +16,7 @@ import java.util.List;
 public class CollectionDisplayConfig implements Dto {
 
     @ElementList(entry="column", type=CollectionColumnConfig.class, inline=true)
-    private List<CollectionColumnConfig> columnConfig = new ArrayList<CollectionColumnConfig>();
+    private List<CollectionColumnConfig> columnConfig = new ArrayList<>();
 
     public List<CollectionColumnConfig> getColumnConfig() {
         return columnConfig;
@@ -25,6 +27,36 @@ public class CollectionDisplayConfig implements Dto {
             this.columnConfig = columnConfig;
         } else {
             this.columnConfig.clear();
+        }
+    }
+
+    public void updateColumnWidth(final String field, final String width) {
+        for (CollectionColumnConfig config : columnConfig) {
+            if (config.getField().equals(field)) {
+                config.setWidth(width);
+                break;
+            }
+        }
+    }
+
+    public void updateColumnOrder(final List<String> fieldList) {
+        final List<CollectionColumnConfig> result = new ArrayList<>(columnConfig.size());
+        for (String field : fieldList) {
+            for (Iterator<CollectionColumnConfig> it = columnConfig.iterator(); it.hasNext();) {
+                final CollectionColumnConfig config = it.next();
+                if (field.equals(config.getField())) {
+                    result.add(config);
+                    it.remove();
+                    break;
+                }
+            }
+        }
+        columnConfig = result;
+    }
+
+    public void updateColumnHidden(final Collection<String> hiddenFields) {
+        for (CollectionColumnConfig config : columnConfig) {
+            config.setHidden(hiddenFields.contains(config.getField()));
         }
     }
 
@@ -48,6 +80,6 @@ public class CollectionDisplayConfig implements Dto {
 
     @Override
     public int hashCode() {
-        return columnConfig != null ? columnConfig.hashCode() : 0;
+        return columnConfig != null ? columnConfig.hashCode() : 17;
     }
 }

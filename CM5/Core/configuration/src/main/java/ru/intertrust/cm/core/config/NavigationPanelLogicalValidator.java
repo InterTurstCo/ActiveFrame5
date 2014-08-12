@@ -115,7 +115,8 @@ public class NavigationPanelLogicalValidator {
             }
 
             for (ChildLinksConfig childLinksConfig : linkConfigList) {
-               isFound = findLinkByName(childLinksConfig, childToOpen);
+                isFound = findLinkByName(childLinksConfig, childToOpen);
+                if (isFound) break;
             }
             if (!isFound) {
                 String error =  String.

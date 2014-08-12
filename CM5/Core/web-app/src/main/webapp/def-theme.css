@@ -263,8 +263,8 @@ h1 {
     border-bottom: 1px solid #4073AD !important;
 }
 
-.dataGridHeaderRow:hover th {
-    border-right: 1px dashed #ffffff;
+.dataGridHeaderRow th:hover {
+    border-right: 1px solid #ffffff;
 }
 
 .right-arrow-horiz:first-child {
@@ -385,8 +385,10 @@ h1 {
 }
 
 .table-browser-filter-editor {
-    height: 25px;
-    padding: 0 0 0 5px;
+    border: 1px solid #bbb;
+    min-height: 25px;
+    margin: 6px 6px 0 0;
+    padding: 6px 0 6px 5px;
 }
 
 .common-add-button {
@@ -453,17 +455,15 @@ h1 {
 }
 
 .show-filter-button {
-    width: 23px;
-    height: 23px;
-    background-color: #f0f4ff;
-    background-image: url(css/filter-btn.png);
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+    background: #f0f4ff url(css/filter-btn.png) no-repeat 50% 50%;
     border: 1px solid #c0c4cf;
     border-radius: 3px 3px 3px 3px;
     box-shadow: none;
+    cursor: pointer;
     float: right;
+    height: 23px;
     margin: 3px 5px 0 5px;
+    width: 23px;
 }
 
 .search-header {
@@ -473,7 +473,6 @@ h1 {
 .horizont-container {
     background-color: #f0f4ff;
     padding: 5px 0 0 0;
-    border: 5 none;
     height: 32px;
 }
 
@@ -687,152 +686,10 @@ td.datePickerMonth {
     border: solid black 1px;
 }
 
-/**
-  * Action Bar
-**/
-.decorated-action-link .actionBar-refresh {
-    background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 3px 0 0 10px;
-    width: 35px;
+/* hover's */
+.gwt-MenuItem:hover {
+    cursor: pointer;
 }
-
-/*.gwt-MenuItem:hover .actionBar-refresh {*/
-/*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-refresh {*/
-/*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-create {
-    background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 3px 0 0 10px;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-create {*/
-/*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-create {*/
-/*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-edit {
-    background: url("resources/defaulttheme/images/icons/icon-edit.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 3px 0 0 10px;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-edit {*/
-/*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-edit {*/
-/*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-close {
-    background: url("resources/defaulttheme/images/icons/icon-edit-close.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 3px 0 0 10px;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-close {*/
-/*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-close {*/
-/*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-save {
-    background: url("resources/defaulttheme/images/icons/icon-save.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 3px 0 0 10px;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-save {*/
-/*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-save {*/
-/*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-delete {
-    background: url("resources/defaulttheme/images/icons/icon-delete.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 3px 0 0 10px;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-delete {*/
-/*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-delete {*/
-/*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-csvUpload {
-    background: url("resources/defaulttheme/images/icons/icon-csv_download.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 3px 0 0 10px;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-csvUpload {*/
-/*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-csvUpload {*/
-/*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -70px;*/
-/*}*/
-
-.action-bar-right-side .actionBar-fullsize-on {
-    background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 0;
-    float: right;
-    height: 35px;
-    margin: 3px 0 0 10px;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-fullsize-on {*/
-/*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-fullsize-on {*/
-/*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -70px;*/
-/*}*/
-
-.action-bar-right-side .actionBar-favoritePanel-on {
-    background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 0;
-    float: right;
-    height: 35px;
-    margin: 3px 10px 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-favoritePanel-on {*/
-/*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-favoritePanel-on {*/
-/*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -70px;*/
-/*}*/
 
 .action-bar-button {
 
@@ -844,20 +701,6 @@ td.datePickerMonth {
 
 .action-bar-right-button-non-active {
 
-}
-
-.action-bar {
-    background: #ffffff;
-    background: -moz-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #eaeef1));
-    background: -webkit-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    background: -o-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    background: -ms-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#ffffff", endColorstr\= "#eaeef1", GradientType\= 0 \);
-    background: linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    box-shadow: 0 3px 10px #aaa;
-    height: 40px;
-    z-index: 11;
 }
 
 .action-bar-button-active {
@@ -902,20 +745,9 @@ td.datePickerMonth {
     outline: none;
 }
 
-.action-bar-right-side {
-    float: right;
-}
-
 .action-bar-right-side img {
     padding: 3px 5px 0 0;
     cursor: pointer;
-}
-
-.decorated-action-link .action-bar-button {
-    border: none;
-    float: left;
-    margin: 15px 0 0 0;
-    text-decoration: none;
 }
 
 .decorated-action-link img {
@@ -927,37 +759,19 @@ td.datePickerMonth {
     height: 25px;
 }
 
-.decorated-action-link {
-    float: left;
-}
-
-.decorated-action-link .action-bar-button a {
-    text-decoration: none;
-
-    cursor: pointer;
-    cursor: pointer;
-    color: black;
-
-}
-
-.decorated-action-link .action-bar-button a:hover,
-.decorated-action-link .action-bar-button:hover {
-    color: #f00;
-    border-bottom: 1px dotted #ff0000;
-}
-
 .centerTopBottomDividerRoot {
     /*background: #ffffff;*/
     border-radius: 0 0 5px 5px;
     height: 100%;
     width: 100%;
     display: block;
-    height: auto;
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    margin-top: 40px;
+    /*height: auto;*/
+    /*position: absolute !important;*/
+    /*top: 0;*/
+    /*left: 0;*/
+    /*bottom: 0;*/
+    /*margin-top: 40px;*/
+    margin-top: 5px;
 }
 
 .H_td_logout a {
@@ -1018,6 +832,7 @@ td.datePickerMonth {
     top: 0;
     left: 0;
     bottom: 0;
+    /*width: 140px;*/
     margin-top: 60px;
 }
 
@@ -1041,8 +856,8 @@ td.datePickerMonth {
     position: absolute !important;
     bottom: 0;
     top: 0;
+    /*width: 140px;*/
     margin-top: 60px;
-
 }
 
 .central-div-panel-test {
@@ -1112,13 +927,13 @@ td.datePickerMonth {
 
 .centerTopBottomDividerRootInnerDiv {
     display: block;
-    height: auto;
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
+    height: 100%;
+    /*height: auto;*/
+    /*position: absolute !important;*/
+    /*top: 0;*/
+    /*left: 0;*/
+    /*right: 0;*/
+    /*bottom: 0;*/
 }
 
 .left-tree-item-div {
@@ -1202,6 +1017,11 @@ td.datePickerMonth {
     float: left;
 }
 
+.rightSectionWrapper {
+    height: 100%;
+    width: 100%;
+}
+
 .footer-section {
 }
 
@@ -1260,7 +1080,7 @@ td.datePickerMonth {
     background: url(images/arrow-down.png) no-repeat center transparent;
     cursor: pointer;
     display: inline-block;
-    height: 30px;
+    height: 36px;
     margin-left: -20px;
     min-width: 20px;
     width: 20px;
@@ -1286,12 +1106,11 @@ td.datePickerMonth {
 **/
 .facebook-main-box {
     color: #000;
-    /* border: 1px solid #ccc;*/
     overflow: auto;
     background: rgba(255, 255, 255, 0.70);
     min-height: 24px;
-    padding: 1px 2px !important;
-    margin: 5px 5px 5px 5px;
+    padding: 1px 2px;
+    margin: 5px;
 }
 
 .facebook-element {
@@ -1814,6 +1633,7 @@ td.datePickerMonth {
 }
 
 .not-edit-date-text-label {
+    display: inline;
     min-height: 24px;
     margin: 5px;
 }
@@ -2584,7 +2404,7 @@ td.datePickerMonth {
 }
 
 .radio-button-widget {
-    padding: 3px 0 3px 8px;
+    padding: 7px 0 6px 8px;
     border: 1px solid #bbb;
     font-family: Arial, Helvetica, sans-serif;
     overflow: hidden;
@@ -2807,7 +2627,7 @@ td.datePickerMonth {
 .menuSeparatorInner {
     border-right: 1px solid rgb(211, 211, 211);
     height: 40px;
-    margin: 0 0 0 20px;
+    margin: 0;
 }
 
 .focus-container {
@@ -2833,4 +2653,24 @@ td.datePickerMonth {
 
 .tree-shown {
     display: table-cell;
+}
+
+.columnSettingsPopup {
+    width: 150px;
+}
+
+.columnSettingsPopup .gwt-CheckBox {
+    display: block;
+}
+
+.columnSettingsPopup .dark-button {
+    float: right;
+}
+
+.columnSettingPopupPanel {
+
+}
+
+.columnSettingsButton {
+
 }

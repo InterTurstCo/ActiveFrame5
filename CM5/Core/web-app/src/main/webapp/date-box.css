@@ -1,26 +1,32 @@
 .wrap-date {
-    width: 148px;
+    border: 1px solid #bbb;
     float: left;
+    margin: 3px 0;
+    padding: 7px 0 6px 10px;
     position: relative;
+    width: 150px;
 }
 
 .date-box-button {
-    width: 16px;
-    height: 16px;
     background: url(images/icon-datepicker.png) no-repeat;
-    position: absolute;
-    top: 8px;
-    right: 11px;
-    z-index: 5;
     cursor: pointer;
+    /*display: inline-block;*/
+    height: 16px;
+    /*margin: 0 10px 4px -25px;*/
+    position: absolute;
+    top: 10px;
+    right: 6px;
+    /*vertical-align: middle;*/
+    width: 16px;
+    z-index: 5;
 }
 
 .gwt-DateBox.date-text-box {
-    padding: 3px 0 3px 8px;
-    width: 100%;
-    border: 1px solid #bbb;
+    border: none;
     font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
     min-height: 24px;
+    padding: 0;
 }
 
 .date-picker-decorate > table {
@@ -343,3 +349,22 @@ div, input, textarea, select {
 }
 
 
+.attPlImgCreate {
+    background: url(resources/defaulttheme/images/icons/icon-upload.png) no-repeat 0 0;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px #999;
+    cursor: pointer;
+    float: left;
+    height: 25px;
+    margin: 10px 0 0 5px;
+    padding: 0;
+    width: 25px;
+}
+
+.attPlImgCreate:hover {
+    background: url(resources/defaulttheme/images/icons/icon-upload.png) no-repeat 0 -25px;
+}
+
+.attPlImgCreate:active {
+    background: url(resources/defaulttheme/images/icons/icon-upload.png) no-repeat 0 -50px;
+}

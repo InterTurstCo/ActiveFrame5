@@ -1,28 +1,41 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+import javax.ejb.EJB;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpSession;
+
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.PersonService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.LogoConfig;
+import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
-
-import javax.ejb.EJB;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpSession;
-import java.lang.ref.SoftReference;
-import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -33,8 +46,7 @@ import java.util.*;
         urlPatterns = "/remote/BusinessUniverseService")
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
-    private static final String DEFAULT_THEME_NAME = "default";
-    private static final Logger LOGGER = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
+
     @EJB
     private GuiService guiService;
 
@@ -44,6 +56,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     private ConfigurationService configurationService;
 
+    @EJB private CollectionsService collectionsService;
+
     private SoftReference<List<String>> refTimeZoneIds;
 
     @Override
@@ -51,9 +65,13 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
         addInformationToInitializationObject(initialization);
         final BusinessUniverseConfig businessUniverseConfig =
-                configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
+                configurationService.getConfig(BusinessUniverseConfig.class, BusinessUniverseConfig.NAME);
+
         addLogoImagePath(businessUniverseConfig, initialization);
+        String version = guiService.getCoreVersion();
+        initialization.setApplicationVersion(version);
         addSettingsPopupConfig(businessUniverseConfig, initialization);
+
         if (businessUniverseConfig != null) {
             initialization.setCollectionCountersUpdatePeriod(
                     businessUniverseConfig.getCollectionCountRefreshConfig() == null
@@ -125,12 +143,29 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         businessUniverseInitialization.setLogoImagePath(logoImagePath);
         return;
     }
+
     private void addSettingsPopupConfig(BusinessUniverseConfig businessUniverseConfig,
                                         BusinessUniverseInitialization businessUniverseInitialization) {
-        if (businessUniverseConfig != null) {
-                   businessUniverseInitialization.setSettingsPopupConfig(businessUniverseConfig.getSettingsPopupConfig());
-        }
 
+        String userTheme = null;
+        final IdentifiableObject userSettings = PluginHelper
+                .getUserSettingsIdentifiableObject(guiService.getUserUid(), collectionsService);
+        if (userSettings != null) {
+            userTheme = userSettings.getString(UserSettingsHelper.DO_THEME_FIELD_KEY);
+        }
+        if (userTheme != null) {
+            final SettingsPopupConfig settingsPopupConfig =
+                    businessUniverseConfig == null || businessUniverseConfig.getSettingsPopupConfig() == null
+                            ? new SettingsPopupConfig()
+                            : businessUniverseConfig.getSettingsPopupConfig();
+            final ThemesConfig themesConfig = settingsPopupConfig.getThemesConfig() == null
+                    ? new ThemesConfig()
+                    : settingsPopupConfig.getThemesConfig();
+            themesConfig.setSelectedTheme(userTheme);
+            businessUniverseInitialization.setSettingsPopupConfig(settingsPopupConfig);
+        } else if (businessUniverseConfig != null) {
+            businessUniverseInitialization.setSettingsPopupConfig(businessUniverseConfig.getSettingsPopupConfig());
+        }
     }
 
     private UserInfo getUserInfo() {
@@ -156,4 +191,5 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         }
         return result;
     }
+
 }

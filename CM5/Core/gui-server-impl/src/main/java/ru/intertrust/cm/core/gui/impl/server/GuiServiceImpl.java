@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.NavigationTreeResolver;
+import ru.intertrust.cm.core.gui.impl.server.util.VersionUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -45,7 +46,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     @Override
     public NavigationConfig getNavigationConfiguration() {
         NavigationTreeResolver navigationTreeResolver = (NavigationTreeResolver)
-                                                                  applicationContext.getBean("navigationTreeResolver");
+                applicationContext.getBean("navigationTreeResolver");
         return navigationTreeResolver.getNavigationPanel(sessionContext.getCallerPrincipal().getName());
 /*
         String navigationPanelName = "panel";
@@ -132,7 +133,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     @Override
     public String getUserUid() {
-            return sessionContext.getCallerPrincipal().getName();
+        return sessionContext.getCallerPrincipal().getName();
     }
 
     @Override
@@ -147,4 +148,13 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         return (FormRetriever) applicationContext.getBean("formRetriever");
     }
 
+    public String getCoreVersion() {
+        VersionUtil version = (VersionUtil) applicationContext.getBean("applicationVersion");
+        return version.getApplicationVersion();
+    }
+
+    public String getProductVersion(String jarName) {
+        VersionUtil version = (VersionUtil) applicationContext.getBean("applicationVersion");
+        return version.getProductVersion(jarName);
+    }
 }

@@ -278,7 +278,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
         config.getPluginState().setToggleEdit(true);
         config.getPluginState().setInCentralPanel(true);
-        final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config);
+        final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
             @Override
@@ -298,7 +298,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 noneEditableFormDialogBox.hide();
                 config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox = new FormDialogBox("Редактирование " + title);
-                final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config);
+                final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -412,7 +412,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             config.setDomainObjectUpdatorComponent("hierarchy-browser-do-updater");
         }
         final FormDialogBox createItemDialogBox = new FormDialogBox(title);
-        final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config);
+        final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus);
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

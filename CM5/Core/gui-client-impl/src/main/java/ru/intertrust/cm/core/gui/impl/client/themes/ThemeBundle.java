@@ -29,6 +29,18 @@ public interface ThemeBundle extends ClientBundle {
     @Source("images/ext-search.png")
     ImageResource extendedSearchIm();
 
+    @Source("images/columnSettingsIm.png")
+    ImageResource columnSettingsIm();
+
+    @ClientBundle.Source("images/confirmDialogDefIm.png")
+    ImageResource confirmDialogIm();
+
+    @ClientBundle.Source("images/errorDialogDefIm.png")
+    ImageResource errorDialogIm();
+
+    @ClientBundle.Source("images/infoDialogDefIm.png")
+    ImageResource infoDialogIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

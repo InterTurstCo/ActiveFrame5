@@ -417,6 +417,9 @@
 
     <xs:complexType name="businessUniverseType">
         <xs:choice maxOccurs="unbounded">
+            <xs:element name="login-screen" type="con:logoScreenType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="logo" type="con:logoType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -445,6 +448,18 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="logoScreenType">
+            <xs:sequence minOccurs="1">
+                <xs:element name="product-title"
+                            type="con:productTitleType" />
+            </xs:sequence>
+            <xs:attribute name="display-product-version" use="required"
+                          type="xs:boolean"/>
+            <xs:attribute name="display-core-version" use="required"
+                          type="xs:boolean"/>
+    </xs:complexType>
+
     <xs:complexType name="themesType">
         <xs:sequence minOccurs="1">
             <xs:element name="theme"
@@ -468,6 +483,13 @@
     <xs:complexType name="logoType">
         <xs:attribute name="image" use="required" type="xs:string"/>
     </xs:complexType>
+    <xs:complexType name="productTitleType">
+        <xs:attribute name="style" use="required"
+                      type="xs:string"/>
+        <xs:attribute name="image" use="required"
+                      type="xs:string"/>
+    </xs:complexType>
+
 
     <xs:complexType name="urlConfigType">
         <xs:simpleContent>
@@ -478,7 +500,22 @@
     </xs:complexType>
     <!-- Global Config-->
     <xs:complexType name="globalConfigType">
-        <xs:sequence>
+    <xs:sequence>
+        <xs:element name="product" minOccurs="0">
+            <xs:complexType>
+                <xs:attribute name="title" use="required"
+                              type="xs:string"/>
+            </xs:complexType>
+        </xs:element>
+
+        <xs:element name="product-version" minOccurs="0">
+            <xs:complexType>
+                <xs:attribute name="archive" use="required"
+                              type="xs:string"/>
+            </xs:complexType>
+        </xs:element>
+
+
             <xs:element name="audit-log">
                 <xs:complexType>
                     <xs:attribute name="enable" use="optional"
@@ -2289,6 +2326,7 @@
         <xs:attribute type="xs:string" name="date-pattern" use="optional"/>
         <xs:attribute type="xs:string" name="time-pattern" use="optional"/>
         <xs:attribute type="xs:string" name="time-zone-id" use="optional"/>
+        <xs:attribute type="xs:string" name="width" use="optional"/>
         <xs:attribute type="xs:string" name="min-width" default="200px"/>
         <xs:attribute type="xs:string" name="max-width"/>
         <xs:attribute type="xs:boolean" name="resizable" default="true"/>

@@ -193,6 +193,34 @@ public class TestPermission extends ClientBase {
             checkPermissions(testOutgoingDocument.getId(), etalon, "test_outgoing_document");
             checkPermissions(testResolution.getId(), etalon, "test_resolution");
             
+            //Проверка косвенных прав на "абстрактные" типы
+            DomainObject testOrganization = getCrudService().createDomainObject("organization_test");
+            testOrganization.setString("Name", "Name " + System.nanoTime());
+            testOrganization = getCrudService().save(testOrganization);
+            
+            DomainObject testDepartment = getCrudService().createDomainObject("department_test");
+            testDepartment.setString("name", "Name " + System.nanoTime());
+            testDepartment.setReference("Organization", testOrganization);
+            testDepartment = getCrudService().save(testDepartment);
+            
+            DomainObject testEmployee = getCrudService().createDomainObject("employee_test");
+            testEmployee.setString("name", "Name " + System.nanoTime());
+            testEmployee.setString("login", testEmployee.getString("name"));
+            testEmployee.setString("Position", "Boss");
+            testEmployee.setReference("Department", testDepartment);
+            testEmployee = getCrudService().save(testEmployee);
+
+            etalon = new EtalonPermissions();
+            for (Id personId : allPersons) {
+                etalon.addPermission(personId, Permission.Read);
+            }            
+            checkPermissions(testEmployee.getId(), etalon, "test_employee");
+            
+            CollectionsService notAdminCollectionService = (CollectionsService)getService("CollectionsServiceImpl", CollectionsService.Remote.class, "person1", "admin");
+            IdentifiableObjectCollection collection = notAdminCollectionService.findCollectionByQuery("select * from person_test");
+            assertTrue("test employee query", collection.size() > 0);
+            
+            
             log("Test complete");
         } finally {
             writeLog();

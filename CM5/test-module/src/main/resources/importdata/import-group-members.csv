@@ -2,3 +2,4 @@ TYPE_NAME=group_member;KEYS=usergroup,person_id;
 usergroup;person_id
 "group_name=""Administrators""";"login=""person1"""
 "group_name=""Administrators_Read_Only""";"login=""person2"""
+"group_name=""test-group-1""";"login=""person3"""

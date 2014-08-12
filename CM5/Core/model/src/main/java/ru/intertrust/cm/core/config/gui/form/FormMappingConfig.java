@@ -4,7 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.gui.RolesConfig;
+import ru.intertrust.cm.core.config.gui.GroupsConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
 
 /**
@@ -24,7 +24,7 @@ public class FormMappingConfig implements Dto {
     private UsersConfig usersConfig;
 
     @Element(name = "groups")
-    private RolesConfig rolesConfig;
+    private GroupsConfig groupsConfig;
 
     public UsersConfig getUsersConfig() {
         return usersConfig;
@@ -34,12 +34,12 @@ public class FormMappingConfig implements Dto {
         this.usersConfig = usersConfig;
     }
 
-    public RolesConfig getRolesConfig() {
-        return rolesConfig;
+    public GroupsConfig getGroupsConfig() {
+        return groupsConfig;
     }
 
-    public void setRolesConfig(RolesConfig rolesConfig) {
-        this.rolesConfig = rolesConfig;
+    public void setGroupsConfig(GroupsConfig groupsConfig) {
+        this.groupsConfig = groupsConfig;
     }
 
     public String getForm() {
@@ -69,7 +69,7 @@ public class FormMappingConfig implements Dto {
 
         FormMappingConfig that = (FormMappingConfig) o;
 
-        if (rolesConfig != null ? !rolesConfig.equals(that.rolesConfig) : that.rolesConfig != null) {
+        if (groupsConfig != null ? !groupsConfig.equals(that.groupsConfig) : that.groupsConfig != null) {
             return false;
         }
         if (usersConfig != null ? !usersConfig.equals(that.usersConfig) : that.usersConfig != null) {
@@ -88,8 +88,8 @@ public class FormMappingConfig implements Dto {
     @Override
     public int hashCode() {
         int result = usersConfig != null ? usersConfig.hashCode() : 0;
-        result = 31 * result + (rolesConfig != null ? rolesConfig.hashCode() : 0);
-        result = 31 * result + (rolesConfig != null ? rolesConfig.hashCode() : 0);
+        result = 31 * result + (groupsConfig != null ? groupsConfig.hashCode() : 0);
+        result = 31 * result + (groupsConfig != null ? groupsConfig.hashCode() : 0);
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
         return result;
     }

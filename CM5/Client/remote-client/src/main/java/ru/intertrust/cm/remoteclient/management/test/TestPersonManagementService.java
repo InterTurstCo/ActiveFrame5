@@ -51,7 +51,12 @@ public class TestPersonManagementService extends ClientBase {
             // Создание массива пользователей и групп
             for (int i = 1; i < 15; i++) {
                 // Поиск пользователя
-                Id personId = personService.getPersonId(getPersonLogin(i));
+                Id personId = null;
+                try{
+                    personId = personService.getPersonId(getPersonLogin(i));
+                }catch(Exception ex){
+                    //Пользователь не найден
+                }
                 if (personId == null) {
                     // Создание пользователя
                     DomainObject person = crudService.createDomainObject("Person");
@@ -118,7 +123,8 @@ public class TestPersonManagementService extends ClientBase {
             // Проверка списков
             assertTrue("Person list", personService.getPersonsInGroup(groupIds.get("group1")).size() == 1);
             assertTrue("Person list", personService.getAllPersonsInGroup(groupIds.get("group1")).size() == 7);
-            assertTrue("Group list", personService.getPersonGroups(personIds.get("person9")).size() == 3);
+            //Групп больше так как прибавляется группа AllPersons и контекстная группа для пользователя Person
+            assertTrue("Group list", personService.getPersonGroups(personIds.get("person9")).size() == 5);
             assertTrue("Group list", personService.getAllParentGroup(groupIds.get("group12")).size() == 2);
             assertTrue("Group list", personService.getChildGroups(groupIds.get("group2")).size() == 2);
             assertTrue("Group list", personService.getAllChildGroups(groupIds.get("group2")).size() == 6);

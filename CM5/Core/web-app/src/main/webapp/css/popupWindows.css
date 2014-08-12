@@ -1,0 +1,182 @@
+/* info alert window */
+.infoDialogWindow {
+    background: #fafafa; /* Old browsers */
+    background: -moz-linear-gradient(top,  #fafafa 0%, #edeff1 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fafafa), color-stop(100%,#edeff1)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #fafafa 0%,#edeff1 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #fafafa 0%,#edeff1 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #fafafa 0%,#edeff1 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #fafafa 0%,#edeff1 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fafafa', endColorstr='#edeff1',GradientType=0 ); /* IE6-9 */
+    border: 1px solid #00BE31;
+    border-radius: 3px;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, .4);
+    clip: auto !important;
+    width: 380px;
+    z-index: 100;
+}
+
+.infoDialogWindow > div > table {
+    width: 100%;
+}
+
+.infoDialogWindow .Caption {
+    background: none;
+    cursor: default;
+}
+
+.infoDialogContent {
+    padding: 0 24px 24px;
+}
+
+.infoDialogMessage {
+    background: url(http://127.0.0.1:8090/cm-sochi/resources/defaulttheme/images/icons/confirmDialogWindow.png) no-repeat 0 0;
+    height: 58px;
+    padding: 24px 0 0 82px;
+}
+
+.infoDialogWindow .buttonsPanel {
+    text-align: right;
+}
+
+.infoDialogWindow .buttonsPanel .dark-button {
+    background: #4eef74; /* Old browsers */
+    background: -moz-linear-gradient(top,  #4eef74 0%, #2fd656 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4eef74), color-stop(100%,#2fd656)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #4eef74 0%,#2fd656 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #4eef74 0%,#2fd656 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #4eef74 0%,#2fd656 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #4eef74 0%,#2fd656 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4eef74', endColorstr='#2fd656',GradientType=0 ); /* IE6-9 */
+    border-color: #00BE31;
+    margin: 0;
+    padding: 6px 35px;
+}
+/* end info alert window */
+
+/* error alert window */
+.errorDialogWindow {
+    background: #fafafa; /* Old browsers */
+    background: -moz-linear-gradient(top,  #fafafa 0%, #edeff1 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fafafa), color-stop(100%,#edeff1)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #fafafa 0%,#edeff1 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #fafafa 0%,#edeff1 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #fafafa 0%,#edeff1 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #fafafa 0%,#edeff1 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fafafa', endColorstr='#edeff1',GradientType=0 ); /* IE6-9 */
+    border: 1px solid #ff0000;
+    border-radius: 3px;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, .4);
+    clip: auto !important;
+    width: 380px;
+    z-index: 100;
+}
+
+.errorDialogWindow > div > table {
+    width: 100%;
+}
+
+.errorDialogWindow .Caption {
+    background: none;
+    cursor: default;
+}
+
+.errorDialogContent {
+    padding: 0 24px 24px;
+}
+
+.errorDialogMessage {
+    background: url(http://127.0.0.1:8090/cm-sochi/resources/defaulttheme/images/icons/errorDialogWindow.png) no-repeat 0 0;
+    height: 58px;
+    padding: 24px 0 0 82px;
+}
+
+.errorDialogWindow .buttonsPanel {
+    text-align: right;
+}
+
+.errorDialogWindow .buttonsPanel .dark-button {
+    background: #f23030; /* Old browsers */
+    background: -moz-linear-gradient(top,  #f23030 0%, #e81919 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f23030), color-stop(100%,#e81919)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #f23030 0%,#e81919 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #f23030 0%,#e81919 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #f23030 0%,#e81919 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #f23030 0%,#e81919 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f23030', endColorstr='#e81919',GradientType=0 ); /* IE6-9 */
+    border-color: #c91414;
+    margin: 0;
+    padding: 6px 35px;
+}
+/* end error alert window */
+
+/* confirm alert window */
+.confirmDialogWindow {
+    background: #fafafa; /* Old browsers */
+    background: -moz-linear-gradient(top,  #fafafa 0%, #edeff1 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fafafa), color-stop(100%,#edeff1)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #fafafa 0%,#edeff1 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #fafafa 0%,#edeff1 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #fafafa 0%,#edeff1 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #fafafa 0%,#edeff1 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fafafa', endColorstr='#edeff1',GradientType=0 ); /* IE6-9 */
+    border: 1px solid #c5c5c5;
+    border-radius: 3px;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, .4);
+    clip: auto !important;
+    width: 380px;
+    z-index: 100;
+}
+
+.confirmDialogWindow > div > table {
+    width: 100%;
+}
+
+.confirmDialogWindow .Caption {
+    background: none;
+    cursor: default;
+}
+
+.confirmDialogContent {
+    padding: 0 24px 24px;
+}
+
+.confirmDialogMessage {
+    background: url(http://127.0.0.1:8090/cm-sochi/resources/defaulttheme/images/icons/infoDialogWindow.png) no-repeat 0 0;
+    height: 58px;
+    padding: 24px 0 0 82px;
+}
+
+.confirmDialogWindow .buttonsPanel {
+    text-align: right;
+}
+
+.confirmDialogWindow .buttonsPanel .dark-button {
+    background: #d6d6d6; /* Old browsers */
+    background: -moz-linear-gradient(top,  #d6d6d6 0%, #c5c5c5 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d6d6d6), color-stop(100%,#c5c5c5)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #d6d6d6 0%,#c5c5c5 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #d6d6d6 0%,#c5c5c5 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #d6d6d6 0%,#c5c5c5 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #d6d6d6 0%,#c5c5c5 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', endColorstr='#c5c5c5',GradientType=0 ); /* IE6-9 */
+    border-color: #c5c5c5;
+    margin: 0;
+    padding: 6px 35px;
+}
+
+.confirmDialogWindow .buttonsPanel .light-button {
+    background: #d6d6d6; /* Old browsers */
+    background: -moz-linear-gradient(top,  #d6d6d6 0%, #c5c5c5 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d6d6d6), color-stop(100%,#c5c5c5)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #d6d6d6 0%,#c5c5c5 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #d6d6d6 0%,#c5c5c5 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #d6d6d6 0%,#c5c5c5 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #d6d6d6 0%,#c5c5c5 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d6d6d6', endColorstr='#c5c5c5',GradientType=0 ); /* IE6-9 */
+    border-color: #c5c5c5;
+    color: #fafafa;
+    margin: 0 0 0 15px;
+    padding: 6px 22px;
+}
+/* end confirm alert window */

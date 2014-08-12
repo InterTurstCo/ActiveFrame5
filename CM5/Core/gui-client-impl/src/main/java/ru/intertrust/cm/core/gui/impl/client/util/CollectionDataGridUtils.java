@@ -12,17 +12,18 @@ import java.util.*;
  */
 public class CollectionDataGridUtils {
 
-    private CollectionDataGridUtils() {}
+    private CollectionDataGridUtils() {
+    }
 
-    public static void adjustColumnsWidth(int tableWidth, CollectionDataGrid tableBody){
+    public static void adjustColumnsWidth(int tableWidth, CollectionDataGrid tableBody) {
         final Map<CollectionColumn, Integer> widthMap = new HashMap<>();
         final List<CollectionColumn> unProcessingColumnList = new ArrayList<>();
         int processingColumnCount = 0;
         for (int index = 0; index < tableBody.getColumnCount(); index++) {
             final CollectionColumn column = (CollectionColumn) tableBody.getColumn(index);
-            if (column.getWidth() > 0) {
-                final int columnWidth = adjustWidth(column.getWidth(), column.getMinWidth(), column.getMaxWidth());
-                column.setWidth(columnWidth);
+            if (column.getUserWidth() > 0 || !column.isVisible()) {
+                final int columnWidth = adjustWidth(column.getUserWidth(), column.getMinWidth(), column.getMaxWidth());
+                column.setUserWidth(columnWidth);
                 processingColumnCount++;
                 tableWidth -= columnWidth;
                 widthMap.put(column, columnWidth);
@@ -30,8 +31,9 @@ public class CollectionDataGridUtils {
                 unProcessingColumnList.add(column);
             }
         }
-        int columnWidthAverage = tableWidth / (tableBody.getColumnCount() - processingColumnCount);
-        for (Iterator<CollectionColumn> it = unProcessingColumnList.iterator(); it.hasNext();) {
+        int unfinishedColumnCount = tableBody.getColumnCount() - processingColumnCount;
+        int columnWidthAverage = unfinishedColumnCount < 1 ? 0 : tableWidth / unfinishedColumnCount;
+        for (Iterator<CollectionColumn> it = unProcessingColumnList.iterator(); it.hasNext(); ) {
             final CollectionColumn column = it.next();
             if (column.getMinWidth() > columnWidthAverage) {
                 widthMap.put(column, column.getMinWidth());
@@ -45,19 +47,19 @@ public class CollectionDataGridUtils {
                 it.remove();
             }
         }
-        if (tableBody.getColumnCount() - processingColumnCount != 0) {
-            columnWidthAverage = tableWidth / (tableBody.getColumnCount() - processingColumnCount);
-        }
-
+        unfinishedColumnCount = tableBody.getColumnCount() - processingColumnCount;
+        columnWidthAverage = unfinishedColumnCount < 1 ? 0 : tableWidth / unfinishedColumnCount;
         if (columnWidthAverage < BusinessUniverseConstants.MIN_COLUMN_WIDTH) {
             columnWidthAverage = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
         }
-        for (Iterator<CollectionColumn> it = unProcessingColumnList.iterator(); it.hasNext();) {
-            final CollectionColumn column = it.next();
+        for (CollectionColumn column : unProcessingColumnList) {
             widthMap.put(column, columnWidthAverage);
         }
         for (Map.Entry<CollectionColumn, Integer> entry : widthMap.entrySet()) {
-            tableBody.setColumnWidth(entry.getKey(), entry.getValue() + "px");
+            CollectionColumn column = entry.getKey();
+            int calculatedWidth = entry.getValue();
+            tableBody.setColumnWidth(column, calculatedWidth + "px");
+            column.setCalculatedWidth(calculatedWidth);
         }
     }
 
@@ -65,7 +67,7 @@ public class CollectionDataGridUtils {
         if (calculatedWidth < minWidth) {
             return minWidth;
         } else if (calculatedWidth > maxWidth) {
-            return  maxWidth;
+            return maxWidth;
         }
         return calculatedWidth;
     }

@@ -17,13 +17,13 @@ public interface HistoryManager {
 
     void applyUrl();
 
-    boolean isLinkEquals(String link);
-
     boolean hasLink();
 
     void setToken(String url);
 
     void setLink(String link);
+
+    String getLink();
 
     void setSelectedIds(Id... ids);
 

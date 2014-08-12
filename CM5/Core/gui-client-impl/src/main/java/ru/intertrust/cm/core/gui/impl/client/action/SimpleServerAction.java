@@ -2,23 +2,19 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
-import ru.intertrust.cm.core.gui.model.util.StringUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -47,11 +43,10 @@ public abstract class SimpleServerAction extends Action {
             public void onFailure(Throwable caught) {
                 if (caught instanceof ValidationException) {
                     onValidationFailure((ValidationException) caught);
-                }
-                else if (caught instanceof GuiException) {
+                } else if (caught instanceof GuiException) {
                     SimpleServerAction.this.onFailure((GuiException) caught);
                 } else {
-                    Window.alert("System exception");
+                    ApplicationWindow.errorAlert(BusinessUniverseConstants.SYSTEM_EXCEPTION_MESSAGE);
                 }
             }
         };
@@ -65,7 +60,7 @@ public abstract class SimpleServerAction extends Action {
                 }
                 BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
             } catch (GuiException e) {
-                Window.alert(e.getMessage());
+                ApplicationWindow.errorAlert(e.getMessage());
             }
         }
     }
@@ -75,11 +70,11 @@ public abstract class SimpleServerAction extends Action {
     }
 
     protected void onSuccess(ActionData result) {
-        Window.alert("Success");
+        ApplicationWindow.infoAlert(BusinessUniverseConstants.DONE_SUCCESSFULLY_MESSAGE);
     }
 
     protected void onFailure(GuiException exception) {
-        Window.alert(exception.getMessage());
+        ApplicationWindow.errorAlert(exception.getMessage());
     }
 
     public void addActionSuccessListener(ActionSuccessListener listener) {

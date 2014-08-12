@@ -210,7 +210,8 @@
                                         <widget id="addressees_label"/>
                                     </td>
                                     <td h-align="left">
-                                        <widget id="addressees"/>
+                                        <widget id="addressees_label"/>
+                                        <!--<widget id="addressees"/>-->
                                     </td>
                                 </tr>
                                 <tr>
@@ -519,6 +520,11 @@
                         </td>
                         <!-- text-box (Название) -->
                     </tr>
+                    <tr>
+                        <td>
+                            <widget id="cmfive1377"/>
+                        </td>
+                    </tr>
                 </table>
             </header>
             <body display-single-tab="false">
@@ -566,6 +572,9 @@
                 <collection-ref name="Departments"/>
 
             </linked-domain-object-hyperlink>
+            <date-box id="cmfive1377">
+                <field-path value="created_date"/>
+            </date-box>
         </widget-config>
     </form>
 

@@ -105,11 +105,11 @@ public class HierarchyBrowserView extends Composite {
         }
         widgetContainer.setSize(widgetWidth, widgetHeight);
 
-        widgetContainer.setCellWidth(widgetChosenContent, "100%");
-        widgetContainer.setCellHeight(widgetChosenContent, widgetHeight);
-
-        widgetChosenContent.asWidget().getElement().getStyle().setProperty("minHeight", MIN_HEIGHT);
-        widgetChosenContent.asWidget().setSize("100%", "100%");
+//        widgetContainer.setCellWidth(widgetChosenContent, "100%");
+//        widgetContainer.setCellHeight(widgetChosenContent, widgetHeight);
+//
+//        widgetChosenContent.asWidget().getElement().getStyle().setProperty("minHeight", MIN_HEIGHT);
+//        widgetChosenContent.asWidget().setSize("100%", "100%");
 
     }
 

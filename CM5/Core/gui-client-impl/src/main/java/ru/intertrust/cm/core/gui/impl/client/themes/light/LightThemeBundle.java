@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.themes.light;
 
+import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.DefaultThemeBundle;
@@ -15,13 +16,16 @@ public interface LightThemeBundle extends DefaultThemeBundle {
     @Source("light-theme.css")
 
     @CssResource.NotStrict
-    public abstract CssResource mainCss();
+    public CssResource mainCss();
 
     @CssResource.NotStrict
     @Source("splitter/splitter.css")
     SplitterStyles splitterCss();
 
     @Source("images/settings.png")
-    public abstract ImageResource settingsIm();
+    public ImageResource settingsIm();
+
+    @ClientBundle.Source("images/confirmDialogDefIm.png")
+    ImageResource confirmDialogWindowIm();
 
 }
