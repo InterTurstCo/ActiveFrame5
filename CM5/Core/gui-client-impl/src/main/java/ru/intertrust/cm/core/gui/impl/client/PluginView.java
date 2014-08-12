@@ -78,14 +78,12 @@ public abstract class PluginView implements IsWidget {
         toolbarContext.sortActionContexts();
         final MenuBarExt leftMenuBar = new MenuBarExt();
         leftMenuBar.setStyleName("decorated-action-link");
-        leftMenuBar.getElement().getStyle().setFloat(Style.Float.LEFT);
         for (ActionContext context : toolbarContext.getContexts(ToolbarContext.FacetName.LEFT)) {
             leftMenuBar.addActionItem(context);
         }
         actionToolBar.add(leftMenuBar);
         final MenuBarExt rightMenuBar = new MenuBarExt();
         rightMenuBar.setStyleName("action-bar-right-side");
-        rightMenuBar.getElement().getStyle().setFloat(Style.Float.RIGHT);
         for (ActionContext context : toolbarContext.getContexts(ToolbarContext.FacetName.RIGHT)) {
             rightMenuBar.addActionItem(context);
         }

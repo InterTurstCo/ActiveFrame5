@@ -686,174 +686,10 @@ td.datePickerMonth {
     border: solid black 1px;
 }
 
-/**
-  * Action Bar
-**/
-
 /* hover's */
 .gwt-MenuItem:hover {
     cursor: pointer;
 }
-
-.decorated-action-link .actionBar-refresh {
-    background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-refresh {*/
-/*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-refresh {*/
-/*background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-create {
-    background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-create {*/
-/*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-create {*/
-/*background: url("resources/defaulttheme/images/icons/icon-create.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-edit {
-    background: url("resources/defaulttheme/images/icons/icon-edit.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-edit {*/
-/*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-edit {*/
-/*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-close {
-    background: url("resources/defaulttheme/images/icons/icon-edit-close.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-close {*/
-/*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-close {*/
-/*background: url("resources/defaulttheme/images/icons/close.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-save {
-    background: url("resources/defaulttheme/images/icons/icon-save.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-save {*/
-/*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-save {*/
-/*background: url("resources/defaulttheme/images/icons/save.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-sign {
-    background: url("resources/defaulttheme/images/icons/icon-sign.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-sign {*/
-/*background: url("resources/defaulttheme/images/icons/icon-sign.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-sign {*/
-/*background: url("resources/defaulttheme/images/icons/icon-sign.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-delete {
-    background: url("resources/defaulttheme/images/icons/icon-delete.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-delete {*/
-/*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-delete {*/
-/*background: url("resources/defaulttheme/images/icons/delete.png") no-repeat 0 -70px;*/
-/*}*/
-
-.decorated-action-link .actionBar-csvUpload {
-    background: url("resources/defaulttheme/images/icons/icon-csv_download.png") no-repeat 0 0;
-    float: left;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-csvUpload {*/
-/*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-csvUpload {*/
-/*background: url("resources/defaulttheme/images/icons/csv-upload.png") no-repeat 0 -70px;*/
-/*}*/
-
-.action-bar-right-side .actionBar-fullsize-on {
-    background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 0;
-    float: right;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-fullsize-on {*/
-/*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-fullsize-on {*/
-/*background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 -70px;*/
-/*}*/
-
-.action-bar-right-side .actionBar-favoritePanel-on {
-    background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 0;
-    float: right;
-    height: 35px;
-    margin: 3px 10px 0 0;
-    width: 35px;
-}
-
-/*.gwt-MenuItem:hover .actionBar-favoritePanel-on {*/
-/*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -35px;*/
-/*}*/
-
-/*.gwt-MenuItem:active .actionBar-favoritePanel-on {*/
-/*background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 -70px;*/
-/*}*/
 
 .action-bar-button {
 
@@ -865,20 +701,6 @@ td.datePickerMonth {
 
 .action-bar-right-button-non-active {
 
-}
-
-.action-bar {
-    background: #ffffff;
-    background: -moz-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #eaeef1));
-    background: -webkit-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    background: -o-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    background: -ms-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#ffffff", endColorstr\= "#eaeef1", GradientType\= 0 \);
-    background: linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    box-shadow: 0 3px 10px #aaa;
-    height: 40px;
-    z-index: 11;
 }
 
 .action-bar-button-active {
@@ -923,20 +745,9 @@ td.datePickerMonth {
     outline: none;
 }
 
-.action-bar-right-side {
-    float: right;
-}
-
 .action-bar-right-side img {
     padding: 3px 5px 0 0;
     cursor: pointer;
-}
-
-.decorated-action-link .action-bar-button {
-    border: none;
-    float: left;
-    margin: 14px 15px 14px 0;
-    text-decoration: none;
 }
 
 .decorated-action-link img {
@@ -946,22 +757,6 @@ td.datePickerMonth {
     margin: 6px 0 0 10px;
     cursor: pointer;
     height: 25px;
-}
-
-.decorated-action-link {
-    float: left;
-}
-
-.decorated-action-link .action-bar-button a {
-    text-decoration: none;
-    cursor: pointer;
-    color: black;
-}
-
-.decorated-action-link .action-bar-button a:hover,
-.decorated-action-link .action-bar-button:hover {
-    color: #f00;
-    border-bottom: 1px dotted #ff0000;
 }
 
 .centerTopBottomDividerRoot {
