@@ -56,8 +56,7 @@
     padding-left: 9px;
 }
 
-
-.form-plaugin-table{
+.form-plaugin-table {
     height: 100%;
 }
 
@@ -105,21 +104,26 @@
 .gwt-TabLayoutPanelContentContainer {
     background-color: #FFFFFF;
     border: none !important;
-    height:100%;
+    height: 100%;
 }
 
-.central-plugin-panel-table{
+.central-plugin-panel-table {
     /*height: 100%;*/
 }
 
-.one-handred-percent-style{
+.one-handred-percent-style {
     height: 100%;
     width: 100%;
 }
 
-.action-bar-tr{
+.action-bar-tr {
     height: 40px;
 }
+
+.domainObjectSurferExtraClass {
+    height: 100%;
+}
+
 .custom-TabLayout {
     width: 100%;
 }

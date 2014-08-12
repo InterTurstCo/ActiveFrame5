@@ -1,12 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
@@ -114,7 +116,15 @@ public abstract class PluginView implements IsWidget {
         }
         panel.add(getViewWidget());
         viewWidget = panel;
+        addExtraStyleClassIfThisIsDomainObjectSurfer();
         return viewWidget;
+    }
+
+    private void addExtraStyleClassIfThisIsDomainObjectSurfer() {
+        if(plugin instanceof DomainObjectSurferPlugin) {
+            Node node = viewWidget.getElement().getFirstChildElement().getLastChild();
+            node.getFirstChild().getParentElement().addClassName("domainObjectSurferExtraClass");
+        }
     }
 
     /**
