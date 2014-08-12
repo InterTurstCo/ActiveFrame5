@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -24,6 +26,10 @@ import javax.interceptor.Interceptors;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ConfigurationControlServiceImpl implements ConfigurationControlService {
 
+    private static final String CONFIGURATION_UPDATE_JMS_TOPIC = "topic/ConfigurationUpdateTopic";
+
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationControlServiceImpl.class);
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
@@ -36,15 +42,20 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     public void updateConfiguration(String configurationString) throws ConfigurationException {
         Configuration configuration = deserializeConfiguration(configurationString);
 
-        for (TopLevelConfig config : configuration.getConfigurationList()) {
-            if (DomainObjectTypeConfig.class.equals(config.getClass())) {
-                continue;
-            }
+        try {
+            for (TopLevelConfig config : configuration.getConfigurationList()) {
+                if (DomainObjectTypeConfig.class.equals(config.getClass())) {
+                    continue;
+                }
 
-            TopLevelConfig oldConfig = configurationExplorer.getConfig(config.getClass(), config.getName());
-            if (oldConfig == null || !oldConfig.equals(config)) {
-                configurationExplorer.updateConfig(config);
+                TopLevelConfig oldConfig = configurationExplorer.getConfig(config.getClass(), config.getName());
+                if (oldConfig == null || !oldConfig.equals(config)) {
+                    JmsUtils.sendTopicMessage(config, CONFIGURATION_UPDATE_JMS_TOPIC);
+                }
             }
+        } catch (Exception e) {
+            logger.error("Unexpected exception caught in updateConfiguration", e);
+            throw new UnexpectedException("ConfigurationControlService", "updateConfiguration", configurationString, e);
         }
     }
 

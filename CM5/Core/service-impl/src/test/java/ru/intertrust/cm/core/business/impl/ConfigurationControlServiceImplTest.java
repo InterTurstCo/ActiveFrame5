@@ -28,7 +28,7 @@ public class ConfigurationControlServiceImplTest extends TestCase {
     @Mock
     private ConfigurationSerializer configurationSerializer;
 
-    @Test
+    /*@Test
     public void testUpdateConfiguration() throws Exception {
         Configuration configuration = createConfiguration();
         ConfigurationExplorerImpl configurationExplorerImpl = new ConfigurationExplorerImpl(configuration);
@@ -56,7 +56,7 @@ public class ConfigurationControlServiceImplTest extends TestCase {
 
         verify(configurationExplorer, never()).updateConfig(domainObjectTypeConfig);
         verify(configurationExplorer, times(1)).updateConfig(globalSettingsConfig);
-    }
+    }*/
 
     @Test
     public void testRestartRequiredForFullUpdate() throws Exception {
