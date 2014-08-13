@@ -31,7 +31,7 @@ public class CollectionCountersHandler implements ComponentHandler {
     @Autowired
     PersonService personService;
 
-    public Dto getCounters(Dto input) {
+    public CollectionCountersResponse getCounters(Dto input) {
 
         CollectionCountersRequest request = (CollectionCountersRequest) input;
         Map<CounterKey, Id> counterKeys = request.getCounterKeys();

@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.navigation.counters.CounterType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,12 @@ public class  LinkConfig implements Dto {
 
     @Attribute(name = "image", required = false)
     private String image;
+
+    @Attribute(name = "display-counter", required = false)
+    private boolean displayCounter = true;
+
+    @Attribute(name = "counter-type", required = false)
+    private String counterType;
 
     @Attribute(name = "child-to-open", required = false)
     private String childToOpen;
@@ -106,6 +113,22 @@ public class  LinkConfig implements Dto {
         this.decorationsConfig = decorationsConfig;
     }
 
+    public boolean isDisplayCounter() {
+        return displayCounter;
+    }
+
+    public void setDisplayCounter(boolean displayCounter) {
+        this.displayCounter = displayCounter;
+    }
+
+    public String getCounterType() {
+        return counterType == null ? CounterType.ALL.value() : counterType;
+    }
+
+    public void setCounterType(String counterType) {
+        this.counterType = counterType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -117,34 +140,38 @@ public class  LinkConfig implements Dto {
 
         LinkConfig that = (LinkConfig) o;
 
-        if (childLinksConfigList != null ? !childLinksConfigList.equals(that.getChildLinksConfigList()) : that.
-                getChildLinksConfigList() != null) {
+        if (displayCounter != that.displayCounter) {
             return false;
         }
-
-        if (name != null ? !name.equals(that.getName()) : that.getName() != null) {
+        if (childLinksConfigList != null ? !childLinksConfigList.equals(that.childLinksConfigList)
+                : that.childLinksConfigList != null) {
             return false;
         }
-
-        if (displayText != null ? !displayText.equals(that.getDisplayText()) : that.getDisplayText() != null) {
+        if (childToOpen != null ? !childToOpen.equals(that.childToOpen) : that.childToOpen != null) {
             return false;
         }
-
-        if (image != null ? !image.equals(that.getImage()) : that.getImage() != null) {
+        if (counterType != that.counterType) {
             return false;
         }
-
-        if (childToOpen != null ? !childToOpen.equals(that.getChildToOpen()) : that.getChildToOpen() != null) {
+        if (decorationsConfig != null ? !decorationsConfig.equals(that.decorationsConfig)
+                : that.decorationsConfig != null) {
             return false;
         }
-
-        if (pluginDefinition != null ? !pluginDefinition.equals(that.getPluginDefinition()) : that.getPluginDefinition() != null) {
+        if (defaultSearchAreasConfig != null ? !defaultSearchAreasConfig.equals(that.defaultSearchAreasConfig)
+                : that.defaultSearchAreasConfig != null) {
             return false;
         }
-
-        if (decorationsConfig != null ? !decorationsConfig.equals(that.getDecorationsConfig()) : that.
-                getDecorationsConfig() != null) {
-                    return false;
+        if (displayText != null ? !displayText.equals(that.displayText) : that.displayText != null) {
+            return false;
+        }
+        if (image != null ? !image.equals(that.image) : that.image != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (pluginDefinition != null ? !pluginDefinition.equals(that.pluginDefinition) : that.pluginDefinition != null) {
+            return false;
         }
 
         return true;
@@ -155,8 +182,11 @@ public class  LinkConfig implements Dto {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (displayText != null ? displayText.hashCode() : 0);
         result = 31 * result + (image != null ? image.hashCode() : 0);
+        result = 31 * result + (displayCounter ? 1 : 0);
+        result = 31 * result + (counterType != null ? counterType.hashCode() : 0);
         result = 31 * result + (childToOpen != null ? childToOpen.hashCode() : 0);
         result = 31 * result + (pluginDefinition != null ? pluginDefinition.hashCode() : 0);
+        result = 31 * result + (defaultSearchAreasConfig != null ? defaultSearchAreasConfig.hashCode() : 0);
         result = 31 * result + (childLinksConfigList != null ? childLinksConfigList.hashCode() : 0);
         result = 31 * result + (decorationsConfig != null ? decorationsConfig.hashCode() : 0);
         return result;

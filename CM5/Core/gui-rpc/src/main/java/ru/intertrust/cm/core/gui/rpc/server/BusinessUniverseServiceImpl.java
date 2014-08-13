@@ -1,26 +1,10 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
-import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
-import javax.ejb.EJB;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpSession;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.PersonService;
-import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
@@ -30,9 +14,17 @@ import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
+import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
+
+import javax.ejb.EJB;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpSession;
+import java.lang.ref.SoftReference;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -127,6 +119,11 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         AttachmentUploadPercentage uploadProgress = AttachmentUploaderServlet.getUploadProgress(session);
 
         return uploadProgress;
+    }
+
+    @Override
+    public CollectionCountersResponse getCollectionCounters(CollectionCountersRequest req) {
+        return null;
     }
 
     private void addLogoImagePath(final BusinessUniverseConfig businessUniverseConfig,

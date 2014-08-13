@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchCollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.counters.NonReadElementsDefinitionConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +38,17 @@ public class CollectionViewerConfig extends PluginConfig {
 
     @Element(name = "initial-filters", required = false)
     private InitialFiltersConfig initialFiltersConfig;
+
     private SelectionFiltersConfig selectionFiltersConfig;
+
     @Element(name = "filter-panel", required = false)
     private FilterPanelConfig filterPanelConfig;
 
     @Element(name = "tool-bar", required = false)
     private ToolBarConfig toolBarConfig;
+
+    @Element(name = "non-read-elements-definition", required = false)
+    private NonReadElementsDefinitionConfig nonReadElementsDefinitionConfig;
 
     private boolean displayChosenValues = true;
 
@@ -161,6 +167,14 @@ public class CollectionViewerConfig extends PluginConfig {
         return toolBarConfig;
     }
 
+    public NonReadElementsDefinitionConfig getNonReadElementsDefinitionConfig() {
+        return nonReadElementsDefinitionConfig;
+    }
+
+    public void setNonReadElementsDefinitionConfig(NonReadElementsDefinitionConfig nonReadElementsDefinitionConfig) {
+        this.nonReadElementsDefinitionConfig = nonReadElementsDefinitionConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -199,6 +213,11 @@ public class CollectionViewerConfig extends PluginConfig {
             return false;
         }
         if (filterPanelConfig != null ? !filterPanelConfig.equals(that.filterPanelConfig) : that.filterPanelConfig != null) {
+            return false;
+        }
+
+        if (nonReadElementsDefinitionConfig != null ? !nonReadElementsDefinitionConfig.equals(that.nonReadElementsDefinitionConfig)
+                : that.nonReadElementsDefinitionConfig!= null) {
             return false;
         }
 

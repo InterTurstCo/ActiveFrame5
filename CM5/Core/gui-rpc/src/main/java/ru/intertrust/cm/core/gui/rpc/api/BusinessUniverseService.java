@@ -7,6 +7,8 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
+import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 
 /**
@@ -22,5 +24,7 @@ public interface BusinessUniverseService extends RemoteService {
     public FormDisplayData getForm(Id domainObjectId);
 
     public AttachmentUploadPercentage getAttachmentUploadPercentage();
+
+    CollectionCountersResponse getCollectionCounters(CollectionCountersRequest req);
 
 }
