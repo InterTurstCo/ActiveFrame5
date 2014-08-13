@@ -265,7 +265,6 @@ public class CollectionPluginView extends PluginView {
                 String field = column.getFieldName();
                 sortCollectionState = new SortCollectionState(0, rowsChunk, dataStoreName, ascending, false, field);
                 clearAllTableData();
-                scroll.scrollToTop();
                 final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
                 collectionViewerConfig.getDefaultSortCriteriaConfig().setColumnField(field);
                 collectionViewerConfig.getDefaultSortCriteriaConfig().setOrder(
@@ -661,7 +660,10 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
-
+                if(collectionRowItems.isEmpty()) {
+                    Application.getInstance().hideLoadingIndicator();
+                    return;
+                }
                 handleCollectionRowsResponse(collectionRowItems, false);
                 Application.getInstance().hideLoadingIndicator();
                 if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {
