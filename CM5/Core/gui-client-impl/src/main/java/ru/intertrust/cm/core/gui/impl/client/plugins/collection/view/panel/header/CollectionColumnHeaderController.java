@@ -1,43 +1,51 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header;
 
-import java.util.List;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.UIObject;
-
+import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
+import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnHiddenActionContext;
+
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 21/03/14
  *         Time: 12:05 PM
  */
-public class CollectionColumnHeaderController {
+public class CollectionColumnHeaderController implements ComponentWidthChangedHandler, ComponentOrderChangedHandler {
     private final String collectionViewName;
     private List<ColumnHeaderBlock> columnHeaderBlocks;
     private CollectionDataGrid dataGrid;
     private ColumnSelectorPopup popup;
+    private int displayedWidth;
 
     public CollectionColumnHeaderController(final String collectionViewName,
-                                            final CollectionDataGrid dataGrid) {
+                                            final CollectionDataGrid dataGrid, int displayedWidth, EventBus eventBus) {
         this.collectionViewName = collectionViewName;
         this.dataGrid = dataGrid;
+        this.displayedWidth = displayedWidth;
+        eventBus.addHandler(ComponentWidthChangedEvent.TYPE, this);
+        eventBus.addHandler(ComponentOrderChangedEvent.TYPE, this);
+    }
 
+    public void setDisplayedWidth(int displayedWidth) {
+        this.displayedWidth = displayedWidth;
     }
 
     public List<ColumnHeaderBlock> getColumnHeaderBlocks() {
@@ -46,14 +54,14 @@ public class CollectionColumnHeaderController {
 
     public void setColumnHeaderBlocks(List<ColumnHeaderBlock> columnHeaderBlocks) {
         this.columnHeaderBlocks = columnHeaderBlocks;
-        changeVisibilityOfColumns();
+
     }
+
 
     public void changeFiltersInputsVisibility(boolean showFilter) {
         for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
             CollectionColumnHeader header = columnHeaderBlock.getHeader();
             header.setSearchAreaVisibility(showFilter);
-
 
         }
 
@@ -62,7 +70,6 @@ public class CollectionColumnHeaderController {
     public void clearFilters() {
         for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
             CollectionColumnHeader header = columnHeaderBlock.getHeader();
-
             header.hideClearButton();
             header.resetFilterValue();
 
@@ -102,8 +109,8 @@ public class CollectionColumnHeaderController {
         popup.showRelativeTo(target);
     }
 
-    private void changeVisibilityOfColumns() {
-        boolean shouldBeRedrawn = false;
+    public void changeVisibilityOfColumns() {
+
         for (int i = 0; i < columnHeaderBlocks.size(); i++) {
             ColumnHeaderBlock columnHeaderBlock = columnHeaderBlocks.get(i);
             CollectionColumn collectionColumn = columnHeaderBlock.getColumn();
@@ -111,22 +118,26 @@ public class CollectionColumnHeaderController {
             boolean shouldChangeVisibilityState = columnHeaderBlock.shouldChangeVisibilityState();
 
             if (visible && shouldChangeVisibilityState) {
-                dataGrid.setColumnWidth(collectionColumn, collectionColumn.getCalculatedWidth(), Style.Unit.PX);
+                dataGrid.insertColumn(i, collectionColumn, columnHeaderBlock.getHeader());
+                dataGrid.setColumnWidth(collectionColumn, collectionColumn.getDrawWidth() + "px");
                 columnHeaderBlock.setShouldChangeVisibilityState(false);
                 collectionColumn.setVisible(true);
-                shouldBeRedrawn = true;
+
 
             }
             if (!visible && shouldChangeVisibilityState) {
-                dataGrid.setColumnWidth(collectionColumn, 0, Style.Unit.PX);
+                columnHeaderBlock.getHeader().saveFilterValue();
+                dataGrid.removeColumn(collectionColumn);
                 columnHeaderBlock.setShouldChangeVisibilityState(true);
                 collectionColumn.setVisible(false);
-                shouldBeRedrawn = true;
+
             }
         }
-        if (shouldBeRedrawn) {
-            dataGrid.redraw();
-        }
+
+        CollectionDataGridUtils.adjustColumnsWidth(Math.max(dataGrid.getOffsetWidth(), displayedWidth), dataGrid);
+        dataGrid.redraw();
+
+
     }
 
     private void storeUserSettings() {
@@ -146,6 +157,93 @@ public class CollectionColumnHeaderController {
         final Action action = ComponentRegistry.instance.get(CollectionColumnHiddenActionContext.COMPONENT_NAME);
         action.setInitialContext(actionContext);
         action.perform();
+    }
+
+
+    @Override
+    public void handleEvent(ComponentWidthChangedEvent event) {
+        Object component = event.getComponent();
+        if (!(component instanceof CollectionColumn)) {
+            return;
+        }
+        CollectionColumn column = (CollectionColumn) component;
+
+        int oldWidth = column.getDrawWidth();
+        int newWidth = event.getWidth();
+        dataGrid.setColumnWidth(column, newWidth + "px");
+        column.setDrawWidth(newWidth);
+        column.setUserWidth(newWidth);
+        if (oldWidth > newWidth) {
+            int index = dataGrid.getColumnIndex(column);
+            changeRelativeRightColumnWidth(index, oldWidth - newWidth);
+        }
+        saveFilterValues();
+        dataGrid.redraw();
+        updateFilterValues();
+    }
+
+    private void changeRelativeRightColumnWidth(int index, int delta) {
+        CollectionColumn relativeRightColumn = findNextVisibleRightColumn(index);
+        if (relativeRightColumn == null) {
+            return;
+        }
+        int newDrawWidth = relativeRightColumn.getDrawWidth() + delta;
+        dataGrid.setColumnWidth(relativeRightColumn, newDrawWidth + "px");
+        relativeRightColumn.setDrawWidth(newDrawWidth);
+        relativeRightColumn.setUserWidth(newDrawWidth);
+
+    }
+
+    private CollectionColumn findNextVisibleRightColumn(int index) {
+        int columnCount = dataGrid.getColumnCount();
+        if (columnCount == index + 1) {
+            return null; //column is last
+        }
+        int size = columnHeaderBlocks.size();
+        for (int i = 0; i < size; i++) {
+            ColumnHeaderBlock columnHeaderBlock = columnHeaderBlocks.get(i);
+            CollectionColumn column = columnHeaderBlock.getColumn();
+            if (i == index + 1) {
+                if (column.isVisible()) {
+                    return column;
+
+                } else {
+                    int shift = 2;
+                    while (index + shift < size) {
+                        shift++;
+                        CollectionColumn shiftedColumn = columnHeaderBlocks.get(index + shift).getColumn();
+                        if (shiftedColumn.isVisible()) {
+                            return shiftedColumn;
+                        }
+
+                    }
+                }
+
+            }
+
+        }
+        return null;
+    }
+
+    @Override
+    public void handleEvent(ComponentOrderChangedEvent event) {
+        Object component = event.getComponent();
+        if (!(component instanceof CollectionColumn)) {
+            return;
+        }
+        int indexFrom = event.getFromOrder();
+        ColumnHeaderBlock columnHeader = columnHeaderBlocks.get(indexFrom);
+        int indexTo = event.getToOrder();
+        columnHeaderBlocks.remove(columnHeader);
+        columnHeaderBlocks.add(indexTo, columnHeader);
+        CollectionColumn movedColumn = columnHeader.getColumn();
+        if (movedColumn instanceof CollectionParameterizedColumn) {
+            saveFilterValues();
+            dataGrid.removeColumn(indexFrom);
+            dataGrid.insertColumn(indexTo, movedColumn, columnHeader.getHeader());
+            updateFilterValues();
+
+        }
     }
 
 

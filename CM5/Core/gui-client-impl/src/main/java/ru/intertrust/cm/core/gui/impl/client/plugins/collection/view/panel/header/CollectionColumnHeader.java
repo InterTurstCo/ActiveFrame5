@@ -25,7 +25,6 @@ import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DatePickerPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.DateFilterHeaderWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidget;
 
@@ -67,6 +66,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         this.eventBus = eventBus;
         widgetId = headerWidget.getId();
 
+    }
+    public void setFilterInputWidth(int width){
+        widget.setFilterInputWidth(width);
     }
 
     public String getFilterValue() {
@@ -546,24 +548,12 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     private void changeColumnWidth(final int newWidth) {
-        table.setColumnWidth(column, newWidth + "px");
-        column.setCalculatedWidth(newWidth);
         widget.setFilterInputWidth(newWidth - SEARCH_CONTAINER_MARGIN_WIDTH);
-        saveFilterValue();
-        table.redraw();
-        updateFilterValue();
         eventBus.fireEvent(new ComponentWidthChangedEvent(column, newWidth));
 
     }
 
     private void columnMoved(int fromIndex, int toIndex) {
-        CollectionColumn toReplace = (CollectionColumn) table.getColumn(fromIndex);
-        if (toReplace instanceof CollectionParameterizedColumn) {
-            saveFilterValue();
-            table.removeColumn(fromIndex);
-            table.insertColumn(toIndex, column, this);
-            updateFilterValue();
-            eventBus.fireEvent(new ComponentOrderChangedEvent(toReplace, fromIndex, toIndex));
-        }
+        eventBus.fireEvent(new ComponentOrderChangedEvent(column, fromIndex, toIndex));
     }
 }

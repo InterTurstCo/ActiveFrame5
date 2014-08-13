@@ -14,11 +14,12 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
     protected String fieldName;
     protected boolean resizable = true;
     private int userWidth;
-    private int calculatedWidth;
     protected int minWidth = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
     protected int maxWidth = BusinessUniverseConstants.MAX_COLUMN_WIDTH;
     protected boolean moveable = true;
     protected boolean visible;
+    protected int drawWidth;
+
 
     public CollectionColumn(AbstractCell cell) {
         super(cell);
@@ -30,6 +31,7 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
         this.resizable = resizable;
 
     }
+
 
     public String getFieldName() {
         return fieldName;
@@ -71,14 +73,6 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
         this.maxWidth = maxWidth;
     }
 
-    public int getCalculatedWidth() {
-        return calculatedWidth;
-    }
-
-    public void setCalculatedWidth(int calculatedWidth) {
-        this.calculatedWidth = calculatedWidth;
-    }
-
     public boolean isMoveable() {
         return moveable;
     }
@@ -93,6 +87,14 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    public int getDrawWidth() {
+        return drawWidth;
+    }
+
+    public void setDrawWidth(int drawWidth) {
+        this.drawWidth = drawWidth;
     }
 
     @Override

@@ -1,12 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -21,54 +14,24 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CommonSortCriterionConfig;
-import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
-import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.FilterEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
@@ -91,11 +54,9 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MIN_WIDTH;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSED;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN;
+import java.util.*;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -136,14 +97,15 @@ public class CollectionPluginView extends PluginView {
         final CollectionColumnWidthChangedHandler changedWidthHandler = new CollectionColumnWidthChangedHandler();
         eventBus.addHandler(ComponentWidthChangedEvent.TYPE, changedWidthHandler);
         final CollectionColumnOrderChangedHandler orderChangedHandler = new CollectionColumnOrderChangedHandler();
+        columnHeaderController =
+                new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth,eventBus);
         eventBus.addHandler(ComponentOrderChangedEvent.TYPE, orderChangedHandler);
     }
 
     private void updateSizes() {
         tableWidth = plugin.getOwner().getVisibleWidth();
         CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody);
-
-
+        columnHeaderController.setDisplayedWidth(tableWidth);
     }
 
     /*This method is invoked when splitter changes position and after initialization of BusinessUniverse
@@ -164,7 +126,6 @@ public class CollectionPluginView extends PluginView {
             }
         });
     }
-
 
     @Override
     public IsWidget getViewWidget() {
@@ -252,8 +213,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createTableColumns() {
-        columnHeaderController =
-                new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody);
+
         if (singleChoice) {
             createTableColumnsWithoutCheckBoxes(fieldPropertiesMap);
         } else {
@@ -562,6 +522,7 @@ public class CollectionPluginView extends PluginView {
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             final CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
+            int index = tableBody.getColumnCount();
             final List<String> initialFilterValues =
                     (List) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
             HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
@@ -578,14 +539,16 @@ public class CollectionPluginView extends PluginView {
                 sortCollectionState = new SortCollectionState(0, rowsChunk, column.getDataStoreName(), ascending, true, field);
             }
         }
-        CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody);
+
         columnHeaderController.setColumnHeaderBlocks(columnHeaderBlocks);
+        columnHeaderController.changeVisibilityOfColumns();
         String panelStatus = getPanelState();
         if (panelStatus.equalsIgnoreCase(OPEN)) {
             columnHeaderController.changeFiltersInputsVisibility(true);
             filterButton.setValue(true);
             columnHeaderController.updateFilterValues();
         }
+
     }
 
     private String getPanelState() {
