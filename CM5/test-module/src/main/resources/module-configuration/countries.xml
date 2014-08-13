@@ -862,13 +862,35 @@
         </form-mapping>
     </form-mappings>
 
+    <form-mappings name="country_mappings_1">
+        <form-mapping domain-object-type="country" form="country_form">
+            <users>
+                <user uid="person1"/>
+            </users>
+            <groups>
+                <group name="test-group-1" priority="1"/>
+            </groups>
+        </form-mapping>
+    </form-mappings>
+
+    <form-mappings name="country_mappings_2">
+        <form-mapping domain-object-type="country" form="my-custom-form">
+            <users>
+                <user uid="person2"/>
+            </users>
+            <groups>
+                <group name="test-group-1" priority="2"/>
+            </groups>
+        </form-mapping>
+    </form-mappings>
+
     <form-mappings name="city_mappings">
         <form-mapping domain-object-type="city" form="city_form">
             <users>
                 <user uid="admin"/>
             </users>
             <groups>
-                <group name="Minister" priority="100"/>
+                <group name="Minister" priority="2"/>
             </groups>
         </form-mapping>
     </form-mappings>

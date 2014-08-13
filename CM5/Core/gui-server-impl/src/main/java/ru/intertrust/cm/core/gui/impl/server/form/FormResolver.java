@@ -104,18 +104,21 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
 
         // todo define strategy of finding a form by role. which role? context role? or may be a static group?
         List<DomainObject> userGroups = personManagementService.getPersonGroups(personManagementService.getPersonId(userUid));
+        Pair<FormConfig, Integer> maxPriorityPair = new Pair(null, Integer.MIN_VALUE);
         for (DomainObject userGroup : userGroups) {
             List<Pair<FormConfig, Integer>> groupFormConfigs = cache.getRoleFormConfigs(userGroup.getString("group_name"), targetTypeName);
             if (groupFormConfigs != null && groupFormConfigs.size() != 0) {
-                if (groupFormConfigs.size() > 1) {
-                    log.warn("There's " + groupFormConfigs.size()
-                            + " forms defined for Domain Object Type: " + targetTypeName + " and User: " + userUid);
-                    //TODO: priorities
+                for (Pair<FormConfig, Integer> pair : groupFormConfigs) {
+                    Integer priority = pair.getSecond();
+                    if (priority > maxPriorityPair.getSecond()) {
+                        maxPriorityPair = pair;
+                    }
                 }
-                return groupFormConfigs.get(0).getFirst();
             }
         }
-
+        if (maxPriorityPair.getFirst() != null) {
+            return maxPriorityPair.getFirst();
+        }
         List<FormConfig> allFormConfigs = cache.getAllFormConfigs(targetTypeName);
         if (allFormConfigs == null || allFormConfigs.size() == 0) {
             log.warn("There's no default form defined for Domain Object Type: " + targetTypeName);
