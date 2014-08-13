@@ -877,9 +877,11 @@
         <form-mapping domain-object-type="country" form="my-custom-form">
             <users>
                 <user uid="person2"/>
+                <user uid="person7"/>
             </users>
             <groups>
-                <group name="test-group-1" priority="2"/>
+                <group name="EmployeeBosses"/>
+                <group name="test-group-2" priority="2"/>
             </groups>
         </form-mapping>
     </form-mappings>

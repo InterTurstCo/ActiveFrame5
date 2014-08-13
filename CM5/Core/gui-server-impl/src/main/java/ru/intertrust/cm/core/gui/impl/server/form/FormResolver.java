@@ -262,7 +262,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                     roleFormConfigs = new ArrayList<>();
                     formsByRoleAndDomainObjectType.put(roleAndDomainObjectType, roleFormConfigs);
                 }
-                roleFormConfigs.add(new Pair<>(formConfig, groupConfig.getPriority()));
+                roleFormConfigs.add(new Pair<>(formConfig, (groupConfig.getPriority() != null ? groupConfig.getPriority() : 0)));
             }
         }
 

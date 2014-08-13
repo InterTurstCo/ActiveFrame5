@@ -1097,7 +1097,7 @@
                 <user uid="admin"/>
             </users>
             <groups>
-                <group-name value="Minister"/>
+                <group-name value="test-group-1" priority="20"/>
             </groups>
         </navigation-panel-mapping>
     </navigation-panel-mappings>
@@ -1108,7 +1108,7 @@
                 <user uid="person1"/>
             </users>
             <groups>
-                <group-name value="test-group-1" priority="10"/>
+                <group-name value="test-group-2" priority="100"/>
             </groups>
         </navigation-panel-mapping>
     </navigation-panel-mappings>
@@ -1117,6 +1117,7 @@
         <navigation-panel-mapping name="panel_2">
             <users>
                 <user uid="person2"/>
+                <user uid="person5"/>
             </users>
             <groups>
                 <group-name value="test-group-2" priority="50"/>

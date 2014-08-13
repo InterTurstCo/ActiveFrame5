@@ -1374,7 +1374,7 @@
     <xs:complexType name="usersType">
         <xs:sequence>
             <xs:element type="con:userType" name="user"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                        xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="userType">
@@ -1399,7 +1399,7 @@
     <xs:complexType name="groupsNavType">
         <xs:sequence>
             <xs:element type="con:groupNavType" name="group-name"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                        xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -1936,7 +1936,7 @@
     <xs:complexType name="rolesType">
         <xs:sequence>
             <xs:element type="con:roleType" name="group"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                        xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
