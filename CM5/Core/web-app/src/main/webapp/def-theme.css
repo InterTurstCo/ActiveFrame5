@@ -1638,15 +1638,7 @@ td.datePickerMonth {
     margin: 5px;
 }
 
-.ext-search-content-wrapper {
-    position: absolute !important;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    display: block;
-    height: 410px;
-}
+
 
 .frm-pnl-top {
     overflow: auto;

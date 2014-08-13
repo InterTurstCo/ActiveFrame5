@@ -66,8 +66,9 @@ public class ExtendedSearchPluginView extends PluginView {
         domainObjects = new AbsolutePanel();
         domainObjects.setStyleName("radioBoxPanel");
         scrollSearchForm = new ScrollPanel();
-        scrollSearchForm.setHeight("435px");
-        scrollSearchForm.setWidth("650px");
+        //scrollSearchForm.setHeight("435px");
+        //scrollSearchForm.setWidth("650px");
+        scrollSearchForm.setHeight("377px");
         search.add(new HTML("<span>" + "Найти" + "</span>"));
         closeSearch.add(new HTML("<span>" + "Закрыть" + "</span>"));
 
