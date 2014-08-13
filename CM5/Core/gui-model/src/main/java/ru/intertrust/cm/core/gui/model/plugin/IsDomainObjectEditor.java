@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
 /**
@@ -20,4 +21,7 @@ public interface IsDomainObjectEditor {
     FormPluginState getFormPluginState();
 
     boolean isDirty();
+
+    FormViewerConfig getFormViewerConfig();
+
 }

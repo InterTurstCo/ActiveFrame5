@@ -16,6 +16,10 @@
                                 <search-collection-ref name="Countries"/>
                                 <filter-panel panel-state="open"/>
                             </collection-viewer>
+                            <!--form-viewer form-mapping-component="custom.mapping.component"/-->
+                            <!--form-viewer>
+                                <form-mapping domain-object-type="country" form="my-custom-form"/>
+                            </form-viewer-->
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>

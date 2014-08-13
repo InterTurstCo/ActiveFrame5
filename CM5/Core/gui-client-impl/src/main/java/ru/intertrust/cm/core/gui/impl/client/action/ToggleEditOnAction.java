@@ -30,6 +30,7 @@ public class ToggleEditOnAction extends ToggleAction {
         final FormPluginState state = editor.getFormPluginState();
         config.setPluginState(state);
         state.setEditable(true);
+        config.setFormViewerConfig(editor.getFormViewerConfig());
         final FormPlugin formPlugin = createFormPlugin(config);
         if (state.isInCentralPanel()) {
             getPlugin().getOwner().closeCurrentPlugin();

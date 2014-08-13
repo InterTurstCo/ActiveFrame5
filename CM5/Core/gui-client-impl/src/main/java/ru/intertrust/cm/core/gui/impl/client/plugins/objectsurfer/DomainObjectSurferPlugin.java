@@ -7,6 +7,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -109,6 +110,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         final FormPluginConfig newConfig = new FormPluginConfig(event.getId());
         final FormPluginData formPluginData = formPlugin.getInitialData();
         newConfig.setPluginState((FormPluginState) formPluginData.getPluginState());
+        newConfig.setFormViewerConfig(getFormViewerConfig());
         newFormPlugin.setConfig(newConfig);
         formPluginPanel.open(newFormPlugin);
         this.formPlugin = newFormPlugin;
@@ -209,6 +211,11 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
     @Override
     public boolean isDirty() {
         return getFormPlugin().isDirty();
+    }
+
+    @Override
+    public FormViewerConfig getFormViewerConfig() {
+        return ((DomainObjectSurferConfig)this.getConfig()).getFormViewerConfig();
     }
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {

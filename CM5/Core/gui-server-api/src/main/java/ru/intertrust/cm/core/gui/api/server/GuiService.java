@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -39,13 +40,13 @@ public interface GuiService {
      */
     Dto executeCommand(Command command, UserInfo userInfo) throws GuiException;
 
-    FormDisplayData getForm(String domainObjectType, UserInfo userInfo);
+    FormDisplayData getForm(String domainObjectType, UserInfo userInfo, FormViewerConfig formViewerConfig);
 
-    FormDisplayData getForm(String domainObjectType, String domainObjectUpdaterName, Dto updaterContext,UserInfo userInfo);
+    FormDisplayData getForm(String domainObjectType, String domainObjectUpdaterName, Dto updaterContext,UserInfo userInfo, FormViewerConfig formViewerConfig);
 
-    FormDisplayData getForm(Id domainObjectId, UserInfo userInfo);
+    FormDisplayData getForm(Id domainObjectId, UserInfo userInfo, FormViewerConfig formViewerConfig);
 
-    FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo);
+    FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo, FormViewerConfig formViewerConfig);
 
     // получение формы расширенного поиска
     FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields, UserInfo userInfo);

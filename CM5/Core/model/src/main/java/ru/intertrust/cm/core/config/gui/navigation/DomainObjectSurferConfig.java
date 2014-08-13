@@ -14,6 +14,9 @@ public class DomainObjectSurferConfig extends PluginConfig {
     @Element(name = "collection-viewer")
     private CollectionViewerConfig collectionViewerConfig;
 
+    @Element(name = "form-viewer", required = false)
+    private FormViewerConfig formViewerConfig;
+
     @Element(name = "toggle-edit", required = false)
     private boolean toggleEdit;
 
@@ -26,6 +29,14 @@ public class DomainObjectSurferConfig extends PluginConfig {
 
     public void setCollectionViewerConfig(CollectionViewerConfig collectionViewerConfig) {
         this.collectionViewerConfig = collectionViewerConfig;
+    }
+
+    public FormViewerConfig getFormViewerConfig() {
+        return formViewerConfig;
+    }
+
+    public void setFormViewerConfig(FormViewerConfig formViewerConfig) {
+        this.formViewerConfig = formViewerConfig;
     }
 
     public boolean isToggleEdit() {
@@ -54,6 +65,11 @@ public class DomainObjectSurferConfig extends PluginConfig {
                 : that.collectionViewerConfig != null) {
             return false;
         }
+        if (formViewerConfig != null
+                ? !formViewerConfig.equals(that.formViewerConfig)
+                : that.formViewerConfig != null) {
+            return false;
+        }
         if (domainObjectTypeToCreate != null
                 ? !domainObjectTypeToCreate.equals(that.domainObjectTypeToCreate)
                 : that.domainObjectTypeToCreate != null) {
@@ -65,6 +81,7 @@ public class DomainObjectSurferConfig extends PluginConfig {
     @Override
     public int hashCode() {
         int result = collectionViewerConfig != null ? collectionViewerConfig.hashCode() : 31;
+        result = 31 * result + (formViewerConfig != null ? formViewerConfig.hashCode() : 31);
         result = 31 * result + (domainObjectTypeToCreate != null ? domainObjectTypeToCreate.hashCode() : 31);
         return result;
     }

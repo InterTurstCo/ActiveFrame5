@@ -117,7 +117,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     @Override
     public FormDisplayData getForm(Id domainObjectId) {
-        return guiService.getForm(domainObjectId, getUserInfo());
+        return guiService.getForm(domainObjectId, getUserInfo(), null);
     }
 
     @Override

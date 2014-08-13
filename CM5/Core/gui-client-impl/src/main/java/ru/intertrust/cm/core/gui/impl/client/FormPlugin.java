@@ -1,9 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import java.util.Map;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
@@ -19,6 +18,8 @@ import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginState;
+
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -138,5 +139,10 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     public boolean isDirty() {
         final FormPluginView view = (FormPluginView) getView();
         return view.isDirty();
+    }
+
+    @Override
+    public FormViewerConfig getFormViewerConfig() {
+        return ((FormPluginConfig)this.getConfig()).getFormViewerConfig();
     }
 }

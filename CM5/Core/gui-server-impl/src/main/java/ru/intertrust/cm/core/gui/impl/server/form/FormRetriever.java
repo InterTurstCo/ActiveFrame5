@@ -3,22 +3,39 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.form.FormViewerMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
+import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.*;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
+import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
+import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -31,36 +48,36 @@ public class FormRetriever extends FormProcessor {
     @Autowired
     private FormResolver formResolver;
 
-    public FormDisplayData getForm(String domainObjectType) {
+    public FormDisplayData getForm(String domainObjectType, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.createDomainObject(domainObjectType);
         // todo: separate empty form?
-        return buildDomainObjectForm(root);
+        return buildDomainObjectForm(root, formViewerConfig);
     }
 
-    public FormDisplayData getForm(String domainObjectType, String updaterComponentName, Dto updaterContext) {
+    public FormDisplayData getForm(String domainObjectType, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.createDomainObject(domainObjectType);
         DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
         domainObjectUpdater.updateDomainObject(root, updaterContext);
         // todo: separate empty form?
-        return buildDomainObjectForm(root);
+        return buildDomainObjectForm(root, formViewerConfig);
     }
 
-    public FormDisplayData getForm(Id domainObjectId) {
+    public FormDisplayData getForm(Id domainObjectId, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.find(domainObjectId);
         if (root == null) {
             throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
         }
-        return buildDomainObjectForm(root);
+        return buildDomainObjectForm(root, formViewerConfig);
     }
 
-    public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext) {
+    public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.find(domainObjectId);
         if (root == null) {
             throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
         }
         DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
         domainObjectUpdater.updateDomainObject(root, updaterContext);
-        return buildDomainObjectForm(root);
+        return buildDomainObjectForm(root, formViewerConfig);
     }
 
 
@@ -170,13 +187,30 @@ public class FormRetriever extends FormProcessor {
         return widgetComponents;
     }
 
-    private FormDisplayData buildDomainObjectForm(DomainObject root) {
+    private FormDisplayData buildDomainObjectForm(DomainObject root, FormViewerConfig formViewerConfig) {
         // todo validate that constructions like A^B.C.D aren't allowed or A.B^C
         // allowed are such definitions only:
         // a.b.c.d - direct links
         // a^b - link defining 1:N relationship (widgets changing attributes can't have such field path)
         // a^b.c - link defining N:M relationship (widgets changing attributes can't have such field path)
-        FormConfig formConfig = formResolver.findEditingFormConfig(root, getUserUid());
+
+        FormConfig formConfig = null;
+        if (formViewerConfig != null && formViewerConfig.getFormMappingComponent() != null) {
+            FormMappingHandler formMappingHandler = (FormMappingHandler) applicationContext.getBean(formViewerConfig.getFormMappingComponent());
+            if (formMappingHandler != null) {
+                formConfig = formMappingHandler.findEditingFormConfig(root, getUserUid());
+            }
+        } else if (formViewerConfig != null && formViewerConfig.getFormMappingConfigList() != null) {
+            for (FormViewerMappingConfig mappingConfig : formViewerConfig.getFormMappingConfigList()) {
+                if (root.getTypeName().equals(mappingConfig.getDomainObjectType())) {
+                    String formName = mappingConfig.getForm();
+                    formConfig = configurationExplorer.getConfig(FormConfig.class, formName);
+                }
+            }
+        }
+        if (formConfig == null) {
+            formConfig = formResolver.findEditingFormConfig(root, getUserUid());
+        }
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         HashMap<String, WidgetConfig> widgetConfigsById = buildWidgetConfigsById(widgetConfigs);
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());

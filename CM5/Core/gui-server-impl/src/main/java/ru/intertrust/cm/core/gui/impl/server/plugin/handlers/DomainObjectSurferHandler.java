@@ -1,10 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -22,6 +19,9 @@ import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DO_SPLITTER_ORIENTATION_FIELD_KEY;
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DO_SPLITTER_POSITION_FIELD_KEY;
@@ -43,7 +43,6 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
                 (CollectionPluginHandler) applicationContext.getBean("collection.plugin");
         final CollectionPluginData collectionPluginData = collectionPluginHandler.initialize(config.getCollectionViewerConfig());
         final ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
-
         final FormPluginConfig formPluginConfig;
         if (items == null || items.isEmpty()) {
             formPluginConfig = new FormPluginConfig(config.getDomainObjectTypeToCreate());
@@ -61,6 +60,7 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         formPluginConfig.addHistoryValues(config.getHistoryValues());
         final FormPluginState fpState = new FormPluginState();
         formPluginConfig.setPluginState(fpState);
+        formPluginConfig.setFormViewerConfig(config.getFormViewerConfig());
         fpState.setToggleEdit(config.isToggleEdit());
         fpState.setEditable(!config.isToggleEdit());
         final FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");

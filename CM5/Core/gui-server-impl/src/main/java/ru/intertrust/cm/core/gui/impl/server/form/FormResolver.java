@@ -8,7 +8,6 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
@@ -19,17 +18,22 @@ import ru.intertrust.cm.core.config.gui.UsersConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingsConfig;
+import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
  *         Date: 21.10.13
  *         Time: 19:49
  */
-public class FormResolver implements ApplicationListener<ConfigurationUpdateEvent> {
+public class FormResolver implements ApplicationListener<ConfigurationUpdateEvent>, FormMappingHandler {
     private static Logger log = LoggerFactory.getLogger(FormResolver.class);
 
     @Autowired
@@ -53,10 +57,6 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         if (event.getNewConfig() instanceof FormConfig) {
             resetCaches();
         }
-    }
-
-    public FormConfig findEditingFormConfig(Id rootId, String userUid) {
-        return findFormConfig(crudService.getDomainObjectType(rootId), FormConfig.TYPE_EDIT, userUid);
     }
 
     public FormConfig findEditingFormConfig(DomainObject root, String userUid) {
@@ -144,7 +144,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
     }
 
     private synchronized void resetCaches() {
-         editingFormsCache = null;
+        editingFormsCache = null;
         searchFormsCache = null;
         reportFormsCache = null;
     }

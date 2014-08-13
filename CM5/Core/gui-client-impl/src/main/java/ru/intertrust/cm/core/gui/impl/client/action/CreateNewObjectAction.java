@@ -23,6 +23,7 @@ public class CreateNewObjectAction extends Action {
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
         final FormPluginState state = editor.getFormPluginState();
         config.setPluginState(state);
+        config.setFormViewerConfig(editor.getFormViewerConfig());
         if (state.isToggleEdit()) {
             state.setEditable(true);
             final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");

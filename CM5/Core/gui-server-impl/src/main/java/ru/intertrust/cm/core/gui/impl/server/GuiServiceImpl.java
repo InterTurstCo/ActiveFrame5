@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -86,28 +87,30 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    public FormDisplayData getForm(final String domainObjectType, final UserInfo userInfo) {
+    public FormDisplayData getForm(final String domainObjectType, final UserInfo userInfo, FormViewerConfig formViewerConfig) {
         FormRetriever formRetriever = getFormRetriever(userInfo);
-        return formRetriever.getForm(domainObjectType);
+        return formRetriever.getForm(domainObjectType, formViewerConfig);
     }
 
     @Override
-    public FormDisplayData getForm(String domainObjectType, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo) {
+    public FormDisplayData getForm(String domainObjectType, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo,
+                                   FormViewerConfig formViewerConfig) {
         FormRetriever formRetriever = getFormRetriever(userInfo);
-        return formRetriever.getForm(domainObjectType, domainObjectUpdaterName, updaterContext);
+        return formRetriever.getForm(domainObjectType, domainObjectUpdaterName, updaterContext, formViewerConfig);
 
     }
 
     @Override
-    public FormDisplayData getForm(final Id domainObjectId, final UserInfo userInfo) {
+    public FormDisplayData getForm(final Id domainObjectId, final UserInfo userInfo, FormViewerConfig formViewerConfig) {
         FormRetriever formRetriever = getFormRetriever(userInfo);
-        return formRetriever.getForm(domainObjectId);
+        return formRetriever.getForm(domainObjectId, formViewerConfig);
     }
 
     @Override
-    public FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo) {
+    public FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo,
+                                   FormViewerConfig formViewerConfig) {
         FormRetriever formRetriever = getFormRetriever(userInfo);
-        return formRetriever.getForm(domainObjectId, domainObjectUpdaterName, updaterContext);
+        return formRetriever.getForm(domainObjectId, domainObjectUpdaterName, updaterContext, formViewerConfig);
     }
 
     @Override

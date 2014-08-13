@@ -58,6 +58,7 @@ public class DeleteAction extends SimpleServerAction {
                 config = new FormPluginConfig(selected.get(0));
             }
             config.setPluginState(editor.getFormPluginState());
+            config.setFormViewerConfig(editor.getFormViewerConfig());
             editor.replaceForm(config);
             ApplicationWindow.infoAlert(BusinessUniverseConstants.ROW_IS_DELETED_MESSAGE);
         }

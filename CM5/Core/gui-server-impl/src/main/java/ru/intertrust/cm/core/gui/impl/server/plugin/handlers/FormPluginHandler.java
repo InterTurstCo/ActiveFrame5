@@ -55,13 +55,13 @@ public class FormPluginHandler extends ActivePluginHandler {
         final UserInfo userInfo = GuiContext.get().getUserInfo();
         String domainObjectUpdaterName = config.getDomainObjectUpdatorComponent();
         if (domainObjectUpdaterName == null) {
-            return domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate, userInfo)
-                    : guiService.getForm(config.getDomainObjectId(), userInfo);
+            return domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate, userInfo, config.getFormViewerConfig())
+                    : guiService.getForm(config.getDomainObjectId(), userInfo, config.getFormViewerConfig());
         } else {
             Dto updaterContext = config.getUpdaterContext();
             return domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate,
-                    domainObjectUpdaterName, updaterContext, userInfo)
-                    : guiService.getForm(config.getDomainObjectId(), domainObjectUpdaterName, updaterContext, userInfo);
+                    domainObjectUpdaterName, updaterContext, userInfo, config.getFormViewerConfig())
+                    : guiService.getForm(config.getDomainObjectId(), domainObjectUpdaterName, updaterContext, userInfo, config.getFormViewerConfig());
         }
 
     }

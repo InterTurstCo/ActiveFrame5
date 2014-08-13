@@ -691,6 +691,59 @@
 
         </widget-config>
     </form>
+
+    <form name="my-custom-form" domain-object-type="country" debug="false" min-width="900px">
+        <act:tool-bar useDefault="true"/>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td h-align="right">
+                            <widget id="title_label"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Закладки">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="center" v-align="center">
+                                        <widget id="description_label"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="center" v-align="center">
+                                        <widget id="name_label"/>
+                                    </td>
+                                    <td h-align="center" v-align="center">
+                                        <widget id="name_text-box"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="title_label">
+                <text>Custom form</text>
+            </label>
+            <label id="description_label">
+                <text>Custom form provided by custom mapping component</text>
+            </label>
+            <label id="name_label">
+                <text>Название:</text>
+            </label>
+            <text-box id="name_text-box">
+                <field-path value="name"/>
+            </text-box>
+        </widget-config>
+    </form>
+
     <collection name="Countries" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <prototype>
