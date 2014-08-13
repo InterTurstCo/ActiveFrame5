@@ -85,6 +85,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         new DomainObjectLogicalValidator(this).validate();
         new AccessMatrixLogicalValidator(this).validate();
         new UniqueNameLogicalValidator(this).validate();
+        new IndirectlyPermissionLogicalValidator(this).validate();
     }
 
     public void validateGui() {
