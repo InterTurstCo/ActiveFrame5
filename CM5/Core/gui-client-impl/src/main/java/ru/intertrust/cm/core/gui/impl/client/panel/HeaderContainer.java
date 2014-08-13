@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
+import ru.intertrust.cm.core.gui.impl.client.CurrentVersionInfo;
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -30,8 +31,11 @@ public class HeaderContainer extends SimplePanel {
     private InformationDialogBox dialogBox;
     private SettingsPopupConfig settingsPopupConfig;
     private PopupPanel popupPanel;
+    private Label platformVersion;
+    private Label productVersion;
+    private AbsolutePanel infoPanel;
 
-    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig, final String version) {
+    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig, CurrentVersionInfo version) {
         this.settingsPopupConfig = settingsPopupConfig;
         addUserInfoToDialog(currentUserInfo);
 
@@ -88,7 +92,11 @@ public class HeaderContainer extends SimplePanel {
         decoratedHelp.add(versionImage);
 
         popupPanel = new PopupPanel();
-        popupPanel.add(new Label(version));
+        infoPanel = new AbsolutePanel();
+        infoPanel.setStyleName("info-panel");
+        infoPanel.add(new Label("   CORE: " + version.getCoreVersion()));
+        infoPanel.add(new Label("PRODUCT: " + version.getProductVersion()));
+        popupPanel.add(infoPanel);
         popupPanel.getElement().addClassName("application-version");
         popupPanel.getElement().getStyle().setBorderStyle(Style.BorderStyle.SOLID);
         popupPanel.getElement().getStyle().setZIndex(99);

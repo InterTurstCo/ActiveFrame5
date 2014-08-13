@@ -22,10 +22,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
-import ru.intertrust.cm.core.config.BusinessUniverseConfig;
-import ru.intertrust.cm.core.config.LogoConfig;
-import ru.intertrust.cm.core.config.SettingsPopupConfig;
-import ru.intertrust.cm.core.config.ThemesConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
@@ -70,6 +67,10 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         addLogoImagePath(businessUniverseConfig, initialization);
         String version = guiService.getCoreVersion();
         initialization.setApplicationVersion(version);
+
+        GlobalSettingsConfig globalSettingsConfig = configurationService.getGlobalSettings();
+        initialization.setProductVersion(guiService.getProductVersion(globalSettingsConfig.getProductVersion().getArchive()));
+
         addSettingsPopupConfig(businessUniverseConfig, initialization);
 
         if (businessUniverseConfig != null) {

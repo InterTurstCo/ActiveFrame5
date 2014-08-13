@@ -23,13 +23,34 @@ public class BusinessUniverseInitialization implements Dto {
     private Integer collectionCountersUpdatePeriod;
     private Integer headerNotificationPeriod;
     private String applicationVersion;
+    private String productVersion;
+
+    public String getProductVersion() {
+        return productVersion;
+    }
+
+    public void setProductVersion(String productVersion) {
+        if(productVersion != null){
+            this.productVersion = productVersion;
+        }
+        else{
+            this.productVersion = "";
+        }
+
+    }
 
     public String getApplicationVersion() {
         return applicationVersion;
     }
 
     public void setApplicationVersion(String applicationVersion) {
-        this.applicationVersion = applicationVersion;
+        if(applicationVersion != null){
+            this.applicationVersion = applicationVersion;
+        }
+        else{
+            this.applicationVersion = "";
+        }
+
     }
 
     public String getCurrentLogin() {

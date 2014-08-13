@@ -60,6 +60,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
 
+    CurrentVersionInfo getVersion(BusinessUniverseInitialization result){
+        return new CurrentVersionInfo(result.getApplicationVersion(), result.getProductVersion());
+    }
+
     public void onModuleLoad() {
 
         final AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
@@ -126,7 +130,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 glEventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
                 String logoImagePath = GlobalThemesManager.getResourceFolder() + result.getLogoImagePath();
                 CurrentUserInfo currentUserInfo = getUserInfo(result);
-                String version = result.getApplicationVersion();
+                CurrentVersionInfo version = getVersion(result);
                 header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version));
                 left.add(navigationTreePanel);
 
