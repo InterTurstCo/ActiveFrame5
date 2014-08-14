@@ -128,7 +128,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             if (!visible && shouldChangeVisibilityState) {
                 columnHeaderBlock.getHeader().saveFilterValue();
                 dataGrid.removeColumn(collectionColumn);
-                columnHeaderBlock.setShouldChangeVisibilityState(true);
+                columnHeaderBlock.setShouldChangeVisibilityState(false);
                 collectionColumn.setVisible(false);
 
             }
@@ -286,7 +286,8 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
                 @Override
                 public void onValueChange(ValueChangeEvent<Boolean> event) {
                     boolean checked = event.getValue();
-                    columnHeaderBlock.setShouldChangeVisibilityState(true);
+                    boolean shouldChangeVisibilityPrevious = columnHeaderBlock.shouldChangeVisibilityState();
+                    columnHeaderBlock.setShouldChangeVisibilityState(!shouldChangeVisibilityPrevious);
                     column.setVisible(checked);
 
                 }
