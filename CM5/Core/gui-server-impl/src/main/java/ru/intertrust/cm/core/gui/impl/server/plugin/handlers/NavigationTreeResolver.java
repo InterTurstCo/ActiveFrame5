@@ -154,14 +154,15 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
             if (pair != null && pair.getSecond() > maxPriorityPair.getSecond()) {
                 maxPriorityPair = pair;
             }
-
-            List<DomainObject> allParentGroups = personManagementService.getAllParentGroup(personManagementService.getGroupId(groupName));
-            for (DomainObject parentGroup : allParentGroups) {
-                pair = navigationPanelsCache.navigationsByUserGroup.get(parentGroup.getString("group_name"));
-                if (pair != null && pair.getSecond() > maxPriorityPair.getSecond()) {
-                    maxPriorityPair = pair;
-                }
-            }
+            // По идее, результат personManagementService.getPersonGroups() уже и так содержит все группы пользователя,
+            // с учетом возможного вхождения групп в группы
+//            List<DomainObject> allParentGroups = personManagementService.getAllParentGroup(personManagementService.getGroupId(groupName));
+//            for (DomainObject parentGroup : allParentGroups) {
+//                pair = navigationPanelsCache.navigationsByUserGroup.get(parentGroup.getString("group_name"));
+//                if (pair != null && pair.getSecond() > maxPriorityPair.getSecond()) {
+//                    maxPriorityPair = pair;
+//                }
+//            }
         }
         NavigationConfig navigationConfig = configurationExplorer.getConfig(NavigationConfig.class,
                 maxPriorityPair.getFirst());
