@@ -81,6 +81,14 @@
         </status>
     </access-matrix>
 
+    <access-matrix type="organization_test">
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+        </status>
+    </access-matrix>
+
     <access-matrix type="employee_test" matrix-reference-field="Department"/>
     
 </configuration>

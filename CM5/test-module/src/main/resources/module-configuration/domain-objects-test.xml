@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
-     <domain-object-type name="organization_test" audit-log="true">
+     <domain-object-type name="organization_test" audit-log="true" initial-status="Active">
         <fields>
             <string name="Name" length="128" not-null="true" />
             <reference name="Boss" type="employee_test"/>

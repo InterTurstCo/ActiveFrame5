@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
@@ -23,9 +24,11 @@ import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestCollection extends ClientBase {
 
-    private CollectionsService.Remote collectionService;
+    protected CollectionsService.Remote collectionService;
     
-    private SearchService.Remote searchService;
+    protected SearchService.Remote searchService;
+    
+    protected CrudService.Remote crudService;
 
     public static void main(String[] args) {
         try {
@@ -156,11 +159,11 @@ public class TestCollection extends ClientBase {
         }
     }
 
-    private void executeQuery(String query, int columnCount) throws Exception {
+    protected void executeQuery(String query, int columnCount) throws Exception {
         executeQuery(query, columnCount, null);
     }
 
-    private void executeQuery(String query, int columnCount, List<Value> params) throws Exception {
+    protected void executeQuery(String query, int columnCount, List<Value> params) throws Exception {
         IdentifiableObjectCollection collection = null;
         if (params == null) {
             collection =
@@ -185,7 +188,7 @@ public class TestCollection extends ClientBase {
         log("Test query " + query + " OK");
     }
 
-    private void executeCollection(String collectionName, int columnCount, SortOrder sort, List<Filter> filters) throws Exception {
+    protected void executeCollection(String collectionName, int columnCount, SortOrder sort, List<Filter> filters) throws Exception {
         IdentifiableObjectCollection collection =
                 collectionService.findCollection(collectionName, sort, filters);
 

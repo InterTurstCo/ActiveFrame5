@@ -67,8 +67,8 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
                 FromItem joinItem = join.getRightItem();
                 if (joinItem instanceof Table) {
                     Table table = (Table) joinItem;
-                    if (!configurationExplorer.isReadPermittedToEverybody(table.getName()) 
-                            && configurationExplorer.getMatrixReferenceTypeName(table.getName()) == null) {
+                    //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
+                    if (!configurationExplorer.isReadPermittedToEverybody(table.getName())) {
                         SubSelect replace = createAclSubQuery(table.getName());
                         if (table.getAlias() == null) {
                             replace.setAlias(new Alias(table.getName()));
@@ -88,9 +88,8 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         FromItem from = plainSelect.getFromItem();
         if (from instanceof Table) {
             Table table = (Table) from;
-            //добавляем подзапрос на права в случае если не стоит флаг read-everybody и не указано заимствование прав с помощью matrix-reference-field 
-            if (!configurationExplorer.isReadPermittedToEverybody(table.getName()) &&
-                    configurationExplorer.getMatrixReferenceTypeName(table.getName()) == null) {
+            //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
+            if (!configurationExplorer.isReadPermittedToEverybody(table.getName())) {
                 SubSelect replace = createAclSubQuery(table.getName());
                 if (table.getAlias() == null) {
                     replace.setAlias(new Alias(table.getName()));
@@ -120,8 +119,19 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         if (aclSubQueryCache.get(domainObjectType) != null) {
             aclQueryString = aclSubQueryCache.get(domainObjectType);
         } else {
+            
+            //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
+            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(domainObjectType);
+            String aclReadTable = null;
+            if (matrixReferenceTypeName != null){
+                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, matrixReferenceTypeName);
+            }else{
+                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectType);
+            }
+                        
+            String rootType = configurationExplorer.getDomainObjectRootType(domainObjectType).toLowerCase();
             StringBuilder aclQuery = new StringBuilder();
-            String aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectType);
+            
             aclQuery.append("Select * from ").append(DaoUtils.wrap(domainObjectType))
                     .append(" " + domainObjectType + " where exists (select r.").append(DaoUtils.wrap("object_id"))
                     .append("from ")
@@ -131,8 +141,11 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
             aclQuery.append("inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
                     .append(DaoUtils.wrap("child_group_id"))
                     .append(" = gm.").append(DaoUtils.wrap("usergroup"));
+            aclQuery.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on r.")
+                    .append(DaoUtils.wrap("object_id"))
+                    .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
             aclQuery.append(" where gm.person_id = ").append(SqlQueryModifier.USER_ID_PARAM)
-                    .append(" and r.object_id = " + domainObjectType + ".id )");
+                    .append(" and rt.id = " + domainObjectType + ".id)");
             aclQueryString = aclQuery.toString();
             aclSubQueryCache.put(domainObjectType, aclQueryString);
         }

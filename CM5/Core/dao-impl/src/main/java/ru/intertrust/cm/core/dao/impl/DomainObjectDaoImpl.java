@@ -1105,16 +1105,27 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" from ");
         appendTableNameQueryPart(query, typeName);
 
-        if (accessToken.isDeferred()) {
+        if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(typeName)) {
+            //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
+            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
+            String aclReadTable = null;
+            if (matrixReferenceTypeName != null){
+                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, matrixReferenceTypeName);
+            }else{
+                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, typeName);
+            }
+                        
+            String rootType = configurationExplorer.getDomainObjectRootType(typeName).toLowerCase();            
 
-            String aclReadTable = AccessControlUtility
-                    .getAclReadTableName(configurationExplorer, typeName);
             query.append(" where exists (select a.object_id from ").append(aclReadTable).append(" a");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
                     .append(" = gg.").append(wrap("parent_group_id"));
             query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
-                    .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
-            query.append(" where gm.person_id = :user_id and a.object_id = ")
+                    .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));            
+            query.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on a.")
+                    .append(DaoUtils.wrap("object_id"))
+                    .append(" = rt.").append(DaoUtils.wrap("access_object_id"));            
+            query.append(" where gm.person_id = :user_id and ").append(rootType).append(".id = ")
                     .append(tableAlias).append(".ID)");
         }
 
@@ -1562,13 +1573,18 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void appendAccessControlLogicToQuery(StringBuilder query,
             String linkedType) {
 
-        //Добавляем учет ReadPermittedToEverybody и косвенных прав. Как и в запросах даем эти ДО читать
-        if (!configurationExplorer.isReadPermittedToEverybody(linkedType) &&
-                configurationExplorer.getMatrixReferenceTypeName(linkedType) == null) {
-        
-            String childAclReadTable = AccessControlUtility
-                    .getAclReadTableNameFor(configurationExplorer, linkedType);
-
+        //Добавляем учет ReadPermittedToEverybody
+        if (!configurationExplorer.isReadPermittedToEverybody(linkedType)) {
+            //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
+            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(linkedType);
+            String childAclReadTable = null;
+            if (matrixReferenceTypeName != null){
+                childAclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, matrixReferenceTypeName);
+            }else{
+                childAclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, linkedType);
+            }
+            String rootType = configurationExplorer.getDomainObjectRootType(linkedType).toLowerCase();
+            
             query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
 
             String linkedTypeAlias = getSqlAlias(linkedType);
@@ -1577,7 +1593,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
             query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
                     .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
-            query.append("where gm.person_id = :user_id and r.object_id = ").append(linkedTypeAlias).append(".").append(DaoUtils.wrap(ID_COLUMN)).append(")");
+            query.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on r.")
+                    .append(DaoUtils.wrap("object_id"))
+                    .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
+            query.append("where gm.person_id = :user_id and rt.id = ").append(linkedTypeAlias).append(".").append(DaoUtils.wrap(ID_COLUMN)).append(")");
         }
     }
 
