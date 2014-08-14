@@ -59,43 +59,43 @@ public class CollectionsDaoImplTest {
                     "FROM person e INNER JOIN department AS d ON e.department = d.id";
 
     private static final String ACTUAL_COLLECTION_QUERY_WITH_LIMITS =
-            "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
-                    "e.\"updated_date\", 'employee' \"test_constant\" " +
-                    "FROM (SELECT * FROM \"person\" person WHERE EXISTS (SELECT r.\"object_id\" " +
-                    "FROM \"person_read\" r " +
-                    "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN " +
-                    "\"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE " +
-                    "gm.\"person_id\" = :user_id AND r.\"object_id\" = person.\"id\")) e INNER JOIN " +
-                    "(SELECT * FROM \"department\" department WHERE EXISTS (SELECT r.\"object_id\" FROM " +
-                    "\"department_read\" r INNER JOIN \"group_group\" gg " +
-                    "ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm " +
-                    "ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id " +
-                    "AND r.\"object_id\" = department.\"id\")) AS d ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
+           "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", e.\"updated_date\", 'employee' "
+           + "\"test_constant\" FROM (SELECT * FROM \"person\" person WHERE EXISTS "
+           + "(SELECT r.\"object_id\" FROM \"person_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+           + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+           + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+           + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = person.\"id\")) e "
+           + "INNER JOIN (SELECT * FROM \"department\" department "
+           + "WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r "
+           + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+           + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+           + "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+           + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = department.\"id\")) AS d "
+           + "ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
-            "SELECT e.\"id\", e.\"id_type\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
-                    "'employee' \"test_constant\" " +
-                    "FROM (SELECT * FROM \"employee\" employee WHERE EXISTS (SELECT r.\"object_id\" " +
-                    "FROM \"employee_read\" r " +
-                    "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
-                    "INNER JOIN \"group_member\" gm " +
-                    "ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id " +
-                    "AND r.\"object_id\" = employee.\"id\")) e INNER JOIN (SELECT * FROM \"department\" " +
-                    "department " +
-                    "WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r INNER JOIN \"group_group\" " +
-                    "gg " +
-                    "ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm " +
-                    "ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id " +
-                    "AND r.\"object_id\" = department.\"id\")) d ON e.\"department\" = d.\"id\" WHERE 1 = 1 " +
-                    "AND d.\"name\" = 'dep1' ORDER BY e.\"name\"";
+            "SELECT e.\"id\", e.\"id_type\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", 'employee' "
+            + "\"test_constant\" FROM (SELECT * FROM \"employee\" employee WHERE EXISTS ("
+            + "SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"employee\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = employee.\"id\")) e "
+            + "INNER JOIN (SELECT * FROM \"department\" department WHERE EXISTS ("
+            + "SELECT r.\"object_id\" FROM \"department_read\" r "
+            + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = department.\"id\")) d ON e.\"department\" = d.\"id\" "
+            + "WHERE 1 = 1 AND d.\"name\" = 'dep1' ORDER BY e.\"name\"";
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
-            "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") \"boss\", " +
-                    "p.\"created_date\", p.\"updated_date\", 'person' \"test_constant\" " +
-                    "FROM (SELECT * FROM \"person\" person WHERE EXISTS (SELECT r.\"object_id\" FROM " +
-                    "\"person_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
-                    "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = person.\"id\")) p WHERE 1 = 1";
+            "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") \"boss\", p.\"created_date\", "
+            + "p.\"updated_date\", 'person' \"test_constant\" FROM ("
+            + "SELECT * FROM \"person\" person WHERE EXISTS (SELECT r.\"object_id\" "
+            + "FROM \"person_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = person.\"id\")) p WHERE 1 = 1";
 
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =
             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT" +

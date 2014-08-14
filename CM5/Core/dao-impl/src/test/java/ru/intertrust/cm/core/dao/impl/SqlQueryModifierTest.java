@@ -35,16 +35,18 @@ public class SqlQueryModifierTest {
 
     private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE = "SELECT * FROM EMPLOYEE e, Department d";
 
-    private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED = "SELECT * FROM (SELECT * " +
-    		"FROM \"EMPLOYEE\" " +
-    		"EMPLOYEE WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg " +
-    		"ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm " +
-    		"ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id " +
-    		"AND r.object_id = EMPLOYEE.id)) e, " +
-    		"(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
-    		"INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
-    		"INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-    		"WHERE gm.person_id = :user_id AND r.object_id = Department.id)) d";
+    private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED = "SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE "
+            + "WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r "
+            + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.person_id = :user_id AND rt.id = EMPLOYEE.id)) e, "
+            + "(SELECT * FROM \"Department\" Department WHERE EXISTS ("
+            + "SELECT r.\"object_id\" FROM \"department_read\" r "
+            + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.person_id = :user_id AND rt.id = Department.id)) d";
 
     private static final String PLAIN_SELECT_QUERY_WITH_TYPE = "SELECT * FROM " +
             "EMPLOYEE e, " +
@@ -65,32 +67,39 @@ public class SqlQueryModifierTest {
             "UNION (SELECT * FROM EMPLOYEE e, Department d WHERE 1 = 1 " +
             "AND e.id = 2)";
 
-    private static final String PLAIN_SELECT_QUERY_WITH_ACL = "SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE " +
-    		"EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg " +
-    		"ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm " +
-    		"ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id AND r.object_id = EMPLOYEE.id)) " +
-    		"e, (SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
-    		"INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
-    		"gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id " +
-    		"AND r.object_id = Department.id)) d WHERE 1 = 1 AND e.id = 1";
+    private static final String PLAIN_SELECT_QUERY_WITH_ACL = "SELECT * FROM "
+            + "(SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r "
+            + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.person_id = :user_id AND rt.id = EMPLOYEE.id)) e, "
+            + "(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" "
+            + "FROM \"department_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.person_id = :user_id AND rt.id = Department.id)) d WHERE 1 = 1 AND e.id = 1";
 
-    private static final String UNION_QUERY_WITH_ACL = "(SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE " +
-    		"EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg " +
-    		"ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm " +
-    		"ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id " +
-    		"AND r.object_id = EMPLOYEE.id)) e, " +
-    		"(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
-    		"INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
-    		"gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id AND " +
-    		"r.object_id = Department.id)) d WHERE 1 = 1 AND e.id = 1) " +
-    		"UNION (SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE EXISTS (SELECT r.\"object_id\" FROM " +
-    		"\"employee_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
-    		"INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-    		"WHERE gm.person_id = :user_id AND r.object_id = EMPLOYEE.id)) e, " +
-    		"(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
-    		"INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
-    		"gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.person_id = :user_id AND r.object_id = " +
-    		"Department.id)) d WHERE 1 = 1 AND e.id = 2)";
+    private static final String UNION_QUERY_WITH_ACL = "(SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE "
+            + "WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r "
+            + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.person_id = :user_id AND rt.id = EMPLOYEE.id)) e, "
+            + "(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r "
+            + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.person_id = :user_id AND rt.id = Department.id)) d WHERE 1 = 1 AND e.id = 1) "
+            + "UNION (SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE EXISTS "
+            + "(SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.person_id = :user_id AND rt.id = EMPLOYEE.id)) e, (SELECT * FROM \"Department\" Department "
+            + "WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r "
+            + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
+            + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
+            + "WHERE gm.person_id = :user_id AND rt.id = Department.id)) d WHERE 1 = 1 AND e.id = 2)";
 
     private static final String WRAP_AND_LOWERCASE_QUERY = "SELECT module.Id, module.type_id " +
             "FROM SS_MODULE module " +
@@ -112,6 +121,7 @@ public class SqlQueryModifierTest {
     @Before
     public void setUp(){
         when(configurationExplorer.isReadPermittedToEverybody(anyString())).thenReturn(false);    
+        when(configurationExplorer.getDomainObjectRootType(anyString())).thenReturn("person");
     }
     
     @Test
