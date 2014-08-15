@@ -28,8 +28,8 @@ Thumbs.db
 .springBeans
 
 # Idea
-*.iml
-.idea
+**/*.iml
+**/.idea
 atlassian-ide-plugin.xml
 
 #MergeTool
