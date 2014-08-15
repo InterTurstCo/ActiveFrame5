@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/bootstrap.iml" filepath="$PROJECT_DIR$/bootstrap.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/client.iml" filepath="$PROJECT_DIR$/client.iml" group="client and modules" />
+      <module fileurl="file://$PROJECT_DIR$/cm-sochi.iml" filepath="$PROJECT_DIR$/cm-sochi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/configuration.iml" filepath="$PROJECT_DIR$/configuration.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/core.iml" filepath="$PROJECT_DIR$/core.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/dao-api.iml" filepath="$PROJECT_DIR$/dao-api.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/dao-impl.iml" filepath="$PROJECT_DIR$/dao-impl.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/dataset-generator.iml" filepath="$PROJECT_DIR$/dataset-generator.iml" group="performance and modules" />
+      <module fileurl="file://$PROJECT_DIR$/dataset-generator-client.iml" filepath="$PROJECT_DIR$/dataset-generator-client.iml" group="performance and modules" />
+      <module fileurl="file://$PROJECT_DIR$/ear.iml" filepath="$PROJECT_DIR$/ear.iml" />
+      <module fileurl="file://$PROJECT_DIR$/filenet-adapter.iml" filepath="$PROJECT_DIR$/filenet-adapter.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/gui-client-api.iml" filepath="$PROJECT_DIR$/gui-client-api.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/gui-client-impl.iml" filepath="$PROJECT_DIR$/gui-client-impl.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/gui-model.iml" filepath="$PROJECT_DIR$/gui-model.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/gui-rpc.iml" filepath="$PROJECT_DIR$/gui-rpc.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/gui-server-api.iml" filepath="$PROJECT_DIR$/gui-server-api.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/gui-server-impl.iml" filepath="$PROJECT_DIR$/gui-server-impl.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/it-test.iml" filepath="$PROJECT_DIR$/it-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jdbc.iml" filepath="$PROJECT_DIR$/jdbc.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/jmeter-tools.iml" filepath="$PROJECT_DIR$/jmeter-tools.iml" group="performance and modules" />
+      <module fileurl="file://$PROJECT_DIR$/model.iml" filepath="$PROJECT_DIR$/model.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/performance.iml" filepath="$PROJECT_DIR$/performance.iml" group="performance and modules" />
+      <module fileurl="file://$PROJECT_DIR$/remote-client.iml" filepath="$PROJECT_DIR$/remote-client.iml" group="client and modules" />
+      <module fileurl="file://$PROJECT_DIR$/service-api.iml" filepath="$PROJECT_DIR$/service-api.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/service-impl.iml" filepath="$PROJECT_DIR$/service-impl.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/test-module.iml" filepath="$PROJECT_DIR$/test-module.iml" />
+      <module fileurl="file://$PROJECT_DIR$/web-app.iml" filepath="$PROJECT_DIR$/web-app.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/workstation.iml" filepath="$PROJECT_DIR$/workstation.iml" />
+    </modules>
+  </component>
+</project>
+

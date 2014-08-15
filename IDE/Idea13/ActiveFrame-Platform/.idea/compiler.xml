@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <option name="DEFAULT_COMPILER" value="Javac" />
+    <resourceExtensions />
+    <wildcardResourcePatterns>
+      <entry name="!?*.java" />
+      <entry name="!?*.form" />
+      <entry name="!?*.class" />
+      <entry name="!?*.groovy" />
+      <entry name="!?*.scala" />
+      <entry name="!?*.flex" />
+      <entry name="!?*.kt" />
+      <entry name="!?*.clj" />
+    </wildcardResourcePatterns>
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="false">
+        <processorPath useClasspath="true" />
+      </profile>
+      <profile default="false" name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="bootstrap" />
+        <module name="configuration" />
+        <module name="dao-api" />
+        <module name="dao-impl" />
+        <module name="dataset-generator" />
+        <module name="dataset-generator-client" />
+        <module name="ear" />
+        <module name="filenet-adapter" />
+        <module name="gui-client-api" />
+        <module name="gui-client-impl" />
+        <module name="gui-model" />
+        <module name="gui-rpc" />
+        <module name="gui-server-api" />
+        <module name="gui-server-impl" />
+        <module name="it-test" />
+        <module name="jdbc" />
+        <module name="jmeter-tools" />
+        <module name="model" />
+        <module name="remote-client" />
+        <module name="service-api" />
+        <module name="service-impl" />
+        <module name="test-module" />
+        <module name="web-app" />
+        <module name="workstation" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="bootstrap" target="1.7" />
+      <module name="client" target="1.7" />
+      <module name="cm-sochi" target="1.7" />
+      <module name="configuration" target="1.7" />
+      <module name="core" target="1.7" />
+      <module name="dao-api" target="1.7" />
+      <module name="dao-impl" target="1.7" />
+      <module name="dataset-generator" target="1.7" />
+      <module name="dataset-generator-client" target="1.7" />
+      <module name="ear" target="1.7" />
+      <module name="filenet-adapter" target="1.7" />
+      <module name="gui-client-api" target="1.7" />
+      <module name="gui-client-impl" target="1.7" />
+      <module name="gui-model" target="1.7" />
+      <module name="gui-rpc" target="1.7" />
+      <module name="gui-server-api" target="1.7" />
+      <module name="gui-server-impl" target="1.7" />
+      <module name="it-test" target="1.7" />
+      <module name="jdbc" target="1.7" />
+      <module name="jmeter-tools" target="1.7" />
+      <module name="model" target="1.7" />
+      <module name="performance" target="1.7" />
+      <module name="remote-client" target="1.7" />
+      <module name="service-api" target="1.7" />
+      <module name="service-impl" target="1.7" />
+      <module name="test-module" target="1.7" />
+      <module name="web-app" target="1.7" />
+      <module name="workstation" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
+

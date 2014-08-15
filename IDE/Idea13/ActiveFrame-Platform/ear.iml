@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="javaeeApplication" name="JavaEE">
+      <configuration>
+        <descriptors>
+          <deploymentDescriptor name="application.xml" url="file://$MODULE_DIR$/../../../CM5/Ear/target/application.xml" />
+        </descriptors>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/../../../CM5/Ear/target/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../CM5/Ear/target/test-classes" />
+    <content url="file://$MODULE_DIR$/../../../CM5/Ear">
+      <sourceFolder url="file://$MODULE_DIR$/../../../CM5/Ear/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../CM5/Ear/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../CM5/Ear/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="web-app" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: postgresql:postgresql:9.2-1002.jdbc4" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.solr:solr:war:4.5.1" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.2" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:jcl-over-slf4j:1.7.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.10" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
+  </component>
+</module>
+
