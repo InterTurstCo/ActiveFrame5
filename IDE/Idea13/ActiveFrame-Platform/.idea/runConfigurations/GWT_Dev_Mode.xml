@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GWT Dev Mode" type="GWT.ConfigurationType" factoryName="GWT Configuration">
+    <module name="gui-client-impl" />
+    <option name="VM_PARAMETERS" value="-Xmx512m -Xmx2048m" />
+    <option name="SHELL_PARAMETERS" value="-noserver -port 8080 -war D:\intertrust\git\CM5SRC\IDE\Idea13\ActiveFrame-Platform\out\artifacts\EAR_GWT_Dev_Mode.ear\web-app.war\" />
+    <option name="RUN_PAGE" value="cm-sochi/BusinessUniverse.html" />
+    <RunnerSettings RunnerId="Run" />
+    <ConfigurationWrapper RunnerId="Run" />
+    <method>
+      <option name="Maven.BeforeRunTask" enabled="true" file="$PROJECT_DIR$/../../../CM5/Core/gui-client-api/pom.xml" goal="process-resources" />
+    </method>
+  </configuration>
+</component>

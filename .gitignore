@@ -30,7 +30,8 @@ Thumbs.db
 # Idea
 **/*.iml
 **/.idea
-IDE/
+**/.idea/workspace.xml
+**/.idea/tasks.xml
 atlassian-ide-plugin.xml
 
 #MergeTool
