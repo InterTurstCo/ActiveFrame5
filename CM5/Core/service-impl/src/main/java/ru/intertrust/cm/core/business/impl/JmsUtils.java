@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public class JmsUtils {
 
-    private static final String CONNECTION_FACTORY = "ConnectionFactory";
+    private static final String CONNECTION_FACTORY = "LocalConnectionFactory";
 
     public static void sendTopicMessage(Object objectMessage, String queueName) throws JMSException, NamingException {
         InitialContext initialContext = new InitialContext();

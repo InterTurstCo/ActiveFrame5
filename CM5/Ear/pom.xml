@@ -353,6 +353,42 @@
                                     </execute-commands>                                
                                 </configuration>
                             </execution>
+                            <execution>
+                                <id>config-jms</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>execute-commands-ex</goal>
+                                </goals>
+                                <configuration>
+                                    <execute-commands>
+                                        <ignoreException>true</ignoreException>
+                                        <commands>
+                                            <command>
+                                                /extension=org.jboss.as.messaging:add
+                                            </command>
+                                            <command>
+                                                /subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="RemoteConnectionFactory")
+                                            </command>
+                                            <command>
+                                                /subsystem=ejb3:write-attribute(name="default-mdb-instance-pool", value="mdb-strict-max-pool")
+                                            </command>
+                                            <command>
+                                                <![CDATA[
+                                                /:composite(steps=[{"operation"=>"add","address"=>[("socket-binding-group"=>"standard-sockets"),("socket-binding"=>"messaging")],"port"=>5445}])
+                                                ]]>
+                                            </command>
+                                            <command>
+                                                <![CDATA[
+                                                /:composite(steps=[{"operation"=>"add","address"=>[("subsystem"=>"messaging")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default")],"persistence-enabled"=>"true","security-enabled"=>"false","journal-file-size"=>102400L,"journal-min-files"=>2},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("address-setting"=>"#")],"address-full-policy"=>"BLOCK","dead-letter-address"=>"jms.queue.DLQ","expiry-address"=>"jms.queue.ExpiryQueue","max-size-bytes"=>10485760,"message-counter-history-day-limit"=>10,"redelivery-delay"=>5000,"max-delivery-attempts"=>3},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("pooled-connection-factory"=>"RemoteConnectionFactory")],"connector"=>{"in-vm"=>undefined},"entries"=>["java:/RemoteConnectionFactory","java:jboss/exported/jms/RemoteConnectionFactory"],"transaction"=>"xa"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("connection-factory"=>"LocalConnectionFactory")],"connector"=>{"netty"=>undefined},"entries"=>["java:/LocalConnectionFactory","java:jboss/exported/jms/LocalConnectionFactory"]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-connector"=>"in-vm")],"server-id"=>0},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-connector"=>"netty")],"socket-binding"=>"messaging"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#"),("role"=>"guest")],"consume"=>true,"create-durable-queue"=>false,"create-non-durable-queue"=>true,"delete-durable-queue"=>false,"delete-non-durable-queue"=>true,"manage"=>false,"send"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-acceptor"=>"in-vm")],"server-id"=>0,"started"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-acceptor"=>"netty")],"socket-binding"=>"messaging","started"=>true}])
+                                                ]]>
+                                            </command>
+                                            <command>
+                                                jms-topic add --topic-address=ConfigurationUpdateTopic --entries=topic/ConfigurationUpdateTopic
+                                            </command>
+                                        </commands>
+                                    </execute-commands>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
@@ -384,7 +420,7 @@
                     <plugin>
                         <groupId>ru.intertrust.dev</groupId>
                         <artifactId>maven-plugin-jboss-as-ex</artifactId>
-                        <version>0.0.2</version>
+                        <version>0.0.3</version>
                         <configuration>
                             <hostname>localhost</hostname>
                             <port>9999</port>
@@ -489,6 +525,42 @@
                                             <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:write-attribute(name=value, value=true)</command>                                            
                                             <command>/subsystem=deployment-scanner/scanner=default:write-attribute(name=deployment-timeout, value=3600)</command>
                                             <command>/subsystem=ejb3:write-attribute(name=default-missing-method-permissions-deny-access, value=false)</command>
+                                        </commands>
+                                    </execute-commands>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>config-jms</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>execute-commands-ex</goal>
+                                </goals>
+                                <configuration>
+                                    <execute-commands>
+                                        <ignoreException>true</ignoreException>
+                                        <commands>
+                                            <command>
+                                                /extension=org.jboss.as.messaging:add
+                                            </command>
+                                            <command>
+                                                /subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="RemoteConnectionFactory")
+                                            </command>
+                                            <command>
+                                                /subsystem=ejb3:write-attribute(name="default-mdb-instance-pool", value="mdb-strict-max-pool")
+                                            </command>
+                                            <command>
+                                                <![CDATA[
+                                                /:composite(steps=[{"operation"=>"add","address"=>[("socket-binding-group"=>"standard-sockets"),("socket-binding"=>"messaging")],"port"=>5445}])
+                                                ]]>
+                                            </command>
+                                            <command>
+                                                <![CDATA[
+                                                /:composite(steps=[{"operation"=>"add","address"=>[("subsystem"=>"messaging")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default")],"persistence-enabled"=>"true","security-enabled"=>"false","journal-file-size"=>102400L,"journal-min-files"=>2},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("address-setting"=>"#")],"address-full-policy"=>"BLOCK","dead-letter-address"=>"jms.queue.DLQ","expiry-address"=>"jms.queue.ExpiryQueue","max-size-bytes"=>10485760,"message-counter-history-day-limit"=>10,"redelivery-delay"=>5000,"max-delivery-attempts"=>3},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("pooled-connection-factory"=>"RemoteConnectionFactory")],"connector"=>{"in-vm"=>undefined},"entries"=>["java:/RemoteConnectionFactory","java:jboss/exported/jms/RemoteConnectionFactory"],"transaction"=>"xa"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("connection-factory"=>"LocalConnectionFactory")],"connector"=>{"netty"=>undefined},"entries"=>["java:/LocalConnectionFactory","java:jboss/exported/jms/LocalConnectionFactory"]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-connector"=>"in-vm")],"server-id"=>0},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-connector"=>"netty")],"socket-binding"=>"messaging"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#"),("role"=>"guest")],"consume"=>true,"create-durable-queue"=>false,"create-non-durable-queue"=>true,"delete-durable-queue"=>false,"delete-non-durable-queue"=>true,"manage"=>false,"send"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-acceptor"=>"in-vm")],"server-id"=>0,"started"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-acceptor"=>"netty")],"socket-binding"=>"messaging","started"=>true}])
+                                                ]]>
+                                            </command>
+                                            <command>
+                                                jms-topic add --topic-address=ConfigurationUpdateTopic --entries=topic/ConfigurationUpdateTopic
+                                            </command>
                                         </commands>
                                     </execute-commands>
                                 </configuration>
