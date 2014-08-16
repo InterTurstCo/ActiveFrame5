@@ -204,6 +204,7 @@ html>body .gwt-SuggestBoxPopup {
     vertical-align: middle;
     width: 100%;
     margin: 5px 0;
+    padding-right: 2px;
 }
 
 td .gwt-SuggestBox {

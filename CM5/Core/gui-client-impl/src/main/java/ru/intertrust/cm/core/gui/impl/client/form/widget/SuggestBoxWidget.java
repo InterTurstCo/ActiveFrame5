@@ -3,10 +3,9 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.*;
@@ -26,6 +25,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNone
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -169,6 +169,10 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
     }
 
     public class CmjDefaultSuggestionDisplay extends SuggestBox.DefaultSuggestionDisplay {
+        public CmjDefaultSuggestionDisplay() {
+            setSuggestionListHiddenWhenEmpty(false);
+
+        }
         public PopupPanel getSuggestionPopup() {
             return this.getPopupPanel();
         }
@@ -180,7 +184,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
         commonInitialization((SuggestBoxState) state);
         final SuggestPresenter presenter = new SuggestPresenter();
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
-        suggestBox = new SuggestBox(oracle, new TextBox(), new CmjDefaultSuggestionDisplay());
+        final CmjDefaultSuggestionDisplay defaultSuggestionDisplay = new CmjDefaultSuggestionDisplay();
+        suggestBox = new SuggestBox(oracle, new TextBox(), defaultSuggestionDisplay);
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
 
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
@@ -201,12 +206,27 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             }
         });
         Event.sinkEvents(suggestBox.getElement(), Event.ONBLUR);
-        suggestBox.addHandler(new BlurHandler() {
+        final PopupPanel suggestPopupPanel = defaultSuggestionDisplay.getSuggestionPopup();
+               suggestPopupPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
-            public void onBlur(BlurEvent event) {
-                validate();
+            public void onClose(CloseEvent<PopupPanel> event) {
+
+              if(event.isAutoClosed()){
+                  suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+              }
             }
-        }, BlurEvent.getType());
+        });
+
+        suggestBox.addKeyPressHandler(new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                if(event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
+                    if(!suggestPopupPanel.isShowing()) {
+                        suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+                    }
+                }
+            }
+        });
 
         display = (CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
         display.setPositionRelativeTo(presenter);
