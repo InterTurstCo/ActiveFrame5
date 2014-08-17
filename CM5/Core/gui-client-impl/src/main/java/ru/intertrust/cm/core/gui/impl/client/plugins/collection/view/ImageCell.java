@@ -10,14 +10,26 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
  *         Time: 12:05 PM
  */
 public class ImageCell extends AbstractCell<String> {
+    private String imageWidth;
+    private String imageHeight;
 
     public ImageCell() {
+
+    }
+    public ImageCell(String imageWidth, String imageHeight) {
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
 
     }
 
     @Override
     public void render(com.google.gwt.cell.client.Cell.Context context, String imagePath, SafeHtmlBuilder sb) {
-        sb.append(SafeHtmlUtils.fromTrustedString("<div/><img src=" + imagePath + "></div>"));
+        StringBuilder html = new StringBuilder("<div/><img width=");
+        html.append(imageWidth);
+        html.append(" height=");
+        html.append(imageHeight);
+        html.append("; src=" + imagePath + "></div>");
+        sb.append(SafeHtmlUtils.fromTrustedString(html.toString()));
     }
 
 }

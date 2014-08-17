@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
@@ -27,7 +28,9 @@ public class ColumnFormatter {
         RendererConfig rendererConfig = columnProperties.getRendererConfig();
         if (rendererConfig != null) {
             DefaultImageRenderer renderer = ComponentRegistry.instance.get(rendererConfig.getValue());
-            collectionColumn = renderer.getImageColumn(field);
+            ImageMappingsConfig mappingsConfig = columnProperties.getImageMappingsConfig();
+            collectionColumn = renderer.getImageColumn(mappingsConfig);
+            collectionColumn.setFieldName(field);
             collectionColumn.setResizable(resizable);
         } else {
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);

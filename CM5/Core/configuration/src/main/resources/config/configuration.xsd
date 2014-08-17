@@ -2390,6 +2390,8 @@
             <xs:element type="con:mappingType" name="mapping"
                         maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
+        <xs:attribute type="xs:string" name="imageWidth" use="optional"/>
+        <xs:attribute type="xs:string" name="imageHeight" use="optional"/>
     </xs:complexType>
 
     <xs:simpleType name="textBreakStyleType">

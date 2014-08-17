@@ -22,4 +22,8 @@ public class ModelConstants {
     public static final int INIT_ROWS_NUMBER = 55;
     public static final int ONE_ROW_SIZE = 10;
 
+    //collection image sizes
+    public static final String COLLECTION_IMAGE_WIDTH = "25px";
+    public static final String COLLECTION_IMAGE_HEIGHT = "25px";
+
 }

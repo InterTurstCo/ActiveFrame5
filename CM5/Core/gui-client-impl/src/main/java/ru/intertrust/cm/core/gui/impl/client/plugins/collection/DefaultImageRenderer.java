@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.ImageCell;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -10,10 +11,12 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
  *         Time: 12:05 PM
  */
 @ComponentName("default.image.renderer")
-public class DefaultImageRenderer implements Component{
-    public CollectionColumn getImageColumn(String fieldName) {
-        ImageCollectionColumn imageColumn = new ImageCollectionColumn(new ImageCell());
-        imageColumn.setFieldName(fieldName);
+public class DefaultImageRenderer implements ImageCellRenderer{
+    public CollectionColumn getImageColumn(ImageMappingsConfig imageMappingsConfig) {
+        String imageWidth = imageMappingsConfig.getImageWidth();
+        String imageHeight = imageMappingsConfig.getImageHeight();
+        ImageCollectionColumn imageColumn = new ImageCollectionColumn(new ImageCell(imageWidth, imageHeight));
+
         return imageColumn;
     }
 
