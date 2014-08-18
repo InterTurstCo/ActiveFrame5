@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
     private AbsolutePanel footer;
     private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
+    private HashMap<String, BaseWidget> widgetsById;
     private FlowPanel panel;
     private boolean isHeightFromConfig;
     private boolean isWidthFromConfig;
@@ -99,13 +101,28 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         return false;
     }
 
+    @Override
+    public <T extends BaseWidget> T getWidget(String id) {
+        if (widgetsById != null) {
+            return (T) widgetsById.get(id);
+        }
+        if (widgets == null) {
+            return null;
+        }
+        widgetsById = new HashMap<>(widgets.size());
+        for (BaseWidget widget : widgets) {
+            widgetsById.put(widget.getDisplayConfig().getId(), widget);
+        }
+        return (T) widgetsById.get(id);
+    }
+
     private FlowPanel build() {
 
 
         if (isExtraStyleRequired()) {
             panel.setStyleName("frm-pnl-top");
         }
-        widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
+        widgets = new ArrayList<>(formDisplayData.getFormState().getFullWidgetsState().size());
         MarkupConfig markup = formDisplayData.getMarkup();
         if (markup.getHeader().getTableLayout() != null) {
             IsWidget headerTable = buildHeader(markup);

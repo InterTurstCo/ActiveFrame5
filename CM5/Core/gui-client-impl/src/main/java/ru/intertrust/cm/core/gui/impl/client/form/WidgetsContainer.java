@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form;
 
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 
 /**
  * @author Denis Mitavskiy
@@ -17,4 +18,6 @@ public abstract class WidgetsContainer {
     public void setPlugin(Plugin plugin) {
         this.plugin = plugin;
     }
+
+    public abstract <T extends BaseWidget> T getWidget(String id);
 }
