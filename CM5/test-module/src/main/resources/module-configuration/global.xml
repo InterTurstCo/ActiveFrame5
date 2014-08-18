@@ -12,8 +12,8 @@
         </search-languages>
     </global-settings>
     <business-universe>
-        <login-screen display-product-version="false" display-core-version="false">
-                <product-title style="image" image="css/images/cm-logo.png"/>
+        <login-screen display-product-version="true" display-core-version="true">
+                <product-title style="text" image="css/images/cm-logo.png"/>
         </login-screen>
         <logo image="images/logo.png"/>
         <settings-popup>

@@ -91,17 +91,25 @@ public class HeaderContainer extends SimplePanel {
         //decoratedHelp.add(help);
         decoratedHelp.add(versionImage);
 
-        popupPanel = new PopupPanel();
+        popupPanel = new PopupPanel(true, false);
         infoPanel = new AbsolutePanel();
+        AbsolutePanel corner = new AbsolutePanel();
+        corner.setStyleName("srch-corner");
+        corner.getElement().getStyle().clearPosition();
+        AbsolutePanel contentInfo = new AbsolutePanel();
+        contentInfo.setStyleName("popupWrapper");
+        contentInfo.getElement().getStyle().clearOverflow();
+        contentInfo.add(corner);
+        contentInfo.add(infoPanel);
         infoPanel.setStyleName("info-panel");
         infoPanel.add(new Label("   CORE: " + version.getCoreVersion()));
         infoPanel.add(new Label("PRODUCT: " + version.getProductVersion()));
-        popupPanel.add(infoPanel);
-        popupPanel.getElement().addClassName("application-version");
-        popupPanel.getElement().getStyle().setBorderStyle(Style.BorderStyle.SOLID);
-        popupPanel.getElement().getStyle().setZIndex(99);
-        popupPanel.getElement().getStyle().setBackgroundColor("whitesmoke");
-        popupPanel.getElement().getStyle().setBorderColor("black");
+        popupPanel.add(contentInfo);
+
+        popupPanel.getElement().setClassName("applicationVersionWindows popupWindow");
+
+//        popupPanel.getElement().getStyle().setRight(72, Style.Unit.PX);
+//        popupPanel.getElement().getStyle().setTop(55, Style.Unit.PX);
 
         versionImage.addClickHandler(new ClickHandler() {
             @Override
@@ -109,6 +117,10 @@ public class HeaderContainer extends SimplePanel {
 
                 if (!popupPanel.isShowing()) {
                     popupPanel.showRelativeTo(versionImage);
+                    //popupPanel.show();
+                    popupPanel.getElement().getStyle().clearLeft();
+                    popupPanel.getElement().getStyle().clearTop();
+
                 } else {
                     popupPanel.hide();
                 }

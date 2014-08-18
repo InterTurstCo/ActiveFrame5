@@ -37,17 +37,6 @@
     overflow: visible !important;
 }
 
-.srch-corner {
-    width: 27px;
-    height: 15px;
-    display: block;
-    z-index: 999;
-    background: url(images/bubble_arrow.png);
-    position: absolute !important;
-    top: -15px;
-    right: 70px;
-}
-
 .srch-wrapper {
     width: 100%;
     height: 100%;

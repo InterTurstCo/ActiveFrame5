@@ -2,9 +2,15 @@ package ru.intertrust.cm.core.gui.impl.authentication;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.storage.client.Storage;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -34,10 +40,13 @@ public class LoginWindow  implements Component{
     private AbsolutePanel rootPanel;
     private AbsolutePanel enterPanel;
     private AbsolutePanel loginAndPasswordPanel;
+    private AbsolutePanel versionPanel;
     private String coreVersion = "";
     private String productVersion = "";
     private String textApplicationLogo = "";
     private String authSmallLogo = "auth_small_logo";
+    private String coreVersionPrefix = "";
+    private String productVersionPrefix = "";
 
     public String getVersion() {
         return coreVersion;
@@ -68,6 +77,7 @@ public class LoginWindow  implements Component{
         //String version = "";
         loginDialog = new DialogBox();
         loginDialog.getElement().addClassName("auth-DialogBox");
+
         //loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
 
         //loginDialog.setText(" Аутентификация");
@@ -121,7 +131,6 @@ public class LoginWindow  implements Component{
 //        enterPanel.setStyleName("dark-button");
         AbsolutePanel languagePanel = new AbsolutePanel();
         languagePanel.setStyleName("auth_language");
-
         rootPanel.add(decoratedContentPanel);
         decoratedContentPanel.add(message);
 
@@ -144,6 +153,10 @@ public class LoginWindow  implements Component{
         memoryPanel.add(memoryCheckbox);
         memoryPanel.add(labelCheckBox);
         loginDialog.add(rootPanel);
+        versionPanel = new AbsolutePanel();
+        versionPanel.setStyleName("versionPanel");
+        //rootPanel.add(versionPanel);
+
 
         loginDialog.addDomHandler(new KeyDownHandler() {
             @Override
@@ -189,11 +202,13 @@ public class LoginWindow  implements Component{
                     ProductTitleConfig productTitleConfig = logoConfig.getProductTitleConfig();
 
                     if(logoConfig.isDisplaycoreVersion()){
-                        coreVersion = "core v. " + loginWindowInitialization.getVersion();
+                        coreVersion =  loginWindowInitialization.getVersion();
+                        coreVersionPrefix = "Версия платформы: ";
                     }
 
                     if(logoConfig.isDisplayProductVersion()){
-                        productVersion = "product v. " + loginWindowInitialization.getProductVersion();
+                        productVersion = loginWindowInitialization.getProductVersion();
+                        productVersionPrefix = "Версия: ";
                     }
 
                     if(productTitleConfig.getStyle().equals("text")){
@@ -212,8 +227,22 @@ public class LoginWindow  implements Component{
                     }
 
                 }
+                loginDialog.setHTML("<div class='loginLogo'>" + authSmallLogo + textApplicationLogo + " </div>" );
+//                                    "<div class = 'coreVersion auth_version'>" + coreVersionPrefix + "<span class = ''>" + coreVersion + "</span></div>" +
+//                                    "<div class = 'productVersion auth_version'>" + productVersionPrefix + "<span class = ''>" + productVersion + "</span>" + "</span></div>");
+                com.google.gwt.dom.client.Node node = loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().getLastChild();
+                Element divCoreVersion = DOM.createDiv();
+                divCoreVersion.setClassName("versionCore");
 
-                loginDialog.setHTML("<span>" + authSmallLogo + textApplicationLogo + " </span>" + "<span class = 'auth_version'>" + coreVersion + productVersion+"</span>");
+                Element divPlatformVersion = DOM.createDiv();
+                divPlatformVersion.setClassName("versionPlatform");
+
+                divPlatformVersion.setInnerHTML(productVersionPrefix + "<span>" + productVersion + "</span>");
+                divCoreVersion.setInnerHTML(coreVersionPrefix + "<span>" + coreVersion + "</span>");
+
+                loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divCoreVersion);
+                loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divPlatformVersion);
+
             }
 
             @Override

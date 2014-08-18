@@ -2585,6 +2585,11 @@ td.datePickerMonth {
     top: 55px !important;
 }
 
+.applicationVersionWindows {
+    right: 72px !important;
+    top: 55px !important;
+}
+
 .loading-attachment {
     display: inline-block;
 }

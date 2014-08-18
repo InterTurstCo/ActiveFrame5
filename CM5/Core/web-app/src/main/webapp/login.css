@@ -16,6 +16,16 @@ body {
     margin: 0 5px 0 6px;
 }
 
+.auth-DialogBox .loginLogo {
+    color: #4d5c94;
+    cursor: default;
+    font: 25px/40px Arial, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(140, 140, 140, 0.5);
+    width: 100%;
+}
+
 .auth_version {
     color: #4d5c94;
     font-weight: bold;
@@ -30,6 +40,10 @@ body {
     box-shadow: 0 0 10px 1px rgba(0, 0, 0, .4);
     clip: auto !important;
     padding: 10px;
+}
+
+.auth-DialogBox .dialogBottomCenterInner {
+    margin-left: 25px;
 }
 
 .auth_LoginPage_wrapper {
@@ -184,4 +198,16 @@ body {
 .clearUserSettings {
     float: left;
     margin: 10px 10px 10px 0;
+}
+
+.versionCore,
+.versionPlatform {
+    color: #0874b6;
+    font: 12px/17px Arial, sans-serif;
+}
+
+.versioncore span,
+.versionPlatform span {
+    color: #4d5c94;
+    font-weight: bold;
 }
