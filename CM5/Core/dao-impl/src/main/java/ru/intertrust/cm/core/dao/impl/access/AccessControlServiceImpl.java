@@ -8,7 +8,10 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.sun.accessibility.internal.resources.accessibility_zh_TW;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -34,6 +37,7 @@ import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.access.SystemSubject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.AccessException;
 
 /**
@@ -62,6 +66,8 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     /**
      * Устанавливает программный агент, которому делегируются функции физической проверки прав доступа
@@ -152,7 +158,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
         String domainObjectType = domainObject.getTypeName();
         
-        Boolean isAllowed = isAllowedToCreateByDynamicGroupsAndRoles(domainObject, personId, personIdInt);
+        Boolean isAllowed = isAllowedToCreateByDynamicGroupsAndRoles(domainObject, personId);
 
         if (isAllowed) {
             return new DomainObjectCreateToken(new UserSubject(personIdInt),
@@ -166,7 +172,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         throw new AccessException("Creation of object " + domainObjectType + " is not allowed for " + login);
     }
 
-    private Boolean isAllowedToCreateByDynamicGroupsAndRoles(DomainObject domainObject, Id personId, Integer personIdInt) {        
+    private Boolean isAllowedToCreateByDynamicGroupsAndRoles(DomainObject domainObject, Id personId) {        
         String domainObjectType = domainObject.getTypeName();
         DomainObjectTypeConfig domainObjectTypeConfig =
                 configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
@@ -300,9 +306,11 @@ public class AccessControlServiceImpl implements AccessControlService {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
-        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(personIdInt, objectId, types); if (requireAll ?
-        granted.length < types.length : granted.length == 0) { throw new AccessException(); }
-
+        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(personIdInt, objectId, types);
+        if (requireAll ?
+                granted.length < types.length : granted.length == 0) {
+            throw new AccessException();
+        }
         
         AccessToken token = new MultiTypeAccessToken(new UserSubject(personIdInt), objectId, types);
         return token;
@@ -374,7 +382,7 @@ public class AccessControlServiceImpl implements AccessControlService {
          */
         abstract boolean allowsAccess(Id objectId, AccessType type);
     }
-
+    
     /**
      * Маркер доступа для простых операций с доменными объектами &mdash; чтения, изменения и удаления.
      * Поддерживают опцию отложенности.
@@ -564,5 +572,29 @@ public class AccessControlServiceImpl implements AccessControlService {
         boolean allowsAccess(Id objectId, AccessType type) {
             return true; // Разрешает любой доступ к любому объекту
         }
-    }    
+    }
+
+    @Override
+    public void verifyDeferredAccessToken(AccessToken token, Id objectId, AccessType type) throws AccessException {
+        SimpleAccessToken simpleToken = (SimpleAccessToken) token;
+
+        UserSubject subject = (UserSubject) simpleToken.getSubject();
+        int personIdInt = subject.getUserId();
+        Id personId = new RdbmsId(personIdInt, domainObjectTypeIdCache.getId(GenericDomainObject.PERSON_DOMAIN_OBJECT));
+
+        boolean isSuperUser = isPersonSuperUser(personId);
+
+        if (isSuperUser) {
+            return;
+        }
+
+        if (token.isDeferred()) {
+            if (DomainObjectAccessType.READ.equals(type)) {
+                if (!databaseAgent.checkDomainObjectReadAccess(personIdInt, objectId)) {
+                    throw new AccessException("Read permission to " + objectId + " is denied for user " + personId);
+                }
+
+            }
+        }
+    }
 }

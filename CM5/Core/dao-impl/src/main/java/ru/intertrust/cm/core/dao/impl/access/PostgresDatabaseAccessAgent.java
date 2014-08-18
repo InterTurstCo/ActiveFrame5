@@ -87,6 +87,18 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return result > 0;
     }
 
+    @Override
+    public boolean checkDomainObjectReadAccess(int userId, Id objectId) {
+        RdbmsId id = (RdbmsId) objectId;
+        
+        String query = getQueryForCheckDomainObjectReadAccess(id);
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("user_id", userId);
+        parameters.put("object_id", id.getId());
+        Integer result = jdbcTemplate.queryForObject(query, parameters, Integer.class);
+        return result > 0;
+    }
+
     /**
      * Метод получает права, которые необходимо проверить с учетом мапинга прав в случае заимствования прав
      * @param type права которые проверяются
@@ -127,6 +139,26 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.")
                 .append(DaoUtils.wrap("id")).append(" = :object_id and a.")
                 .append(DaoUtils.wrap("operation")).append(" in (:operation)");
+        return query.toString();
+    }
+
+    private String getQueryForCheckDomainObjectReadAccess(RdbmsId id) {
+        String domainObjectAclReadTable = getAclReadTableName(id);
+        String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
+                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjetcTypeIdCache.getName(id.getTypeId()))); 
+        
+        StringBuilder query = new StringBuilder();
+        
+        query.append("select count(*) from ").append(DaoUtils.wrap(domainObjectAclReadTable)).append(" a ");
+        query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.").append(DaoUtils.wrap("group_id"))
+                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
+        query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
+                .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
+        //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
+        query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on o.").append(DaoUtils.wrap("access_object_id"))
+                .append(" = a.").append(DaoUtils.wrap("object_id"));        
+        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.")
+                .append(DaoUtils.wrap("id")).append(" = :object_id ");
         return query.toString();
     }
 
@@ -185,7 +217,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
 
     private String getQueryForCheckMultiDomainObjectAccess(String domainObjectType) {
-        String domainObjectAclTable = getAclTableNameFor(domainObjectType);
+        String domainObjectAclTable = AccessControlUtility.getAclTableNameFor(domainObjectType);
 
         StringBuilder query = new StringBuilder();
         
@@ -248,14 +280,26 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private String getAclTableName(RdbmsId id) {
         String domainObjectTable = domainObjetcTypeIdCache.getName(id.getTypeId());
         
-        //Проверяем нет ли заимствования прав и в случае наличия подменяем тип откуда берем права
-        String martixRef = configurationExplorer.getMatrixReferenceTypeName(domainObjectTable);
-        if (martixRef != null){
-            //Получаем реальный тип объекта у которого заимствуются права, для этого делаем запрос к martixRef и пол
-            domainObjectTable = getMatrixRefType(domainObjectTable, martixRef, id); 
-        }
+        domainObjectTable = getDomainObjectTypeWithInheritedAccess(id, domainObjectTable);
         
-        return getAclTableNameFor(domainObjectTable);
+        return AccessControlUtility.getAclTableNameFor(domainObjectTable);
+    }
+
+    private String getDomainObjectTypeWithInheritedAccess(RdbmsId id, String sourceObjectType) {
+        String domainObjectTable = sourceObjectType;
+        // Проверяем нет ли заимствования прав и в случае наличия подменяем тип откуда берем права
+        String martixRef = configurationExplorer.getMatrixReferenceTypeName(sourceObjectType);
+        if (martixRef != null) {
+            // Получаем реальный тип объекта у которого заимствуются права, для этого делаем запрос к martixRef и пол
+            domainObjectTable = getMatrixRefType(sourceObjectType, martixRef, id);
+        }
+        return domainObjectTable;
+    }
+
+    private String getAclReadTableName(RdbmsId id) {
+        String domainObjectTable = domainObjetcTypeIdCache.getName(id.getTypeId());
+        domainObjectTable = getDomainObjectTypeWithInheritedAccess(id, domainObjectTable);
+        return AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectTable);
     }
 
     /**
@@ -285,10 +329,6 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return domainObjetcTypeIdCache.getName(typeId);
     }
     
-    private String getAclTableNameFor(String domainObjectTable) {
-        return getSqlName(domainObjectTable + PostgreSqlQueryHelper.ACL_TABLE_SUFFIX);
-    }
-
     public static String makeAccessTypeCode(AccessType type) {
         // Разрешения на чтение хранятся в отдельной таблице, поэтому код "R" не используется
         /*if (DomainObjectAccessType.READ.equals(type)) {
@@ -374,9 +414,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             return true;
         }
 
-        String query =
-                "select gm.person_id, gm.person_id_type from group_member gm inner join user_group ug on gm.usergroup = ug.id " +
-                        "inner join group_group gg on (gg.child_group_id = gm.usergroup) where ug.group_name in (:groups)";
+        String query = "select gm.person_id, gm.person_id_type from group_member gm " +
+        		"inner join group_group gg on (gg.child_group_id = gm.usergroup) " +
+        		"inner join user_group ug on gg.parent_group_id = ug.id where ug.group_name in (:groups)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("groups", userGroups);
 

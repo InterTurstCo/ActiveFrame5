@@ -40,7 +40,7 @@ public interface AccessControlService {
      */
     AccessToken createAccessToken(String login, Id objectId, AccessType type)
             throws AccessException;
-
+    
     /**
      * Формирует маркер доступа на чтение коллекции для заданного пользователя. 
      * Список идентификаторов доменных объектов не передается, так как он не известен на этом этапе.
@@ -145,4 +145,13 @@ public interface AccessControlService {
      * @throws AccessException
      */
     AccessToken createDomainObjectCreateToken(String login, DomainObject domainObject) throws AccessException;
+    
+    /**
+     * Проверка прав для отложенного маркера доступа. Этот метод могут вызывать севрисы, получившие отложенный маркер
+     * доступа, если невозможно(сложно) встроить проверки в собственные запросы.
+     * @param token отложенный маркер доступа
+     * @throws AccessException
+     */
+    void verifyDeferredAccessToken(AccessToken token, Id objectId, AccessType type) throws AccessException;
+    
 }

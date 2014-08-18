@@ -23,6 +23,14 @@ public interface DatabaseAccessAgent {
     boolean checkDomainObjectAccess(int userId, Id objectId, AccessType type);
 
     /**
+     * Проверяет доступ на чтение заданного пользователя к заданному объекту.
+     * @param userId Идентификатор пользователя
+     * @param objectId Идентификатор доменного объекта
+     * @return true если пользователь имеет разрешение на чтение к запрошенному объекту
+     */
+    public boolean checkDomainObjectReadAccess(int userId, Id objectId);    
+
+    /**
      * Проверяет доступ заданного типа заданного пользователя к заданным объектам.
      * 
      * @param userId Идентификатор пользователя
