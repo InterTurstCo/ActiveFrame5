@@ -245,6 +245,34 @@
     margin: 4px 0 0 0;
     width: 35px;
 }
+.form-full-size-on{
+    background: url("resources/defaulttheme/images/icons/form-fullsize-on.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+.form-full-size-off{
+    background: url("resources/defaulttheme/images/icons/form-fullsize-off.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+.favorite-panel-on{
+    background: url("resources/defaulttheme/images/icons/favorite-panel-on.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+.favorite-panel-on{
+    background: url("resources/defaulttheme/images/icons/favorite-panel-off.png") no-repeat 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
 
 /*.gwt-MenuItem:hover .actionBar-edit {*/
 /*background: url("resources/defaulttheme/images/icons/edit.png") no-repeat 0 -35px;*/

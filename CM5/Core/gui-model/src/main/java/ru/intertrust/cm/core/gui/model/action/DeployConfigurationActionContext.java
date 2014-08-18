@@ -10,7 +10,7 @@ import java.util.List;
  *         Date: 03.06.14
  *         Time: 17:15
  */
-public class DeployConfigurationActionContext extends ActionContext {
+public class DeployConfigurationActionContext extends ToggleActionContext {
     private List<AttachmentItem> attachmentItems;
     public DeployConfigurationActionContext() {
     }

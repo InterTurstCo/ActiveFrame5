@@ -46,3 +46,48 @@
     width: auto;
 
 }
+@sprite .formFullSizeOn{
+    gwt-image: "formFullSizeOnActionIm";
+    background-repeat:no-repeat;
+    background-position: 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+@sprite .formFullSizeOff{
+    gwt-image: "formFullSizeOffActionIm";
+    background-repeat:no-repeat;
+    background-position: 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+@sprite .favoritePanelOn{
+    gwt-image: "favoritePanelOnActionIm";
+    background-repeat:no-repeat;
+    background-position: 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+@sprite .favoritePanelOff{
+    gwt-image: "favoritePanelOffActionIm";
+    background-repeat:no-repeat;
+    background-position: 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+@sprite .configurationUploader{
+    gwt-image: "favoritePanelOnActionIm";
+    background-repeat:no-repeat;
+    background-position: 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}

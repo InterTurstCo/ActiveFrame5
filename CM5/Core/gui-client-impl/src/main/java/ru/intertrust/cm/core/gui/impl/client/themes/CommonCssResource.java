@@ -18,4 +18,19 @@ public interface CommonCssResource extends CssResource {
     String errorDialogIm();
 
     String confirmDialogIm();
+
+    @ClassName("favoritePanelOn")
+    String favoritePanelOn();
+
+    @ClassName("formFullSizeOn")
+    String formFullSizeOn();
+
+    @ClassName("formFullSizeOff")
+    String formFullSizeOff();
+
+    @ClassName("favoritePanelOff")
+    String favoritePanelOff();
+
+    @ClassName("configurationUploader")
+    String configurationUploader();
 }

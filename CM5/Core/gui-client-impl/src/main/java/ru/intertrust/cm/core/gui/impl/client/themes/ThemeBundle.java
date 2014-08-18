@@ -41,6 +41,18 @@ public interface ThemeBundle extends ClientBundle {
     @ClientBundle.Source("images/infoDialogDefIm.png")
     ImageResource infoDialogIm();
 
+    @ClientBundle.Source("images/form-fullsize-on.png")
+    ImageResource formFullSizeOnActionIm();
+
+    @ClientBundle.Source("images/form-fullsize-off.png")
+    ImageResource formFullSizeOffActionIm();
+
+    @ClientBundle.Source("images/favorite-panel-on.png")
+    ImageResource favoritePanelOnActionIm();
+
+    @ClientBundle.Source("images/favorite-panel-off.png")
+    ImageResource favoritePanelOffActionIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

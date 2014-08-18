@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer.ConfigurationDeployerPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -141,12 +142,12 @@ public abstract class PluginView implements IsWidget {
 
     private List<ActionContext> getDefaultSystemContexts() {
         final List<ActionContext> contexts = new ArrayList<ActionContext>();
-        final ToggleActionContext fstCtx = new ToggleActionContext(createActionConfig(
-                "size.toggle.action", "Распахнуть/Свернуть", "images/icons/form-fullsize.png", 1000));
+        final ToggleActionContext fstCtx = new ToggleActionContext(createActionConfigWithImageInDiv(
+                "size.toggle.action", "Распахнуть/Свернуть", ToggleAction.FORM_FULL_SIZE_ACTION_STYLE_NAME, 1000));
         fstCtx.setPushed(Application.getInstance().getCompactModeState().isExpanded());
         contexts.add(fstCtx);
-        contexts.add(new ToggleActionContext(createActionConfig(
-                "favorite.toggle.action", "Показать/Скрыть избранное", "images/icons/favorite-panel.png", 1001)));
+        contexts.add(new ToggleActionContext(createActionConfigWithImageInDiv(
+                "favorite.toggle.action", "Показать/Скрыть избранное", ToggleAction.FAVORITE_PANEL_ACTION_STYLE_NAME, 1001)));
         return contexts;
     }
 
@@ -158,6 +159,17 @@ public abstract class PluginView implements IsWidget {
                                             final String imageUrl, final int order) {
         final ActionConfig config = new ActionConfig(componentName, componentName);
         config.setImageUrl(imageUrl);
+        config.setTooltip(shortDesc);
+        config.setDisplay(ActionDisplayType.toggleButton);
+        config.setOrder(order);
+        config.setDirtySensitivity(false);
+        config.setImmediate(true);
+        return config;
+    }
+    private ActionConfig createActionConfigWithImageInDiv(final String componentName, final String shortDesc,
+                                            final String imageClass, final int order) {
+        final ActionConfig config = new ActionConfig(componentName, componentName);
+        config.setImageClass(imageClass);
         config.setTooltip(shortDesc);
         config.setDisplay(ActionDisplayType.toggleButton);
         config.setOrder(order);
