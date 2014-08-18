@@ -87,7 +87,7 @@
                 <by-dynamic-group>DynamicGroup</by-dynamic-group>
             </addressee>
             <triggers>
-                <trigger refName="TriggerReadConfig">
+                <trigger refName="TriggerScript">
                 </trigger>
             </triggers>
         </notification-type>
