@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer.ConfigurationDeployerPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
@@ -114,14 +115,14 @@ public abstract class PluginView implements IsWidget {
         }
         panel.add(getViewWidget());
         viewWidget = panel;
-        addExtraStyleClassIfThisIsDomainObjectSurfer();
+        addExtraStyleClassIfRequired();
         return viewWidget;
     }
 
-    private void addExtraStyleClassIfThisIsDomainObjectSurfer() {
-        if(plugin instanceof DomainObjectSurferPlugin) {
+    private void addExtraStyleClassIfRequired() {
+        if(plugin instanceof DomainObjectSurferPlugin || plugin instanceof ConfigurationDeployerPlugin) {
             Node node = viewWidget.getElement().getFirstChildElement().getLastChild();
-            node.getFirstChild().getParentElement().addClassName("domainObjectSurferExtraClass");
+            node.getFirstChild().getParentElement().addClassName("pluginExtraClass");
         }
     }
 
