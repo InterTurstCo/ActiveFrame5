@@ -10,7 +10,8 @@ import java.util.List;
 
 @Root(name="module")
 public class ModuleConfiguration implements Dto {
-    
+    private static final long serialVersionUID = 5237710895366672078L;
+
     @Element
     private String name;
     
@@ -37,6 +38,9 @@ public class ModuleConfiguration implements Dto {
 
     @Element(required=false, name="import-reports")
     private ImportReportsConfiguration importReports;
+    
+    @ElementList(required=false, name="deploy-processes", entry="process-definition")
+    private List<String> deployProcesses;
 
     private URL moduleUrl;
     
@@ -102,6 +106,12 @@ public class ModuleConfiguration implements Dto {
     }
     public void setModuleUrl(URL moduleUrl) {
         this.moduleUrl = moduleUrl;
+    }
+    public List<String> getDeployProcesses() {
+        return deployProcesses;
+    }
+    public void setDeployProcesses(List<String> deployProcesses) {
+        this.deployProcesses = deployProcesses;
     }
     
 }

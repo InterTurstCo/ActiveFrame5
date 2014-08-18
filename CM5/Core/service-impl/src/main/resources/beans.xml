@@ -129,6 +129,7 @@
     <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService"/>
     <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService"/>
     <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
+    <bean id="moduleProcessDeployer"  class="ru.intertrust.cm.core.process.DeployModuleProcesses"/>
     <!-- Интеграция с Activiti -->
 
     <!--<bean id="searchService" class="ru.intertrust.cm.core.business.impl.search.SearchServiceImpl"/>-->

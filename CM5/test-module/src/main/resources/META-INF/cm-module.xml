@@ -114,5 +114,8 @@
             <template-file>reports/all-employee-param-list/all-employee-param-list.jrxml</template-file>
         </report-template>
     </import-reports>
+    <deploy-processes>
+        <process-definition>workflow/SimpleProcess.bpmn</process-definition>
+    </deploy-processes>
 
 </module>
