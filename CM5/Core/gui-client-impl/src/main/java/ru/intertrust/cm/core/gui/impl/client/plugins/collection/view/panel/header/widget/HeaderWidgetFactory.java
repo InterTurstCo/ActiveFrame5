@@ -15,6 +15,9 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 public class HeaderWidgetFactory {
     public static HeaderWidget getInstance(CollectionColumn column, CollectionColumnProperties columnProperties,
                                            List<String> initialFilterValues){
+        if(columnProperties == null){
+            return new NoFilterHeaderWidget(column.getDataStoreName());
+        }
         String searchFilterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
         if(searchFilterName == null) {
             return new NoFilterHeaderWidget(column.getDataStoreName());

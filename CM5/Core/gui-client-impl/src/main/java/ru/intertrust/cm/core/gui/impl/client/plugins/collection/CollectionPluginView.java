@@ -213,11 +213,11 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createTableColumns() {
-
+        List<ColumnHeaderBlock> columnHeaderBlocks = new ArrayList<ColumnHeaderBlock>();
         if (singleChoice) {
-            createTableColumnsWithoutCheckBoxes(fieldPropertiesMap);
+            createTableColumnsWithoutCheckBoxes(fieldPropertiesMap, columnHeaderBlocks);
         } else {
-            createTableColumnsWithCheckBoxes(fieldPropertiesMap);
+            createTableColumnsWithCheckBoxes(fieldPropertiesMap, columnHeaderBlocks);
         }
     }
 
@@ -490,7 +490,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createTableColumnsWithCheckBoxes(
-            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldsOnColumnNamesMap) {
+            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldsOnColumnNamesMap,  List<ColumnHeaderBlock> columnHeaderBlocks) {
         final CollectionColumn<CollectionRowItem, Boolean> checkColumn =
                 new CollectionColumn<CollectionRowItem, Boolean>(new CheckboxCell(true, true)) {
                     @Override
@@ -506,18 +506,24 @@ public class CollectionPluginView extends PluginView {
             }
         });
         checkColumn.setMaxWidth(CHECK_BOX_MAX_WIDTH);
-        checkColumn.setMinWidth(CHECK_BOX_MIN_WIDTH);
+        checkColumn.setMinWidth(CHECK_BOX_MAX_WIDTH);
+        checkColumn.setUserWidth(CHECK_BOX_MAX_WIDTH);
+        checkColumn.setVisible(true);
         checkColumn.setResizable(false);
         checkColumn.setMoveable(false);
         tableBody.addColumn(checkColumn);
         checkColumn.setDataStoreName(CHECK_BOX_COLUMN_NAME);
-        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap);
+        HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(checkColumn, null, null);
+        CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, checkColumn, headerWidget, eventBus);
+        ColumnHeaderBlock columnHeaderBlock = new ColumnHeaderBlock(collectionColumnHeader, checkColumn);
+        columnHeaderBlocks.add(columnHeaderBlock);
+        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, columnHeaderBlocks);
     }
 
 
     private void createTableColumnsWithoutCheckBoxes(
-            LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap) {
-        List<ColumnHeaderBlock> columnHeaderBlocks = new ArrayList<ColumnHeaderBlock>();
+            LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap, List<ColumnHeaderBlock> columnHeaderBlocks) {
+
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             final CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);

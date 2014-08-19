@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnHiddenActionContext;
 
@@ -280,6 +281,10 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
         private void initCheckboxItem(final ColumnHeaderBlock columnHeaderBlock, Panel container) {
             final CollectionColumn column = columnHeaderBlock.getColumn();
+            String checkBoxLabel = column.getDataStoreName();
+            if(checkBoxLabel.equalsIgnoreCase(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME)){
+                return;
+            }
             CheckBox checkBox = new CheckBox(column.getDataStoreName());
             checkBox.setValue(column.isVisible());
             checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
