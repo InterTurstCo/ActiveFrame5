@@ -28,6 +28,17 @@
                 <trigger refName="TriggerReadConfig" >
                 </trigger>
             </triggers>
+            <context-config>
+                <context-object name="test-context-object-1">
+                    <java-class>ru.intertrust.cm.core.business.impl.notification.NotificationContextObjectProducerImpl</java-class>
+                </context-object>
+                <context-object name="test-context-object-2">
+                    <query>select id from department_test where id={test-context-object-1}</query>
+                </context-object>
+                <context-object name="test-context-object-3">
+                    <doel source-object="document">Organization</doel>
+                </context-object>
+            </context-config>
         </notification-type>
     </notification>
 

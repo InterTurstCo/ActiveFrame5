@@ -173,6 +173,7 @@
         <xs:sequence>
             <xs:element name="addressee" minOccurs="0" maxOccurs="1" type="con:notificationAddresseType"/>
             <xs:element name="triggers" minOccurs="0" maxOccurs="1" type="con:notificationTriggersType"/>
+            <xs:element name="context-config" minOccurs="0" maxOccurs="1" type="con:notificationContextConfigType"/>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
         <xs:attribute name="priority" use="required" type="con:notificationPriority"/>
@@ -201,6 +202,30 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="notificationContextConfigType">
+        <xs:sequence>
+            <xs:element name="context-object" minOccurs="1" maxOccurs="unbounded" type="con:notificationContextObjectType">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="notificationContextObjectType">
+        <xs:choice>
+            <xs:element name="java-class" minOccurs="0" maxOccurs="1" type="con:javaClassNameType"/>
+            <xs:element name="spring-bean" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="java-script" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="doel" minOccurs="0" maxOccurs="1" type="con:notificationContextObjectDoelType"/>
+            <xs:element name="query" minOccurs="0" maxOccurs="1" type="xs:string"/>
+        </xs:choice>
+        <xs:attribute name="name" use="required" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="notificationContextObjectDoelType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="source-object" use="optional" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
 
     <xs:simpleType name="notificationNameType">
         <xs:restriction base="xs:string">

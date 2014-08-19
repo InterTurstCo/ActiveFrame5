@@ -24,6 +24,9 @@ public class NotificationTypeConfig implements Dto {
     @Element(name = "triggers", required = true)
     private NotificationTriggersConfig notificationTriggersConfig = new NotificationTriggersConfig();
 
+    @Element(name = "context-config", required = false)
+    private NotificationContextConfig notificationContextConfig = new NotificationContextConfig();
+
     public String getName() {
         return name;
     }
@@ -56,6 +59,14 @@ public class NotificationTypeConfig implements Dto {
         this.priority = priority;
     }
 
+    public NotificationContextConfig getNotificationContextConfig() {
+        return notificationContextConfig;
+    }
+
+    public void setNotificationContextConfig(NotificationContextConfig notificationContextConfig) {
+        this.notificationContextConfig = notificationContextConfig;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -63,6 +74,7 @@ public class NotificationTypeConfig implements Dto {
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((notificationAddresseConfig == null) ? 0 : notificationAddresseConfig.hashCode());
         result = prime * result + ((notificationTriggersConfig == null) ? 0 : notificationTriggersConfig.hashCode());
+        result = prime * result + ((notificationContextConfig == null) ? 0 : notificationContextConfig.hashCode());
         return result;
     }
 
@@ -97,6 +109,13 @@ public class NotificationTypeConfig implements Dto {
                 return false;
             }
         } else if (!notificationTriggersConfig.equals(other.notificationTriggersConfig)) {
+            return false;
+        }
+        if (notificationContextConfig == null) {
+            if (other.notificationContextConfig != null) {
+                return false;
+            }
+        } else if (!notificationContextConfig.equals(other.notificationContextConfig)) {
             return false;
         }
         return true;
