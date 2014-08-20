@@ -46,6 +46,7 @@ public class SaveActionHandler extends ActionHandler<SaveActionContext, SaveActi
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(rootDomainObject.getId());
         config.setPluginState(context.getPluginState());
+        config.setFormViewerConfig(context.getFormViewerConfig());
         SaveActionData result = new SaveActionData();
         result.setFormPluginData(handler.initialize(config));
         return result;

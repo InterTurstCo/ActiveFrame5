@@ -41,6 +41,7 @@ public class SaveAction extends SimpleServerAction {
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         context.setFormState(formState);
         context.setPluginState(editor.getFormPluginState());
+        context.setFormViewerConfig(editor.getFormViewerConfig());
         return context;
     }
 

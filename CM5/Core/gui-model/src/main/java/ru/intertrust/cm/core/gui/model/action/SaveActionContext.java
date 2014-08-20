@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.action;
 
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
@@ -12,6 +13,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 public class SaveActionContext extends ActionContext {
     private FormState formState;
     private FormPluginState pluginState;
+    private FormViewerConfig formViewerConfig;
 
     /**
      * Default constructor
@@ -36,5 +38,13 @@ public class SaveActionContext extends ActionContext {
 
     public void setPluginState(FormPluginState pluginState) {
         this.pluginState = pluginState;
+    }
+
+    public FormViewerConfig getFormViewerConfig() {
+        return formViewerConfig;
+    }
+
+    public void setFormViewerConfig(FormViewerConfig formViewerConfig) {
+        this.formViewerConfig = formViewerConfig;
     }
 }
