@@ -102,8 +102,8 @@ public class HeaderContainer extends SimplePanel {
         contentInfo.add(corner);
         contentInfo.add(infoPanel);
         infoPanel.setStyleName("info-panel");
-        infoPanel.add(new Label("   CORE: " + version.getCoreVersion()));
-        infoPanel.add(new Label("PRODUCT: " + version.getProductVersion()));
+        infoPanel.add(new Label("Версия платформы: " + version.getCoreVersion()));
+        infoPanel.add(new Label("          Версия: " + version.getProductVersion()));
         popupPanel.add(contentInfo);
 
         popupPanel.getElement().setClassName("applicationVersionWindows popupWindow");
