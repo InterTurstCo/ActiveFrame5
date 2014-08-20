@@ -36,6 +36,7 @@ public class ConfigurationDeployerPluginView extends PluginView {
 
     private void init() {
         mainPanel.add(new Label("Добавьте файлы конфигурации:"));
+        mainPanel.setStyleName("uploadConfigurationWrapper");
         attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);
         Application.getInstance().hideLoadingIndicator();
@@ -72,7 +73,7 @@ public class ConfigurationDeployerPluginView extends PluginView {
         state.setAcceptedTypesConfig(acceptedTypesConfig);
         attachmentBox.setDisplayConfig(displayConfig);
         attachmentBox.setState(state);
-        attachmentBox.asWidget().setStyleName("upload-report-template");
+        attachmentBox.asWidget().setStyleName("uploadReportTemplate");
 
         return attachmentBox;
     }

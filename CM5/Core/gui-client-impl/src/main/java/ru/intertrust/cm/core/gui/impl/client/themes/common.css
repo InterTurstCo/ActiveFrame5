@@ -83,11 +83,11 @@
     width: 35px;
 }
 @sprite .configurationUploader{
-    gwt-image: "favoritePanelOnActionIm";
+    gwt-image: "configurationUploaderIcon";
     background-repeat:no-repeat;
     background-position: 0 0;
     float: left;
-    height: 35px;
-    margin: 4px 0 0 0;
-    width: 35px;
+    height: 25px;
+    margin: 7px 5px 0 0;
+    width: 25px;
 }

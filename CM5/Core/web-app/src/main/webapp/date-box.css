@@ -350,13 +350,13 @@ div, input, textarea, select {
 
 
 .attPlImgCreate {
-    background: url(resources/defaulttheme/images/icons/icon-upload.png) no-repeat 0 0;
+    background: url(resources/defaulttheme/images/icons/icon-create.png) no-repeat 50% 5%;
     border-radius: 5px;
     box-shadow: 0 1px 2px #999;
     cursor: pointer;
     float: left;
     height: 25px;
-    margin: 10px 0 0 5px;
+    margin: 10px 0 0;
     padding: 0;
     width: 25px;
 }
@@ -367,4 +367,18 @@ div, input, textarea, select {
 
 .attPlImgCreate:active {
     background: url(resources/defaulttheme/images/icons/icon-upload.png) no-repeat 0 -50px;
+}
+
+.uploadReportTemplate {
+    padding: 0 10px;
+}
+
+.uploadConfigurationWrapper {
+    display: inline-block;
+    font-size: 100%;
+    padding: 10px;
+}
+
+.uploadConfigurationLabel div.gwt-Label {
+
 }

@@ -50,6 +50,9 @@ public interface ThemeBundle extends ClientBundle {
     @ClientBundle.Source("images/favorite-panel-on.png")
     ImageResource favoritePanelOnActionIm();
 
+    @ClientBundle.Source("images/icon-upload.png")
+    ImageResource configurationUploaderIcon();
+
     @ClientBundle.Source("images/favorite-panel-off.png")
     ImageResource favoritePanelOffActionIm();
 
