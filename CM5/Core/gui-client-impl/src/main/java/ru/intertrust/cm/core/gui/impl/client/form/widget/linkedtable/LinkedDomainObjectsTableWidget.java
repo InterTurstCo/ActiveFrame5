@@ -32,10 +32,9 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
 
     private LinkedDomainObjectsTableState currentState;
-    private CellTable<RowItem> table = new CellTable<>();
+    private CellTable<RowItem> table;
     private ListDataProvider<RowItem> model;
-    private boolean tableConfigured = false;
-    private boolean isButtonDrawn;
+    private Button tooltipButton;
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -46,21 +45,27 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         for (RowItem rowItem : rowItems) {
             model.getList().add(rowItem);
         }
-        if (!tableConfigured) {
-            if (isEditable()) {
-                LinkedTableUtil.configureEditableTable(currentState, table, model, new TableFieldUpdater(model));
-            } else {
-                LinkedTableUtil.configureNoneEditableTable(currentState, table);
-            }
-            tableConfigured = true;
+        VerticalPanel view = (VerticalPanel) impl;
+        if (table != null) {
+            view.remove(table);
+        }
 
+        table = new CellTable<RowItem>();
+        view.add(table);
+        if (isEditable()) {
+            LinkedTableUtil.configureEditableTable(currentState, table, model, new TableFieldUpdater(model));
+        } else {
+            LinkedTableUtil.configureNoneEditableTable(currentState, table);
         }
 
         model.addDataDisplay(table);
-        if (currentState.isShouldDrawTooltipButton() && !isButtonDrawn) {
-            isButtonDrawn = true;
-            Button tooltipButton = getShowTooltipButton();
-            ((VerticalPanel) impl).add(tooltipButton);
+        if (tooltipButton != null) {
+            view.remove(tooltipButton);
+        }
+        if (currentState.isShouldDrawTooltipButton()) {
+
+            tooltipButton = getShowTooltipButton();
+            view.add(tooltipButton);
         }
     }
 
@@ -78,14 +83,14 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         addButton.removeStyleName("gwt-Button");
         addButton.addStyleName("dark-button");
         hp.add(addButton);
-        hp.add(table);
+
         return hp;
     }
 
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
         VerticalPanel hp = new VerticalPanel();
-        hp.add(table);
+
         return hp;
     }
 
@@ -324,9 +329,16 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                 }
             };
             String pooledFormStateKey = object.getParameter(STATE_KEY);
+            FormState pooledEditedFormState = null;
+            Id id = object.getObjectId();
+            if (id != null) {
+                pooledEditedFormState = currentState.getFromEditedStates(id.toStringRepresentation());
+            } else if (pooledFormStateKey != null) {
+                pooledEditedFormState = currentState.getFromNewStates(pooledFormStateKey);
+            }
             DialogBox db;
-            if (pooledFormStateKey != null) {
-                FormState pooledEditedFormState = currentState.getFromNewStates(pooledFormStateKey);
+            if (pooledEditedFormState != null) {
+
                 db = new LinkedFormDialogBoxBuilder()
                         .setSaveAction(saveAction)
                         .setCancelAction(cancelAction)

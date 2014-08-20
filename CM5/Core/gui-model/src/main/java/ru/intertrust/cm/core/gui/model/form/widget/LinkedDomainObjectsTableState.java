@@ -16,7 +16,7 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
 
     private LinkedHashMap<String, FormState> newFormStates = new LinkedHashMap<>();
     private LinkedHashMap<String, FormState> editedFormStates = new LinkedHashMap<>();
-    private boolean shouldDrawTooltipButton;
+
     @Override
     public ArrayList<Id> getIds() {
         return selectedIds;
@@ -31,11 +31,11 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
     }
 
     public boolean isShouldDrawTooltipButton() {
-        return shouldDrawTooltipButton;
-    }
+        return linkedDomainObjectsTableConfig.getSelectionFiltersConfig() != null &&
+                linkedDomainObjectsTableConfig.getSelectionFiltersConfig().getRowLimit() != 0
+                && selectedIds.size() > linkedDomainObjectsTableConfig.getSelectionFiltersConfig().getRowLimit()
+                && linkedDomainObjectsTableConfig.getCollectionRefConfig() != null;
 
-    public void setShouldDrawTooltipButton(boolean shouldDrawTooltipButton) {
-        this.shouldDrawTooltipButton = shouldDrawTooltipButton;
     }
 
     public LinkedDomainObjectsTableConfig getLinkedDomainObjectsTableConfig() {
@@ -66,6 +66,7 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         newFormStates.put(key, formState);
         return key;
     }
+
     public void rewriteNewFormState(String key, FormState formState) {
         newFormStates.put(key, formState);
     }
@@ -120,7 +121,7 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         }
     }
 
-    public void clearPreviousStates(){
+    public void clearPreviousStates() {
         newFormStates.clear();
         editedFormStates.clear();
     }

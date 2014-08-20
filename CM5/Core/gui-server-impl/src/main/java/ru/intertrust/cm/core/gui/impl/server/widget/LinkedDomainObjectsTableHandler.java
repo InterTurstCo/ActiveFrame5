@@ -61,12 +61,11 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         SelectionFiltersConfig selectionFiltersConfig = domainObjectsTableConfig.getSelectionFiltersConfig();
         CollectionRefConfig refConfig = domainObjectsTableConfig.getCollectionRefConfig();
         boolean collectionNameConfigured = refConfig != null;
-        boolean shouldDrawTooltipButton = WidgetUtil.getLimit(selectionFiltersConfig) != 0 && collectionNameConfigured && !ids.isEmpty();
 
         List<RowItem> rowItems = selectionFiltersConfig == null || !collectionNameConfigured ? generateRowItems(domainObjectsTableConfig, ids)
                 : generateFilteredRowItems(domainObjectsTableConfig, ids, false);
         state.setRowItems(rowItems);
-        state.setShouldDrawTooltipButton(shouldDrawTooltipButton);
+
         return state;
     }
 

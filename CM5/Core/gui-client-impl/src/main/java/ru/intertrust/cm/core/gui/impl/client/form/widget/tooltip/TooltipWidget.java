@@ -78,7 +78,8 @@ public abstract class TooltipWidget extends BaseWidget {
         TooltipWidgetState state = getInitialData();
         LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
         return config.getSelectionFiltersConfig() != null &&
-                config.getSelectionFiltersConfig().getRowLimit() != 0 && !state.getSelectedIds().isEmpty();
+                config.getSelectionFiltersConfig().getRowLimit() != 0
+                && state.getSelectedIds().size() > config.getSelectionFiltersConfig().getRowLimit();
     }
 
     protected boolean isDisplayingAsHyperlink() {

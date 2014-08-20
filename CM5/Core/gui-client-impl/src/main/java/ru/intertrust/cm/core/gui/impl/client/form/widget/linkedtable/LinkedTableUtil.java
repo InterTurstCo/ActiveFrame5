@@ -73,6 +73,7 @@ public class LinkedTableUtil {
                     // объекта нет в пуле, значит помечаем его для физического удаления
                     if (object.getObjectId() != null) {
                         currentState.getIds().remove(object.getObjectId());
+                        currentState.getRowItems().remove(object);
                         model.getList().remove(object);
                     }
                 }
