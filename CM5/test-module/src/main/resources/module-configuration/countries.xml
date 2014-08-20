@@ -22,6 +22,9 @@
         </attachment-types>
     </domain-object-type>
 
+    <domain-object-type name="superCountry" initial-status="Active" extends="country"/>
+
+
     <domain-object-type name="country_best_friend" initial-status="Active">
         <fields>
             <reference name="country" type="country"/>
@@ -860,9 +863,7 @@
                 <group name="Administrators"/>
             </groups>
         </form-mapping>
-    </form-mappings>
 
-    <form-mappings name="country_mappings_1">
         <form-mapping domain-object-type="country" form="country_form">
             <users>
                 <user uid="person1"/>

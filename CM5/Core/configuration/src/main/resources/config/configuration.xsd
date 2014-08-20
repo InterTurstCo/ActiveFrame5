@@ -1559,7 +1559,8 @@
     <xs:complexType name="formMappingsType">
         <xs:sequence>
             <xs:element type="con:formMappingType" name="form-mapping"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                        xmlns:con="https://cm5.intertrust.ru/config"
+                        maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional"/>
     </xs:complexType>
@@ -1567,7 +1568,8 @@
     <xs:complexType name="navigationPanelMappingsType">
         <xs:sequence>
             <xs:element type="con:navigationPanelMappingType" name="navigation-panel-mapping"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                        xmlns:con="https://cm5.intertrust.ru/config"
+                        maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional"/>
     </xs:complexType>

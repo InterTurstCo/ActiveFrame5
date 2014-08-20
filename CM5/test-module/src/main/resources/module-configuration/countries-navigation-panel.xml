@@ -17,9 +17,10 @@
                                 <filter-panel panel-state="open"/>
                             </collection-viewer>
                             <!--form-viewer form-mapping-component="custom.mapping.component"/-->
-                            <!--form-viewer>
-                                <form-mapping domain-object-type="country" form="my-custom-form"/>
-                            </form-viewer-->
+                            <form-viewer>
+                                <form-mapping domain-object-type="country" form="country_form"/>
+                                <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
+                            </form-viewer>
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
@@ -1106,9 +1107,7 @@
                 <group-name value="test-group-1" priority="20"/>
             </groups>
         </navigation-panel-mapping>
-    </navigation-panel-mappings>
 
-    <navigation-panel-mappings name="nav-panel-map2">
         <navigation-panel-mapping name="panel_1">
             <users>
                 <user uid="person1"/>

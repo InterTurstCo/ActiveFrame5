@@ -70,6 +70,7 @@
         <import-file rewrite="false">importdata/so_orgsystem.csv</import-file>
         <import-file rewrite="false">importdata/ss_moduleorg.csv</import-file>
 
+        <import-file rewrite="false">importdata/import-super-country.csv</import-file>
     </import-files>
 
     <import-reports>

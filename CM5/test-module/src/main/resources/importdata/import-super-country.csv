@@ -1,0 +1,6 @@
+TYPE_NAME=superCountry;KEYS=name;;;
+name;population;description;_ATTACHMENT_
+Ukraine;45469800;Україна;importdata/contents/ukraine-map.png
+UK;45469800;The United Kingdom of Great Britain and Northern Ireland;importdata/contents/ukraine-map.png
+USA;45469800;United States of America;importdata/contents/ukraine-map.png
+Germany;45469800;Deutschland;importdata/contents/ukraine-map.png
