@@ -157,6 +157,8 @@ public class JsonUtil {
         jsonFilterParamObj.put("name", new JSONNumber(name));
         String value = paramConfig.getValue();
         jsonFilterParamObj.put("value", new JSONString(value));
+        String type = paramConfig.getType();
+        jsonFilterParamObj.put("type", new JSONString(type));
         jsonFilterParamArr.set(index, jsonFilterParamObj);
     }
 }
