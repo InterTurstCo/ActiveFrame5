@@ -68,6 +68,7 @@ public class AccessVerificationServiceIT extends IntegrationTestBase {
         accessVerificationService.isCreatePermitted(savedDepartment.getTypeName());
         accessVerificationService.isDeletePermitted(depId);
         accessVerificationService.isCreateChildPermitted(savedDepartment.getTypeName(), savedOrganization.getId());
+        accessVerificationService.isExecuteActionPermitted("accessVerificationService", depId);
 
     }
 
