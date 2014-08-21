@@ -6,6 +6,10 @@
     border-collapse: separate;
 }
 
+table.debug tr td {
+    border: 1px dotted #ff9900;
+}
+
 h1 {
     font-size: 2em;
     font-weight: bold;
