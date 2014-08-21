@@ -24,6 +24,8 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AccessType;
+import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
+import ru.intertrust.cm.core.dao.access.CreateObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
@@ -1632,6 +1634,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Map<String, Object>[] parameters = new Map[updatedObjects.length];
 
         for (int i = 0; i < updatedObjects.length; i++) {
+
+            GenericDomainObject domainObject = updatedObjects[i];
+            verifyAccessTokenOnCreate(accessToken, domainObject);
+
             Object id;
             if (parentDOs != null) {
                 id = ((RdbmsId) parentDOs[i].getId()).getId();
@@ -1648,6 +1654,21 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         jdbcTemplate.batchUpdate(query, parameters);
 
         return updatedObjects;
+    }
+
+    private void verifyAccessTokenOnCreate(AccessToken accessToken, GenericDomainObject domainObject) {
+        String domainObjectType = domainObject.getTypeName();
+        Id[] parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+        
+        if (parentIds != null && parentIds.length > 0) {
+            AccessType accessType = new CreateChildAccessType(domainObjectType);
+            for (Id parentId : parentIds) {
+                accessControlService.verifyAccessToken(accessToken, parentId, accessType);
+            }
+        } else {
+            AccessType accessType = new CreateObjectAccessType(domainObjectType);
+            accessControlService.verifyAccessToken(accessToken, null, accessType);
+        }
     }
 
     /**

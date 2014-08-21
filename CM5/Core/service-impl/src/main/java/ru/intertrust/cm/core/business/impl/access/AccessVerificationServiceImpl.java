@@ -14,15 +14,18 @@ import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+//import ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl;
 import ru.intertrust.cm.core.model.AccessException;
 
 @Stateless
 @Local(AccessVerificationService.class)
 @Remote(AccessVerificationService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-public class AccessVerificationServiceImpl implements AccessVerificationService {
+public class AccessVerificationServiceImpl /*extends AccessControlServiceImpl*/ implements AccessVerificationService {
 
     final static Logger logger = LoggerFactory.getLogger(AccessVerificationServiceImpl.class);
     
@@ -82,17 +85,43 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
 
     @Override
     public boolean isCreatePermitted(String domainObjectType) {
-        Id currentUserId = currentUserAccessor.getCurrentUserId();
-        return false;
+
+        String currentUser = currentUserAccessor.getCurrentUser();
+        try {
+            accessControlService.createDomainObjectCreateToken(currentUser, domainObjectType, null);
+        } catch (AccessException ex) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public boolean isCreateChildPermitted(String domainObjectType, Id parentObjectId) {
-        return false;
-    }
 
+        String currentUser = currentUserAccessor.getCurrentUser();
+        try {
+            accessControlService.createDomainObjectCreateToken(currentUser, domainObjectType,
+                    new Id[] {parentObjectId });
+        } catch (AccessException ex) {
+            return false;
+        }
+        return true;
+    }
+    
     @Override
     public boolean isExecuteActionPermitted(String actionName, Id objectId) {
+        AccessType accessType = new ExecuteActionAccessType(actionName);
+        String currentUser = currentUserAccessor.getCurrentUser();
+
+        try {
+            accessControlService.createAccessToken(currentUser, objectId, accessType);
+        } catch (AccessException ex) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Execute action " + actionName + " on object " + objectId + " is denied for user:" + currentUser);
+            }
+            return false;
+        }
+
         return false;
     }
 }

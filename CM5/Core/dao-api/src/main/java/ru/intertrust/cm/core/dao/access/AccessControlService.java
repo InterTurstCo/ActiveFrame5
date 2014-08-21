@@ -135,7 +135,7 @@ public interface AccessControlService {
      * @param accessToken Маркер доступа
      * @throws AccessException если маркер нулевой или не является универсальным маркером доступа
      */
-    public void verifySystemAccessToken(AccessToken accessToken) throws AccessException;
+    void verifySystemAccessToken(AccessToken accessToken) throws AccessException;
     
     /**
      * Формирует маркер доступа на создание доменного объекта данного типа для переданного пользователя.
@@ -154,4 +154,19 @@ public interface AccessControlService {
      */
     void verifyDeferredAccessToken(AccessToken token, Id objectId, AccessType type) throws AccessException;
     
+    /**
+     * Формирует маркер доступа на создание доменного объекта данного типа с указанным перечнем родительских объектов.
+     * Причем, каждый из родителей должен предоставлять права на создание дочернего объекта (через разрешение
+     * <create-child>), совпадающего с указанным. Если список родительских объектов пустой - проверяется право на
+     * создание доменного объекта по его типу (указанное в разрешении <create>).
+     * @param login Идентификатор пользователя
+     * @param objectType Идентификатор доменного объекта
+     * @param parentObjects
+     * @return Сформированный маркер доступа
+     * @throws AccessException если пользователь не имеет права на доступ к запрошенному объекту
+     */
+
+    AccessToken createDomainObjectCreateToken(String login, String objectType, Id[] parentObjects)
+            throws AccessException;
+
 }

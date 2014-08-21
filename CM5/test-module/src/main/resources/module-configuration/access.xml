@@ -78,6 +78,17 @@
             <read>
                 <permit-group name="AllPersons" />
             </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+
+            <execute-action name="action1">
+                <permit-group name="AllPersons" />
+            </execute-action>
+            
         </status>
     </access-matrix>
 
@@ -86,6 +97,9 @@
             <read>
                 <permit-group name="AllPersons" />
             </read>
+            <create-child type="department_test">
+                <permit-group name="AllPersons" />
+            </create-child>            
         </status>
     </access-matrix>
 

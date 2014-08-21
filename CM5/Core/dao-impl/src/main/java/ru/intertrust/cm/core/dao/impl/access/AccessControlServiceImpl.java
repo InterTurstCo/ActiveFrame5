@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -8,12 +7,9 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.sun.accessibility.internal.resources.accessibility_zh_TW;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
@@ -21,15 +17,13 @@ import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
 import ru.intertrust.cm.core.config.BasePermit;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.CreateChildConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.ExecuteActionConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.PermitGroup;
 import ru.intertrust.cm.core.config.PermitRole;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AccessType;
+import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
+import ru.intertrust.cm.core.dao.access.CreateObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
@@ -37,6 +31,7 @@ import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.access.SystemSubject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.AccessException;
 
@@ -68,6 +63,9 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
 
     /**
      * Устанавливает программный агент, которому делегируются функции физической проверки прав доступа
@@ -125,9 +123,35 @@ public class AccessControlServiceImpl implements AccessControlService {
         return token;
     }
     
+    @Override
+    public AccessToken createDomainObjectCreateToken(String login, String objectType, Id[] parentObjects)
+            throws AccessException {
+
+       Id personId = getUserIdByLogin(login);
+       Integer personIdInt = (int) ((RdbmsId) personId).getId();
+
+       boolean isSuperUser = isPersonSuperUser(personId);
+
+       if (isSuperUser) {
+           return new SuperUserAccessToken(new UserSubject(personIdInt));
+       }
+
+       if (parentObjects != null && parentObjects.length > 0) {
+           AccessType accessType = new CreateChildAccessType(objectType);
+           return createAccessToken(login, parentObjects, accessType, true);
+       }
+
+       if (isAllowedToCreateByStaticGroups(personId, objectType)) {
+           AccessType accessType = new CreateObjectAccessType(objectType);
+           return new SimpleAccessToken(new UserSubject(personIdInt), null, accessType, false);
+       }
+
+       throw new AccessException("Creation of object " + objectType + " is not allowed for " + login);
+   }
+
 
     /**
-     * Проверяет права на создание ДО контексным динамическим группам (ролям) и безконтексным группам.
+     * Проверяет права на создание ДО, данные контексным динамическим группам (ролям) и безконтекстным группам.
      * Права для контексных групп настраиваются через <create-child> разрешение у родительского типа.
      * Например,
      *     <create-child type="address">
@@ -146,98 +170,13 @@ public class AccessControlServiceImpl implements AccessControlService {
     public AccessToken createDomainObjectCreateToken(String login, DomainObject domainObject)
             throws AccessException {
 
+        Id[] parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+        return createDomainObjectCreateToken(login, domainObject.getTypeName(), parentIds);
 
-        Id personId = getUserIdByLogin(login);
-        Integer personIdInt = (int) ((RdbmsId) personId).getId();
-
-        boolean isSuperUser = isPersonSuperUser(personId);
-
-        if (isSuperUser) {
-            return new SuperUserAccessToken(new UserSubject(personIdInt));
-        }
-
-        String domainObjectType = domainObject.getTypeName();
-        
-        Boolean isAllowed = isAllowedToCreateByDynamicGroupsAndRoles(domainObject, personId);
-
-        if (isAllowed) {
-            return new DomainObjectCreateToken(new UserSubject(personIdInt),
-                    domainObjectType);
-        }
-
-        if (isAllowedToCreateByStaticGroups(personId, domainObjectType)) {
-            return new DomainObjectCreateToken(new UserSubject(personIdInt), domainObjectType);
-        }
-
-        throw new AccessException("Creation of object " + domainObjectType + " is not allowed for " + login);
-    }
-
-    private Boolean isAllowedToCreateByDynamicGroupsAndRoles(DomainObject domainObject, Id personId) {        
-        String domainObjectType = domainObject.getTypeName();
-        DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
-        List<ReferenceFieldConfig> referenceFieldConfigs = getReferenceFields(domainObjectTypeConfig);
-
-        if (referenceFieldConfigs != null) {
-            for (ReferenceFieldConfig fieldConfig : referenceFieldConfigs) {
-
-                AccessMatrixConfig accessMatrixConfig =
-                        configurationExplorer.getAccessMatrixByObjectType(((ReferenceFieldConfig) fieldConfig)
-                                .getType());
-
-                if (accessMatrixConfig != null && accessMatrixConfig.getStatus() != null) {
-                    for (AccessMatrixStatusConfig accessMatrixStatus : accessMatrixConfig.getStatus()) {
-                        for (BaseOperationPermitConfig operationPermit : accessMatrixStatus.getPermissions()) {
-                            if (operationPermit instanceof CreateChildConfig) {
-                                if (domainObjectType.equals(((CreateChildConfig) operationPermit).getType())) {
-
-                                    Id parentObject = domainObject.getReference(fieldConfig.getName());
-
-                                    for (BasePermit permit : operationPermit.getPermitConfigs()) {
-                                        String userGroupName = permit.getName();
-
-                                        if (permit instanceof PermitRole) {
-                                            List<Id> contextRoleMembers =
-                                                    permissionServiceDao.getPersons(parentObject, userGroupName);
-
-                                            if (contextRoleMembers.contains(personId)) {
-                                                return true;
-                                            }
-                                        } else if (permit instanceof PermitGroup) {
-                                            List<Id> dynamicGroupMembers =
-                                                    dynamicGroupService.getPersons(parentObject, userGroupName);
-
-                                            if (dynamicGroupMembers.contains(personId)) {
-                                                return true;
-                                            }
-                                        }
-
-                                    }
-
-                                }
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     private boolean isAllowedToCreateByStaticGroups(Id userId, String objectType) {
         return databaseAgent.isAllowedToCreateByStaticGroups(userId, objectType);
-    }
-
-    private List<ReferenceFieldConfig> getReferenceFields(DomainObjectTypeConfig domainObjectTypeConfig) {
-        List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
-
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            if (fieldConfig instanceof ReferenceFieldConfig) {
-                referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
-            }
-        }
-        return referenceFieldConfigs;
     }
 
     private Id getUserIdByLogin(String login) {
@@ -413,7 +352,11 @@ public class AccessControlServiceImpl implements AccessControlService {
 
         @Override
         boolean allowsAccess(Id objectId, AccessType type) {
-            return this.objectId.equals(objectId) && this.type.equals(type);
+            if (this.objectId == null || objectId == null) {
+                return this.type.equals(type);
+            } else {
+                return this.objectId.equals(objectId) && this.type.equals(type);
+            }
         }
     }
 
@@ -576,19 +519,25 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public void verifyDeferredAccessToken(AccessToken token, Id objectId, AccessType type) throws AccessException {
-        SimpleAccessToken simpleToken = (SimpleAccessToken) token;
-
-        UserSubject subject = (UserSubject) simpleToken.getSubject();
-        int personIdInt = subject.getUserId();
-        Id personId = new RdbmsId(personIdInt, domainObjectTypeIdCache.getId(GenericDomainObject.PERSON_DOMAIN_OBJECT));
-
-        boolean isSuperUser = isPersonSuperUser(personId);
-
-        if (isSuperUser) {
-            return;
-        }
-
         if (token.isDeferred()) {
+            UserSubject subject = getUserSubject(token);
+            Integer personIdInt = null;
+            Id personId = null;
+            if (subject != null) {
+                personIdInt = subject.getUserId();
+                personId = new RdbmsId(personIdInt, domainObjectTypeIdCache.getId(GenericDomainObject.PERSON_DOMAIN_OBJECT));
+
+            } else {
+                personId = currentUserAccessor.getCurrentUserId();
+                personIdInt = (int) (((RdbmsId) personId).getId());
+            }
+
+            boolean isSuperUser = isPersonSuperUser(personId);
+
+            if (isSuperUser) {
+                return;
+            }
+
             if (DomainObjectAccessType.READ.equals(type)) {
                 if (!databaseAgent.checkDomainObjectReadAccess(personIdInt, objectId)) {
                     throw new AccessException("Read permission to " + objectId + " is denied for user " + personId);
@@ -596,5 +545,15 @@ public class AccessControlServiceImpl implements AccessControlService {
 
             }
         }
+    }
+
+    private UserSubject getUserSubject(AccessToken token) {
+        UserSubject subject = null;
+
+        if (token instanceof SimpleAccessToken) {
+            SimpleAccessToken simpleToken = (SimpleAccessToken) token;
+            subject = (UserSubject) simpleToken.getSubject();
+        }
+        return subject;
     }
 }

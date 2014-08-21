@@ -5,9 +5,13 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlNam
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 
@@ -49,4 +53,30 @@ public class AccessControlUtility {
         }
         return idList;
     }
+    
+    /**
+     * Возвращает список идентификаторов неизменяемых (immutable) родительских объектов, на которые ссылается данный
+     * объект.
+     * @param domainObject
+     * @return
+     */
+    public static Id[] getImmutableParentIds(DomainObject domainObject, ConfigurationExplorer configurationExplorer) {
+        String domainObjectType = domainObject.getTypeName();
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+
+        List<Id> parentIds = new ArrayList<>();
+
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+
+                if (((ReferenceFieldConfig) fieldConfig).isImmutable()) {
+                    Id parentObject = domainObject.getReference(fieldConfig.getName());
+                    parentIds.add(parentObject);
+                }
+            }
+        }
+        return parentIds.toArray(new Id[parentIds.size()]);
+    }
+
 }
