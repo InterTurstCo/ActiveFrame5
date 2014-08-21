@@ -134,17 +134,17 @@ public class ConfigurationStorageBuilder {
 
         //Получение конфигурации матрицы
         AccessMatrixConfig accessMatrixConfig = configurationExplorer.getConfig(AccessMatrixConfig.class, domainObjectType);
-        if (accessMatrixConfig == null){
+        if (accessMatrixConfig == null) {
             //Если матрица не найдена то ищем матрицу для родительского типа
             DomainObjectTypeConfig doConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
-            if (doConfig.getExtendsAttribute() != null){
+            if (doConfig.getExtendsAttribute() != null) {
                 result = fillAccessMatrixByObjectTypeAndStatus(doConfig.getExtendsAttribute(), status);
             }
-        }else if (accessMatrixConfig.getStatus() != null) {
+        } else if (accessMatrixConfig.getStatus() != null) {
             //Получаем все статусы
             for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
                 //Если статус в конфигурации звезда то не проверяем статусы на соответствие, а возвращаем текущий
-                if (accessStatusConfig.getName().equals("*")){
+                if (accessStatusConfig.getName().equals("*")) {
                     result = accessStatusConfig;
                     break;
                 } else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
@@ -166,32 +166,32 @@ public class ConfigurationStorageBuilder {
         String result = null;
 
         //Ищим матрицу для типа с учетом иерархии типов
-        while((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
-                && childDomainObjectTypeConfig.getExtendsAttribute() != null){
+        while ((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
+                && childDomainObjectTypeConfig.getExtendsAttribute() != null) {
             childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
         }
 
-        if (matrixConfig != null && matrixConfig.getMatrixReference() != null){
+        if (matrixConfig != null && matrixConfig.getMatrixReference() != null) {
             //Получаем имя типа на которого ссылается martix-reference-field
             String parentTypeName = getParentTypeNameFromMatrixReference(matrixConfig.getMatrixReference(), childDomainObjectTypeConfig);
             //Вызываем рекурсивно метод для родительского типа, на случай если в родительской матрице так же заполнено поле martix-reference-field
             result = configurationExplorer.getMatrixReferenceTypeName(parentTypeName);
             //В случае если у родителя не заполнен атрибут martix-reference-field то возвращаем имя родителя
-            if (result == null){
+            if (result == null) {
                 result = parentTypeName;
             }
         }
 
         //В случае если не найдена матрица, то возможно это абстракный тип и надо поискать матрицы для потомков.
-        if (matrixConfig == null){
+        if (matrixConfig == null) {
             //Получаем все потомки
             List<String> childTypes = getChildTypes(childTypeName);
             //Ищим первую матрицу у потомков и проверяем ее тип
             for (String childType : childTypes) {
                 matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childType);
-                if (matrixConfig != null){
+                if (matrixConfig != null) {
                     //у потомка заимствованные права, значит и у родителя заимствованные права, получаем тип откуда заимсвует права потомок
-                    if (matrixConfig.getMatrixReference() != null){
+                    if (matrixConfig.getMatrixReference() != null) {
                         result = fillMatrixReferenceTypeNameMap(childType);
                     }
                     //Выходим из цикла при первой же обнаруженной матрице
@@ -199,7 +199,7 @@ public class ConfigurationStorageBuilder {
                 }
             }
         }
-        
+
         if (result != null) {
             configurationStorage.matrixReferenceTypeNameMap.put(childTypeName, result);
         }
@@ -216,7 +216,7 @@ public class ConfigurationStorageBuilder {
         List<String> result = new ArrayList<String>();
         Collection<DomainObjectTypeConfig> allTypes = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig domainObjectTypeConfig : allTypes) {
-            if (domainObjectTypeConfig.getExtendsAttribute() != null && domainObjectTypeConfig.getExtendsAttribute().equalsIgnoreCase(typeName)){
+            if (domainObjectTypeConfig.getExtendsAttribute() != null && domainObjectTypeConfig.getExtendsAttribute().equalsIgnoreCase(typeName)) {
                 result.add(domainObjectTypeConfig.getName());
                 result.addAll(getChildTypes(domainObjectTypeConfig.getName()));
             }
@@ -225,7 +225,7 @@ public class ConfigurationStorageBuilder {
     }
 
     public String[] fillDomainObjectTypesHierarchyMap(String typeName) {
-        List <String> typesHierarchy = new ArrayList<>();
+        List<String> typesHierarchy = new ArrayList<>();
         buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
         Collections.reverse(typesHierarchy);
         String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
@@ -240,14 +240,15 @@ public class ConfigurationStorageBuilder {
      * @return
      */
     private String getParentTypeNameFromMatrixReference(String matrixReferenceFieldName,
-                                                        DomainObjectTypeConfig domainObjectTypeConfig) {
+            DomainObjectTypeConfig domainObjectTypeConfig) {
 
         String result = null;
         if (matrixReferenceFieldName.indexOf(".") > 0) {
             // TODO здесь надо добавить обработку backlink
             throw new UnsupportedOperationException("Not implemented access referencing using backlink.");
         } else {
-            ReferenceFieldConfig fieldConfig =  (ReferenceFieldConfig) configurationExplorer.getFieldConfig(domainObjectTypeConfig.getName(), matrixReferenceFieldName);
+            ReferenceFieldConfig fieldConfig =
+                    (ReferenceFieldConfig) configurationExplorer.getFieldConfig(domainObjectTypeConfig.getName(), matrixReferenceFieldName);
             result = fieldConfig.getType();
         }
         return result;
@@ -299,7 +300,7 @@ public class ConfigurationStorageBuilder {
     }
 
     private void initConfigurationMapOfChildDomainObjectTypes(String typeName, ArrayList<DomainObjectTypeConfig> directChildTypes,
-                                                              ArrayList<DomainObjectTypeConfig> indirectChildTypes, boolean fillDirect) {
+            ArrayList<DomainObjectTypeConfig> indirectChildTypes, boolean fillDirect) {
         Collection<DomainObjectTypeConfig> allTypes = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig type : allTypes) {
             if (typeName.equals(type.getExtendsAttribute())) {
@@ -352,7 +353,8 @@ public class ConfigurationStorageBuilder {
                                     domainObjectTypeConfig.getName());
                     fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
                     fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
-                    configurationStorage.attachmentDomainObjectTypes.put(attachmentDomainObjectTypeConfig.getName(), attachmentDomainObjectTypeConfig.getName());
+                    configurationStorage.attachmentDomainObjectTypes
+                            .put(attachmentDomainObjectTypeConfig.getName(), attachmentDomainObjectTypeConfig.getName());
                 }
             }
         } catch (IOException e) {
@@ -379,28 +381,37 @@ public class ConfigurationStorageBuilder {
     private void fillReadPermittedToEverybodyMap() {
         for (TopLevelConfig config : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
             boolean readEverybody = isReadEverybodyForType(config.getName());
+
+            //Если readEverybody == false Дополнительная проверка на заимствование прав
+            if (!readEverybody) {
+                AccessMatrixConfig accessMatrixConfig =
+                        configurationExplorer.getAccessMatrixByObjectType(config.getName());
+                if (accessMatrixConfig != null && accessMatrixConfig.getMatrixReference() != null) {
+
+                    //Получение типа откуда заимствуем права и проверяем у полученного типа флаг ReadEverybody 
+                    String matrixReferenceType = fillMatrixReferenceTypeNameMap(config.getName());
+                    readEverybody = isReadEverybodyForType(matrixReferenceType);
+                }
+            }
+
             configurationStorage.readPermittedToEverybodyMap.put(config.getName(), readEverybody);
         }
     }
 
+    /**
+     * Получение флага ReadEverybody для типа с учетом иерархии типов
+     * @param domainObjectType
+     * @return
+     */
     private boolean isReadEverybodyForType(String domainObjectType) {
         boolean result = false;
-        
+
         AccessMatrixConfig accessMatrixConfig =
                 configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
-        
-        if (accessMatrixConfig != null) {
-            //Проверка флага непосредственно в матрице для типа
-            if (accessMatrixConfig.isReadEverybody() != null){
-                result = accessMatrixConfig.isReadEverybody();
-            }
-            //Проверка на заимствование прав
-            else if(accessMatrixConfig.getMatrixReference() != null){
-                //Получение типа откуда заимствуем права и проверяем у полученного типа флаг ReadEverybody 
-                String matrixReferenceType = fillMatrixReferenceTypeNameMap(domainObjectType);
-                result = isReadEverybodyForType(matrixReferenceType);
-            }
-        }else{
+
+        if (accessMatrixConfig != null && accessMatrixConfig.isReadEverybody() != null) {
+            result = accessMatrixConfig.isReadEverybody();
+        } else {
             DomainObjectTypeConfig domainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
             if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
