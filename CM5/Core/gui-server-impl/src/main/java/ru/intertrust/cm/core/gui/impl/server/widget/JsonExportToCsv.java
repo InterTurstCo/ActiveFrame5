@@ -174,7 +174,7 @@ public class JsonExportToCsv {
             if (areFilterValuesValid(filterValues)) {
                 Filter filter = FilterBuilderUtil.prepareSearchFilter(filterValues, columnProperties);
                 filters.add(filter);
-                excludedFilterFields.add(fieldName);
+                excludedFilterFields.add(filter.getFilter());//TODO: is it filter name??
             } else {
                 List<String> initialFilterValues = (List<String>) columnProperties.
                         getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
