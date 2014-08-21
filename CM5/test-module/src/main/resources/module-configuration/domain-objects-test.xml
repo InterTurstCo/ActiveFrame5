@@ -105,6 +105,20 @@
             <decimal name="square" precision="9" scale="2"/>
         </fields> 
     </domain-object-type>
+
+    <domain-object-type name="test_type_1" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_2" initial-status="Active">
+        <fields>
+            <reference name="test_type_1" type="test_type_1"/>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
     
     <collection name="Employees_test" idField="id">
         <prototype>

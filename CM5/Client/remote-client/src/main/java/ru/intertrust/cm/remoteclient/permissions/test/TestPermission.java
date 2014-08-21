@@ -220,6 +220,21 @@ public class TestPermission extends ClientBase {
             IdentifiableObjectCollection collection = notAdminCollectionService.findCollectionByQuery("select * from person_test");
             assertTrue("test employee query", collection.size() > 0);
             
+            //Проверка косвенных прав, ссылающихся на матрицу с read everybody
+            DomainObject testType1 = getCrudService().createDomainObject("test_type_1");
+            testType1.setString("name", "Name " + System.nanoTime());
+            testType1 = getCrudService().save(testType1);
+            
+            DomainObject testType2 = getCrudService().createDomainObject("test_type_2");
+            testType2.setString("name", "Name " + System.nanoTime());
+            testType2.setReference("test_type_1", testType1);
+            testType2 = getCrudService().save(testType2);
+            
+            collection = notAdminCollectionService.findCollectionByQuery("select * from test_type_1");
+            assertTrue("test test_type_1 query", collection.size() > 0);
+
+            collection = notAdminCollectionService.findCollectionByQuery("select * from test_type_2");
+            assertTrue("test test_type_2 query", collection.size() > 0);
             
             log("Test complete");
         } finally {

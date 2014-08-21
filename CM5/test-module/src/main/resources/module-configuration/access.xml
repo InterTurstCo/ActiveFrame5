@@ -90,5 +90,10 @@
     </access-matrix>
 
     <access-matrix type="employee_test" matrix-reference-field="Department"/>
+
+    <access-matrix type="test_type_1" read-everybody="true"/>
+
+    <access-matrix type="test_type_2" matrix-reference-field="test_type_1"/>
+
     
 </configuration>

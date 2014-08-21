@@ -389,8 +389,17 @@ public class ConfigurationStorageBuilder {
         AccessMatrixConfig accessMatrixConfig =
                 configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
         
-        if (accessMatrixConfig != null && accessMatrixConfig.isReadEverybody() != null){
-            result = accessMatrixConfig.isReadEverybody();
+        if (accessMatrixConfig != null) {
+            //Проверка флага непосредственно в матрице для типа
+            if (accessMatrixConfig.isReadEverybody() != null){
+                result = accessMatrixConfig.isReadEverybody();
+            }
+            //Проверка на заимствование прав
+            else if(accessMatrixConfig.getMatrixReference() != null){
+                //Получение типа откуда заимствуем права и проверяем у полученного типа флаг ReadEverybody 
+                String matrixReferenceType = fillMatrixReferenceTypeNameMap(domainObjectType);
+                result = isReadEverybodyForType(matrixReferenceType);
+            }
         }else{
             DomainObjectTypeConfig domainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
