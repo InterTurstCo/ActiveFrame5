@@ -49,10 +49,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage);
 
         configurationStorageBuilder.buildConfigurationStorage();
+        validate();
     }
 
     private void init() {
-        validate();
+        validateGui();
     }
 
     /**
@@ -91,9 +92,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         new UniqueNameLogicalValidator(this).validate();
         if (configStorage.globalSettings.validateIndirectPermissions()) {
             new IndirectlyPermissionLogicalValidator(this).validate();
-        }
-        if (configStorage.globalSettings.validateGui()) {
-            validateGui();
         }
     }
 
