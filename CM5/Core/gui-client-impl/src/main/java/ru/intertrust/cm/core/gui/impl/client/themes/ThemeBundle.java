@@ -56,6 +56,9 @@ public interface ThemeBundle extends ClientBundle {
     @ClientBundle.Source("images/favorite-panel-off.png")
     ImageResource favoritePanelOffActionIm();
 
+    @ClientBundle.Source("images/filterClearButton.png")
+    ImageResource filterClearButtonIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

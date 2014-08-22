@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.DateFilterHeaderWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidget;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
@@ -67,7 +68,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         widgetId = headerWidget.getId();
 
     }
-    public void setFilterInputWidth(int width){
+
+    public void setFilterInputWidth(int width) {
         widget.setFilterInputWidth(width);
     }
 
@@ -82,7 +84,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
         }
     }
-    public HeaderWidget getHeaderWidget(){
+
+    public HeaderWidget getHeaderWidget() {
         return widget;
     }
 
@@ -353,7 +356,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             }
             if (eventType.equalsIgnoreCase("keydown")) {
                 if (clickedElement != null) {
-                    onHeaderElementClick(clickedElement);
+                    onHeaderKeyDown(clickedElement);
                 }
 
                 return;
@@ -399,15 +402,27 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             cleanUp();
         }
 
-        private void onHeaderElementClick(Element clickedElement) {
-
+        private void onHeaderKeyDown(Element clickedElement) {
             if ((widgetId + HEADER_INPUT_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
-                String filterValue = inputFilter.getValue();
-                if (filterValue.length() > 0) {
-                    clearButton = DOM.getElementById(widgetId + HEADER_CLEAR_BUTTON_ID_PART);
-                    clearButton.setClassName("search-box-clear-button-on");
-                }
-            } else if ((widgetId + HEADER_CLEAR_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        String filterValue = inputFilter.getValue();
+                        clearButton = DOM.getElementById(widgetId + HEADER_CLEAR_BUTTON_ID_PART);
+                        if (filterValue.length() > 0) {
+                            clearButton.setClassName(GlobalThemesManager.getCurrentTheme().commonCss().filterBoxClearButtonOn());
+                        } else {
+                            clearButton.setClassName("search-box-clear-button-off");
+
+                        }
+
+                    }
+                });
+            }
+        }
+
+        private void onHeaderElementClick(Element clickedElement) {
+            if ((widgetId + HEADER_CLEAR_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
                 clearButton = DOM.getElementById(widgetId + HEADER_CLEAR_BUTTON_ID_PART);
                 clearButton.setClassName("search-box-clear-button-off");
                 inputFilter.setValue(EMPTY_VALUE);

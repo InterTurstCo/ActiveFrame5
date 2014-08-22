@@ -91,3 +91,24 @@
     margin: 7px 5px 0 0;
     width: 25px;
 }
+
+@sprite .filterBoxClearButtonOn {
+    gwt-image: "filterClearButtonIm";
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    border: 0;
+    cursor: pointer;
+    display: inline-block;
+    float: right;
+    height: 16px;
+    margin: 2px;
+    width: 16px;
+}
+
+.filterBoxClearButtonOn:hover {
+    background-position: -16px 0;
+}
+
+.filterBoxClearButtonOn:active {
+    background-position: -32px 0;
+}
