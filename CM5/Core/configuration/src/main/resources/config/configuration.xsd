@@ -582,6 +582,20 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+
+            <xs:element name="development-mode" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="logical-validation" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:attribute name="access-matrices" use="optional" type="xs:boolean"/>
+                                <xs:attribute name="indirect-permissions" use="optional" type="xs:boolean"/>
+                                <xs:attribute name="gui" use="optional" type="xs:boolean"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 

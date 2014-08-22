@@ -47,18 +47,8 @@
         <servlet-name>Attachment Uploader</servlet-name>
         <url-pattern>/attachment-upload</url-pattern>
     </servlet-mapping>
-
-    <servlet>
-        <servlet-name>Attachment Downloader</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>/WEB-INF/applicationContext.xml</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
     <servlet-mapping>
-        <servlet-name>Attachment Downloader</servlet-name>
+        <servlet-name>Attachment Uploader</servlet-name>
         <url-pattern>/attachment-download/*</url-pattern>
     </servlet-mapping>
 
