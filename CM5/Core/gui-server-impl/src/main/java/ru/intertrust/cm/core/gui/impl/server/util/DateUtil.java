@@ -69,16 +69,20 @@ public class DateUtil {
     }
 
     public static DateFormat getDateFormat(String datePattern, String timePattern) {
+        String formatDatePattern = prepareDatePattern(datePattern, timePattern);
+        return formatDatePattern == null ? null : new SimpleDateFormat(formatDatePattern);
+    }
+
+    public static String prepareDatePattern(String datePattern, String timePattern){
         if (datePattern == null) {
             return null;
         }
         if (timePattern == null) {
-            return new SimpleDateFormat(datePattern);
+            return datePattern;
         }
         StringBuilder patternBuilder = new StringBuilder(datePattern);
         patternBuilder.append(" ");
         patternBuilder.append(timePattern);
-        return new SimpleDateFormat(patternBuilder.toString());
+        return patternBuilder.toString();
     }
-
 }

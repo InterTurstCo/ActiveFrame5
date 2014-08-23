@@ -369,7 +369,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                         if ((widgetId + HEADER_INPUT_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
                             inputFilter = getInputFilter();
                             if (inputFilter != null && inputFilter.getValue().length() > 0) {
-                                clearButton.setClassName("search-box-clear-button-on");
+                                clearButton.setClassName(GlobalThemesManager.getCurrentTheme().commonCss().filterBoxClearButtonOn());
                             }
                             natEvent.stopPropagation();
                             natEvent.preventDefault();

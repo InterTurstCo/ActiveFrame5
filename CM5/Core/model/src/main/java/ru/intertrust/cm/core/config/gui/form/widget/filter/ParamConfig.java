@@ -17,7 +17,7 @@ public class ParamConfig implements Dto {
     @Attribute(name = "value")
     private String value;
 
-    @Attribute(name = "type")
+    @Attribute(name = "type", required = false)
     private String type;
 
     public Integer getName() {

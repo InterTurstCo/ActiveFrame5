@@ -6,13 +6,15 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.LiteralFieldValueParser;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -21,21 +23,13 @@ import java.util.List;
  */
 @ComponentName("filter-builder")
 public class FilterBuilderImpl implements FilterBuilder {
+
     @Autowired
     private LiteralFieldValueParser literalFieldValueParser;
 
-    public boolean prepareInitialFilters(InitialFiltersConfig initialFiltersConfig, List<String> excludedInitialFilterNames,
-                                         List<Filter> filters) {
-        return prepareInitialOrSelectionFilters(initialFiltersConfig, excludedInitialFilterNames, filters);
-    }
 
-    public boolean prepareSelectionFilters(SelectionFiltersConfig selectionFiltersConfig, List<String> excludedInitialFilterNames,
-                                           List<Filter> filters) {
-        return prepareInitialOrSelectionFilters(selectionFiltersConfig, excludedInitialFilterNames, filters);
-    }
-
-    private boolean prepareInitialOrSelectionFilters(AbstractFiltersConfig abstractFiltersConfig, List<String> excludedInitialFilterNames,
-                                                     List<Filter> filters) {
+    public boolean prepareInitialFilters(AbstractFiltersConfig abstractFiltersConfig, List<String> excludedInitialFilterNames,
+                                            List<Filter> filters, Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap) {
         if (abstractFiltersConfig == null) {
             return false;
         }
@@ -44,7 +38,28 @@ public class FilterBuilderImpl implements FilterBuilder {
             for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
                 String filterName = abstractFilterConfig.getName();
                 if (excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)) {
-                    Filter initialFilter = prepareInitialOrSelectionFilter(abstractFilterConfig);
+                    List<String> filterValues = prepareFilterStringValues(abstractFilterConfig);
+                    CollectionColumnProperties columnProperties = filterNameColumnPropertiesMap.get(filterName);
+                    Filter initialFilter = FilterBuilderUtil.prepareSearchFilter(filterValues, columnProperties);
+                    filters.add(initialFilter);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    public boolean prepareSelectionFilters(AbstractFiltersConfig abstractFiltersConfig,
+                                            List<String> excludedInitialFilterNames, List<Filter> filters) {
+
+        if (abstractFiltersConfig == null) {
+            return false;
+        }
+        List<AbstractFilterConfig> abstractFilterConfigs = abstractFiltersConfig.getAbstractFilterConfigs();
+        if (abstractFilterConfigs != null && !abstractFilterConfigs.isEmpty()) {
+            for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
+                String filterName = abstractFilterConfig.getName();
+                if (excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)) {
+                    Filter initialFilter = prepareSelectionFilter(abstractFilterConfig);
                     filters.add(initialFilter);
                 }
             }
@@ -53,7 +68,7 @@ public class FilterBuilderImpl implements FilterBuilder {
         return false;
     }
 
-    private Filter prepareInitialOrSelectionFilter(AbstractFilterConfig abstractFilterConfig) {
+    private Filter prepareSelectionFilter(AbstractFilterConfig abstractFilterConfig) {
         String filterName = abstractFilterConfig.getName();
         Filter initFilter = new Filter();
         initFilter.setFilter(filterName);
@@ -70,5 +85,15 @@ public class FilterBuilderImpl implements FilterBuilder {
 
         }
         return initFilter;
+    }
+
+    private List<String> prepareFilterStringValues(AbstractFilterConfig abstractFilterConfig){
+        List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
+        List<String> result = new ArrayList<String>(paramConfigs.size());
+        for (ParamConfig paramConfig : paramConfigs) {
+            result.add(paramConfig.getValue());
+        }
+        return result;
+
     }
 }

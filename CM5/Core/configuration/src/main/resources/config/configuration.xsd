@@ -1803,7 +1803,7 @@
     <xs:complexType name="paramType">
         <xs:attribute name="name" use="required" type="xs:integer"/>
         <xs:attribute name="value" use="required" type="xs:string"/>
-        <xs:attribute name="type" use="required" type="con:columnFieldTypeEnum"/>
+        <xs:attribute name="type" use="optional" type="con:columnFieldTypeEnum"/>
     </xs:complexType>
 
     <xs:complexType name="filterPanelType">

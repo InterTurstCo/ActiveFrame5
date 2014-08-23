@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedE
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.CollectionRangeDatePicker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.HeaderWidgetUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -80,7 +81,8 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
                 setFilterValuesRepresentation(filterValueRepresentation);
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).focus();
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(filterValueRepresentation);
-                DOM.getElementById(id + HEADER_CLEAR_BUTTON_ID_PART).setClassName("search-box-clear-button-on");
+                DOM.getElementById(id + HEADER_CLEAR_BUTTON_ID_PART)
+                        .setClassName(GlobalThemesManager.getCurrentTheme().commonCss().filterBoxClearButtonOn());
             }
 
         });

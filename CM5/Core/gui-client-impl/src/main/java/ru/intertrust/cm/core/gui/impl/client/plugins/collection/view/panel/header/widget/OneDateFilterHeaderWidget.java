@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEventH
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.OneDatePicker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.HeaderWidgetUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -64,7 +65,8 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
                 setFilterValuesRepresentation(dateValue);
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).focus();
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(dateValue);
-                DOM.getElementById(id + HEADER_CLEAR_BUTTON_ID_PART).setClassName("search-box-clear-button-on");
+                DOM.getElementById(id + HEADER_CLEAR_BUTTON_ID_PART)
+                        .setClassName(GlobalThemesManager.getCurrentTheme().commonCss().filterBoxClearButtonOn());
             }
 
         });
