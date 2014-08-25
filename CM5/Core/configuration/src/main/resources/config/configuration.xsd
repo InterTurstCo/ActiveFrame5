@@ -306,7 +306,26 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:passwordType" name="password"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="include-group" type="con:includeFieldGroupType" />
+            
         </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="fieldGroupType">
+        <xs:complexContent>
+            <xs:extension base="con:fieldsType">
+                <xs:attribute name="name" type="xs:string"
+                              use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="includeFieldGroupType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" use="required" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
     <xs:complexType name="fieldType">
@@ -403,6 +422,7 @@
             <xs:element name="navigation-panel-mapping" type="con:navigationPanelMappingType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="field-group" minOccurs="0"  type="con:fieldGroupType"/>
             <!--
                         <xs:element name="groups" type="con:groupsNavType"
                                     maxOccurs="unbounded" minOccurs="0"

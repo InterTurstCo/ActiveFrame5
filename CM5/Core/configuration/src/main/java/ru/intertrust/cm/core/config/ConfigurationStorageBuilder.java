@@ -261,13 +261,13 @@ public class ConfigurationStorageBuilder {
         }
 
         List<DomainObjectTypeConfig> attachmentOwnerDots = new ArrayList<>();
-        for (TopLevelConfig config : configurationStorage.configuration.getConfigurationList()) {
+        for (TopLevelConfig config : configurationStorage.configuration.getConfigurationList()) {            
             fillGlobalSettingsCache(config);
             fillTopLevelConfigMap(config);
-
+            
             if (DomainObjectTypeConfig.class.equals(config.getClass())) {
                 DomainObjectTypeConfig domainObjectTypeConfig = (DomainObjectTypeConfig) config;
-                fillFieldsConfigMap(domainObjectTypeConfig);
+                
                 if (domainObjectTypeConfig.getAttachmentTypesConfig() != null) {
                     attachmentOwnerDots.add(domainObjectTypeConfig);
                 }
@@ -280,10 +280,23 @@ public class ConfigurationStorageBuilder {
             }
         }
 
+        fillDomainObjectFieldConfigs();
+        
         initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
         initConfigurationMapOfChildDomainObjectTypes();
         //Заполнение таблицы read-evrybody. Вынесено сюда, потому что не для всех типов существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
         fillReadPermittedToEverybodyMap();
+    }
+
+    private void fillDomainObjectFieldConfigs() {
+        for (DomainObjectTypeConfig domainObjectTypeConfig : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
+            List<FieldConfig> allFieldsConfig =
+                    DomainObjectTypeUtility.getAllFieldConfigs(domainObjectTypeConfig.getDomainObjectFieldsConfig(), configurationExplorer);
+            domainObjectTypeConfig.getDomainObjectFieldsConfig().setFieldConfigs(allFieldsConfig);
+
+            fillFieldsConfigMap(domainObjectTypeConfig);
+
+        }
     }
 
     private void initConfigurationMapOfChildDomainObjectTypes() {
@@ -330,7 +343,9 @@ public class ConfigurationStorageBuilder {
     }
 
     private void fillFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+        List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigs(domainObjectTypeConfig.getDomainObjectFieldsConfig(), configurationExplorer);                
+        
+        for (FieldConfig fieldConfig : allFieldsConfig) {
             FieldConfigKey fieldConfigKey =
                     new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
             configurationStorage.fieldConfigMap.put(fieldConfigKey, fieldConfig);

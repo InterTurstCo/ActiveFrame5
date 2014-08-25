@@ -26,6 +26,19 @@ public class DomainObjectFieldsConfig implements Serializable {
     })
     private List<FieldConfig> fieldConfigs = new ArrayList<>();
 
+    @ElementListUnion({
+        @ElementList(entry="include-group", type=IncludeFieldGroupConfig.class, inline=true, required = false)            
+    })
+    protected List<IncludeFieldGroupConfig> includeGroups = new ArrayList<>();
+    
+    public List<IncludeFieldGroupConfig> getIncludeGroups() {
+        return includeGroups;
+    }
+
+    public void setIncludeGroups(List<IncludeFieldGroupConfig> includeGroups) {
+        this.includeGroups = includeGroups;
+    }
+
     public List<FieldConfig> getFieldConfigs() {
         return fieldConfigs;
     }
