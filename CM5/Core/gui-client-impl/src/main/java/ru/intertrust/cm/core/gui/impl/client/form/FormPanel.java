@@ -281,8 +281,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         FlexTable table = new FlexTable();
 
         if (formDisplayData.isDebug()) {
-            table.setBorderWidth(1);
-            table.getElement().setId("debug"); // todo: why ID?
+            table.getElement().addClassName("debug");
         }
 
         FlexTable.FlexCellFormatter cellFormatter = table.getFlexCellFormatter();

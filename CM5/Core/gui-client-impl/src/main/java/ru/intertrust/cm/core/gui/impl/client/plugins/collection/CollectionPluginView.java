@@ -666,10 +666,6 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
-                if(collectionRowItems.isEmpty()) {
-                    Application.getInstance().hideLoadingIndicator();
-                    return;
-                }
                 handleCollectionRowsResponse(collectionRowItems, false);
                 Application.getInstance().hideLoadingIndicator();
                 if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {

@@ -499,9 +499,9 @@
                 <xs:element name="product-title"
                             type="con:productTitleType" />
             </xs:sequence>
-            <xs:attribute name="display-product-version" use="required"
+            <xs:attribute name="display-product-version" use="optional"
                           type="xs:boolean"/>
-            <xs:attribute name="display-core-version" use="required"
+            <xs:attribute name="display-core-version" use="optional"
                           type="xs:boolean"/>
     </xs:complexType>
 
@@ -531,7 +531,7 @@
     <xs:complexType name="productTitleType">
         <xs:attribute name="style" use="required"
                       type="xs:string"/>
-        <xs:attribute name="image" use="required"
+        <xs:attribute name="image" use="optional"
                       type="xs:string"/>
     </xs:complexType>
 
@@ -597,6 +597,20 @@
                             <xs:complexType>
                                 <xs:attribute name="id" use="required" type="xs:string"/>
                                 <xs:attribute name="weight" use="optional" type="xs:positiveInteger"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="development-mode" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="logical-validation" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:attribute name="access-matrices" use="optional" type="xs:boolean"/>
+                                <xs:attribute name="indirect-permissions" use="optional" type="xs:boolean"/>
+                                <xs:attribute name="gui" use="optional" type="xs:boolean"/>
                             </xs:complexType>
                         </xs:element>
                     </xs:sequence>
@@ -1809,7 +1823,7 @@
     <xs:complexType name="paramType">
         <xs:attribute name="name" use="required" type="xs:integer"/>
         <xs:attribute name="value" use="required" type="xs:string"/>
-        <xs:attribute name="type" use="required" type="con:columnFieldTypeEnum"/>
+        <xs:attribute name="type" use="optional" type="con:columnFieldTypeEnum"/>
     </xs:complexType>
 
     <xs:complexType name="filterPanelType">

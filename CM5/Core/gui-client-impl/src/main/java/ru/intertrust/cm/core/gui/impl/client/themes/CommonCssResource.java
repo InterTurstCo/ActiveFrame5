@@ -33,4 +33,9 @@ public interface CommonCssResource extends CssResource {
 
     @ClassName("configurationUploader")
     String configurationUploader();
+
+    @ClassName("filterBoxClearButtonOn")
+    String filterBoxClearButtonOn();
+
+
 }

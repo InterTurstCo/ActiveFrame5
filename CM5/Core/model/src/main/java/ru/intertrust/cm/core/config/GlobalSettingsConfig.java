@@ -1,13 +1,12 @@
 package ru.intertrust.cm.core.config;
 
-import java.util.List;
-
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.search.SearchLanguageConfig;
+
+import java.util.List;
 
 @Root(name = "global-settings")
 public class GlobalSettingsConfig implements TopLevelConfig {
@@ -34,6 +33,9 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     @ElementList(name = "search-languages", entry = "language", required = false)
     private List<SearchLanguageConfig> searchLanguages;
+
+    @Element(name = "development-mode", required = false)
+    private DevelopmentModeConfig developmentMode;
 
     public AuditLog getAuditLog() {
         return auditLog;
@@ -79,6 +81,37 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         this.productVersion = productVersion;
     }
 
+    public DevelopmentModeConfig getDevelopmentMode() {
+        return developmentMode;
+    }
+
+    public void setDevelopmentMode(DevelopmentModeConfig developmentMode) {
+        this.developmentMode = developmentMode;
+    }
+
+    public boolean validateGui() {
+        return devModeValidationRulesNotDefined() || developmentMode.getLogicalValidation().validateGui();
+    }
+
+    public boolean validateAccessMatrices() {
+        return devModeValidationRulesNotDefined() || developmentMode.getLogicalValidation().validateAccessMatrices();
+    }
+
+    public boolean validateIndirectPermissions() {
+        return devModeValidationRulesNotDefined() || developmentMode.getLogicalValidation().validateIndirectPermissions();
+    }
+
+    private boolean devModeValidationRulesNotDefined() {
+        if (developmentMode == null) {
+            return true;
+        }
+        final LogicalValidationConfig logicalValidationConfig = developmentMode.getLogicalValidation();
+        if (logicalValidationConfig == null) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -95,6 +128,8 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         if (sqlTrace != null ? !sqlTrace.equals(that.sqlTrace) : that.sqlTrace != null) return false;
         if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
             return false;
+        if (developmentMode != null ? !developmentMode.equals(that.developmentMode) : that.developmentMode != null)
+            return false;
 
         return true;
     }
@@ -103,10 +138,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     public int hashCode() {
         int result = productTitle != null ? productTitle.hashCode() : 0;
         result = 31 * result + (productVersion != null ? productVersion.hashCode() : 0);
-        result = 31 * result + (auditLog != null ? auditLog.hashCode() : 0);
-        result = 31 * result + (sqlTrace != null ? sqlTrace.hashCode() : 0);
-        result = 31 * result + (transactionTrace != null ? transactionTrace.hashCode() : 0);
-        result = 31 * result + (searchLanguages != null ? searchLanguages.hashCode() : 0);
         return result;
     }
 

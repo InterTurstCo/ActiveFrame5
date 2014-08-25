@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.JsonUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
@@ -174,7 +175,7 @@ public class JsonExportToCsv {
             if (areFilterValuesValid(filterValues)) {
                 Filter filter = FilterBuilderUtil.prepareSearchFilter(filterValues, columnProperties);
                 filters.add(filter);
-                excludedFilterFields.add(fieldName);
+                excludedFilterFields.add(filter.getFilter());//TODO: is it filter name??
             } else {
                 List<String> initialFilterValues = (List<String>) columnProperties.
                         getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
@@ -184,7 +185,9 @@ public class JsonExportToCsv {
             }
         }
         InitialFiltersConfig initialFiltersConfig = JsonUtil.convertToInitialFiltersConfig(jsonInitialFilters);
-        filterBuilder.prepareInitialFilters(initialFiltersConfig, excludedFilterFields, filters);
+        Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper
+                .getFilterNameColumnPropertiesMap(columnPropertiesMap, initialFiltersConfig);
+        filterBuilder.prepareInitialFilters(initialFiltersConfig, excludedFilterFields, filters, filterNameColumnPropertiesMap);
         return filters;
     }
 

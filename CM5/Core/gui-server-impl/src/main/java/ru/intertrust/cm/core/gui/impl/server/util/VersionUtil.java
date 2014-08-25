@@ -17,19 +17,24 @@ public class VersionUtil {
 
     private static String PLATFORM_VERSION = null;
     private static String PRODUCT_VERSION = null;
-    private static String ALIAS_PLATFORM_JAR = "dao-api-";
+    private static String ALIAS_PLATFORM_JAR = "dao-api.jar";
 
     public VersionUtil() {
     }
 
-    public String getManifestInfo(String JarName) {
+    public String getManifestInfo(String jarAlias) {
+        final int endIndex = jarAlias.indexOf(".jar");
+        if (endIndex == -1) {
+            return null;
+        }
+        jarAlias = jarAlias.substring(0, endIndex);
         Enumeration resEnum;
         try {
             resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
 
             while (resEnum.hasMoreElements()) {
                 URL url = (URL) resEnum.nextElement();
-                boolean isCoreVersionJar = url.getPath().contains(JarName);
+                boolean isCoreVersionJar = url.getPath().contains(jarAlias);
                 if (!isCoreVersionJar) {
                     continue;
                 }
@@ -68,6 +73,6 @@ public class VersionUtil {
             return PRODUCT_VERSION;
         }
         PRODUCT_VERSION = getManifestInfo(jarName);
-        return PLATFORM_VERSION;
+        return PRODUCT_VERSION;
     }
 }

@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.panel;
 
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -103,7 +102,9 @@ public class HeaderContainer extends SimplePanel {
         contentInfo.add(infoPanel);
         infoPanel.setStyleName("info-panel");
         infoPanel.add(new Label("Версия платформы: " + version.getCoreVersion()));
-        infoPanel.add(new Label("          Версия: " + version.getProductVersion()));
+        if (version.getProductVersion() != null) {
+            infoPanel.add(new Label("          Версия: " + version.getProductVersion()));
+        }
         popupPanel.add(contentInfo);
 
         popupPanel.getElement().setClassName("applicationVersionWindows popupWindow");

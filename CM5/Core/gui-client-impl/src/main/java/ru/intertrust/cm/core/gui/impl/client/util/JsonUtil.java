@@ -66,7 +66,11 @@ public class JsonUtil {
             if (filterValues != null) {
                 JSONArray jsonFilterValues = prepareFilterValuesRepresentation(filterValues);
                 jsonColumnProperties.put("filterValues", jsonFilterValues);
-                String filterName = (String) properties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+
+
+            }
+            String filterName = (String) properties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+            if (filterName != null) {
                 jsonColumnProperties.put("filterName", new JSONString(filterName));
             }
             jsonColumnProperties.put("fieldName", new JSONString(fieldName));
@@ -81,9 +85,9 @@ public class JsonUtil {
             jsonColumnProperties.put("timeZoneId", new JSONString(timeZoneId));
             String columnName = (String) properties.getProperty(CollectionColumnProperties.NAME_KEY);
             jsonColumnProperties.put("columnName", new JSONString(columnName));
-            List<String> initialFilterValues = (List<String> ) properties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
-            if(initialFilterValues != null){
-            jsonColumnProperties.put("initialFilterValues", prepareFilterValuesRepresentation(initialFilterValues));
+            List<String> initialFilterValues = (List<String>) properties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
+            if (initialFilterValues != null) {
+                jsonColumnProperties.put("initialFilterValues", prepareFilterValuesRepresentation(initialFilterValues));
             }
 
             propertiesArray.set(count, jsonColumnProperties);
@@ -95,10 +99,11 @@ public class JsonUtil {
 
 
     }
-    private static JSONArray prepareFilterValuesRepresentation(List<String> filterValues){
+
+    private static JSONArray prepareFilterValuesRepresentation(List<String> filterValues) {
         JSONArray jsonFiltersArr = new JSONArray();
         for (int i = 0; i < filterValues.size(); i++) {
-            String filterValue =  filterValues.get(i);
+            String filterValue = filterValues.get(i);
             jsonFiltersArr.set(i, new JSONString(filterValue));
         }
         return jsonFiltersArr;
@@ -134,12 +139,13 @@ public class JsonUtil {
         requestObj.put("jsonInitialFilters", jsonInitialFiltersObj);
 
     }
+
     private static void prepareJsonInitialFilter(JSONArray jsonInitialFiltersArr, AbstractFilterConfig abstractFilterConfig, int index) {
         JSONObject jsonInitialFilterObj = new JSONObject();
         String filterName = abstractFilterConfig.getName();
         jsonInitialFilterObj.put("name", new JSONString(filterName));
         List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
-        if(paramConfigs != null) {
+        if (paramConfigs != null) {
             int paramIndex = 0;
             JSONArray jsonFilterParamArr = new JSONArray();
             for (ParamConfig paramConfig : paramConfigs) {
@@ -151,14 +157,14 @@ public class JsonUtil {
         jsonInitialFiltersArr.set(index, jsonInitialFilterObj);
 
     }
+
     private static void prepareJsonFilterParam(JSONArray jsonFilterParamArr, ParamConfig paramConfig, int index) {
         JSONObject jsonFilterParamObj = new JSONObject();
         Integer name = paramConfig.getName();
         jsonFilterParamObj.put("name", new JSONNumber(name));
         String value = paramConfig.getValue();
         jsonFilterParamObj.put("value", new JSONString(value));
-        String type = paramConfig.getType();
-        jsonFilterParamObj.put("type", new JSONString(type));
+
         jsonFilterParamArr.set(index, jsonFilterParamObj);
     }
 }

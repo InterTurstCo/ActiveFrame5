@@ -162,6 +162,9 @@ public class ConfigurationStorageBuilder {
         //Получаем матрицу и смотрим атрибут matrix_reference_field
         AccessMatrixConfig matrixConfig = null;
         DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childTypeName);
+        if (childDomainObjectTypeConfig == null) {
+            return null; // todo: throw exception
+        }
 
         String result = null;
 
@@ -249,7 +252,9 @@ public class ConfigurationStorageBuilder {
         } else {
             ReferenceFieldConfig fieldConfig =
                     (ReferenceFieldConfig) configurationExplorer.getFieldConfig(domainObjectTypeConfig.getName(), matrixReferenceFieldName);
-            result = fieldConfig.getType();
+            if (fieldConfig != null) {  // todo: throw exception if null
+                result = fieldConfig.getType();
+            }
         }
         return result;
     }
@@ -405,6 +410,9 @@ public class ConfigurationStorageBuilder {
 
                     //Получение типа откуда заимствуем права и проверяем у полученного типа флаг ReadEverybody 
                     String matrixReferenceType = fillMatrixReferenceTypeNameMap(config.getName());
+                    if (matrixReferenceType == null) {
+                        continue;  // todo: throw exception
+                    }
                     readEverybody = isReadEverybodyForType(matrixReferenceType);
                 }
             }

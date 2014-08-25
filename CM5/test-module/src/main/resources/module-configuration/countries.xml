@@ -104,7 +104,7 @@
     </domain-object-type>
 
 
-    <form name="country_form" domain-object-type="country" is-default="true" debug="false" min-width="900px">
+    <form name="country_form" domain-object-type="country" is-default="true" debug="true" min-width="900px">
         <act:tool-bar useDefault="true"/>
         <markup>
             <header>
@@ -132,15 +132,15 @@
                                         <widget id="3"/>
                                     </td>
                                     <!-- label (Население) -->
-                                    <td h-align="left">
-                                        <widget id="4"/>
+                                    <td h-align="left" width="50%">
+                                        <widget id="4" width="100%"/>
                                     </td>
                                     <!-- integer-box (Население) -->
                                     <td>
                                         <widget id="5"/>
                                     </td>
                                     <!-- label (Площадь) -->
-                                    <td h-align="left">
+                                    <td h-align="left" width="50%">
                                         <widget id="6"/>
                                     </td>
                                     <!-- integer-box (Площадь) -->
@@ -162,9 +162,15 @@
                                         <!--<widget id="8"/>-->
                                         <widget id="test"/>
                                     </td>
+                                </tr>
+                                <tr>
                                     <!-- suggest-box (Столица) -->
-                                    <td colspan="3" h-align="left">
-                                        <widget id="suggest_capital"/>
+                                    <td h-align="left">
+                                        <widget id="cities_label"/>
+                                    </td>
+                                    <!-- suggest-box (Столица) -->
+                                    <td h-align="left">
+                                        <widget id="cities" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -378,7 +384,10 @@
                  <clear-all-button  text="Очистить"/>
                  <display-values-as-links value="true"/>
              </suggest-box>-->
-            <suggest-box id="suggest_capital">
+            <label id="cities_label">
+                <text>Города:</text>
+            </label>
+            <suggest-box id="cities">
                 <field-path value="city^country"/>
 
                 <collection-ref name="Cities"/>

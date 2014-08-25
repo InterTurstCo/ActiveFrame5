@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget;
 
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.HeaderWidgetUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
@@ -36,9 +37,11 @@ public class LiteralFilterHeaderWidget extends FilterHeaderWidget {
         htmlBuilder.append("<div type=\"button\" id= ");
         htmlBuilder.append(id);
         htmlBuilder.append(HEADER_CLEAR_BUTTON_ID_PART);
-        String clearButtonClass = filterValuesRepresentation.isEmpty() ? " class=\"search-box-clear-button-off\"></div></div>"
-                : " class=\"search-box-clear-button-on\"></div></div>";
-        htmlBuilder.append(clearButtonClass);
+        htmlBuilder.append(" class=\"");
+        String clearButtonStyleClassName = filterValuesRepresentation.isEmpty() ? "search-box-clear-button-off"
+                : GlobalThemesManager.getCurrentTheme().commonCss().filterBoxClearButtonOn();
+        htmlBuilder.append(clearButtonStyleClassName);
+        htmlBuilder.append("\"></div></div>");
         html = htmlBuilder.toString();
 
     }

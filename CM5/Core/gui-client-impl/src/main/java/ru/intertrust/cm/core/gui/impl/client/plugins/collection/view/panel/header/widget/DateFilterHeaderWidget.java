@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.head
 import com.google.gwt.i18n.client.DateTimeFormat;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DatePickerPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
 import java.util.List;
@@ -48,9 +49,12 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
         htmlBuilder.append("\" class=\"date-select\" ></button><div type=\"button\" id= ");
         htmlBuilder.append(id);
         htmlBuilder.append(HEADER_CLEAR_BUTTON_ID_PART);
-        String clearButtonClass = filterValuesRepresentation.isEmpty() ? " class=\"search-box-clear-button-off\"></div></div>"
-                : " class=\"search-box-clear-button-on\"></div></div>";
-        htmlBuilder.append(clearButtonClass);
+        htmlBuilder.append(" class=\"");
+        String clearButtonStyleClassName = filterValuesRepresentation.isEmpty() ? "search-box-clear-button-off"
+                : GlobalThemesManager.getCurrentTheme().commonCss().filterBoxClearButtonOn();
+        htmlBuilder.append(clearButtonStyleClassName);
+        htmlBuilder.append("\"></div></div>");
+
         html = htmlBuilder.toString();
     }
 

@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
@@ -53,6 +52,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         validate();
     }
 
+    private void init() {
+        validateGui();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -83,9 +86,13 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     private void validate() {
         new GlobalSettingsLogicalValidator(configStorage.configuration).validate();
         new DomainObjectLogicalValidator(this).validate();
-        new AccessMatrixLogicalValidator(this).validate();
+        if (configStorage.globalSettings.validateAccessMatrices()) {
+            new AccessMatrixLogicalValidator(this).validate();
+        }
         new UniqueNameLogicalValidator(this).validate();
-        new IndirectlyPermissionLogicalValidator(this).validate();
+        if (configStorage.globalSettings.validateIndirectPermissions()) {
+            new IndirectlyPermissionLogicalValidator(this).validate();
+        }
     }
 
     public void validateGui() {

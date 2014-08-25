@@ -1,11 +1,12 @@
 package ru.intertrust.cm.core.gui.api.server.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -14,10 +15,11 @@ import java.util.List;
  */
 
 public interface FilterBuilder extends ComponentHandler {
-    public boolean prepareInitialFilters(InitialFiltersConfig initialFiltersConfig,
-                                         List<String> excludedInitialFilterNames, List<Filter> filters);
+    boolean prepareInitialFilters(AbstractFiltersConfig  abstractFiltersConfig,
+                                  List<String> excludedInitialFilterNames,  List<Filter> filters, Map<String,
+                                          CollectionColumnProperties> filterNameColumnPropertiesMap);
 
-    public boolean prepareSelectionFilters(SelectionFiltersConfig selectionFiltersConfig,
+    boolean prepareSelectionFilters(AbstractFiltersConfig  selectionFiltersConfig,
                                            List<String> excludedInitialFilterNames, List<Filter> filters);
 
 }

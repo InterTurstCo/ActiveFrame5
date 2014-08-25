@@ -40,21 +40,32 @@ public class FilterBuilderUtil {
 
     }
 
-    public static Filter prepareSearchFilter(List<String> filterValues, CollectionColumnProperties columnProperties)
-            throws ParseException {
+    public static Filter prepareSearchFilter(List<String> filterValues, CollectionColumnProperties columnProperties) {
         Filter filter = new Filter();
         String filterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
         filter.setFilter(filterName);
         String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
         switch (fieldType) {
             case TIMELESS_DATE_TYPE:
-                prepareTimelessDateFilter(filter, filterValues, columnProperties);
+                try {
+                    prepareTimelessDateFilter(filter, filterValues, columnProperties);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 break;
             case DATE_TIME_TYPE:
-                prepareDateTimeFilter(filter, filterValues, columnProperties);
+                try {
+                    prepareDateTimeFilter(filter, filterValues, columnProperties);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 break;
             case DATE_TIME_WITH_TIME_ZONE_TYPE:
-                prepareDateTimeWithTimeZoneFilter(filter, filterValues, columnProperties);
+                try {
+                    prepareDateTimeWithTimeZoneFilter(filter, filterValues, columnProperties);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 break;
             case LONG_TYPE:
                 prepareLongFilter(filter, filterValues);
@@ -126,7 +137,7 @@ public class FilterBuilderUtil {
         String rawTimeZone = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_ZONE_ID);
         TimeZone timeZone = prepareTimeZone(rawTimeZone);
         String timePattern = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_PATTERN);
-        String pattern = preparePattern(datePattern, timePattern);
+        String pattern = DateUtil.prepareDatePattern(datePattern, timePattern);
         DateFormat format = new SimpleDateFormat(pattern);
         format.setTimeZone(timeZone);
         if (filterValues.size() == 1) {
@@ -173,15 +184,6 @@ public class FilterBuilderUtil {
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
         return calendar.getTime();
-    }
-
-    private static String preparePattern(String datePattern, String timePattern) {
-        if (timePattern == null) {
-            return datePattern;
-        }
-        StringBuilder patternBuilder = new StringBuilder(datePattern);
-        patternBuilder.append(timePattern);
-        return patternBuilder.toString();
     }
 
     private static void prepareStringFilter(Filter filter, List<String> filterValues) {
@@ -233,12 +235,12 @@ public class FilterBuilderUtil {
 
     }
 
-    private static void prepareDateTimeWithTimeZoneFilter(Filter filter, List<String> filterValues,
+    public static void prepareDateTimeWithTimeZoneFilter(Filter filter, List<String> filterValues,
                                                           CollectionColumnProperties columnProperties) throws ParseException {
         String userTimeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
         String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.DATE_PATTERN);
         String timePattern = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_PATTERN);
-        String pattern = preparePattern(datePattern, timePattern);
+        String pattern = DateUtil.prepareDatePattern(datePattern, timePattern);
         DateFormat dateFormat = new SimpleDateFormat(pattern);
         TimeZone userTimeZone = TimeZone.getTimeZone(userTimeZoneId);
         dateFormat.setTimeZone(userTimeZone);

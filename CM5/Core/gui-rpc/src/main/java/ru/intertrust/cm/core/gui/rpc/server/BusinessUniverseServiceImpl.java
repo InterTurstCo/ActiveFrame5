@@ -61,7 +61,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setApplicationVersion(version);
 
         GlobalSettingsConfig globalSettingsConfig = configurationService.getGlobalSettings();
-        initialization.setProductVersion(guiService.getProductVersion(globalSettingsConfig.getProductVersion().getArchive()));
+        final ProductVersion productVersion = globalSettingsConfig.getProductVersion();
+        initialization.setProductVersion(productVersion == null || productVersion.getArchive() == null ? "" : guiService.getProductVersion(productVersion.getArchive()));
 
         addSettingsPopupConfig(businessUniverseConfig, initialization);
 

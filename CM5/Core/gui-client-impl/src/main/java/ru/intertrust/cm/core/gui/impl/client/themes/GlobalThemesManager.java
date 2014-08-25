@@ -1,15 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.themes;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.user.cellview.client.DataGrid;
-
 import ru.intertrust.cm.core.config.ThemeConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.themes.def.splitter.SplitterStyles;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -35,7 +35,7 @@ public class GlobalThemesManager {
     public static void initTheme(ThemesConfig themesConfig) {
         themeNameImageMap = initThemesMap(themesConfig);
         final String userTheme;
-        if (themesConfig.getSelectedTheme() == null) {
+        if (themesConfig == null || themesConfig.getSelectedTheme() == null) {
             userTheme = findDefaultTheme(themesConfig);
         } else {
             userTheme = themesConfig.getSelectedTheme();
@@ -49,7 +49,7 @@ public class GlobalThemesManager {
     }
 
     private static String findDefaultTheme(ThemesConfig themesConfig) {
-        if (themesConfig.getThemes() == null || themesConfig.getThemes().isEmpty()) {
+        if (themesConfig == null || themesConfig.getThemes() == null || themesConfig.getThemes().isEmpty()) {
             return THEME_DEFAULT;
         }
         List<ThemeConfig> themesConfigList = themesConfig.getThemes();
