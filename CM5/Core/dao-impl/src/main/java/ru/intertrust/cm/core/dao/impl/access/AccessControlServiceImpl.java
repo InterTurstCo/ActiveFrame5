@@ -525,7 +525,7 @@ public class AccessControlServiceImpl implements AccessControlService {
             Id personId = null;
             if (subject != null) {
                 personIdInt = subject.getUserId();
-                personId = new RdbmsId(personIdInt, domainObjectTypeIdCache.getId(GenericDomainObject.PERSON_DOMAIN_OBJECT));
+                personId = new RdbmsId(domainObjectTypeIdCache.getId(GenericDomainObject.PERSON_DOMAIN_OBJECT), personIdInt);
 
             } else {
                 personId = currentUserAccessor.getCurrentUserId();
