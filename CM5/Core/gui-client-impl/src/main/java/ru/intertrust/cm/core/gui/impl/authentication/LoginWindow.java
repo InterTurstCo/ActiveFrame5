@@ -2,13 +2,9 @@ package ru.intertrust.cm.core.gui.impl.authentication;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Timer;
@@ -23,6 +19,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 import ru.intertrust.cm.core.model.AuthenticationException;
+
 import java.util.Date;
 
 /**
@@ -206,7 +203,7 @@ public class LoginWindow  implements Component{
                         coreVersionPrefix = "Версия платформы: ";
                     }
 
-                    if(logoConfig.isDisplayProductVersion()){
+                    if(logoConfig.isDisplayProductVersion() && loginWindowInitialization.getProductVersion() != null){
                         productVersion = loginWindowInitialization.getProductVersion();
                         productVersionPrefix = "Версия: ";
                     }
@@ -237,7 +234,9 @@ public class LoginWindow  implements Component{
                 Element divPlatformVersion = DOM.createDiv();
                 divPlatformVersion.setClassName("versionPlatform");
 
-                divPlatformVersion.setInnerHTML(productVersionPrefix + "<span>" + productVersion + "</span>");
+                if (productVersion != null) {
+                    divPlatformVersion.setInnerHTML(productVersionPrefix + "<span>" + productVersion + "</span>");
+                }
                 divCoreVersion.setInnerHTML(coreVersionPrefix + "<span>" + coreVersion + "</span>");
 
                 loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divCoreVersion);
