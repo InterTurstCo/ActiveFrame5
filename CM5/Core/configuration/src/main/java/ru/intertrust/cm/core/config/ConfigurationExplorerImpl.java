@@ -524,7 +524,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
         AccessMatrixConfig accessMatrix = getAccessMatrixByObjectType(objectType);
 
-        if (accessMatrix.getCreateConfig() != null && accessMatrix.getCreateConfig().getPermitGroups() != null) {
+        if (accessMatrix != null && accessMatrix.getCreateConfig() != null && accessMatrix.getCreateConfig().getPermitGroups() != null) {
             for (PermitGroup permitGroup : accessMatrix.getCreateConfig().getPermitGroups()) {
                 userGroups.add(permitGroup.getName());
             }
