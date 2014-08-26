@@ -321,6 +321,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         }
         final CollectionPluginData collectionPluginData = collectionPluginHandler
                 .getExtendedCollectionPluginData(targetCollectionName, "ext-search", searchResultRowItems);
+        collectionPluginData.setExtendedSearchMarker(true);
         collectionPluginData.setCollectionViewConfigName(targetViewConfig.getName());
         collectionPluginData.setDomainObjectFieldPropertiesMap(columnPropertiesMap);
         collectionPluginData.setCollectionName(targetCollectionName);

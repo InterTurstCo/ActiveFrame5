@@ -91,7 +91,7 @@ public class ExtendedSearchPluginView extends PluginView {
                 ExtendedSearchFormPluginView extendedSearchFormPluginView =
                         (ExtendedSearchFormPluginView) extendedSearchFormPlugin.getView();
                 Map<String, WidgetState> widgetsWithData = extendedSearchFormPluginView.getWidgetsState();
-                searchFormData.setMaxResults(20); // временно хардкодом, в форме д.б. поле для ввода размера списка результатов
+                searchFormData.setMaxResults(200); // временно хардкодом, в форме д.б. поле для ввода размера списка результатов
                 searchFormData.setSearchQuery(searchQuery);
                 searchFormData.setFormWidgetsData(widgetsWithData);
                 sendSearchData(searchFormData);

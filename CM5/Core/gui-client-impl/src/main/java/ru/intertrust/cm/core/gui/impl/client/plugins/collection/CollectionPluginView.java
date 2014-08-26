@@ -158,14 +158,17 @@ public class CollectionPluginView extends PluginView {
         Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
         root.addStyleName("collection-plugin-view-container");
         addHandlers();
-        final com.google.gwt.user.client.Timer timer = new com.google.gwt.user.client.Timer() {
-            @Override
-            public void run() {
-                fetchMoreItemsIfRequired();
-                this.cancel();
-            }
-        };
-        timer.scheduleRepeating(1000);
+        if(!collectionPluginData.isExtendedSearchMarker()){
+            final com.google.gwt.user.client.Timer timer = new com.google.gwt.user.client.Timer() {
+                @Override
+                public void run() {
+                    fetchMoreItemsIfRequired();
+                    this.cancel();
+                }
+            };
+            timer.scheduleRepeating(1000);
+        }
+
         return root;
     }
 
