@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client.form.widget;
+package ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -9,15 +9,17 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
-import ru.intertrust.cm.core.gui.impl.client.form.WidgetItemsView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
@@ -43,15 +45,14 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private PluginPanel pluginPanel;
     private FocusPanel openDialogButton;
     private FocusPanel clearButton;
-    private TextBox filterEditor;
 
     private ArrayList<Id> temporaryStateOfSelectedIds = new ArrayList<Id>();
     private TableBrowserState currentState;
     private int dialogWidth;
     private int dialogHeight;
     private DialogBox dialogBox;
-    private WidgetItemsView widgetItemsView;
-    private FlowPanel root = new FlowPanel();
+    private TableBrowserItemsView widgetItemsView;
+    private Panel root = new FlowPanel();
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -72,8 +73,10 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private void setCurrentStateForEditableWidget(TableBrowserState state) {
 
         widgetItemsView.setListValues(state.getListValues());
+        widgetItemsView.setShouldDrawTooltipButton(shouldDrawTooltipButton());
+        widgetItemsView.setTooltipClickHandler(new ShowTooltipHandler());
         initDialogWindowSize();
-        initDialogView();
+
         initAddButton();
         initClearAllButton();
         widgetItemsView.setSelectedIds(state.getSelectedIds());
@@ -83,9 +86,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         } else {
             widgetItemsView.displayItems();
         }
-        if (shouldDrawTooltipButton()) {
-            widgetItemsView.addShowTooltipButton(new ShowTooltipHandler());
-        }
+
     }
 
     private void setCurrentStateForNoneEditableWidget(TableBrowserState state) {
@@ -169,8 +170,14 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
-        collectionViewerConfig.setFilterName(tableBrowserConfig.getInputTextFilterConfig().getName());
-        collectionViewerConfig.setFilterValue(filterEditor.getValue());
+        TableBrowserParams tableBrowserParams = new TableBrowserParams()
+                .setFilterName(tableBrowserConfig.getInputTextFilterConfig().getName())
+                .setFilterValue(widgetItemsView.getFilterValue())
+                .setExcludedIds(currentState.getIds())
+                .setSingleChoice(currentState.isSingleChoice())
+                .setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues())
+                .setPageSize(tableBrowserConfig.getPageSize());
+        collectionViewerConfig.setTableBrowserParams(tableBrowserParams);
         collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
         collectionRefConfig.setName(tableBrowserConfig.getCollectionRefConfig().getName());
@@ -178,13 +185,11 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         collectionViewerConfig.setDefaultSortCriteriaConfig(defaultSortCriteriaConfig);
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
-        collectionViewerConfig.setSingleChoice(currentState.isSingleChoice());
-        collectionViewerConfig.setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues());
-        collectionViewerConfig.setExcludedIds(currentState.getIds());
+
         SelectionFiltersConfig selectionFiltersConfig = tableBrowserConfig.getSelectionFiltersConfig();
         collectionViewerConfig.setSelectionFiltersConfig(selectionFiltersConfig);
-        InitialFiltersConfig initialFiltersConfig = tableBrowserConfig.getInitialFiltersConfig();
-        collectionViewerConfig.setInitialFiltersConfig(initialFiltersConfig);
+
+        collectionViewerConfig.setInitialFiltersConfig(tableBrowserConfig.getInitialFiltersConfig());
         return collectionViewerConfig;
     }
 
@@ -204,10 +209,9 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
     }
 
-    private FlowPanel initWidgetView(SelectionStyleConfig selectionStyleConfig) {
-        widgetItemsView = new WidgetItemsView(selectionStyleConfig);
-        filterEditor = new TextBox();
-        filterEditor.getElement().setClassName("table-browser-filter-editor");
+    private Panel initWidgetView(SelectionStyleConfig selectionStyleConfig) {
+        widgetItemsView = new TableBrowserItemsView(selectionStyleConfig);
+
         openDialogButton = new FocusPanel();
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());
         clearButton = new FocusPanel();
@@ -221,7 +225,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
             }
         });
-        root.add(filterEditor);
+        //   root.add(filterEditor);
+
         root.add(openDialogButton);
         root.add(clearButton);
         root.add(widgetItemsView);
@@ -236,7 +241,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         if (tableBrowserConfig.getClearAllButtonConfig() != null) {
             String img = tableBrowserConfig.getAddButtonConfig().getImage();
             String text = tableBrowserConfig.getAddButtonConfig().getText();
-            if (text == null ||  text.length() == 0) {
+            if (text == null || text.length() == 0) {
                 text = "Добавить";
             }
             addButton = new ButtonForm(openDialogButton, img, text);
@@ -257,7 +262,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
             ButtonForm buttonForm = new ButtonForm(clearButton, img, text);
 
             clearButton.add(buttonForm);
-            root.insert(clearButton, 2);
+            //   root.insert(clearButton, 2);
         }
 
     }
@@ -297,8 +302,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     }
 
     private boolean isSingleChoice() {
-        final SingleChoiceConfig singleChoice = currentState.getTableBrowserConfig().getSingleChoice();
-        return singleChoice != null && singleChoice.isSingleChoice();
+        return currentState.isSingleChoice();
+
     }
 
     private void addCancelButtonClickHandler(final Button cancelButton, final DialogBox dialogBox) {
@@ -308,6 +313,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
             public void onClick(ClickEvent event) {
                 dialogBox.hide();
                 temporaryStateOfSelectedIds.clear();
+                widgetItemsView.clearFilterInput();
             }
         });
     }
@@ -332,6 +338,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private class FetchFilteredRowsClickHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
+            initDialogView();
             openCollectionPlugin();
 
         }
@@ -347,6 +354,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 temporaryStateOfSelectedIds.clear();
                 fetchTableBrowserItems();
                 dialogBox.hide();
+                widgetItemsView.clearFilterInput();
             }
         });
         localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, new CheckBoxFieldUpdateEventHandler() {
@@ -369,9 +377,11 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-
+                currentState.getSelectedIds().clear();
+                currentState.getSelectedIds().addAll(temporaryStateOfSelectedIds);
                 fetchTableBrowserItems();
                 dialogBox.hide();
+                widgetItemsView.clearFilterInput();
             }
         });
         localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {

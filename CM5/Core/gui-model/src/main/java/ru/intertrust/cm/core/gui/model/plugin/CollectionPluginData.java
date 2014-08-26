@@ -1,15 +1,15 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -20,26 +20,23 @@ public class CollectionPluginData extends ActivePluginData {
 
     private String collectionName;
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
-    private boolean singleChoice;
-    private boolean displayChosenValues;
+
     private ArrayList<CollectionRowItem> items = new ArrayList<>();
     private LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap;
-    private List<Id> chosenIds;
+    private Collection<Id> chosenIds;
     private String searchArea;
     private String collectionViewConfigName;
     private InitialFiltersConfig initialFiltersConfig;
     private FilterPanelConfig filterPanelConfig;
     private int rowsChunk;
+    private TableBrowserParams tableBrowserParams;
+    private boolean extendedSearchMarker;
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<>();
     }
 
     public boolean isSingleChoice() {
-        return singleChoice;
-    }
-
-    public void setSingleChoice(boolean singleChoice) {
-        this.singleChoice = singleChoice;
+        return tableBrowserParams == null ? true : tableBrowserParams.isSingleChoice();
     }
 
     public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
@@ -48,14 +45,6 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
         this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
-    }
-
-    public boolean isDisplayChosenValues() {
-        return displayChosenValues;
-    }
-
-    public void setDisplayChosenValues(boolean displayChosenValues) {
-        this.displayChosenValues = displayChosenValues;
     }
 
     public ArrayList<CollectionRowItem> getItems() {
@@ -70,6 +59,14 @@ public class CollectionPluginData extends ActivePluginData {
         return domainObjectFieldPropertiesMap;
     }
 
+    public Collection<Id> getChosenIds() {
+        return chosenIds;
+    }
+
+    public void setChosenIds(Collection<Id> chosenIds) {
+        this.chosenIds = chosenIds;
+    }
+
     public void setDomainObjectFieldPropertiesMap(
             final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap) {
         this.domainObjectFieldPropertiesMap = domainObjectFieldPropertiesMap;
@@ -81,14 +78,6 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
-    }
-
-    public List<Id> getChosenIds() {
-        return chosenIds == null ? Collections.EMPTY_LIST : chosenIds;
-    }
-
-    public void setChosenIds(List<Id> chosenIds) {
-        this.chosenIds = chosenIds;
     }
 
     public String getSearchArea() {
@@ -124,10 +113,26 @@ public class CollectionPluginData extends ActivePluginData {
     }
 
     public int getRowsChunk() {
-        return rowsChunk;
+        return tableBrowserParams == null ? rowsChunk : tableBrowserParams.getPageSize();
     }
 
     public void setRowsChunk(int rowsChunk) {
         this.rowsChunk = rowsChunk;
+    }
+
+    public TableBrowserParams getTableBrowserParams() {
+        return tableBrowserParams;
+    }
+
+    public void setTableBrowserParams(TableBrowserParams tableBrowserParams) {
+        this.tableBrowserParams = tableBrowserParams;
+    }
+
+    public boolean isExtendedSearchMarker() {
+        return extendedSearchMarker;
+    }
+
+    public void setExtendedSearchMarker(boolean extendedSearchMarker){
+        this.extendedSearchMarker = extendedSearchMarker;
     }
 }

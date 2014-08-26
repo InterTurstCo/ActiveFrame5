@@ -23,7 +23,7 @@ public class FilterBuilderUtil {
     public static final String EXCLUDED_IDS_FILTER = "idsExcluded";
     public static final String INCLUDED_IDS_FILTER = "idsIncluded";
 
-    public static Filter prepareFilter(Set<Id> ids, String type) {
+    public static Filter prepareFilter(Collection<Id> ids, String type) {
         List<ReferenceValue> idsCriterion = new ArrayList<>();
         for (Id id : ids) {
             idsCriterion.add(new ReferenceValue(id));

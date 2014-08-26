@@ -2,15 +2,13 @@ package ru.intertrust.cm.core.config.gui.navigation;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchCollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.counters.NonReadElementsDefinitionConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -34,8 +32,6 @@ public class CollectionViewerConfig extends PluginConfig {
     @Element(name = "default-sort-criteria", required = false)
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
 
-    private List<Id> excludedIds = new ArrayList<Id>();
-
     @Element(name = "initial-filters", required = false)
     private InitialFiltersConfig initialFiltersConfig;
 
@@ -50,11 +46,7 @@ public class CollectionViewerConfig extends PluginConfig {
     @Element(name = "non-read-elements-definition", required = false)
     private NonReadElementsDefinitionConfig nonReadElementsDefinitionConfig;
 
-    private boolean displayChosenValues = true;
-
-    private boolean singleChoice = true;
-    private String filterName;
-    private String filterValue;
+    private TableBrowserParams tableBrowserParams;
 
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
@@ -99,28 +91,12 @@ public class CollectionViewerConfig extends PluginConfig {
         this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
-    public List<Id> getExcludedIds() {
-        return excludedIds;
-    }
-
-    public void setExcludedIds(List<Id> excludedIds) {
-        this.excludedIds = excludedIds;
-    }
-
     public boolean isDisplayChosenValues() {
-        return displayChosenValues;
-    }
-
-    public void setDisplayChosenValues(boolean displayChosenValues) {
-        this.displayChosenValues = displayChosenValues;
+        return tableBrowserParams == null ? false : tableBrowserParams.isDisplayChosenValues();
     }
 
     public boolean isSingleChoice() {
-        return singleChoice;
-    }
-
-    public void setSingleChoice(boolean singleChoice) {
-        this.singleChoice = singleChoice;
+        return tableBrowserParams == null ? true : tableBrowserParams.isSingleChoice();
     }
 
     public SearchCollectionRefConfig getSearchCollectionRefConfig() {
@@ -147,22 +123,6 @@ public class CollectionViewerConfig extends PluginConfig {
         this.filterPanelConfig = filterPanelConfig;
     }
 
-    public String getFilterName() {
-        return filterName;
-    }
-
-    public void setFilterName(String filterName) {
-        this.filterName = filterName;
-    }
-
-    public String getFilterValue() {
-        return filterValue;
-    }
-
-    public void setFilterValue(String filterValue) {
-        this.filterValue = filterValue;
-    }
-
     public ToolBarConfig getToolBarConfig() {
         return toolBarConfig;
     }
@@ -173,6 +133,17 @@ public class CollectionViewerConfig extends PluginConfig {
 
     public void setNonReadElementsDefinitionConfig(NonReadElementsDefinitionConfig nonReadElementsDefinitionConfig) {
         this.nonReadElementsDefinitionConfig = nonReadElementsDefinitionConfig;
+    }
+
+    public TableBrowserParams getTableBrowserParams() {
+        return tableBrowserParams;
+    }
+
+    public void setTableBrowserParams(TableBrowserParams tableBrowserParams) {
+        this.tableBrowserParams = tableBrowserParams;
+    }
+    public int getRowsChunk(){
+        return tableBrowserParams == null ? ModelConstants.INIT_ROWS_NUMBER : tableBrowserParams.getPageSize();
     }
 
     @Override

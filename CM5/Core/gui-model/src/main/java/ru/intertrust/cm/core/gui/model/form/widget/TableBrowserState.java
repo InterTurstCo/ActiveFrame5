@@ -40,7 +40,7 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
 
     @Override
     public ArrayList<Id> getIds() {
-        return new ArrayList<>(selectedIds);
+        return selectedIds == null ? new ArrayList<Id>(0) : new ArrayList<>(selectedIds);
     }
 
     public Set<Id> getSelectedIds() {

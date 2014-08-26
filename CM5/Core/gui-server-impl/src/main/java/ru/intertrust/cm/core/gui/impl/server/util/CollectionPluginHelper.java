@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
@@ -120,7 +121,7 @@ public class CollectionPluginHelper {
 
     }
 
-    public static Filter prepareInputTextFilter(String name, String text) {
+    private static Filter prepareInputTextFilter(String name, String text) {
         Filter textFilter = new Filter();
         textFilter.setFilter(name);
         textFilter.addCriterion(0, new StringValue(text + "%"));
@@ -144,11 +145,12 @@ public class CollectionPluginHelper {
         return filters;
     }
 
-    public static List<Filter> addFilterExcludeIds(CollectionViewerConfig collectionViewerConfig, List<Filter> filters) {
-
-        List<Id> excludedIds = collectionViewerConfig.getExcludedIds();
-        Set<Id> idsExcluded = new HashSet<Id>(excludedIds);
-        Filter filterExcludeIds = FilterBuilderUtil.prepareFilter(idsExcluded, FilterBuilderUtil.EXCLUDED_IDS_FILTER);
+    public static List<Filter> prepareFilterExcludeIds(TableBrowserParams tableBrowserParams, List<Filter> filters) {
+       if(tableBrowserParams == null) {
+           return filters;
+       }
+        Collection<Id> excludedIds = tableBrowserParams.getExcludedIds();
+        Filter filterExcludeIds = FilterBuilderUtil.prepareFilter(excludedIds, FilterBuilderUtil.EXCLUDED_IDS_FILTER);
         filters.add(filterExcludeIds);
         return filters;
     }
@@ -218,6 +220,19 @@ public class CollectionPluginHelper {
 
         }
         return values;
+
+    }
+
+    public static void prepareTableBrowserFilter(TableBrowserParams tableBrowserParams, List<Filter> filters) {
+        if (tableBrowserParams == null) {
+            return;
+        }
+        String filterName = tableBrowserParams.getFilterName();
+        String filterValue = tableBrowserParams.getFilterValue();
+        if (filterName != null && filterValue.length() > 0) {
+            Filter result = CollectionPluginHelper.prepareInputTextFilter(filterName, filterValue);
+            filters.add(result);
+        }
 
     }
 }

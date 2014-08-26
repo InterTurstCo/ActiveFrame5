@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
@@ -609,12 +610,14 @@ public class CollectionPluginView extends PluginView {
     }
 
     private CollectionRowsRequest createCollectionRowsRequest() {
-        final InitialFiltersConfig initialFiltersConfig =
-                ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, rowsChunk, collectionName,
                 fieldPropertiesMap, simpleSearchQuery, searchArea);
         collectionRowsRequest.setFiltersMap(filtersMap);
+        CollectionPluginData collectionPluginData =  plugin.getInitialData();
+        InitialFiltersConfig initialFiltersConfig =collectionPluginData.getInitialFiltersConfig();
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
+        TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
+        collectionRowsRequest.setTableBrowserParams(tableBrowserParams);
         return collectionRowsRequest;
 
     }
@@ -640,9 +643,11 @@ public class CollectionPluginView extends PluginView {
                 : collectionColumnProperties.getDescSortCriteriaConfig();
         collectionRowsRequest.setSortCriteriaConfig(sortCriteriaConfig);
         collectionRowsRequest.setFiltersMap(filtersMap);
-        final InitialFiltersConfig initialFiltersConfig =
-                ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
+        CollectionPluginData collectionPluginData =  plugin.getInitialData();
+        InitialFiltersConfig initialFiltersConfig = collectionPluginData.getInitialFiltersConfig();
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
+        TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
+        collectionRowsRequest.setTableBrowserParams(tableBrowserParams);
         return collectionRowsRequest;
 
     }

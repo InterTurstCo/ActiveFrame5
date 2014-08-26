@@ -53,3 +53,13 @@
 .table-browser-dialog.popup-z-index table[class="collection-plugin-view-container"] {
     top: 30px;
 }
+.tableBrowserFilterInput {
+    border: hidden;
+    display: inline-block;
+    width: 40px;
+}
+.inlineStyle {
+    display: inline-block;
+    float: left;
+
+}

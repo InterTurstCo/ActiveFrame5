@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client.form;
+package ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -8,6 +8,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 
 import java.util.HashSet;
@@ -16,28 +17,53 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Yaroslav Bondarchuk
- *         Date: 01.12.13
- *         Time: 16:15
+ * @author Yaroslav Bondacrhuk
+ *         Date: 25.08.2014
+ *         Time: 17:44
  */
-public class WidgetItemsView extends Composite {
+public class TableBrowserItemsView extends Composite {
+    private TextBox filter;
     private AbsolutePanel mainBoxPanel;
-    protected AbsolutePanel container;
+
     private Style.Display displayStyle;
     private LinkedHashMap<Id, String> listValues;
     private Set<Id> selectedIds = new HashSet<Id>();
     private EventBus eventBus;
+    private ClickHandler tooltipClickHandler;
+    private boolean shouldDrawTooltipButton;
     private PopupPanel popupPanel;
 
-    public WidgetItemsView(SelectionStyleConfig selectionStyleConfig) {
+    public void addFocusedFilter() {
+        filter = new TextBox();
+        filter.setStyleName("tableBrowserFilterInput");
+        mainBoxPanel.add(filter);
+        filter.setFocus(true);
+    }
+
+    public String getFilterValue() {
+        return filter.getValue();
+    }
+
+    public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig) {
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box");
         listValues = new LinkedHashMap<Id, String>();
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
 
-        container = new AbsolutePanel();
-        container.add(mainBoxPanel);
-        initWidget(container);
+
+        initWidget(mainBoxPanel);
+    }
+
+    public void setShouldDrawTooltipButton(boolean shouldDrawTooltipButton) {
+        this.shouldDrawTooltipButton = shouldDrawTooltipButton;
+    }
+
+    public void setTooltipClickHandler(ClickHandler tooltipClickHandler) {
+        this.tooltipClickHandler = tooltipClickHandler;
+    }
+
+    public PopupPanel getPopupPanel() {
+        return popupPanel;
     }
 
     public EventBus getEventBus() {
@@ -65,10 +91,6 @@ public class WidgetItemsView extends Composite {
         listValues.put(id, representation);
         displayHyperlinkItems();
 
-    }
-
-    public void setPopupPanel(PopupPanel popupPanel) {
-        this.popupPanel = popupPanel;
     }
 
     public LinkedHashMap<Id, String> getListValues() {
@@ -109,7 +131,7 @@ public class WidgetItemsView extends Composite {
 
     private void displayChosenRowItemAsHyperlink(Map.Entry<Id, String> entry) {
         final AbsolutePanel element = new AbsolutePanel();
-        //  element.getElement().getStyle().setDisplay(displayStyle);
+
         element.setStyleName("facebook-element");
         Label label = new Label(entry.getValue());
         label.setStyleName("facebook-label");
@@ -142,6 +164,10 @@ public class WidgetItemsView extends Composite {
         for (Map.Entry<Id, String> entry : entries) {
             displayChosenRowItem(entry);
         }
+        if (shouldDrawTooltipButton) {
+            addShowTooltipButton(tooltipClickHandler);
+        }
+        addFocusedFilter();
 
     }
 
@@ -151,10 +177,22 @@ public class WidgetItemsView extends Composite {
         for (Map.Entry<Id, String> entry : entries) {
             displayChosenRowItemAsHyperlink(entry);
         }
+        if (shouldDrawTooltipButton) {
+            addShowTooltipButton(tooltipClickHandler);
+        }
+        addFocusedFilter();
 
     }
 
+    public void addShowTooltipButton(ClickHandler handler) {
+        Button openTooltip = new Button("..");
+        openTooltip.setStyleName("light-button");
+        mainBoxPanel.add(openTooltip);
+        openTooltip.addClickHandler(handler);
 
+    }
+
+    public void clearFilterInput() {
+        filter.setValue(BusinessUniverseConstants.EMPTY_VALUE);
+    }
 }
-
-
