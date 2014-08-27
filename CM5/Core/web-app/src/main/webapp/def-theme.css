@@ -2678,3 +2678,29 @@ td.datePickerMonth {
 .columnSettingsButton {
 
 }
+
+/* ------------>>> breadcrumbs <<<------------ */
+.breadcrumbPanel {
+    margin: 0 0 0 10px;
+}
+
+.breadcrumbPanel .gwt-Hyperlink,
+.breadcrumbPanel .gwt-Label {
+    display: inline-block;
+}
+
+.breadcrumbPanel .gwt-Hyperlink a {
+    color: #1F76A5;
+    text-decoration: none;
+}
+
+.breadcrumbPanel .gwt-Hyperlink a:hover {
+    border-bottom: 1px dotted #0000aa;
+    color: #0000aa;
+}
+
+.breadcrumbPanel .gwt-Label {
+    color: #999;
+    text-decoration: none;
+}
+/* ------------>>> end breadcrumbs <<<------------ */

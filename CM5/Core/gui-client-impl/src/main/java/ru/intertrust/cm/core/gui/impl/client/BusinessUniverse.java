@@ -17,6 +17,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.*;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
@@ -60,7 +61,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
 
-    CurrentVersionInfo getVersion(BusinessUniverseInitialization result){
+    CurrentVersionInfo getVersion(BusinessUniverseInitialization result) {
         return new CurrentVersionInfo(result.getApplicationVersion(), result.getProductVersion());
     }
 
@@ -188,7 +189,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
                 .setLink(event.getLinkName());
         plugin.setDisplayActionToolBar(true);
-
+        plugin.setNavigationConfig(event.getNavigationConfig());
         centralPluginPanel.open(plugin);
     }
 

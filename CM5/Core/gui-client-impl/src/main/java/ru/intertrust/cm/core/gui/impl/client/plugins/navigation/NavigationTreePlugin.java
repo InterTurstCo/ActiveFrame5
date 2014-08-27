@@ -20,7 +20,7 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
 
     protected EventBus eventBus;
 
-    // установка шины событий плагину
+    // установка шины событий плагину™
     public void setEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
     }

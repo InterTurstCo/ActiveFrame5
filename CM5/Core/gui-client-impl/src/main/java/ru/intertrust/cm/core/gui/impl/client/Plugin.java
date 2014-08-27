@@ -5,6 +5,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
@@ -46,6 +47,9 @@ public abstract class Plugin extends BaseComponent {
     private List<PluginViewCreatedEventListener> viewCreatedEventListeners = new ArrayList<PluginViewCreatedEventListener>(1);
 
     static Logger logger = Logger.getLogger("plugin logger");
+    private NavigationConfig navigationConfig;
+
+    protected boolean showBreadcrumbs = true;
 
     /**
      * Создаёт представление данного плагина
@@ -247,6 +251,22 @@ public abstract class Plugin extends BaseComponent {
 
     public void setDisplayActionToolBar(boolean displayActionToolBar) {
         this.displayActionToolBar = displayActionToolBar;
+    }
+
+    public void setNavigationConfig(NavigationConfig navigationConfig) {
+        this.navigationConfig = navigationConfig;
+    }
+
+    public NavigationConfig getNavigationConfig() {
+        return navigationConfig;
+    }
+
+    public boolean isShowBreadcrumbs() {
+        return showBreadcrumbs;
+    }
+
+    public void setShowBreadcrumbs(boolean showBreadcrumbs) {
+        this.showBreadcrumbs = showBreadcrumbs;
     }
 
     public boolean isDirty() {

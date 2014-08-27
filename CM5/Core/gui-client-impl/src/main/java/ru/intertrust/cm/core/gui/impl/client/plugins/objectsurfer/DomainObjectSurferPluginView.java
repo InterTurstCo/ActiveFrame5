@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import java.util.logging.Logger;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -152,6 +153,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         splitterSetSize();
 
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
+        domainObjectSurferPlugin.getCollectionPlugin().setNavigationConfig(domainObjectSurferPlugin.getNavigationConfig());
 
         if (config != null) {
             log.info("plugin config, collection = " + config.getCollectionViewerConfig().getCollectionRefConfig().getName());

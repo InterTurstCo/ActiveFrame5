@@ -328,8 +328,9 @@ public class NavigationTreePluginView extends PluginView {
             final PluginConfig pluginConfig =
                     (PluginConfig) treeItemUserObject.get(TREE_ITEM_PLUGIN_CONFIG);
             final String linkName = (String) treeItemUserObject.get(TREE_ITEM_NAME);
+            NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
             Application.getInstance().getEventBus().fireEventFromSource(
-                    new NavigationTreeItemSelectedEvent(pluginConfig, linkName),
+                    new NavigationTreeItemSelectedEvent(pluginConfig, linkName,navigationTreePluginData.getNavigationConfig()),
                     plugin);
         }
     }

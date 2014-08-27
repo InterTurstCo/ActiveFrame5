@@ -31,6 +31,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     // поле для локальной шины событий
     protected EventBus eventBus;
 
+
     // установка локальной шины событий плагину
     public void setLocalEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -43,6 +44,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     }
 
     public FormPlugin() {
+        showBreadcrumbs = false;
     }
 
     @Override

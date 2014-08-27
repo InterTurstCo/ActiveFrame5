@@ -40,11 +40,13 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     static Logger log = Logger.getLogger("domain.object.surfer.plugin");
 
+
     /*
      * Конструктор плагина в котором
      * создается объект локальной шины событий
      */
     public DomainObjectSurferPlugin() {
+        showBreadcrumbs = false;
         // устанавливается локальная шина событий
         eventBus = GWT.create(SimpleEventBus.class);
         eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
@@ -215,7 +217,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public FormViewerConfig getFormViewerConfig() {
-        return ((DomainObjectSurferConfig)this.getConfig()).getFormViewerConfig();
+        return ((DomainObjectSurferConfig) this.getConfig()).getFormViewerConfig();
     }
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {

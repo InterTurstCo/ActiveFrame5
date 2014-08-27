@@ -99,7 +99,7 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(ComponentWidthChangedEvent.TYPE, changedWidthHandler);
         final CollectionColumnOrderChangedHandler orderChangedHandler = new CollectionColumnOrderChangedHandler();
         columnHeaderController =
-                new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth,eventBus);
+                new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth, eventBus);
         eventBus.addHandler(ComponentOrderChangedEvent.TYPE, orderChangedHandler);
     }
 
@@ -489,12 +489,15 @@ public class CollectionPluginView extends PluginView {
         }
         filterButton.setStyleName("show-filter-button");
         root.add(treeLinkWidget);
+        if (plugin.isShowBreadcrumbs()) {
+            root.add(createBreadCrumbsPanel());
+        }
         root.add(tableBody);
 
     }
 
     private void createTableColumnsWithCheckBoxes(
-            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldsOnColumnNamesMap,  List<ColumnHeaderBlock> columnHeaderBlocks) {
+            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldsOnColumnNamesMap, List<ColumnHeaderBlock> columnHeaderBlocks) {
         final CollectionColumn<CollectionRowItem, Boolean> checkColumn =
                 new CollectionColumn<CollectionRowItem, Boolean>(new CheckboxCell(true, true)) {
                     @Override
@@ -864,5 +867,7 @@ public class CollectionPluginView extends PluginView {
         config.setImmediate(true);
         return config;
     }
+
+
 }
 

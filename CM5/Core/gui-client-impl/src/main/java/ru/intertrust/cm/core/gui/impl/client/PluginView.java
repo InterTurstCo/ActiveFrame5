@@ -4,7 +4,12 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import ru.intertrust.cm.core.config.gui.action.*;
+import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
@@ -18,6 +23,8 @@ import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -52,6 +59,76 @@ public abstract class PluginView implements IsWidget {
                 asWidget().insert(actionToolBar, 0);
             } else {
                 actionToolBar.removeFromParent();
+            }
+        }
+    }
+
+    protected Panel createBreadCrumbsPanel() {
+        NavigationConfig navigationConfig = plugin.getNavigationConfig();
+        String link = Application.getInstance().getHistoryManager().getLink();
+        Panel breadCrumbPanel = buildBreadCrumbPanel(link, navigationConfig);
+        breadCrumbPanel.addStyleName("breadcrumbPanel");
+        return breadCrumbPanel;
+    }
+
+    private Panel buildBreadCrumbPanel(String link, NavigationConfig navigationConfig) {
+        AbsolutePanel breadCrumbComponents = new AbsolutePanel();
+        String currentLink = Application.getInstance().getHistoryManager().getLink();
+        List<LinkConfig> hierarchy = findParentLinks(currentLink, navigationConfig.getLinkConfigList());
+        Collections.reverse(hierarchy);
+        List<LinkConfig> foundLinks = new ArrayList<>();
+        findLink(link, navigationConfig.getLinkConfigList(), foundLinks);
+        hierarchy.addAll(foundLinks);
+        Iterator<LinkConfig> iterator = hierarchy.iterator();
+        while (iterator.hasNext()) {
+            LinkConfig next = iterator.next();
+            breadCrumbComponents.add(new Hyperlink(next.getDisplayText(), "link=" + next.getName()));
+            if (iterator.hasNext()) {
+                breadCrumbComponents.add(new Label("/"));
+            }
+        }
+        return breadCrumbComponents;
+    }
+
+    private List<LinkConfig> findParentLinks(String link, List<LinkConfig> linkConfigList) {
+        List<LinkConfig> result = new ArrayList<>();
+        List<LinkConfig> parents = new ArrayList<>();
+        LinkConfig lastFoundParent;
+        String lastLink = link;
+        do {
+            findParent(lastLink, linkConfigList, null, result);
+            if (result.isEmpty()) {
+                break;
+            }
+            lastFoundParent = result.get(0);
+            lastLink = lastFoundParent.getName();
+            parents.add(lastFoundParent);
+            result.clear();
+        }
+        while (true);
+        return parents;
+    }
+
+    private void findParent(String link, List<LinkConfig> linkConfigList, LinkConfig parent, List<LinkConfig> results) {
+        for (LinkConfig linkConfig : linkConfigList) {
+            if (linkConfig.getName().equals(link) && parent != null) {
+                results.add(parent);
+                return;
+            }
+            for (ChildLinksConfig childLinksConfig : linkConfig.getChildLinksConfigList()) {
+                findParent(link, childLinksConfig.getLinkConfigList(), linkConfig, results);
+            }
+        }
+    }
+
+    private void findLink(String link, List<LinkConfig> linkConfigList, List<LinkConfig> results) {
+        for (LinkConfig linkConfig : linkConfigList) {
+            if (linkConfig.getName().equals(link)) {
+                results.add(linkConfig);
+                return;
+            }
+            for (ChildLinksConfig childLinksConfig : linkConfig.getChildLinksConfigList()) {
+                findLink(link, childLinksConfig.getLinkConfigList(), results);
             }
         }
     }
@@ -121,7 +198,7 @@ public abstract class PluginView implements IsWidget {
     }
 
     private void addExtraStyleClassIfRequired() {
-        if(plugin instanceof DomainObjectSurferPlugin || plugin instanceof ConfigurationDeployerPlugin) {
+        if (plugin instanceof DomainObjectSurferPlugin || plugin instanceof ConfigurationDeployerPlugin) {
             Node node = viewWidget.getElement().getFirstChildElement().getLastChild();
             node.getFirstChild().getParentElement().addClassName("pluginExtraClass");
         }
@@ -166,8 +243,9 @@ public abstract class PluginView implements IsWidget {
         config.setImmediate(true);
         return config;
     }
+
     private ActionConfig createActionConfigWithImageInDiv(final String componentName, final String shortDesc,
-                                            final String imageClass, final int order) {
+                                                          final String imageClass, final int order) {
         final ActionConfig config = new ActionConfig(componentName, componentName);
         config.setImageClass(imageClass);
         config.setTooltip(shortDesc);
@@ -238,4 +316,5 @@ public abstract class PluginView implements IsWidget {
             }
         }
     }
+
 }
