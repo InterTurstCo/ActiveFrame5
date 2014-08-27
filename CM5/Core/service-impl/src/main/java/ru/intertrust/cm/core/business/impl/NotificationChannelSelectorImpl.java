@@ -53,7 +53,7 @@ public class NotificationChannelSelectorImpl implements NotificationChannelSelec
         return resultChannelNames;
     }
 
-    private boolean isChannelEnabled(String channelName, String notificationType, NotificationPriority priority, PersonProfile personProfile) {
+    protected boolean isChannelEnabled(String channelName, String notificationType, NotificationPriority priority, PersonProfile personProfile) {
         ArrayList<String> keys = personProfile.getFields();
         if (keys == null || keys.isEmpty()) return false;
 
