@@ -2,12 +2,14 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
 /**
  * 
  * @author atsvetkov
  *
  */
-public abstract class NamedTypeConfig {
+public abstract class NamedTypeConfig implements Dto {
 
     @Attribute(name = "name")
     private String name;
