@@ -14,10 +14,8 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
  */
 public class ConfirmDialog extends DialogBox {
     private ConfirmCallback confirmCallback;
-    private String text;
 
     public ConfirmDialog(String text, ConfirmCallback confirmCallback) {
-        this.text = text;
         this.confirmCallback = confirmCallback;
         init(text);
     }
@@ -79,8 +77,5 @@ public class ConfirmDialog extends DialogBox {
         Style style = this.getElement().getStyle();
         style.setTop(80, Style.Unit.PX);
         style.setLeft(39, Style.Unit.PCT);
-
-
     }
-
 }

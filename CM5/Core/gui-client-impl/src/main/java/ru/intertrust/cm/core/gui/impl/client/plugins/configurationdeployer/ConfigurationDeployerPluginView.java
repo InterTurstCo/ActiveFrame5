@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.AttachmentBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.AttachmentBoxWidget;
@@ -40,6 +41,8 @@ public class ConfigurationDeployerPluginView extends PluginView {
         attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);
         Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().getHistoryManager()
+                .setMode(HistoryManager.Mode.APPLY, ConfigurationDeployerPlugin.class.getSimpleName());
     }
 
     @Override
