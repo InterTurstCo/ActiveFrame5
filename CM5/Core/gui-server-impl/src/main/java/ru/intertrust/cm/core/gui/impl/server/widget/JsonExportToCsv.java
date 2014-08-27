@@ -134,12 +134,13 @@ public class JsonExportToCsv {
             for (String field : fields) {
                 Value value = rowValues.get(field);
 
+                writer.append("\"");
                 if (value.get() == null) {
                     writer.append(" ");
                 } else {
-                    writer.append(value.get().toString());
+                    writer.append(value.get().toString().replaceAll("\"", "\"\""));
                 }
-                writer.append(";");
+                writer.append("\"").append(";");
 
             }
             writer.append("\n");
@@ -207,13 +208,15 @@ public class JsonExportToCsv {
                 DateFormat dateFormat;
                 Calendar calendar;
                 String timeZoneId;
-                final String pattern =
+                final String datePattern =
                         (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.DATE_PATTERN);
+                final String dateTimePattern = datePattern + " " +
+                        columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.TIME_PATTERN);
                 switch (value.getFieldType()) {
                     case DATETIMEWITHTIMEZONE:
                         final DateTimeWithTimeZone dateTimeWithTimeZone = (DateTimeWithTimeZone) value.get();
                         calendar = GuiServerHelper.dateTimeWithTimezoneToCalendar(dateTimeWithTimeZone);
-                        dateFormat = new SimpleDateFormat(pattern);
+                        dateFormat = new SimpleDateFormat(dateTimePattern);
                         dateFormat.setTimeZone(TimeZone.getTimeZone(
                                 dateTimeWithTimeZone.getTimeZoneContext().getTimeZoneId()));
                         value = new StringValue(dateFormat.format(calendar.getTime()));
@@ -221,7 +224,7 @@ public class JsonExportToCsv {
                     case DATETIME:
                         timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
                         final DateTimeValue dateTimeValue = (DateTimeValue) value;
-                        dateFormat = new SimpleDateFormat(pattern);
+                        dateFormat = new SimpleDateFormat(dateTimePattern);
                         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
                         value = new StringValue(dateFormat.format(dateTimeValue.get()));
                         break;
@@ -229,7 +232,7 @@ public class JsonExportToCsv {
                         final TimelessDate timelessDate = (TimelessDate) value.get();
                         timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
                         calendar = GuiServerHelper.timelessDateToCalendar(timelessDate, GuiServerHelper.GMT_TIME_ZONE);
-                        dateFormat = new SimpleDateFormat(pattern);
+                        dateFormat = new SimpleDateFormat(datePattern);
                         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
                         value = new StringValue(dateFormat.format(calendar.getTime()));
                 }
