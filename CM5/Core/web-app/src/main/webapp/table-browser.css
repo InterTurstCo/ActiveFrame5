@@ -56,10 +56,13 @@
 .tableBrowserFilterInput {
     border: hidden;
     display: inline-block;
-    width: 40px;
+
 }
 .inlineStyle {
     display: inline-block;
     float: left;
 
+}
+.tableBrowserDeleteElement{
+    margin-top: 9px;
 }
