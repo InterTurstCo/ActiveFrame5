@@ -122,6 +122,6 @@ public class AccessVerificationServiceImpl /*extends AccessControlServiceImpl*/ 
             return false;
         }
 
-        return false;
+        return true;
     }
 }

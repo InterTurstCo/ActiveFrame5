@@ -27,7 +27,21 @@
             <collector class-name="ru.intertrust.cm.test.acess.contextrole.AllUsers" />
         </groups>
     </context-role>
-    
+
+    <!-- Динамическая группа для тестов  -->
+    <dynamic-group name="AllPersonsExceptPerson2">
+        <context>
+            <domain-object type="Person" />
+        </context>
+        <members>
+            <track-domain-objects type="Person">
+                <get-person>
+                    <query>select p.id from person p where p.login not in ('person2')</query>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+        
 	<context-role name="test_outgoing_author">
         <context>
             <domain-object type="test_outgoing_document" />
@@ -74,6 +88,9 @@
     <access-matrix type="test_resolution" matrix-reference-field="document"/>
 
     <access-matrix type="department_test">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>            
         <status name="Active">
             <read>
                 <permit-group name="AllPersons" />
@@ -87,12 +104,14 @@
 
             <execute-action name="action1">
                 <permit-group name="AllPersons" />
-            </execute-action>
-            
+            </execute-action>            
         </status>
     </access-matrix>
 
     <access-matrix type="organization_test">
+         <create>
+            <permit-group name="AllPersons" />
+        </create>        
         <status name="Active">
             <read>
                 <permit-group name="AllPersons" />
@@ -103,6 +122,41 @@
         </status>
     </access-matrix>
 
+<access-matrix type="city_test">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>            
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersonsExceptPerson2" />
+            </read>
+            <write>
+                <permit-group name="AllPersonsExceptPerson2" />
+            </write>
+            <delete>
+                <permit-group name="AllPersonsExceptPerson2" />
+            </delete>
+
+            <execute-action name="action1">
+                <permit-group name="AllPersonsExceptPerson2" />
+            </execute-action>            
+        </status>
+    </access-matrix>
+
+    <access-matrix type="country_test">
+         <create>
+            <permit-group name="AllPersons" />
+        </create>        
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <create-child type="city_test">
+                <permit-group name="AllPersonsExceptPerson2" />
+            </create-child>            
+        </status>
+    </access-matrix>
+    
     <access-matrix type="employee_test" matrix-reference-field="Department"/>
 
     <access-matrix type="test_type_1" read-everybody="true"/>

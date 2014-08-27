@@ -103,8 +103,6 @@
             <long name="population"/>
             <boolean name="is_country_rich"/>
             <decimal name="square" precision="15" scale="2"/>
-            <reference name="capital" type="city_test"/>
-            <reference name="most_famous_city" type="city_test"/>
             <string name="description" length="1024"/>
         </fields>
         <uniqueKey>

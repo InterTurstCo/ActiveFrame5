@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.service.it;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.Date;
 
@@ -39,14 +42,14 @@ public class AccessVerificationServiceIT extends IntegrationTestBase {
 
     @Before
     public void init() throws IOException, LoginException {
-        LoginContext lc = login("admin", "admin");
+        LoginContext lc = login("person1", "admin");
         lc.login();
         initializeSpringBeans();
     }
 
     @After
     public void tearDown() throws LoginException {
-        LoginContext lc = login("admin", "admin");
+        LoginContext lc = login("person1", "admin");
         lc.logout();
     }
 
@@ -56,32 +59,56 @@ public class AccessVerificationServiceIT extends IntegrationTestBase {
     }
 
     @Test
-    public void testPermissionVerifications() {
-        DomainObject organization = createOrganizationDomainObject();
-        DomainObject savedOrganization = crudService.save(organization);
-        DomainObject department = createDepartmentDomainObject(savedOrganization);
-        DomainObject savedDepartment = crudService.save(department);
-        Id depId = savedDepartment.getId();
+    public void testPermissionVerifications() throws LoginException {
 
-        accessVerificationService.isReadPermitted(depId);
-        accessVerificationService.isWritePermitted(depId);
-        accessVerificationService.isCreatePermitted(savedDepartment.getTypeName());
-        accessVerificationService.isDeletePermitted(depId);
-        accessVerificationService.isCreateChildPermitted(savedDepartment.getTypeName(), savedOrganization.getId());
-        accessVerificationService.isExecuteActionPermitted("accessVerificationService", depId);
+        DomainObject country = createCountryDomainObject();
+        DomainObject savedCountry = crudService.save(country);
+        DomainObject city = createCityDomainObject(savedCountry);
+        DomainObject savedCity = crudService.save(city);
+        Id cityId = savedCity.getId();
+
+        assertTrue(accessVerificationService.isReadPermitted(cityId));
+        assertTrue(accessVerificationService.isWritePermitted(cityId));
+        assertTrue(accessVerificationService.isCreatePermitted(savedCity.getTypeName()));
+        assertTrue(accessVerificationService.isDeletePermitted(cityId));
+        assertTrue(accessVerificationService.isCreateChildPermitted(savedCity.getTypeName(), savedCountry.getId()));
+        assertTrue(accessVerificationService.isExecuteActionPermitted("action1", cityId));
+    }
+
+    @Test
+    public void testNotAllowedPermissions() throws LoginException {
+        LoginContext lc = login("person2", "admin");
+        lc.login();
+     
+        DomainObject country = createCountryDomainObject();
+        DomainObject savedCountry = crudService.save(country);
+        DomainObject city = createCityDomainObject(savedCountry);
+        DomainObject savedCity = crudService.save(city);
+        Id cityId = savedCity.getId();
+
+        assertFalse(accessVerificationService.isReadPermitted(cityId));
+        assertFalse(accessVerificationService.isWritePermitted(cityId));
+        assertTrue(accessVerificationService.isCreatePermitted(savedCity.getTypeName()));
+        assertFalse(accessVerificationService.isDeletePermitted(cityId));
+        assertFalse(accessVerificationService.isCreateChildPermitted(savedCity.getTypeName(), savedCountry.getId()));
+        assertFalse(accessVerificationService.isExecuteActionPermitted("action1", cityId));
+
+        lc.logout();
 
     }
 
-    private DomainObject createOrganizationDomainObject() {
-        DomainObject organizationDomainObject = crudService.createDomainObject("Organization");
+    private DomainObject createCountryDomainObject() {
+        DomainObject organizationDomainObject = crudService.createDomainObject("country_test");
         organizationDomainObject.setString("Name", "Organization" + new Date());
         return organizationDomainObject;
     }
 
-    private DomainObject createDepartmentDomainObject(DomainObject savedOrganizationObject) {
-        DomainObject departmentDomainObject = crudService.createDomainObject("Department");
-        departmentDomainObject.setString("Name", "department1");
-        departmentDomainObject.setReference("Organization", savedOrganizationObject.getId());
+    private DomainObject createCityDomainObject(DomainObject savedCountryObject) {
+        DomainObject departmentDomainObject = crudService.createDomainObject("city_test");
+        departmentDomainObject.setString("Name", "City" + new Date());
+        if (savedCountryObject != null) {
+            departmentDomainObject.setReference("country", savedCountryObject.getId());
+        }
         return departmentDomainObject;
     }
     
