@@ -62,17 +62,17 @@ public class ConfirmDialog extends DialogBox {
     }
 
     private void doAffirmative() {
+        this.hide();
         if (confirmCallback != null) {
             confirmCallback.onAffirmative();
         }
-        this.hide();
     }
 
     private void doCancel() {
+        this.hide();
         if (confirmCallback != null) {
             confirmCallback.onCancel();
         }
-        this.hide();
     }
     public void confirm(){
         this.show();
