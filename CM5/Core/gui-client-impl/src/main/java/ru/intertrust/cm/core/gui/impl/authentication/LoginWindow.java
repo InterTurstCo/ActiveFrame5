@@ -98,11 +98,6 @@ public class LoginWindow  implements Component{
         Label titleLogin = new Label("Войти");
         titleLogin.getElement().addClassName("auth_button_title");
         loginButton.add(titleLogin);
-        loginButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                login();
-            }
-        });
 
         loginDialog.setAnimationEnabled(true);
         loginDialog.setGlassEnabled(true);
@@ -330,6 +325,12 @@ public class LoginWindow  implements Component{
 
         loginAndPasswordPanel.add(enterPanel);
         enterPanel.add(loginButton);
+        enterPanel.addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                login();
+            }
+        }, ClickEvent.getType());
     }
 
     @Override
