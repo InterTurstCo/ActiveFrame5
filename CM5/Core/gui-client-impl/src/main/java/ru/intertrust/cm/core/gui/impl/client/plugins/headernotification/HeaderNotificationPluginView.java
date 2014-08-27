@@ -44,7 +44,7 @@ public class HeaderNotificationPluginView extends PluginView{
         Timer timer = new Timer() {
             @Override
             public void run() {
-                canselHeaderNotificationItem(new CancelHeaderNotificationItem());
+                cancelHeaderNotificationItem(new CancelHeaderNotificationItem());
             }
         };
         timer.scheduleRepeating(headerNotificationPeriod);
@@ -104,15 +104,17 @@ public class HeaderNotificationPluginView extends PluginView{
                     formPluginState.setEditable(false);
                     formPluginState.setInCentralPanel(true);
                     config.setPluginState(formPluginState);
-                    if (oldFormPlugin != null){
-                        oldFormPlugin.getOwner().closeCurrentPlugin();
-                    }
+                    //commented out: don't close the old plugin, to be able to return back to it when notification plugin is closed
+//                    if (oldFormPlugin != null){
+//                        oldFormPlugin.getOwner().closeCurrentPlugin();
+//                    }
                     formPlugin = createFormPlugin(config);
                     oldFormPlugin = formPlugin;
 
 
                     Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
-                    canselHeaderNotificationItem(new CancelHeaderNotificationItem(listNotificationItem.get(finalI).getId()));
+                    cancelHeaderNotificationItem(new CancelHeaderNotificationItem(listNotificationItem.get(finalI)
+                            .getId()));
 
                 }
             });
@@ -125,14 +127,15 @@ public class HeaderNotificationPluginView extends PluginView{
                 @Override
                 public void onClick(ClickEvent event) {
                     crossContainer.getParent().removeFromParent();
-                    canselHeaderNotificationItem(new CancelHeaderNotificationItem(listNotificationItem.get(finalI).getId()));
+                    cancelHeaderNotificationItem(new CancelHeaderNotificationItem(listNotificationItem.get(finalI)
+                            .getId()));
                 }
             });
         }
         Application.getInstance().getEventBus().fireEvent(new HeaderNotificationRemoveItemEvent(listNotificationItem.size()));
     }
 
-    private void canselHeaderNotificationItem(CancelHeaderNotificationItem cancelHeaderNotificationItem){
+    private void cancelHeaderNotificationItem(CancelHeaderNotificationItem cancelHeaderNotificationItem){
         Command command = new Command("deleteNotification", "header.notifications.plugin", cancelHeaderNotificationItem);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
