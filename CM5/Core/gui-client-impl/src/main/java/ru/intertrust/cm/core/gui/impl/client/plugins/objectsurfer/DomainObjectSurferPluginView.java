@@ -37,12 +37,11 @@ public class DomainObjectSurferPluginView extends PluginView {
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
     //локальная шина событий
     private EventBus eventBus;
-    private EventBus globalEventBus = Application.getInstance().getEventBus();
     private SplitterEx dockLayoutPanel;
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
     //private FlowPanel flowPanel;
     private AbsolutePanel rootSurferPanel;
-    private Timer timeoutTimer;
+    private SplitterSettingsTimeoutTimer timeoutTimer;
 
     public DomainObjectSurferPluginView(Plugin plugin) {
         super(plugin);
@@ -180,26 +179,42 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     private void storeSplitterSettings(final boolean vertical, final int size) {
         if (timeoutTimer == null) {
-            timeoutTimer = new Timer() {
-                @Override
-                public void run() {
-                    timeoutTimer.cancel();
-                    timeoutTimer = null;
-                    final ActionConfig actionConfig = new ActionConfig();
-                    actionConfig.setImmediate(true);
-                    actionConfig.setDirtySensitivity(false);
-                    final SplitterSettingsActionContext actionContext = new SplitterSettingsActionContext();
-                    actionContext.setOrientation(vertical ? Long.valueOf(1) : Long.valueOf(0));
-                    actionContext.setPosition(Long.valueOf(size));
-                    actionContext.setActionConfig(actionConfig);
-                    final Action action = ComponentRegistry.instance.get(SplitterSettingsActionContext.COMPONENT_NAME);
-                    action.setInitialContext(actionContext);
-                    action.perform();
-                }
-            };
+            timeoutTimer = new SplitterSettingsTimeoutTimer(vertical, size);
         } else {
             timeoutTimer.cancel();
+            timeoutTimer.setParameters(vertical, size);
         }
         timeoutTimer.schedule(SCHEDULE_TIMEOUT);
+    }
+
+    private class SplitterSettingsTimeoutTimer extends Timer {
+        private Long orientation;
+        private Long size;
+
+        private SplitterSettingsTimeoutTimer(boolean vertical, int size) {
+            setParameters(vertical, size);
+        }
+
+        public void setParameters(boolean vertical, int size) {
+            this.orientation = vertical ? Long.valueOf(1) : Long.valueOf(0);
+            this.size = Long.valueOf(size);
+
+        }
+
+        @Override
+        public void run() {
+            cancel();
+            timeoutTimer = null;
+            final ActionConfig actionConfig = new ActionConfig();
+            actionConfig.setImmediate(true);
+            actionConfig.setDirtySensitivity(false);
+            final SplitterSettingsActionContext actionContext = new SplitterSettingsActionContext();
+            actionContext.setOrientation(orientation);
+            actionContext.setPosition(size);
+            actionContext.setActionConfig(actionConfig);
+            final Action action = ComponentRegistry.instance.get(SplitterSettingsActionContext.COMPONENT_NAME);
+            action.setInitialContext(actionContext);
+            action.perform();
+        }
     }
 }
