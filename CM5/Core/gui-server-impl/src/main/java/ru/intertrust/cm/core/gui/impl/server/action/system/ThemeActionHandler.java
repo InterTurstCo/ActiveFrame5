@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.system.ThemeActionContext;
@@ -26,7 +26,7 @@ public class ThemeActionHandler extends ActionHandler<ThemeActionContext, Action
 
     @Override
     public ActionData executeAction(ThemeActionContext context) {
-        final DomainObject domainObject = PluginHelper.getUserSettingsDomainObject(
+        final DomainObject domainObject = PluginHandlerHelper.getUserSettingsDomainObject(
                 currentUserAccessor, collectionsService, crudService);
         domainObject.setString(UserSettingsHelper.DO_THEME_FIELD_KEY, context.getThemeName());
         crudService.save(domainObject);

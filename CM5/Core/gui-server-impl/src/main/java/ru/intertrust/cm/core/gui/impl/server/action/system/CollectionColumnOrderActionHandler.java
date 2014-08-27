@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -35,11 +35,11 @@ public class CollectionColumnOrderActionHandler extends ActionHandler<Collection
         if (context.getLink() == null) {
             throw new GuiException("Неизвестный url");
         }
-        final DomainObject object = PluginHelper.getCollectionSettingsDomainObject(context.getLink(),
+        final DomainObject object = PluginHandlerHelper.getCollectionSettingsDomainObject(context.getLink(),
                 context.getCollectionViewName(), currentUserAccessor, crudService, collectionsService);
         CollectionViewConfig collectionViewConfig = null;
         if (object.getString(DO_COLLECTION_VIEW_FIELD_KEY) != null) {
-            collectionViewConfig = PluginHelper.deserializeFromXml(
+            collectionViewConfig = PluginHandlerHelper.deserializeFromXml(
                     CollectionViewConfig.class, object.getString(DO_COLLECTION_VIEW_FIELD_KEY));
         }
         if (collectionViewConfig == null) {
@@ -49,7 +49,7 @@ public class CollectionColumnOrderActionHandler extends ActionHandler<Collection
             collectionViewConfig = cloner.cloneObject(collectionViewConfig, CollectionViewConfig.class);
         }
         collectionViewConfig.getCollectionDisplayConfig().updateColumnOrder(context.getOrders());
-        final String configAsStr = PluginHelper.serializeToXml(collectionViewConfig);
+        final String configAsStr = PluginHandlerHelper.serializeToXml(collectionViewConfig);
         object.setString(DO_COLLECTION_VIEW_FIELD_KEY, configAsStr);
         crudService.save(object);
         return null;

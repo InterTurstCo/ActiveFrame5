@@ -1,9 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -17,9 +25,6 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -70,11 +75,15 @@ public abstract class SimpleServerAction extends Action {
     }
 
     protected void onSuccess(ActionData result) {
-        ApplicationWindow.infoAlert(BusinessUniverseConstants.DONE_SUCCESSFULLY_MESSAGE);
     }
 
     protected void onFailure(GuiException exception) {
         ApplicationWindow.errorAlert(exception.getMessage());
+    }
+
+    @Override
+    protected String getDefaultOnSuccessMessage() {
+        return BusinessUniverseConstants.DONE_SUCCESSFULLY_MESSAGE;
     }
 
     public void addActionSuccessListener(ActionSuccessListener listener) {

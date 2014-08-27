@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -147,7 +147,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                                         BusinessUniverseInitialization businessUniverseInitialization) {
 
         String userTheme = null;
-        final IdentifiableObject userSettings = PluginHelper
+        final IdentifiableObject userSettings = PluginHandlerHelper
                 .getUserSettingsIdentifiableObject(guiService.getUserUid(), collectionsService);
         if (userSettings != null) {
             userTheme = userSettings.getString(UserSettingsHelper.DO_THEME_FIELD_KEY);

@@ -5,7 +5,7 @@ import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.DeployReportActionContext;
@@ -25,7 +25,7 @@ public class ReportUploadPluginHandler extends PluginHandler {
         ReportUploadPluginData pluginData = new ReportUploadPluginData();
 
         List<ActionContext> activeContexts = new ArrayList<>();
-        activeContexts.add(new DeployReportActionContext(PluginHelper.createActionConfig(
+        activeContexts.add(new DeployReportActionContext(PluginHandlerHelper.createActionConfig(
                 "deploy-report.action", "deploy-report.action", "Загрузить Шаблон Отчета",
                 "icons/favorite-panel-off.png")));
         pluginData.getToolbarContext().setContexts(activeContexts, ToolbarContext.FacetName.LEFT);

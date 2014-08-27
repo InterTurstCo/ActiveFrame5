@@ -7,10 +7,10 @@ package ru.intertrust.cm.core.gui.api.client;
 public interface ActionManager {
 
     /**
-     * Выыполняет действий по согласию пользователся, если имеются несохраненные данные.
+     * Если изменения данных отсутствуют, выполняется {@link ConfirmCallback#onAffirmative()} метод.<br/>
+     * При наличии изменных данных выводит предупреждающий диалог и вызывается метод выбранный пользователем.
      *
+     * @param confirmCallback instance of {@link ru.intertrust.cm.core.gui.api.client.ConfirmCallback} class.
      */
-    public void executeIfUserAgree(ConfirmCallback confirmCallback);
-
-    boolean isEditorDirty();
+    public void checkChangesBeforeExecution(ConfirmCallback confirmCallback);
 }

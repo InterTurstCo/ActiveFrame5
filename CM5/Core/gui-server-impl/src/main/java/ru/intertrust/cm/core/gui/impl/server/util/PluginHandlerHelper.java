@@ -28,9 +28,9 @@ import ru.intertrust.cm.core.util.ObjectCloner;
  * @author Sergey.Okolot
  *         Created on 06.06.2014 12:00.
  */
-public class PluginHelper {
+public class PluginHandlerHelper {
 
-    private PluginHelper() {}
+    private PluginHandlerHelper() {}
 
     public static ActionConfig createActionConfig(final String name, final String component,
                                                   final String label, final String imageUrl) {

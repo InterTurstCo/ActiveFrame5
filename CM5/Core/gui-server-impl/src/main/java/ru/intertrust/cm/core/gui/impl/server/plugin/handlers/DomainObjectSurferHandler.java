@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
@@ -71,7 +71,7 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(config.isToggleEdit());
         result.setPluginState(dosState);
-        final IdentifiableObject identifiableObject = PluginHelper.getUserSettingsIdentifiableObject(
+        final IdentifiableObject identifiableObject = PluginHandlerHelper.getUserSettingsIdentifiableObject(
                 currentUserAccessor.getCurrentUser(), collectionsService);
         if (identifiableObject != null) {
             final Long splitterOrientation = identifiableObject.getLong(DO_SPLITTER_ORIENTATION_FIELD_KEY);

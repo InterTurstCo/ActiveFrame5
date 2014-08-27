@@ -64,11 +64,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         String collectionName = collectionRefConfig.getName();
         final CollectionViewConfig collectionViewConfig =
                 getViewForCurrentCollection(collectionViewerConfig, collectionName, link);
-        final IdentifiableObject identifiableObject = PluginHelper.getCollectionSettingIdentifiableObject(
+        final IdentifiableObject identifiableObject = PluginHandlerHelper.getCollectionSettingIdentifiableObject(
                 link, collectionViewConfig.getName(), currentUserAccessor.getCurrentUser(),
                 collectionsService);
         if (identifiableObject != null) {
-            final CollectionViewerConfig storedConfig = PluginHelper.deserializeFromXml(CollectionViewerConfig.class,
+            final CollectionViewerConfig storedConfig = PluginHandlerHelper.deserializeFromXml(CollectionViewerConfig
+                            .class,
                     identifiableObject.getString(UserSettingsHelper.DO_COLLECTION_VIEWER_FIELD_KEY));
             if (storedConfig != null) {
                 collectionViewerConfig = storedConfig;
@@ -182,7 +183,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         final CollectionViewRefConfig collectionViewRefConfig = collectionViewerConfig.getCollectionViewRefConfig();
         final String viewName = collectionViewRefConfig == null ? null : collectionViewRefConfig.getName();
 
-        return PluginHelper.findCollectionViewConfig(collectionName, viewName, currentUserAccessor.getCurrentUser(),
+        return PluginHandlerHelper.findCollectionViewConfig(collectionName, viewName,
+                currentUserAccessor.getCurrentUser(),
                 link, configurationService, collectionsService);
     }
 

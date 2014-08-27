@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
-import ru.intertrust.cm.core.gui.api.client.ActionManager;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
@@ -66,31 +66,13 @@ public abstract class Action extends BaseComponent {
 
     public final void perform() {
         final ActionConfig config = getInitialContext().getActionConfig();
-
-        boolean isEditorDirty = false;
-        ActionManager actionManager = Application.getInstance().getActionManager();
+        final ConfirmCallback checkDirtyCallback = new DirtyExecuteConfirmCallback();
         if (config != null && config.isDirtySensitivity()) {
-            isEditorDirty = actionManager.isEditorDirty();
-        }
-        if(isEditorDirty) {
-            actionManager.executeIfUserAgree(new ConfirmCallback() {
-                @Override
-                public void onAffirmative() {
-                    execute();
-                }
-
-                @Override
-                public void onCancel() {
-                    //nothing to do
-                }
-            });
+            Application.getInstance().getActionManager().checkChangesBeforeExecution(checkDirtyCallback);
         } else {
-            execute();
+            checkDirtyCallback.onAffirmative();
         }
-
     }
-
-    protected abstract void execute();
 
     public boolean shouldBeValidated() {
         ActionConfig config =
@@ -100,5 +82,52 @@ public abstract class Action extends BaseComponent {
 
     public boolean isValid() {
         return true;
+    }
+
+    protected abstract void execute();
+
+    protected String getDefaultOnSuccessMessage() {
+        return null;
+    }
+
+    private class DirtyExecuteConfirmCallback implements ConfirmCallback {
+        @Override
+        public void onAffirmative() {
+            final ConfirmCallback beforeExecutionCallback = new BeforeExecutionConfirmationCallback();
+            final ActionConfig config = getInitialContext().getActionConfig();
+            final String confirmMessage =
+                    (config.getBeforeConfig() == null || config.getBeforeConfig().getMessageConfig() == null)
+                            ? null
+                            : config.getBeforeConfig().getMessageConfig().getText();
+            if (confirmMessage != null) {
+                ApplicationWindow.confirm(confirmMessage, beforeExecutionCallback);
+            } else {
+                beforeExecutionCallback.onAffirmative();
+            }
+        }
+
+        @Override
+        public void onCancel() {
+        }
+    }
+
+
+    private class BeforeExecutionConfirmationCallback implements ConfirmCallback {
+        @Override
+        public void onAffirmative() {
+            execute();
+            final ActionConfig config = getInitialContext().getActionConfig();
+            final String onSuccessMessage =
+                    (config.getAfterConfig() == null || config.getAfterConfig().getMessageConfig() == null)
+                            ? getDefaultOnSuccessMessage()
+                            : config.getAfterConfig().getMessageConfig().getText();
+            if (onSuccessMessage != null) {
+                ApplicationWindow.infoAlert(onSuccessMessage);
+            }
+        }
+
+        @Override
+        public void onCancel() {
+        }
     }
 }

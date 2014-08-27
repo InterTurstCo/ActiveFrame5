@@ -302,26 +302,18 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             if (!"logout".equals(event.getValue())) {
                 final HistoryManager manager = Application.getInstance().getHistoryManager();
                 ActionManager actionManager = Application.getInstance().getActionManager();
-                final String url = event.getValue();
+                actionManager.checkChangesBeforeExecution(new ConfirmCallback() {
 
-                if (actionManager.isEditorDirty()) {
-                    actionManager.executeIfUserAgree(new ConfirmCallback() {
-                        @Override
-                        public void onAffirmative() {
-                            handleHistory(url);
-                        }
+                    @Override
+                    public void onAffirmative() {
+                        handleHistory(event.getValue());
+                    }
 
-                        @Override
-                        public void onCancel() {
-                            manager.applyUrl();
-
-                        }
-                    });
-
-
-                } else {
-                    handleHistory(url);
-                }
+                    @Override
+                    public void onCancel() {
+                        manager.applyUrl();
+                    }
+                });
             }
         }
     }

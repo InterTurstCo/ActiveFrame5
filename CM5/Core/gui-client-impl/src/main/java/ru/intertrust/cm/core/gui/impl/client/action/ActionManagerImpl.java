@@ -6,7 +6,6 @@ import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
-import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 /**
  * @author Sergey.Okolot
@@ -21,20 +20,12 @@ public class ActionManagerImpl implements ActionManager {
     }
 
     @Override
-    public void executeIfUserAgree(ConfirmCallback confirmCallback) {
-        ApplicationWindow.confirm(BusinessUniverseConstants.DATA_IS_NOT_SAVED_CONFIRM_MESSAGE, confirmCallback);
-    }
-
-    public boolean isEditorDirty() {
-        boolean result = false;
+    public void checkChangesBeforeExecution(ConfirmCallback confirmCallback) {
         final Plugin plugin = workplace.getCurrentPlugin();
-        if (plugin instanceof IsDomainObjectEditor) {
-            final IsDomainObjectEditor editor = (IsDomainObjectEditor) plugin;
-            if (editor.isDirty()) {
-                result = true;
-            }
+        if (plugin != null && plugin.isDirty()) {
+            ApplicationWindow.confirm(BusinessUniverseConstants.DATA_IS_NOT_SAVED_CONFIRM_MESSAGE, confirmCallback);
+        } else {
+            confirmCallback.onAffirmative();
         }
-        return result;
-
     }
 }

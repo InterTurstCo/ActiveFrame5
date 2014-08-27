@@ -248,4 +248,8 @@ public abstract class Plugin extends BaseComponent {
     public void setDisplayActionToolBar(boolean displayActionToolBar) {
         this.displayActionToolBar = displayActionToolBar;
     }
+
+    public boolean isDirty() {
+        return false;
+    }
 }

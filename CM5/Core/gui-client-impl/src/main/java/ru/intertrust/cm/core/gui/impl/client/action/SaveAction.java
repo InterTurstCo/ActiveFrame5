@@ -56,7 +56,11 @@ public class SaveAction extends SimpleServerAction {
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         }
-        ApplicationWindow.infoAlert(BusinessUniverseConstants.SAVED_MESSAGE);
+    }
+
+    @Override
+    protected String getDefaultOnSuccessMessage() {
+        return BusinessUniverseConstants.SAVED_MESSAGE;
     }
 
     @Override

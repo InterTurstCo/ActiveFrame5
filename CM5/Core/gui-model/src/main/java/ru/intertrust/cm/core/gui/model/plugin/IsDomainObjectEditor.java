@@ -20,8 +20,6 @@ public interface IsDomainObjectEditor {
 
     FormPluginState getFormPluginState();
 
-    boolean isDirty();
-
     FormViewerConfig getFormViewerConfig();
 
 }

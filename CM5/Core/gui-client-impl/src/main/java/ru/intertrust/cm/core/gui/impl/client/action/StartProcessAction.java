@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -44,6 +43,11 @@ public class StartProcessAction extends SimpleServerAction {
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         }
-        ApplicationWindow.infoAlert(BusinessUniverseConstants.PROCESS_IS_STARTED_MESSAGE);
     }
+
+    @Override
+    protected String getDefaultOnSuccessMessage() {
+        return BusinessUniverseConstants.PROCESS_IS_STARTED_MESSAGE;
+    }
+
 }

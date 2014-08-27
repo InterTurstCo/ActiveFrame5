@@ -56,7 +56,6 @@ public class NavigationTreePluginView extends PluginView {
     private List<CounterDecorator> rootCounterDecorators = new ArrayList<>();
     private static long lastCountersUpdateTime;
     private HashMap<CounterKey, Id> counterKeys = new HashMap<>(); //<link-name, navBuLinkCollectionObject
-    private static Timer timer;
     private HTML pinButton;
     private FocusPanel navigationTreeContainer;
 
@@ -95,7 +94,7 @@ public class NavigationTreePluginView extends PluginView {
             @Override
             public void onClick(ClickEvent event) {
                 final EventBus eventBus = Application.getInstance().getEventBus();
-                if (pinButtonClick == false) {
+                if (!pinButtonClick) {
                     pinButtonClick = true;
                     pinButton.setStyleName("icon pin-pressed");
                     eventBus.fireEvent(new SideBarResizeEvent(END_WIDGET_WIDTH, LEFT_SECTION_ACTIVE_STYLE, CENTRAL_SECTION_ACTIVE_STYLE));
@@ -173,7 +172,7 @@ public class NavigationTreePluginView extends PluginView {
         final CollectionCountersRequest collectionCountersRequest = new CollectionCountersRequest();
         collectionsCountersCommand.setParameter(collectionCountersRequest);
         updateCounterKeys();
-        timer = new Timer() {
+        final Timer timer = new Timer() {
             @Override
             public void run() {
                 collectionCountersRequest.setCounterKeys(counterKeys);
@@ -341,25 +340,18 @@ public class NavigationTreePluginView extends PluginView {
             @Override
             public void onSelection(final SelectionEvent<TreeItem> event) {
                 ActionManager actionManager = Application.getInstance().getActionManager();
-                final TreeItem tempItem = event.getSelectedItem();
-                if (actionManager.isEditorDirty()) {
+                final TreeItem selectedItem = event.getSelectedItem();
+                actionManager.checkChangesBeforeExecution(new ConfirmCallback() {
+                    @Override
+                    public void onAffirmative() {
+                        handleItemSelection(selectedItem);
+                    }
 
-                    actionManager.executeIfUserAgree(new ConfirmCallback() {
-                        @Override
-                        public void onAffirmative() {
-                            handleItemSelection(tempItem);
-
-                        }
-
-                        @Override
-                        public void onCancel() {
-                            //nothing to do
-                        }
-                    });
-                } else {
-                    handleItemSelection(tempItem);
-                }
-
+                    @Override
+                    public void onCancel() {
+                        //nothing to do
+                    }
+                });
             }
         };
     }

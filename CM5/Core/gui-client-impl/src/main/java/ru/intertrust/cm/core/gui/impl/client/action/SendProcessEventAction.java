@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -39,6 +38,11 @@ public class SendProcessEventAction extends SimpleServerAction {
         Plugin plugin = getPlugin();
         ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
         plugin.setToolbarContext(formPluginData.getToolbarContext());
-        ApplicationWindow.infoAlert(BusinessUniverseConstants.EVENT_IS_SENT_MESSAGE);
     }
+
+    @Override
+    protected String getDefaultOnSuccessMessage() {
+        return BusinessUniverseConstants.EVENT_IS_SENT_MESSAGE;
+    }
+
 }
