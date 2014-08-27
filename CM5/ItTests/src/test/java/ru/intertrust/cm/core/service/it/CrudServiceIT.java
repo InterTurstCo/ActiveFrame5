@@ -239,9 +239,9 @@ public class CrudServiceIT extends IntegrationTestBase {
         organization = crudService.save(organization);
 
         DomainObject employee = crudService.createDomainObject("EmployeeTestUniqueKey");
-        employee.setString("Name", "name4");
+        employee.setString("Name", "name4" + System.currentTimeMillis());
         employee.setString("Position", "admin4");
-        employee.setString("Login", "login4");
+        employee.setString("Login", "login4" + System.currentTimeMillis());
         employee.setString("Email", "e-mail4");
         employee.setString("Phone", "+1132514");
 
