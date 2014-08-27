@@ -4,8 +4,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
@@ -71,54 +69,44 @@ public abstract class PluginView implements IsWidget {
         return breadCrumbPanel;
     }
 
+    private void markNavigationHierarchy(List<LinkConfig> linkConfigList, LinkConfig parent, ChildLinksConfig parentChildLinksConfig) {
+        for (LinkConfig linkConfig : linkConfigList) {
+            linkConfig.setParentLinkConfig(parent);
+            linkConfig.setParentChildLinksConfig(parentChildLinksConfig);
+            for (ChildLinksConfig childLinksConfig : linkConfig.getChildLinksConfigList()) {
+                markNavigationHierarchy(childLinksConfig.getLinkConfigList(), linkConfig, childLinksConfig);
+            }
+        }
+    }
+
     private Panel buildBreadCrumbPanel(String link, NavigationConfig navigationConfig) {
+        markNavigationHierarchy(navigationConfig.getLinkConfigList(), null, null);
         AbsolutePanel breadCrumbComponents = new AbsolutePanel();
-        String currentLink = Application.getInstance().getHistoryManager().getLink();
-        List<LinkConfig> hierarchy = findParentLinks(currentLink, navigationConfig.getLinkConfigList());
-        Collections.reverse(hierarchy);
         List<LinkConfig> foundLinks = new ArrayList<>();
         findLink(link, navigationConfig.getLinkConfigList(), foundLinks);
-        hierarchy.addAll(foundLinks);
-        Iterator<LinkConfig> iterator = hierarchy.iterator();
+        LinkConfig currentLinkConfig = foundLinks.get(0);
+        List<IsWidget> breadcrumbWidgets = new ArrayList<>();
+        while (true) {
+            breadcrumbWidgets.add(new Hyperlink(currentLinkConfig.getDisplayText(), "link=" + currentLinkConfig.getName()));
+            ChildLinksConfig parentChildLinksConfig = currentLinkConfig.getParentChildLinksConfig();
+            if (parentChildLinksConfig != null && parentChildLinksConfig.getGroupName() != null) {
+                breadcrumbWidgets.add(new Label(currentLinkConfig.getParentChildLinksConfig().getGroupName()));
+            }
+            currentLinkConfig = currentLinkConfig.getParentLinkConfig();
+            if (currentLinkConfig == null) {
+                break;
+            }
+        }
+        Collections.reverse(breadcrumbWidgets);
+        Iterator<IsWidget> iterator = breadcrumbWidgets.iterator();
         while (iterator.hasNext()) {
-            LinkConfig next = iterator.next();
-            breadCrumbComponents.add(new Hyperlink(next.getDisplayText(), "link=" + next.getName()));
-            if (iterator.hasNext()) {
+            IsWidget next = iterator.next();
+            breadCrumbComponents.add(next);
+            if(iterator.hasNext()) {
                 breadCrumbComponents.add(new Label("/"));
             }
         }
         return breadCrumbComponents;
-    }
-
-    private List<LinkConfig> findParentLinks(String link, List<LinkConfig> linkConfigList) {
-        List<LinkConfig> result = new ArrayList<>();
-        List<LinkConfig> parents = new ArrayList<>();
-        LinkConfig lastFoundParent;
-        String lastLink = link;
-        do {
-            findParent(lastLink, linkConfigList, null, result);
-            if (result.isEmpty()) {
-                break;
-            }
-            lastFoundParent = result.get(0);
-            lastLink = lastFoundParent.getName();
-            parents.add(lastFoundParent);
-            result.clear();
-        }
-        while (true);
-        return parents;
-    }
-
-    private void findParent(String link, List<LinkConfig> linkConfigList, LinkConfig parent, List<LinkConfig> results) {
-        for (LinkConfig linkConfig : linkConfigList) {
-            if (linkConfig.getName().equals(link) && parent != null) {
-                results.add(parent);
-                return;
-            }
-            for (ChildLinksConfig childLinksConfig : linkConfig.getChildLinksConfigList()) {
-                findParent(link, childLinksConfig.getLinkConfigList(), linkConfig, results);
-            }
-        }
     }
 
     private void findLink(String link, List<LinkConfig> linkConfigList, List<LinkConfig> results) {

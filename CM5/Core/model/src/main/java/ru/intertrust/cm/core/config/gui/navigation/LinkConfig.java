@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.config.gui.navigation;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
+import org.simpleframework.xml.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.counters.CounterType;
 
@@ -48,6 +45,11 @@ public class  LinkConfig implements Dto {
 
     @Element(name = "decorations", required = false)
     private DecorationsConfig decorationsConfig;
+
+    @Transient
+    private LinkConfig parentLinkConfig;
+    @Transient
+    private ChildLinksConfig parentChildLinksConfig;
 
     public String getName() {
         return name;
@@ -198,5 +200,21 @@ public class  LinkConfig implements Dto {
                 .append(": name=").append(name)
                 .append(", displayText=").append(displayText)
                 .toString();
+    }
+
+    public LinkConfig getParentLinkConfig() {
+        return parentLinkConfig;
+    }
+
+    public void setParentLinkConfig(LinkConfig parentLinkConfig) {
+        this.parentLinkConfig = parentLinkConfig;
+    }
+
+    public ChildLinksConfig getParentChildLinksConfig() {
+        return parentChildLinksConfig;
+    }
+
+    public void setParentChildLinksConfig(ChildLinksConfig parentChildLinksConfig) {
+        this.parentChildLinksConfig = parentChildLinksConfig;
     }
 }
