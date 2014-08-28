@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
-import ru.intertrust.cm.core.gui.impl.client.action.AttachmentAction;
+import ru.intertrust.cm.core.gui.impl.client.action.AttachmentActionLinkHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.AttachmentBoxWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandler;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
@@ -112,16 +112,19 @@ public class AttachmentUploaderView extends Composite {
         actionLinkButton.removeStyleName("gwt-Button");
         actionLinkButton.addStyleName("dialog-box-button");
         actionLinkButton.setText(actionLinkConfig.getText());
+
         final String actionName = actionLinkConfig.getActionName();
+
         actionLinkButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                AttachmentAction action = ComponentRegistry.instance.get(actionName);
-                action.setPlugin(widget.getContainer().getPlugin());
+                AttachmentActionLinkHandler action = ComponentRegistry.instance.get(actionName);
                 action.setAttachmentItem(attachmentItem);
-                action.perform();
+                action.execute();
             }
         });
+
+
         return actionLinkButton;
     }
 
