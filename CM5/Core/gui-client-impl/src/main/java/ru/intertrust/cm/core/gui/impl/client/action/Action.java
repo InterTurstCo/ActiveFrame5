@@ -115,14 +115,16 @@ public abstract class Action extends BaseComponent {
     private class BeforeExecutionConfirmationCallback implements ConfirmCallback {
         @Override
         public void onAffirmative() {
-            execute();
-            final ActionConfig config = getInitialContext().getActionConfig();
-            final String onSuccessMessage =
-                    (config.getAfterConfig() == null || config.getAfterConfig().getMessageConfig() == null)
-                            ? getDefaultOnSuccessMessage()
-                            : config.getAfterConfig().getMessageConfig().getText();
-            if (onSuccessMessage != null) {
-                ApplicationWindow.infoAlert(onSuccessMessage);
+            if (!shouldBeValidated() || isValid()) {
+                execute();
+                final ActionConfig config = getInitialContext().getActionConfig();
+                final String onSuccessMessage =
+                        (config.getAfterConfig() == null || config.getAfterConfig().getMessageConfig() == null)
+                                ? getDefaultOnSuccessMessage()
+                                : config.getAfterConfig().getMessageConfig().getText();
+                if (onSuccessMessage != null) {
+                    ApplicationWindow.infoAlert(onSuccessMessage);
+                }
             }
         }
 

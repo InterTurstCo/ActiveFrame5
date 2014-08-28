@@ -55,18 +55,16 @@ public abstract class SimpleServerAction extends Action {
                 }
             }
         };
-        if (!shouldBeValidated() || isValid()) {
-            try {
-                ActionContext currentContext = appendCurrentContext(initialContext);
-                Command command = new Command("executeAction", this.getName(), currentContext);
-                final AbstractActionConfig abstractActionConfig = getInitialContext().getActionConfig();
-                if (abstractActionConfig instanceof ActionConfig) {
-                    command.setDirtySensitivity(((ActionConfig) abstractActionConfig).isDirtySensitivity());
-                }
-                BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
-            } catch (GuiException e) {
-                ApplicationWindow.errorAlert(e.getMessage());
+        try {
+            ActionContext currentContext = appendCurrentContext(initialContext);
+            Command command = new Command("executeAction", this.getName(), currentContext);
+            final AbstractActionConfig abstractActionConfig = getInitialContext().getActionConfig();
+            if (abstractActionConfig instanceof ActionConfig) {
+                command.setDirtySensitivity(((ActionConfig) abstractActionConfig).isDirtySensitivity());
             }
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
+        } catch (GuiException e) {
+            ApplicationWindow.errorAlert(e.getMessage());
         }
     }
 
