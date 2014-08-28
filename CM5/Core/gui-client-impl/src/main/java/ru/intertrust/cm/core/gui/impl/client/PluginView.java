@@ -63,6 +63,9 @@ public abstract class PluginView implements IsWidget {
 
     protected Panel createBreadCrumbsPanel() {
         NavigationConfig navigationConfig = plugin.getNavigationConfig();
+        if (navigationConfig == null) {
+            return null;
+        }
         String link = Application.getInstance().getHistoryManager().getLink();
         Panel breadCrumbPanel = buildBreadCrumbPanel(link, navigationConfig);
         breadCrumbPanel.addStyleName("breadcrumbPanel");
@@ -102,7 +105,7 @@ public abstract class PluginView implements IsWidget {
         while (iterator.hasNext()) {
             IsWidget next = iterator.next();
             breadCrumbComponents.add(next);
-            if(iterator.hasNext()) {
+            if (iterator.hasNext()) {
                 breadCrumbComponents.add(new Label("/"));
             }
         }

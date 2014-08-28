@@ -159,7 +159,7 @@ public class CollectionPluginView extends PluginView {
         Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
         root.addStyleName("collection-plugin-view-container");
         addHandlers();
-        if(!collectionPluginData.isExtendedSearchMarker()){
+        if (!collectionPluginData.isExtendedSearchMarker()) {
             final com.google.gwt.user.client.Timer timer = new com.google.gwt.user.client.Timer() {
                 @Override
                 public void run() {
@@ -490,7 +490,10 @@ public class CollectionPluginView extends PluginView {
         filterButton.setStyleName("show-filter-button");
         root.add(treeLinkWidget);
         if (plugin.isShowBreadcrumbs()) {
-            root.add(createBreadCrumbsPanel());
+            Panel breadCrumbsPanel = createBreadCrumbsPanel();
+            if (breadCrumbsPanel != null) {
+                root.add(breadCrumbsPanel);
+            }
         }
         root.add(tableBody);
 
@@ -616,8 +619,8 @@ public class CollectionPluginView extends PluginView {
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, rowsChunk, collectionName,
                 fieldPropertiesMap, simpleSearchQuery, searchArea);
         collectionRowsRequest.setFiltersMap(filtersMap);
-        CollectionPluginData collectionPluginData =  plugin.getInitialData();
-        InitialFiltersConfig initialFiltersConfig =collectionPluginData.getInitialFiltersConfig();
+        CollectionPluginData collectionPluginData = plugin.getInitialData();
+        InitialFiltersConfig initialFiltersConfig = collectionPluginData.getInitialFiltersConfig();
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
         collectionRowsRequest.setTableBrowserParams(tableBrowserParams);
@@ -646,7 +649,7 @@ public class CollectionPluginView extends PluginView {
                 : collectionColumnProperties.getDescSortCriteriaConfig();
         collectionRowsRequest.setSortCriteriaConfig(sortCriteriaConfig);
         collectionRowsRequest.setFiltersMap(filtersMap);
-        CollectionPluginData collectionPluginData =  plugin.getInitialData();
+        CollectionPluginData collectionPluginData = plugin.getInitialData();
         InitialFiltersConfig initialFiltersConfig = collectionPluginData.getInitialFiltersConfig();
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
