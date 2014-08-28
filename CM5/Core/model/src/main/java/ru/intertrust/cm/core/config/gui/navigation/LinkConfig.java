@@ -47,9 +47,9 @@ public class  LinkConfig implements Dto {
     private DecorationsConfig decorationsConfig;
 
     @Transient
-    private LinkConfig parentLinkConfig;
+    private transient LinkConfig parentLinkConfig;
     @Transient
-    private ChildLinksConfig parentChildLinksConfig;
+    private transient ChildLinksConfig parentChildLinksConfig;
 
     public String getName() {
         return name;
