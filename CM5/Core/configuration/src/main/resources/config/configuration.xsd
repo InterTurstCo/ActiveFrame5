@@ -338,6 +338,11 @@
     </xs:complexType>
 
     <xs:complexType name="referenceType">
+        <xs:sequence>
+            <xs:element name="constraints" type="con:constraintsType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
         <xs:attribute name="name" use="required" type="con:fieldNameType"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute name="type" use="required" type="con:typeNameType"

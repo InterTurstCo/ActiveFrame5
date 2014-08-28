@@ -9,7 +9,11 @@
             <long name="population"/>
             <boolean name="is_country_rich"/>
             <decimal name="square" precision="15" scale="2"/>
-            <reference name="capital" type="city"/>
+            <reference name="capital" type="city">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
             <reference name="most_famous_city" type="city"/>
             <reference name="country_union" type="country_union"/>
             <string name="description" length="1024"/>
@@ -159,8 +163,8 @@
                                     </td>
                                     <!-- label (Столица) -->
                                     <td colspan="3" h-align="left">
-                                        <!--<widget id="8"/>-->
-                                        <widget id="test"/>
+                                        <widget id="8a"/>
+                                        <!--widget id="test"/-->
                                     </td>
                                 </tr>
                                 <tr>
@@ -351,11 +355,11 @@
                 <text>Столица:</text>
                 <force-required-asterisk value="true"/>
             </label>
-            <!--   <list-box id="8a">
+            <list-box id="8a">
                    <field-path value="capital"/>
-                   &lt;!&ndash;а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;  &ndash;&gt;
+                   <!--а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
                    <pattern value="{name} ({population} чел.)"/>
-               </list-box>-->
+               </list-box>
 
             <label id="7a">
                 <text>Известный город:</text>
