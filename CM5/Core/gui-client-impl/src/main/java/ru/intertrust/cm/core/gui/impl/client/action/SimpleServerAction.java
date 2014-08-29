@@ -42,6 +42,7 @@ public abstract class SimpleServerAction extends Action {
                 for (ActionSuccessListener listener : successListeners) {
                     listener.onSuccess();
                 }
+                showOnSuccessMessage(getDefaultOnSuccessMessage());
             }
 
             @Override
@@ -79,7 +80,6 @@ public abstract class SimpleServerAction extends Action {
         ApplicationWindow.errorAlert(exception.getMessage());
     }
 
-    @Override
     protected String getDefaultOnSuccessMessage() {
         return BusinessUniverseConstants.DONE_SUCCESSFULLY_MESSAGE;
     }

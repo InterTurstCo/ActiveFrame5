@@ -86,8 +86,15 @@ public abstract class Action extends BaseComponent {
 
     protected abstract void execute();
 
-    protected String getDefaultOnSuccessMessage() {
-        return null;
+    protected void showOnSuccessMessage(final String defaultMessage) {
+        final ActionConfig config = getInitialContext().getActionConfig();
+        final String onSuccessMessage =
+                (config == null || config.getAfterConfig() == null || config.getAfterConfig().getMessageConfig() == null)
+                        ? defaultMessage
+                        : config.getAfterConfig().getMessageConfig().getText();
+        if (onSuccessMessage != null) {
+            ApplicationWindow.infoAlert(onSuccessMessage);
+        }
     }
 
     private class DirtyExecuteConfirmCallback implements ConfirmCallback {
@@ -117,14 +124,6 @@ public abstract class Action extends BaseComponent {
         public void onAffirmative() {
             if (!shouldBeValidated() || isValid()) {
                 execute();
-                final ActionConfig config = getInitialContext().getActionConfig();
-                final String onSuccessMessage =
-                        (config.getAfterConfig() == null || config.getAfterConfig().getMessageConfig() == null)
-                                ? getDefaultOnSuccessMessage()
-                                : config.getAfterConfig().getMessageConfig().getText();
-                if (onSuccessMessage != null) {
-                    ApplicationWindow.infoAlert(onSuccessMessage);
-                }
             }
         }
 
