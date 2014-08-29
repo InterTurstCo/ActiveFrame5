@@ -96,7 +96,7 @@ public abstract class Action extends BaseComponent {
             final ConfirmCallback beforeExecutionCallback = new BeforeExecutionConfirmationCallback();
             final ActionConfig config = getInitialContext().getActionConfig();
             final String confirmMessage =
-                    (config.getBeforeConfig() == null || config.getBeforeConfig().getMessageConfig() == null)
+                    (config == null || config.getBeforeConfig() == null || config.getBeforeConfig().getMessageConfig() == null)
                             ? null
                             : config.getBeforeConfig().getMessageConfig().getText();
             if (confirmMessage != null) {
