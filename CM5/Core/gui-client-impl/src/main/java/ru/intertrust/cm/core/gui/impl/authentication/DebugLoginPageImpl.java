@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.authentication;
 
 import com.google.gwt.core.client.Scheduler;
+
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 
 /**
@@ -11,9 +12,9 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
  */
 
 public class DebugLoginPageImpl implements LoginPage {
-    private LoginWindow loginWindow;
+
     public void onModuleLoad() {
-        loginWindow = (LoginWindow) ComponentRegistry.instance.get("login.window");
+        final LoginWindow loginWindow = ComponentRegistry.instance.get("login.window");
         loginWindow.getGlobalAndLoginWindowConfiguration();
         loginWindow.addClearUserSettingsButton();
         loginWindow.center();

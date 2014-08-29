@@ -51,5 +51,5 @@ public class BusinessUniverseAuthenticationServiceImpl extends BaseService
         initialization.setGlobalProductVersion(globalSettingsConfig.getProductVersion());
         initialization.setProductVersion(globalSettingsConfig.getProductVersion() == null || globalSettingsConfig.getProductVersion().getArchive() == null ? null : guiService.getProductVersion(globalSettingsConfig.getProductVersion().getArchive()));
         return initialization;
-    };
+    }
 }
