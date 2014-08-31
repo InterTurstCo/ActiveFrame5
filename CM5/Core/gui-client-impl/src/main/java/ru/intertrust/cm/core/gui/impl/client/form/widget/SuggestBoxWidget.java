@@ -4,8 +4,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.*;
@@ -35,16 +33,17 @@ import java.util.*;
 
 @ComponentName("suggest-box")
 public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
-
+    private static final String ALL_SUGGESTIONS = "*";
+    private static final int HEIGHT_OFFSET = 20;
     private SuggestBox suggestBox;
-    private String selectionPattern;
-    private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
     private LinkedHashMap<Id, String> stateListValues = new LinkedHashMap<>(); //used for temporary state
+    private List<MultiWordIdentifiableSuggestion> suggestions = new ArrayList<MultiWordIdentifiableSuggestion>();
     private SuggestBoxConfig suggestBoxConfig;
-
-    CmjDefaultSuggestionDisplay display;
+    private LazyLoadState lazyLoadState;
+    private int lastScrollPos;
 
     public SuggestBoxWidget() {
+
     }
 
     @Override
@@ -88,10 +87,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
     @Override
     protected SuggestBoxState createNewState() {
         SuggestBoxState state = new SuggestBoxState();
-
         final SuggestBoxState initialState = getInitialData();
         state.setSelectedIds(initialState.getSelectedIds());
-
         return state;
     }
 
@@ -117,16 +114,10 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
         SuggestBoxState suggestBoxState = (SuggestBoxState) state;
-        commonInitialization(suggestBoxState);
+        localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         SelectionStyleConfig selectionStyleConfig = suggestBoxState.getSuggestBoxConfig().getSelectionStyleConfig();
         HyperlinkNoneEditablePanel noneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus);
         return noneEditablePanel;
-    }
-
-    private void commonInitialization(SuggestBoxState state) {
-        SuggestBoxConfig config = state.getSuggestBoxConfig();
-        selectionPattern = config.getSelectionPatternConfig().getValue();
-        localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
     }
 
     @Override
@@ -140,7 +131,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
         Id id = event.getId();
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, suggestBoxConfig.getFormattingConfig());
+        RepresentationRequest request = new RepresentationRequest(ids,
+                suggestBoxConfig.getSelectionPatternConfig().getValue(), suggestBoxConfig.getFormattingConfig());
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -160,6 +152,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 GWT.log("something was going wrong while obtaining hyperlink");
             }
         });
+
     }
 
 
@@ -168,24 +161,18 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
         return "widget-items-handler";
     }
 
-    public class CmjDefaultSuggestionDisplay extends SuggestBox.DefaultSuggestionDisplay {
-        public CmjDefaultSuggestionDisplay() {
-            setSuggestionListHiddenWhenEmpty(false);
-
-        }
-        public PopupPanel getSuggestionPopup() {
-            return this.getPopupPanel();
-        }
-
-    }
-
     @Override
     protected Widget asEditableWidget(final WidgetState state) {
-        commonInitialization((SuggestBoxState) state);
+        localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         final SuggestPresenter presenter = new SuggestPresenter();
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
-        final CmjDefaultSuggestionDisplay defaultSuggestionDisplay = new CmjDefaultSuggestionDisplay();
-        suggestBox = new SuggestBox(oracle, new TextBox(), defaultSuggestionDisplay);
+
+        SuggestBoxDisplay display = new SuggestBoxDisplay();
+
+        suggestBox = new SuggestBox(oracle, new TextBox(), display);
+
+        presenter.suggestBox = suggestBox;
+        display.setLazyLoadHandler(new ScrollLazyLoadHandler());
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
 
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
@@ -200,38 +187,50 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     suggestBoxState.getSelectedIds().clear();
                 }
                 suggestBoxState.getSelectedIds().add(id);
+                suggestBox.refreshSuggestionList();
                 SuggestBox sourceObject = (SuggestBox) event.getSource();
-                sourceObject.setText("");
+                sourceObject.setText(BusinessUniverseConstants.EMPTY_VALUE);
                 sourceObject.setFocus(true);
+
             }
         });
         Event.sinkEvents(suggestBox.getElement(), Event.ONBLUR);
-        final PopupPanel suggestPopupPanel = defaultSuggestionDisplay.getSuggestionPopup();
-               suggestPopupPanel.addCloseHandler(new CloseHandler<PopupPanel>() {
+        suggestBox.addHandler(new BlurHandler() {
             @Override
-            public void onClose(CloseEvent<PopupPanel> event) {
-
-              if(event.isAutoClosed()){
-                  suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
-              }
+            public void onBlur(BlurEvent event) {
+                validate();
+                suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
             }
-        });
-
-        suggestBox.addKeyPressHandler(new KeyPressHandler() {
+        }, BlurEvent.getType());
+        suggestBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
-            public void onKeyPress(KeyPressEvent event) {
-                if(event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
-                    if(!suggestPopupPanel.isShowing()) {
-                        suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
-                    }
+            public void onKeyUp(KeyUpEvent event) {
+                int eventKeyCode = event.getNativeEvent().getKeyCode();
+                switch (eventKeyCode) {
+                    case KeyCodes.KEY_ENTER:
+                        presenter.getNotFilteredSuggestions();
+                        break;
                 }
             }
         });
 
-        display = (CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
+        suggestBox.addKeyDownHandler(new KeyDownHandler() {
+            @Override
+            public void onKeyDown(KeyDownEvent event) {
+                int eventKeyCode = event.getNativeEvent().getKeyCode();
+                switch (eventKeyCode) {
+                    case KeyCodes.KEY_BACKSPACE:
+                        presenter.handleBackspaceDown();
+                        break;
+                    case KeyCodes.KEY_ESCAPE:
+                        presenter.handleEscDown();
+                        break;
+                }
+
+            }
+        });
+
         display.setPositionRelativeTo(presenter);
-        display.getSuggestionPopup().getElement().getStyle().setZIndex(999999999);
-        presenter.suggestBox = suggestBox;
         return presenter;
     }
 
@@ -260,8 +259,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             @Override
             public void requestSuggestions(final Request request, final Callback callback) {
                 SuggestionRequest suggestionRequest = new SuggestionRequest();
-                final SuggestBoxState state = getInitialData();
-                SuggestBoxConfig suggestBoxConfig = state.getSuggestBoxConfig();
+
                 String name = suggestBoxConfig.getCollectionRefConfig().getName();
                 suggestionRequest.setCollectionName(name);
                 String dropDownPatternConfig = suggestBoxConfig.getDropdownPatternConfig().getValue();
@@ -273,25 +271,39 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 suggestionRequest.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
                 suggestionRequest.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
                 suggestionRequest.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
+                if (lazyLoadState == null) {
+                    lazyLoadState = new LazyLoadState(suggestBoxConfig.getPageSize(), 0);
+                }
+                suggestionRequest.setLazyLoadState(lazyLoadState);
                 Command command = new Command("obtainSuggestions", SuggestBoxWidget.this.getName(), suggestionRequest);
                 BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                     @Override
                     public void onSuccess(Dto result) {
-                        SuggestionList list = (SuggestionList) result;
-                        ArrayList<Suggestion> suggestions = new ArrayList<Suggestion>();
-                        allSuggestions.clear();
-                        for (SuggestionItem suggestionItem : list.getSuggestions()) {
+                        SuggestionList suggestionResponse = (SuggestionList) result;
+
+                        boolean isResponseForMoreItems = suggestionResponse.isResponseForMoreItems();
+                        if (!isResponseForMoreItems) {
+                            suggestions.clear();
+
+                        }
+                        List<SuggestionItem> suggestionItems = suggestionResponse.getSuggestions();
+                        if(suggestionItems.isEmpty()){
+                            lazyLoadState = null;
+                        }
+                        for (SuggestionItem suggestionItem : suggestionResponse.getSuggestions()) {
                             suggestions.add(new MultiWordIdentifiableSuggestion(suggestionItem.getId(),
                                     suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
-                            allSuggestions.put(suggestionItem.getId(), suggestionItem.getDisplayText());
                         }
                         Response response = new Response();
                         response.setSuggestions(suggestions);
                         callback.onSuggestionsReady(request, response);
+                        ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay())
+                                .setScrollPosition(lastScrollPos);
                     }
 
                     @Override
                     public void onFailure(Throwable caught) {
+
                         GWT.log("something was going wrong while obtaining suggestions for '" + request.getQuery() + "'");
                     }
                 });
@@ -308,8 +320,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
         private Element arrowBtn;
         private Element clearAllButton;
         private SuggestBox suggestBox;
-        private Integer maxDropDownWidth;
-        private Integer maxDropDownHeight;
+        private boolean lastElementWasHighlighted;
 
         private SuggestPresenter() {
             Element row = DOM.createTR();
@@ -323,36 +334,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             DOM.setEventListener(arrowBtn, new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
-                    final CmjDefaultSuggestionDisplay display = (CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
-                    Element e = (Element) display.getSuggestionPopup().getElement().getFirstChild().getFirstChild().
-                            getFirstChild().getChild(1).getChild(1).getFirstChild();
-                    suggestBox.setText("*");
-                    //max-width drop down suggest
-                    if (getMaxDropDownWidth() != null) {
-                        e.getStyle().setWidth(getMaxDropDownWidth(), Style.Unit.PX);
-                    } else {
-                        e.getStyle().setWidth((Window.getClientWidth() - 15) - suggestBox.getAbsoluteLeft(), Style.Unit.PX);
-                    }
-                    //end max-width drop down suggest
-
-                    //max-height drop down suggest
-
-                    if (getMaxDropDownHeight() != null) {
-                        e.getStyle().setHeight(getMaxDropDownHeight(), Style.Unit.PX);
-                        e.getStyle().setOverflowY(Style.Overflow.SCROLL);
-                    } else {
-                        suggestBox.showSuggestionList();
-                        e.getStyle().setHeight(Window.getClientHeight() - suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - 25, Style.Unit.PX);
-                        e.getStyle().setOverflowY(Style.Overflow.SCROLL);
-                    }
-
-                    //end max-height drop down suggest
-                    if (!((CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay()).getSuggestionPopup().isShowing()) {
-                        suggestBox.showSuggestionList();
-                    }
-
-                    suggestBox.setText("");
-                }
+                    getNotFilteredSuggestions();
+                               }
             });
 
             DOM.appendChild(row, arrowBtn);
@@ -368,19 +351,75 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     }
                 }
             });
-            DOM.sinkEvents(container, Event.ONCLICK | Event.ONFOCUS);
+            DOM.sinkEvents(container, Event.ONCLICK | Event.ONFOCUS );
+
+        }
+
+        public void handleBackspaceDown() {
+            if(!suggestBox.getText().equalsIgnoreCase(BusinessUniverseConstants.EMPTY_VALUE)){
+                return;
+            }
+            if (lastElementWasHighlighted) {
+                SelectedItemComposite lastSelectionItem = getLastItem();
+                if (lastSelectionItem != null) {
+                    lastSelectionItem.removeFromParent();
+                    Id id = lastSelectionItem.getItemId();
+                    removeSuggestBoxIdFromStates(id);
+                }
+            }
+            SelectedItemComposite lastSelectionItem = getLastItem();
+            if(lastSelectionItem != null){
+            lastSelectionItem.setStyleName("highlightedFacebookElement");
+            lastElementWasHighlighted = true;
+            }
+        }
+
+        public void handleEscDown(){
+            ((SuggestBoxDisplay)suggestBox.getSuggestionDisplay()).hideSuggestions();
+            suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+            SelectedItemComposite lastSelectionItem = getLastItem();
+            if(lastSelectionItem != null){
+            lastSelectionItem.setStyleName("facebook-element");
+            }
+            lastElementWasHighlighted = false;
+        }
+
+        private void removeSuggestBoxIdFromStates(Id id){
+            selectedSuggestions.remove(id);
+            stateListValues.remove(id);
+            SuggestBoxState suggestBoxState = getInitialData();
+            suggestBoxState.getSelectedIds().remove(id);
+            suggestBox.setFocus(true);
+        }
+
+        public void getNotFilteredSuggestions() {
+            suggestBox.setText(ALL_SUGGESTIONS);
+            changeSuggestionsPopupSize();
+            lastScrollPos = 0;
+            SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
+            if (!display.getSuggestionPopup().isShowing()) {
+                lazyLoadState = null;
+                suggestBox.showSuggestionList();
+            }
+
+            suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+            suggestBox.setFocus(true);
+
+        }
+
+        private void changeSuggestionsPopupSize(){
+            SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
+            Style popupStyle = display.getSuggestionPopup().getElement().getStyle();
+            popupStyle.setWidth(container.getOffsetWidth(), Style.Unit.PX);
+            display.setLazyLoadPanelHeight(getSuggestionsAvailableHeight());
+        }
+
+        public int getSuggestionsAvailableHeight() {
+            return Window.getClientHeight() - suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - HEIGHT_OFFSET;
         }
 
         public Set<Id> getSelectedKeys() {
             return selectedSuggestions.keySet();
-        }
-
-        private Integer getMaxDropDownWidth() {
-            return maxDropDownWidth;
-        }
-
-        private Integer getMaxDropDownHeight() {
-            return maxDropDownHeight;
         }
 
         public void initModel(final SuggestBoxState state) {
@@ -392,19 +431,11 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
         }
 
         public void initView(final SuggestBoxState state, final SuggestBox suggestBox) {
-            if (state.getSuggestBoxConfig().getMaxDropDownWidth() != null) {
-                this.maxDropDownWidth = state.getSuggestBoxConfig().getMaxDropDownWidth();
-            }
-            if (state.getSuggestBoxConfig().getMaxDropDownHeight() != null) {
-                this.maxDropDownHeight = state.getSuggestBoxConfig().getMaxDropDownHeight();
-            }
 
             this.singleChoice = state.isSingleChoice();
             clear();
             this.suggestBox = suggestBox;
-            if (getElement().getStyle().getProperty("maxWidth").isEmpty()) {
-                container.setClassName("suggest-container-input");
-            }
+            container.setClassName("suggest-container-input");
             for (final Map.Entry<Id, String> listEntry : selectedSuggestions.entrySet()) {
                 final SelectedItemComposite itemComposite =
                         new SelectedItemComposite(listEntry.getKey(), listEntry.getValue());
@@ -439,6 +470,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     }
                 });
             }
+            SuggestPresenter presenter = (SuggestPresenter) impl;
+            presenter.changeSuggestionsPopupSize();
         }
 
         public void clearAllItems() {
@@ -448,6 +481,21 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     it.remove();
                 }
             }
+        }
+
+        public SelectedItemComposite getLastItem() {
+            SelectedItemComposite result = null;
+            WidgetCollection collection = getChildren();
+            int lastElementIndex = collection.size() - 1;
+            for (int i = lastElementIndex; i >= 0; i--) {
+                Widget widget = collection.get(i);
+                if (widget instanceof SelectedItemComposite) {
+                    result = (SelectedItemComposite) widget;
+                    break;
+                }
+            }
+            return result;
+
         }
 
         public void insert(final Id itemId, final String itemName) {
@@ -473,11 +521,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 public void onBrowserEvent(Event event) {
                     remove(itemComposite);
                     Id id = itemComposite.getItemId();
-                    selectedSuggestions.remove(id);
-                    stateListValues.remove(id);
-                    SuggestBoxState suggestBoxState = getInitialData();
-                    suggestBoxState.getSelectedIds().remove(id);
-                    suggestBox.setFocus(true);
+                    removeSuggestBoxIdFromStates(id);
 
                 }
             };
@@ -487,7 +531,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             return new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
-                    HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getItemId(), null, localEventBus);
+                    HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getItemId(),
+                            null, localEventBus);
                     clickHandler.onClick();
                 }
             };
@@ -532,4 +577,41 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
 
         }
     }
+
+    class ScrollLazyLoadHandler implements ScrollHandler {
+        private ScrollPanel lazyLoadPanel;
+
+        public void setLazyLoadPanel(ScrollPanel lazyLoadPanel) {
+            this.lazyLoadPanel = lazyLoadPanel;
+        }
+
+        @Override
+        public void onScroll(ScrollEvent event) {
+
+            int oldScrollPos = lastScrollPos;
+            lastScrollPos = lazyLoadPanel.getVerticalScrollPosition();
+            int maxScrollTop = lazyLoadPanel.getMaximumVerticalScrollPosition();
+            // If scrolling up, ignore the event.
+            if (oldScrollPos == maxScrollTop) {
+
+            }
+            if (oldScrollPos >= lastScrollPos) {
+                return;
+            }
+
+            if (lastScrollPos >= maxScrollTop) {
+                if (suggestBox.getText().isEmpty()) {
+                    suggestBox.setText(ALL_SUGGESTIONS);
+                }
+
+                lazyLoadState.onNextPage();
+
+                suggestBox.showSuggestionList();
+                suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+
+            }
+        }
+
+    }
+
 }

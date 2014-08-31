@@ -12,7 +12,8 @@ import java.util.ArrayList;
  * To change this template use File | Settings | File Templates.
  */
 public class SuggestionList implements Dto {
-    ArrayList<SuggestionItem> suggestions;
+    private ArrayList<SuggestionItem> suggestions;
+    private boolean responseForMoreItems;
 
     public ArrayList<SuggestionItem> getSuggestions() {
         return suggestions;
@@ -22,4 +23,11 @@ public class SuggestionList implements Dto {
         this.suggestions = suggestions;
     }
 
+    public boolean isResponseForMoreItems() {
+        return responseForMoreItems;
+    }
+
+    public void setResponseForMoreItems(boolean responseForMoreItems) {
+        this.responseForMoreItems = responseForMoreItems;
+    }
 }

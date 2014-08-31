@@ -28,6 +28,7 @@ public class SuggestionRequest implements Dto {
     private FormattingConfig formattingConfig;
     private SelectionFiltersConfig selectionFiltersConfig;
     private boolean tooltipContent;
+    private LazyLoadState lazyLoadState;
     public String getText() {
         return text;
     }
@@ -114,5 +115,13 @@ public class SuggestionRequest implements Dto {
 
     public void setTooltipContent(boolean tooltipContent) {
         this.tooltipContent = tooltipContent;
+    }
+
+    public LazyLoadState getLazyLoadState() {
+        return lazyLoadState;
+    }
+
+    public void setLazyLoadState(LazyLoadState lazyLoadState) {
+        this.lazyLoadState = lazyLoadState;
     }
 }

@@ -1136,6 +1136,19 @@ td.datePickerMonth {
     border: 1px solid #f1f1f1;
 }
 
+.highlightedFacebookElement {
+    display: inline-block;
+}
+
+.highlightedFacebookElement .facebook-label {
+    padding: 5px 7px;
+    margin: 5px;
+    background: cyan;
+    display: inline-block;
+    border-radius: 5px;
+    border: 1px solid #f1f1f1;
+}
+
 .hyperlink-label-none-editable {
     cursor: pointer !important;
     font-family: Arial, sans-serif;

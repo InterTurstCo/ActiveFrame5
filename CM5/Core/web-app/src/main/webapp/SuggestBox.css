@@ -54,10 +54,10 @@
 .gwt-SuggestBox {
 }
 
-.suggestPopupMiddleLeft,
-.suggestPopupMiddleRight,
-.suggestPopupBottom,
-.suggestPopupTop {
+.popupMiddleLeft,
+.popupMiddleRight,
+.popupBottom,
+.popupTop {
     display: none;
 }
 
@@ -67,8 +67,9 @@
     border-bottom: 1px solid #F7EC70;
     border-left: 1px solid #F7EC70;
     border-right: 1px solid #F7EC70;
+    z-index: 100;
 }
-.gwt-SuggestBoxPopup .suggestPopupMiddleCenterInner table {
+.gwt-SuggestBoxPopup .popupMiddleCenterInner table {
     width: 100%;
 }
 /*
@@ -86,70 +87,70 @@ width: 207px;
 .gwt-SuggestBoxPopup .item-selected {
     background: #D5E2FF !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupContent {
+.gwt-SuggestBoxPopup .popupContent {
     background: white !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupTopCenter {
+.gwt-SuggestBoxPopup .popupTopCenter {
     border-top: 1px solid #bbb !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupBottomCenter {
+.gwt-SuggestBoxPopup .popupBottomCenter {
     border-bottom: 1px solid #bbb !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupTopCenterInner,
-.gwt-SuggestBoxPopup .suggestPopupBottomCenterInner {
+.gwt-SuggestBoxPopup .popupTopCenterInner,
+.gwt-SuggestBoxPopup .popupBottomCenterInner {
     height: 1px !important;
     line-height: 1px !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupMiddleLeft {
+.gwt-SuggestBoxPopup .popupMiddleLeft {
     border-left: 1px solid #bbb !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupMiddleRight {
+.gwt-SuggestBoxPopup .popupMiddleRight {
     border-right: 1px solid #bbb !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupMiddleLeftInner,
-.gwt-SuggestBoxPopup .suggestPopupMiddleRightInner {
+.gwt-SuggestBoxPopup .popupMiddleLeftInner,
+.gwt-SuggestBoxPopup .popupMiddleRightInner {
     width: 1px !important;
     line-height: 1px !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupTopLeftInner {
+.gwt-SuggestBoxPopup .popupTopLeftInner {
     width: 0px !important;
     height: 0px !important;
     zoom: 1 !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupTopRightInner {
+.gwt-SuggestBoxPopup .popupTopRightInner {
     width: 0px !important;
     height: 0px !important;
     zoom: 1 !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupBottomLeftInner {
+.gwt-SuggestBoxPopup .popupBottomLeftInner {
     width: 0px !important;
     height: 0px !important;
     zoom: 1 !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupBottomRightInner {
+.gwt-SuggestBoxPopup .popupBottomRightInner {
     width: 0px !important;
     height: 0px !important;
     zoom: 1 !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupTopLeft {
+.gwt-SuggestBoxPopup .popupTopLeft {
     background: url(images/circles.png) no-repeat 0px -6px !important;
     -background: url(images/circles_ie6.png) no-repeat 0px -6px !important;
     width: 5px !important;
     height: 5px !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupTopRight {
+.gwt-SuggestBoxPopup .popupTopRight {
     background: url(images/circles.png) no-repeat -5px -6px !important;
     -background: url(images/circles_ie6.png) no-repeat -5px -6px !important;
     width: 5px !important;
     height: 5px !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupBottomLeft {
+.gwt-SuggestBoxPopup .popupBottomLeft {
     background: url(images/circles.png) no-repeat 0px -11px !important;
     -background: url(images/circles_ie6.png) no-repeat 0px -11px !important;
     width: 5px !important;
     height: 5px !important;
 }
-.gwt-SuggestBoxPopup .suggestPopupBottomRight {
+.gwt-SuggestBoxPopup .popupBottomRight {
     background: url(images/circles.png) no-repeat -5px -11px !important;
     -background: url(images/circles_ie6.png) no-repeat -5px -11px !important;
     width: 5px !important;
@@ -157,22 +158,22 @@ width: 207px;
 }
 html>body .gwt-SuggestBoxPopup {
 }
-* html .gwt-SuggestBoxPopup .suggestPopupTopLeftInner {
+* html .gwt-SuggestBoxPopup .popupTopLeftInner {
     width: 0px !important;
     height: 0px !important;
     overflow: hidden !important;
 }
-* html .gwt-SuggestBoxPopup .suggestPopupTopRightInner {
+* html .gwt-SuggestBoxPopup .popupTopRightInner {
     width: 0px !important;
     height: 0px !important;
     overflow: hidden !important;
 }
-* html .gwt-SuggestBoxPopup .suggestPopupBottomLeftInner {
+* html .gwt-SuggestBoxPopup .popupBottomLeftInner {
     width: 0px !important;
     height: 0px !important;
     overflow: hidden !important;
 }
-* html .gwt-SuggestBoxPopup .suggestPopupBottomRightInner {
+* html .gwt-SuggestBoxPopup .popupBottomRightInner {
     width: 0px !important;
     height: 0px !important;
     overflow: hidden !important;
@@ -213,5 +214,5 @@ td .gwt-SuggestBox {
     border: none;
     margin: 0;
     font-family: Arial, sans-serif;
-    width: 20px;
+    width: 35px;
 }

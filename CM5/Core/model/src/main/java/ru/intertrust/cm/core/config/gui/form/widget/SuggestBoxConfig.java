@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Transient;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
@@ -14,7 +15,7 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  * Time: 16:02
  * To change this template use File | Settings | File Templates.
  */
-@Root(name = "suggest-box")
+@Root(name = "suggest-box", strict = false)
 public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
 
     @Element(name = "collection-ref", required = false)
@@ -30,15 +31,17 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
     private InputTextFilterConfig inputTextFilterConfig;
 
     @Element(name = "page-size",required = false)
-    private Integer pageSize;
+    private Integer pageSize = 20;
 
     @Element(name = "selection-style",required = false)
     private SelectionStyleConfig selectionStyleConfig;
 
-    @Element(name = "max-drop-down-width", required = false)
+    @Transient
+    @Deprecated
     Integer maxDropDownWidth;
 
-    @Element(name = "max-drop-down-height", required = false)
+    @Transient
+    @Deprecated
     Integer maxDropDownHeight;
 
     @Element(name = "single-choice", required = false)

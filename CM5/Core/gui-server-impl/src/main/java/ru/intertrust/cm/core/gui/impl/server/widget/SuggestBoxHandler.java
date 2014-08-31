@@ -16,10 +16,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.SuggestBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
-import ru.intertrust.cm.core.gui.model.form.widget.SuggestionList;
-import ru.intertrust.cm.core.gui.model.form.widget.SuggestionRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -91,8 +88,12 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));
         DefaultSortCriteriaConfig sortCriteriaConfig = suggestionRequest.getDefaultSortCriteriaConfig();
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
-        IdentifiableObjectCollection collection = collectionsService.findCollection(suggestionRequest.getCollectionName(),
-                sortOrder, filters);
+        LazyLoadState lazyLoadState = suggestionRequest.getLazyLoadState();
+        String collectionName = suggestionRequest.getCollectionName();
+        boolean isRequestForMoreItems = lazyLoadState.getOffset() != 0;
+        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters,
+                lazyLoadState.getOffset(), lazyLoadState.getPageSize());
+
         Matcher dropDownMatcher = FormatHandler.pattern.matcher(suggestionRequest.getDropdownPattern());
         Matcher selectionMatcher = FormatHandler.pattern.matcher(suggestionRequest.getSelectionPattern());
 
@@ -104,9 +105,10 @@ public class SuggestBoxHandler extends ListWidgetHandler {
                     formatHandler.format(identifiableObject, selectionMatcher, formattingConfig));
             suggestionItems.add(suggestionItem);
         }
-        SuggestionList suggestionList = new SuggestionList();
-        suggestionList.setSuggestions(suggestionItems);
-        return suggestionList;
+        SuggestionList suggestionResponse = new SuggestionList();
+        suggestionResponse.setSuggestions(suggestionItems);
+        suggestionResponse.setResponseForMoreItems(isRequestForMoreItems);
+        return suggestionResponse;
     }
 
     private Filter prepareInputTextFilter(String text, String inputTextFilterName) {
