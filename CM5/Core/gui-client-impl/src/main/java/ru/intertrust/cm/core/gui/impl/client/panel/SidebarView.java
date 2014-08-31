@@ -14,9 +14,6 @@ import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
-import java.util.HashMap;
-import java.util.Iterator;
-
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 30.06.2014
@@ -36,11 +33,10 @@ public class SidebarView extends Composite {
     private VerticalPanel menuItems = new VerticalPanel();
     private ChangeVerticalScrollPositionTop changePositionTop = new ChangeVerticalScrollPositionTop();
     private ChangeVerticalScrollPositionBottom changePositionBottom = new ChangeVerticalScrollPositionBottom();
-    private HashMap<String, HTML> navigationMap = new HashMap<String, HTML>();
 
     public final static int SB_ELEM_HEIGHT = 84;
     public final static int BUT_RESERV_HEIGHT = 30;
-
+    public static int ANIMATION_DURATION = 500;
     public SidebarView() {
         createSideBar();
         initWidget(sidebarPanel);
@@ -66,7 +62,6 @@ public class SidebarView extends Composite {
         HTMLPanel support = new HTMLPanel("");
         sidebarPanel.add(support);
         support.addStyleName("gradient");
-
         support.add(scrollPanel);
         scrollPanel.setStyleName("navigation-scroll");
         scrollPanel.add(tasksWrap);
@@ -86,7 +81,6 @@ public class SidebarView extends Composite {
 
         sidebarPanel.getElement().setId(DIV_SIDEBAR_ID);
         sidebarPanel.getElement().getStyle().clearPosition();
-
         tasksWrap.getElement().setId(DIV_TASKSWRAP_ID);
 
         scrollPanel.setAlwaysShowScrollBars(false);
@@ -105,15 +99,7 @@ public class SidebarView extends Composite {
 
                 switch (DOM.eventGetType(event)) {
                     case Event.ONCLICK:
-                        changePositionTop.run(500, scrollPanel.getVerticalScrollPosition());
-
-                        if (scrollPanel.getVerticalScrollPosition() == scrollPanel.getMinimumVerticalScrollPosition()) {
-                            disableUpArrow();
-                        } else {
-                            enableUpArrow();
-                        }
-                        enableDownArrow();
-
+                        changePositionTop.run(ANIMATION_DURATION, scrollPanel.getVerticalScrollPosition());
                         break;
                 }
             }
@@ -126,15 +112,7 @@ public class SidebarView extends Composite {
 
                 switch (DOM.eventGetType(event)) {
                     case Event.ONCLICK:
-                        changePositionBottom.run(500, scrollPanel.getVerticalScrollPosition());
-
-                        if (scrollPanel.getVerticalScrollPosition() == scrollPanel.getMaximumVerticalScrollPosition()) {
-                            disableDownArrow();
-                        } else {
-                            enableDownArrow();
-                        }
-                        enableUpArrow();
-
+                        changePositionBottom.run(ANIMATION_DURATION, scrollPanel.getVerticalScrollPosition());
                         break;
                 }
             }
@@ -171,22 +149,6 @@ public class SidebarView extends Composite {
 
     private void disableDownArrow() {
         setArrowImage(arrBottom, "css/icons/icon-sidebar-button-down-unactive.png");
-    }
-
-
-    /**
-     * Делает выделенным элемент с названием name
-     */
-
-    public void correctStyle(String name) {
-        for (Iterator<?> iterator = navigationMap.values().iterator(); iterator.hasNext(); ) {
-            HTML type = (HTML) iterator.next();
-            type.removeStyleName("selected");
-        }
-        HTML selected = navigationMap.get(name);
-        if (selected != null) {
-            selected.setStyleName("selected");
-        }
     }
 
     private strictfp void sidebarContentCorrect() {
@@ -246,6 +208,16 @@ public class SidebarView extends Composite {
             super.run(duration);
         }
 
+        @Override
+        protected void onComplete() {
+            super.onComplete();
+            if (scrollPanel.getVerticalScrollPosition() == scrollPanel.getMaximumVerticalScrollPosition()) {
+                disableDownArrow();
+            } else {
+                enableDownArrow();
+            }
+            enableUpArrow();
+        }
     }
 
     private class ChangeVerticalScrollPositionTop extends Animation {
@@ -268,5 +240,15 @@ public class SidebarView extends Composite {
             super.run(duration);
         }
 
+        @Override
+        protected void onComplete() {
+            super.onComplete();
+            if (scrollPanel.getVerticalScrollPosition() == scrollPanel.getMinimumVerticalScrollPosition()) {
+                disableUpArrow();
+            } else {
+                enableUpArrow();
+            }
+            enableDownArrow();
+        }
     }
 }

@@ -871,7 +871,7 @@ td.datePickerMonth {
 }
 
 .central-div-panel-test {
-    background: #ffffff;
+    background: #fafafa;
     display: block;
     height: auto;
     position: absolute !important;
@@ -883,7 +883,7 @@ td.datePickerMonth {
 }
 
 .central-div-panel-test-full {
-    background: #ffffff;
+    background: #fafafa;
     display: block;
     height: auto;
     position: absolute !important;
@@ -895,7 +895,7 @@ td.datePickerMonth {
 }
 
 .central-div-panel-test-active {
-    background: #23b7ff;
+    background: #fafafa;
     display: block;
     height: auto;
     position: absolute !important;
@@ -1639,18 +1639,18 @@ td.datePickerMonth {
     margin: 5px;
 }
 
-.tree-label {
-    float: left;
-    margin-left: -20px;
-    margin-right: 120px;
-    padding: 8px 8px 0 20px;
-    text-decoration: none !important;
-    cursor: pointer;
-}
+/*.tree-label {*/
+    /*float: left;*/
+    /*margin-left: -20px;*/
+    /*margin-right: 120px;*/
+    /*padding: 8px 8px 0 20px;*/
+    /*text-decoration: none !important;*/
+    /*cursor: pointer;*/
+/*}*/
 
-.tree-item-padding-style {
-    padding-left: 15px !important;
-}
+/*.tree-item-padding-style {*/
+    /*padding-left: 15px !important;*/
+/*}*/
 
 .tree-items-navigation {
     overflow: visible;

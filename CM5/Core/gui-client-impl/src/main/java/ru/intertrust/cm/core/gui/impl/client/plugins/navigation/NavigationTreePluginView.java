@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -44,14 +45,11 @@ public class NavigationTreePluginView extends PluginView {
     private final int DURATION = 500;
     private int END_WIDGET_WIDTH = 245;
     private int START_WIDGET_WIDTH = 0;
-    private static final int SIDE_BAR_WIDTH = 110;
     private boolean pinButtonClick = false;
     private TreeItem currentSelectedItem;
     private FocusPanel navigationTreesPanel = new FocusPanel();
     private SidebarView sideBarView;
     private Timer mouseOutTimer;
-    private boolean stopMouseMoveEvent = true;
-    private int currentWidth = START_WIDGET_WIDTH;
     private List<CounterDecorator> counterDecorators = new ArrayList<>();
     private List<CounterDecorator> rootCounterDecorators = new ArrayList<>();
     private static long lastCountersUpdateTime;
@@ -77,13 +75,14 @@ public class NavigationTreePluginView extends PluginView {
         pinButton = new HTML();
         navigationTreesPanel.setStyleName("navigation-dynamic-panel");
         navigationTreeContainer = new FocusPanel();
+        navigationTreeContainer.addStyleName("dummy");
         decorateNavigationTreeContainer(navigationTreeContainer);
         sideBarView = new SidebarView();
         GlobalThemesManager.getNavigationTreeStyles().ensureInjected();
         List<LinkConfig> linkConfigList = navigationTreePluginData.getNavigationConfig().getLinkConfigList();
         String selectedRootLinkName = navigationTreePluginData.getRootLinkSelectedName();
         final LinkConfig selectedLinkConfig = buildRootLinks(linkConfigList, selectedRootLinkName, sideBarView);
-        HorizontalPanel horizontalPanel = new HorizontalPanel();
+        final HorizontalPanel horizontalPanel = new HorizontalPanel();
 
         horizontalPanel.add(sideBarView);
         horizontalPanel.add(navigationTreesPanel);
@@ -109,53 +108,53 @@ public class NavigationTreePluginView extends PluginView {
             }
         });
 
-        navigationTreeContainer.addMouseMoveHandler(new MouseMoveHandler() {
-            @Override
-            public void onMouseMove(MouseMoveEvent event) {
-                if (stopMouseMoveEvent) {
-                    if (event.getX() < SIDE_BAR_WIDTH || currentWidth > START_WIDGET_WIDTH) {
-                        if (mouseOutTimer != null) {
-                            mouseOutTimer.cancel();
+        Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
+            public void onPreviewNativeEvent(final Event.NativePreviewEvent event) {
+                final int eventType = event.getTypeInt();
+                switch (eventType) {
+                    case Event.ONMOUSEOUT:
+
+                        if (!pinButtonClick && event.getNativeEvent().getRelatedEventTarget() == null) {
+                            hideTreePanel();
+                            event.getNativeEvent().stopPropagation();
+                            event.getNativeEvent().preventDefault();
                         }
+                        break;
 
-                        ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH,
-                                navigationTreesPanel);
-                        resizeTreeAnimation.run(DURATION);
-                        currentWidth = END_WIDGET_WIDTH;
-                        pinButton.getElement().getStyle().setZIndex(10);
-                        navigationTreeContainer.getElement().getStyle().setZIndex(9);
-
-                        navigationTreesPanel.setHeight(Window.getClientHeight() - 100 + "px");
-                        String leftSectionStyle = pinButtonClick ? LEFT_SECTION_ACTIVE_STYLE : LEFT_SECTION_STYLE;
-                        String centralSectionStyle = pinButtonClick ? CENTRAL_SECTION_ACTIVE_STYLE : CENTRAL_SECTION_STYLE;
-                        SideBarResizeEvent sideBarResizeEvent =
-                                new SideBarResizeEvent(0, leftSectionStyle, centralSectionStyle);
-                        Application.getInstance().getEventBus().fireEvent(sideBarResizeEvent);
-                        stopMouseMoveEvent = false;
-                    }
+                    default:
+                        // not interested in other events
                 }
+            }
+        });
+        navigationTreeContainer.addMouseOverHandler(new MouseOverHandler() {
+            @Override
+            public void onMouseOver(MouseOverEvent event) {
+
+                if (mouseOutTimer != null) {
+                    mouseOutTimer.cancel();
+                    mouseOutTimer = null;
+
+                }
+
+                navigationTreesPanel.setHeight(Window.getClientHeight() - 100 + "px");
+                String leftSectionStyle = pinButtonClick ? LEFT_SECTION_ACTIVE_STYLE : LEFT_SECTION_STYLE;
+                String centralSectionStyle = pinButtonClick ? CENTRAL_SECTION_ACTIVE_STYLE : CENTRAL_SECTION_STYLE;
+                SideBarResizeEvent sideBarResizeEvent =
+                        new SideBarResizeEvent(0, leftSectionStyle, centralSectionStyle);
+                Application.getInstance().getEventBus().fireEvent(sideBarResizeEvent);
+                final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH,
+                        navigationTreesPanel);
+                resizeTreeAnimation.run(DURATION);
+
 
             }
         });
         navigationTreeContainer.addMouseOutHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {
-                if (!pinButtonClick) {
-                    mouseOutTimer = new Timer() {
-                        @Override
-                        public void run() {
-                            ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
-                            resizeTreeAnimation.run(DURATION);
-                            currentWidth = START_WIDGET_WIDTH;
-                            pinButton.getElement().getStyle().setZIndex(0);
-                            navigationTreeContainer.getElement().getStyle().setZIndex(0);
-                            Application.getInstance().getEventBus().fireEvent(
-                                    new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
-                        }
-                    };
-                    mouseOutTimer.schedule(500);
-                    stopMouseMoveEvent = true;
-                }
+
+                hideTreePanel();
+
             }
         });
 
@@ -163,6 +162,23 @@ public class NavigationTreePluginView extends PluginView {
             activateCollectionCountersUpdateTimer(Application.getInstance().getCollectionCountersUpdatePeriod());
         }
         return navigationTreeContainer;
+    }
+
+    private void hideTreePanel() {
+        if (!pinButtonClick) {
+            mouseOutTimer = new Timer() {
+                @Override
+                public void run() {
+                    final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
+                    Application.getInstance().getEventBus()
+                            .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
+                    resizeTreeAnimation.run(DURATION);
+
+                }
+            };
+            mouseOutTimer.schedule(500);
+
+        }
     }
 
     private void activateCollectionCountersUpdateTimer(final int collectionCountersUpdatePeriodMillis) {
@@ -231,6 +247,7 @@ public class NavigationTreePluginView extends PluginView {
     public void clearCurrentSelectedItemValue() {
         currentSelectedItem.removeStyleName("synchronized");
         currentSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
+        currentSelectedItem.getElement().getFirstChildElement().getStyle().clearDisplay();
         currentSelectedItem = null;
     }
 
@@ -315,8 +332,7 @@ public class NavigationTreePluginView extends PluginView {
                 tempItem.getChild(i).addStyleName("gwt-custom-white");
             }
         }
-        tempItem.getElement().getStyle().clearPaddingLeft();
-        tempItem.getElement().getStyle().clearPadding();
+
         tempItem.addStyleName("tree-item-padding-style");
         tempItem.addStyleName("gwt-custom-white");
         tempItem.getElement().getFirstChildElement().addClassName("gwt-custom-TreeItem-selected");
@@ -330,7 +346,7 @@ public class NavigationTreePluginView extends PluginView {
             final String linkName = (String) treeItemUserObject.get(TREE_ITEM_NAME);
             NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
             Application.getInstance().getEventBus().fireEventFromSource(
-                    new NavigationTreeItemSelectedEvent(pluginConfig, linkName,navigationTreePluginData.getNavigationConfig()),
+                    new NavigationTreeItemSelectedEvent(pluginConfig, linkName, navigationTreePluginData.getNavigationConfig()),
                     plugin);
         }
     }
@@ -426,5 +442,6 @@ public class NavigationTreePluginView extends PluginView {
             source.setSelected(true);
         }
     }
+
 
 }

@@ -80,6 +80,7 @@ class NavigationTreeBuilder {
         if (linkConfig.getName().equals(childToOpenName)) {
             treeItem.setSelected(true);
         }
+        treeItem.setStyleName("treeItemWrapper");
     }
 
     public NavigationTreeBuilder setChildToOpenName(String childToOpenName) {
@@ -132,8 +133,7 @@ class NavigationTreeBuilder {
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT, treeItem.getText());
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG, pluginDefinition.getPluginConfig());
         treeItem.setUserObject(treeUserObjects);
-        treeItem.getElement().getStyle().clearPaddingLeft();
-        treeItem.getElement().getStyle().clearPadding();
+
         treeItem.addStyleName("tree-item-padding-style");
         return treeItem;
     }

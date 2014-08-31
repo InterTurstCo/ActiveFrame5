@@ -24,21 +24,23 @@ public class TreeItemCounterDecorator implements CounterDecorator {
     public void decorate(Long counterValue) {
 
         Label label = new Label();
-        // label.setStyleName("tree-label");
         label.removeStyleName("gwt-Label");
         Map userObjects = (Map) treeItem.getUserObject();
         Object originalText = userObjects.get("originalText");
         Panel container = new AbsolutePanel();
         container.setStyleName("tree-label");
         container.addStyleName("treeItemSelectionDecorator");
+        container.getElement().getStyle().clearOverflow();
         String text = originalText.toString();
         label.setText(text);
         label.setStyleName("treeItemTitle");
         container.add(label);
+		Label counterLabel = new Label("");
+		counterLabel.setStyleName("treeItemCounter");
+		container.add(counterLabel);
         if (counterValue != null || counterValue != 0) {
-            Label counterLabel = new Label(counterValue.toString());
-            counterLabel.setStyleName("treeItemCounter");
-            container.add(counterLabel);
+            counterLabel.setText(counterValue.toString());
+        
         }
 
         treeItem.setWidget(container);
