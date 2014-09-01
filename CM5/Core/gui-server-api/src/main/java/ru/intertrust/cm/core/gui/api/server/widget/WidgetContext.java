@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
@@ -24,6 +25,7 @@ public class WidgetContext implements Dto {
     private FormObjects formObjects;
     private transient Map<String, WidgetConfig> widgetConfigsById;
     private transient FieldPath[] fieldPaths = NOT_INITIALIZED_FIELD_PATHS;
+    private FormConfig formConfig;
 
     public WidgetContext() {
     }
@@ -145,5 +147,13 @@ public class WidgetContext implements Dto {
             }
         }
         return result;
+    }
+
+    public FormConfig getFormConfig() {
+        return formConfig;
+    }
+
+    public void setFormConfig(FormConfig formConfig) {
+        this.formConfig = formConfig;
     }
 }

@@ -99,7 +99,7 @@ public class FormRetriever extends FormProcessor {
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
 
-        HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects);
+        HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects, formConfig);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
 
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
@@ -146,7 +146,7 @@ public class FormRetriever extends FormProcessor {
         ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
 
-        HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects);
+        HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects, formConfig);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
 
         FormState formState = new FormState(formName, widgetStateMap, formObjects, widgetComponents,
@@ -156,18 +156,21 @@ public class FormRetriever extends FormProcessor {
     }
 
 
-    private HashMap<String, WidgetState> buildWidgetStatesMap(List<WidgetConfig> widgetConfigs, FormObjects formObjects) {
+    private HashMap<String, WidgetState> buildWidgetStatesMap(List<WidgetConfig> widgetConfigs, FormObjects formObjects,
+                                                              FormConfig formConfig) {
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
 
         for (WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
+            widgetContext.setFormConfig(formConfig);
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
 
             // TODO: [report-plugin] validation...
-            WidgetContext context = new WidgetContext(config, formObjects);
+            WidgetContext context = new WidgetContext(config, formObjects); // why don't we re-use widgetContext?
+            context.setFormConfig(formConfig);
             List<Constraint> constraints = buildConstraints(context);
             initialState.setConstraints(constraints);
             initialState.setWidgetProperties(buildWidgetProps(widgetContext, constraints));
@@ -229,6 +232,7 @@ public class FormRetriever extends FormProcessor {
 
                 //todo refactor
                 WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
+                widgetContext.setFormConfig(formConfig);
                 WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
                 WidgetState initialState = componentHandler.getInitialState(widgetContext);
                 boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
@@ -264,6 +268,7 @@ public class FormRetriever extends FormProcessor {
             }
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
+            widgetContext.setFormConfig(formConfig);
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
             List<Constraint> constraints = buildConstraints(widgetContext);
