@@ -11,9 +11,9 @@ import java.util.HashMap;
  */
 public class ExtendedSearchPluginData extends PluginData {
 
-    // Поле для получения конфигурации областей поиска и целевых ДО
+    // Поле для получения конфигурации областей поиска и целевых ДО: <Имя области поиска, список типов целевых ДО>
     private HashMap<String, ArrayList<String>> searchAreasData = new HashMap<String, ArrayList<String>>();
-    // Поле для получения конфигурации целевого ДО и его полей для поиска(выбираются индексируемые поля)
+    // Поле для получения конфигурации целевого ДО и его полей для поиска(выбираются индексируемые поля): <Тип целевого ДО, список полей>
     private HashMap<String, ArrayList<String>> searchFieldsData = new HashMap<String, ArrayList<String>>();
     // Поле для получения карты: имя доменного объекта - имя коллекции, возвращаемой при поиске
     private HashMap<String, String> targetCollectionNames;

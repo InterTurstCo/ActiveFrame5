@@ -1,17 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
@@ -39,7 +29,6 @@ import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -63,6 +52,15 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * User: IPetrov
  * Date: 03.01.14
@@ -75,6 +73,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
     @Autowired
     ConfigurationService configurationService;
+
     @Autowired
     protected ApplicationContext applicationContext;
     @Autowired
@@ -83,14 +82,8 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     @Autowired
     DefaultImageMapperImpl defaultImageMapper;
 
-    //@Autowired
-    //private CrudService crudService;
     @Autowired
     private GuiService guiService;
-    @Autowired
-    private FormResolver formResolver;
-
-    private String userUid;
 
     protected ExtendedSearchPluginData extendedSearchPluginData;
 
@@ -110,26 +103,26 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             List<TargetDomainObjectConfig> targetObjects = searchAreaConfig.getTargetObjects();
             // список целевых ДО в конкретной области поиска
             ArrayList<String> arrayTargetObjects = new ArrayList<String>();
-            for (TargetDomainObjectConfig t : targetObjects) {
+            for (TargetDomainObjectConfig targetObject : targetObjects) {
                 // получаем результирующую форму поиска(удаляем несоответствующие поля)
-                List<IndexedFieldConfig> fields = t.getFields();
+                List<IndexedFieldConfig> fields = targetObject.getFields();
                 ArrayList <String> fieldNames = new ArrayList<String>(fields.size());
-                for (Iterator<IndexedFieldConfig> j = fields.iterator(); j.hasNext();)
-                    fieldNames.add(j.next().getName());
-                searchFields.put(t.getType(), fieldNames);
+                for (IndexedFieldConfig field :fields) {
+                    fieldNames.add(field.getName());
+                }
+                searchFields.put(targetObject.getType(), fieldNames);
                 // если форма поиска для данного ДО не сконфигурирована, в интерфейсе не отображается
                 final UserInfo userInfo = GuiContext.get().getUserInfo();
-                FormDisplayData form = guiService.getSearchForm(t.getType(), new HashSet<String>(fieldNames), userInfo);
-                if (form == null)
-                    continue;
-                arrayTargetObjects.add(t.getType());
-
-                targetCollectionNames.put(t.getType(), t.getCollectionConfig().getName());
+                FormDisplayData form = guiService.getSearchForm(targetObject.getType(), new HashSet<String>(fieldNames), userInfo);
+                if (form != null) {
+                    arrayTargetObjects.add(targetObject.getType());
+                    targetCollectionNames.put(targetObject.getType(), targetObject.getCollectionConfig().getName());
+                }
             }
             // если у области поиска нет сконфигурированной формы для поиска ДО, ее не отображаем
-            if (arrayTargetObjects.isEmpty())
-                continue;
-            searchAreas.put(searchAreaConfig.getName(), arrayTargetObjects);
+            if (!arrayTargetObjects.isEmpty()) {
+                searchAreas.put(searchAreaConfig.getName(), arrayTargetObjects);
+            }
         }
         extendedSearchPluginData.setTargetCollectionNames(targetCollectionNames);
         extendedSearchPluginData.setSearchAreasData(searchAreas);
@@ -244,7 +237,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             // получить значение поля формы поиска можно из хэндлера виджета
             WidgetHandler widgetHandler = (WidgetHandler) applicationContext.getBean(widgetConfigById.get(key).getComponentName());
             Value value = widgetHandler.getValue(widgetState);
-            try {
+            //try {
                 Object plainValue = value.get();
 
                 if (plainValue != null) {
@@ -284,7 +277,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                         }*/
                     }
                 }
-            } catch (NullPointerException npe) { continue; }
+            //} catch (NullPointerException npe) { continue; }
         }
 
         // фильтр по интервалу дат в поисковый запрос

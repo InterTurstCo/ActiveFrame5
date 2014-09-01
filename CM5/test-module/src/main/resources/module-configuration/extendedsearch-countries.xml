@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <form name="extendedsearch_countries_form" domain-object-type="Country" type="search" debug="false"
-          min-width="500px" is-default = "true">
+          min-width="500px" is-default = "false">
         <markup>
             <header>
                 <table>
@@ -18,7 +18,6 @@
                         <tab-group>
                             <table>
                                 <tr>
-                                    <!-- label (День Независимости) -->
                                     <td>
                                         <widget id="1"/>
                                     </td>
@@ -42,14 +41,60 @@
             </label>
             <date-box id="2">
                 <field-path value="independence_day"/>
-                <range-start widget-id="3"/>
+                <range-end widget-id="3"/>
             </date-box>
             <date-box id="3">
                 <field-path value="independence_day"/>
-                <range-end widget-id="2"/>
+                <range-start widget-id="2"/>
             </date-box>
         </widget-config>
     </form>
+
+    <form name="extendedsearch_countries_form2" domain-object-type="Country" type="search" debug="false"
+          min-width="500px" is-default = "false">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td colspan="2">
+                                        <widget id="name_label"/>
+                                    </td>
+                                    <td>
+                                        <widget id="name_text-box"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="1">
+                <text>Поиск страны по названию</text>
+            </label>
+            <label id="name_label">
+                <text>Название:</text>
+            </label>
+            <text-box id="name_text-box">
+                <field-path value="name"/>
+            </text-box>
+
+        </widget-config>
+    </form>
+
     <form-mappings name="extendedsearch_countries_form_mappings">
         <form-mapping domain-object-type="Country" form="extendedsearch_countries_form">
             <users>
@@ -57,6 +102,15 @@
             </users>
             <groups>
                 <group name="Minister"/>
+                <group name="test-group-2" priority="1"/>
+            </groups>
+        </form-mapping>
+        <form-mapping domain-object-type="Country" form="extendedsearch_countries_form2">
+            <users>
+                <user uid="person5"/>
+            </users>
+            <groups>
+                <group name="test-group-1" priority="10"/>
             </groups>
         </form-mapping>
     </form-mappings>
