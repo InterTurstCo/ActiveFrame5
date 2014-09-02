@@ -109,12 +109,7 @@
 
 
     <form name="country_form" domain-object-type="country" is-default="true" debug="true" min-width="900px">
-        <act:tool-bar useDefault="true">
-            <act:action-separator order="1000"/>
-            <act:action componentName="save.action" text="NotVisibleSaveWhenNew"
-                        tooltip="Test action for visible-when-new attribute" dirtySensitivity="false"
-                        immediate="true" visible-when-new="false" order="1050"/>
-        </act:tool-bar>
+        <act:tool-bar useDefault="true"/>
         <markup>
             <header>
                 <!--width="800px" height="200px"-->

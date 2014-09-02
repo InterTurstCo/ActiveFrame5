@@ -162,6 +162,18 @@
         <xs:attribute name="text" type="xs:string" use="required"/>
     </xs:complexType>
 
+    <xs:complexType name="onSuccessMessageType">
+        <xs:attribute name="text" type="xs:string" use="required"/>
+        <xs:attribute name="success-notification-type" type="act:notificationType" default="fading" use="optional"/>
+    </xs:complexType>
+
+    <xs:simpleType name="notificationType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="fading"/>
+            <xs:enumeration value="modal"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="beforeExecutionType">
         <xs:sequence>
             <xs:element name="confirmation-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
@@ -170,7 +182,7 @@
 
     <xs:complexType name="afterExecutionType">
         <xs:sequence>
-            <xs:element name="on-success-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="on-success-message" type="act:onSuccessMessageType" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 
