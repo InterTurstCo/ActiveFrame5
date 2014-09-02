@@ -1,7 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
@@ -10,11 +15,6 @@ import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.action.FakeActionHandler;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -25,6 +25,7 @@ public class ActionConfigBuilder {
 
     @Autowired private ApplicationContext applicationContext;
     @Autowired private ActionService actionService;
+
     private final Map<String, ActionConfig> referenceMap = new HashMap<>();
     private final ActionContextList contextList = new ActionContextList();
 
@@ -56,12 +57,16 @@ public class ActionConfigBuilder {
                 }
             }
             final ActionHandler.HandlerStatusData statusData = actionHandler.getCheckStatusData();
-            final ActionHandler.Status status;
+            ActionHandler.Status status;
             if (statusData == null) {
                 status = ActionHandler.Status.APPLY;
             } else {
                 statusData.initialize(params);
-                status = actionHandler.getHandlerStatus(config.getRendered(), statusData);
+                if (!actionConfig.isVisibleWhenNew() && statusData.isNewDomainObject()) {
+                    status =  ActionHandler.Status.SKIP;
+                } else {
+                    status = actionHandler.getHandlerStatus(config.getRendered(), statusData);
+                }
             }
             if (ActionHandler.Status.APPLY == status) {
                 ActionContext actionContext = actionHandler.getActionContext();
@@ -95,6 +100,13 @@ public class ActionConfigBuilder {
         }
         if (actionRefConfig.getMerged() != null) {
             result.setMerged(actionRefConfig.getMerged());
+        }
+        result.setVisibleWhenNew(actionRefConfig.isVisibleWhenNew());
+        if (actionRefConfig.getVisibilityStateCondition() != null) {
+            result.setVisibilityStateCondition(actionRefConfig.getVisibilityStateCondition());
+        }
+        if (actionRefConfig.getVisibilityChecker() != null) {
+            result.setVisibilityChecker(actionRefConfig.getVisibilityChecker());
         }
         return result;
     }

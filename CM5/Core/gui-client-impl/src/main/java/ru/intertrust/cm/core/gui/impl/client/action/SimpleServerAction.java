@@ -81,7 +81,8 @@ public abstract class SimpleServerAction extends Action {
     }
 
     protected String getDefaultOnSuccessMessage() {
-        return BusinessUniverseConstants.DONE_SUCCESSFULLY_MESSAGE;
+//        return BusinessUniverseConstants.DONE_SUCCESSFULLY_MESSAGE;
+        return null;
     }
 
     public void addActionSuccessListener(ActionSuccessListener listener) {

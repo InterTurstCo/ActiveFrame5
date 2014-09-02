@@ -75,6 +75,9 @@
                 <xs:attribute name="weight" type="xs:positiveInteger"/>
                 <xs:attribute name="groupId" type="xs:string" />
                 <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
+                <xs:attribute name="visible-when-new" type="xs:boolean" default="true" use="optional"/>
+                <xs:attribute name="visibility-state-condition" type="xs:string" use="optional"/>
+                <xs:attribute name="visibility-checker" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -88,6 +91,9 @@
                 <xs:attribute name="order" type="xs:positiveInteger" />
                 <xs:attribute name="rendered" type="xs:string" default="true"/>
                 <xs:attribute name="merged" type="xs:boolean" default="false" />
+                <xs:attribute name="visible-when-new" type="xs:boolean" default="true" use="optional"/>
+                <xs:attribute name="visibility-state-condition" type="xs:string" use="optional"/>
+                <xs:attribute name="visibility-checker" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

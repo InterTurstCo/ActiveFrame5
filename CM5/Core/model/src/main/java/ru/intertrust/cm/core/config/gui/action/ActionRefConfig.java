@@ -22,6 +22,15 @@ public class ActionRefConfig extends AbstractActionConfig {
     @Attribute(name = "merged", required = false)
     private Boolean merged;
 
+    @Attribute(name = "visible-when-new", required = false)
+    private boolean visibleWhenNew = true;
+
+    @Attribute(name = "visibility-state-condition", required = false)
+    private String visibilityStateCondition;
+
+    @Attribute(name = "visibility-checker", required = false)
+    private String visibilityChecker;
+
     public String getActionId() {
         return actionId;
     }
@@ -40,6 +49,30 @@ public class ActionRefConfig extends AbstractActionConfig {
 
     public Boolean getMerged() {
         return merged;
+    }
+
+    public boolean isVisibleWhenNew() {
+        return visibleWhenNew;
+    }
+
+    public void setVisibleWhenNew(boolean visibleWhenNew) {
+        this.visibleWhenNew = visibleWhenNew;
+    }
+
+    public String getVisibilityStateCondition() {
+        return visibilityStateCondition;
+    }
+
+    public void setVisibilityStateCondition(String visibilityStateCondition) {
+        this.visibilityStateCondition = visibilityStateCondition;
+    }
+
+    public String getVisibilityChecker() {
+        return visibilityChecker;
+    }
+
+    public void setVisibilityChecker(String visibilityChecker) {
+        this.visibilityChecker = visibilityChecker;
     }
 
     @Override

@@ -67,7 +67,7 @@ public class FormPluginHandler extends ActivePluginHandler {
     }
 
     private ToolbarContext getActionContexts(final FormPluginConfig config, final FormDisplayData form) {
-        final ToolbarContext toolbarContext = getToolbarContexts(config.getPluginState(), form);
+        final ToolbarContext toolbarContext = getToolbarContexts(config, form);
 
         final List<ActionContext> otherActions;
         if (config.getDomainObjectId() != null) {
@@ -81,11 +81,14 @@ public class FormPluginHandler extends ActivePluginHandler {
         return toolbarContext;
     }
 
-    private ToolbarContext getToolbarContexts(final FormPluginState pluginState, final FormDisplayData formData) {
+    private ToolbarContext getToolbarContexts(final FormPluginConfig pluginConfig, final FormDisplayData formData) {
+        final FormPluginState pluginState = pluginConfig.getPluginState();
         final Map<String, Object> formParams = new HashMap<>();
         formParams.put("pluginIsCentralPanel", pluginState.isInCentralPanel());
         formParams.put("toggleEdit", pluginState.isToggleEdit());
         formParams.put("preview", !pluginState.isEditable());
+//        formParams.put("do", )
+        formParams.put("isNewDomainObject", pluginConfig.getDomainObjectTypeToCreate() != null);
         final ToolBarConfig toolbarConfig =
                 formData.getToolBarConfig() == null ? new ToolBarConfig() : formData.getToolBarConfig();
         ToolBarConfig defaultToolbarConfig;

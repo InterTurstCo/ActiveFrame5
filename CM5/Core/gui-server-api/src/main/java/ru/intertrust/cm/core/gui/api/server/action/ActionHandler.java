@@ -53,6 +53,9 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
     }
 
     public interface HandlerStatusData {
+
         void initialize(Map<String, Object> params);
+
+        boolean isNewDomainObject();
     }
 }
