@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
-
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TextBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -17,12 +17,28 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
  */
 @ComponentName("text-box")
 public class TextBoxHandler extends ValueEditingWidgetHandler {
+    private TextState state;
+
     @Override
     public TextState getInitialState(WidgetContext context) {
         final FieldConfig fieldConfig = getFieldConfig(context);
         boolean encrypted = fieldConfig instanceof StringFieldConfig && ((StringFieldConfig) fieldConfig).isEncrypted();
-        return new TextState(context.<String>getFieldPlainValue(), encrypted);
+        state = new TextState(context.<String>getFieldPlainValue(), encrypted);
+        if (context.getWidgetConfig() instanceof TextBoxConfig) {
+            getPaswordIds(context);
+        }
+        return state;
     }
+
+    void getPaswordIds(WidgetContext context) {
+            TextBoxConfig currentTextBoxConfig = context.getWidgetConfig();
+            state.setPasswordWidgetId(currentTextBoxConfig.getId());
+            if (currentTextBoxConfig.getConfirmationFor() != null) {
+                state.setPasswordConfirmationId(currentTextBoxConfig.getConfirmationFor().getWidgetId());
+            }
+
+    }
+
 
     @Override
     public Value getValue(WidgetState state) {

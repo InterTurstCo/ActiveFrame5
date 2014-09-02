@@ -7,6 +7,10 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.validation.*;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -15,6 +19,10 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
  */
 @ComponentName("text-box")
 public class TextBoxWidget extends BaseWidget {
+
+    private String confirmation;
+    private String confirmationFor;
+
     @Override
     public Component createNew() {
         return new TextBoxWidget();
@@ -40,15 +48,57 @@ public class TextBoxWidget extends BaseWidget {
     }
 
     @Override
-    protected Widget asEditableWidget(WidgetState state) {
+    protected Widget asEditableWidget(final WidgetState state) {
+
         TextBox textBox = state instanceof TextState && ((TextState) state).isEncrypted() ? new PasswordTextBox() : new TextBox();
+
         textBox.addBlurHandler(new BlurHandler() {
+
             @Override
             public void onBlur(BlurEvent event) {
-                validate();
+
+                if(((TextState) state).getPasswordConfirmationId() != null){
+
+                    confirmationFor = ((TextState) state).getPasswordConfirmationId();
+                    confirmation = ((TextState) state).getPasswordWidgetId();
+
+                    clearErrors();
+                    if (!validateConfirmation()) {
+                        showErrors(new ValidationResult());
+                    }
+                    if(((TextState) state).getPasswordConfirmationId() == null){
+                        validate();
+                    }
+                }
+
+                if(((TextState) state).getPasswordConfirmationId() == null){
+                    validate();
+                }
+
             }
         });
         return textBox;
+    }
+
+    @Override
+    public ValidationResult validate() {
+        ValidationResult validationResult = super.validate();
+
+        if (confirmationFor != null) {
+            if (!validateConfirmation()) {
+                validationResult.addError("Поля пароль/подтверждение не совпадают!");
+                showErrors(validationResult);
+            }
+        }
+        return validationResult;
+    }
+
+    private boolean validateConfirmation() {
+        boolean result;
+        result = getValueFromWidgetById(confirmationFor).equals(getValueFromWidgetById(confirmation));
+
+
+        return result;
     }
 
     @Override
@@ -59,8 +109,14 @@ public class TextBoxWidget extends BaseWidget {
             return passwordTextBox;
         }
         final Label label = new Label();
-        label.setStyleName("");
+        label.getElement().addClassName("textBoxNonEditable");
         return label;
+    }
+
+    public String getValueFromWidgetById(String id) {
+        TextBoxWidget baseWidget = this.getContainer().getWidget(id);
+        String result = (String) baseWidget.getValue();
+        return result;
     }
 
     public Object getValue() {
