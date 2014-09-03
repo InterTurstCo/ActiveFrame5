@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.OnSuccessMessageConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.SimpleTextTooltip;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 /**
@@ -88,12 +90,21 @@ public abstract class Action extends BaseComponent {
 
     protected void showOnSuccessMessage(final String defaultMessage) {
         final ActionConfig config = getInitialContext().getActionConfig();
-        final String onSuccessMessage =
-                (config == null || config.getAfterConfig() == null || config.getAfterConfig().getMessageConfig() == null)
-                        ? defaultMessage
-                        : config.getAfterConfig().getMessageConfig().getText();
+        final String onSuggestMessageType;
+        final String onSuccessMessage;
+        if (config == null || config.getAfterConfig() == null || config.getAfterConfig().getMessageConfig() == null) {
+            onSuccessMessage = defaultMessage;
+            onSuggestMessageType = OnSuccessMessageConfig.DEFAULT_NOTIFICATION_TYPE;
+        } else {
+            onSuccessMessage = config.getAfterConfig().getMessageConfig().getText();
+            onSuggestMessageType = config.getAfterConfig().getMessageConfig().getSuccessNotificationType();
+        }
         if (onSuccessMessage != null) {
-            ApplicationWindow.infoAlert(onSuccessMessage);
+            if (OnSuccessMessageConfig.DEFAULT_NOTIFICATION_TYPE.equals(onSuggestMessageType)) {
+                new SimpleTextTooltip(onSuccessMessage).center();
+            } else {
+                ApplicationWindow.infoAlert(onSuccessMessage);
+            }
         }
     }
 

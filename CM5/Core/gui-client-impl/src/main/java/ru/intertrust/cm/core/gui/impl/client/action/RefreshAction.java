@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.SimpleTextTooltip;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -43,9 +42,10 @@ public class RefreshAction extends SimpleServerAction {
         RefreshActionData refreshResult = (RefreshActionData) result;
         DomainObjectSurferPlugin plugin = (DomainObjectSurferPlugin) getPlugin();
         plugin.getCollectionPlugin().refreshCollection(refreshResult.getResponse().getCollectionRows());
-        SimpleTextTooltip tooltip = new SimpleTextTooltip("Коллекция успешно обновлена");
-        tooltip.center();
     }
 
-
+    @Override
+    protected String getDefaultOnSuccessMessage() {
+        return "Коллекция успешно обновлена";
+    }
 }

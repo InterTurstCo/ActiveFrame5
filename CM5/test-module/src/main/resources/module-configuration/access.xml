@@ -67,6 +67,19 @@
             </track-domain-objects>
         </groups>
     </context-role>    
+    
+    <context-role name="test4_employee">
+        <context>
+            <domain-object type="test_type_4" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>employee</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
 
     <access-matrix type="test_outgoing_document">
         <status name="Active">
@@ -163,5 +176,8 @@
 
     <access-matrix type="test_type_2" matrix-reference-field="test_type_1"/>
 
+    <access-matrix type="test_type_4" read-everybody="true"/>
+
+    <access-matrix type="test_type_5" read-everybody="true"/>
     
 </configuration>

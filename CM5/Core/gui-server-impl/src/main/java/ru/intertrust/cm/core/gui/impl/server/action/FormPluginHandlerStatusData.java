@@ -11,11 +11,13 @@ import java.util.Map;
 public class FormPluginHandlerStatusData implements ActionHandler.HandlerStatusData {
     private boolean preview;
     private boolean toggleEdit;
+    private boolean newDomainObject;
 
     @Override
     public void initialize(Map<String, Object> params) {
         preview = Boolean.TRUE.equals(params.get("preview"));
         toggleEdit = Boolean.TRUE.equals(params.get(ActionHandler.TOGGLE_EDIT_KEY));
+        newDomainObject = Boolean.TRUE.equals(params.get("isNewDomainObject"));
     }
 
     public boolean isPreview() {
@@ -24,5 +26,10 @@ public class FormPluginHandlerStatusData implements ActionHandler.HandlerStatusD
 
     public boolean isToggleEdit() {
         return toggleEdit;
+    }
+
+    @Override
+    public boolean isNewDomainObject() {
+        return newDomainObject;
     }
 }

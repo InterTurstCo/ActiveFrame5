@@ -1665,6 +1665,8 @@
                 <xs:sequence>
                     <xs:element type="con:fieldPathType" name="field-path"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:confirmationType" name="confirmation" minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:confirmationForType" name="confirmation-for" minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:sequence>
                 <xs:attribute type="xs:string" name="id" use="optional"/>
             </xs:extension>
@@ -2051,6 +2053,26 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="confirmationType">
+        <xs:sequence>
+            <xs:element type="con:confirmationType" name="confirmation"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="widget-id" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="confirmationForType">
+        <xs:sequence>
+            <xs:element type="con:confirmationForType" name="confirmation-for"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="widget-id" use="optional"/>
+    </xs:complexType>
+
+
     <xs:complexType name="linkedFormType">
         <xs:simpleContent>
             <xs:extension base="xs:string">

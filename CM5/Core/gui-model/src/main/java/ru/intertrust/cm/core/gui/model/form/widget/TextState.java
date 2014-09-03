@@ -8,6 +8,8 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 public class TextState extends ValueEditingWidgetState {
     private String text;
     private boolean isEncrypted;
+    private String passwordWidgetId;
+    private String passwordConfirmationId;
 
     public TextState() {
     }
@@ -15,6 +17,22 @@ public class TextState extends ValueEditingWidgetState {
     public TextState(String text, boolean isEncrypted) {
         this.text = text;
         this.isEncrypted = isEncrypted;
+    }
+
+    public String getPasswordWidgetId() {
+        return passwordWidgetId;
+    }
+
+    public void setPasswordWidgetId(String passwordWidgetId) {
+        this.passwordWidgetId = passwordWidgetId;
+    }
+
+    public String getPasswordConfirmationId() {
+        return passwordConfirmationId;
+    }
+
+    public void setPasswordConfirmationId(String passwordConfirmationId) {
+        this.passwordConfirmationId = passwordConfirmationId;
     }
 
     public String getText() {

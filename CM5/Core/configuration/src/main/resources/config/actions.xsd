@@ -75,6 +75,9 @@
                 <xs:attribute name="weight" type="xs:positiveInteger"/>
                 <xs:attribute name="groupId" type="xs:string" />
                 <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
+                <xs:attribute name="visible-when-new" type="xs:boolean" default="true" use="optional"/>
+                <xs:attribute name="visibility-state-condition" type="xs:string" use="optional"/>
+                <xs:attribute name="visibility-checker" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -88,6 +91,9 @@
                 <xs:attribute name="order" type="xs:positiveInteger" />
                 <xs:attribute name="rendered" type="xs:string" default="true"/>
                 <xs:attribute name="merged" type="xs:boolean" default="false" />
+                <xs:attribute name="visible-when-new" type="xs:boolean" default="true" use="optional"/>
+                <xs:attribute name="visibility-state-condition" type="xs:string" use="optional"/>
+                <xs:attribute name="visibility-checker" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -156,6 +162,18 @@
         <xs:attribute name="text" type="xs:string" use="required"/>
     </xs:complexType>
 
+    <xs:complexType name="onSuccessMessageType">
+        <xs:attribute name="text" type="xs:string" use="required"/>
+        <xs:attribute name="success-notification-type" type="act:notificationType" default="fading" use="optional"/>
+    </xs:complexType>
+
+    <xs:simpleType name="notificationType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="fading"/>
+            <xs:enumeration value="modal"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="beforeExecutionType">
         <xs:sequence>
             <xs:element name="confirmation-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
@@ -164,7 +182,7 @@
 
     <xs:complexType name="afterExecutionType">
         <xs:sequence>
-            <xs:element name="on-success-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="on-success-message" type="act:onSuccessMessageType" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 

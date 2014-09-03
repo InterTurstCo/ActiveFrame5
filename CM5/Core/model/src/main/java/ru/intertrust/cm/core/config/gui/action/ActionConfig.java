@@ -74,6 +74,15 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
     @Attribute(required = false)
     private boolean dirtySensitivity = true;
 
+    @Attribute(name = "visible-when-new", required = false)
+    private boolean visibleWhenNew = true;
+
+    @Attribute(name = "visibility-state-condition", required = false)
+    private String visibilityStateCondition;
+
+    @Attribute(name = "visibility-checker", required = false)
+    private String visibilityChecker;
+
     @ElementListUnion({
             @ElementList(entry = "action", type = ActionConfig.class, inline = true, required = false),
             @ElementList(entry = "action-ref", type = ActionRefConfig.class, inline = true, required = false),
@@ -204,5 +213,29 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
 
     public List<AbstractActionConfig> getChildren() {
         return children == null ? Collections.EMPTY_LIST : children;
+    }
+
+    public boolean isVisibleWhenNew() {
+        return visibleWhenNew;
+    }
+
+    public void setVisibleWhenNew(boolean visibleWhenNew) {
+        this.visibleWhenNew = visibleWhenNew;
+    }
+
+    public String getVisibilityStateCondition() {
+        return visibilityStateCondition;
+    }
+
+    public void setVisibilityStateCondition(String visibilityStateCondition) {
+        this.visibilityStateCondition = visibilityStateCondition;
+    }
+
+    public String getVisibilityChecker() {
+        return visibilityChecker;
+    }
+
+    public void setVisibilityChecker(String visibilityChecker) {
+        this.visibilityChecker = visibilityChecker;
     }
 }

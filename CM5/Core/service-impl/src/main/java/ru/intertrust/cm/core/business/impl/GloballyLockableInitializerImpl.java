@@ -5,28 +5,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import org.springframework.transaction.jta.JtaTransactionManager;
 import ru.intertrust.cm.core.business.load.ImportReportsData;
 import ru.intertrust.cm.core.business.load.ImportSystemData;
 import ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader;
-import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
-import javax.transaction.NotSupportedException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
+import javax.transaction.*;
 import java.util.Random;
+import java.util.concurrent.*;
 
 /**
  * {@inheritDoc}
  */
-@Stateless
+@Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Local(GloballyLockableInitializer.class)
 @Remote(GloballyLockableInitializer.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
@@ -45,8 +43,9 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private ImportReportsData importReportsData;
     @Autowired private ScheduleTaskLoader scheduleTaskLoader;
 
-    @Resource
-    private EJBContext ejbContext;
+    @Autowired private JtaTransactionManager jtaTransactionManager;
+
+    @Resource private EJBContext ejbContext;
 
     @Override
     public void init() throws Exception {
@@ -69,13 +68,13 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
                 initializationLockDao.createLockRecord(serverId);
                 userTransaction.commit();
 
+                ExecutorService executorService = Executors.newSingleThreadExecutor();
+                executorService.execute(new LockUpdaterTask());
+
                 configurationLoader.load();
                 executeInitialLoadingTasks();
 
-                userTransaction = startTransaction();
-                initializationLockDao.unlock();
-                userTransaction.commit();
-
+                executorService.shutdownNow();
                 return;
             }
 
@@ -103,18 +102,29 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             initializationLockDao.lock(serverId);
             userTransaction.commit();
 
+            ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.execute(new LockUpdaterTask());
+
             configurationLoader.update();
             executeInitialLoadingTasks();
-        } catch (Throwable e) {
-            logger.error("Failed to initialize", e);
+
+            executorService.shutdownNow();
+        } catch (Exception e) {
+            if (userTransaction != null) {
+                userTransaction.rollback();
+            }
+            logger.error("GloballyLockableInitializer: failed to initialize application", e);
             throw e;
         } finally{
             try {
                 userTransaction = startTransaction();
                 initializationLockDao.unlock();
                 userTransaction.commit();
-            } catch (Throwable e) {
-                logger.error("GloballyLockableInitializer: failed to commit transaction", e);
+            } catch (Exception e) {
+                if (userTransaction != null) {
+                    userTransaction.rollback();
+                }
+                logger.error("GloballyLockableInitializer: failed to unlock initialization lock", e);
             }
         }
     }
@@ -133,6 +143,35 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             userTransaction.begin();
         }
         return userTransaction;
+    }
+
+    private class LockUpdaterTask implements Runnable {
+
+        @Override
+        public void run() {
+            TransactionManager transactionManager = jtaTransactionManager.getTransactionManager();
+
+            while(!Thread.interrupted()) {
+                try {
+                    Thread.currentThread().sleep(3000);
+                } catch (InterruptedException e) {
+                    return;
+                }
+
+                try {
+                    transactionManager.begin();
+                    initializationLockDao.updateLock();
+                    transactionManager.commit();
+                } catch (Exception e) {
+                    try {
+                        transactionManager.rollback();
+                    } catch (SystemException e1) {
+                        logger.error("Failed to rollback transaction", e1);
+                    }
+                    throw new FatalException(e);
+                }
+            }
+        }
     }
 
 }
