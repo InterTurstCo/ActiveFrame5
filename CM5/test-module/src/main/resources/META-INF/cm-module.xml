@@ -37,6 +37,8 @@
         <configuration-path>module-configuration/form-mechanism-3.xml</configuration-path>
         <configuration-path>module-configuration/collection-test.xml</configuration-path>
         <configuration-path>module-configuration/agent_esd.xml</configuration-path>
+        <configuration-path>module-configuration/numerator.xml</configuration-path>
+
     </configuration-paths>
     <import-files rewrite="true">
         <import-file>importdata/f1.csv</import-file>

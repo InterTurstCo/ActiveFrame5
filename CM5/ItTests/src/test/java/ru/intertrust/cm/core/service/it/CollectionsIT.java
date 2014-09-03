@@ -273,7 +273,7 @@ public class CollectionsIT extends IntegrationTestBase {
 
         int moduleTypeid = domainObjectTypeIdCache.getId("SS_Module");
 
-        query = "SELECT cnt.id FROM Num_Counter cnt JOIN Num_KeyValue kv ON kv.\"Owner\" = cnt.id WHERE kv.\"Value\" = {0} AND cnt.\"Module\" = {1}";
+        query = "SELECT cnt.id, kv.\"Owner\", cnt.\"Module\"  FROM Num_Counter cnt JOIN Num_KeyValue kv ON kv.\"Owner\" = cnt.id WHERE kv.\"Value\" = {0} AND cnt.\"Module\" = {1}";
         params = Arrays.<Value>asList(new StringValue("value"), new ReferenceValue(new RdbmsId(moduleTypeid, 1)));
         IdentifiableObjectCollection coll = collectionService.findCollectionByQuery(query, params, 0, 2);
 

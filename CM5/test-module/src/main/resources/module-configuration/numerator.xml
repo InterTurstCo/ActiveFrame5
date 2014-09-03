@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Корневой ДОП "Счетчик" -->
+    <domain-object-type name="Num_Counter">
+    
+        <fields>
+            <reference name="Module" type="SS_Module" not-null="true" />
+            <reference name="UsedForModule" type="SS_Module" />
+            <string name="NdIndex" length="64" />
+            <long name="LastRegNumber" not-null="true" />
+            <string name="KeyFormula" length="4000" />
+        </fields>
+        
+    </domain-object-type>
+    
+    <!-- Одно из СЕ или РВЗ, для которой используется Счетчик -->
+    <domain-object-type name="Num_SoObject">
+    
+        <fields>
+            <long name="Idx" not-null="true" />
+            <reference name="Owner" type="Num_Counter" not-null="true" />
+            <reference name="Object" type="SO_Parent" not-null="true" />
+        </fields>
+        
+        <uniqueKey>
+        	<field name="Owner" />
+        	<field name="Idx" />
+        </uniqueKey>
+        
+        <uniqueKey>
+        	<field name="Owner" />
+        	<field name="Object" />
+        </uniqueKey>
+        
+    </domain-object-type>
+    
+    <!-- Одно из значений ключа Счетчика -->
+    <domain-object-type name="Num_KeyValue">
+    
+        <fields>
+            <reference name="Owner" type="Num_Counter" not-null="true" />
+            <string name="Value" not-null="true" length="253" />
+        </fields>
+        
+        <uniqueKey>
+        	<field name="Owner" />
+        	<field name="Value" />
+        </uniqueKey>
+        
+    </domain-object-type>
+    
+    <!-- Одна из частей Рег. Номера -->
+    <domain-object-type name="Num_Part">
+    
+        <fields>
+            <long name="Idx" not-null="true" />
+            <reference name="Owner" type="Num_Counter" not-null="true" />
+            <string name="Formula" length="253" />
+            <long name="Type" not-null="true" />
+            <!-- Type - enum; значения: -->
+				<!-- "По формуле|Formula":1 -->
+				<!-- "Н.И. из счетчика|CounterNI":3 -->
+				<!-- "Н.И. по подписывающему|AuthorNI":4 -->
+				<!-- "Н.И. по исполнителю|ExecutorNI":5 -->
+				<!-- "Н.И. по месту регистрации|RegistrationNI":6 -->
+				<!-- "Н.И. по формуле|FormulaNI":7 -->
+        </fields>
+        
+        <uniqueKey>
+        	<field name="Owner" />
+        	<field name="Idx" />
+        </uniqueKey>
+        
+    </domain-object-type>
+    
+    <!-- Одно из использованных значений Счетчика при ручном назначении номера -->
+    <domain-object-type name="Num_ManualRegNumber">
+    
+        <fields>
+            <reference name="Owner" type="Num_Counter" not-null="true" />
+            <long name="RegNumber" not-null="true" />
+        </fields>
+        
+        <uniqueKey>
+        	<field name="Owner" />
+        	<field name="RegNumber" />
+        </uniqueKey>
+        
+    </domain-object-type>
+
+<!-- =============================================================================================================== -->
+<!-- ==================================================== ДОСТУП =================================================== -->
+<!-- =============================================================================================================== -->
+
+    <access-matrix type="Num_Counter" read-everybody="true">
+    
+	    <status name="*">
+		    
+		    <write>
+			    <permit-group name="AllPersons" />
+		    </write>
+		    
+	    	<delete>
+			    <permit-group name="AllPersons" />
+	    	</delete>
+    	           
+	    </status>
+	    
+    </access-matrix>
+    
+    <access-matrix type="Num_SoObject" matrix-reference-field="Owner" />
+    <access-matrix type="Num_KeyValue" matrix-reference-field="Owner" />
+    <access-matrix type="Num_Part" matrix-reference-field="Owner" />
+    <access-matrix type="Num_ManualRegNumber" matrix-reference-field="Owner" />
+
+</configuration>
