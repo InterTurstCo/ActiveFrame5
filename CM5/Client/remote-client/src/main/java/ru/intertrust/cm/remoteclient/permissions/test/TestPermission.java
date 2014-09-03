@@ -17,6 +17,8 @@ import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestPermission extends ClientBase {
@@ -212,7 +214,8 @@ public class TestPermission extends ClientBase {
 
             etalon = new EtalonPermissions();
             for (Id personId : allPersons) {
-                etalon.addPermission(personId, Permission.Read);
+                etalon.addPermission(personId, Permission.Delete);
+                etalon.addActionPermission(personId, "action1");
             }            
             checkPermissions(testEmployee.getId(), etalon, "test_employee");
             
@@ -235,6 +238,36 @@ public class TestPermission extends ClientBase {
 
             collection = notAdminCollectionService.findCollectionByQuery("select * from test_type_2");
             assertTrue("test test_type_2 query", collection.size() > 0);
+            
+            //Проверка прав на родительский тип в случае матрицы у дочернего типа CMFIVE-1494
+            /*DomainObject testType4 = getCrudService().createDomainObject("test_type_4");
+            testType4.setString("name", "Name " + System.nanoTime());
+            testType4.setReference("employee", getEmployeeId("Сотрудник 5"));
+            testType4 = getCrudService().save(testType4);
+            
+            notAdminCollectionService = (CollectionsService)getService("CollectionsServiceImpl", CollectionsService.Remote.class, "person5", "admin");
+            String query = "select id, created_date from (select t4.id, t3.created_date, t3.status, t4.employee from test_type_4 t4 left join test_type_3 t3 on t3.id = t4.id where t4.id = {0}) t";
+            List<Value> params = new ArrayList<Value>();
+            params.add(new ReferenceValue(testType4.getId()));
+            collection = notAdminCollectionService.findCollectionByQuery(query, params);
+            assertTrue("test test_type_4 query", collection.size() > 0 && collection.get(0).getTimestamp("created_date") != null);
+            
+            notAdminCollectionService = (CollectionsService)getService("CollectionsServiceImpl", CollectionsService.Remote.class, "person6", "admin");
+            collection = notAdminCollectionService.findCollectionByQuery(query, params);
+            assertTrue("test test_type_4 query without permissions", collection.size() == 0);*/
+            
+            //Проверка прав на дочерний тип в случае матрицы у родительского типа CMFIVE-1541
+            DomainObject testType6 = getCrudService().createDomainObject("test_type_6");
+            testType6.setString("name", "Name " + System.nanoTime());
+            testType6.setString("description", "Description " + System.nanoTime());
+            Id employee5Id = getEmployeeId("Сотрудник 5");
+            testType6.setReference("employee", employee5Id);
+            testType6 = getCrudService().save(testType6);
+            
+            CrudService notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person6", "admin");
+            List<DomainObject> linkedObjects = notAdminCrudservice.findLinkedDomainObjects(employee5Id, "test_type_5", "employee");
+            assertTrue("test_type_6 linked object count", linkedObjects.size() > 0);
+            assertTrue("tes_type_6 name field", linkedObjects.get(0) != null);
             
             log("Test complete");
         } finally {

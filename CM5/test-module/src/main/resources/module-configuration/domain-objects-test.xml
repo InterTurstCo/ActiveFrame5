@@ -138,6 +138,31 @@
         </fields>
     </domain-object-type>
 
+    <domain-object-type name="test_type_3">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_4" initial-status="Active" extends="test_type_3">
+        <fields>
+            <reference name="employee" type="employee"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_5">
+        <fields>
+            <string name="name" length="128" />
+            <reference name="employee" type="employee"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_6" initial-status="Active" extends="test_type_5">
+        <fields>
+            <string name="description" length="128" />
+        </fields>
+    </domain-object-type>
+    
     
     <collection name="Employees_test" idField="id">
         <prototype>
