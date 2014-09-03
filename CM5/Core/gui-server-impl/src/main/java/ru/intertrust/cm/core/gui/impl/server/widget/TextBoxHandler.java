@@ -30,7 +30,7 @@ public class TextBoxHandler extends ValueEditingWidgetHandler {
         return state;
     }
 
-    void getPaswordIds(WidgetContext context) {
+    private void getPaswordIds(WidgetContext context) {
             TextBoxConfig currentTextBoxConfig = context.getWidgetConfig();
             state.setPasswordWidgetId(currentTextBoxConfig.getId());
             if (currentTextBoxConfig.getConfirmationFor() != null) {
