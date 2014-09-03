@@ -366,6 +366,22 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         }
     }
 
+    public AccessMatrixConfig getAccessMatrixByObjectTypeUsingExtention(String domainObjectType) {
+        AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
+
+        if (accessMatrixConfig != null) {
+            return accessMatrixConfig;
+        } else {
+            DomainObjectTypeConfig domainObjectTypeConfig =
+                    getConfig(DomainObjectTypeConfig.class, domainObjectType);
+            if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
+                String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
+                return getAccessMatrixByObjectTypeUsingExtention(parentDOType);
+            }
+        }
+        return null;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -523,7 +539,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public List<String> getAllowedToCreateUserGroups(String objectType) {
         List<String> userGroups = new ArrayList<>();
 
-        AccessMatrixConfig accessMatrix = getAccessMatrixByObjectType(objectType);
+        AccessMatrixConfig accessMatrix = getAccessMatrixByObjectTypeUsingExtention(objectType);
 
         if (accessMatrix != null && accessMatrix.getCreateConfig() != null && accessMatrix.getCreateConfig().getPermitGroups() != null) {
             for (PermitGroup permitGroup : accessMatrix.getCreateConfig().getPermitGroups()) {
