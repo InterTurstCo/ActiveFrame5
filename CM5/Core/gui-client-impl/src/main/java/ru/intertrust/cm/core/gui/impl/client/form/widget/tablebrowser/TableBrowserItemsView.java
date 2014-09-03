@@ -109,7 +109,7 @@ public class TableBrowserItemsView extends Composite {
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
         FocusPanel delBtn = new FocusPanel();
-        delBtn.addStyleName("facebook-btn");
+        delBtn.addStyleName("facebook-btn tableBrowserDeleteElement");
         final Id id = entry.getKey();
         delBtn.addClickHandler(new ClickHandler() {
             @Override

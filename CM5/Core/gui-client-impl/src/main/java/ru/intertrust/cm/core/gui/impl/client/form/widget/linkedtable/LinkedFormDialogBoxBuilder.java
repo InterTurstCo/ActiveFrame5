@@ -165,7 +165,7 @@ public class LinkedFormDialogBoxBuilder {
 
     private void decorateButton(Button saveButton) {
         saveButton.removeStyleName("gwt-Button");
-//        saveButton.addStyleName("dialog-box-button");
+
     }
 
 

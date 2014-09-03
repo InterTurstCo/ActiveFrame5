@@ -38,6 +38,7 @@ public abstract class TooltipWidget extends BaseWidget {
         widgetItemsRequest.setFormattingConfig(config.getFormattingConfig());
         widgetItemsRequest.setDefaultSortCriteriaConfig(config.getDefaultSortCriteriaConfig());
         widgetItemsRequest.setSelectionFiltersConfig(config.getSelectionFiltersConfig());
+        widgetItemsRequest.setTooltipRequest(true);
         Command command = new Command("fetchWidgetItems", getTooltipHandlerName(), widgetItemsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -79,6 +80,7 @@ public abstract class TooltipWidget extends BaseWidget {
         LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
         return config.getSelectionFiltersConfig() != null &&
                 config.getSelectionFiltersConfig().getRowLimit() != 0
+                && state.getSelectedIds() != null
                 && state.getSelectedIds().size() > config.getSelectionFiltersConfig().getRowLimit();
     }
 

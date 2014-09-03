@@ -124,6 +124,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         TableBrowserState stateWithItems = createNewState();
         TableBrowserState fullClientState = new TableBrowserState();
         fullClientState.setListValues(stateWithItems.getListValues());
+        fullClientState.setSelectedIds(stateWithItems.getSelectedIds());
         TableBrowserState initialState = getInitialData();
         fullClientState.setSingleChoice(initialState.isSingleChoice());
         fullClientState.setTableBrowserConfig(initialState.getTableBrowserConfig());

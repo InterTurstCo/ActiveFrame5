@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import java.util.ArrayList;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+
+import java.util.ArrayList;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -20,6 +20,7 @@ public class WidgetItemsRequest implements Dto {
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     private FormattingConfig formattingConfig;
     private SelectionFiltersConfig selectionFiltersConfig;
+    private boolean tooltipRequest;
     public String getSelectionPattern() {
         return selectionPattern;
     }
@@ -68,4 +69,11 @@ public class WidgetItemsRequest implements Dto {
         this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
+    public boolean isTooltipRequest() {
+        return tooltipRequest;
+    }
+
+    public void setTooltipRequest(boolean tooltipRequest) {
+        this.tooltipRequest = tooltipRequest;
+    }
 }
