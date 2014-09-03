@@ -8,6 +8,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
@@ -21,12 +22,10 @@ import java.util.ArrayList;
  *         Time: 13:15
  */
 public class HierarchyBrowserView extends Composite {
-    public static final String DEFAULT_WIDTH = "400px";
-    public static final String DEFAULT_HEIGHT = "150px";
-    private static final String MIN_HEIGHT = "20px";
+
     private HierarchyBrowserItemsView widgetChosenContent;
     private ArrayList<HierarchyBrowserItem> chosenItems;
-    private DockPanel widgetContainer;
+    private Panel widgetContainer;
     private FocusPanel openPopupButton;
     private FocusPanel clearButton;
     private VerticalPanel buttonActionPanel;
@@ -41,7 +40,7 @@ public class HierarchyBrowserView extends Composite {
         this.selectionStyleConfig = selectionStyleConfig;
         this.displayAsHyperlinks = displayAsHyperlinks;
         this.shouldDrawTooltipButton = shouldDrawTooltipButton;
-        widgetContainer = initWidgetContent();
+        widgetContainer = new FlowPanel();
 
         initWidget(widgetContainer);
     }
@@ -72,19 +71,21 @@ public class HierarchyBrowserView extends Composite {
         return widgetContainer;
     }
 
-    private DockPanel initWidgetContent() {
+    public void initWidgetContent(HierarchyBrowserConfig config) {
         openPopupButton = new FocusPanel();
-        widgetContainer = new DockPanel();
 
         widgetContainer.setStyleName("hierarh-browser-inline");
         buttonActionPanel = new VerticalPanel(); //TODO: looks like it's never used
         buttonActionPanel.setStyleName("hierarh-browser-inline");
 
         widgetChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
-        widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarh-browser-border");
-        widgetContainer.add(widgetChosenContent, DockPanel.CENTER);
-        widgetContainer.add(buttonActionPanel, DockPanel.EAST);
-        return widgetContainer;
+        widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarchyBrowserBorder");
+
+        initAddButton(config.getAddButtonConfig());
+        initClearButtonIfItIs(config.getClearAllButtonConfig());
+        widgetContainer.add(widgetChosenContent);
+
+
     }
 
     public HandlerRegistration addButtonClickHandler(ClickHandler openButtonClickHandler) {
@@ -92,8 +93,7 @@ public class HierarchyBrowserView extends Composite {
     }
 
     public void displayBaseWidget(String width, String height) {
-        String widgetWidth = width != null ? width : DEFAULT_WIDTH;
-        String widgetHeight = height != null ? height : DEFAULT_HEIGHT;
+        setSizeIfConfigured(width, height);
         widgetChosenContent.handleAddingChosenItems(chosenItems, selectedIds);
         if(shouldDrawTooltipButton) {
             widgetChosenContent.addShowTooltipLabel(new ClickHandler() {
@@ -103,24 +103,26 @@ public class HierarchyBrowserView extends Composite {
                 }
             });
         }
-        widgetContainer.setSize(widgetWidth, widgetHeight);
 
-//        widgetContainer.setCellWidth(widgetChosenContent, "100%");
-//        widgetContainer.setCellHeight(widgetChosenContent, widgetHeight);
-//
-//        widgetChosenContent.asWidget().getElement().getStyle().setProperty("minHeight", MIN_HEIGHT);
-//        widgetChosenContent.asWidget().setSize("100%", "100%");
+
 
     }
+    private void setSizeIfConfigured(String width, String height){
+        if(width != null){
+            widgetContainer.setWidth(width);
+        }
+        if(height != null){
+            widgetContainer.setWidth(height);
+             widgetChosenContent.setHeight("100px"); //TODO find other solution to see scrollbar
+        }
+    }
+
 
     public void initAddButton(AddButtonConfig config) {
         openPopupButton.clear();
         ButtonForm buttonForm;
         String text = config.getText();
-        if (text.equals("...")) {
-            text = "Выбрать";
 
-        }
         if (config != null) {
             buttonForm = new ButtonForm(openPopupButton, config.getImage(), text);
         } else {
@@ -128,7 +130,7 @@ public class HierarchyBrowserView extends Composite {
         }
         openPopupButton.add(buttonForm);
         openPopupButton.addStyleName("hierar-add-button");
-        widgetContainer.add(openPopupButton, DockPanel.EAST);
+        widgetContainer.add(openPopupButton);
     }
 
     public void initClearButtonIfItIs(ClearAllButtonConfig config) {
@@ -140,7 +142,7 @@ public class HierarchyBrowserView extends Composite {
             ButtonForm buttonForm = new ButtonForm(clearButton, config.getImage(), config.getText());
             clearButton.add(buttonForm);
             clearButton.addStyleName("hierar-clear-button");
-            widgetContainer.add(clearButton, DockPanel.EAST);
+            widgetContainer.add(clearButton);
             clearButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -152,5 +154,7 @@ public class HierarchyBrowserView extends Composite {
         }
     }
 
-
+   public void clear(){
+       widgetContainer.clear();
+   }
 }

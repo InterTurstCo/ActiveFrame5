@@ -238,7 +238,7 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <widget id="2c" width="450px"/>
+                                        <widget id="2c"/>
                                     </td>
                                 </tr>
                             </table>
@@ -266,7 +266,6 @@
             <label id="addressees_label">
                 <text>Адресаты:</text>
             </label>
-
 
             <hierarchy-browser id="2c">
                 <field-path
@@ -311,7 +310,7 @@
                 <page-size>10</page-size>
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
-                <add-button image="..." text="..."/>
+                <add-button image="..." text="Добавить"/>
                 <display-values-as-links value="true"/>
             </hierarchy-browser>
             <label id="actual_start_period_label">

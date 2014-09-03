@@ -33,12 +33,19 @@ public class HierarchyBrowserItemsView extends Composite {
         this.displayAsHyperlinks = displayAsHyperlink;
 
         mainBoxPanel = new AbsolutePanel();
-        mainBoxPanel.setStyleName("facebook-main-box");
+        mainBoxPanel.setStyleName("hierarchyBrowserMainBox");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
-        mainBoxPanel.getElement().getStyle().clearOverflowY();
+        mainBoxPanel.getElement().getStyle().clearOverflow();
+
         container = new AbsolutePanel();
+        container.getElement().getStyle().clearOverflow();
         container.add(mainBoxPanel);
         initWidget(container);
+    }
+
+    @Override
+    public Widget asWidget() {
+        return container;
     }
 
     public ArrayList<Id> getSelectedIds() {
@@ -62,9 +69,9 @@ public class HierarchyBrowserItemsView extends Composite {
         final AbsolutePanel element = new AbsolutePanel();
         element.getElement().getStyle().setMarginLeft(5, Style.Unit.PX);
         element.getElement().getStyle().setDisplay(displayStyle);
-        element.setStyleName("facebook-element");
+        element.setStyleName("hierarchyBrowserElement");
         Label label = new Label(item.getStringRepresentation());
-        label.setStyleName("facebook-label");
+        label.setStyleName("hierarchyBrowserLabel");
         if (displayAsHyperlinks) {
             label.addStyleName("facebook-clickable-label");
             label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler("Collection item", item.getId(),
@@ -72,8 +79,6 @@ public class HierarchyBrowserItemsView extends Composite {
         }
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
-        delBtn.getElement().getStyle().setPadding(2, Style.Unit.PX);
-        delBtn.getElement().getStyle().setBackgroundColor("red");
         delBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -123,6 +128,7 @@ public class HierarchyBrowserItemsView extends Composite {
         this.chosenItems = chosenItems;
         this.selectedIds = selectedIds;
         displayChosenItems();
+
     }
 
     public void handleReplacingChosenItem(HierarchyBrowserItem updatedItem) {
@@ -151,8 +157,12 @@ public class HierarchyBrowserItemsView extends Composite {
     public void addShowTooltipLabel(ClickHandler handler) {
         Button openTooltip = new Button("...");
         openTooltip.setStyleName("light-button");
-        container.add(openTooltip);
+        mainBoxPanel.add(openTooltip);
         openTooltip.addClickHandler(handler);
+    }
+
+    public void setHeight(String height){
+        mainBoxPanel.setHeight(height);
     }
 }
 
