@@ -93,6 +93,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         if (configStorage.globalSettings.validateIndirectPermissions()) {
             new IndirectlyPermissionLogicalValidator(this).validate();
         }
+        new ReadEvrybodyPermissionLogicalValidator(this).validate();
     }
 
     public void validateGui() {
@@ -357,7 +358,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public AccessMatrixConfig getAccessMatrixByObjectType(String domainObjectType) {
         readLock.lock();
         try {
-            //Получение конфигурации матрицы
+            //Получение конфигурации матрицы, здесь НЕЛЬЗЯ учитывать наследование, так как вызывающие методы должны получить матрицу непосредственно для переданного типа
             AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
             return getReturnObject(accessMatrixConfig, AccessMatrixConfig.class);
         } finally {

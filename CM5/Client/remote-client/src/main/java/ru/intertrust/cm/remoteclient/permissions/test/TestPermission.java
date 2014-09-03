@@ -240,7 +240,7 @@ public class TestPermission extends ClientBase {
             assertTrue("test test_type_2 query", collection.size() > 0);
             
             //Проверка прав на родительский тип в случае матрицы у дочернего типа CMFIVE-1494
-            /*DomainObject testType4 = getCrudService().createDomainObject("test_type_4");
+            DomainObject testType4 = getCrudService().createDomainObject("test_type_4");
             testType4.setString("name", "Name " + System.nanoTime());
             testType4.setReference("employee", getEmployeeId("Сотрудник 5"));
             testType4 = getCrudService().save(testType4);
@@ -251,10 +251,6 @@ public class TestPermission extends ClientBase {
             params.add(new ReferenceValue(testType4.getId()));
             collection = notAdminCollectionService.findCollectionByQuery(query, params);
             assertTrue("test test_type_4 query", collection.size() > 0 && collection.get(0).getTimestamp("created_date") != null);
-            
-            notAdminCollectionService = (CollectionsService)getService("CollectionsServiceImpl", CollectionsService.Remote.class, "person6", "admin");
-            collection = notAdminCollectionService.findCollectionByQuery(query, params);
-            assertTrue("test test_type_4 query without permissions", collection.size() == 0);*/
             
             //Проверка прав на дочерний тип в случае матрицы у родительского типа CMFIVE-1541
             DomainObject testType6 = getCrudService().createDomainObject("test_type_6");
