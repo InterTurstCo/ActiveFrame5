@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * Заполняет ссылочные параметры фильтров в SQL запросе. Добавляет тип ссылочного поля в SQL запрос. Например, выполняет
@@ -116,7 +117,7 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseParamProcessingV
         } else {
             comparisonExpressionForReferenceType = new NotEqualsTo();
         }
-        String typeColumnName = generateReferenceTypeParameter(column.getColumnName());
+        String typeColumnName = generateReferenceTypeParameter(DaoUtils.unwrap(column.getColumnName()));
         Column typeColumn = new Column(column.getTable(), typeColumnName);
 
         comparisonExpressionForReferenceType.setLeftExpression(typeColumn);

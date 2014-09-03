@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * Заполняет ссылочные параметры в SQL запросе. Добавляет тип ссылочного поля в SQL запрос. Например, выполняет
@@ -132,7 +133,7 @@ public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor
         } else {
             comparisonExpressionForReferenceType = new NotEqualsTo();
         }
-        String typeColumnName = column.getColumnName() + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+        String typeColumnName = DaoUtils.unwrap(column.getColumnName()) + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
         Column typeColumn = new Column(column.getTable(), typeColumnName);
 
         comparisonExpressionForReferenceType.setLeftExpression(typeColumn);

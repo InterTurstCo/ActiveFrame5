@@ -9,6 +9,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * Визитор для поиска конфигурации полей в Where части SQL запроса и для заполнения фильтров для ссылочных
@@ -72,7 +73,7 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
     private void collectColumnConfiguration(Column column) {
         FieldConfig fieldConfig =
                 configurationExplorer.getFieldConfig(SqlQueryModifier.getDOTypeName(plainSelect, column, false),
-                        column.getColumnName());
+                        DaoUtils.unwrap(column.getColumnName()));
         if (fieldConfig != null) {
             columnToConfigMapping.put(getColumnName(column), fieldConfig);
         }

@@ -267,7 +267,7 @@ public class SqlQueryModifier {
             String column = selectExpressionItem.getAlias().getName() + ":" +
                     (selectExpressionItem.getExpression() instanceof Column ?
                         ((Column) selectExpressionItem.getExpression()).getColumnName() : "");
-            column = column.toLowerCase();
+            column = DaoUtils.unwrap(column.toLowerCase());
             if (!columns.add(column)) {
                 throw new CollectionQueryException("Collection query contains duplicated columns: " +
                         plainSelect.toString());
@@ -685,7 +685,9 @@ public class SqlQueryModifier {
                 if (isEvaluatedExpression(expressionValue)) {
 
                     if (selectExpressionItem.getAlias() != null) {
-                        if (column.getColumnName().equalsIgnoreCase(selectExpressionItem.getAlias().getName())) {
+                        String columnName = DaoUtils.unwrap(column.getColumnName());
+                        String expressionAliasName = DaoUtils.unwrap(selectExpressionItem.getAlias().getName());
+                        if (columnName.equalsIgnoreCase(expressionAliasName)) {
                             return true;
                         }
                     }

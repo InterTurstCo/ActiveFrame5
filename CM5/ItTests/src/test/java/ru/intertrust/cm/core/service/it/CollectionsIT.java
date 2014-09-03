@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -24,7 +25,6 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
@@ -260,6 +260,23 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
         assertTrue(collection.size() > 0);
+        
+        query = "select * from person p where p.login = {0} and p.profile = {1}";
+        
+        params = new ArrayList<>();
+        int personProfileTypeid = domainObjectTypeIdCache.getId("person_profile");
+        params.add(new StringValue("person1"));
+        params.add(new ReferenceValue(new RdbmsId(personProfileTypeid, 2)));
+        
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        int moduleTypeid = domainObjectTypeIdCache.getId("SS_Module");
+
+        query = "SELECT cnt.id FROM Num_Counter cnt JOIN Num_KeyValue kv ON kv.\"Owner\" = cnt.id WHERE kv.\"Value\" = {0} AND cnt.\"Module\" = {1}";
+        params = Arrays.<Value>asList(new StringValue("value"), new ReferenceValue(new RdbmsId(moduleTypeid, 1)));
+        IdentifiableObjectCollection coll = collectionService.findCollectionByQuery(query, params, 0, 2);
+
     }
     
     @Test
