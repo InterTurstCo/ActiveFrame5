@@ -38,7 +38,6 @@ public abstract class TooltipWidget extends BaseWidget {
         widgetItemsRequest.setFormattingConfig(config.getFormattingConfig());
         widgetItemsRequest.setDefaultSortCriteriaConfig(config.getDefaultSortCriteriaConfig());
         widgetItemsRequest.setSelectionFiltersConfig(config.getSelectionFiltersConfig());
-        widgetItemsRequest.setTooltipRequest(true);
         Command command = new Command("fetchWidgetItems", getTooltipHandlerName(), widgetItemsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

@@ -85,7 +85,7 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
         boolean hasLostItems = false;
-        if (limit != 0 && widgetItemsRequest.isTooltipRequest()) {
+        if (limit != 0) {
             collection = collectionsService.findCollection(collectionName, sortOrder, filters, limit,
                     WidgetConstants.UNBOUNDED_LIMIT); //limit becomes offset for tooltip
             hasLostItems = collection.size() < (selectedIds.size() - limit);

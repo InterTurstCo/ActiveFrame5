@@ -20,7 +20,6 @@ public class WidgetItemsRequest implements Dto {
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     private FormattingConfig formattingConfig;
     private SelectionFiltersConfig selectionFiltersConfig;
-    private boolean tooltipRequest;
     public String getSelectionPattern() {
         return selectionPattern;
     }
@@ -69,11 +68,4 @@ public class WidgetItemsRequest implements Dto {
         this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
-    public boolean isTooltipRequest() {
-        return tooltipRequest;
-    }
-
-    public void setTooltipRequest(boolean tooltipRequest) {
-        this.tooltipRequest = tooltipRequest;
-    }
 }

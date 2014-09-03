@@ -418,7 +418,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         widgetItemsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
         widgetItemsRequest.setDefaultSortCriteriaConfig(tableBrowserConfig.getDefaultSortCriteriaConfig());
         widgetItemsRequest.setSelectionFiltersConfig(tableBrowserConfig.getSelectionFiltersConfig());
-        Command command = new Command("fetchWidgetItems", "widget-items-handler", widgetItemsRequest);
+        Command command = new Command("fetchTableBrowserItems",getName(), widgetItemsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
