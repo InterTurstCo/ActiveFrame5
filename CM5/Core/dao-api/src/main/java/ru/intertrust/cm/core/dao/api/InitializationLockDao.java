@@ -46,6 +46,11 @@ public interface InitializationLockDao {
     void unlock();
 
     /**
+     * Updates lock date
+     */
+    void updateLock();
+
+    /**
      * Returns true if initialization is in process
      * @return
      */

@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.dao.impl.utils.DateUtils;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -29,20 +30,20 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
             "update " + wrap(INITIALIZATION_LOCK_TABLE) + " set " + wrap(SERVER_ID_COLUMN) +  " = ?, " +
                     wrap(START_DATE_COLUMN) + " = ? where " + wrap(ID_COLUMN) + " = ?";
 
+    protected static final String UPDATE_LOCK_QUERY =
+            "update " + wrap(INITIALIZATION_LOCK_TABLE) + " set " + wrap(START_DATE_COLUMN) + " = ? where " +
+                    wrap(ID_COLUMN) + " = ?";
+
     protected static final String SELECT_FOR_UPDATE_QUERY =
             "select " + wrap(ID_COLUMN) + " from " + wrap(INITIALIZATION_LOCK_TABLE) +
-                    " where " +  wrap(ID_COLUMN) + " = ? and " + wrap(SERVER_ID_COLUMN) +  " is null for update";
+                    " where " +  wrap(ID_COLUMN) + " = ? and " +
+                    "(" + wrap(SERVER_ID_COLUMN) +  " is null or " + START_DATE_COLUMN + " < ?) for update";
 
     protected static final String UNLOCK_QUERY =
             "update " + wrap(INITIALIZATION_LOCK_TABLE) + " set " + wrap(SERVER_ID_COLUMN) +  " = null, " +
                     wrap(START_DATE_COLUMN) + " = null where " + wrap(ID_COLUMN) + " = ?";
 
-    protected static final String COUNT_ALL =
-            "select count( " + wrap(ID_COLUMN) + ") from " + wrap(INITIALIZATION_LOCK_TABLE);
-
-    protected static final String COUNT_FREE_QUERY =
-            "select count( " + wrap(ID_COLUMN) + ") from " + wrap(INITIALIZATION_LOCK_TABLE) +
-                    " where " + wrap(ID_COLUMN) + " = ? and " + wrap(SERVER_ID_COLUMN) + " is null";
+    protected static final int LOCK_VALIDITY_TIME_SEC = 10;
 
     private static final long ID = 1;
 
@@ -105,8 +106,19 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
     /**
      * {@inheritDoc}
      */
+    public void updateLock() {
+        jdbcTemplate.update(UPDATE_LOCK_QUERY, DateUtils.getGMTDate(new Date()), ID);
+    }
+
+    @Override
+    /**
+     * {@inheritDoc}
+     */
     public boolean isLocked() {
-        List<Integer> unlockedRecords = jdbcTemplate.queryForList(SELECT_FOR_UPDATE_QUERY, Integer.class, ID);
+        Calendar startDate = DateUtils.getGMTDate(new Date());
+        startDate.add(Calendar.SECOND, -LOCK_VALIDITY_TIME_SEC);
+
+        List<Integer> unlockedRecords = jdbcTemplate.queryForList(SELECT_FOR_UPDATE_QUERY, Integer.class, ID, startDate);
         return unlockedRecords == null || unlockedRecords.isEmpty();
     }
 
