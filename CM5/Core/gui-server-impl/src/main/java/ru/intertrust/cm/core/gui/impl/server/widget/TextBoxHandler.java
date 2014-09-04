@@ -25,16 +25,16 @@ public class TextBoxHandler extends ValueEditingWidgetHandler {
         boolean encrypted = fieldConfig instanceof StringFieldConfig && ((StringFieldConfig) fieldConfig).isEncrypted();
         state = new TextState(context.<String>getFieldPlainValue(), encrypted);
         if (context.getWidgetConfig() instanceof TextBoxConfig) {
-            getPaswordIds(context);
+            setPaswordIds(context);
         }
         return state;
     }
 
-    private void getPaswordIds(WidgetContext context) {
+    private void setPaswordIds(WidgetContext context) {
             TextBoxConfig currentTextBoxConfig = context.getWidgetConfig();
-            state.setPasswordWidgetId(currentTextBoxConfig.getId());
+            state.setPrimaryWidgetId(currentTextBoxConfig.getId());
             if (currentTextBoxConfig.getConfirmationFor() != null) {
-                state.setPasswordConfirmationId(currentTextBoxConfig.getConfirmationFor().getWidgetId());
+                state.setConfirmationWidgetId(currentTextBoxConfig.getConfirmationFor().getWidgetId());
             }
 
     }

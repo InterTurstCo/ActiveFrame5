@@ -9,9 +9,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.validation.*;
 
-import java.util.Collection;
-import java.util.List;
-
 /**
  * @author Denis Mitavskiy
  *         Date: 15.09.13
@@ -57,21 +54,21 @@ public class TextBoxWidget extends BaseWidget {
             @Override
             public void onBlur(BlurEvent event) {
 
-                if(((TextState) state).getPasswordConfirmationId() != null){
+                if(((TextState) state).getConfirmationWidgetId() != null){
 
-                    confirmationFor = ((TextState) state).getPasswordConfirmationId();
-                    confirmation = ((TextState) state).getPasswordWidgetId();
+                    confirmationFor = ((TextState) state).getConfirmationWidgetId();
+                    confirmation = ((TextState) state).getPrimaryWidgetId();
 
                     clearErrors();
                     if (!validateConfirmation()) {
                         showErrors(new ValidationResult());
                     }
-                    if(((TextState) state).getPasswordConfirmationId() == null){
+                    if(((TextState) state).getConfirmationWidgetId() == null){
                         validate();
                     }
                 }
 
-                if(((TextState) state).getPasswordConfirmationId() == null){
+                if(((TextState) state).getConfirmationWidgetId() == null){
                     validate();
                 }
 
