@@ -22,6 +22,9 @@ public class FormMappingsConfig implements Dto, TopLevelConfig {
     @ElementList(inline = true)
     private List<FormMappingConfig> formMappingConfigList = new ArrayList<FormMappingConfig>();
 
+    @ElementList(inline = true, required = false)
+    private List<FormWidgetAccessConfig> formWidgetAccessConfig = new ArrayList<FormWidgetAccessConfig>();
+
     public String getName() {
        return name;
     }
@@ -36,6 +39,10 @@ public class FormMappingsConfig implements Dto, TopLevelConfig {
 
     public void setFormMappingConfigList(List<FormMappingConfig> formMappingConfigList) {
         this.formMappingConfigList = formMappingConfigList;
+    }
+
+    public List<FormWidgetAccessConfig> getFormWidgetAccessConfig() {
+        return formWidgetAccessConfig;
     }
 
     @Override
@@ -53,6 +60,10 @@ public class FormMappingsConfig implements Dto, TopLevelConfig {
                 formMappingConfigList != null) {
                     return false;
         }
+        if (formWidgetAccessConfig != null ? !formWidgetAccessConfig.equals(that.formWidgetAccessConfig) : that.
+                formWidgetAccessConfig != null) {
+            return false;
+        }
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
@@ -64,6 +75,7 @@ public class FormMappingsConfig implements Dto, TopLevelConfig {
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 23 * result + (formMappingConfigList != null ? formMappingConfigList.hashCode() : 0);
+        result = 23 * result + (formWidgetAccessConfig != null ? formWidgetAccessConfig.hashCode() : 0);
         return result;
     }
 }

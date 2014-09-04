@@ -568,6 +568,12 @@
 
             </linked-domain-objects-table>
         </widget-config>
+        <widget-groups>
+            <widget-group name="country-union-group">
+                <widget-ref id="100"/>
+                <widget-ref id="101"/>
+            </widget-group>
+        </widget-groups>
     </form>
     <form name="city_form" domain-object-type="city" is-default="true">
         <markup>
@@ -883,6 +889,23 @@
                 <group name="test-group-1" priority="1"/>
             </groups>
         </form-mapping>
+
+        <form-widget-access form="country_form">
+            <hide-widget widget-id="1"> <!--created_date-->
+                <users>
+                    <user uid="person4"/>
+                </users>
+                <groups>
+                    <group name="EmployeeBosses"/> <!-- person1, person2 -->
+                </groups>
+            </hide-widget>
+            <hide-widget widget-group-id="country-union-group">
+                <users>
+                    <user uid="person1"/>
+                    <user uid="person5"/>
+                </users>
+            </hide-widget>
+        </form-widget-access>
     </form-mappings>
 
     <form-mappings name="country_mappings_2">

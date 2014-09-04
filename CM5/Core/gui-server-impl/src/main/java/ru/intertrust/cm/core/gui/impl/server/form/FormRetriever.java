@@ -32,6 +32,7 @@ import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -92,7 +93,7 @@ public class FormRetriever extends FormProcessor {
         if (formConfig == null) {
             return null; //throw new GuiException("Конфигурация поиска для ДО " + domainObjectType + " не найдена!");
         }
-        List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+        List<WidgetConfig> widgetConfigs = findWidgetConfigs(formConfig);
 
         FormObjects formObjects = new FormObjects();
         DomainObject root = crudService.createDomainObject(domainObjectType);
@@ -137,7 +138,7 @@ public class FormRetriever extends FormProcessor {
             throw new GuiException("Имя отчета не сконфигурировано ни в плагине, ни форме!");
         }
 
-        List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+        List<WidgetConfig> widgetConfigs = findWidgetConfigs(formConfig);
 
         FormObjects formObjects = new FormObjects();
 
@@ -214,7 +215,8 @@ public class FormRetriever extends FormProcessor {
         if (formConfig == null) {
             formConfig = formResolver.findEditingFormConfig(root, getUserUid());
         }
-        List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+        List<WidgetConfig> widgetConfigs = findWidgetConfigs(formConfig);
+
         HashMap<String, WidgetConfig> widgetConfigsById = buildWidgetConfigsById(widgetConfigs);
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
@@ -285,6 +287,17 @@ public class FormRetriever extends FormProcessor {
                 formConfig.getMinWidth(), formConfig.getDebug());
         result.setToolBarConfig(formConfig.getToolbarConfig());
         return result;
+    }
+
+    private List<WidgetConfig> findWidgetConfigs(FormConfig formConfig) {
+        List<WidgetConfig> widgetConfigs = new ArrayList<>();
+        Collection<String> widgetsToHide = formResolver.findWidgetsToHide(getUserUid(), formConfig.getName(), formConfig.getType());
+        for (WidgetConfig widgetConfig : formConfig.getWidgetConfigurationConfig().getWidgetConfigList()) {
+            if (!widgetsToHide.contains(widgetConfig.getId())) {
+                widgetConfigs.add(widgetConfig);
+            }
+        }
+        return widgetConfigs;
     }
 
     private List<Constraint> buildConstraints(WidgetContext context) {

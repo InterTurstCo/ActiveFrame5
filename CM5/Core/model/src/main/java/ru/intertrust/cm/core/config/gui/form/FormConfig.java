@@ -54,6 +54,9 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Element(name = "form-objects-remover", required = false)
     private FormObjectsRemoverConfig formObjectsRemoverConfig;
 
+    @Element(name = "widget-groups", required = false)
+    private WidgetGroupsConfig widgetGroupsConfig;
+
     public String getType() {
         return type != null ? type : TYPE_EDIT;
     }
@@ -130,6 +133,10 @@ public class FormConfig implements Dto, TopLevelConfig {
         return toolbarConfig;
     }
 
+    public WidgetGroupsConfig getWidgetGroupsConfig() {
+        return widgetGroupsConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -156,7 +163,6 @@ public class FormConfig implements Dto, TopLevelConfig {
         if (minWidth != null ? !minWidth.equals(that.minWidth) : that.minWidth != null) {
             return false;
         }
-
         if (type != null ? !type.equals(that.type) : that.type != null) {
             return false;
         }
@@ -171,13 +177,28 @@ public class FormConfig implements Dto, TopLevelConfig {
                 formObjectsRemoverConfig) : that.formObjectsRemoverConfig != null) {
             return false;
         }
-
+        if (widgetGroupsConfig != null ? !widgetGroupsConfig.equals(that. widgetGroupsConfig) :
+                that.widgetGroupsConfig != null) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
+        result = 31 * result + (isDefault ? 1 : 0);
+        result = 31 * result + (debug ? 1 : 0);
+        result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (reportTemplate != null ? reportTemplate.hashCode() : 0);
+        result = 31 * result + (toolbarConfig != null ? toolbarConfig.hashCode() : 0);
+        result = 31 * result + (markup != null ? markup.hashCode() : 0);
+        result = 31 * result + (widgetConfigurationConfig != null ? widgetConfigurationConfig.hashCode() : 0);
+        result = 31 * result + (formObjectsRemoverConfig != null ? formObjectsRemoverConfig.hashCode() : 0);
+        result = 31 * result + (widgetGroupsConfig != null ? widgetGroupsConfig.hashCode() : 0);
+        return result;
     }
 
     @Override

@@ -18,6 +18,10 @@ import ru.intertrust.cm.core.config.gui.UsersConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingsConfig;
+import ru.intertrust.cm.core.config.gui.form.FormWidgetAccessConfig;
+import ru.intertrust.cm.core.config.gui.form.HideWidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.WidgetGroupConfig;
+import ru.intertrust.cm.core.config.gui.form.WidgetRefConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 
@@ -26,7 +30,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Denis Mitavskiy
@@ -38,9 +45,6 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
-
-    @Autowired
-    private CrudService crudService;
 
     @Autowired
     private PersonManagementService personManagementService;
@@ -75,23 +79,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         // находится форма для данного контекста, учитывая факт того, переопределена ли форма для пользователя/роли,
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
-        if (editingFormsCache == null || searchFormsCache == null || reportFormsCache == null) {
-            initCaches();
-        }
-        final FormsCache cache;
-        switch (formType) {
-            case FormConfig.TYPE_EDIT:
-                cache = editingFormsCache;
-                break;
-            case FormConfig.TYPE_SEARCH:
-                cache = searchFormsCache;
-                break;
-            case FormConfig.TYPE_REPORT:
-                cache = reportFormsCache;
-                break;
-            default:
-                cache = editingFormsCache;
-        }
+        final FormsCache cache = findCache(formType);
 
         List<FormConfig> userFormConfigs = cache.getUserFormConfigs(userUid, targetTypeName);
         if (userFormConfigs != null && userFormConfigs.size() != 0) {
@@ -139,6 +127,43 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         return firstMetForm;
     }
 
+    public Set<String> findWidgetsToHide(String userUid, String form, String formType) {
+        Set<String> widgetsToHide = new HashSet<>();
+
+        final FormsCache cache = findCache(formType);
+
+        List<String> widgetsToHideForUser = cache.widgetsByFormAndUser.get(new Pair(form, userUid));
+        if (widgetsToHideForUser != null) {
+            widgetsToHide.addAll(widgetsToHideForUser);
+        }
+        // find all groups of the user
+        List<DomainObject> userGroups = personManagementService.getPersonGroups(personManagementService.getPersonId(userUid));
+        for (DomainObject userGroup : userGroups) {
+            String groupName = userGroup.getString("group_name");
+            List<String> widgetsToHideForGroup = cache.widgetsByFormAndGroup.get(new Pair(form, groupName));
+            if (widgetsToHideForGroup != null) {
+                widgetsToHide.addAll(widgetsToHideForGroup);
+            }
+        }
+
+        return widgetsToHide;
+    }
+
+    private FormsCache findCache(String formType) {
+        if (editingFormsCache == null || searchFormsCache == null || reportFormsCache == null) {
+            initCaches();
+        }
+        switch (formType) {
+            case FormConfig.TYPE_EDIT:
+                return editingFormsCache;
+            case FormConfig.TYPE_SEARCH:
+                return searchFormsCache;
+            case FormConfig.TYPE_REPORT:
+                return reportFormsCache;
+        }
+        return editingFormsCache;
+    }
+
     @PostConstruct
     private synchronized void initCaches() {
         editingFormsCache = new FormsCache(FormConfig.TYPE_EDIT);
@@ -157,7 +182,8 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         private CaseInsensitiveHashMap<List<FormConfig>> allFormsByDomainObjectType;
         private HashMap<Pair<String, String>, List<Pair<FormConfig, Integer>>> formsByRoleAndDomainObjectType;
         private HashMap<Pair<String, String>, List<FormConfig>> formsByUserAndDomainObjectType;
-
+        private Map<Pair<String, String>, List<String>> widgetsByFormAndUser;
+        private Map<Pair<String, String>, List<String>> widgetsByFormAndGroup;
 
         private FormsCache(String formType) {
 
@@ -165,6 +191,10 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
             allFormsByDomainObjectType = new CaseInsensitiveHashMap<>();
             formsByRoleAndDomainObjectType = new HashMap<>();
             formsByUserAndDomainObjectType = new HashMap<>();
+            widgetsByFormAndUser = new HashMap<>();
+            widgetsByFormAndGroup = new HashMap<>();
+
+            Map<Pair<String, String>, List<String>> widgetsByFormAndWidgetGroup = new HashMap<>();
 
             Collection <FormConfig> formConfigs = configurationExplorer.getConfigs(FormConfig.class);
             if (formConfigs == null) {
@@ -199,6 +229,20 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                     allFormsByDomainObjectType.put(domainObjectTypeInLowerCase, domainObjectTypeForms);
                 }
                 domainObjectTypeForms.add(formConfig);
+
+                if (formConfig.getWidgetGroupsConfig() != null) {
+                    for (WidgetGroupConfig widgetGroupConfig : formConfig.getWidgetGroupsConfig().getWidgetGroupConfigList()) {
+                        String widgetGroupName = widgetGroupConfig.getName();
+                        for (WidgetRefConfig widgetRefConfig : widgetGroupConfig.getWidgetRefConfigList()) {
+                            List widgetsInGroup = widgetsByFormAndWidgetGroup.get(new Pair(formConfig.getName(), widgetGroupName));
+                            if (widgetsInGroup == null) {
+                                widgetsInGroup = new ArrayList<>();
+                                widgetsByFormAndWidgetGroup.put(new Pair(formConfig.getName(), widgetGroupName), widgetsInGroup);
+                            }
+                            widgetsInGroup.add(widgetRefConfig.getId());
+                        }
+                    }
+                }
             }
 
             Collection<FormMappingConfig> formMappingConfigs = getFormMappingConfigs(configurationExplorer);
@@ -211,6 +255,28 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                 }
                 fillRoleAndDomainObjectTypeFormMappings(formMapping, domainObjectType, formConfig);
                 fillUserAndDomainObjectTypeFormMappings(formMapping, domainObjectType, formConfig);
+            }
+
+            Collection<FormWidgetAccessConfig> formWidgetAccessConfigs = getFormWidgetAccessConfigs
+                    (configurationExplorer);
+            for (FormWidgetAccessConfig formWidgetAccessConfig : formWidgetAccessConfigs) {
+                String form = formWidgetAccessConfig.getForm();
+                for (HideWidgetConfig hideWidgetConfig : formWidgetAccessConfig.getHideWidgetsConfigList()) {
+                    List<String> widgets = new ArrayList<>();
+                    if (hideWidgetConfig.getWidgetId() != null) {
+                        widgets.add(hideWidgetConfig.getWidgetId());
+                    } else if (hideWidgetConfig.getWidgetGroupId() != null) {
+                        List<String> widgetsInGroup = widgetsByFormAndWidgetGroup.get(new Pair(form,
+                                hideWidgetConfig.getWidgetGroupId()));
+                        if (widgetsInGroup != null) {
+                            widgets.addAll(widgetsInGroup);
+                        }
+                    }
+                    for (String widget : widgets) {
+                        fillWidgetsByFormAndUser(hideWidgetConfig, form, widget);
+                        fillWidgetsByFormAndGroup(hideWidgetConfig, form, widget);
+                    }
+                }
             }
         }
 
@@ -240,6 +306,21 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                 List<FormMappingConfig> formMappings = config.getFormMappingConfigList();
                 if (formMappings != null) {
                     result.addAll(formMappings);
+                }
+            }
+            return result;
+        }
+
+        private Collection<FormWidgetAccessConfig> getFormWidgetAccessConfigs(ConfigurationExplorer explorer) {
+            Collection<FormMappingsConfig> configs = explorer.getConfigs(FormMappingsConfig.class);
+            if (configs == null || configs.isEmpty()) {
+                return Collections.EMPTY_LIST;
+            }
+            ArrayList<FormWidgetAccessConfig> result = new ArrayList<>();
+            for (FormMappingsConfig config : configs) {
+                List<FormWidgetAccessConfig> widgetAccess = config.getFormWidgetAccessConfig();
+                if (widgetAccess != null) {
+                    result.addAll(widgetAccess);
                 }
             }
             return result;
@@ -284,6 +365,43 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                     formsByUserAndDomainObjectType.put(userAndDomainObjectType, userFormConfigs);
                 }
                 userFormConfigs.add(formConfig);
+            }
+        }
+
+        private void fillWidgetsByFormAndUser(HideWidgetConfig hideWidgetConfig, String form, String widget) {
+            UsersConfig usersConfig = hideWidgetConfig.getUsersConfig();
+            if (usersConfig != null) {
+                List<UserConfig> userConfigs = usersConfig.getUserConfigList();
+                if (userConfigs == null || userConfigs.size() == 0) {
+                    return;
+                }
+                for (UserConfig userConfig : userConfigs) {
+                    String userUid = userConfig.getUid();
+                    Pair<String, String> key = new Pair<>(form, userUid);
+                    List<String> widgets = widgetsByFormAndUser.get(key);
+                    if (widgets == null) {
+                        widgets = new ArrayList<>();
+                        widgetsByFormAndUser.put(key, widgets);
+                    }
+                    widgets.add(widget);
+                }
+            }
+        }
+
+        private void fillWidgetsByFormAndGroup(HideWidgetConfig hideWidgetConfig, String form, String widget) {
+            GroupsConfig groupsConfig = hideWidgetConfig.getGroupsConfig();
+            if (groupsConfig != null) {
+                List<GroupConfig> groupConfigs = groupsConfig.getGroupConfigList();
+                for (GroupConfig groupConfig : groupConfigs) {
+                    String groupName = groupConfig.getName();
+                    Pair<String, String> key = new Pair<>(form, groupName);
+                    List<String> widgets = widgetsByFormAndGroup.get(key);
+                    if (widgets == null) {
+                        widgets = new ArrayList<>();
+                        widgetsByFormAndGroup.put(key, widgets);
+                    }
+                    widgets.add(widget);
+                }
             }
         }
     }
