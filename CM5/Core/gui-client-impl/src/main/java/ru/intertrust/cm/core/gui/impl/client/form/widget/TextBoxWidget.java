@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.validation.*;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 /**
  * @author Denis Mitavskiy
@@ -48,34 +48,42 @@ public class TextBoxWidget extends BaseWidget {
     protected Widget asEditableWidget(final WidgetState state) {
 
         TextBox textBox = state instanceof TextState && ((TextState) state).isEncrypted() ? new PasswordTextBox() : new TextBox();
-
         textBox.addBlurHandler(new BlurHandler() {
 
             @Override
             public void onBlur(BlurEvent event) {
-
-                if(((TextState) state).getConfirmationWidgetId() != null){
-
-                    confirmationFor = ((TextState) state).getConfirmationWidgetId();
-                    confirmation = ((TextState) state).getPrimaryWidgetId();
-
-                    clearErrors();
-                    if (!validateConfirmation()) {
-                        showErrors(new ValidationResult());
-                    }
-                    if(((TextState) state).getConfirmationWidgetId() == null){
-                        validate();
-                    }
-                }
-
-                if(((TextState) state).getConfirmationWidgetId() == null){
+                if (state instanceof TextState) {
+                    TextState texState = (TextState) state;
+                    validateTextState(texState);
+                } else {
                     validate();
                 }
-
             }
         });
         return textBox;
+
     }
+
+    private void validateTextState(TextState textState) {
+        if (textState.getConfirmationWidgetId() != null) {
+
+            confirmationFor = textState.getConfirmationWidgetId();
+            confirmation = textState.getPrimaryWidgetId();
+
+            clearErrors();
+            if (!validateConfirmation()) {
+                showErrors(new ValidationResult());
+            }
+            if (textState.getConfirmationWidgetId() == null) {
+                validate();
+            }
+        }
+
+        if (textState.getConfirmationWidgetId() == null) {
+            validate();
+        }
+    }
+
 
     @Override
     public ValidationResult validate() {
