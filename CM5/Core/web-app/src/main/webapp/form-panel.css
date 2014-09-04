@@ -139,6 +139,11 @@
     z-index: 10;
 }
 
+.form-panel-header > tbody {
+    display: table;
+    width: 100%;
+}
+
 .form-panel-header .gwt-Good-Label {
     margin: 5px 5px 5px 15px;
 }
