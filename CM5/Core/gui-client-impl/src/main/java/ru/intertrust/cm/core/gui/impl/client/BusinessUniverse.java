@@ -12,18 +12,35 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
-import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
-import ru.intertrust.cm.core.gui.api.client.*;
+import ru.intertrust.cm.core.gui.api.client.ActionManager;
+import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.BaseComponent;
+import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -66,7 +83,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
     public void onModuleLoad() {
-
+        final String initialToken = History.getToken();
         final AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
@@ -164,15 +181,23 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 RootLayoutPanel.get().add(root);
                 RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
 
+                if (initialToken != null) {
+                    Application.getInstance().getHistoryManager().setToken(initialToken);
+                }
+                History.addValueChangeHandler(new HistoryValueChangeHandler());
                 navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
                 navigationTreePanel.open(navigationTreePlugin);
-
-                History.addValueChangeHandler(new HistoryValueChangeHandler());
             }
 
             @Override
             public void onFailure(Throwable caught) {
-                Window.Location.assign(GWT.getHostPageBaseURL() + BusinessUniverseConstants.LOGIN_PAGE + Window.Location.getQueryString());
+                String queryString = Window.Location.getQueryString() == null ? "" : Window.Location.getQueryString();
+                final StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
+                        .append(BusinessUniverseConstants.LOGIN_PAGE).append(queryString);
+                if (initialToken != null && !initialToken.isEmpty()) {
+                    loginPathBuilder.append('#').append(initialToken);
+                }
+                Window.Location.assign(loginPathBuilder.toString());
             }
         };
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
@@ -294,10 +319,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 throw new HistoryException("Переход по данным '" + url + "' невозможет");
             }
         }
-
     }
 
     private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
+
         @Override
         public void onValueChange(final ValueChangeEvent<String> event) {
             if (!"logout".equals(event.getValue())) {

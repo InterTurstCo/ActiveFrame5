@@ -245,10 +245,12 @@ public class NavigationTreePluginView extends PluginView {
     }
 
     public void clearCurrentSelectedItemValue() {
-        currentSelectedItem.removeStyleName("synchronized");
-        currentSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
-        currentSelectedItem.getElement().getFirstChildElement().getStyle().clearDisplay();
-        currentSelectedItem = null;
+        if (currentSelectedItem != null) {
+            currentSelectedItem.removeStyleName("synchronized");
+            currentSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
+            currentSelectedItem.getElement().getFirstChildElement().getStyle().clearDisplay();
+            currentSelectedItem = null;
+        }
     }
 
     public void repaintNavigationTrees(String rootLinkName, String childToOpenName) {

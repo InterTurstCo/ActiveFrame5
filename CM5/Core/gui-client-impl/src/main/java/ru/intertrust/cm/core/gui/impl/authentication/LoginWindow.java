@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -44,6 +45,7 @@ public class LoginWindow  implements Component{
     private String authSmallLogo = "auth_small_logo";
     private String coreVersionPrefix = "";
     private String productVersionPrefix = "";
+    private String initialToken;
 
     public String getVersion() {
         return coreVersion;
@@ -70,6 +72,7 @@ public class LoginWindow  implements Component{
     }
 
     public LoginWindow() {
+        initialToken = History.getToken();
         //getGlobalAndLoginWindowConfiguration();
         //String version = "";
         loginDialog = new DialogBox();
@@ -274,11 +277,12 @@ public class LoginWindow  implements Component{
 
             @Override
             public void onSuccess(Void result) {
-                //todo: переадресация должна уметь задаваться на стадии открытия LoginPage. пока хардкод
-
-                String path = GWT.getHostPageBaseURL();
-                Window.Location.replace(path + "BusinessUniverse.html" + getQueryStringWithLocalization());
-
+                final StringBuilder pathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
+                        .append("BusinessUniverse.html").append(getQueryStringWithLocalization());
+                if (initialToken != null && !initialToken.isEmpty()) {
+                    pathBuilder.append('#').append(initialToken);
+                }
+                Window.Location.replace(pathBuilder.toString());
             }
 
             @Override

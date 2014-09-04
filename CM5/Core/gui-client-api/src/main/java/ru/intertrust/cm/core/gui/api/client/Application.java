@@ -132,7 +132,6 @@ public class Application {
 
     public void showLoadingIndicator() {
         timer.schedule(1000);
-
     }
 
     public void hideLoadingIndicator() {
@@ -151,5 +150,4 @@ public class Application {
         glassPopupPanel.add(image);
         glassPopupPanel.center();
     }
-
 }

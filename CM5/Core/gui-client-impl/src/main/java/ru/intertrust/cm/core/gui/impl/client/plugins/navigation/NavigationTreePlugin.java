@@ -4,16 +4,18 @@ import java.util.List;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.EventBus;
 
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
+import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 @ComponentName("navigation.tree")
 public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler {
@@ -34,6 +36,22 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
     @Override
     public Component createNew() {
         return new NavigationTreePlugin();
+    }
+
+    @Override
+    public void setInitialData(PluginData initialData) {
+        final NavigationTreePluginData data = (NavigationTreePluginData) initialData;
+        final HistoryManager historyManager = Application.getInstance().getHistoryManager();
+        if (historyManager.hasLink()) {
+            final Pair<String, String> historyNavigationItems = getHistoryNavigationItems(data);
+            if (historyNavigationItems != null) {
+                data.setRootLinkSelectedName(historyNavigationItems.getFirst());
+                data.setChildToOpen(historyNavigationItems.getSecond());
+            }
+        } else if (!historyManager.getSelectedIds().isEmpty()) {
+            data.setChildToOpen(null);
+        }
+        super.setInitialData(initialData);
     }
 
     @Override
@@ -58,31 +76,41 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
         final String selectedLinkName = view.getSelectedLinkName();
         if (!selectedLinkName.equals(historyManager.getLink())) {
             final NavigationTreePluginData data = getInitialData();
-            final List<LinkConfig> linkConfigs = data.getNavigationConfig().getLinkConfigList();
-            String rootName = null;
-            String childLink = null;
-            boolean notExists = true;
-            for (LinkConfig linkConfig : linkConfigs) {
-                rootName = linkConfig.getName();
-                if (rootName.equals(historyManager.getLink())) {
+            final Pair<String, String> selectedNavigationItems = getHistoryNavigationItems(data);
+            if (selectedNavigationItems != null) {
+                view.showAsSelectedRootLink(selectedNavigationItems.getFirst());
+                view.repaintNavigationTrees(selectedNavigationItems.getFirst(), selectedNavigationItems.getSecond());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Pair<String, String> getHistoryNavigationItems(final NavigationTreePluginData data) {
+        final HistoryManager historyManager = Application.getInstance().getHistoryManager();
+        final List<LinkConfig> linkConfigs = data.getNavigationConfig().getLinkConfigList();
+        final Pair<String, String> result = new Pair<>();
+        boolean notExists = true;
+        for (LinkConfig linkConfig : linkConfigs) {
+            final String rootName = linkConfig.getName();
+            result.setFirst(rootName);
+            if (rootName.equals(historyManager.getLink())) {
+                notExists = false;
+                break;
+            } else {
+                final String childLink = findChildLink(linkConfig.getChildLinksConfigList(), historyManager);
+                if (childLink != null) {
                     notExists = false;
+                    result.setSecond(childLink);
                     break;
-                } else {
-                    childLink = findChildLink(linkConfig.getChildLinksConfigList(), historyManager);
-                    if (childLink != null) {
-                        notExists = false;
-                        break;
-                    }
                 }
             }
-            if (notExists) {
-                throw new HistoryException("Пункт меню не найден");
-            }
-            view.showAsSelectedRootLink(rootName);
-            view.repaintNavigationTrees(rootName, childLink);
-            return true;
+        }
+        if (notExists) {
+            ApplicationWindow.errorAlert("Пункт меню '" + historyManager.getLink() + "' не найден");
+            return null;
         } else {
-            return false;
+            return result;
         }
     }
 
