@@ -56,6 +56,7 @@ public class NavigationTreePluginView extends PluginView {
     private HashMap<CounterKey, Id> counterKeys = new HashMap<>(); //<link-name, navBuLinkCollectionObject
     private HTML pinButton;
     private FocusPanel navigationTreeContainer;
+    private Timer mouseHoldTimer;
 
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
@@ -142,19 +143,24 @@ public class NavigationTreePluginView extends PluginView {
                 SideBarResizeEvent sideBarResizeEvent =
                         new SideBarResizeEvent(0, leftSectionStyle, centralSectionStyle);
                 Application.getInstance().getEventBus().fireEvent(sideBarResizeEvent);
-                final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH,
-                        navigationTreesPanel);
-                resizeTreeAnimation.run(DURATION);
 
+                mouseHoldTimer = new Timer(){
+                    @Override
+                    public void run(){
+                        final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH,
+                                navigationTreesPanel);
+                        resizeTreeAnimation.run(DURATION);
+                    }
+                };
 
+                mouseHoldTimer.schedule(650);
             }
         });
         navigationTreeContainer.addMouseOutHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {
-
+                mouseHoldTimer.cancel();
                 hideTreePanel();
-
             }
         });
 
