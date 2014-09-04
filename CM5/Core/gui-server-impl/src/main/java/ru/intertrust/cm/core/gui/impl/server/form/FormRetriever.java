@@ -165,13 +165,13 @@ public class FormRetriever extends FormProcessor {
             String widgetId = config.getId();
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
-            widgetContext.setFormConfig(formConfig);
+            widgetContext.setFormType(formConfig.getType());
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
 
             // TODO: [report-plugin] validation...
             WidgetContext context = new WidgetContext(config, formObjects); // why don't we re-use widgetContext?
-            context.setFormConfig(formConfig);
+            context.setFormType(formConfig.getType());
             List<Constraint> constraints = buildConstraints(context);
             initialState.setConstraints(constraints);
             initialState.setWidgetProperties(buildWidgetProps(widgetContext, constraints));
@@ -234,7 +234,7 @@ public class FormRetriever extends FormProcessor {
 
                 //todo refactor
                 WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
-                widgetContext.setFormConfig(formConfig);
+                widgetContext.setFormType(formConfig.getType());
                 WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
                 WidgetState initialState = componentHandler.getInitialState(widgetContext);
                 boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
@@ -270,7 +270,7 @@ public class FormRetriever extends FormProcessor {
             }
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
-            widgetContext.setFormConfig(formConfig);
+            widgetContext.setFormType(formConfig.getType());
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
             List<Constraint> constraints = buildConstraints(widgetContext);
