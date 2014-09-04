@@ -25,14 +25,14 @@ public class PasswordFieldConfig extends FieldConfig {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o, boolean ignoreNonDataStructureFields) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o)) {
+        if (!super.equals(o, ignoreNonDataStructureFields)) {
             return false;
         }
 
@@ -43,6 +43,11 @@ public class PasswordFieldConfig extends FieldConfig {
         }
 
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return equals(o, false);
     }
 
     @Override

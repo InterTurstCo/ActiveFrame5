@@ -247,7 +247,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
 
                 if (oldFieldConfig == null) {
                     newFieldConfigs.add(fieldConfig);
-                } else if (!fieldConfig.equals(oldFieldConfig)) {
+                } else if (!fieldConfig.equals(oldFieldConfig, true)) {
                     throw new ConfigurationException("Configuration loading aborted: FieldConfig '" +
                             domainObjectTypeConfig.getName() + "." + fieldConfig.getName() + " was changed. " +
                             COMMON_ERROR_MESSAGE);
