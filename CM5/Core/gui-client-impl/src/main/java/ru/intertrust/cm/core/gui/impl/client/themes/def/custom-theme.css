@@ -323,7 +323,11 @@
 }
 
 .gwt-ListBox {
-    width: 165px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #fff url(images/arrow-down.png) no-repeat 99.5% center;
+    width: 100%;
 }
 
 .gwt-custom-white {
