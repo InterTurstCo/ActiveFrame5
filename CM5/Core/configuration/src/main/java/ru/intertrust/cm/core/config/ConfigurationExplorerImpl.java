@@ -44,12 +44,19 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     /**
      * Создает {@link ConfigurationExplorerImpl}
      */
-    public ConfigurationExplorerImpl(Configuration configuration) {
+    public ConfigurationExplorerImpl(Configuration configuration, boolean skipLogicalValidation) {
         configStorage = new ConfigurationStorage(configuration);
         configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage);
 
         configurationStorageBuilder.buildConfigurationStorage();
-        validate();
+
+        if (!skipLogicalValidation) {
+            validate();
+        }
+    }
+
+    public ConfigurationExplorerImpl(Configuration configuration) {
+        this(configuration, false);
     }
 
     private void init() {

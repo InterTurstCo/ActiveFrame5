@@ -151,7 +151,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
         private final ConfigurationExplorer oldConfigExplorer;
 
         private RecursiveMerger(Configuration oldConfiguration) {
-            oldConfigExplorer = new ConfigurationExplorerImpl(oldConfiguration);
+            oldConfigExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
         }
 
         @Override
