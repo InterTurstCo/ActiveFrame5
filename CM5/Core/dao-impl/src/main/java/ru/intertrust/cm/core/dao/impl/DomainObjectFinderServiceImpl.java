@@ -57,6 +57,7 @@ public class DomainObjectFinderServiceImpl implements DomainObjectFinderService 
                 FindObjectsClassConfig config = (FindObjectsClassConfig) findObjectsConfig.getFindObjectType();
                 Class<DomainObjectFinder> finderClass = (Class<DomainObjectFinder>) Class.forName(config.getData());
                 DomainObjectFinder findObjects = finderClass.newInstance();
+                findObjects.init(config.getSettings());
                 result = findObjects.findObjects(contextDomainObjectId);
             } else if (findObjectsConfig.getFindObjectType() instanceof FindObjectsQueryConfig) {
                 // Поиск с помощью запроса
