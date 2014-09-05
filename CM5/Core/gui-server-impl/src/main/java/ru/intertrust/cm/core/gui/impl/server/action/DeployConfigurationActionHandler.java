@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.dto.ConfigurationDeployedItem;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -68,8 +69,8 @@ public class DeployConfigurationActionHandler
     }
 
     @Override
-    public DeployConfigurationActionContext getActionContext() {
-        return new DeployConfigurationActionContext();
+    public DeployConfigurationActionContext getActionContext(final ActionConfig actionConfig) {
+        return new DeployConfigurationActionContext(actionConfig);
     }
 
     /*private String readFileAsString(String filePath) throws IOException {

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.action.system;
 
+import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 /**
@@ -11,6 +12,13 @@ public class ThemeActionContext extends ActionContext {
     public static final String COMPONENT_NAME = "theme.action";
 
     private String themeName;
+
+    public ThemeActionContext() {
+    }
+
+    public ThemeActionContext(AbstractActionConfig actionConfig) {
+        super(actionConfig);
+    }
 
     public String getThemeName() {
         return themeName;

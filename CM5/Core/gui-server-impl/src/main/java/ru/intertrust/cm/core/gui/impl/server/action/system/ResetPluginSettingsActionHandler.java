@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -48,7 +49,7 @@ public class ResetPluginSettingsActionHandler extends ActionHandler<ResetPluginS
     }
 
     @Override
-    public ResetPluginSettingsActionContext getActionContext() {
+    public ResetPluginSettingsActionContext getActionContext(final ActionConfig actionConfig) {
         return new ResetPluginSettingsActionContext();
     }
 }

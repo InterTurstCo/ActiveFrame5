@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -56,7 +57,7 @@ public class CollectionColumnOrderActionHandler extends ActionHandler<Collection
     }
 
     @Override
-    public CollectionColumnOrderActionContext getActionContext() {
+    public CollectionColumnOrderActionContext getActionContext(final ActionConfig actionConfig) {
         return new CollectionColumnOrderActionContext();
     }
 }

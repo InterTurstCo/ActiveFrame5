@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.CollectionPluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -31,7 +32,7 @@ public class RefreshActionHandler extends ActionHandler<ActionContext, ActionDat
     }
 
     @Override
-    public ActionContext getActionContext() {
-        return new ActionContext();
+    public ActionContext getActionContext(final ActionConfig actionConfig) {
+        return new ActionContext(actionConfig);
     }
 }

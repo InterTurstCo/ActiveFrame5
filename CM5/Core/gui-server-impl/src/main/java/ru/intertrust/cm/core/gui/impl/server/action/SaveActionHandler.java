@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -53,20 +54,13 @@ public class SaveActionHandler extends ActionHandler<SaveActionContext, SaveActi
     }
 
     @Override
-    public SaveActionContext getActionContext() {
-        return new SaveActionContext();
+    public SaveActionContext getActionContext(final ActionConfig actionConfig) {
+        return new SaveActionContext(actionConfig);
     }
 
     @Override
     public HandlerStatusData getCheckStatusData() {
         return new FormPluginHandlerStatusData();
-    }
-
-    @Override
-    public Status getHandlerStatus(String conditionExpression, HandlerStatusData condition) {
-        conditionExpression = conditionExpression.replaceAll(TOGGLE_EDIT_ATTR, TOGGLE_EDIT_KEY);
-        final boolean result = evaluateExpression(conditionExpression, condition);
-        return result ? Status.APPLY : Status.SKIP;
     }
 
     private List<String> doServerSideValidation(ActionContext context) {

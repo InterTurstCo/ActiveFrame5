@@ -1,11 +1,22 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.AllValuesEmptyMessageConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FontSizeConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FontStyleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FontWeightConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.ForceRequiredAsteriskConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
@@ -14,9 +25,6 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Denis Mitavskiy
@@ -53,11 +61,12 @@ public class LabelHandler extends ValueEditingWidgetHandler {
                 String composedText = customLabelRenderer.composeString(fieldPaths, context);
                 state.setLabel(composedText);
             } else {
-            AllValuesEmptyMessageConfig allValuesEmptyMessage = labelConfig.getAllValuesEmptyMessage();
-            String allValuesEmpty = allValuesEmptyMessage == null ? "" : allValuesEmptyMessage.getValue();
-            FormattingConfig formattingConfig = labelConfig.getFormattingConfig();
-            String formattedString = format(labelConfig.getPattern().getValue(), fieldPaths, context, allValuesEmpty, formattingConfig);
-            state.setLabel(formattedString);
+                AllValuesEmptyMessageConfig allValuesEmptyMessage = labelConfig.getAllValuesEmptyMessage();
+                String allValuesEmpty = allValuesEmptyMessage == null ? "" : allValuesEmptyMessage.getValue();
+                FormattingConfig formattingConfig = labelConfig.getFormattingConfig();
+                String formattedString = format(labelConfig.getPattern().getValue(), fieldPaths, context,
+                        allValuesEmpty, formattingConfig);
+                state.setLabel(formattedString);
             }
 
         }

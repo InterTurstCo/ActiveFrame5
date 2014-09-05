@@ -1,7 +1,12 @@
 package ru.intertrust.cm.core.config.gui.action;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.core.Commit;
 
 /**
  * @author Sergey.Okolot
@@ -30,6 +35,21 @@ public class ActionRefConfig extends AbstractActionConfig {
 
     @Attribute(name = "visibility-checker", required = false)
     private String visibilityChecker;
+
+    @ElementList(name = "action-params", required = false)
+    private List<ActionParamConfig> actionParams;
+
+    private Map<String, String> properties = new HashMap<>();
+
+    @Commit
+    public void commit() {
+        if (actionParams != null && !actionParams.isEmpty()) {
+            for (ActionParamConfig param : actionParams) {
+                properties.put(param.getName(), param.getValue());
+            }
+            actionParams = null;
+        }
+    }
 
     public String getActionId() {
         return actionId;
@@ -73,6 +93,14 @@ public class ActionRefConfig extends AbstractActionConfig {
 
     public void setVisibilityChecker(String visibilityChecker) {
         this.visibilityChecker = visibilityChecker;
+    }
+
+    public String getProperty(final String key) {
+        return properties == null ? null : properties.get(key);
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
     @Override

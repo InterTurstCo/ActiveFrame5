@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -17,19 +18,12 @@ public class CloseInCentralPanelActionHandler extends ActionHandler<ActionContex
     }
 
     @Override
-    public ActionContext getActionContext() {
-        return new ActionContext();
+    public ActionContext getActionContext(final ActionConfig actionConfig) {
+        return new ActionContext(actionConfig);
     }
 
     @Override
     public HandlerStatusData getCheckStatusData() {
         return new FormPluginHandlerStatusData();
-    }
-
-    @Override
-    public Status getHandlerStatus(String conditionExpression, HandlerStatusData condition) {
-        conditionExpression = conditionExpression.replaceAll(TOGGLE_EDIT_ATTR, TOGGLE_EDIT_KEY);
-        final boolean result = evaluateExpression(conditionExpression, condition);
-        return result ? Status.APPLY : Status.SKIP;
     }
 }

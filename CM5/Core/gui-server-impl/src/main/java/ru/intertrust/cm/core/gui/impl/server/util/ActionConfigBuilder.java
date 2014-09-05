@@ -57,20 +57,16 @@ public class ActionConfigBuilder {
                 }
             }
             final ActionHandler.HandlerStatusData statusData = actionHandler.getCheckStatusData();
+            statusData.initialize(params);
             ActionHandler.Status status;
-            if (statusData == null) {
-                status = ActionHandler.Status.APPLY;
+            if (!actionConfig.isVisibleWhenNew() && statusData.isNewDomainObject()) {
+                status = ActionHandler.Status.SKIP;
             } else {
-                statusData.initialize(params);
-                if (!actionConfig.isVisibleWhenNew() && statusData.isNewDomainObject()) {
-                    status =  ActionHandler.Status.SKIP;
-                } else {
-                    status = actionHandler.getHandlerStatus(config.getRendered(), statusData);
-                }
+                status = actionHandler.getHandlerStatus(config.getRendered(), statusData);
             }
             if (ActionHandler.Status.APPLY == status) {
-                ActionContext actionContext = actionHandler.getActionContext();
-                actionContext.setActionConfig(actionConfig);
+                ActionContext actionContext = actionHandler.getActionContext(actionConfig);
+                actionContext.setActionConfig(actionConfig); // fixme support {@link ActionHandler#getActionContext()}
                 contextList.addContext(actionContext);
             }
         }
@@ -108,6 +104,7 @@ public class ActionConfigBuilder {
         if (actionRefConfig.getVisibilityChecker() != null) {
             result.setVisibilityChecker(actionRefConfig.getVisibilityChecker());
         }
+        result.getProperties().putAll(actionRefConfig.getProperties());
         return result;
     }
 

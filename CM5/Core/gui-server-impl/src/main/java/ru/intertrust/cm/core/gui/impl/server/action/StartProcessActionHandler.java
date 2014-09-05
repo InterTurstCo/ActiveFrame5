@@ -44,7 +44,7 @@ public class StartProcessActionHandler extends ActionHandler<StartProcessActionC
     }
 
     @Override
-    public StartProcessActionContext getActionContext() {
-        return new StartProcessActionContext();
+    public StartProcessActionContext getActionContext(final ActionConfig actionConfig) {
+        return new StartProcessActionContext(actionConfig);
     }
 }

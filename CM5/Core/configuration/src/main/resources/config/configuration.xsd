@@ -308,7 +308,7 @@
             <xs:element type="con:passwordType" name="password"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="include-group" type="con:includeFieldGroupType" />
-            
+
         </xs:choice>
     </xs:complexType>
 
@@ -320,7 +320,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="includeFieldGroupType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -2337,6 +2337,18 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+
+    <xs:element name="action-executor" type="con:actionExecutorType" substitutionGroup="con:widget"/>
+    <xs:complexType name="actionExecutorType">
+        <xs:complexContent>
+            <xs:extension base="con:labelType">
+                <xs:sequence>
+                    <xs:element ref="act:action-ref" minOccurs="1" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <xs:complexType name="forceRequiredAsterisk">
         <xs:attribute type="xs:boolean"
                       name="value" use="required"/>

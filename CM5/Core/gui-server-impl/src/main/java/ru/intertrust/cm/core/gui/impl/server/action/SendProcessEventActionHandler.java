@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -20,7 +21,7 @@ public class SendProcessEventActionHandler extends ActionHandler<ActionContext, 
     }
 
     @Override
-    public ActionContext getActionContext() {
-        return new SendProcessEventActionContext();
+    public ActionContext getActionContext(final ActionConfig actionConfig) {
+        return new SendProcessEventActionContext(actionConfig);
     }
 }

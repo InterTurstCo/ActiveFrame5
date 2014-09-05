@@ -1,13 +1,20 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import org.simpleframework.xml.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.ElementListUnion;
+import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
+import org.simpleframework.xml.core.Commit;
+
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ActionDisplayTypeConverter;
 import ru.intertrust.cm.core.config.converter.ActionTypeConverter;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -90,6 +97,11 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
     })
     private List<AbstractActionConfig> children;
 
+    @ElementList(name = "action-params", required = false)
+    private List<ActionParamConfig> actionParams;
+
+    private Map<String, String> properties = new HashMap<>();
+
     /**
      * Default constructor to support GWT serialization
      */
@@ -102,6 +114,16 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
     public ActionConfig(final String componentName, final String name) {
         this.componentName = componentName;
         this.name = name;
+    }
+
+    @Commit
+    public void commit() {
+        if (actionParams != null && !actionParams.isEmpty()) {
+            for (ActionParamConfig param : actionParams) {
+                properties.put(param.getName(), param.getValue());
+            }
+            actionParams = null;
+        }
     }
 
     public BeforeActionExecutionConfig getBeforeConfig() {
@@ -237,5 +259,13 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
 
     public void setVisibilityChecker(String visibilityChecker) {
         this.visibilityChecker = visibilityChecker;
+    }
+
+    public String getProperty(final String key) {
+        return properties == null ? null : properties.get(key);
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
     }
 }

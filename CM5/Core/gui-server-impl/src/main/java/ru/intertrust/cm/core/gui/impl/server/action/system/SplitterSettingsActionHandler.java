@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -36,7 +37,7 @@ public class SplitterSettingsActionHandler extends ActionHandler<SplitterSetting
     }
 
     @Override
-    public SplitterSettingsActionContext getActionContext() {
+    public SplitterSettingsActionContext getActionContext(final ActionConfig actionConfig) {
         return new SplitterSettingsActionContext();
     }
 }

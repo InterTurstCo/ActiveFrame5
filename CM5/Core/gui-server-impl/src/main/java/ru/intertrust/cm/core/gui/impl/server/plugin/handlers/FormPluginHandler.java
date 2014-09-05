@@ -1,12 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.impl.server.action.FormPluginHandlerStatusData;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -15,10 +20,6 @@ import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Возможные состояния формы
@@ -41,7 +42,7 @@ public class FormPluginHandler extends ActivePluginHandler {
 
     public FormPluginData initialize(Dto initialData) {
         final FormPluginConfig formPluginConfig = (FormPluginConfig) initialData;
-        FormDisplayData form = getFormDisplayData(formPluginConfig) ;
+        FormDisplayData form = getFormDisplayData(formPluginConfig);
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
         pluginData.setPluginState(formPluginConfig.getPluginState());
@@ -84,11 +85,11 @@ public class FormPluginHandler extends ActivePluginHandler {
     private ToolbarContext getToolbarContexts(final FormPluginConfig pluginConfig, final FormDisplayData formData) {
         final FormPluginState pluginState = pluginConfig.getPluginState();
         final Map<String, Object> formParams = new HashMap<>();
-        formParams.put("pluginIsCentralPanel", pluginState.isInCentralPanel());
-        formParams.put("toggleEdit", pluginState.isToggleEdit());
-        formParams.put("preview", !pluginState.isEditable());
-//        formParams.put("do", )
-        formParams.put("isNewDomainObject", pluginConfig.getDomainObjectTypeToCreate() != null);
+        formParams.put(FormPluginHandlerStatusData.PLUGIN_IN_CENTRAL_PANEL_ATTR, pluginState.isInCentralPanel());
+        formParams.put(FormPluginHandlerStatusData.TOGGLE_EDIT_ATTR, pluginState.isToggleEdit());
+        formParams.put(FormPluginHandlerStatusData.PREVIEW_ATTR, !pluginState.isEditable());
+        formParams.put(FormPluginHandlerStatusData.IS_NEW_DOMAIN_OBJ_ATTR,
+                pluginConfig.getDomainObjectTypeToCreate() != null);
         final ToolBarConfig toolbarConfig =
                 formData.getToolBarConfig() == null ? new ToolBarConfig() : formData.getToolBarConfig();
         ToolBarConfig defaultToolbarConfig;

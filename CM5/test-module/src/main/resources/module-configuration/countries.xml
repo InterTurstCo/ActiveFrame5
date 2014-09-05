@@ -122,7 +122,11 @@
                         <td width="100%" h-align="left">
                             <widget id="2"/>
                         </td>
-                        <!-- text-box (Название) -->
+                    </tr>
+                    <tr>
+                        <td width="100%" colspan="2">
+                            <widget id="actionExecutorId"/>
+                        </td>
                     </tr>
                 </table>
             </header>
@@ -325,6 +329,33 @@
             <text-box id="2">
                 <field-path value="name"/>
             </text-box>
+
+            <action-executor id="actionExecutorId">
+                <font-size value="10px"/>
+                <font-weight value="bold"/>
+                <field-path value="id"/>
+                <pattern value="pattern: {created_date} id={id} "/>
+                <all-values-empty-message value="empty"/>
+                <formatting>
+                    <date-format pattern="dd-mm-yyyy HH:mm:ss" style="short">
+                        <time-zone id="Europe/Kiev"/>
+                        <field-paths>
+                            <field-path value="created_date"/>
+                        </field-paths>
+                    </date-format>
+                </formatting>
+                <act:action-ref actionId="aOpenLink" rendered="not toggle-edit or (toggle-edit and preview)">
+                    <act:action-params>
+                        <act:action-param name="base-url" value="https://ru.wikipedia.org/wiki" />
+                        <act:action-param name="domain-object-fields" value="id,created_date"/>
+                        <act:action-param name="date-time-format" value="yyyy-MM-dd hh:mm:ss"/>
+                        <act:action-param name="date-time-format-time-zone" value="Europe/Moscow"/>
+                        <act:action-param name="date-format" value="yyyy-MM-dd"/>
+                        <act:action-param name="id" value="ID"/>
+                        <act:action-param name="some_date" value="DATE_IN_URL"/>
+                    </act:action-params>
+                </act:action-ref>
+            </action-executor>
 
             <label id="3">
                 <text>Население:</text>

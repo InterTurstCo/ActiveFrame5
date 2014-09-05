@@ -16,6 +16,8 @@
                 text="Закрыть" imageClass="actionBar-close"/>
     <act:action id="aToggleEditOn" componentName="toggle.edit.on.action" order="150" dirtySensitivity="false"
                 text="Редактировать" imageClass="actionBar-edit"/>
+    <act:action id="aOpenLink" componentName="open.link.action" order="150" dirtySensitivity="false"
+                text="open link"/>
 
     <act:tool-bar plugin="collection.plugin">
         <act:action-ref actionId="aRefresh"/>
@@ -26,8 +28,6 @@
     </act:tool-bar>
 
     <act:tool-bar plugin="form.plugin">
-        <!--<act:action-ref actionId="aRefresh"/>-->
-        <!--<act:action-separator order="50"/>-->
         <act:action-ref actionId="aCreate" rendered="not toggle-edit or (toggle-edit and preview)" merged="true"/>
         <act:action-ref actionId="aSave" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
         <act:action-ref actionId="aDelete" rendered="not toggle-edit or (toggle-edit and preview)" merged="false"/>

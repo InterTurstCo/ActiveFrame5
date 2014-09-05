@@ -1,18 +1,19 @@
 package ru.intertrust.cm.core.gui.api.server.action;
 
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-
-import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -20,8 +21,8 @@ import java.util.Map;
  *         Time: 13:14
  */
 public abstract class ActionHandler<E extends ActionContext, T extends ActionData> implements ComponentHandler {
-    public static final String TOGGLE_EDIT_ATTR = "toggle-edit";
-    public static final String TOGGLE_EDIT_KEY = "toggleEdit";
+    private static final String TOGGLE_EDIT_ATTR = "toggleEdit";
+    private static final String TOGGLE_EDIT_KEY = "toggle-edit";
 
     public enum Status {APPLY, SKIP}
 
@@ -36,20 +37,37 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
 
     public abstract T executeAction(E context);
 
-    public abstract E getActionContext();
+    /**
+     * @deprecated
+     * Нужно использовать {@link ActionHandler#getActionContext(ActionConfig)}
+     */
+    @Deprecated
+    public <E extends ActionContext> E getActionContext() {
+        return (E) new ActionContext();
+    }
 
-    public HandlerStatusData getCheckStatusData() {
+    public <E extends ActionContext> E getActionContext(ActionConfig actionConfig) {
         return null;
     }
 
-    public Status getHandlerStatus(String conditionExpression, HandlerStatusData condition) {
-        return Status.APPLY;
+    public HandlerStatusData getCheckStatusData() {
+        return new DefaultHandlerStatusData();
     }
 
-    protected <X> X evaluateExpression(final String conditionExpression, final HandlerStatusData condition) {
+    public Status getHandlerStatus(String conditionExpression, HandlerStatusData condition) {
+        if (condition != null) {
+            conditionExpression = conditionExpression.replaceAll(TOGGLE_EDIT_KEY, TOGGLE_EDIT_ATTR);
+            final boolean result = evaluateExpression(conditionExpression, condition);
+            return result ? Status.APPLY : Status.SKIP;
+        } else {
+            return Status.APPLY;
+        }
+    }
+
+    private boolean evaluateExpression(final String conditionExpression, final HandlerStatusData condition) {
         final EvaluationContext evaluationContext = new StandardEvaluationContext(condition);
         final Expression expression = new SpelExpressionParser().parseExpression(conditionExpression);
-        return (X) expression.getValue(evaluationContext);
+        return (boolean) expression.getValue(evaluationContext);
     }
 
     public interface HandlerStatusData {
@@ -57,5 +75,23 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
         void initialize(Map<String, Object> params);
 
         boolean isNewDomainObject();
+
+        Object getParameter(String key);
+    }
+
+    public static class DefaultHandlerStatusData implements HandlerStatusData {
+        @Override
+        public void initialize(Map<String, Object> params) {
+        }
+
+        @Override
+        public Object getParameter(String key) {
+            return null;
+        }
+
+        @Override
+        public boolean isNewDomainObject() {
+            return false;
+        }
     }
 }

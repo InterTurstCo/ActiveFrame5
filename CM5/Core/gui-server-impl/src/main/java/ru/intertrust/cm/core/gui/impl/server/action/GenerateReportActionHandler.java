@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
@@ -48,8 +49,8 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
     }
 
     @Override
-    public GenerateReportActionContext getActionContext() {
-        return new GenerateReportActionContext();
+    public GenerateReportActionContext getActionContext(final ActionConfig actionConfig) {
+        return new GenerateReportActionContext(actionConfig);
     }
 
     private Map<String, Value> buildParamsMap(FormState formState) {

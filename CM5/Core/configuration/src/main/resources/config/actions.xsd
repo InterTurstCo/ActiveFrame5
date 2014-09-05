@@ -39,6 +39,13 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="notEmptyString">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <!--<xs:pattern value="^(\s$)+" />-->
+        </xs:restriction>
+    </xs:simpleType>
+
     <!-- todo end -->
 
     <xs:attributeGroup name="actionAttributeGroup">
@@ -53,6 +60,7 @@
         <xs:complexContent>
             <xs:extension base="act:abstractActionType">
                 <xs:sequence>
+                    <xs:element name="action-params" type="act:actionParamsType" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="before-execution" type="act:beforeExecutionType" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="after-execution" type="act:afterExecutionType" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="action-settings" type="act:actionSettingsType" minOccurs="0" maxOccurs="1"/>
@@ -85,6 +93,9 @@
     <xs:complexType name="actionRefType">
         <xs:complexContent>
             <xs:extension base="act:abstractActionType">
+                <xs:sequence>
+                    <xs:element name="action-params" type="act:actionParamsType" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
                 <xs:attribute name="actionId" type="act:idType" use="required"/>
                 <xs:attribute name="showText" type="xs:boolean" default="true"/>
                 <xs:attribute name="showImage" type="xs:boolean" default="true"/>
@@ -210,6 +221,18 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="actionParamsType">
+        <xs:sequence>
+            <xs:element name="action-param" minOccurs="1" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="name" type="act:notEmptyString" use="required"/>
+                    <xs:attribute name="value" type="act:notEmptyString" use="required"/>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:sequence>
     </xs:complexType>
 
     <!-- view rule block -->

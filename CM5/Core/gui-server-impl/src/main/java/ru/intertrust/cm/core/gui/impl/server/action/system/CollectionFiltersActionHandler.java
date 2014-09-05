@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -51,7 +52,7 @@ public class CollectionFiltersActionHandler extends ActionHandler<CollectionFilt
     }
 
     @Override
-    public CollectionFiltersActionContext getActionContext() {
+    public CollectionFiltersActionContext getActionContext(final ActionConfig actionConfig) {
         return new CollectionFiltersActionContext();
     }
 }

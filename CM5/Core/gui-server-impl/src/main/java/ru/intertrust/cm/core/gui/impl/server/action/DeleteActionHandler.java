@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormObjectsRemoverConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -44,20 +45,13 @@ public class DeleteActionHandler extends ActionHandler<ActionContext, DeleteActi
     }
 
     @Override
-    public ActionContext getActionContext() {
-        return new SaveActionContext();
+    public ActionContext getActionContext(final ActionConfig actionConfig) {
+        return new SaveActionContext(actionConfig);
     }
 
     @Override
     public HandlerStatusData getCheckStatusData() {
         return new FormPluginHandlerStatusData();
-    }
-
-    @Override
-    public Status getHandlerStatus(String conditionExpression, HandlerStatusData condition) {
-        conditionExpression = conditionExpression.replaceAll(TOGGLE_EDIT_ATTR, TOGGLE_EDIT_KEY);
-        final boolean result = evaluateExpression(conditionExpression, condition);
-        return result ? Status.APPLY : Status.SKIP;
     }
 }
 

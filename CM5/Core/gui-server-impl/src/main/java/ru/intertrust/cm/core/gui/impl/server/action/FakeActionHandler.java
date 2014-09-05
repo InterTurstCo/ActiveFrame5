@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -15,12 +16,7 @@ public class FakeActionHandler extends ActionHandler<ActionContext, ActionData> 
     }
 
     @Override
-    public ActionContext getActionContext() {
-        return new ActionContext();
-    }
-
-    @Override
-    public HandlerStatusData getCheckStatusData() {
-        return null;
+    public ActionContext getActionContext(final ActionConfig actionConfig) {
+        return new ActionContext(actionConfig);
     }
 }

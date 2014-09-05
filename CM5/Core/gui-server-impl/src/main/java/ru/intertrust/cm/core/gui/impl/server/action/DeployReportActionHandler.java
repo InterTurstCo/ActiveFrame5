@@ -5,6 +5,7 @@ import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -57,8 +58,8 @@ public class DeployReportActionHandler extends ActionHandler<DeployReportActionC
     }
 
     @Override
-    public DeployReportActionContext getActionContext() {
-        return new DeployReportActionContext();
+    public DeployReportActionContext getActionContext(final ActionConfig actionConfig) {
+        return new DeployReportActionContext(actionConfig);
     }
 
     protected byte[] readFile(File file) throws IOException {

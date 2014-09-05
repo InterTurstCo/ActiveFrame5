@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -32,12 +33,12 @@ public class CompleteTaskActionHandler extends ActionHandler<CompleteTaskActionC
         // todo: do some action with this domain object or with new domain
         // object
         processservice.completeTask(completeTaskActionContext.getTaskId(), null, completeTaskActionContext.getTaskAction());
-        
+
         return null;
     }
 
     @Override
-    public CompleteTaskActionContext getActionContext() {
-        return new CompleteTaskActionContext();
+    public CompleteTaskActionContext getActionContext(final ActionConfig actionConfig) {
+        return new CompleteTaskActionContext(actionConfig);
     }
 }
