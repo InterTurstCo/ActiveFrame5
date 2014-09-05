@@ -14,12 +14,11 @@
     <domain-object-type name="Status" db-id="31">
         <fields>
             <string name="Name" length="128" not-null="true"/>
+            <string name="Description" length="128"/>
         </fields>
-        <indices>
-            <index>
-                <field name="Name"/>
-            </index>
-        </indices>
+        <uniqueKey>
+            <field name="Name"/>
+        </uniqueKey>
     </domain-object-type>
     <domain-object-type name="bu_user_settings">
         <fields>

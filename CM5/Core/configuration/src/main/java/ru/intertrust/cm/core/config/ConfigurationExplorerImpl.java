@@ -100,7 +100,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         if (configStorage.globalSettings.validateIndirectPermissions()) {
             new IndirectlyPermissionLogicalValidator(this).validate();
         }
-        new ReadEvrybodyPermissionLogicalValidator(this).validate();
+        if (configStorage.globalSettings.validateAccessMatrices()) {
+            new ReadEvrybodyPermissionLogicalValidator(this).validate();
+        }
     }
 
     public void validateGui() {
