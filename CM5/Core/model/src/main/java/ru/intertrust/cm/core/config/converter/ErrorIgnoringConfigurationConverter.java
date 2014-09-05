@@ -48,7 +48,10 @@ public class ErrorIgnoringConfigurationConverter extends ListConverter<ErrorIgno
                 if (DomainObjectTypeConfig.class.equals(nodeClass)) {
                     throw e;
                 } else {
-                    logger.error("Failed to serialize configuration item", e);
+                    InputNode nameNode = nexNode.getAttribute("name");
+                    String errorMessage = "Failed to serialize configuration item: type='" + nexNode.getName() + "'" +
+                            nameNode != null && nameNode.getValue() != null ? ", name='" + nameNode.getValue() + "'" : "";
+                    logger.error(errorMessage);
                 }
             }
 
