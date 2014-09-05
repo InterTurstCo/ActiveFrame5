@@ -10,9 +10,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FindObjectSettings;
-import ru.intertrust.cm.core.config.FindObjectsClassConfig;
-import ru.intertrust.cm.core.config.FindObjectsType;
-import ru.intertrust.cm.core.config.NotificationConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinder;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.test.configuration.FindPersonByDomainObjectFieldsSettings;
@@ -24,9 +21,16 @@ public class TestNotificationAddresseFinder implements DomainObjectFinder {
     
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
+    private FindObjectSettings settings;
+    
     public TestNotificationAddresseFinder() {
         initializeSpringBeans();
     }
+
+    @Override
+    public void init(FindObjectSettings settings) {
+        this.settings = settings;
+    }    
 
     private void initializeSpringBeans() {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
@@ -37,20 +41,10 @@ public class TestNotificationAddresseFinder implements DomainObjectFinder {
     @Override
     public List<Id> findObjects(Id contextDomainObjectId) {
         List<Id> persons = new ArrayList();
-        NotificationConfig notificationAddresseeConfig =
-                configurationExplorer.getConfig(NotificationConfig.class, "NotificationAddresseeClassName");
-        FindObjectsType findObjects =
-                notificationAddresseeConfig.getNotificationTypeConfig().getNotificationAddresseConfig().getFindPerson()
-                        .getFindObjectType();
+        if (settings instanceof FindPersonByDomainObjectFieldsSettings) {
+            String field = ((FindPersonByDomainObjectFieldsSettings) settings).getField();
+            persons.add(new RdbmsId(1, domainObjectTypeIdCache.getId("Person")));
 
-        if (findObjects instanceof FindObjectsClassConfig) {
-            FindObjectsClassConfig findByClassConfig = (FindObjectsClassConfig) findObjects;
-            FindObjectSettings settings = findByClassConfig.getSettings();
-            if (settings instanceof FindPersonByDomainObjectFieldsSettings) {
-                String field = ((FindPersonByDomainObjectFieldsSettings) settings).getField();
-                persons.add(new RdbmsId(1, domainObjectTypeIdCache.getId("Person")));
-
-            }
         }
         return persons;
     }
