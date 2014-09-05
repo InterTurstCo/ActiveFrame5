@@ -50,7 +50,7 @@ public class ErrorIgnoringConfigurationConverter extends ListConverter<ErrorIgno
                 } else {
                     InputNode nameNode = nexNode.getAttribute("name");
                     String errorMessage = "Failed to serialize configuration item: type='" + nexNode.getName() + "'" +
-                            nameNode != null && nameNode.getValue() != null ? ", name='" + nameNode.getValue() + "'" : "";
+                            (nameNode != null && nameNode.getValue() != null ? ", name='" + nameNode.getValue() + "'" : "");
                     logger.error(errorMessage);
                 }
             }
