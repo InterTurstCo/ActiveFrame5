@@ -373,19 +373,29 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         }
     }
 
-    public AccessMatrixConfig getAccessMatrixByObjectTypeUsingExtention(String domainObjectType) {
-        AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AccessMatrixConfig getAccessMatrixByObjectTypeUsingExtension(String domainObjectType) {
+        readLock.lock();
+        try {
+            AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
 
-        if (accessMatrixConfig != null) {
-            return accessMatrixConfig;
-        } else {
-            DomainObjectTypeConfig domainObjectTypeConfig =
-                    getConfig(DomainObjectTypeConfig.class, domainObjectType);
-            if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
-                String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
-                return getAccessMatrixByObjectTypeUsingExtention(parentDOType);
+            if (accessMatrixConfig != null) {
+                return getReturnObject(accessMatrixConfig, AccessMatrixConfig.class);
+            } else {
+                DomainObjectTypeConfig domainObjectTypeConfig =
+                        getConfig(DomainObjectTypeConfig.class, domainObjectType);
+                if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
+                    String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
+                    return getAccessMatrixByObjectTypeUsingExtension(parentDOType);
+                }
             }
+        } finally {
+            readLock.unlock();
         }
+
         return null;
     }
 
@@ -546,7 +556,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public List<String> getAllowedToCreateUserGroups(String objectType) {
         List<String> userGroups = new ArrayList<>();
 
-        AccessMatrixConfig accessMatrix = getAccessMatrixByObjectTypeUsingExtention(objectType);
+        AccessMatrixConfig accessMatrix = getAccessMatrixByObjectTypeUsingExtension(objectType);
 
         if (accessMatrix != null && accessMatrix.getCreateConfig() != null && accessMatrix.getCreateConfig().getPermitGroups() != null) {
             for (PermitGroup permitGroup : accessMatrix.getCreateConfig().getPermitGroups()) {

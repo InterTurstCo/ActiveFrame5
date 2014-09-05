@@ -1063,7 +1063,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
             
             //Получаем матрицу для permissionType
-            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(permissionType);
+            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(permissionType);
             //В полученной матрице получаем флаг read-evrybody и если его нет то добавляем подзапрос с правами
             if (accessMatrixConfig == null || accessMatrixConfig.isReadEverybody() == null || !accessMatrixConfig.isReadEverybody()){
             

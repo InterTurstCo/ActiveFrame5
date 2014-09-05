@@ -95,7 +95,13 @@
             <field name="Phone" />
         </uniqueKey>
     </domain-object-type>
-    
+
+    <domain-object-type name="super_employee_test" extends="employee_test" initial-status="Active">
+        <fields>
+            <string name="ExtName" length="64" not-null="true" />
+        </fields>
+    </domain-object-type>
+        
     <domain-object-type name="country_test" initial-status="Active">
         <fields>
             <string name="name" length="128"/>

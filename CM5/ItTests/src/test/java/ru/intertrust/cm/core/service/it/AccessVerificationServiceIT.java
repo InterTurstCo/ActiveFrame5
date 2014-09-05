@@ -97,6 +97,11 @@ public class AccessVerificationServiceIT extends IntegrationTestBase {
 
     }
 
+    @Test
+    public void testCreatePermissionForInheretedAccessMatrix() throws LoginException {
+        assertTrue(accessVerificationService.isCreatePermitted("super_employee_test"));
+    }
+
     private DomainObject createCountryDomainObject() {
         DomainObject organizationDomainObject = crudService.createDomainObject("country_test");
         organizationDomainObject.setString("Name", "Organization" + new Date());
