@@ -929,12 +929,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             DomainObject domainObject = domainObjects.get(i);
             if (!linkedType.equals(domainObject.getTypeName())) {
                 domainObjectCacheService.removeObjectFromCache(domainObject.getId());
-                String user = currentUserAccessor.getCurrentUser();
                 AccessToken accessTokenToFind = null;
                 if (configurationExplorer.isReadPermittedToEverybody(domainObject.getTypeName())){
                     accessTokenToFind = accessControlService.createSystemAccessToken(getClass().getName());
                 }else{
-                    accessTokenToFind = accessControlService.createAccessToken(user, domainObject.getId(), DomainObjectAccessType.READ);
+                    accessTokenToFind = accessToken;
                 }
                 domainObjects.set(i, find(domainObject.getId(), accessTokenToFind));
             }
