@@ -159,11 +159,6 @@ public class ConfigurationLoadServiceImplTest {
         AuditLog auditLog = new AuditLog();
         globalSettings.setAuditLog(auditLog);
 
-        SqlTrace sqlTrace = new SqlTrace();
-        sqlTrace.setEnable(true);
-        sqlTrace.setResolveParameters(true);
-        globalSettings.setSqlTrace(sqlTrace);
-
         TransactionTrace transactionTrace = new TransactionTrace();
         transactionTrace.setEnable(false);
         globalSettings.setTransactionTrace(transactionTrace);

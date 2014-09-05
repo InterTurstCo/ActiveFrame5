@@ -46,7 +46,6 @@ public class ConfigurationStorageBuilder {
     public void fillGlobalSettingsCache(TopLevelConfig config) {
         if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
             configurationStorage.globalSettings = (GlobalSettingsConfig) config;
-            configurationStorage.sqlTrace = configurationStorage.globalSettings.getSqlTrace();
         }
     }
 

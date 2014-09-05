@@ -25,9 +25,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Element(name = "audit-log", required = true)
     private AuditLog auditLog;
 
-    @Element(name = "sql-trace", required = true)
-    private SqlTrace sqlTrace;
-
     @Element(name = "transaction-trace", required = false)
     private TransactionTrace transactionTrace;
 
@@ -43,14 +40,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     public void setAuditLog(AuditLog auditLog) {
         this.auditLog = auditLog;
-    }
-
-    public SqlTrace getSqlTrace() {
-        return sqlTrace;
-    }
-
-    public void setSqlTrace(SqlTrace sqlTrace) {
-        this.sqlTrace = sqlTrace;
     }
 
     public TransactionTrace getTransactionTrace() {
@@ -125,7 +114,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
             return false;
         if (searchLanguages != null ? !searchLanguages.equals(that.searchLanguages) : that.searchLanguages != null)
             return false;
-        if (sqlTrace != null ? !sqlTrace.equals(that.sqlTrace) : that.sqlTrace != null) return false;
         if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
             return false;
         if (developmentMode != null ? !developmentMode.equals(that.developmentMode) : that.developmentMode != null)

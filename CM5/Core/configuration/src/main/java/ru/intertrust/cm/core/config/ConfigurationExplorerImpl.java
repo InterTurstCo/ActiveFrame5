@@ -473,19 +473,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public SqlTrace getSqlTraceConfiguration() {
-        readLock.lock();
-        try {
-            return getReturnObject(configStorage.sqlTrace, SqlTrace.class);
-        } finally {
-            readLock.unlock();
-        }
-    }
-
     @Override
     public String getDomainObjectParentType(String typeName) {
         readLock.lock();

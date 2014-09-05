@@ -121,11 +121,6 @@ public class CrudServiceImplTest {
         AuditLog auditLog = new AuditLog();
         globalSettings.setAuditLog(auditLog);
 
-        SqlTrace sqlTrace = new SqlTrace();
-        sqlTrace.setEnable(true);
-        sqlTrace.setResolveParameters(true);
-        globalSettings.setSqlTrace(sqlTrace);
-
         DomainObjectTypeConfig attachment = new DomainObjectTypeConfig();
         attachment.setTemplate(true);
         attachment.setName("Attachment");

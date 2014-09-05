@@ -80,7 +80,6 @@
     <!-- Глобальные настройки -->
     <global-settings>
         <audit-log enable="false"/>
-        <sql-trace resolveParameters="true" enable="false"/>
         <transaction-trace enable="false"/>
         <search-languages>
             <language id="ru"/>

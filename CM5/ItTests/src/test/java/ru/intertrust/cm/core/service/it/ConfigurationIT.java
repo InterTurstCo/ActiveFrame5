@@ -55,7 +55,6 @@ public class ConfigurationIT extends IntegrationTestBase {
 
         assertNotNull(globalSettingsConfig);
         assertNotNull(globalSettingsConfig.getAuditLog());
-        assertNotNull(globalSettingsConfig.getSqlTrace());
 
         Collection<GlobalSettingsConfig> globalSettingsConfigs = configurationService.getConfigs(GlobalSettingsConfig.class);
         assertNotNull(globalSettingsConfigs);

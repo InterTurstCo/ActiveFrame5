@@ -3,7 +3,6 @@
                xmlns:act="https://cm5.intertrust.ru/config/action">
     <global-settings>
         <audit-log enable="false"/>
-        <sql-trace enable="true" resolveParameters="true" minTime="0" minRows="0"/>
     </global-settings>
 
     <act:action id="id_value" styleClass="styleClass_value" componentName="action.test">

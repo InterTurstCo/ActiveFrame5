@@ -3,7 +3,6 @@
         <product title="Платформа CM Сочи"/>
         <product-version archive="test-module.jar"/>
         <audit-log enable="false"/>
-        <sql-trace enable="true" resolveParameters="true" minRows="10" minTime="100"/>
         <transaction-trace enable="true" minTime="100"/>
     </global-settings>
 </configuration>

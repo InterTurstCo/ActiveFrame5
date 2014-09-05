@@ -38,7 +38,6 @@ public class ConfigurationStorage {
     public CaseInsensitiveMap<Boolean> readPermittedToEverybodyMap = new CaseInsensitiveMap<>();
 
     public GlobalSettingsConfig globalSettings;
-    public SqlTrace sqlTrace;
 
     public CaseInsensitiveMap<String> attachmentDomainObjectTypes = new CaseInsensitiveMap<>();
 

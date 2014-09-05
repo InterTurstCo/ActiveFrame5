@@ -191,14 +191,6 @@ public interface ConfigurationExplorer {
      * @return default toolbar of plugin. Can be NULL if toolbar not defined.
      */
     ToolBarConfig getDefaultToolbarConfig(String pluginName);
-
-    /**
-     * Возвращает конфигурацию логирования sql-запросов
-     * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
-     * Изменение данного объекта недопустимо и напрямую приводит к некорректной работе приложения
-     * @return конфигурация логирования sql-запросов
-     */
-    SqlTrace getSqlTraceConfiguration();
     
 
     /**

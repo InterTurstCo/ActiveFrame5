@@ -65,11 +65,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public SqlTrace getSqlTraceConfiguration() {
-        return configurationExplorer.getSqlTraceConfiguration();
-    }
-
-    @Override
     public <T> T getConfig(Class<T> type, String name) {
         try {
             return configurationExplorer.getConfig(type, name);
