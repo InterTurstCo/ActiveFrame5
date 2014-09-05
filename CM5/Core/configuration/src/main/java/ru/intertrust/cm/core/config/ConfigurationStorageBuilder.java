@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
@@ -15,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class ConfigurationStorageBuilder {
+    private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
 
     private static final String ALL_STATUSES_SIGN = "*";
     private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
@@ -437,6 +440,10 @@ public class ConfigurationStorageBuilder {
         } else {
             DomainObjectTypeConfig domainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+            if (domainObjectTypeConfig == null) {
+                log.warn("No type defined in access matrix found: " + domainObjectType);
+                return false;
+            }
             if (domainObjectTypeConfig.getExtendsAttribute() != null) {
                 String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
                 result = isReadEverybodyForType(parentDOType);
