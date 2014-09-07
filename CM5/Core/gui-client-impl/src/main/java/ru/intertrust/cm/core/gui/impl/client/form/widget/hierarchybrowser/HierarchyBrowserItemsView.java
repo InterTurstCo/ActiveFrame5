@@ -43,11 +43,6 @@ public class HierarchyBrowserItemsView extends Composite {
         initWidget(container);
     }
 
-    @Override
-    public Widget asWidget() {
-        return container;
-    }
-
     public ArrayList<Id> getSelectedIds() {
         return selectedIds;
     }
@@ -162,7 +157,7 @@ public class HierarchyBrowserItemsView extends Composite {
     }
 
     public void setHeight(String height){
-        mainBoxPanel.setHeight(height);
+        container.setHeight(height);
     }
 }
 
