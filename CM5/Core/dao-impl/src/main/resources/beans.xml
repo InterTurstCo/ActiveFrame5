@@ -121,6 +121,8 @@
 
     <bean id="domainObjectFinderService" class="ru.intertrust.cm.core.dao.impl.DomainObjectFinderServiceImpl" />
 
+    <bean id="notificationSenderEvaluator" class="ru.intertrust.cm.core.dao.impl.NotificationSenderEvaluatorImpl" />
+
     <beans profile="default">
         <bean id="attachmentContentDao"
             class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"

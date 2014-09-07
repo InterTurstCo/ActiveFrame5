@@ -72,7 +72,74 @@
                         </find-person-settings>
                     </class-name>
                 </find-person>
+            </addressee>            
+            <triggers>
+                <trigger refName="TriggerReadConfig">
+                </trigger>
+            </triggers>
+        </notification-type>
+    </notification>
+
+    <notification name="NotificationSenderQuery">
+        <notification-type name="NotificationType" priority="HIGH">
+            <addressee>
+                <find-person>
+                    <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
+                        <find-person-settings>
+                              <domain-object-field-addressee field-name="testField"/>
+                        </find-person-settings>
+                    </class-name>
+                </find-person>
             </addressee>
+            <sender>
+                <find-query>select p.id from person p where p.login = 'person4'</find-query>
+            </sender>
+            <triggers>
+                <trigger refName="TriggerReadConfig">
+                </trigger>
+            </triggers>
+        </notification-type>
+    </notification>
+
+    <notification name="NotificationSenderDoel">
+        <notification-type name="NotificationType" priority="HIGH">
+            <addressee>
+                <find-person>
+                    <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
+                        <find-person-settings>
+                              <domain-object-field-addressee field-name="testField"/>
+                        </find-person-settings>
+                    </class-name>
+                </find-person>
+            </addressee>
+            <sender>
+                <doel>created_by</doel>
+            </sender>
+            <triggers>
+                <trigger refName="TriggerReadConfig">
+                </trigger>
+            </triggers>
+        </notification-type>
+    </notification>
+
+    <notification name="NotificationSenderClassName">
+        <notification-type name="NotificationType" priority="HIGH">
+            <addressee>
+                <find-person>
+                    <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
+                        <find-person-settings>
+                              <domain-object-field-addressee field-name="testField"/>
+                        </find-person-settings>
+                    </class-name>
+                </find-person>
+            </addressee>
+            <sender>
+                <class-name name="ru.intertrust.cm.test.notification.TestNotificationSenderFinder">
+                    <find-person-settings>
+                        <domain-object-field-addressee field-name="testField" />
+                    </find-person-settings>
+                </class-name>
+            </sender>
             <triggers>
                 <trigger refName="TriggerReadConfig">
                 </trigger>

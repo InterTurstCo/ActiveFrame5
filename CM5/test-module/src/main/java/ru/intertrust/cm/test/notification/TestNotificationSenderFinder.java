@@ -1,6 +1,5 @@
 package ru.intertrust.cm.test.notification;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,11 +15,14 @@ import ru.intertrust.cm.test.configuration.FindPersonByDomainObjectFieldsSetting
 import ru.intertrust.testmodule.spring.ApplicationContextProvider;
 
 /**
- * Тестовый класс поиска адресатов
+ * Тестовый класс поиска отправителей
  * @author atsvetkov
  *
  */
-public class TestNotificationAddresseFinder implements DomainObjectFinder {
+public class TestNotificationSenderFinder implements DomainObjectFinder {
+
+
+    private static final int PERSON_ID = 5;
 
     private ConfigurationExplorer configurationExplorer;
     
@@ -28,7 +30,7 @@ public class TestNotificationAddresseFinder implements DomainObjectFinder {
 
     private FindObjectSettings settings;
     
-    public TestNotificationAddresseFinder() {
+    public TestNotificationSenderFinder() {
         initializeSpringBeans();
     }
 
@@ -48,7 +50,7 @@ public class TestNotificationAddresseFinder implements DomainObjectFinder {
         List<Id> persons = new ArrayList();
         if (settings instanceof FindPersonByDomainObjectFieldsSettings) {
             String field = ((FindPersonByDomainObjectFieldsSettings) settings).getField();
-            persons.add(new RdbmsId(domainObjectTypeIdCache.getId("Person"), 1));
+            persons.add(new RdbmsId(domainObjectTypeIdCache.getId("Person"), PERSON_ID));
 
         }
         return persons;

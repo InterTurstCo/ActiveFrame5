@@ -13,11 +13,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.EventTrigger;
 import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.ScriptService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.notification.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddressee;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeContextRole;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeDynamicGroup;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseePerson;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.notification.NotificationContextObjectProducer;
 import ru.intertrust.cm.core.business.impl.EventTriggerImpl.EventType;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.FindNotificationContextObjectsConfig;
+import ru.intertrust.cm.core.config.FindNotificationContextObjectsDoelConfig;
+import ru.intertrust.cm.core.config.FindNotificationContextObjectsJavaClassConfig;
+import ru.intertrust.cm.core.config.FindNotificationContextObjectsJavaScriptConfig;
+import ru.intertrust.cm.core.config.FindNotificationContextObjectsQueryConfig;
+import ru.intertrust.cm.core.config.FindNotificationContextObjectsSpringBeanConfig;
+import ru.intertrust.cm.core.config.FindObjectsConfig;
+import ru.intertrust.cm.core.config.NotificationConfig;
+import ru.intertrust.cm.core.config.NotificationContextConfig;
+import ru.intertrust.cm.core.config.NotificationContextObject;
+import ru.intertrust.cm.core.config.TriggerConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -25,6 +47,7 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
+import ru.intertrust.cm.core.dao.api.NotificationSenderEvaluator;
 import ru.intertrust.cm.core.model.SearchException;
 import ru.intertrust.cm.core.tools.BaseScriptContext;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
@@ -65,6 +88,9 @@ public abstract class NotificationSenderExtensionPointBase {
 
     @Autowired
     private ScriptService scriptService;
+    
+    @Autowired   
+    private NotificationSenderEvaluator NotificationSenderEvaluator;
     
     public ConfigurationExplorer getConfigurationExplorer() {        
         return configurationExplorer;
@@ -139,14 +165,30 @@ public abstract class NotificationSenderExtensionPointBase {
         fillAdditionalContextObjects(notificationContext, notificationConfig, domainObject);
         NotificationPriority priority = NotificationPriority
                 .valueOf(notificationConfig.getNotificationTypeConfig().getPriority());
-        Id currentUserId = currentUserAccessor.getCurrentUserId();
+        Id senderId = getSender(domainObject, notificationConfig);
 
         List<NotificationAddressee> addresseeList = getAddresseeList(domainObject, notificationConfig);
         logger.info("Sending notification: " + notificationType + " on event: " + getEventType() +  " for Domain Object: " + domainObject);
-        notificationService.sendOnTransactionSuccess(notificationType, currentUserId,
+        notificationService.sendOnTransactionSuccess(notificationType, senderId,
                 addresseeList, priority, notificationContext);
     }
 
+    
+    protected Id getSender(DomainObject domainObject,
+            NotificationConfig notificationConfig) {
+
+        FindObjectsConfig findPersonConfig = notificationConfig.getNotificationTypeConfig().getSenderConfig();
+        if (findPersonConfig != null) {
+            Id sender = NotificationSenderEvaluator.findSender(findPersonConfig, domainObject.getId());
+
+            if (sender != null) {
+                return sender;
+            }
+
+        }
+        return currentUserAccessor.getCurrentUserId();
+    }
+    
     protected List<NotificationAddressee> getAddresseeList(DomainObject domainObject,
             NotificationConfig notificationConfig) {
         List<NotificationAddressee> addresseeList = new  ArrayList<NotificationAddressee>();

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.service.it.notification;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -259,6 +260,34 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             loginContext.logout();
         }
 
+    }
+
+    @Test
+    public void testNotificationSenderEvaluate() throws InterruptedException, LoginException {
+        LoginContext loginContext = login("person4", "admin");
+        loginContext.login();
+        try {        
+            DomainObject organization = createOrganizationDomainObject();
+            DomainObject savedOrganization = crudService.save(organization);
+            DomainObject department = createDepartmentDomainObject(savedOrganization);
+            DomainObject savedDepartment = crudService.save(department);
+            
+        } finally {
+            loginContext.logout();
+        }
+    }
+
+    private DomainObject createOrganizationDomainObject() {
+        DomainObject organizationDomainObject = crudService.createDomainObject("organization_test");
+        organizationDomainObject.setString("Name", "Organization" + System.currentTimeMillis());
+        return organizationDomainObject;
+    }
+
+    private DomainObject createDepartmentDomainObject(DomainObject savedOrganizationObject) {
+        DomainObject departmentDomainObject = crudService.createDomainObject("department_test");
+        departmentDomainObject.setString("Name", "department" + System.currentTimeMillis());
+        departmentDomainObject.setReference("Organization", savedOrganizationObject.getId());
+        return departmentDomainObject;
     }
 
     @Test

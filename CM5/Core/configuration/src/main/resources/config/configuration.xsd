@@ -172,6 +172,7 @@
     <xs:complexType name="notificationTypeType">
         <xs:sequence>
             <xs:element name="addressee" minOccurs="0" maxOccurs="1" type="con:notificationAddresseType"/>
+            <xs:element name="sender" minOccurs="0" maxOccurs="1" type="con:notificationFindPersonType"/>
             <xs:element name="triggers" minOccurs="0" maxOccurs="1" type="con:notificationTriggersType"/>
             <xs:element name="context-config" minOccurs="0" maxOccurs="1" type="con:notificationContextConfigType"/>
         </xs:sequence>
@@ -181,14 +182,14 @@
 
     <xs:complexType name="notificationAddresseType">
         <xs:choice>
-            <xs:element name="find-person" minOccurs="0" maxOccurs="1" type="con:notificationAddresseFindPersonType">
+            <xs:element name="find-person" minOccurs="0" maxOccurs="1" type="con:notificationFindPersonType">
             </xs:element>
             <xs:element name="by-context-role" minOccurs="0" maxOccurs="1" type="xs:string"/>
             <xs:element name="by-dynamic-group" minOccurs="0" maxOccurs="1" type="xs:string"/>
         </xs:choice>
     </xs:complexType>
 
-    <xs:complexType name="notificationAddresseFindPersonType">
+    <xs:complexType name="notificationFindPersonType">
         <xs:choice>
             <xs:element name="find-query" minOccurs="0" maxOccurs="1" type="xs:string"/>
             <xs:element name="class-name" minOccurs="0" maxOccurs="1" type="con:addresseJavaClassNameType"/>

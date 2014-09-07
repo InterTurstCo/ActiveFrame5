@@ -20,7 +20,10 @@ public class NotificationTypeConfig implements Dto {
  
     @Element(name = "addressee", required = false)
     private NotificationAddresseConfig notificationAddresseConfig;
-    
+
+    @Element(name = "sender", required = false)
+    private FindObjectsConfig notificationSenderConfig;
+
     @Element(name = "triggers", required = true)
     private NotificationTriggersConfig notificationTriggersConfig = new NotificationTriggersConfig();
 
@@ -41,6 +44,14 @@ public class NotificationTypeConfig implements Dto {
 
     public void setNotificationAddresseConfig(NotificationAddresseConfig notificationAddresseConfig) {
         this.notificationAddresseConfig = notificationAddresseConfig;
+    }
+    
+    public FindObjectsConfig getSenderConfig() {
+        return notificationSenderConfig;
+    }
+
+    public void setSenderConfig(FindObjectsConfig notificationSenderConfig) {
+        this.notificationSenderConfig = notificationSenderConfig;
     }
 
     public NotificationTriggersConfig getNotificationTriggersConfig() {
