@@ -857,7 +857,7 @@
                     min-width="300px" text-break-style="cut"/>
             <column field="independence_day" name="День Независимости" type="datetime" editable="false" resizable="true"
                     min-width="270px"
-                    sortable="true" search-filter="byIndependenceDay" date-pattern="dd.MM.yyyy" time-pattern="hh:mmТ"
+                    sortable="true" search-filter="byIndependenceDay" date-pattern="dd.MM.yyyy" time-pattern="HH:mm:ss"
                     date-range="true"/>
             <column field="population" name="Популяция" type="long" editable="false" sortable="true"
                     search-filter="byPopulation">

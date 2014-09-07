@@ -5,9 +5,15 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.model.util.GuiDateUtil;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -41,6 +47,44 @@ public abstract class RangeDatePicker extends DatePickerPopup {
         panel.add(label);
         return panel;
 
+    }
+
+    protected List<Date> getRequiredDate(String dateDescription) {
+        Date startDate = new Date();
+        Date endDate = new Date();
+
+        switch (dateDescription) {
+            case FOR_TODAY_LABEL:
+                GuiDateUtil.setStartOfDay(startDate);
+                return getRangeDateList(startDate, endDate);
+
+            case FOR_YESTERDAY_LABEL:
+                CalendarUtil.addDaysToDate(startDate, -1);
+                GuiDateUtil.setStartOfDay(startDate);
+                CalendarUtil.addDaysToDate(endDate, -1);
+                GuiDateUtil.setEndOfDay(endDate);
+                return getRangeDateList(startDate, endDate);
+
+            case FOR_LAST_WEEK_LABEL:
+                CalendarUtil.addDaysToDate(startDate, -6);
+                GuiDateUtil.setStartOfDay(startDate);
+                return getRangeDateList(startDate, endDate);
+
+            case FOR_LAST_YEAR_LABEL:
+                CalendarUtil.addDaysToDate(startDate, -364);
+                GuiDateUtil.setStartOfDay(startDate);
+                return getRangeDateList(startDate, endDate);
+
+
+        }
+        return null;
+    }
+
+    private List<Date> getRangeDateList(Date startDate, Date endDate) {
+        List<Date> dates = new ArrayList<Date>();
+        dates.add(startDate);
+        dates.add(endDate);
+        return dates;
     }
 
     protected class DatetimeClickHandler implements ClickHandler {

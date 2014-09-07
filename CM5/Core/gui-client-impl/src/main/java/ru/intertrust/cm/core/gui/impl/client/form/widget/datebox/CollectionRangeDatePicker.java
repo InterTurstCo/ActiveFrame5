@@ -5,12 +5,10 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -92,38 +90,6 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
             CollectionRangeDatePicker.this.hide();
         }
 
-        private List<Date> getRequiredDate(String dateDescription) {
-            Date startDate = new Date();
-            Date endDate = new Date();
-
-            switch (dateDescription) {
-                case FOR_TODAY_LABEL:
-                    CalendarUtil.addDaysToDate(startDate, -1);
-                    return getRangeDateList(startDate, endDate);
-
-                case FOR_YESTERDAY_LABEL:
-                    CalendarUtil.addDaysToDate(startDate, -2);
-                    CalendarUtil.addDaysToDate(endDate, -1);
-                    return getRangeDateList(startDate, endDate);
-                case FOR_LAST_WEEK_LABEL:
-                    CalendarUtil.addDaysToDate(startDate, -7);
-                    return getRangeDateList(startDate, endDate);
-
-                case FOR_LAST_YEAR_LABEL:
-                    CalendarUtil.addDaysToDate(startDate, -365);
-                    return getRangeDateList(startDate, endDate);
-
-
-            }
-            return null;
-        }
-
-        private List<Date> getRangeDateList(Date startDate, Date endDate) {
-            List<Date> dates = new ArrayList<Date>();
-            dates.add(startDate);
-            dates.add(endDate);
-            return dates;
-        }
 
     }
 }
