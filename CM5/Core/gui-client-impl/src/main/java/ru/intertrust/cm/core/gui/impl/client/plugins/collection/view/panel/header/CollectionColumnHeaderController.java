@@ -18,14 +18,16 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnHiddenActionContext;
 
 import java.util.List;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FILTER_CONTAINER_MARGIN;
+
 /**
- * @author Yaroslav Bondacrhuk
+ * @author Yaroslav Bondarchuk
  *         Date: 21/03/14
  *         Time: 12:05 PM
  */
@@ -160,7 +162,6 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         action.perform();
     }
 
-
     @Override
     public void handleEvent(ComponentWidthChangedEvent event) {
         Object component = event.getComponent();
@@ -171,31 +172,42 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
         int oldWidth = column.getDrawWidth();
         int newWidth = event.getWidth();
+        int delta = oldWidth - newWidth;
+        if (CollectionDataGridUtils.isTableHorizontalScrollNotVisible(dataGrid)) {
+            int index = dataGrid.getColumnIndex(column);
+            changeRelativeRightColumnWidth(index, delta);
+
+        } else {
+           changeLastColumnWidth(delta);
+        }
         dataGrid.setColumnWidth(column, newWidth + "px");
         column.setDrawWidth(newWidth);
         column.setUserWidth(newWidth);
-        if (oldWidth > newWidth) {
-            int index = dataGrid.getColumnIndex(column);
-            changeRelativeRightColumnWidth(index, oldWidth - newWidth);
-        }
         saveFilterValues();
+
         dataGrid.redraw();
         updateFilterValues();
     }
 
     private void changeRelativeRightColumnWidth(int index, int delta) {
-        CollectionColumn relativeRightColumn = findNextVisibleRightColumn(index);
-        if (relativeRightColumn == null) {
+        ColumnHeaderBlock relativeRightColumnHeaderBlock = findNextVisibleRightColumnBlock(index);
+        if (relativeRightColumnHeaderBlock == null) {
             return;
         }
+        CollectionColumn relativeRightColumn = relativeRightColumnHeaderBlock.getColumn();
         int newDrawWidth = relativeRightColumn.getDrawWidth() + delta;
-        dataGrid.setColumnWidth(relativeRightColumn, newDrawWidth + "px");
-        relativeRightColumn.setDrawWidth(newDrawWidth);
-        relativeRightColumn.setUserWidth(newDrawWidth);
+        int columnMinWidth = relativeRightColumn.getMinWidth();
+        int adjustedNewDrawWidth = newDrawWidth >= columnMinWidth ? newDrawWidth : columnMinWidth;
+        dataGrid.setColumnWidth(relativeRightColumn, adjustedNewDrawWidth + "px");
+        relativeRightColumn.setDrawWidth(adjustedNewDrawWidth);
+        relativeRightColumn.setUserWidth(adjustedNewDrawWidth);
+        relativeRightColumnHeaderBlock.getHeader().setFilterInputWidth(adjustedNewDrawWidth - FILTER_CONTAINER_MARGIN);
+
 
     }
 
-    private CollectionColumn findNextVisibleRightColumn(int index) {
+
+    private  ColumnHeaderBlock findNextVisibleRightColumnBlock(int index) {
         int columnCount = dataGrid.getColumnCount();
         if (columnCount == index + 1) {
             return null; //column is last
@@ -206,15 +218,16 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             CollectionColumn column = columnHeaderBlock.getColumn();
             if (i == index + 1) {
                 if (column.isVisible()) {
-                    return column;
+                    return columnHeaderBlock;
 
                 } else {
                     int shift = 2;
                     while (index + shift < size) {
                         shift++;
-                        CollectionColumn shiftedColumn = columnHeaderBlocks.get(index + shift).getColumn();
+                        ColumnHeaderBlock shiftedColumnHeaderBlock = columnHeaderBlocks.get(index + shift);
+                        CollectionColumn shiftedColumn = shiftedColumnHeaderBlock.getColumn();
                         if (shiftedColumn.isVisible()) {
-                            return shiftedColumn;
+                            return shiftedColumnHeaderBlock;
                         }
 
                     }
@@ -223,6 +236,27 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             }
 
         }
+        return null;
+    }
+   private void changeLastColumnWidth(int delta) {
+       ColumnHeaderBlock lastColumnHeaderBlock = findLastVisibleColumnBlock();
+       if (lastColumnHeaderBlock == null || delta > 0) {
+           return;
+       }
+      displayedWidth += delta;
+   }
+    private  ColumnHeaderBlock findLastVisibleColumnBlock() {
+        int lastIndex = columnHeaderBlocks.size() - 1;
+        while (lastIndex >= 0) {
+            ColumnHeaderBlock lastColumnHeaderBlock = columnHeaderBlocks.get(lastIndex);
+            CollectionColumn shiftedColumn = lastColumnHeaderBlock.getColumn();
+            if (shiftedColumn.isVisible()) {
+                return lastColumnHeaderBlock;
+            }
+            lastIndex--;
+
+        }
+
         return null;
     }
 
@@ -282,7 +316,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         private void initCheckboxItem(final ColumnHeaderBlock columnHeaderBlock, Panel container) {
             final CollectionColumn column = columnHeaderBlock.getColumn();
             String checkBoxLabel = column.getDataStoreName();
-            if(checkBoxLabel.equalsIgnoreCase(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME)){
+            if(checkBoxLabel.equalsIgnoreCase(CHECK_BOX_COLUMN_NAME)){
                 return;
             }
             CheckBox checkBox = new CheckBox(column.getDataStoreName());
@@ -311,4 +345,5 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             storeUserSettings();
         }
     }
+
 }

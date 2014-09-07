@@ -14,7 +14,7 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
     protected String fieldName;
     protected boolean resizable = true;
     private int userWidth;
-    protected int minWidth = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
+    protected int minWidth;
     protected int maxWidth = BusinessUniverseConstants.MAX_COLUMN_WIDTH;
     protected boolean moveable = true;
     protected boolean visible;
@@ -58,7 +58,7 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
     }
 
     public int getMinWidth() {
-        return minWidth;
+        return minWidth == 0 ? BusinessUniverseConstants.MIN_RESIZE_COLUMN_WIDTH : minWidth;
     }
 
     public void setMinWidth(Integer minWidth) {

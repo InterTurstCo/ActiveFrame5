@@ -121,7 +121,7 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
                 if (prevHeader != null) {
                     // Build the header.
                     Context context = new Context(0, curColumn - prevColspan, prevHeader.getKey());
-                    renderCustomSortableHeader(th, context, prevHeader, isSorted, isSortAscending);
+                    renderCustomSortableHeader(th, context, prevHeader);
                 }
 
                 th.endTH();
@@ -164,7 +164,7 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
         enableColumnHandlers(th, column);
         if (prevHeader != null) {
             Context context = new Context(0, curColumn - prevColspan, prevHeader.getKey());
-            renderCustomSortableHeader(th, context, prevHeader, isSorted, isSortAscending);
+            renderCustomSortableHeader(th, context, prevHeader);
         }
         th.endTH();
 
@@ -191,11 +191,8 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
         }
     }
 
-    protected final void renderCustomSortableHeader(ElementBuilderBase<?> out, Context context,
-                                                    CollectionColumnHeader header, boolean isSorted, boolean isSortAscending) {
-        ElementBuilderBase<?> headerContainer = out;
-
-        renderHeader(headerContainer, context, header);
+    protected final void renderCustomSortableHeader(ElementBuilderBase<?> out, Context context, CollectionColumnHeader header) {
+        renderHeader(out, context, header);
 
     }
 }

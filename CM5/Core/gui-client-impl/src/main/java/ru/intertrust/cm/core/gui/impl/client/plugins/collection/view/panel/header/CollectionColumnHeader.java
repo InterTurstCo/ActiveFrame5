@@ -69,10 +69,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     }
 
-    public void setFilterInputWidth(int width) {
-        widget.setFilterInputWidth(width);
-    }
-
     public String getFilterValue() {
         if (widget.hasFilter()) {
             inputFilter = getInputFilter();
@@ -104,6 +100,10 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
         }
 
+    }
+
+    public void setFilterInputWidth(int width) {
+        widget.setFilterInputWidth(width);
     }
 
     public void setFocus() {
@@ -476,7 +476,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                 handler.removeHandler();
                 resizeLine.removeFromParent();
                 dragCallback.dragFinished();
-                changeColumnWidth(Math.min(column.getMaxWidth(), Math.max(clientX - header.getAbsoluteLeft(), column.getMinWidth())));
+                changeColumnWidth(Math.min(column.getMaxWidth(), Math.max(clientX - header.getAbsoluteLeft(),
+                        column.getMinWidth())));
             }
         }
 
@@ -563,7 +564,10 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     private void changeColumnWidth(final int newWidth) {
-        widget.setFilterInputWidth(newWidth - SEARCH_CONTAINER_MARGIN_WIDTH);
+        if(table.getColumnWidth(column).equalsIgnoreCase(newWidth + "px")) {
+            return;
+        }
+        widget.setFilterInputWidth(newWidth - FILTER_CONTAINER_MARGIN);
         eventBus.fireEvent(new ComponentWidthChangedEvent(column, newWidth));
 
     }

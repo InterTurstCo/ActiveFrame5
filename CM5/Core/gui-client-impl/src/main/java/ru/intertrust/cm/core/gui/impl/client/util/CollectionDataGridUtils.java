@@ -5,6 +5,8 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGr
 
 import java.util.*;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.MIN_COLUMN_WIDTH;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 17.02.14
@@ -24,7 +26,7 @@ public class CollectionDataGridUtils {
             if (!column.isVisible()) {
                 processedColumnCount++;
             } else if (column.getUserWidth() > 0) {
-                final int columnWidth = adjustWidth(column.getUserWidth(), column.getMinWidth(), column.getMaxWidth());
+                int columnWidth = column.getUserWidth();
                 column.setUserWidth(columnWidth);
                 column.setDrawWidth(columnWidth);
 
@@ -55,8 +57,8 @@ public class CollectionDataGridUtils {
         }
         unfinishedColumnCount = tableBody.getColumnCount() - processedColumnCount;
         columnWidthAverage = unfinishedColumnCount < 1 ? 0 : tableWidth / unfinishedColumnCount;
-        if (columnWidthAverage < BusinessUniverseConstants.MIN_COLUMN_WIDTH) {
-            columnWidthAverage = BusinessUniverseConstants.MIN_COLUMN_WIDTH;
+        if (columnWidthAverage < MIN_COLUMN_WIDTH) {
+            columnWidthAverage = MIN_COLUMN_WIDTH;
         }
         for (CollectionColumn column : unProcessingColumnList) {
             widthMap.put(column, columnWidthAverage);
@@ -69,6 +71,7 @@ public class CollectionDataGridUtils {
         }
     }
 
+    @Deprecated
     private static int adjustWidth(int calculatedWidth, int minWidth, int maxWidth) {
         if (calculatedWidth < minWidth) {
             return minWidth;
@@ -76,5 +79,17 @@ public class CollectionDataGridUtils {
             return maxWidth;
         }
         return calculatedWidth;
+    }
+
+    public static boolean isTableVerticalScrollNotVisible(CollectionDataGrid dataGrid){
+        int scrollMinVertical = dataGrid.getScrollPanel().getMinimumVerticalScrollPosition();
+        int scrollMaxVertical = dataGrid.getScrollPanel().getMaximumVerticalScrollPosition();
+        return  scrollMinVertical == scrollMaxVertical;
+    }
+
+    public static boolean isTableHorizontalScrollNotVisible(CollectionDataGrid dataGrid){
+        int scrollMinHorizontal = dataGrid.getScrollPanel().getMinimumHorizontalScrollPosition();
+        int scrollMaxHorizontal = dataGrid.getScrollPanel().getMaximumHorizontalScrollPosition();
+        return  scrollMinHorizontal == scrollMaxHorizontal;
     }
 }

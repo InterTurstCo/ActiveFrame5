@@ -115,9 +115,7 @@ public class CollectionPluginView extends PluginView {
     public void fetchMoreItemsIfRequired() {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             public void execute() {
-                int scrollMinVertical = tableBody.getScrollPanel().getMinimumVerticalScrollPosition();
-                int scrollMaxVertical = tableBody.getScrollPanel().getMaximumVerticalScrollPosition();
-                if (scrollMinVertical == scrollMaxVertical) {
+                if (CollectionDataGridUtils.isTableVerticalScrollNotVisible(tableBody)) {
                     if (sortCollectionState != null) {
                         sortCollectionState.setResetCollection(false);
                     }

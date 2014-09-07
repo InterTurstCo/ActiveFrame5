@@ -23,6 +23,7 @@ public class BusinessUniverseConstants {
 
     public static final int MAX_COLUMN_WIDTH = 9999;
     public static final int MIN_COLUMN_WIDTH = 230;
+    public static final int MIN_RESIZE_COLUMN_WIDTH = 28;
     public static final String DATE_TIME_TYPE = "datetime";
     public static final String TIMELESS_DATE_TYPE = "timelessDate";
     public static final String DATE_TIME_WITH_TIME_ZONE_TYPE = "dateTimeWithTimeZone";
@@ -58,10 +59,10 @@ public class BusinessUniverseConstants {
     public static final String FOR_YESTERDAY_LABEL = "За вчера";
 
     //Collection header
-    public static final int RESIZE_HANDLE_WIDTH = 34;
-    public static final int MOVE_HANDLE_WIDTH = 34;
+    public static final int RESIZE_HANDLE_WIDTH = 14;
+    public static final int MOVE_HANDLE_WIDTH = 14;
     public static final int CLEAR_BUTTON_WIDTH = 28;
-    public static final int SEARCH_CONTAINER_MARGIN_WIDTH = 20;
+    public static final int FILTER_CONTAINER_MARGIN = 20;
 
     //Hyperlink form title, maybe temporary
     public static final String FORM_TITLE = "Item";

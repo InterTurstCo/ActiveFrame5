@@ -16,17 +16,21 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 public abstract class FilterHeaderWidget extends HeaderWidget {
     protected String id;
-    protected  boolean showFilter;
-    protected  String fieldName;
-    protected  String filterValuesRepresentation;
+    protected boolean showFilter;
+    protected String fieldName;
+    protected String filterValuesRepresentation;
     protected int filterWidth;
+
     protected FilterHeaderWidget(CollectionColumn column, CollectionColumnProperties columnProperties,
                                  List<String> initialFilterValues, String valueSeparator) {
         title = column.getDataStoreName();
-        this.filterWidth = column.getMinWidth() - BusinessUniverseConstants.SEARCH_CONTAINER_MARGIN_WIDTH;
+        int userColumnWidth = column.getUserWidth();
+        this.filterWidth = userColumnWidth == 0
+                ? column.getMinWidth() - BusinessUniverseConstants.FILTER_CONTAINER_MARGIN
+                : userColumnWidth - BusinessUniverseConstants.FILTER_CONTAINER_MARGIN;
         id = (column.hashCode() + title).replaceAll(" ", "");
         fieldName = (String) columnProperties.getProperty(CollectionColumnProperties.FIELD_NAME);
-        this.filterValuesRepresentation = HeaderWidgetUtil.initFilterValuesRepresentation(valueSeparator,initialFilterValues);
+        this.filterValuesRepresentation = HeaderWidgetUtil.initFilterValuesRepresentation(valueSeparator, initialFilterValues);
     }
 
     @Override
@@ -77,7 +81,8 @@ public abstract class FilterHeaderWidget extends HeaderWidget {
         return styleForSearchContainerBuilder.toString();
 
     }
-    protected  String getSearchInputStyle() {
+
+    protected String getSearchInputStyle() {
         StringBuilder styleForSearchInputBuilder = new StringBuilder(" style=\"width:");
         int searchInputWidth = filterWidth - RESIZE_HANDLE_WIDTH - MOVE_HANDLE_WIDTH - CLEAR_BUTTON_WIDTH;
         styleForSearchInputBuilder.append(searchInputWidth);

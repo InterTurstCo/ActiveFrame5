@@ -6,7 +6,6 @@ import com.google.gwt.user.client.ui.HeaderPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
@@ -29,12 +28,13 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
         setHeaderBuilder(new HeaderBuilder<CollectionRowItem>(this, false));
         addStyleName("collection-plugin-view collection-plugin-view-container");
         this.addCellPreviewHandler(new CollectionCellPreviewHandler());
+
     }
 
     public ScrollPanel getScrollPanel() {
-
         return (ScrollPanel) panel.getContentWidget();
     }
+
 
     @Override
     protected boolean resetFocusOnCell() {
