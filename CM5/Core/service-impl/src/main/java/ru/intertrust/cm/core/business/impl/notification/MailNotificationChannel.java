@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.business.impl.notification;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,14 +10,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamSource;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-
-import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -32,6 +25,9 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.MailNotificationException;
 import ru.intertrust.cm.core.model.ReportServiceException;
 
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+
 /**
  * 
  * @author atsvetkov
@@ -40,7 +36,7 @@ import ru.intertrust.cm.core.model.ReportServiceException;
 @NotificationChannel(name = "MailNotificationChannel", description = "Канал отправки по электронной почте")
 public class MailNotificationChannel extends NotificationChannelBase implements NotificationChannelHandle {
 
-    private static final String MAIL_NOTIFICATION_CHANNEL = "MailNotificationChannel";
+    public static final String MAIL_NOTIFICATION_CHANNEL = "MailNotificationChannel";
 
     private static final String BODY_MAIL_PART = "body";
 
