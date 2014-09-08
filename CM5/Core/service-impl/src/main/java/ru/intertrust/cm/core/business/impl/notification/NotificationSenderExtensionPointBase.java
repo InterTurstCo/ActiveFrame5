@@ -161,6 +161,7 @@ public abstract class NotificationSenderExtensionPointBase {
     protected void sendNotification(DomainObject domainObject, NotificationConfig notificationConfig) {
         String notificationType = notificationConfig.getNotificationTypeConfig().getName();
         NotificationContext notificationContext = new NotificationContext();
+        notificationContext.setNotificationTypeConfig(notificationConfig.getNotificationTypeConfig());
         notificationContext.addContextObject("document", new DomainObjectAccessor(domainObject));
         fillAdditionalContextObjects(notificationContext, notificationConfig, domainObject);
         NotificationPriority priority = NotificationPriority
