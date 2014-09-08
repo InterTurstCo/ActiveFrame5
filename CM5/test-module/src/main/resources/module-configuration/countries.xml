@@ -346,13 +346,13 @@
                 </formatting>
                 <act:action-ref actionId="aOpenLink" rendered="not toggle-edit or (toggle-edit and preview)">
                     <act:action-params>
-                        <act:action-param name="base-url" value="http://yandex.ru" />
+                        <act:action-param name="base-url" value="https://www.google.com.ua" />
                         <act:action-param name="domain-object-fields" value="id,created_date"/>
                         <act:action-param name="date-time-format" value="yyyy-MM-dd hh:mm:ss"/>
                         <act:action-param name="date-time-format-time-zone" value="Europe/Moscow"/>
                         <act:action-param name="date-format" value="yyyy-MM-dd"/>
                         <act:action-param name="id" value="ID"/>
-                        <act:action-param name="some_date" value="DATE_IN_URL"/>
+                        <act:action-param name="created_date" value="DATE_IN_URL"/>
                     </act:action-params>
                 </act:action-ref>
             </action-executor>

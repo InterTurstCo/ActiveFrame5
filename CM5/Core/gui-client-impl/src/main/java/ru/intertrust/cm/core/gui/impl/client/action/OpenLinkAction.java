@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import com.google.gwt.user.client.Window;
+
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.OpenLinkActionContext;
 
@@ -16,7 +16,7 @@ public class OpenLinkAction extends Action {
     @Override
     protected void execute() {
         final OpenLinkActionContext context = getInitialContext();
-        ApplicationWindow.infoAlert("Link open" + context.getOpenUrl());
+        Window.open(context.getOpenUrl(), "_blank", "");
     }
 
     @Override

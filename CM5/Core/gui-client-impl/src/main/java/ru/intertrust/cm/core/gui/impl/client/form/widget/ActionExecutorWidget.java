@@ -30,8 +30,10 @@ public class ActionExecutorWidget extends LabelWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         final HorizontalPanel result = (HorizontalPanel) super.asEditableWidget(state);
-        result.getWidget(1).getElement().setClassName("gwt-MenuItem");
-        result.addDomHandler(new ClickHandlerImpl(), ClickEvent.getType());
+        if (((ActionExecutorState) state).getActionContext() != null) {
+            result.getWidget(1).getElement().setClassName("gwt-MenuItem");
+            result.addDomHandler(new ClickHandlerImpl(), ClickEvent.getType());
+        }
         return result;
     }
 

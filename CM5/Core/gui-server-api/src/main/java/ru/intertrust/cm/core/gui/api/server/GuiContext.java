@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.api.server;
 
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 /**
  * @author Sergey.Okolot
@@ -17,6 +18,8 @@ public class GuiContext {
 
     private UserInfo userInfo;
 
+    private FormPluginState formPluginState;
+
     private GuiContext() {}
 
     public static GuiContext get() {
@@ -29,5 +32,13 @@ public class GuiContext {
 
     public void setUserInfo(final UserInfo userInfo) {
         this.userInfo = userInfo;
+    }
+
+    public FormPluginState getFormPluginState() {
+        return formPluginState;
+    }
+
+    public void setFormPluginState(FormPluginState formPluginState) {
+        this.formPluginState = formPluginState;
     }
 }

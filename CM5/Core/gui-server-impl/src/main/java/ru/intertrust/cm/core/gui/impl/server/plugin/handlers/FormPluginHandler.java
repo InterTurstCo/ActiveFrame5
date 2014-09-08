@@ -42,6 +42,7 @@ public class FormPluginHandler extends ActivePluginHandler {
 
     public FormPluginData initialize(Dto initialData) {
         final FormPluginConfig formPluginConfig = (FormPluginConfig) initialData;
+        GuiContext.get().setFormPluginState(formPluginConfig.getPluginState());
         FormDisplayData form = getFormDisplayData(formPluginConfig);
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);

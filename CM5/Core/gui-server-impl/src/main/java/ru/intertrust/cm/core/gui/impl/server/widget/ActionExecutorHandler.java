@@ -9,13 +9,16 @@ import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionExecutorConfig;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.impl.server.action.FormPluginHandlerStatusData;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.ActionExecutorState;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 /**
  * @author Sergey.Okolot
@@ -37,21 +40,32 @@ public class ActionExecutorHandler extends LabelHandler {
         result.setLabelStates(labelState);
         final ActionExecutorConfig actionExecutorConfig = context.getWidgetConfig();
         final ActionRefConfig actionRefConfig = actionExecutorConfig.getActionRefConfig();
-        final ActionConfig actionConfig =
-                PluginHandlerHelper.cloneActionConfig(actionService.getActionConfig(actionRefConfig.getActionId()));
-        PluginHandlerHelper.fillActionConfigFromRefConfig(actionConfig, actionRefConfig);
-        // fixme FakeHandler and check visibility of action
-        final boolean contains = applicationContext.containsBean(actionConfig.getComponentName());
-        final ActionContext actionContext;
-        if (contains) {
-            final ActionHandler handler = (ActionHandler) applicationContext.getBean(actionConfig.getComponentName());
-            final ActionHandler.HandlerStatusData statusData = handler.getCheckStatusData();
-            statusData.initialize(params);
-            actionContext = handler.getActionContext(actionConfig);
-        } else {
-            actionContext = new ActionContext(actionConfig);
+        if (actionRefConfig != null) {
+            final ActionConfig actionConfig =
+                    PluginHandlerHelper.cloneActionConfig(actionService.getActionConfig(actionRefConfig.getActionId()));
+            PluginHandlerHelper.fillActionConfigFromRefConfig(actionConfig, actionRefConfig);
+            final boolean contains = applicationContext.containsBean(actionConfig.getComponentName());
+            final ActionContext actionContext;
+            if (contains) {
+                final ActionHandler handler = (ActionHandler) applicationContext.getBean(actionConfig.getComponentName());
+                final ActionHandler.HandlerStatusData statusData = handler.getCheckStatusData();
+                final FormPluginState pluginState = GuiContext.get().getFormPluginState();
+                params.put(FormPluginHandlerStatusData.PLUGIN_IN_CENTRAL_PANEL_ATTR, pluginState.isInCentralPanel());
+                params.put(FormPluginHandlerStatusData.TOGGLE_EDIT_ATTR, pluginState.isToggleEdit());
+                params.put(FormPluginHandlerStatusData.PREVIEW_ATTR, !pluginState.isEditable());
+                statusData.initialize(params);
+                final ActionHandler.Status actionStatus =
+                        handler.getHandlerStatus(actionExecutorConfig.getActionRefConfig().getRendered(), statusData);
+                if (ActionHandler.Status.APPLY == actionStatus) {
+                    actionContext = handler.getActionContext(actionConfig);
+                } else {
+                    actionContext = null;
+                }
+            } else {
+                actionContext = new ActionContext(actionConfig);
+            }
+            result.setActionContext(actionContext);
         }
-        result.setActionContext(actionContext);
         return result;
     }
 }

@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.api.server.widget;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -7,10 +10,6 @@ import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -25,7 +24,6 @@ public class WidgetContext implements Dto {
     private FormObjects formObjects;
     private transient Map<String, WidgetConfig> widgetConfigsById;
     private transient FieldPath[] fieldPaths = NOT_INITIALIZED_FIELD_PATHS;
-    private transient FormPluginState pluginState;
     private String formType;
 
     public WidgetContext() {
@@ -156,13 +154,5 @@ public class WidgetContext implements Dto {
 
     public void setFormType(String formType) {
         this.formType = formType;
-    }
-
-    public FormPluginState getPluginState() {
-        return pluginState;
-    }
-
-    public void setPluginState(FormPluginState pluginState) {
-        this.pluginState = pluginState;
     }
 }
