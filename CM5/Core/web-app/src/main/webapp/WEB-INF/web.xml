@@ -20,22 +20,9 @@
 
     <!--Export to CSV-->
 
-    <servlet>
-        <servlet-name>json-export-to-csv</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>/WEB-INF/applicationContext.xml</param-value>
-        </init-param>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>json-export-to-csv</servlet-name>
-        <url-pattern>/json-export-to-csv/*</url-pattern>
-    </servlet-mapping>
-
     <!-- Uploader and Downloader part -->
     <servlet>
-        <servlet-name>Attachment Uploader</servlet-name>
+        <servlet-name>Spring Dispatcher</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
@@ -44,28 +31,22 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>Attachment Uploader</servlet-name>
+        <servlet-name>Spring Dispatcher</servlet-name>
         <url-pattern>/attachment-upload</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>Attachment Uploader</servlet-name>
+        <servlet-name>Spring Dispatcher</servlet-name>
         <url-pattern>/attachment-download/*</url-pattern>
     </servlet-mapping>
-
-    <!-- Generate Report -->
-    <servlet>
-        <servlet-name>generate-report</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value>/WEB-INF/applicationContext.xml</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
     <servlet-mapping>
-        <servlet-name>generate-report</servlet-name>
+        <servlet-name>Spring Dispatcher</servlet-name>
         <url-pattern>/generate-report/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Spring Dispatcher</servlet-name>
+        <url-pattern>/json-export-to-csv/*</url-pattern>
+    </servlet-mapping>
+
 
     <security-constraint>
         <display-name>Constraint</display-name>

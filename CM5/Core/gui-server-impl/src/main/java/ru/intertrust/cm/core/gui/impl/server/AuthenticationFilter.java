@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 
@@ -16,6 +18,8 @@ import java.io.IOException;
  *         Time: 18:30
  */
 public class AuthenticationFilter implements Filter {
+    private static Logger log = LoggerFactory.getLogger(AuthenticationFilter.class);
+
     public static final String AUTHENTICATION_SERVICE_ENDPOINT = "BusinessUniverseAuthenticationService";
 
     @Override
@@ -39,17 +43,32 @@ public class AuthenticationFilter implements Filter {
             return;
         }
         UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
-        try {
-            if (request.getUserPrincipal() == null) { // just in case parallel thread logged in, but not logged out yet
+        if (request.getUserPrincipal() == null) { // just in case parallel thread logged in, but not logged out yet
+            try {
                 request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
+                System.out.println(Thread.currentThread().getId() + " => no user principal. Log in");
+            } catch (ServletException e) {
+                forwardToLogin(servletRequest, servletResponse);
             }
-            if (request.getUserPrincipal() != null) {
-                request.logout();
-            }
-            filterChain.doFilter(servletRequest, servletResponse);
-        } catch (ServletException e) {
-            forwardToLogin(servletRequest, servletResponse);
+        } else {
+            System.out.println(Thread.currentThread().getId() + " => user principal is already in request");
         }
+
+        try {
+            filterChain.doFilter(servletRequest, servletResponse);
+        } finally {
+            if (request.getUserPrincipal() != null) {
+                try {
+                    request.logout();
+                    System.out.println(Thread.currentThread().getId() + " => log out");
+                } catch (ServletException e) {
+                    log.error("request logout failed", e);
+                }
+            } else {
+                System.out.println(Thread.currentThread().getId() + " => no user principal. Do NOT log out");
+            }
+        }
+
     }
 
     private boolean isLoginPageRequest(String requestUri) {
