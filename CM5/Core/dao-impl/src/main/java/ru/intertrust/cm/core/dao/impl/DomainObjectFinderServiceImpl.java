@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -19,8 +20,8 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinder;
+import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 import ru.intertrust.cm.core.model.SearchException;
 
@@ -48,7 +49,7 @@ public class DomainObjectFinderServiceImpl implements DomainObjectFinderService 
      * производится с помощью класса, запроса или DOEL выражения
      */
     @Override
-    public List<Id> findObjects(FindObjectsConfig findObjectsConfig, Id contextDomainObjectId) {
+    public List<Id> findObjects(FindObjectsConfig findObjectsConfig, Id contextDomainObjectId, Dto extensionContext) {
         List<Id> result = null;
         AccessToken accessToken = accessService.createCollectionAccessToken(currentUserAccessor.getCurrentUser());
         try {
@@ -57,7 +58,7 @@ public class DomainObjectFinderServiceImpl implements DomainObjectFinderService 
                 FindObjectsClassConfig config = (FindObjectsClassConfig) findObjectsConfig.getFindObjectType();
                 Class<DomainObjectFinder> finderClass = (Class<DomainObjectFinder>) Class.forName(config.getData());
                 DomainObjectFinder findObjects = finderClass.newInstance();
-                findObjects.init(config.getSettings());
+                findObjects.init(config.getSettings(), extensionContext);
                 result = findObjects.findObjects(contextDomainObjectId);
             } else if (findObjectsConfig.getFindObjectType() instanceof FindObjectsQueryConfig) {
                 // Поиск с помощью запроса

@@ -60,11 +60,11 @@ public class NotificationScheduleTask implements ScheduleTaskHandle {
     private void sendNotificationsByDomainObject(NotificationTaskConfig notificationTaskConfig, SessionContext sessionContext)
             throws InterruptedException {
         FindObjectsConfig findDomainObjects = notificationTaskConfig.getFindDomainObjects();
-        List<Id> domainObjectIds = findObjectService.findObjects(findDomainObjects, null);
+        List<Id> domainObjectIds = findObjectService.findObjects(findDomainObjects, null, null);
         if (domainObjectIds != null) {
             for (Id domainObjectId : domainObjectIds) {
                 FindObjectsConfig findPersons = notificationTaskConfig.getFindPersons();
-                List<Id> personIds = findObjectService.findObjects(findPersons, domainObjectId);
+                List<Id> personIds = findObjectService.findObjects(findPersons, domainObjectId, null);
                 sendNotification(notificationTaskConfig, personIds, domainObjectId, sessionContext);
             }
         }
@@ -73,11 +73,11 @@ public class NotificationScheduleTask implements ScheduleTaskHandle {
     private void sendNotificationsByPerson(NotificationTaskConfig notificationTaskConfig, SessionContext sessionContext)
             throws InterruptedException {
         FindObjectsConfig findPersons = notificationTaskConfig.getFindPersons();
-        List<Id> personIds = findObjectService.findObjects(findPersons, null);
+        List<Id> personIds = findObjectService.findObjects(findPersons, null, null);
         if (personIds != null) {
             for (Id personId : personIds) {
                 FindObjectsConfig findDomainObjects = notificationTaskConfig.getFindDomainObjects();
-                List<Id> domainObjectIds = findObjectService.findObjects(findDomainObjects, personId);
+                List<Id> domainObjectIds = findObjectService.findObjects(findDomainObjects, personId, null);
                 if (domainObjectIds != null) {
                     for (Id domainObjectId : domainObjectIds) {
                         sendNotification(notificationTaskConfig, Collections.singletonList(personId), domainObjectId, sessionContext);

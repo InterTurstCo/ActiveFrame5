@@ -39,6 +39,7 @@ import ru.intertrust.cm.core.config.FindObjectsConfig;
 import ru.intertrust.cm.core.config.NotificationConfig;
 import ru.intertrust.cm.core.config.NotificationContextConfig;
 import ru.intertrust.cm.core.config.NotificationContextObject;
+import ru.intertrust.cm.core.config.NotificationTypeConfig;
 import ru.intertrust.cm.core.config.TriggerConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -47,7 +48,6 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
-import ru.intertrust.cm.core.dao.api.NotificationSenderEvaluator;
 import ru.intertrust.cm.core.model.SearchException;
 import ru.intertrust.cm.core.tools.BaseScriptContext;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
@@ -88,9 +88,6 @@ public abstract class NotificationSenderExtensionPointBase {
 
     @Autowired
     private ScriptService scriptService;
-    
-    @Autowired   
-    private NotificationSenderEvaluator NotificationSenderEvaluator;
     
     public ConfigurationExplorer getConfigurationExplorer() {        
         return configurationExplorer;
@@ -175,15 +172,13 @@ public abstract class NotificationSenderExtensionPointBase {
     }
 
     
-    protected Id getSender(DomainObject domainObject,
-            NotificationConfig notificationConfig) {
-
+    protected Id getSender(DomainObject domainObject, NotificationConfig notificationConfig) {
         FindObjectsConfig findPersonConfig = notificationConfig.getNotificationTypeConfig().getSenderConfig();
         if (findPersonConfig != null) {
-            Id sender = NotificationSenderEvaluator.findSender(findPersonConfig, domainObject.getId());
+            List<Id> senders = domainObjectFinderService.findObjects(findPersonConfig, domainObject.getId(), notificationConfig.getNotificationTypeConfig());
 
-            if (sender != null) {
-                return sender;
+            if (senders != null && senders.size() > 0) {
+                return senders.get(0);
             }
 
         }
@@ -194,10 +189,11 @@ public abstract class NotificationSenderExtensionPointBase {
             NotificationConfig notificationConfig) {
         List<NotificationAddressee> addresseeList = new  ArrayList<NotificationAddressee>();
         FindObjectsConfig findPerson = notificationConfig.getNotificationTypeConfig().getNotificationAddresseConfig().getFindPerson();
+        NotificationTypeConfig notificationTypeConfig = notificationConfig.getNotificationTypeConfig();
         
         if(findPerson != null) {
             List<Id> personIds =
-                    domainObjectFinderService.findObjects(findPerson, domainObject.getId());
+                    domainObjectFinderService.findObjects(findPerson, domainObject.getId(), notificationTypeConfig);
             if (personIds != null) {
                 for (Id personId : personIds) {
                     addresseeList.add(new NotificationAddresseePerson(personId));
