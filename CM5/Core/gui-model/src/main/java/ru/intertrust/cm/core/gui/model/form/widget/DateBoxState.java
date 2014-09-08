@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
@@ -11,7 +12,6 @@ import ru.intertrust.cm.core.gui.model.DateTimeContext;
 public class DateBoxState extends ValueEditingWidgetState {
     // @default UID
     private static final long serialVersionUID = 1L;
-    private static final String DEFAULT_PATTERN = "dd.MM.yyyy";
 
     private DateTimeContext dateTimeContext;
     private String pattern;
@@ -28,7 +28,7 @@ public class DateBoxState extends ValueEditingWidgetState {
     }
 
     public String getPattern() {
-        return pattern == null ? DEFAULT_PATTERN : pattern;
+        return pattern == null ? ModelUtil.DEFAULT_DATE_PATTERN : pattern;
     }
 
     public void setPattern(String pattern) {

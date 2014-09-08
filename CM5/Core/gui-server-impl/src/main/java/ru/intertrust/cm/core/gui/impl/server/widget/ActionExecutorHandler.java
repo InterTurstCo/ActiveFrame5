@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.ActionExecutorConfig;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.ActionExecutorState;
@@ -30,16 +31,16 @@ public class ActionExecutorHandler extends LabelHandler {
     @Override
     public ActionExecutorState getInitialState(WidgetContext context) {
         final Map<String, Object> params = new HashMap<>();
-        params.put("widgetContext", context);
+        params.put(WIDGET_CONTEXT_ATTR, context);
         final LabelState labelState = super.getInitialState(context);
         final ActionExecutorState result = new ActionExecutorState();
         result.setLabelStates(labelState);
         final ActionExecutorConfig actionExecutorConfig = context.getWidgetConfig();
         final ActionRefConfig actionRefConfig = actionExecutorConfig.getActionRefConfig();
-        final ActionConfig actionConfig = actionService.getActionConfig(actionRefConfig.getActionId());
+        final ActionConfig actionConfig =
+                PluginHandlerHelper.cloneActionConfig(actionService.getActionConfig(actionRefConfig.getActionId()));
+        PluginHandlerHelper.fillActionConfigFromRefConfig(actionConfig, actionRefConfig);
         // fixme FakeHandler and check visibility of action
-        // fixme copy all attributes
-        actionConfig.getProperties().putAll(actionRefConfig.getProperties());
         final boolean contains = applicationContext.containsBean(actionConfig.getComponentName());
         final ActionContext actionContext;
         if (contains) {

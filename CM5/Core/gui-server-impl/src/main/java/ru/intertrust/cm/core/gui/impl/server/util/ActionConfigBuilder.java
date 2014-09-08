@@ -66,7 +66,7 @@ public class ActionConfigBuilder {
             }
             if (ActionHandler.Status.APPLY == status) {
                 ActionContext actionContext = actionHandler.getActionContext(actionConfig);
-                actionContext.setActionConfig(actionConfig); // fixme support {@link ActionHandler#getActionContext()}
+                actionContext.setActionConfig(actionConfig);
                 contextList.addContext(actionContext);
             }
         }
@@ -82,29 +82,7 @@ public class ActionConfigBuilder {
             referenceMap.put(config.getId(), config);
         }
         final ActionConfig result = PluginHandlerHelper.cloneActionConfig(config);
-        if (!actionRefConfig.isShowText()) {
-            result.setText(null);
-        }
-        if (!actionRefConfig.isShowImage()) {
-            result.setImageUrl(null);
-        }
-        if (actionRefConfig.getOrder() < Integer.MAX_VALUE) {
-            result.setOrder(actionRefConfig.getOrder());
-        }
-        if (actionRefConfig.getRendered() != null) {
-            result.setRendered(actionRefConfig.getRendered());
-        }
-        if (actionRefConfig.getMerged() != null) {
-            result.setMerged(actionRefConfig.getMerged());
-        }
-        result.setVisibleWhenNew(actionRefConfig.isVisibleWhenNew());
-        if (actionRefConfig.getVisibilityStateCondition() != null) {
-            result.setVisibilityStateCondition(actionRefConfig.getVisibilityStateCondition());
-        }
-        if (actionRefConfig.getVisibilityChecker() != null) {
-            result.setVisibilityChecker(actionRefConfig.getVisibilityChecker());
-        }
-        result.getProperties().putAll(actionRefConfig.getProperties());
+        PluginHandlerHelper.fillActionConfigFromRefConfig(result, actionRefConfig);
         return result;
     }
 

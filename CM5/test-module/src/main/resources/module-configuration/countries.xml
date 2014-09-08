@@ -314,7 +314,7 @@
         <widget-config>
             <label id="1">
                 <field-path value="id"/>
-                <pattern value="{created_date}"/>
+                <pattern value="{id}, {created_date}"/>
                 <all-values-empty-message value="empty"/>
                 <formatting>
 
@@ -346,7 +346,7 @@
                 </formatting>
                 <act:action-ref actionId="aOpenLink" rendered="not toggle-edit or (toggle-edit and preview)">
                     <act:action-params>
-                        <act:action-param name="base-url" value="https://ru.wikipedia.org/wiki" />
+                        <act:action-param name="base-url" value="http://yandex.ru" />
                         <act:action-param name="domain-object-fields" value="id,created_date"/>
                         <act:action-param name="date-time-format" value="yyyy-MM-dd hh:mm:ss"/>
                         <act:action-param name="date-time-format-time-zone" value="Europe/Moscow"/>

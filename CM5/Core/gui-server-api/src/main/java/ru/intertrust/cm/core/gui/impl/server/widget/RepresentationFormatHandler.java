@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
@@ -216,7 +217,7 @@ public class RepresentationFormatHandler implements FormatHandler {
                 isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
           return new SimpleDateFormat(formattingConfig.getDateFormatConfig().getPattern());
         }
-        return new SimpleDateFormat("dd.MM.yyyy");
+        return new SimpleDateFormat(ModelUtil.DEFAULT_DATE_PATTERN);
     }
 
     private String getNumberDisplayValue(String field, Object primitiveValue, FormattingConfig formattingConfig) {

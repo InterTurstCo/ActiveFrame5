@@ -1,11 +1,24 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.widget.ActionExecutorHandler;
+import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeValueConverter;
+import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeWithTimezoneValueConverter;
+import ru.intertrust.cm.core.gui.impl.server.widget.DateValueConverter;
+import ru.intertrust.cm.core.gui.impl.server.widget.TimelessDateValueConverter;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.OpenLinkActionContext;
@@ -17,6 +30,12 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
  */
 @ComponentName(OpenLinkActionContext.COMPONENT_NAME)
 public class OpenLinkActionHandler extends ActionHandler<OpenLinkActionContext, ActionData> {
+
+    private static final String DATE_TIME_FORMAT_PARAM = "date-time-format";
+    private static final String DATE_FORMAT_PARAM = "date-format";
+    private static final String DATE_TIME_FORMAT_TIME_ZONE_PARAM = "date-time-format-time-zone";
+
+
 
     private FormPluginHandlerStatusData statusData = new FormPluginHandlerStatusData();
 
@@ -46,7 +65,11 @@ public class OpenLinkActionHandler extends ActionHandler<OpenLinkActionContext, 
             for (int index = 0; index < fields.length; index++) {
                 final String field = fields[index].trim();
                 if (!field.isEmpty()) {
-                    buildUrl(urlBuilder, field, actionConfig, widgetContext);
+                    try {
+                        buildUrl(urlBuilder, field, actionConfig, widgetContext);
+                    } catch (UnsupportedEncodingException ignored){
+                        throw new IllegalArgumentException(ignored);
+                    }
                 }
             }
         }
@@ -54,13 +77,58 @@ public class OpenLinkActionHandler extends ActionHandler<OpenLinkActionContext, 
         return result;
     }
 
-    private void buildUrl(final StringBuilder builder, final String fieldName,
-                          final ActionConfig config, final WidgetContext widgetContext) {
+    private void buildUrl(final StringBuilder builder, final String fieldName, final ActionConfig config,
+                          final WidgetContext widgetContext) throws UnsupportedEncodingException {
         final String identifier = config.getProperty(fieldName) == null ? fieldName : config.getProperty(fieldName);
-        final FieldPath fieldPath = new FieldPath(fieldName);
-        final Value value = widgetContext.getValue(fieldPath);
-//        if (DateTimeWithTimeZone)
+        final String valueAsStr;
+        if ("id".equals(fieldName)) {
+            final Id id = widgetContext.getFormObjects().getRootDomainObject().getId();
+            valueAsStr = id == null ? "" : id.toStringRepresentation();
+        } else {
+            final FieldPath fieldPath = new FieldPath(fieldName);
+            valueAsStr = valueToString(widgetContext.getValue(fieldPath), config);
+        }
         builder.append(builder.indexOf("?") < 0 ? '?' : '&').append(identifier)
-                .append('=').append(widgetContext.getValue(fieldPath));
+                .append('=').append(URLEncoder.encode(valueAsStr, "UTF-8"));
+    }
+
+    private String valueToString(final Value value, final ActionConfig actionConfig) {
+        if (value == null) {
+            return "";
+        }
+        final String result;
+        if (value instanceof DateTimeWithTimeZoneValue) {
+            final DateValueConverter converter = new DateTimeWithTimezoneValueConverter();
+            result = converter.valueToContext(value, getTimeZoneId(actionConfig), getDateFormatter(actionConfig, false))
+                    .getDateTime();
+        } else if (value instanceof TimelessDateValue) {
+            final DateValueConverter converter = new TimelessDateValueConverter();
+            result = converter.valueToContext(value, getTimeZoneId(actionConfig), getDateFormatter(actionConfig, true))
+                    .getDateTime();
+        } else if (value instanceof DateTimeValue) {
+            final DateValueConverter converter = new DateTimeValueConverter();
+            result = converter.valueToContext(value, getTimeZoneId(actionConfig), getDateFormatter(actionConfig, false))
+                    .getDateTime();
+        } else {
+            result = value.toString();
+        }
+        return result;
+    }
+
+    private DateFormat getDateFormatter(final ActionConfig actionConfig, final boolean timeless) {
+        final String dateTimeFormat = actionConfig.getProperty(DATE_TIME_FORMAT_PARAM);
+        final String dateFormat = actionConfig.getProperty(DATE_FORMAT_PARAM) == null
+                ? ModelUtil.DEFAULT_DATE_PATTERN
+                : actionConfig.getProperty(DATE_FORMAT_PARAM);
+        final String pattern = timeless ? dateFormat : dateTimeFormat;
+        final DateFormat result = new SimpleDateFormat(pattern);
+        return result;
+    }
+
+    private String getTimeZoneId(final ActionConfig actionConfig) {
+        final String timeZoneId = actionConfig.getProperty(DATE_TIME_FORMAT_TIME_ZONE_PARAM) == null
+                ? ModelUtil.DEFAULT_TIME_ZONE_ID
+                : actionConfig.getProperty(DATE_TIME_FORMAT_TIME_ZONE_PARAM);
+        return timeZoneId;
     }
 }

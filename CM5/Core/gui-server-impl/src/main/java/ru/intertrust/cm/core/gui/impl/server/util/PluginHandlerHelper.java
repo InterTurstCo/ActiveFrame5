@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
@@ -44,6 +45,32 @@ public class PluginHandlerHelper {
         final ObjectCloner cloner = new ObjectCloner();
         final ActionConfig result = cloner.cloneObject(config, ActionConfig.class);
         return result;
+    }
+
+    public static void fillActionConfigFromRefConfig(final ActionConfig target, final ActionRefConfig source) {
+        if (!source.isShowText()) {
+            target.setText(null);
+        }
+        if (!source.isShowImage()) {
+            target.setImageUrl(null);
+        }
+        if (source.getOrder() < Integer.MAX_VALUE) {
+            target.setOrder(source.getOrder());
+        }
+        if (source.getRendered() != null) {
+            target.setRendered(source.getRendered());
+        }
+        if (source.getMerged() != null) {
+            target.setMerged(source.getMerged());
+        }
+        target.setVisibleWhenNew(source.isVisibleWhenNew());
+        if (source.getVisibilityStateCondition() != null) {
+            target.setVisibilityStateCondition(source.getVisibilityStateCondition());
+        }
+        if (source.getVisibilityChecker() != null) {
+            target.setVisibilityChecker(source.getVisibilityChecker());
+        }
+        target.getProperties().putAll(source.getProperties());
     }
 
     public static <T extends Dto> T deserializeFromXml(Class<T> type, String asStr) {
