@@ -23,13 +23,14 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNone
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.*;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EMPTY_VALUE;
 
 @ComponentName("suggest-box")
 public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
@@ -155,7 +156,6 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
 
     }
 
-
     @Override
     protected String getTooltipHandlerName() {
         return "widget-items-handler";
@@ -165,7 +165,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
     protected Widget asEditableWidget(final WidgetState state) {
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         final SuggestPresenter presenter = new SuggestPresenter();
-        MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
+        MultiWordSuggestOracle oracle = new Cm5MultiWordSuggestOracle();
 
         SuggestBoxDisplay display = new SuggestBoxDisplay();
 
@@ -189,7 +189,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 suggestBoxState.getSelectedIds().add(id);
                 suggestBox.refreshSuggestionList();
                 SuggestBox sourceObject = (SuggestBox) event.getSource();
-                sourceObject.setText(BusinessUniverseConstants.EMPTY_VALUE);
+                sourceObject.setText(EMPTY_VALUE);
                 sourceObject.setFocus(true);
 
             }
@@ -199,7 +199,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             @Override
             public void onBlur(BlurEvent event) {
                 validate();
-                suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+                suggestBox.setText(EMPTY_VALUE);
             }
         }, BlurEvent.getType());
         suggestBox.addKeyUpHandler(new KeyUpHandler() {
@@ -254,62 +254,25 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
         }
     }
 
-    private MultiWordSuggestOracle buildDynamicMultiWordOracle() {
-        return new MultiWordSuggestOracle() {
-            @Override
-            public void requestSuggestions(final Request request, final Callback callback) {
-                SuggestionRequest suggestionRequest = new SuggestionRequest();
+    private SuggestionRequest createSuggestionRequest(String requestQuery) {
+        SuggestionRequest result = new SuggestionRequest();
+        String name = suggestBoxConfig.getCollectionRefConfig().getName();
+        result.setCollectionName(name);
+        String dropDownPatternConfig = suggestBoxConfig.getDropdownPatternConfig().getValue();
+        result.setDropdownPattern(dropDownPatternConfig);
+        result.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
+        result.setText(requestQuery);
+        final SuggestPresenter presenter = (SuggestPresenter) impl;
+        result.setExcludeIds(new LinkedHashSet<Id>(presenter.getSelectedKeys()));
+        result.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
+        result.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
+        result.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
+        if (lazyLoadState == null) {
+            lazyLoadState = new LazyLoadState(suggestBoxConfig.getPageSize(), 0);
+        }
+        result.setLazyLoadState(lazyLoadState);
+        return result;
 
-                String name = suggestBoxConfig.getCollectionRefConfig().getName();
-                suggestionRequest.setCollectionName(name);
-                String dropDownPatternConfig = suggestBoxConfig.getDropdownPatternConfig().getValue();
-                suggestionRequest.setDropdownPattern(dropDownPatternConfig);
-                suggestionRequest.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
-                suggestionRequest.setText(request.getQuery());
-                final SuggestPresenter presenter = (SuggestPresenter) impl;
-                suggestionRequest.setExcludeIds(new LinkedHashSet<Id>(presenter.getSelectedKeys()));
-                suggestionRequest.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
-                suggestionRequest.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
-                suggestionRequest.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
-                if (lazyLoadState == null) {
-                    lazyLoadState = new LazyLoadState(suggestBoxConfig.getPageSize(), 0);
-                }
-                suggestionRequest.setLazyLoadState(lazyLoadState);
-                Command command = new Command("obtainSuggestions", SuggestBoxWidget.this.getName(), suggestionRequest);
-                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
-                    @Override
-                    public void onSuccess(Dto result) {
-                        SuggestionList suggestionResponse = (SuggestionList) result;
-
-                        boolean isResponseForMoreItems = suggestionResponse.isResponseForMoreItems();
-                        if (!isResponseForMoreItems) {
-                            suggestions.clear();
-
-                        }
-                        List<SuggestionItem> suggestionItems = suggestionResponse.getSuggestions();
-                        if(suggestionItems.isEmpty()){
-                            lazyLoadState = null;
-                        }
-                        for (SuggestionItem suggestionItem : suggestionResponse.getSuggestions()) {
-                            suggestions.add(new MultiWordIdentifiableSuggestion(suggestionItem.getId(),
-                                    suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
-                        }
-                        Response response = new Response();
-                        response.setSuggestions(suggestions);
-                        callback.onSuggestionsReady(request, response);
-                        ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay())
-                                .setScrollPosition(lastScrollPos);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable caught) {
-
-                        GWT.log("something was going wrong while obtaining suggestions for '" + request.getQuery() + "'");
-                    }
-                });
-                GWT.log("suggestion requested " + request.getQuery());
-            }
-        };
     }
 
     private class SuggestPresenter extends CellPanel {
@@ -335,7 +298,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 @Override
                 public void onBrowserEvent(Event event) {
                     getNotFilteredSuggestions();
-                               }
+                }
             });
 
             DOM.appendChild(row, arrowBtn);
@@ -351,12 +314,12 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     }
                 }
             });
-            DOM.sinkEvents(container, Event.ONCLICK | Event.ONFOCUS );
+            DOM.sinkEvents(container, Event.ONCLICK | Event.ONFOCUS);
 
         }
 
         public void handleBackspaceDown() {
-            if(!suggestBox.getText().equalsIgnoreCase(BusinessUniverseConstants.EMPTY_VALUE)){
+            if (!suggestBox.getText().equalsIgnoreCase(EMPTY_VALUE)) {
                 return;
             }
             if (lastElementWasHighlighted) {
@@ -368,23 +331,23 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 }
             }
             SelectedItemComposite lastSelectionItem = getLastItem();
-            if(lastSelectionItem != null){
-            lastSelectionItem.setStyleName("highlightedFacebookElement");
-            lastElementWasHighlighted = true;
+            if (lastSelectionItem != null) {
+                lastSelectionItem.setStyleName("highlightedFacebookElement");
+                lastElementWasHighlighted = true;
             }
         }
 
-        public void handleEscDown(){
-            ((SuggestBoxDisplay)suggestBox.getSuggestionDisplay()).hideSuggestions();
-            suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+        public void handleEscDown() {
+            ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay()).hideSuggestions();
+            suggestBox.setText(EMPTY_VALUE);
             SelectedItemComposite lastSelectionItem = getLastItem();
-            if(lastSelectionItem != null){
-            lastSelectionItem.setStyleName("facebook-element");
+            if (lastSelectionItem != null) {
+                lastSelectionItem.setStyleName("facebook-element");
             }
             lastElementWasHighlighted = false;
         }
 
-        private void removeSuggestBoxIdFromStates(Id id){
+        private void removeSuggestBoxIdFromStates(Id id) {
             selectedSuggestions.remove(id);
             stateListValues.remove(id);
             SuggestBoxState suggestBoxState = getInitialData();
@@ -402,12 +365,12 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 suggestBox.showSuggestionList();
             }
 
-            suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+            suggestBox.setText(EMPTY_VALUE);
             suggestBox.setFocus(true);
 
         }
 
-        private void changeSuggestionsPopupSize(){
+        private void changeSuggestionsPopupSize() {
             SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
             Style popupStyle = display.getSuggestionPopup().getElement().getStyle();
             popupStyle.setWidth(container.getOffsetWidth(), Style.Unit.PX);
@@ -607,11 +570,74 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 lazyLoadState.onNextPage();
 
                 suggestBox.showSuggestionList();
-                suggestBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+                suggestBox.setText(EMPTY_VALUE);
 
             }
         }
 
+    }
+
+    private class Cm5MultiWordSuggestOracle extends MultiWordSuggestOracle {
+        @Override
+        public void requestSuggestions(final Request request, final Callback callback) {
+            final String requestQuery = request.getQuery();
+            if (ALL_SUGGESTIONS.equalsIgnoreCase(requestQuery)) {
+                fetchSuggestions(requestQuery, request, callback);
+            } else {
+                Timer timer = new Timer() {
+                    @Override
+                    public void run() {
+                        String filterText = suggestBox.getText();
+                        if (requestQuery.equalsIgnoreCase(filterText)) {
+                            fetchSuggestions(requestQuery, request, callback);
+                        } else {
+                            this.cancel();
+
+                        }
+
+                    }
+                };
+                timer.scheduleRepeating(500);
+            }
+        }
+
+    }
+
+    private void fetchSuggestions(String requestQuery, final SuggestOracle.Request request, final SuggestOracle.Callback callback) {
+        SuggestionRequest suggestionRequest = createSuggestionRequest(requestQuery);
+        Command command = new Command("obtainSuggestions", SuggestBoxWidget.this.getName(), suggestionRequest);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                SuggestionList suggestionResponse = (SuggestionList) result;
+
+                boolean isResponseForMoreItems = suggestionResponse.isResponseForMoreItems();
+                if (!isResponseForMoreItems) {
+                    suggestions.clear();
+
+                }
+                List<SuggestionItem> suggestionItems = suggestionResponse.getSuggestions();
+                if (suggestionItems.isEmpty()) {
+                    lazyLoadState = null;
+                }
+                for (SuggestionItem suggestionItem : suggestionResponse.getSuggestions()) {
+                    suggestions.add(new MultiWordIdentifiableSuggestion(suggestionItem.getId(),
+                            suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
+                }
+                SuggestOracle.Response response = new SuggestOracle.Response();
+                response.setSuggestions(suggestions);
+                callback.onSuggestionsReady(request, response);
+                ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay())
+                        .setScrollPosition(lastScrollPos);
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+
+                GWT.log("something was going wrong while obtaining suggestions for '" + request.getQuery() + "'");
+            }
+        });
+        GWT.log("suggestion requested " + request.getQuery());
     }
 
 }
