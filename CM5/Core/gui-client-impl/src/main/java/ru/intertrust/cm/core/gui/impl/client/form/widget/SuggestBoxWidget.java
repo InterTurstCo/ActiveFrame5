@@ -590,11 +590,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                         String filterText = suggestBox.getText();
                         if (requestQuery.equalsIgnoreCase(filterText)) {
                             fetchSuggestions(requestQuery, request, callback);
-                        } else {
-                            this.cancel();
-
                         }
-
+                        this.cancel();
                     }
                 };
                 timer.scheduleRepeating(500);
