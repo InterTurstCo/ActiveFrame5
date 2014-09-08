@@ -283,5 +283,13 @@ public class DomainObjectAccessor implements Dto {
     public Id getId(){
         return domainObject.getId();
     }
+    
+    /**
+     * Возвращает доменный объект, обрабатываемый акцессором
+     * @return
+     */
+    public DomainObject getDomainObject(){
+        return domainObject;
+    }
 
 }
