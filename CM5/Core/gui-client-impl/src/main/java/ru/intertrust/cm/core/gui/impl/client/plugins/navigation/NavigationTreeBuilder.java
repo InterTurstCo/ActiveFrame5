@@ -101,7 +101,6 @@ class NavigationTreeBuilder {
     private TreeItem composeGroupItem(String displayText) {
         Label label = new Label();
         label.getElement().getStyle().setFloat(Style.Float.LEFT);
-        label.getElement().getStyle().setMarginRight(120, Style.Unit.PX);
 
         if (displayText.length() > 18) {
             String cutDisplayText = displayText.substring(0, 18);

@@ -525,6 +525,7 @@ div.gwt-Good-Label {
 
 /* ------------>>> treePanel items <<<------------ */
 .gwt-TreeItem[role="treeitem"] {
+    background: none;
     display: inline-block !important;
 }
 
