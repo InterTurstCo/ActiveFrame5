@@ -339,8 +339,8 @@
                                         <commands>
                                             <command>/system-property=server.properties.location:add(value=${server.properties.location})</command>
                                             <command>/system-property=server.properties.location:write-attribute(name=value, value=${server.properties.location})</command>
-                                            <command>/system-property=spring.profiles.active:add(value=${spring.profiles.active})</command>
-                                            <command>/system-property=spring.profiles.active:write-attribute(name=value, value=${spring.profiles.active})</command>
+                                            <command>/system-property=spring.profiles.active:add(value="${spring.profiles.active}")</command>
+                                            <command>/system-property=spring.profiles.active:write-attribute(name=value, value="${spring.profiles.active}")</command>
                                             <command>/system-property=solr.solr.home:add(value=${solr.solr.home})</command>
                                             <command>/system-property=solr.solr.home:write-attribute(name=value, value=${solr.solr.home})</command>                                       
                                             <command>/system-property=org.apache.catalina.connector.URI_ENCODING:add(value=${org.apache.catalina.connector.URI_ENCODING})</command>
@@ -517,8 +517,8 @@
                                         <commands>
                                             <command>/system-property=server.properties.location:add(value=${server.properties.location})</command>
                                             <command>/system-property=server.properties.location:write-attribute(name=value, value=${server.properties.location})</command>
-                                            <command>/system-property=spring.profiles.active:add(value=${spring.profiles.active})</command>
-                                            <command>/system-property=spring.profiles.active:write-attribute(name=value, value=${spring.profiles.active})</command>
+                                            <command>/system-property=spring.profiles.active:add(value="${spring.profiles.active}")</command>
+                                            <command>/system-property=spring.profiles.active:write-attribute(name=value, value="${spring.profiles.active}")</command>
 											<command>/system-property=org.apache.catalina.connector.URI_ENCODING:add(value=${org.apache.catalina.connector.URI_ENCODING})</command>
                                             <command>/system-property=org.apache.catalina.connector.URI_ENCODING:write-attribute(name=value, value=UTF-8)</command>
                                             <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:add(value=${org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING})</command>
