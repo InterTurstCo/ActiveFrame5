@@ -81,7 +81,7 @@
     </notification>
 
     <notification name="NotificationSenderQuery">
-        <notification-type name="NotificationType" priority="HIGH">
+        <notification-type name="TEST_NOTIFICATION_TO_GROUP" priority="HIGH">
             <addressee>
                 <find-person>
                     <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
@@ -102,7 +102,7 @@
     </notification>
 
     <notification name="NotificationSenderDoel">
-        <notification-type name="NotificationType" priority="HIGH">
+        <notification-type name="TEST_NOTIFICATION_TO_GROUP" priority="HIGH">
             <addressee>
                 <find-person>
                     <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
@@ -112,7 +112,7 @@
                     </class-name>
                 </find-person>
             </addressee>
-            <sender>
+            <sender>            
                 <doel>created_by</doel>
             </sender>
             <triggers>
@@ -123,7 +123,7 @@
     </notification>
 
     <notification name="NotificationSenderClassName">
-        <notification-type name="NotificationType" priority="HIGH">
+        <notification-type name="TEST_NOTIFICATION_TO_GROUP" priority="HIGH">
             <addressee>
                 <find-person>
                     <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
