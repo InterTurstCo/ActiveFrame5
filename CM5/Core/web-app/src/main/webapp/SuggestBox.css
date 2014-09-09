@@ -211,5 +211,10 @@ td .gwt-SuggestBox {
     border: none;
     margin: 0;
     font-family: Arial, sans-serif;
-    width: 35px;
+    width: 45px;
+}
+
+.suggestWrapper{
+    display: inline-block;
+    vertical-align: middle;
 }

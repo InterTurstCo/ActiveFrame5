@@ -166,11 +166,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         final SuggestPresenter presenter = new SuggestPresenter();
         MultiWordSuggestOracle oracle = new Cm5MultiWordSuggestOracle();
-
         SuggestBoxDisplay display = new SuggestBoxDisplay();
-
         suggestBox = new SuggestBox(oracle, new TextBox(), display);
-
         presenter.suggestBox = suggestBox;
         display.setLazyLoadHandler(new ScrollLazyLoadHandler());
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
@@ -190,6 +187,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 suggestBox.refreshSuggestionList();
                 SuggestBox sourceObject = (SuggestBox) event.getSource();
                 sourceObject.setText(EMPTY_VALUE);
+                presenter.changeLastElementHighlightingTo(false);
                 sourceObject.setFocus(true);
 
             }
@@ -223,8 +221,10 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                         presenter.handleBackspaceDown();
                         break;
                     case KeyCodes.KEY_ESCAPE:
-                        presenter.handleEscDown();
+                        presenter.resetUserInteraction();
                         break;
+                    default:
+                        presenter.changeLastElementHighlightingTo(false);
                 }
 
             }
@@ -318,7 +318,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
 
         }
 
-        public void handleBackspaceDown() {
+        private void handleBackspaceDown() {
             if (!suggestBox.getText().equalsIgnoreCase(EMPTY_VALUE)) {
                 return;
             }
@@ -330,21 +330,24 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     removeSuggestBoxIdFromStates(id);
                 }
             }
-            SelectedItemComposite lastSelectionItem = getLastItem();
-            if (lastSelectionItem != null) {
-                lastSelectionItem.setStyleName("highlightedFacebookElement");
-                lastElementWasHighlighted = true;
-            }
+
+            changeLastElementHighlightingTo(true);
         }
 
-        public void handleEscDown() {
+        private void resetUserInteraction() {
             ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay()).hideSuggestions();
             suggestBox.setText(EMPTY_VALUE);
+            changeLastElementHighlightingTo(false);
+        }
+
+        private void changeLastElementHighlightingTo(boolean wasHighlighted) {
             SelectedItemComposite lastSelectionItem = getLastItem();
             if (lastSelectionItem != null) {
-                lastSelectionItem.setStyleName("facebook-element");
+                String styleName = wasHighlighted ? "highlightedFacebookElement" : "facebook-element";
+                lastSelectionItem.setStyleName(styleName);
+                lastElementWasHighlighted = wasHighlighted;
             }
-            lastElementWasHighlighted = false;
+
         }
 
         private void removeSuggestBoxIdFromStates(Id id) {
@@ -414,7 +417,10 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 openTooltip.addClickHandler(new ShowTooltipHandler());
                 super.add(openTooltip, container);
             }
-            super.add(suggestBox, container);
+            AbsolutePanel suggestInputWrapper = new AbsolutePanel();
+            suggestInputWrapper.setStyleName("suggestWrapper");
+            super.add(suggestBox, suggestInputWrapper.getElement());
+            super.add(suggestInputWrapper, container);
             if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
                 FocusPanel focusPanel = new FocusPanel();
                 ButtonForm clearButton = new ButtonForm(focusPanel,

@@ -1135,9 +1135,10 @@ td.datePickerMonth {
 }
 
 .highlightedFacebookElement .facebook-label {
+    color: white;
     padding: 5px 7px;
     margin: 5px;
-    background: cyan;
+    background: deepskyblue;
     display: inline-block;
     border-radius: 5px;
     border: 1px solid #f1f1f1;
