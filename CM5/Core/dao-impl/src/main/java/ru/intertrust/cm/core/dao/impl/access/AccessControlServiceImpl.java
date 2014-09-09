@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
 import ru.intertrust.cm.core.config.BasePermit;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.CreateChildConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.PermitGroup;
 import ru.intertrust.cm.core.config.PermitRole;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -141,14 +143,25 @@ public class AccessControlServiceImpl implements AccessControlService {
            return createAccessToken(login, parentObjects, accessType, true);
        }
 
-       if (isAllowedToCreateByStaticGroups(personId, objectType)) {
-           AccessType accessType = new CreateObjectAccessType(objectType);
-           return new SimpleAccessToken(new UserSubject(personIdInt), null, accessType, false);
-       }
+        if (isAllowedToCreateByStaticGroups(personId, objectType)) {
+            List<String> parentTypes = new ArrayList<>();
+            collectParentTypes(objectType, parentTypes);
+
+            AccessType accessType = new CreateObjectAccessType(objectType, parentTypes);
+            return new SimpleAccessToken(new UserSubject(personIdInt), null, accessType, false);
+        }
 
        throw new AccessException("Creation of object " + objectType + " is not allowed for " + login);
    }
 
+    private void collectParentTypes(String domainObjectType, List<String> parentTypes) {
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+        parentTypes.add(domainObjectType);
+
+        if (domainObjectTypeConfig.getExtendsAttribute() != null) {
+            collectParentTypes(domainObjectTypeConfig.getExtendsAttribute(), parentTypes);
+        }
+    }
 
     /**
      * Проверяет права на создание ДО, данные контексным динамическим группам (ролям) и безконтекстным группам.
@@ -353,6 +366,15 @@ public class AccessControlServiceImpl implements AccessControlService {
         @Override
         boolean allowsAccess(Id objectId, AccessType type) {
             if (this.objectId == null || objectId == null) {
+                if (this.type instanceof CreateObjectAccessType && type instanceof CreateObjectAccessType) {
+                    CreateObjectAccessType originalAccessType = (CreateObjectAccessType) this.type;
+                    CreateObjectAccessType checkAccessType = (CreateObjectAccessType) type;
+                    if (originalAccessType.getObjectType().equals(checkAccessType.getObjectType())) {
+                        return true;
+                    } else if (originalAccessType.getParentTypes().contains(checkAccessType.getObjectType())) {
+                        return true;
+                    }
+                }
                 return this.type.equals(type);
             } else {
                 return this.objectId.equals(objectId) && this.type.equals(type);

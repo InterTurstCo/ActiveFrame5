@@ -1670,7 +1670,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 accessControlService.verifyAccessToken(accessToken, parentId, accessType);
             }
         } else {
-            AccessType accessType = new CreateObjectAccessType(domainObjectType);
+            
+            AccessType accessType = new CreateObjectAccessType(domainObjectType, null);
             accessControlService.verifyAccessToken(accessToken, null, accessType);
         }
     }
