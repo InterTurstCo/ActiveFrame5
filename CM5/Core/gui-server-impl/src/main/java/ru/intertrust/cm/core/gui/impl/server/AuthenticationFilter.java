@@ -46,12 +46,12 @@ public class AuthenticationFilter implements Filter {
         if (request.getUserPrincipal() == null) { // just in case parallel thread logged in, but not logged out yet
             try {
                 request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
-                System.out.println(Thread.currentThread().getId() + " => no user principal. Log in");
+                //System.out.println(Thread.currentThread().getId() + " => no user principal. Log in");
             } catch (ServletException e) {
                 forwardToLogin(servletRequest, servletResponse);
             }
         } else {
-            System.out.println(Thread.currentThread().getId() + " => user principal is already in request");
+            log.info(Thread.currentThread().getId() + " => user principal is already in request");
         }
 
         try {
@@ -60,12 +60,12 @@ public class AuthenticationFilter implements Filter {
             if (request.getUserPrincipal() != null) {
                 try {
                     request.logout();
-                    System.out.println(Thread.currentThread().getId() + " => log out");
+                    //System.out.println(Thread.currentThread().getId() + " => log out");
                 } catch (ServletException e) {
                     log.error("request logout failed", e);
                 }
             } else {
-                System.out.println(Thread.currentThread().getId() + " => no user principal. Do NOT log out");
+                log.info(Thread.currentThread().getId() + " => no user principal. Do NOT log out");
             }
         }
 
