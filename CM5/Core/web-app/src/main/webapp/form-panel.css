@@ -79,6 +79,12 @@
     text-decoration: none;
 }
 
+.textBoxNonEditable{
+    cursor: default;
+    font-weight: normal;
+    text-decoration: none;
+}
+
 .gwt-TabLayoutPanel {
     /*margin-left: 8px;*/
     margin-left: 0px;

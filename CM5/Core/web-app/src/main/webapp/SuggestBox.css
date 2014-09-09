@@ -63,11 +63,11 @@
 
 .gwt-SuggestBoxPopup {
     background: #FFFDF0;
-    /*width: 700px;*/
     border-bottom: 1px solid #F7EC70;
     border-left: 1px solid #F7EC70;
     border-right: 1px solid #F7EC70;
-    z-index: 100;
+    margin-left: 0px !important;
+    z-index: 101;
 }
 .gwt-SuggestBoxPopup .popupMiddleCenterInner table {
     width: 100%;
@@ -178,10 +178,7 @@ html>body .gwt-SuggestBoxPopup {
     height: 0px !important;
     overflow: hidden !important;
 }
-.gwt-SuggestBoxPopup {
-    margin-left: 0px !important;
-    z-index: 50;
-}
+
 .gwt-SuggestBoxPopup table {
     width: 100%;
 }

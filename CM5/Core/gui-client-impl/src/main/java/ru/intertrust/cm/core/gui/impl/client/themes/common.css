@@ -17,33 +17,36 @@
 }
 
 @sprite .confirmDialogIm {
+    overflow: auto;
     gwt-image: "confirmDialogIm";
     background-repeat:no-repeat;
     background-position: 0 0;
     height: 58px;
     line-height: 20px;
     padding: 20px 0 0 82px;
-    width: auto;
+    width: 247px;
 }
 
 @sprite .infoDialogIm {
+    overflow: auto;
     gwt-image: "infoDialogIm";
     background-repeat:no-repeat;
     background-position: 0 0;
     height: 58px;
     line-height: 20px;
     padding: 20px 0 0 82px;
-    width: auto;
+    width: 247px;
 }
 
 @sprite .errorDialogIm {
+    overflow: auto;
     gwt-image: "errorDialogIm";
     background-repeat:no-repeat;
     background-position: 0 0;
     height: 58px;
     line-height: 20px;
     padding: 20px 0 0 82px;
-    width: auto;
+    width: 247px;
 
 }
 @sprite .formFullSizeOn{

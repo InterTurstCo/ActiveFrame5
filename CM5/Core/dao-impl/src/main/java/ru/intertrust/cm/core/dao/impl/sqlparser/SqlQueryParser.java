@@ -29,7 +29,13 @@ public class SqlQueryParser {
             }
             this.selectStatement = (Select) statement;
         } catch (JSQLParserException e) {
-            throw new FatalException("Sql query is not valid: " + sqlSelectQuery, e);
+            int index = sqlSelectQuery.indexOf("value");
+            if (index == 0 || sqlSelectQuery.charAt(index - 1) != '\"') {
+                throw new FatalException("Sql query contains keyword 'value' that should be wrapped in parentheses. Query:\n" + sqlSelectQuery, e);
+            } else {
+                throw new FatalException("Sql query is not valid. Probably it contains some keyword used as column name, alias etc. " +
+                        "In such cases keywords should be wrapped in parentheses. Query:\n" + sqlSelectQuery, e);
+            }
         }
 
     }
