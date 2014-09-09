@@ -9,7 +9,8 @@ import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 public class OpenLinkActionContext extends ActionContext {
     public static final String COMPONENT_NAME = "open.link.action";
 
-    private String openUrl;
+    private String baseUrl;
+    private String queryString;
 
     public OpenLinkActionContext() {
     }
@@ -18,12 +19,20 @@ public class OpenLinkActionContext extends ActionContext {
         super(actionConfig);
     }
 
-    public String getOpenUrl() {
-        return openUrl;
+    public String getBaseUrl() {
+        return baseUrl;
     }
 
-    public void setOpenUrl(String openUrl) {
-        this.openUrl = openUrl;
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public String getQueryString() {
+        return queryString;
+    }
+
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
     }
 
     @Override

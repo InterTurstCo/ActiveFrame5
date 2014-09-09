@@ -52,13 +52,10 @@ public class OpenLinkActionHandler extends ActionHandler<OpenLinkActionContext, 
     @Override
     public OpenLinkActionContext getActionContext(final ActionConfig actionConfig) {
         final OpenLinkActionContext result = new OpenLinkActionContext(actionConfig);
-        final String baseUrl = actionConfig.getProperty("base-url");
-        if (baseUrl == null) {
-            throw new IllegalArgumentException("Не задан базовый URL для OpenLinkAction"); // for developers only
-        }
+        result.setBaseUrl(actionConfig.getProperty("base-url"));
         final WidgetContext widgetContext =
                 (WidgetContext) statusData.getParameter(ActionExecutorHandler.WIDGET_CONTEXT_ATTR);
-        final StringBuilder urlBuilder = new StringBuilder(baseUrl);
+        final StringBuilder queryStringBuilder = new StringBuilder();
         final String domainObjectFields = actionConfig.getProperty("domain-object-fields");
         if (domainObjectFields != null && !domainObjectFields.isEmpty()) {
             final String[] fields = domainObjectFields.split(",");
@@ -66,14 +63,14 @@ public class OpenLinkActionHandler extends ActionHandler<OpenLinkActionContext, 
                 final String field = fields[index].trim();
                 if (!field.isEmpty()) {
                     try {
-                        buildUrl(urlBuilder, field, actionConfig, widgetContext);
+                        buildUrl(queryStringBuilder, field, actionConfig, widgetContext);
                     } catch (UnsupportedEncodingException ignored){
                         throw new IllegalArgumentException(ignored);
                     }
                 }
             }
         }
-        result.setOpenUrl(urlBuilder.toString());
+        result.setQueryString(queryStringBuilder.length() > 0 ? queryStringBuilder.toString() : null);
         return result;
     }
 
@@ -88,8 +85,10 @@ public class OpenLinkActionHandler extends ActionHandler<OpenLinkActionContext, 
             final FieldPath fieldPath = new FieldPath(fieldName);
             valueAsStr = valueToString(widgetContext.getValue(fieldPath), config);
         }
-        builder.append(builder.indexOf("?") < 0 ? '?' : '&').append(identifier)
-                .append('=').append(URLEncoder.encode(valueAsStr, "UTF-8"));
+        if (builder.length() > 0) {
+            builder.append('&');
+        }
+        builder.append(identifier).append('=').append(URLEncoder.encode(valueAsStr, "UTF-8"));
     }
 
     private String valueToString(final Value value, final ActionConfig actionConfig) {

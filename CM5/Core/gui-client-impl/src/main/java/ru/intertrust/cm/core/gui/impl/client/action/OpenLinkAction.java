@@ -16,7 +16,17 @@ public class OpenLinkAction extends Action {
     @Override
     protected void execute() {
         final OpenLinkActionContext context = getInitialContext();
-        Window.open(context.getOpenUrl(), "_blank", "");
+        StringBuilder urlBuilder = new StringBuilder("http://");
+        if (context.getBaseUrl() == null) {
+            urlBuilder.append(Window.Location.getHost()).append(Window.Location.getPath())
+                    .append(Window.Location.getQueryString());
+        } else {
+            urlBuilder.append(context.getBaseUrl());
+        }
+        if (context.getQueryString() != null && !context.getQueryString().isEmpty()) {
+            urlBuilder.append(urlBuilder.indexOf("?") > 0 ? '&' : '?').append(context.getQueryString());
+        }
+        Window.open(urlBuilder.toString(), "_blank", "");
     }
 
     @Override
