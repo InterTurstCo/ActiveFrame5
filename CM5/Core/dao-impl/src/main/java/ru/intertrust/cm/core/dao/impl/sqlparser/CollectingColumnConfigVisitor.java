@@ -80,6 +80,6 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
     }
 
     private String getColumnName(Column column) {
-        return column.getColumnName().toLowerCase();
+        return DaoUtils.unwrap(column.getColumnName().toLowerCase());
     }
 }
