@@ -16,9 +16,10 @@ public class OpenLinkAction extends Action {
     @Override
     protected void execute() {
         final OpenLinkActionContext context = getInitialContext();
-        StringBuilder urlBuilder = new StringBuilder("http://");
+        StringBuilder urlBuilder = new StringBuilder();
         if (context.getBaseUrl() == null) {
-            urlBuilder.append(Window.Location.getHost()).append(Window.Location.getPath())
+            urlBuilder.append(Window.Location.getProtocol()).append(Window.Location.getHost())
+                    .append(Window.Location.getPath())
                     .append(Window.Location.getQueryString());
         } else {
             urlBuilder.append(context.getBaseUrl());

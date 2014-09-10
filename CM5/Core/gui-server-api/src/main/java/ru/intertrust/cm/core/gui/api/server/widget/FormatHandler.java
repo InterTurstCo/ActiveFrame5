@@ -18,6 +18,6 @@ public interface FormatHandler extends ComponentHandler {
     public static final Pattern pattern = Pattern.compile(FIELD_PLACEHOLDER_PATTERN);
     public String format(IdentifiableObject identifiableObject, Matcher matcher, FormattingConfig formattingConfig);
     public String format(DomainObject domainObject, Matcher matcher, FormattingConfig formattingConfig);
-    public String format(WidgetContext context, Matcher matcher, String allValuesEmpty, FormattingConfig formattingConfig);
+    public String format(WidgetContext context, Matcher matcher, FormattingConfig formattingConfig);
 
 }

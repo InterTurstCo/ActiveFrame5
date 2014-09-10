@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AllValuesEmptyMessageConfig;
@@ -15,6 +16,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.FontWeightConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ForceRequiredAsteriskConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
@@ -53,22 +55,24 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         if (textFromConfig != null) {
             state.setLabel(textFromConfig);
         }
-        if (fieldPaths[0] != null) {
+        if (fieldPaths.length > 0 && fieldPaths[0] != null) {
             RendererConfig renderer = labelConfig.getRenderer();
             String rendererName = renderer == null ? null : renderer.getValue();
             if (rendererName != null){
                 LabelRenderer customLabelRenderer = (LabelRenderer) applicationContext.getBean(rendererName);
                 String composedText = customLabelRenderer.composeString(fieldPaths, context);
                 state.setLabel(composedText);
+            } else if (isFieldPathsEmpty(fieldPaths, context)) {
+                final String emptyMessage = labelConfig.getAllValuesEmptyMessage() == null
+                        ? null
+                        : labelConfig.getAllValuesEmptyMessage().getValue();
+                state.setLabel(emptyMessage == null ? "" : emptyMessage);
             } else {
-                AllValuesEmptyMessageConfig allValuesEmptyMessage = labelConfig.getAllValuesEmptyMessage();
-                String allValuesEmpty = allValuesEmptyMessage == null ? "" : allValuesEmptyMessage.getValue();
                 FormattingConfig formattingConfig = labelConfig.getFormattingConfig();
-                String formattedString = format(labelConfig.getPattern().getValue(), fieldPaths, context,
-                        allValuesEmpty, formattingConfig);
+                String formattedString = format(labelConfig.getPattern(), fieldPaths, context,
+                        formattingConfig);
                 state.setLabel(formattedString);
             }
-
         }
         state.setAsteriskRequired(isAsteriskRequired(context, labelConfig));
         return state;
@@ -79,12 +83,13 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         return null;
     }
 
-    private String format(String configPattern, FieldPath[] fieldPaths, WidgetContext context, String allValuesEmpty,
+    private String format(PatternConfig configPattern, FieldPath[] fieldPaths, WidgetContext context,
                           FormattingConfig formattingConfig ) {
-        String displayPattern = configPattern == null ? buildDefaultPattern(fieldPaths) : configPattern;
+        String displayPattern = (configPattern == null || configPattern.getValue() == null)
+                ? buildDefaultPattern(fieldPaths) : configPattern.getValue();
         Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
         Matcher matcher = pattern.matcher(displayPattern);
-        String replacement = formatHandler.format(context, matcher, allValuesEmpty, formattingConfig);
+        String replacement = formatHandler.format(context, matcher, formattingConfig);
         return replacement;
     }
 
@@ -142,5 +147,23 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         state.setFontStyle(fontStyle);
         state.setFontWeight(fontWeight);
 
+    }
+
+    private boolean isFieldPathsEmpty(final FieldPath[] fieldPaths, final WidgetContext context) {
+        boolean result = true;
+        for (FieldPath fieldPath : fieldPaths) {
+            if (fieldPath != null) {
+                if ("id".equals(fieldPath.getFieldName())) {
+                    final Id id = context.getFormObjects().getRootDomainObject().getId();
+                    result &= (id == null);
+                } else {
+                    result &= (context.getValue(fieldPath) == null);
+                }
+                if (!result) {
+                    break;
+                }
+            }
+        }
+        return result;
     }
 }

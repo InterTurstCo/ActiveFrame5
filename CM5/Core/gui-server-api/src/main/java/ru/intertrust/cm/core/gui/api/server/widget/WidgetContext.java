@@ -17,8 +17,9 @@ import ru.intertrust.cm.core.gui.model.form.FormObjects;
  *         Time: 17:54
  */
 public class WidgetContext implements Dto {
-    private static final FieldPath[] NOT_INITIALIZED_FIELD_PATHS = new FieldPath[0];
-    private static final FieldPath[] EMPTY_PATHS = new FieldPath[1];
+    public static final FieldPath[] NOT_INITIALIZED_FIELD_PATHS = new FieldPath[0];
+    public static final FieldPath[] EMPTY_PATHS = new FieldPath[1];
+
     private WidgetConfig widgetConfig;
 
     private FormObjects formObjects;

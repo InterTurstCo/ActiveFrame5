@@ -99,22 +99,29 @@ public class RepresentationFormatHandler implements FormatHandler {
 
 
     @Override
-    public String format(WidgetContext context, Matcher matcher, String allValuesEmpty,FormattingConfig formattingConfig) {
+    public String format(WidgetContext context, Matcher matcher, FormattingConfig formattingConfig) {
         StringBuffer replacement = new StringBuffer();
         while (matcher.find()) {
             String group = matcher.group();
 
             FieldPath fieldPath = new FieldPath(group.substring(1, group.length() - 1));
-            Value value = context.getValue(fieldPath);
-            String displayValueUnescaped = getDisplayValue(fieldPath.getFieldName(), value, formattingConfig);
-
+            final String displayValueUnescaped;
+            if ("id".equals(fieldPath.getFieldName())) {
+                final DomainObject rootObject = context.getFormObjects().getRootDomainObject();
+                displayValueUnescaped = (rootObject == null || rootObject.getId() == null)
+                        ? ""
+                        : rootObject.getId().toStringRepresentation();
+            } else {
+                Value value = context.getValue(fieldPath);
+                displayValueUnescaped = getDisplayValue(fieldPath.getFieldName(), value, formattingConfig);
+            }
             String displayValue = displayValueUnescaped.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
             matcher.appendReplacement(replacement, displayValue);
         }
 
         matcher.appendTail(replacement);
         matcher.reset();
-        return replacement.length() == 0 ? allValuesEmpty : replacement.toString();
+        return replacement.toString();
     }
 
     public String format(IdentifiableObject identifiableObject, Matcher matcher, FormattingConfig formattingConfig) {
