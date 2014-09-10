@@ -73,7 +73,7 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
     public boolean restoreHistory() {
         final HistoryManager historyManager = Application.getInstance().getHistoryManager();
         final NavigationTreePluginView view = (NavigationTreePluginView) getView();
-        final String selectedLinkName = view.getSelectedLinkName();
+        final String selectedLinkName = view.getSelectedLinkName() == null ? "" : view.getSelectedLinkName();
         if (!selectedLinkName.equals(historyManager.getLink())) {
             final NavigationTreePluginData data = getInitialData();
             final Pair<String, String> selectedNavigationItems = getHistoryNavigationItems(data);

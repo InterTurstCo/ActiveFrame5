@@ -73,6 +73,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private AbsolutePanel center;
     private AbsolutePanel right;
     private AbsolutePanel footer;
+    private String initialToken;
 
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
@@ -83,7 +84,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
     public void onModuleLoad() {
-        final String initialToken = History.getToken();
+        initialToken = History.getToken();
         final AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
@@ -181,7 +182,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 RootLayoutPanel.get().add(root);
                 RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
 
-                if (initialToken != null) {
+                if (initialToken != null && !initialToken.isEmpty()) {
                     Application.getInstance().getHistoryManager().setToken(initialToken);
                 }
                 History.addValueChangeHandler(new HistoryValueChangeHandler());
@@ -205,17 +206,21 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
-        Application.getInstance().showLoadingIndicator();
-        PluginConfig pluginConfig = event.getPluginConfig();
-        String pluginName = pluginConfig.getComponentName();
-        final Plugin plugin = ComponentRegistry.instance.get(pluginName);
-        plugin.setConfig(pluginConfig);
         final HistoryManager manager = Application.getInstance().getHistoryManager();
-        manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
-                .setLink(event.getLinkName());
-        plugin.setDisplayActionToolBar(true);
-        plugin.setNavigationConfig(event.getNavigationConfig());
-        centralPluginPanel.open(plugin);
+        if (manager.hasLink() || manager.getSelectedIds().isEmpty()) {
+            Application.getInstance().showLoadingIndicator();
+            PluginConfig pluginConfig = event.getPluginConfig();
+            String pluginName = pluginConfig.getComponentName();
+            final Plugin plugin = ComponentRegistry.instance.get(pluginName);
+            plugin.setConfig(pluginConfig);
+            manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
+                    .setLink(event.getLinkName());
+            plugin.setDisplayActionToolBar(true);
+            plugin.setNavigationConfig(event.getNavigationConfig());
+            centralPluginPanel.open(plugin);
+        } else {
+            History.fireCurrentHistoryState();
+        }
     }
 
     // вывод результатов расширенного поиска
@@ -292,6 +297,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
     private void handleHistory(String url) {
+        Application.getInstance().showLoadingIndicator();
         final HistoryManager manager = Application.getInstance().getHistoryManager();
         if (url != null && !url.isEmpty()) {
             manager.setToken(url);
@@ -316,8 +322,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 Window.setTitle("Форма документа");
                 centralPluginPanel.open(formPlugin);
             } else {
+                Application.getInstance().hideLoadingIndicator();
                 throw new HistoryException("Переход по данным '" + url + "' невозможет");
             }
+            Application.getInstance().hideLoadingIndicator();
         }
     }
 

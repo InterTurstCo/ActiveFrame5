@@ -88,7 +88,7 @@ public class NavigationTreePluginView extends PluginView {
         horizontalPanel.add(sideBarView);
         horizontalPanel.add(navigationTreesPanel);
         navigationTreeContainer.add(horizontalPanel);
-        drawNavigationTrees(selectedLinkConfig);
+        drawNavigationTrees(selectedLinkConfig, navigationTreePluginData.getChildToOpen());
         pinButton.setStyleName("icon pin-normal");
         pinButton.addClickHandler(new ClickHandler() {
             @Override
@@ -264,14 +264,9 @@ public class NavigationTreePluginView extends PluginView {
         List<LinkConfig> linkConfigList = navigationTreePluginData.getNavigationConfig().getLinkConfigList();
         for (LinkConfig linkConfig : linkConfigList) {
             if (linkConfig.getName().equals(rootLinkName)) {
-                final String originChildToOpenName = linkConfig.getChildToOpen();
-                if (childToOpenName != null) {
-                    linkConfig.setChildToOpen(childToOpenName);
-                }
                 updateCounterTimerContext();
-                drawNavigationTrees(linkConfig);
+                drawNavigationTrees(linkConfig, childToOpenName);
                 updateCounterKeys();
-                linkConfig.setChildToOpen(originChildToOpenName);
                 break;
             }
         }
@@ -293,7 +288,7 @@ public class NavigationTreePluginView extends PluginView {
         lastCountersUpdateTime = 0;
     }
 
-    private void drawNavigationTrees(LinkConfig selectedRootLinkConfig) {
+    private void drawNavigationTrees(LinkConfig selectedRootLinkConfig, final String childToOpen) {
         navigationTreesPanel.clear();
 
         VerticalPanel verticalPanel = new VerticalPanel();
@@ -307,7 +302,7 @@ public class NavigationTreePluginView extends PluginView {
             NavigationTreeBuilder navigationTreeBuilder = new NavigationTreeBuilder(links, groupName);
             navigationTreeBuilder
                     .addSelectionHandler(handler)
-                    .setChildToOpenName(selectedRootLinkConfig.getChildToOpen())
+                    .setChildToOpenName(childToOpen == null ? selectedRootLinkConfig.getChildToOpen() : childToOpen)
                     .setImages(images);
             Tree tree = navigationTreeBuilder.toTree();
             counterDecorators.addAll(navigationTreeBuilder.getCounterDecorators());
