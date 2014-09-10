@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Root(name = "accepted-types")
 public class AcceptedTypesConfig implements Dto {
-    @ElementList(inline = true, name ="accepted-type", required = true)
+    @ElementList(inline = true, entry ="accepted-type", required = true)
     private List<AcceptedTypeConfig> acceptedTypeConfigs;
 
     public List<AcceptedTypeConfig> getAcceptedTypeConfigs() {
