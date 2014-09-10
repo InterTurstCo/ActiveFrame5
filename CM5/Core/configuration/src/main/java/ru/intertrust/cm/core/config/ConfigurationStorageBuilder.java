@@ -198,6 +198,8 @@ public class ConfigurationStorageBuilder {
                     //у потомка заимствованные права, значит и у родителя заимствованные права, получаем тип откуда заимсвует права потомок
                     if (matrixConfig.getMatrixReference() != null) {
                         result = fillMatrixReferenceTypeNameMap(childType);
+                    }else{
+                        result = childType;
                     }
                     //Выходим из цикла при первой же обнаруженной матрице
                     break;

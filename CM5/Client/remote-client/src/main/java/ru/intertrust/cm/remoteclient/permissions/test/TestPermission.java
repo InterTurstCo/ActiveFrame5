@@ -273,6 +273,8 @@ public class TestPermission extends ClientBase {
             testEmployee.setReference("Department", testDepartment);
             testEmployee = notAdminCrudservice.save(testEmployee);
 
+            notAdminCrudservice.delete(testEmployee.getId());
+            
             log("Test complete");
         } finally {
             writeLog();
