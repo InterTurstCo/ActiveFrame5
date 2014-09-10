@@ -417,10 +417,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 openTooltip.addClickHandler(new ShowTooltipHandler());
                 super.add(openTooltip, container);
             }
-            AbsolutePanel suggestInputWrapper = new AbsolutePanel();
-            suggestInputWrapper.setStyleName("suggestWrapper");
-            super.add(suggestBox, suggestInputWrapper.getElement());
-            super.add(suggestInputWrapper, container);
+
+            super.add(suggestBox, container);
             if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
                 FocusPanel focusPanel = new FocusPanel();
                 ButtonForm clearButton = new ButtonForm(focusPanel,
