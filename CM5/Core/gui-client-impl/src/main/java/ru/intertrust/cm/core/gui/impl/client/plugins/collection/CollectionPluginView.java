@@ -766,7 +766,6 @@ public class CollectionPluginView extends PluginView {
                     tableBody.setRowData(items);
                     tableBody.redraw();
                     tableBody.flush();
-                    eventBus.fireEvent(new CollectionRowSelectedEvent(item.getId()));
                 }
             }
         });
