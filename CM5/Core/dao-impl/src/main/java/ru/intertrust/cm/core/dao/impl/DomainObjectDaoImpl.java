@@ -31,7 +31,12 @@ import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusAfterCommitExtentionHandler;
+import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusExtentionHandler;
+import ru.intertrust.cm.core.dao.api.extension.AfterCreateAfterCommitExtentionHandler;
+import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
+import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeSaveExtensionHandler;
@@ -85,6 +90,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Autowired
     private CollectionsDao collectionsDao;
+    
+    @Autowired
+    private UserTransactionService userTransactionService;
 
     @Autowired
     public void setDomainObjectCacheService(
@@ -138,6 +146,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         this.extensionService = extensionService;
     }
 
+    @Override
     public DomainObject setStatus(Id objectId, Id status, AccessToken accessToken) {
         accessControlService.verifySystemAccessToken(accessToken);
         DomainObject domainObject = find(objectId, accessToken);
@@ -148,6 +157,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         refreshDynamiGroupsAndAclForUpdate(result[0], null, null);
 
+        // Вызов точки расширения после смены статуса
+        List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
+        //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
+        parentTypes.add("");
+        for (String typeName : parentTypes) {
+            AfterChangeStatusExtentionHandler extension = extensionService
+                    .getExtentionPoint(AfterChangeStatusExtentionHandler.class, typeName);
+            extension.onAfterChangeStatus(domainObject);
+        }
+        
+        //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
+        DomainObjectActionListener listener = getTransactionListener();
+        listener.addChangeStatusDomainObject(objectId);        
+        
         return result[0];
     }
 
@@ -167,11 +190,24 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         for (DomainObject createdObject : createdObjects) {
             domainObjectCacheService.putObjectToCache(createdObject);
             refreshDynamiGroupsAndAclForCreate(createdObject);
+            
+            //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
+            DomainObjectActionListener listener = getTransactionListener();
+            listener.addCreatedDomainObject(createdObject.getId());            
         }
 
         return createdObjects;
     }
 
+    private DomainObjectActionListener getTransactionListener(){
+        DomainObjectActionListener listener = userTransactionService.getListener(DomainObjectActionListener.class);
+        if (listener == null){
+            listener = new DomainObjectActionListener();
+            userTransactionService.addListener(listener);
+        }
+        return listener;
+    }
+    
     private String getInitialStatus(DomainObject domainObject) {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
@@ -272,6 +308,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         .getExtentionPoint(AfterSaveExtensionHandler.class, typeName);
                 afterSaveExtension.onAfterSave(result[i], changedFields[i]);
             }
+            
+            //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
+            DomainObjectActionListener listener = getTransactionListener();
+            listener.addSavedDomainObject(result[i], changedFields[i]);
+            
         }
 
         return result;
@@ -504,6 +545,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
             for (DomainObject deletedObject : deletedObjects) {
                 afterDeleteEH.onAfterDelete(deletedObject);
+                
+                //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
+                DomainObjectActionListener listener = getTransactionListener();
+                listener.addDeletedDomainObject(deletedObject);
             }
         }
 
@@ -2095,5 +2140,127 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         return query.toString();
     }
+    
+    private class DomainObjectActionListener implements ActionListener {
+        Map<Id, Map<String, FieldModification>> savedDomainObjects = new Hashtable<Id, Map<String, FieldModification>>(); 
+        List<Id> createdDomainObjects = new ArrayList<Id>(); 
+        Map<Id, DomainObject> deletedDomainObjects = new Hashtable<Id, DomainObject>();
+        List<Id> changeStatusDomainObjects = new ArrayList<Id>();
+        
+        
+        @Override
+        public void onCommit() {
+            AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
 
+            for (Id createdId : createdDomainObjects) {
+                DomainObject domainObject = find(createdId, sysAccessTocken);
+                if (domainObject != null){
+                    // Вызов точки расширения после создания после коммита
+                    List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
+                    //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
+                    parentTypes.add("");
+                    for (String typeName : parentTypes) {
+                        AfterCreateAfterCommitExtentionHandler extension = extensionService
+                                .getExtentionPoint(AfterCreateAfterCommitExtentionHandler.class, typeName);
+                        extension.onAfterCreate(domainObject);
+                    }
+                }
+            }
+
+            for (Id id : changeStatusDomainObjects) {
+                DomainObject domainObject = find(id, sysAccessTocken);
+
+                if (domainObject != null){
+                
+                    // Вызов точки расширения после смены статуса после коммита
+                    List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
+                    //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
+                    parentTypes.add("");
+                    for (String typeName : parentTypes) {
+                        AfterChangeStatusAfterCommitExtentionHandler extension = extensionService
+                                .getExtentionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, typeName);
+                        extension.onAfterChangeStatus(domainObject);
+                    }
+                }
+            }
+            
+            for (Id id : savedDomainObjects.keySet()) {
+                DomainObject domainObject = find(id, sysAccessTocken);
+                if (domainObject != null){
+
+                    // Вызов точки расширения после сохранения после коммита
+                    List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
+                    //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
+                    parentTypes.add("");
+                    for (String typeName : parentTypes) {
+                        AfterSaveAfterCommitExtensionHandler extension = extensionService
+                                .getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName);
+                        extension.onAfterSave(domainObject, getFieldModificationList(savedDomainObjects.get(id)));
+                    }
+                }
+            }
+            
+            for (DomainObject deletedDomainObject : deletedDomainObjects.values()) {
+                // Вызов точки расширения после удаления после коммита
+                List<String> parentTypes = getAllParentTypes(deletedDomainObject.getTypeName());
+                //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
+                parentTypes.add("");
+                for (String typeName : parentTypes) {
+                    AfterDeleteAfterCommitExtensionHandler extension = extensionService
+                            .getExtentionPoint(AfterDeleteAfterCommitExtensionHandler.class, typeName);
+                    extension.onAfterDelete(deletedDomainObject);
+                }
+            }
+        }
+
+        private List<FieldModification> getFieldModificationList(Map<String, FieldModification> map) {
+            List<FieldModification> result = new ArrayList<FieldModification>();
+            for (FieldModification field : map.values()) {
+                result.add(field);
+            }
+            return result;
+        }
+
+        public void addCreatedDomainObject(Id id){
+            createdDomainObjects.add(id);
+        }
+
+        public void addChangeStatusDomainObject(Id id){
+            if (!changeStatusDomainObjects.contains(id)){
+                changeStatusDomainObjects.add(id);
+            }
+        }
+        
+        public void addDeletedDomainObject(DomainObject domainObject){
+            if (deletedDomainObjects.get(domainObject.getId()) == null){
+                deletedDomainObjects.put(domainObject.getId(), domainObject);
+            }
+        }
+        
+        public void addSavedDomainObject(DomainObject domainObject, List<FieldModification> newFields) {
+            //Ишем не сохраняли ранее
+            Map<String, FieldModification> fields = savedDomainObjects.get(domainObject.getId());
+            if (fields == null){
+                fields = new Hashtable<String, FieldModification>();
+                savedDomainObjects.put(domainObject.getId(), fields);
+            }
+            //Мержим информацию об измененных полях
+            for (FieldModification newFieldModification : newFields) {
+                FieldModificationImpl registeredFieldModification = (FieldModificationImpl)fields.get(newFieldModification.getName());
+                if (registeredFieldModification == null){
+                    registeredFieldModification = new FieldModificationImpl(newFieldModification.getName(), 
+                            newFieldModification.getBaseValue(), newFieldModification.getComparedValue()); 
+                    fields.put(newFieldModification.getName(), registeredFieldModification);
+                }else{
+                    registeredFieldModification.setComparedValue(newFieldModification.getComparedValue());
+                }                
+            }
+        }
+
+        @Override
+        public void onRollback() {
+            // Ничего не делаем            
+        }
+        
+    }
 }

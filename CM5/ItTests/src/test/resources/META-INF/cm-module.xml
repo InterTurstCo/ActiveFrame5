@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <name>it-test-sed</name>
+    <description>Тестовый модуль системы электронного документооборота (Интеграционные тесты)</description>
+    <depends>
+        <depend>test-sed</depend>
+    </depends>
+    <extension-points-packages>
+        <extension-points-package>ru/intertrust/cm/core/service/it/extension</extension-points-package>
+    </extension-points-packages>
+</module>
