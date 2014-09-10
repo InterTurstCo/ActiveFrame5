@@ -400,7 +400,12 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     @Override
     public boolean isAllowedToCreateByStaticGroups(Id userId, String objectType) {
-        List<String> userGroups = configurationExplorer.getAllowedToCreateUserGroups(objectType);
+        String checkType = configurationExplorer.getMatrixReferenceTypeName(objectType);
+        if (checkType == null){
+            checkType = objectType;
+        }
+        
+        List<String> userGroups = configurationExplorer.getAllowedToCreateUserGroups(checkType);
 
         if (userGroups.size() == 0) {
             return false;

@@ -170,11 +170,7 @@
         </status>
     </access-matrix>
 
-    <access-matrix type="employee_test" matrix-reference-field="Department">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
+    <access-matrix type="employee_test" matrix-reference-field="Department"/>
 
     <access-matrix type="test_type_1" read-everybody="true"/>
 

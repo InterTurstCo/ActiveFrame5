@@ -265,6 +265,14 @@ public class TestPermission extends ClientBase {
             assertTrue("test_type_6 linked object count", linkedObjects.size() > 0);
             assertTrue("tes_type_6 name field", linkedObjects.get(0) != null);
             
+            //Проверка косвенных прав на создание
+            testEmployee = notAdminCrudservice.createDomainObject("employee_test");
+            testEmployee.setString("name", "Name " + System.nanoTime());
+            testEmployee.setString("login", testEmployee.getString("name"));
+            testEmployee.setString("Position", "Boss");
+            testEmployee.setReference("Department", testDepartment);
+            testEmployee = notAdminCrudservice.save(testEmployee);
+
             log("Test complete");
         } finally {
             writeLog();
