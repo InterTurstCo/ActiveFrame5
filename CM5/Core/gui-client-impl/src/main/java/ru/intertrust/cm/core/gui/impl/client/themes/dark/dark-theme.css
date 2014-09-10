@@ -327,7 +327,7 @@
     background: url(images/folder-list-selected-bg.png) right top no-repeat;
     right: -11px;
     font-size: 0px;
-    top: 4px;
+    top: -5px;
     margin-left: 5px;
 }
 
@@ -337,15 +337,16 @@
     position: absolute;
     height: 25px;
     background: url(images/folder-list-selected-bg.png) left top no-repeat;
-    left: 13px;
+    left: -5px;
     right: 0;
-    top: 4px;
+    top: -5px;
     font-size: 0px;
-    margin-left: 5px;
+    /*margin-left: 5px;*/
 }
 
 .gwt-custom-TreeItem-selected .tree-label {
     text-decoration: underline !important;
+    display: inherit;
 }
 
 .gwt-custom-TreeItem-selected .tree-label,
