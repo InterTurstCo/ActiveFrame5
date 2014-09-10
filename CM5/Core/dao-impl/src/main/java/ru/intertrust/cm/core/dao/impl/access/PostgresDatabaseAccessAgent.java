@@ -312,7 +312,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      */
     private String getMatrixRefType(String childType, String parentType, RdbmsId id){
     	String rootForChildType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, childType);
-    	String query = "select p.id_type from " + rootForChildType + " c inner join " + parentType + " p on (c.access_object_id = p.id) where c.id = :id";
+    	String rootForParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, parentType);
+    	String query = "select p.id_type from " + rootForChildType + " c inner join " + rootForParentType + " p on (c.access_object_id = p.id) where c.id = :id";
     	
     	Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", id.getId());
