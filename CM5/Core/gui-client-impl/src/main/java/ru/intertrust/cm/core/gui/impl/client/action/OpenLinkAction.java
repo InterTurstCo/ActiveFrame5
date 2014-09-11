@@ -27,7 +27,7 @@ public class OpenLinkAction extends Action {
             if (url.indexOf("://") < 0) {
                 urlBuilder.append(Window.Location.getProtocol());
             }
-            url = url.replace("{host}", Window.Location.getHost());
+            url = url.replace("{host}", Window.Location.getHostName());
             url = url.replace("{port}", Window.Location.getPort());
             url = url.replace("{context-root}", getContextRoot());
             urlBuilder.append(url);
