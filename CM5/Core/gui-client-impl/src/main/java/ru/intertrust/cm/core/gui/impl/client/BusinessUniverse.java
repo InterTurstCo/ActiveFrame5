@@ -335,8 +335,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             } else {
                 throw new HistoryException("Переход по данным '" + url + "' невозможет");
             }
-            Application.getInstance().hideLoadingIndicator();
         }
+        Application.getInstance().hideLoadingIndicator();
     }
 
     private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
