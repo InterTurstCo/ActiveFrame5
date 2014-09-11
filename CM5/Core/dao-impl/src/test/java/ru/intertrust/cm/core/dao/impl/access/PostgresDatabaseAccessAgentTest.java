@@ -43,18 +43,20 @@ public class PostgresDatabaseAccessAgentTest {
                     "= :object_id and a.\"operation\" in (:operation)";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY =
-            "select a.\"object_id\" object_id from \"employee_acl\" " +
-                    "a  inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" " +
-                    "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"" +
-                    " where gm.\"person_id\" = :user_id and a.\"object_id\" in (:object_ids) and a.\"operation\" " +
-                    "= :operation";
+            "select a.\"object_id\" object_id from \"employee_acl\" a  "
+            + "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
+            + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "inner join \"employee\" o on o.\"access_object_id\" = a.\"object_id\" "
+            + "where gm.\"person_id\" = :user_id "
+            + "and o.\"id\" in (:object_ids) and a.\"operation\" = :operation";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_DEPARTMENT_QUERY =
-            "select a.\"object_id\" object_id from \"department_acl\" a  inner join \"group_group\" gg on " +
-                    "a.\"group_id\" = gg.\"parent_group_id\"" +
-                    " inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" where " +
-                    "gm.\"person_id\" = :user_id and a.\"object_id\" " +
-                    "in (:object_ids) and a.\"operation\" = :operation";
+            "select a.\"object_id\" object_id from \"department_acl\" a  "
+            + "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
+            + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "inner join \"department\" o on o.\"access_object_id\" = a.\"object_id\" "
+            + "where gm.\"person_id\" = :user_id "
+            + "and o.\"id\" in (:object_ids) and a.\"operation\" = :operation";
 
     private static final String CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY =
             "select a.\"operation\" operation from \"employee_acl\" a " +

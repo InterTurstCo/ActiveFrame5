@@ -1,6 +1,7 @@
 package ru.intertrust.cm.remoteclient.permissions.test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -273,7 +274,20 @@ public class TestPermission extends ClientBase {
             testEmployee.setReference("Department", testDepartment);
             testEmployee = notAdminCrudservice.save(testEmployee);
 
+            //Проверка косвенных прав на удаление
             notAdminCrudservice.delete(testEmployee.getId());
+            
+            //Проверка косвенных прав на создание 2
+            testEmployee = notAdminCrudservice.createDomainObject("employee_test");
+            testEmployee.setString("name", "Name " + System.nanoTime());
+            testEmployee.setString("login", testEmployee.getString("name"));
+            testEmployee.setString("Position", "Boss");
+            testEmployee.setReference("Department", testDepartment);
+            testEmployee = notAdminCrudservice.save(testEmployee);
+
+            //Проверка косвенных прав на удаление с помощью метода множественного удаления 
+            notAdminCrudservice.delete(Collections.singletonList(testEmployee.getId()));
+            
             
             log("Test complete");
         } finally {

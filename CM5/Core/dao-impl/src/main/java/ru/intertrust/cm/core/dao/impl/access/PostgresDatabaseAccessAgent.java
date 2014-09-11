@@ -164,6 +164,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     @Override
     public Id[] checkMultiDomainObjectAccess(int userId, Id[] objectIds, AccessType type) {
+        
         RdbmsId[] ids = Arrays.copyOf(objectIds, objectIds.length, RdbmsId[].class);
         
         String opCode = makeAccessTypeCode(type);
@@ -176,9 +177,19 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         //check configuration 
         for (final Integer domainObjectTypeId : idSorterByType.getDomainObjectTypeIds()) {
-            idSorterByType.getIdsOfType(domainObjectTypeId);
-            List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectTypeId);
-            idsWithAllowedAccess.addAll(checkedIds);
+            List<Id> idsOneType = idSorterByType.getIdsOfType(domainObjectTypeId);
+            //В случае непосредственных прав вызываем метод для всех идентификаторов, в случае с косвенными правами получаем по каждому идентификатору результат отдельно
+            String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(domainObjetcTypeIdCache.getName(domainObjectTypeId));
+            if (matrixRefType == null){
+                List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectTypeId);
+                idsWithAllowedAccess.addAll(checkedIds);
+            }else{
+                for (Id id : idsOneType) {
+                    if (checkDomainObjectAccess(userId, id, type)){
+                        idsWithAllowedAccess.add(id);
+                    }
+                }
+            }
         }
 
         return idsWithAllowedAccess.toArray(new Id[idsWithAllowedAccess.size()]);
@@ -217,6 +228,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
 
     private String getQueryForCheckMultiDomainObjectAccess(String domainObjectType) {
+        String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
+                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjectType));
         String domainObjectAclTable = AccessControlUtility.getAclTableNameFor(domainObjectType);
 
         StringBuilder query = new StringBuilder();
@@ -227,7 +240,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
                 .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
         query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
                 .append(" = gm.").append(DaoUtils.wrap("usergroup"));
-        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and a.").append(DaoUtils.wrap("object_id"))
+        //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
+        query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on o.").append(DaoUtils.wrap("access_object_id"))
+                .append(" = a.").append(DaoUtils.wrap("object_id"));        
+        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.").append(DaoUtils.wrap("id"))
                 .append(" in (:object_ids) and ")
                 .append("a.").append(DaoUtils.wrap("operation")).append(" = :operation");
         return query.toString();
@@ -283,8 +299,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         domainObjectTable = getDomainObjectTypeWithInheritedAccess(id, domainObjectTable);
         
         return AccessControlUtility.getAclTableNameFor(domainObjectTable);
-    }
-
+    }    
+    
     private String getDomainObjectTypeWithInheritedAccess(RdbmsId id, String sourceObjectType) {
         String domainObjectTable = sourceObjectType;
         // Проверяем нет ли заимствования прав и в случае наличия подменяем тип откуда берем права

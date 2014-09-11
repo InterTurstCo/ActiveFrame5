@@ -2030,7 +2030,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private Id getAccessObjectId(DomainObject domainObject) {
         //Получаем матрицу и смотрим атрибут matrix_reference_field
         AccessMatrixConfig matrixConfig = null;
-        DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
+        //Получаем здесь тип, так как в случае наследования domainObject.getTypeName() возвращает некорректный тип
+        String type = domainObjectTypeIdCache.getName(domainObject.getId());
+        DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type);
 
         //Ищим матрицу для типа с учетом иерархии типов
         while((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
