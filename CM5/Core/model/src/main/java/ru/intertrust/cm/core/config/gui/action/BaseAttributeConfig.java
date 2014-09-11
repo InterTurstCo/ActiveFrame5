@@ -24,7 +24,7 @@ public class BaseAttributeConfig implements Dto {
     private String addStyleClass;
 
     @Attribute(required = false)
-    protected String rendered;
+    private String rendered;
 
     public String getId() {
         return id;

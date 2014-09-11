@@ -55,7 +55,7 @@ public class ActionExecutorHandler extends LabelHandler {
                 params.put(FormPluginHandlerStatusData.PREVIEW_ATTR, !pluginState.isEditable());
                 statusData.initialize(params);
                 final ActionHandler.Status actionStatus =
-                        handler.getHandlerStatus(actionExecutorConfig.getActionRefConfig().getRendered(), statusData);
+                        handler.getHandlerStatus(actionConfig.getRendered(), statusData);
                 if (ActionHandler.Status.APPLY == actionStatus) {
                     actionContext = handler.getActionContext(actionConfig);
                 } else {

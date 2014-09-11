@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.action;
 
+import java.io.Serializable;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
@@ -8,7 +9,7 @@ import org.simpleframework.xml.Root;
  *         Created on 04.09.2014 12:35.
  */
 @Root(name = "action-param")
-public class ActionParamConfig {
+public class ActionParamConfig implements Serializable {
 
     @Attribute
     private String name;

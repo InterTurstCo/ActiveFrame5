@@ -63,10 +63,6 @@ public class ActionRefConfig extends AbstractActionConfig {
         return showImage;
     }
 
-    public String getRendered() {
-        return rendered;
-    }
-
     public Boolean getMerged() {
         return merged;
     }
