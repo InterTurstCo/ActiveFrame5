@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root(name = "accept-type")
 public class AcceptedTypeConfig implements Dto {
-    @Attribute(name = "extension", required = true)
+    @Attribute(name = "extensions", required = true)
     private String extensions;
     @Attribute(name = "mime-type", required = true)
     private String mimeType;
