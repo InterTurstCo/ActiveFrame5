@@ -769,7 +769,8 @@ div.gwt-Good-Label {
     border: 2px solid #69615C;
 }
 
-.settings-popup {
+.settings-popup,
+.popupWrapper {
     background: #afafaf;
     background: -moz-linear-gradient(top, #d7e3e2 0%, #afafaf 51%, #969696 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d7e3e2), color-stop(51%, #afafaf), color-stop(100%, #969696));

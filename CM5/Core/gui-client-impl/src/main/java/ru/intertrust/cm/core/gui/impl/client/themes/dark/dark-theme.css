@@ -633,7 +633,8 @@ div.gwt-Good-Label {
     background: #faf8eb;
 }
 
-.settings-popup {
+.settings-popup,
+.popupWrapper {
     background: #aeb9ac; /* Old browsers */
     background: -moz-linear-gradient(top, #aeb9ac 0%, #2A2C2A 70%, #4d564c 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #aeb9ac), color-stop(70%, #2A2C2A), color-stop(100%, #4d564c)); /* Chrome,Safari4+ */
@@ -657,6 +658,10 @@ div.gwt-Good-Label {
     background: -ms-linear-gradient(top, #aeb9ac 0%, #2A2C2A 70%, #4d564c 100%); /* IE10+ */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#aeb9ac', endColorstr='#4d564c', GradientType=0); /* IE6-9 */
     background: linear-gradient(top, #aeb9ac 0%, #2A2C2A 70%, #4d564c 100%); /* W3C */}
+}
+
+.central-div-panel-test {
+    background: #d5dbd4;
 }
 
 .action-bar {

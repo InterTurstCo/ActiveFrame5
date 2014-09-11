@@ -509,9 +509,7 @@ div.gwt-Good-Label {
     bottom: 0;
 }
 
-/**
- * top date picker
- */
+/* ------------>>> top date picker <<<------------ */
 .gwt-ToggleButton-up,
 .gwt-ToggleButton-up-hovering,
 .gwt-ToggleButton-up-disabled,
@@ -522,6 +520,7 @@ div.gwt-Good-Label {
     border: none;
     padding: 0;
 }
+/* ------------>>> end top date picker <<<------------ */
 
 /* ------------>>> treePanel items <<<------------ */
 .gwt-TreeItem[role="treeitem"] {
@@ -560,43 +559,13 @@ div.gwt-Good-Label {
     position: absolute;
     top: -7px;
     right: -15px;
-    text-shadow: 1px 1px 0px #0B0086;
+    text-shadow: 1px 1px 0 #0B0086;
 }
 
 .treeItemWrapper:hover,
 .tree-item-padding-style:hover {
     color: #c8d4ed;
 }
-
-/*.gwt-custom-TreeItem-selected .tree-label:after {*/
-    /*content: open-quote;*/
-    /*display: block;*/
-    /*position: absolute;*/
-    /*width: 27px;*/
-    /*height: 25px;*/
-    /*background: url(images/folder-list-selected-bg.png) right top no-repeat;*/
-    /*right: -11px;*/
-    /*font-size: 0px;*/
-    /*top: 4px;*/
-    /*margin-left: 5px;*/
-/*}*/
-
-/*.gwt-custom-TreeItem-selected .tree-label:before {*/
-    /*content: open-quote;*/
-    /*display: block;*/
-    /*position: absolute;*/
-    /*height: 25px;*/
-    /*background: url(images/folder-list-selected-bg.png) left top no-repeat;*/
-    /*left: 13px;*/
-    /*right: 0;*/
-    /*top: 4px;*/
-    /*font-size: 0px;*/
-    /*margin-left: 5px;*/
-/*}*/
-
-/*.gwt-custom-TreeItem-selected .tree-label {*/
-    /*text-decoration: underline !important;*/
-/*}*/
 
 .gwt-custom-TreeItem-selected .tree-label,
 .gwt-custom-TreeItem-selected,
