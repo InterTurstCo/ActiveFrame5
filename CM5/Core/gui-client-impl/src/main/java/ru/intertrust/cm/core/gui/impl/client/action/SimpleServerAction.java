@@ -50,9 +50,9 @@ public abstract class SimpleServerAction extends Action {
                 if (caught instanceof ValidationException) {
                     onValidationFailure((ValidationException) caught);
                 } else if (caught instanceof GuiException) {
-                    SimpleServerAction.this.onFailure((GuiException) caught);
+                    throw ((GuiException) caught);
                 } else {
-                    ApplicationWindow.errorAlert(BusinessUniverseConstants.SYSTEM_EXCEPTION_MESSAGE);
+                    throw new GuiException(caught.getMessage(), caught);
                 }
             }
         };
@@ -74,10 +74,6 @@ public abstract class SimpleServerAction extends Action {
     }
 
     protected void onSuccess(ActionData result) {
-    }
-
-    protected void onFailure(GuiException exception) {
-        ApplicationWindow.errorAlert(exception.getMessage());
     }
 
     protected String getDefaultOnSuccessMessage() {
@@ -111,5 +107,4 @@ public abstract class SimpleServerAction extends Action {
         dialogBox.add(content);
         dialogBox.center();
     }
-
 }

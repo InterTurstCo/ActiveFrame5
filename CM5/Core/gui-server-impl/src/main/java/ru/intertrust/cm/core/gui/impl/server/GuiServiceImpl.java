@@ -74,15 +74,11 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             log.error(e.getMessage(), e);
             throw new GuiException("No command + " + command.getName() + " implemented");
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof GuiException) {
-                throw (GuiException) e.getCause();
-            } else {
-                log.error(e.getMessage(), e);
-                throw new GuiException("Command can't be executed: " + command.getName());
-            }
+            log.error(e.getMessage(), e);
+            throw new GuiException(e.getTargetException());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            throw new GuiException("Command can't be executed: " + command.getName());
+            throw new GuiException("Command can't be executed: " + command.getName(), e);
         }
     }
 

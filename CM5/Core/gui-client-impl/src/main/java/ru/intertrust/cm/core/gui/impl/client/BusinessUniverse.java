@@ -48,6 +48,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
@@ -91,11 +92,21 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
                     @Override
                     public void onUncaughtException(Throwable ex) {
+                        Application.getInstance().hideLoadingIndicator();
+                        final String message;
                         if (ex.getCause() instanceof HistoryException) {
-                            ApplicationWindow.errorAlert(ex.getCause().getMessage());
+                            message = ex.getCause().getMessage();
+                        } else if (ex instanceof GuiException) {
+                            message = ex.getMessage();
                         } else {
                             GWT.log("Uncaught exception escaped", ex);
+                            if (ex.getMessage() == null) {
+                                message = "Произошёл сбой. Обратитесь к администратору.";
+                            } else {
+                                message = ex.getMessage();
+                            }
                         }
+                        ApplicationWindow.errorAlert(message);
                     }
                 });
                 final EventBus glEventBus = Application.getInstance().getEventBus();
@@ -322,7 +333,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 Window.setTitle("Форма документа");
                 centralPluginPanel.open(formPlugin);
             } else {
-                Application.getInstance().hideLoadingIndicator();
                 throw new HistoryException("Переход по данным '" + url + "' невозможет");
             }
             Application.getInstance().hideLoadingIndicator();

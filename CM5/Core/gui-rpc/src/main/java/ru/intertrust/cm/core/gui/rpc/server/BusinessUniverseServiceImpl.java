@@ -102,10 +102,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
-        if (e.getCause() instanceof GuiException) {
-            return (GuiException) e.getCause();
-        }
-        return new GuiException("Command can't be executed: " + command.getName());
+        final String message = ExceptionMessageFactory.getMessage(command, e.getCause() == null ? e : e.getCause());
+        return new GuiException(message);
     }
 
     @Override
