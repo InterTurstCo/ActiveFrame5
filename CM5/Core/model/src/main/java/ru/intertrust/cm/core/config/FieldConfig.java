@@ -79,11 +79,12 @@ public abstract class FieldConfig implements Serializable {
         if (notNull != that.notNull) {
             return false;
         }
-        if (immutable != that.immutable) {
-            return false;
-        }
 
         if (!ignoreNonDataStructureFields) {
+            if (immutable != that.immutable) {
+                return false;
+            }
+
             if (constraintsConfig != null ? !constraintsConfig.equals(that.constraintsConfig) : that
                     .constraintsConfig != null) {
                 return false;
@@ -126,7 +127,7 @@ public abstract class FieldConfig implements Serializable {
         }
     }
 
-   private void addConstraintsFromConfig(List<Constraint> constraints) {
+    private void addConstraintsFromConfig(List<Constraint> constraints) {
         ConstraintsConfig constraintsConfig = getConstraintsConfig();
         if (constraintsConfig != null) {
             for (ConstraintConfig cnstrConfig : constraintsConfig.getConstraintConfigs()) {
