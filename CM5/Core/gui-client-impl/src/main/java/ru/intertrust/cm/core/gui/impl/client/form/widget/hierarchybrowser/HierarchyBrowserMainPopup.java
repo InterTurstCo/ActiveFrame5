@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.RootNodeLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.*;
@@ -27,7 +28,7 @@ public class HierarchyBrowserMainPopup {
     private DialogBox dialogBox;
     private int popupWidth;
     private int popupHeight;
-    private Hyperlink linkLabel;
+    private HyperLinkWithHistorySupport linkLabel;
     private int nodeHeight;
     private ArrayList<HierarchyBrowserItem> chosenItems;
     private EventBus eventBus;
@@ -116,7 +117,7 @@ public class HierarchyBrowserMainPopup {
     public void addNodeLink(VerticalPanel linksSection) {
         HorizontalPanel nodePanel = new HorizontalPanel();
         nodePanel.addStyleName("selected-node-link");
-        linkLabel = new Hyperlink();
+        linkLabel = new HyperLinkWithHistorySupport();
         linkLabel.removeStyleName("gwt-Hyperlink ");
         linkLabel.addStyleName("node-link");
         String title = rootNodeLinkConfig == null ? "link" : rootNodeLinkConfig.getTitle();
