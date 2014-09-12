@@ -1,8 +1,14 @@
 package ru.intertrust.cm.core.business.api.util;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Author: Denis Mitavskiy
@@ -66,4 +72,45 @@ public final class ModelUtil {
         return builder.toString();
     }
 
+    public static void sort(List<? extends IdentifiableObject> objects, SortOrder sortOrder) {
+        Collections.sort(objects, new IdentifiableObjectComparator(sortOrder));
+    }
+
+    private static class IdentifiableObjectComparator implements Comparator<IdentifiableObject> {
+        private ArrayList<SortCriterionComparator> comparators;
+
+        IdentifiableObjectComparator(SortOrder sortOrder) {
+            comparators = new ArrayList<>(sortOrder.size());
+            for (SortCriterion criterion : sortOrder) {
+                final boolean asc = criterion.getOrder() == SortCriterion.Order.ASCENDING;
+                final Comparator<Value> comparator = Value.getComparator(asc, true);
+                comparators.add(new SortCriterionComparator(criterion.getField(), comparator));
+            }
+        }
+
+        @Override
+        public int compare(IdentifiableObject o1, IdentifiableObject o2) {
+            for (SortCriterionComparator comparator : comparators) {
+                final int comparisonResult = comparator.compare(o1, o2);
+                if (comparisonResult != 0) {
+                    return comparisonResult;
+                }
+            }
+            return 0;
+        }
+    }
+
+    private static class SortCriterionComparator {
+        private final String field;
+        private final Comparator<Value> comparator;
+
+        private SortCriterionComparator(String field, Comparator<Value> comparator) {
+            this.field = field;
+            this.comparator = comparator;
+        }
+
+        public int compare(IdentifiableObject o1, IdentifiableObject o2) {
+            return comparator.compare(o1.getValue(field), o2.getValue(field));
+        }
+    }
 }
