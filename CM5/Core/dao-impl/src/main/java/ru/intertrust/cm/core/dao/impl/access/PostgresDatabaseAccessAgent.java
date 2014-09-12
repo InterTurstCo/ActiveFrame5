@@ -104,11 +104,11 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      * @param type права которые проверяются
      * @return права которые необходимо проверить на данных у типа, права которого заимствуются
      */
-    private List<AccessType> getMatrixReferencePermission(String typeNmae, AccessType accessType){
+    private List<AccessType> getMatrixReferencePermission(String typeName, AccessType accessType){
         List<AccessType> result = new ArrayList<AccessType>();
         result.add(accessType);
         //Проверяем нет ли заимствования прав и в случае наличия подменяем тип доступа согласно мапингу
-        String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeNmae);
+        String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeName);
         //В случае наличия заимствования проверку права на delete заменяем на write, проверку на create заменяем на write
         //TODO необходимо вынести конфигурацию мапинга прав в xml
         if (martixRef != null){

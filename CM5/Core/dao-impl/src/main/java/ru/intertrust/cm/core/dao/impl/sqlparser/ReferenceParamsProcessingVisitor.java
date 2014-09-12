@@ -63,7 +63,7 @@ public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor
         if (equalsTo.getLeftExpression() instanceof Column) {
             Column column = (Column) equalsTo.getLeftExpression();
 
-            FieldConfig fieldConfig = columnToConfigMap.get(column.getColumnName().toLowerCase());
+            FieldConfig fieldConfig = columnToConfigMap.get(DaoUtils.unwrap(column.getColumnName().toLowerCase()));
 
             if (fieldConfig instanceof ReferenceFieldConfig) {
 

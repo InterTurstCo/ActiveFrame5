@@ -276,7 +276,17 @@ public class CollectionsIT extends IntegrationTestBase {
         query = "SELECT cnt.id, kv.\"Owner\", cnt.\"Module\"  FROM Num_Counter cnt JOIN Num_KeyValue kv ON kv.\"Owner\" = cnt.id WHERE kv.\"Value\" = {0} AND cnt.\"Module\" = {1}";
         params = Arrays.<Value>asList(new StringValue("value"), new ReferenceValue(new RdbmsId(moduleTypeid, 1)));
         IdentifiableObjectCollection coll = collectionService.findCollectionByQuery(query, params, 0, 2);
+    }
+    
+    @Test
+    public void testFindCollectionByQueryWithSubQueryHavingJoins() {
+        String query = "SELECT COUNT(*) AS child_employee_count FROM (SELECT DISTINCT e.id FROM employee e inner join department d on (d.id = e.department) WHERE d.boss={0}) t";
 
+        Integer personTypeid = domainObjectTypeIdCache.getId(PERSON_TYPE);
+        List<Value> params = new ArrayList<>();
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
     }
     
     @Test

@@ -624,6 +624,7 @@ public class SqlQueryModifier {
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
             PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
+
             return getDOTypeName(plainSubSelect, column, true);
         } else if (plainSelect.getFromItem() instanceof Table) {
             Table fromItem = (Table) plainSelect.getFromItem();
@@ -631,8 +632,8 @@ public class SqlQueryModifier {
             if (forSubSelect && hasEvaluatedExpressionWithSameAliasInSubselect(plainSelect, column)) {
                 return null;
             }
-            //TODO do we need condition for forSubSelect here?
-            if (forSubSelect || column.getTable() == null || column.getTable().getName() == null) {
+            // если колока колока не имеет названия таблицы - берется перая таблица из from выражения
+            if ((column.getTable() == null || column.getTable().getName() == null)) {
                 return DaoUtils.unwrap(fromItem.getName());
             }
 
@@ -662,6 +663,11 @@ public class SqlQueryModifier {
                     }
 
                 }
+            }
+            // если в подзапросе соответствие колонки по алиасу таблицы не найдено, то возвращается первая таблица из
+            // from выражения
+            if (forSubSelect) {
+                return DaoUtils.unwrap(fromItem.getName());
             }
 
         }
