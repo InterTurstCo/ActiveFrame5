@@ -59,6 +59,7 @@ public class NavigationTreePluginView extends PluginView {
     private HTML pinButton;
     private FocusPanel navigationTreeContainer;
     private Timer mouseHoldTimer;
+    private boolean iSOpenTheAnimatedTreePanel;
 
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
@@ -106,6 +107,7 @@ public class NavigationTreePluginView extends PluginView {
                     pinButton.setStyleName("icon pin-normal");
                     eventBus.fireEvent(new SideBarResizeEvent(START_WIDGET_WIDTH, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
                     navigationTreesPanel.setStyleName("navigation-dynamic-panel");
+                    iSOpenTheAnimatedTreePanel = false;
                 }
                 Application.getInstance().getCompactModeState().setNavigationTreePanelExpanded(pinButtonClick);
             }
@@ -126,23 +128,12 @@ public class NavigationTreePluginView extends PluginView {
                 }
             }
         });
-//        navigationTreeContainer.addMouseOverHandler(new MouseOverHandler() {
-//            @Override
-//            public void onMouseOver(MouseOverEvent event) {
-//
-//                if (mouseOutTimer != null) {
-//                    mouseOutTimer.cancel();
-//                    mouseOutTimer = null;
-//
-//                }
-//
-//            }
-//        });
         navigationTreeContainer.addMouseOutHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {
                 mouseHoldTimer.cancel();
                 hideTreePanel();
+                iSOpenTheAnimatedTreePanel = false;
             }
         });
 
@@ -152,40 +143,39 @@ public class NavigationTreePluginView extends PluginView {
         return navigationTreeContainer;
     }
 
-    private void openTheAnimatedTreePanel(){
-        navigationTreesPanel.setHeight(Window.getClientHeight() - 100 + "px");
-        String leftSectionStyle = pinButtonClick ? LEFT_SECTION_ACTIVE_STYLE : LEFT_SECTION_STYLE;
-        String centralSectionStyle = pinButtonClick ? CENTRAL_SECTION_ACTIVE_STYLE : CENTRAL_SECTION_STYLE;
-        SideBarResizeEvent sideBarResizeEvent =
-                new SideBarResizeEvent(0, leftSectionStyle, centralSectionStyle);
-        Application.getInstance().getEventBus().fireEvent(sideBarResizeEvent);
-
-        mouseHoldTimer = new Timer(){
+    private void openTheAnimatedTreePanel() {
+        mouseHoldTimer = new Timer() {
             @Override
-            public void run(){
+            public void run() {
+                navigationTreesPanel.setHeight(Window.getClientHeight() - 100 + "px");
+                String leftSectionStyle = pinButtonClick ? LEFT_SECTION_ACTIVE_STYLE : LEFT_SECTION_STYLE;
+                String centralSectionStyle = pinButtonClick ? CENTRAL_SECTION_ACTIVE_STYLE : CENTRAL_SECTION_STYLE;
+                SideBarResizeEvent sideBarResizeEvent =
+                        new SideBarResizeEvent(0, leftSectionStyle, centralSectionStyle);
+                Application.getInstance().getEventBus().fireEvent(sideBarResizeEvent);
                 final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH,
                         navigationTreesPanel);
                 resizeTreeAnimation.run(DURATION);
+                iSOpenTheAnimatedTreePanel = true;
             }
         };
-
         mouseHoldTimer.schedule(650);
     }
 
     private void hideTreePanel() {
-        if (!pinButtonClick) {
-            mouseOutTimer = new Timer() {
-                @Override
-                public void run() {
-                    final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
-                    Application.getInstance().getEventBus()
-                            .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
-                    resizeTreeAnimation.run(DURATION);
-
-                }
-            };
-            mouseOutTimer.schedule(500);
-
+        if (iSOpenTheAnimatedTreePanel == true | pinButtonClick == false) {
+            if (!pinButtonClick) {
+                mouseHoldTimer = new Timer() {
+                    @Override
+                    public void run() {
+                        final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
+                        Application.getInstance().getEventBus()
+                                .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
+                        resizeTreeAnimation.run(DURATION);
+                    }
+                };
+                mouseHoldTimer.schedule(500);
+            }
         }
     }
 
@@ -405,10 +395,12 @@ public class NavigationTreePluginView extends PluginView {
                         case Event.ONMOUSEOVER:
                             openTheAnimatedTreePanel();
                             break;
-//                        case Event.ONMOUSEOUT:
-//                            mouseHoldTimer.cancel();
-//                            hideTreePanel();
-//                            break;
+                        case Event.ONMOUSEOUT:
+                            mouseHoldTimer.cancel();
+                            if (!iSOpenTheAnimatedTreePanel == true) {
+                                hideTreePanel();
+                            }
+                            break;
                     }
                 }
             });
