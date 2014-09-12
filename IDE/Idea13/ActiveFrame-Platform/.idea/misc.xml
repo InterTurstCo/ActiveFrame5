@@ -6,6 +6,10 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="gwt" url="file://$PROJECT_DIR$/../../../CM5/Core/gui-client-impl" />
     <file type="gwt" url="file://$PROJECT_DIR$/../../../CM5/Core/web-app" />
+    <file type="gwt" url="file://$PROJECT_DIR$/../../../CM5/Core/web-business-universe" />
+    <file type="gwt" url="file://$PROJECT_DIR$/../../../CM5/Core/web-gwt-compilation" />
+    <file type="gwt" url="file://$PROJECT_DIR$/../../../CM5/Core/web-login-page" />
+    <file type="gwt" url="file://$PROJECT_DIR$/../../../CM5/Core/web-resources" />
     <file type="javaeeApplication" url="file://$PROJECT_DIR$/../../../CM5/Ear" />
     <file type="web" url="file://$PROJECT_DIR$/../../../CM5/Core/web-app" />
   </component>
@@ -16,7 +20,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.7" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" assert-keyword="true" jdk-15="true" project-jdk-name="1.7" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>

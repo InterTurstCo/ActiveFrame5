@@ -45,6 +45,9 @@
         <module name="service-impl" />
         <module name="test-module" />
         <module name="web-app" />
+        <module name="web-business-universe" />
+        <module name="web-login-page" />
+        <module name="web-resources" />
         <module name="workstation" />
       </profile>
     </annotationProcessing>
@@ -76,6 +79,10 @@
       <module name="service-impl" target="1.7" />
       <module name="test-module" target="1.7" />
       <module name="web-app" target="1.7" />
+      <module name="web-business-universe" target="1.7" />
+      <module name="web-gwt-compilation" target="1.7" />
+      <module name="web-login-page" target="1.7" />
+      <module name="web-resources" target="1.7" />
       <module name="workstation" target="1.7" />
     </bytecodeTargetLevel>
   </component>

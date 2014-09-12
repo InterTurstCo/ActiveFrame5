@@ -29,6 +29,9 @@
       <module fileurl="file://$PROJECT_DIR$/service-impl.iml" filepath="$PROJECT_DIR$/service-impl.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/test-module.iml" filepath="$PROJECT_DIR$/test-module.iml" />
       <module fileurl="file://$PROJECT_DIR$/web-app.iml" filepath="$PROJECT_DIR$/web-app.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/web-business-universe.iml" filepath="$PROJECT_DIR$/web-business-universe.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/web-login-page.iml" filepath="$PROJECT_DIR$/web-login-page.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/web-resources.iml" filepath="$PROJECT_DIR$/web-resources.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/workstation.iml" filepath="$PROJECT_DIR$/workstation.iml" />
     </modules>
   </component>

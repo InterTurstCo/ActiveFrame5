@@ -3,7 +3,13 @@
   <component name="FacetManager">
     <facet type="gwt" name="GWT">
       <configuration>
+        <setting name="compilerMaxHeapSize" value="1024" />
+        <setting name="gwtScriptOutputStyle" value="DETAILED" />
         <setting name="gwtSdkUrl" value="file://$GWT_HOME$" />
+        <packaging>
+          <module name="ru.intertrust.cm.core.Model" enabled="false" />
+          <module name="ru.intertrust.cm.core.config.Configuration" enabled="false" />
+        </packaging>
       </configuration>
     </facet>
   </component>

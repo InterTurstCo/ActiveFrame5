@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>web-business-universe</artifactId>
+    <packaging>jar</packaging>
+    <name>web-business-universe</name>
+    <parent>
+        <artifactId>core</artifactId>
+        <groupId>ru.intertrust.cm-sochi</groupId>
+        <version>0.5.11-25-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>gui-client-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>web-login-page</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/../../</directory>
+                <targetPath>./</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>gui.properties</include>
+                    <include>log4j.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <targetPath>/META-INF/resources</targetPath>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
+                <version>${gwt.version}</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <modules>
+                                <module>ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint</module>
+                            </modules>
+                        </configuration>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <compileSourcesArtifacts>
+                        <artifact>ru.intertrust.cm-sochi:gui-client-api</artifact>
+                        <artifact>ru.intertrust.cm-sochi:gui-client-impl</artifact>
+                        <artifact>ru.intertrust.cm-sochi:gui-rpc</artifact>
+                        <artifact>ru.intertrust.cm-sochi:configuration</artifact>
+                        <artifact>ru.intertrust.cm-sochi:model</artifact>
+                        <artifact>ru.intertrust.cm-sochi:gui-model</artifact>
+                    </compileSourcesArtifacts>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>package-generated-javascript</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!-- copy-gwt-compiled packages into JAR -->
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/resources</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/${project.build.finalName}</directory>
+                                    <includes>
+                                        <include>*/**</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

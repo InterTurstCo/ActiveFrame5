@@ -194,15 +194,12 @@
     <orderEntry type="module" module-name="test-module" />
     <orderEntry type="module" module-name="dataset-generator" />
     <orderEntry type="library" name="Maven: org.apache.directory.studio:org.apache.commons.codec:1.8" level="project" />
+    <orderEntry type="module" module-name="web-business-universe" />
+    <orderEntry type="module" module-name="web-login-page" />
+    <orderEntry type="module" module-name="web-resources" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: javax:javaee-api:6.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-library:1.2.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />
-    <orderEntry type="module" module-name="gui-client-api" />
-    <orderEntry type="module" module-name="gui-client-impl" />
-    <orderEntry type="module" module-name="gui-rpc" />
-    <orderEntry type="module" module-name="configuration" />
-    <orderEntry type="module" module-name="model" />
-    <orderEntry type="module" module-name="gui-model" />
   </component>
 </module>
 
