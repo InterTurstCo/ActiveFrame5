@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer.ConfigurationDeployerPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -90,7 +91,7 @@ public abstract class PluginView implements IsWidget {
         LinkConfig currentLinkConfig = foundLinks.get(0);
         List<IsWidget> breadcrumbWidgets = new ArrayList<>();
         while (true) {
-            breadcrumbWidgets.add(new Hyperlink(currentLinkConfig.getDisplayText(), "link=" + currentLinkConfig.getName()));
+            breadcrumbWidgets.add(new HyperLinkWithHistorySupport(currentLinkConfig.getDisplayText(), "link=" + currentLinkConfig.getName()));
             ChildLinksConfig parentChildLinksConfig = currentLinkConfig.getParentChildLinksConfig();
             if (parentChildLinksConfig != null && parentChildLinksConfig.getGroupName() != null) {
                 breadcrumbWidgets.add(new Label(currentLinkConfig.getParentChildLinksConfig().getGroupName()));

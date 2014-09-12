@@ -24,9 +24,6 @@ public class CollectionViewConfig implements TopLevelConfig {
     @Element(name = "display", required = false)
     private CollectionDisplayConfig collectionDisplayConfig;
 
-    @Element(name = "child-collection-views", required = false)
-    private ChildCollectionViewsConfig childCollectionViewsConfig;
-
     @Override
     public String getName() {
         return name;
@@ -60,10 +57,6 @@ public class CollectionViewConfig implements TopLevelConfig {
         this.collectionDisplayConfig = collectionDisplayConfig;
     }
 
-    public ChildCollectionViewsConfig getChildCollectionViewsConfig() {
-        return childCollectionViewsConfig;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -84,9 +77,6 @@ public class CollectionViewConfig implements TopLevelConfig {
         if (collectionDisplayConfig != null ? !collectionDisplayConfig.
                 equals(that.collectionDisplayConfig) : that.collectionDisplayConfig != null)
             return false;
-        if (childCollectionViewsConfig != null ? !childCollectionViewsConfig.
-                equals(that.childCollectionViewsConfig) : that.childCollectionViewsConfig != null)
-            return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
 
         return true;
@@ -98,7 +88,6 @@ public class CollectionViewConfig implements TopLevelConfig {
         result = 31 * result + (isDefault ? 1 : 0);
         result = 31 * result + (collection != null ? collection.hashCode() : 0);
         result = 31 * result + (collectionDisplayConfig != null ? collectionDisplayConfig.hashCode() : 0);
-        result = 31 * result + (childCollectionViewsConfig != null ? childCollectionViewsConfig.hashCode() : 0);
         return result;
     }
 }

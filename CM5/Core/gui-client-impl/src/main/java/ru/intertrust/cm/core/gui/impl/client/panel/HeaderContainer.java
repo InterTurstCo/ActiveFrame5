@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.impl.client.CurrentVersionInfo;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -47,7 +48,7 @@ public class HeaderContainer extends SimplePanel {
         headTable.setWidget(FIRST_ROW, 1, new HeaderSectionSuggestBox());
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 1, "H_td_notes");
 
-        final Hyperlink userName = new Hyperlink(currentUserInfo.getFirstName() + " " + currentUserInfo.getLastName(), "login");
+        final HyperLinkWithHistorySupport userName = new HyperLinkWithHistorySupport(currentUserInfo.getFirstName() + " " + currentUserInfo.getLastName(), "login");
         userName.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -133,7 +134,7 @@ public class HeaderContainer extends SimplePanel {
 
         headTable.setWidget(FIRST_ROW, 4, linksPanel);
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
-        Hyperlink logoutLink = new Hyperlink("Выход", "logout");
+        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport("Выход", "logout");
         headTable.setWidget(FIRST_ROW, 5, logoutLink);
         settingsImage.addClickHandler(new ClickHandler() {
             @Override

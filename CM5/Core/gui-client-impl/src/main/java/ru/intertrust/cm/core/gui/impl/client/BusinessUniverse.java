@@ -89,26 +89,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         final AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
-                    @Override
-                    public void onUncaughtException(Throwable ex) {
-                        Application.getInstance().hideLoadingIndicator();
-                        final String message;
-                        if (ex.getCause() instanceof HistoryException) {
-                            message = ex.getCause().getMessage();
-                        } else if (ex instanceof GuiException) {
-                            message = ex.getMessage();
-                        } else {
-                            GWT.log("Uncaught exception escaped", ex);
-                            if (ex.getMessage() == null) {
-                                message = "Произошёл сбой. Обратитесь к администратору.";
-                            } else {
-                                message = ex.getMessage();
-                            }
-                        }
-                        ApplicationWindow.errorAlert(message);
-                    }
-                });
+                GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandlerImpl());
                 final EventBus glEventBus = Application.getInstance().getEventBus();
                 SettingsPopupConfig settingsPopupConfig = result.getSettingsPopupConfig();
                 ThemesConfig themesConfig = settingsPopupConfig == null ? null : settingsPopupConfig.getThemesConfig();
@@ -203,13 +184,15 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
             @Override
             public void onFailure(Throwable caught) {
-                String queryString = Window.Location.getQueryString() == null ? "" : Window.Location.getQueryString();
-                final StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
-                        .append(BusinessUniverseConstants.LOGIN_PAGE).append(queryString);
-                if (initialToken != null && !initialToken.isEmpty()) {
-                    loginPathBuilder.append('#').append(initialToken);
+                if (caught.getMessage() != null && caught.getMessage().contains("LoginPage")) {
+                    String queryString = Window.Location.getQueryString() == null ? "" : Window.Location.getQueryString();
+                    final StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
+                            .append(BusinessUniverseConstants.LOGIN_PAGE).append(queryString);
+                    if (initialToken != null && !initialToken.isEmpty()) {
+                        loginPathBuilder.append('#').append(initialToken);
+                    }
+                    Window.Location.assign(loginPathBuilder.toString());
                 }
-                Window.Location.assign(loginPathBuilder.toString());
             }
         };
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
@@ -335,8 +318,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             } else {
                 throw new HistoryException("Переход по данным '" + url + "' невозможет");
             }
-            Application.getInstance().hideLoadingIndicator();
         }
+        Application.getInstance().hideLoadingIndicator();
     }
 
     private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
@@ -367,6 +350,27 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         public void openChildPlugin(CentralPluginChildOpeningRequestedEvent event) {
             final Plugin child = event.getOpeningChildPlugin();
             this.openChild(child);
+        }
+    }
+
+    private static class UncaughtExceptionHandlerImpl implements GWT.UncaughtExceptionHandler {
+        @Override
+        public void onUncaughtException(Throwable ex) {
+            Application.getInstance().hideLoadingIndicator();
+            final String message;
+            if (ex.getCause() instanceof HistoryException) {
+                message = ex.getCause().getMessage();
+            } else if (ex instanceof GuiException) {
+                message = ex.getMessage();
+            } else {
+                GWT.log("Uncaught exception escaped", ex);
+                if (ex.getMessage() == null) {
+                    message = "Произошёл сбой. Обратитесь к администратору.";
+                } else {
+                    message = ex.getMessage();
+                }
+            }
+            ApplicationWindow.errorAlert(message);
         }
     }
 }

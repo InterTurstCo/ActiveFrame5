@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 
 /**
  * Created with IntelliJ IDEA.
@@ -91,7 +92,7 @@ public class BookmarksTabPanel implements IsWidget {
     }
 
     public void add(String title, IsWidget content) {
-        final Hyperlink linkLabel = new Hyperlink();
+        final HyperLinkWithHistorySupport linkLabel = new HyperLinkWithHistorySupport();
         linkLabel.setStyleName("bookmarks-link-non-active");
         linkLabel.setText(title);
         leftPanel.add(linkLabel);

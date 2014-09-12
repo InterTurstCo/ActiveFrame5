@@ -1346,6 +1346,8 @@ td.datePickerMonth {
     text-align: center;
     font-size: 90%;
     font-weight: bold;
+    height: 100px;
+    width:  83px;
 }
 
 #sidebar .selected {
@@ -2731,3 +2733,4 @@ td.datePickerMonth {
     text-decoration: none;
 }
 /* ------------>>> end Action Executor Widget <<<------------ */
+
