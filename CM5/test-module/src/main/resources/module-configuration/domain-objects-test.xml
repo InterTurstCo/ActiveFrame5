@@ -131,6 +131,17 @@
         </fields> 
     </domain-object-type>
 
+    <domain-object-type name="notification_test" initial-status="Active">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+            <string name="Description" length="512" not-null="false" />
+            <string name="Organization" length="512" />
+        </fields>
+        <uniqueKey>
+            <field name="Name"/>
+        </uniqueKey>
+    </domain-object-type>
+
     <domain-object-type name="test_type_1" initial-status="Active">
         <fields>
             <string name="name" length="128" />
