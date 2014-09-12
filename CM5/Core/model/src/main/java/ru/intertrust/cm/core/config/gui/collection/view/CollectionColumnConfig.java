@@ -2,10 +2,14 @@ package ru.intertrust.cm.core.config.gui.collection.view;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -74,6 +78,9 @@ public class CollectionColumnConfig implements Dto {
 
     @Element(name = "renderer", required = false)
     private RendererConfig rendererConfig;
+
+    @ElementList(inline = true, required = false)
+    private List<ChildCollectionViewerConfig> childCollectionViewerConfigList = new ArrayList<>();
 
     public String getField() {
         return field;
@@ -235,6 +242,11 @@ public class CollectionColumnConfig implements Dto {
         this.dateRange = dateRange;
     }
 
+
+    public List<ChildCollectionViewerConfig> getChildCollectionViewerConfigList() {
+        return childCollectionViewerConfigList;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -246,6 +258,9 @@ public class CollectionColumnConfig implements Dto {
 
         CollectionColumnConfig that = (CollectionColumnConfig) o;
 
+        if (dateRange != that.dateRange) {
+            return false;
+        }
         if (editable != that.editable) {
             return false;
         }
@@ -258,16 +273,26 @@ public class CollectionColumnConfig implements Dto {
         if (sortable != that.sortable) {
             return false;
         }
-        if (ascSortCriteriaConfig != null ? !ascSortCriteriaConfig.equals(that.ascSortCriteriaConfig) : that.ascSortCriteriaConfig != null) {
+        if (ascSortCriteriaConfig != null ? !ascSortCriteriaConfig.equals(that.ascSortCriteriaConfig) : that
+                .ascSortCriteriaConfig != null) {
             return false;
         }
-        if (descSortCriteriaConfig != null ? !descSortCriteriaConfig.equals(that.descSortCriteriaConfig) : that.descSortCriteriaConfig != null) {
+        if (childCollectionViewerConfigList != null ? !childCollectionViewerConfigList.equals(that
+                .childCollectionViewerConfigList) : that.childCollectionViewerConfigList != null) {
             return false;
         }
-        if (field != null ? !field.equals(that.field) : that.field != null) {
+        if (datePattern != null ? !datePattern.equals(that.datePattern) : that.datePattern != null) {
             return false;
         }
-        if (imageMappingsConfig != null ? !imageMappingsConfig.equals(that.imageMappingsConfig) : that.imageMappingsConfig != null) {
+        if (descSortCriteriaConfig != null ? !descSortCriteriaConfig.equals(that.descSortCriteriaConfig) : that
+                .descSortCriteriaConfig != null) {
+            return false;
+        }
+        if (!field.equals(that.field)) {
+            return false;
+        }
+        if (imageMappingsConfig != null ? !imageMappingsConfig.equals(that.imageMappingsConfig) : that
+                .imageMappingsConfig != null) {
             return false;
         }
         if (maxWidth != null ? !maxWidth.equals(that.maxWidth) : that.maxWidth != null) {
@@ -276,13 +301,10 @@ public class CollectionColumnConfig implements Dto {
         if (minWidth != null ? !minWidth.equals(that.minWidth) : that.minWidth != null) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!name.equals(that.name)) {
             return false;
         }
-        if (datePattern != null ? !datePattern.equals(that.datePattern) : that.datePattern != null) {
-            return false;
-        }
-        if (timePattern != null ? !timePattern.equals(that.timePattern) : that.timePattern!= null) {
+        if (rendererConfig != null ? !rendererConfig.equals(that.rendererConfig) : that.rendererConfig != null) {
             return false;
         }
         if (searchFilter != null ? !searchFilter.equals(that.searchFilter) : that.searchFilter != null) {
@@ -291,16 +313,16 @@ public class CollectionColumnConfig implements Dto {
         if (textBreakStyle != null ? !textBreakStyle.equals(that.textBreakStyle) : that.textBreakStyle != null) {
             return false;
         }
+        if (timePattern != null ? !timePattern.equals(that.timePattern) : that.timePattern != null) {
+            return false;
+        }
         if (timeZoneId != null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) {
             return false;
         }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
+        if (!type.equals(that.type)) {
             return false;
         }
-        if (rendererConfig != null ? !rendererConfig.equals(that.rendererConfig) : that.rendererConfig != null) {
-            return false;
-        }
-        if (dateRange != that.dateRange) {
+        if (width != null ? !width.equals(that.width) : that.width != null) {
             return false;
         }
 
@@ -309,25 +331,27 @@ public class CollectionColumnConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = field != null ? field.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = field.hashCode();
+        result = 31 * result + name.hashCode();
         result = 31 * result + (hidden ? 1 : 0);
-        result = 31 * result + (dateRange ? 1 : 0);
         result = 31 * result + (sortable ? 1 : 0);
         result = 31 * result + (editable ? 1 : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + type.hashCode();
         result = 31 * result + (datePattern != null ? datePattern.hashCode() : 0);
+        result = 31 * result + (timePattern != null ? timePattern.hashCode() : 0);
         result = 31 * result + (timeZoneId != null ? timeZoneId.hashCode() : 0);
         result = 31 * result + (searchFilter != null ? searchFilter.hashCode() : 0);
+        result = 31 * result + (width != null ? width.hashCode() : 0);
         result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
         result = 31 * result + (maxWidth != null ? maxWidth.hashCode() : 0);
         result = 31 * result + (resizable ? 1 : 0);
         result = 31 * result + (textBreakStyle != null ? textBreakStyle.hashCode() : 0);
+        result = 31 * result + (dateRange ? 1 : 0);
         result = 31 * result + (ascSortCriteriaConfig != null ? ascSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (descSortCriteriaConfig != null ? descSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (imageMappingsConfig != null ? imageMappingsConfig.hashCode() : 0);
         result = 31 * result + (rendererConfig != null ? rendererConfig.hashCode() : 0);
-        result = 31 * result + (timePattern != null ? timePattern.hashCode() : 0);
+        result = 31 * result + (childCollectionViewerConfigList != null ? childCollectionViewerConfigList.hashCode() : 0);
         return result;
     }
 }
