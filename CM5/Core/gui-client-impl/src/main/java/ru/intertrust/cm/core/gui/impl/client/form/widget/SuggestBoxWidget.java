@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
@@ -36,6 +37,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
     private static final String ALL_SUGGESTIONS = "*";
     private static final int HEIGHT_OFFSET = 20;
+    private static final int INPUT_MARGIN = 35;
     private SuggestBox suggestBox;
     private LinkedHashMap<Id, String> stateListValues = new LinkedHashMap<>(); //used for temporary state
     private List<MultiWordIdentifiableSuggestion> suggestions = new ArrayList<MultiWordIdentifiableSuggestion>();
@@ -60,11 +62,15 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
         if (impl.getOffsetWidth() > 0) {
             initState(suggestBoxState, suggestBox);
         } else {
+
             final Timer timer = new Timer() {
                 @Override
                 public void run() {
                     if (impl.getOffsetWidth() > 0) {
                         initState(suggestBoxState, suggestBox);
+                        if (impl.getOffsetWidth() > 100) {
+                            impl.setWidth(impl.getElement().getOffsetWidth() + "px");
+                        }
                         this.cancel();
                     }
                 }
@@ -167,7 +173,10 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
         final SuggestPresenter presenter = new SuggestPresenter();
         MultiWordSuggestOracle oracle = new Cm5MultiWordSuggestOracle();
         SuggestBoxDisplay display = new SuggestBoxDisplay();
-        suggestBox = new SuggestBox(oracle, new TextBox(), display);
+        TextBox suggestTextBox = new TextBox();
+        suggestTextBox.addStyleName("testSuggest");
+        suggestBox = new SuggestBox(oracle, suggestTextBox, display);
+
         presenter.suggestBox = suggestBox;
         display.setLazyLoadHandler(new ScrollLazyLoadHandler());
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
@@ -188,6 +197,11 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 SuggestBox sourceObject = (SuggestBox) event.getSource();
                 sourceObject.setText(EMPTY_VALUE);
                 presenter.changeLastElementHighlightingTo(false);
+
+                if (impl.getElement().getStyle().getWidth().equalsIgnoreCase(EMPTY_VALUE)) {
+                    impl.setWidth(impl.getElement().getOffsetWidth() + "px");
+                }
+                presenter.changeSuggestInputWidth();
                 sourceObject.setFocus(true);
 
             }
@@ -289,6 +303,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             Element row = DOM.createTR();
             this.selectedSuggestions = new HashMap<>();
             setStyleName("suggest-container-block");
+
             container = DOM.createTD();
             DOM.appendChild(row, container);
             DOM.appendChild(getBody(), row);
@@ -413,12 +428,13 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             }
             if (shouldDrawTooltipButton()) {
                 Button openTooltip = new Button("..");
-                openTooltip.setStyleName("light-button");
+                openTooltip.setStyleName("tooltipButton");
                 openTooltip.addClickHandler(new ShowTooltipHandler());
                 super.add(openTooltip, container);
             }
 
             super.add(suggestBox, container);
+            changeSuggestInputWidth();
             if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
                 FocusPanel focusPanel = new FocusPanel();
                 ButtonForm clearButton = new ButtonForm(focusPanel,
@@ -439,6 +455,27 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             }
             SuggestPresenter presenter = (SuggestPresenter) impl;
             presenter.changeSuggestionsPopupSize();
+        }
+
+        private void changeSuggestInputWidth() {
+
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+
+                    String suggestWidth = null;
+                    SelectedItemComposite lastItem = getLastItem();
+                    if (lastItem == null) {
+                        suggestWidth = "100%";
+                    } else {
+                        int width = container.getAbsoluteRight() - getLastItem().getElement().getAbsoluteRight() - INPUT_MARGIN;
+                        suggestWidth = width > 0 ? width + "px" : "100%";
+                    }
+                    suggestBox.setWidth(suggestWidth.toString());
+
+                }
+            });
+
         }
 
         public void clearAllItems() {
@@ -489,6 +526,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     remove(itemComposite);
                     Id id = itemComposite.getItemId();
                     removeSuggestBoxIdFromStates(id);
+                    changeSuggestInputWidth();
 
                 }
             };
