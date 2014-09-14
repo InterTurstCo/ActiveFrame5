@@ -131,3 +131,14 @@
 .editButton{
 
 }
+
+@sprite .arrowDownButton {
+    gwt-image: "arrowDownIm";
+    cursor: pointer;
+    display: inline-block;
+    height: 36px;
+    margin-top: 15px;
+    margin-left: -25px;
+    min-width: 20px;
+    width: 36px;
+}

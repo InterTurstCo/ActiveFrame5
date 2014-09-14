@@ -109,7 +109,7 @@ public class TableBrowserItemsView extends Composite {
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
         FocusPanel delBtn = new FocusPanel();
-        delBtn.addStyleName("facebook-btn tableBrowserDeleteElement");
+        delBtn.addStyleName("facebook-btn facebookElementDel");
         final Id id = entry.getKey();
         delBtn.addClickHandler(new ClickHandler() {
             @Override
@@ -139,7 +139,7 @@ public class TableBrowserItemsView extends Composite {
         final Id id = entry.getKey();
         label.addClickHandler(new HyperlinkClickHandler(id, popupPanel, eventBus));
         FocusPanel delBtn = new FocusPanel();
-        delBtn.addStyleName("facebook-btn tableBrowserDeleteElement");
+        delBtn.addStyleName("facebook-btn facebookElementDel");
         delBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -186,7 +186,7 @@ public class TableBrowserItemsView extends Composite {
 
     public void addShowTooltipButton(ClickHandler handler) {
         Button openTooltip = new Button("..");
-        openTooltip.setStyleName("light-button");
+        openTooltip.setStyleName("tooltipButton");
         mainBoxPanel.add(openTooltip);
         openTooltip.addClickHandler(handler);
 

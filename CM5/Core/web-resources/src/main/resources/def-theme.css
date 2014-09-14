@@ -1109,6 +1109,7 @@ td.datePickerMonth {
  *  Attachments
 **/
 .facebook-main-box {
+    border: 1px solid #f1f1f1;
     color: #000;
     overflow: auto;
     background: rgba(255, 255, 255, 0.70);

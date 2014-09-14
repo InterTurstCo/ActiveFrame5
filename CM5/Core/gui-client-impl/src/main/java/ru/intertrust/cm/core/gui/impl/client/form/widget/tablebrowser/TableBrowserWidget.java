@@ -24,6 +24,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNone
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -52,7 +53,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private int dialogHeight;
     private DialogBox dialogBox;
     private TableBrowserItemsView widgetItemsView;
-    private Panel root = new FlowPanel();
+    private Panel root = new HorizontalPanel();
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -226,20 +227,19 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
             }
         });
-        //   root.add(filterEditor);
-
+        root.add(widgetItemsView);
         root.add(openDialogButton);
         root.add(clearButton);
-        root.add(widgetItemsView);
+
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         return root;
     }
 
     private void initAddButton() {
         openDialogButton.clear();
-        ButtonForm addButton;
+        Widget addButton;
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
-        if (tableBrowserConfig.getClearAllButtonConfig() != null) {
+        if (tableBrowserConfig.getAddButtonConfig() != null) {
             String img = tableBrowserConfig.getAddButtonConfig().getImage();
             String text = tableBrowserConfig.getAddButtonConfig().getText();
             if (text == null || text.length() == 0) {
@@ -247,7 +247,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
             }
             addButton = new ButtonForm(openDialogButton, img, text);
         } else {
-            addButton = new ButtonForm(openDialogButton, null, "Добавить");
+            addButton = new AbsolutePanel();
+            addButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().arrowDownButton());
         }
 
         openDialogButton.add(addButton);
@@ -263,7 +264,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
             ButtonForm buttonForm = new ButtonForm(clearButton, img, text);
 
             clearButton.add(buttonForm);
-            //   root.insert(clearButton, 2);
+
         }
 
     }

@@ -563,7 +563,7 @@
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
-                <add-button image="..." text="Добавить"/>
+             <!--   <add-button image="..." text="Добавить"/>-->
 
                 <display-values-as-links value="true"/>
             </table-browser>

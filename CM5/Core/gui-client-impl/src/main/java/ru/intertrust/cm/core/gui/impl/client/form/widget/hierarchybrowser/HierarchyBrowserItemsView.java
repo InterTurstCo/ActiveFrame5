@@ -151,8 +151,11 @@ public class HierarchyBrowserItemsView extends Composite {
 
     public void addShowTooltipLabel(ClickHandler handler) {
         Button openTooltip = new Button("...");
-        openTooltip.setStyleName("light-button");
-        mainBoxPanel.add(openTooltip);
+        openTooltip.setStyleName("tooltipButton");
+        AbsolutePanel wrapper = new AbsolutePanel();
+        wrapper.setStyleName("hierarchyBrowserElement");
+        wrapper.add(openTooltip);
+        mainBoxPanel.add(wrapper);
         openTooltip.addClickHandler(handler);
     }
 

@@ -62,8 +62,8 @@ public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
 
     public void addShowTooltipLabel(ClickHandler handler) {
         Button openTooltip = new Button("...");
-        openTooltip.setStyleName("light-button");
-        container.add(openTooltip);
+        openTooltip.setStyleName("tooltipButton");
+        mainBoxPanel.add(openTooltip);
         openTooltip.addClickHandler(handler);
 
 

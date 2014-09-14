@@ -117,7 +117,7 @@ public class WidgetItemsView extends Composite {
         final Id id = entry.getKey();
         label.addClickHandler(new HyperlinkClickHandler(id, popupPanel, eventBus));
         FocusPanel delBtn = new FocusPanel();
-        delBtn.addStyleName("facebook-btn");
+        delBtn.addStyleName("facebook-btn facebookElementDel");
         delBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

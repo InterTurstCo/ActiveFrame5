@@ -40,7 +40,7 @@ public class HierarchyBrowserView extends Composite {
         this.selectionStyleConfig = selectionStyleConfig;
         this.displayAsHyperlinks = displayAsHyperlinks;
         this.shouldDrawTooltipButton = shouldDrawTooltipButton;
-        widgetContainer = new FlowPanel();
+        widgetContainer = new HorizontalPanel();
 
         initWidget(widgetContainer);
     }
@@ -73,18 +73,11 @@ public class HierarchyBrowserView extends Composite {
 
     public void initWidgetContent(HierarchyBrowserConfig config) {
         openPopupButton = new FocusPanel();
-
-        widgetContainer.setStyleName("hierarh-browser-inline");
-        buttonActionPanel = new VerticalPanel(); //TODO: looks like it's never used
-        buttonActionPanel.setStyleName("hierarh-browser-inline");
-
         widgetChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarchyBrowserBorder");
-
+        widgetContainer.add(widgetChosenContent);
         initAddButton(config.getAddButtonConfig());
         initClearButtonIfItIs(config.getClearAllButtonConfig());
-        widgetContainer.add(widgetChosenContent);
-
 
     }
 

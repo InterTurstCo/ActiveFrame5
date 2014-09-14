@@ -59,6 +59,9 @@ public interface ThemeBundle extends ClientBundle {
     @ClientBundle.Source("images/filterClearButton.png")
     ImageResource filterClearButtonIm();
 
+    @ClientBundle.Source("images/arrowDown.png")
+    ImageResource arrowDownIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }
