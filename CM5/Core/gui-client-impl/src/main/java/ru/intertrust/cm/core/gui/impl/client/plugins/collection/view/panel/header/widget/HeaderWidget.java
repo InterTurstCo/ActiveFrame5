@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget;
 
+import com.google.web.bindery.event.shared.EventBus;
+
 import java.util.List;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.ASCEND_ARROW;
@@ -13,6 +15,8 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 public abstract class HeaderWidget {
     protected String html;
     protected String title;
+    protected boolean focused;
+    protected EventBus eventBus;
 
     public abstract boolean hasFilter();
 
@@ -48,5 +52,17 @@ public abstract class HeaderWidget {
         titleBuilder.append(DESCEND_ARROW);
         titleBuilder.append("</p></div>");
         return titleBuilder.toString();
+    }
+
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+
+    public boolean isFocused() {
+        return focused;
+    }
+
+    public void setFocused(boolean focused) {
+        this.focused = focused;
     }
 }

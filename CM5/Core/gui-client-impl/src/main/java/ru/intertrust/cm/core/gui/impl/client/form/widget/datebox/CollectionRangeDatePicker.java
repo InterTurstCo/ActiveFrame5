@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
@@ -37,6 +38,7 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
                 Date startDate = startDateTimePicker.getFullDate();
                 Date endDate = endDateTimePicker.getFullDate();
                 eventBus.fireEvent(new RangeDateSelectedEvent(startDate, endDate));
+                eventBus.fireEvent(new FilterEvent(false));
                 container.setStyleName("composite-date-time-container-hidden");
                 CollectionRangeDatePicker.this.hide();
             }
@@ -87,6 +89,7 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
         public void onClick(ClickEvent clickEvent) {
             List<Date> dates = getRequiredDate(dateDescription);
             eventBus.fireEvent(new RangeDateSelectedEvent(dates.get(0), dates.get(1)));
+            eventBus.fireEvent(new FilterEvent(false));
             CollectionRangeDatePicker.this.hide();
         }
 

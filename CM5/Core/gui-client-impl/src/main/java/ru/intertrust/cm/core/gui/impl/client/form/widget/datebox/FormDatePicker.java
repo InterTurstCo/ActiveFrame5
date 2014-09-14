@@ -13,34 +13,13 @@ import java.util.Date;
 
 /**
  * @author Yaroslav Bondarchuk
- *         Date: 15.06.2014
- *         Time: 23:12
+ *         Date: 14.09.2014
+ *         Time: 18:47
  */
-@Deprecated
-/*
- * Don't instaniate directly,
- * use subclasses FormDatePicker and CollectionDatePicker instead
- */
-public class OneDatePicker extends DatePickerPopup {
-
-    public OneDatePicker(Date date, EventBus eventBus, boolean showTime, boolean showSeconds) {
-        super(eventBus);
-
-        initWidget(date, showTime, showSeconds);
+public class FormDatePicker extends OneDatePicker {
+    public FormDatePicker(Date date, EventBus eventBus, boolean showTime, boolean showSeconds) {
+        super(date, eventBus, showTime, showSeconds);
     }
-
-    private void initWidget(Date date, boolean showTime, boolean showSeconds) {
-
-        DateTimePicker dateTimePicker = new DateTimePicker(date, showTime, showSeconds);
-        Panel dateTimePickerPanel = initDatePickerPanel(dateTimePicker);
-        Panel container = new AbsolutePanel();
-        container.add(dateTimePickerPanel);
-        this.add(container);
-        this.setStyleName("composite-datetime-picker");
-
-    }
-
-    //TODO make abstract
     protected Panel initDatePickerPanel(final DateTimePicker dateTimePicker) {
         final Panel container = new AbsolutePanel();
 
@@ -52,12 +31,11 @@ public class OneDatePicker extends DatePickerPopup {
             public void onClick(ClickEvent event) {
                 Date date = dateTimePicker.getFullDate();
                 eventBus.fireEvent(new DateSelectedEvent(date));
-                OneDatePicker.this.hide();
+                FormDatePicker.this.hide();
             }
         });
         this.addCloseHandler(new HideDateTimePickerCloseHandler(container));
         container.add(submit);
         return container;
     }
-
 }

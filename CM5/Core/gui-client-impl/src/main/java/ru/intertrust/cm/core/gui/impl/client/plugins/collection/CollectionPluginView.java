@@ -535,7 +535,6 @@ public class CollectionPluginView extends PluginView {
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             final CollectionColumn column = ColumnFormatter.createFormattedColumn(columnProperties);
-            int index = tableBody.getColumnCount();
             final List<String> initialFilterValues =
                     (List) columnProperties.getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
             HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(column, columnProperties, initialFilterValues);
@@ -698,8 +697,8 @@ public class CollectionPluginView extends PluginView {
         tableBody.flush();
         final ScrollPanel scroll = tableBody.getScrollPanel();
         scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
-        columnHeaderController.setFocus();
         columnHeaderController.updateFilterValues();
+        columnHeaderController.setFocus();
 
 
     }

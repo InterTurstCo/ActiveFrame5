@@ -1,9 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget;
 
 import com.google.gwt.dom.client.InputElement;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.DOM;
-import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEventHandler;
@@ -36,7 +34,6 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
 
     public void init() {
         initHtml();
-        EventBus eventBus = new SimpleEventBus();
         boolean showTime = timePattern == null ? false : !TIMELESS_DATE_TYPE.equalsIgnoreCase(fieldType);
         Date startDate = null;
         Date endDate = null;
@@ -61,12 +58,11 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
             popupDatePicker = new CollectionRangeDatePicker(startDate, endDate, eventBus, showTime, showSeconds);
         }
 
-        initHandlers(eventBus);
+        initHandlers();
 
     }
 
-    private void initHandlers(EventBus eventBus) {
-
+    private void initHandlers() {
         eventBus.addHandler(RangeDateSelectedEvent.TYPE, new RangeDateSelectedEventHandler() {
             @Override
             public void onRangeDateSelected(RangeDateSelectedEvent event) {
@@ -79,10 +75,13 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
                 filterValueBuilder.append(endDateValue);
                 String filterValueRepresentation = filterValueBuilder.toString();
                 setFilterValuesRepresentation(filterValueRepresentation);
-                InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).focus();
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(filterValueRepresentation);
                 DOM.getElementById(id + HEADER_CLEAR_BUTTON_ID_PART)
                         .setClassName(GlobalThemesManager.getCurrentTheme().commonCss().filterBoxClearButtonOn());
+               // event.kill();
+                setFocused(true);
+                InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).focus();
+
             }
 
         });

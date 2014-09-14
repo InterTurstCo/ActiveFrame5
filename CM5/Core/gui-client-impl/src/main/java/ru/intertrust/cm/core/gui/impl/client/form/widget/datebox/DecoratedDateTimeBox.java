@@ -96,7 +96,7 @@ public class DecoratedDateTimeBox extends Composite {
         picker = isSearchRangePopup
                 ? new FormRangeDatePicker(date, null, eventBus, state.isDisplayTime(),
                 showSeconds, rangeStartConfig, rangeEndConfig)
-                : new OneDatePicker(date, eventBus, state.isDisplayTime(), showSeconds);
+                : new FormDatePicker(date, eventBus, state.isDisplayTime(), showSeconds);
 
         dateBtn.addClickHandler(showDatePickerHandler);
         Event.sinkEvents(dateBox.getElement(), Event.ONBLUR);

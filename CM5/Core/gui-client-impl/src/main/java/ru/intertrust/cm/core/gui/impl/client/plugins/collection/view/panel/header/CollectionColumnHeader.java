@@ -55,8 +55,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     private EventBus eventBus;
     private Element clearButton;
     private InputElement inputFilter;
-    private boolean focused;
-
 
     public CollectionColumnHeader(CollectionDataGrid table, CollectionColumn column, HeaderWidget headerWidget, EventBus eventBus) {
         super(new HeaderCell());
@@ -64,6 +62,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         this.table = table;
         this.tableElement = table.getElement();
         this.widget = headerWidget;
+        headerWidget.setEventBus(eventBus);
         this.eventBus = eventBus;
         widgetId = headerWidget.getId();
 
@@ -107,7 +106,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     public void setFocus() {
-        if (focused) {
+        if (widget.isFocused()) {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
@@ -116,12 +115,12 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                         return;
                     }
                     input.focus();
+
                 }
             });
 
-            focused = false;
-
         }
+        widget.setFocused(false);
     }
 
     public void updateFilterValue() {
@@ -136,7 +135,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             });
         }
     }
-
 
     public void saveFilterValue() {
         if (widget.hasFilter()) {
@@ -214,7 +212,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         String eventType = event.getType();
         if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown") && widget.hasFilter()) {
             widget.setFilterValuesRepresentation(inputFilter.getValue());
-            focused = true;
+            widget.setFocused(true);
             eventBus.fireEvent(new FilterEvent(false));
 
             event.stopPropagation();
@@ -225,7 +223,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         if (event.getKeyCode() == KeyCodes.KEY_ESCAPE && eventType.equalsIgnoreCase("keydown") && widget.hasFilter()) {
             widget.setFilterValuesRepresentation(EMPTY_VALUE);
             eventBus.fireEvent(new FilterEvent(true));
-            focused = false;
+            widget.setFocused(false);
             event.stopPropagation();
             event.preventDefault();
             return;

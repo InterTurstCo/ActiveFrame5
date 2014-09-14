@@ -2,7 +2,10 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Event;
@@ -131,7 +134,9 @@ public class NavigationTreePluginView extends PluginView {
         navigationTreeContainer.addMouseOutHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {
-                mouseHoldTimer.cancel();
+                if(mouseHoldTimer != null){
+                    mouseHoldTimer.cancel();
+                }
                 hideTreePanel();
                 iSOpenTheAnimatedTreePanel = false;
             }
