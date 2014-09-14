@@ -37,5 +37,16 @@ public interface CommonCssResource extends CssResource {
     @ClassName("filterBoxClearButtonOn")
     String filterBoxClearButtonOn();
 
+    @ClassName("editColumn")
+    String editColumn();
+
+    @ClassName("deleteColumn")
+    String deleteColumn();
+
+    @ClassName("editButton")
+    String editButton();
+
+    @ClassName("deleteButton")
+    String deleteButton();
 
 }

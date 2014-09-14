@@ -115,3 +115,19 @@
 .filterBoxClearButtonOn:active {
     background-position: -32px 0;
 }
+
+.deleteColumn {
+    padding: 0 !important;
+}
+
+.editColumn {
+    padding: 0 !important;
+}
+
+.deleteButton {
+
+}
+
+.editButton{
+
+}

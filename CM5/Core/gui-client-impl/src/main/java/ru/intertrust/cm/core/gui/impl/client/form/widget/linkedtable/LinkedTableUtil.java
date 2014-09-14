@@ -8,6 +8,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.view.client.ListDataProvider;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
 import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
@@ -42,19 +43,20 @@ public class LinkedTableUtil {
     }
 
     private static Column<RowItem, String> buildEditButtonColumn(LinkedDomainObjectsTableWidget.TableFieldUpdater fieldUpdater) {
-        ButtonCell editButton = new ButtonCell();
+        ButtonCell editButton = new StyledButtonCell(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
         Column<RowItem, String> editButtonColumn = new Column<RowItem, String>(editButton) {
             @Override
             public String getValue(RowItem object) {
                 return "Редактировать";
             }
         };
+        editButtonColumn.setCellStyleNames(GlobalThemesManager.getCurrentTheme().commonCss().editColumn());
         editButtonColumn.setFieldUpdater(fieldUpdater);
         return editButtonColumn;
     }
 
     private static Column<RowItem, String> buildDeleteButtonColumn(final LinkedDomainObjectsTableState currentState, final ListDataProvider<RowItem> model) {
-        ButtonCell deleteButton = new ButtonCell();
+        ButtonCell deleteButton = new StyledButtonCell(GlobalThemesManager.getCurrentTheme().commonCss().deleteButton());
         Column<RowItem, String> deleteButtonColumn = new Column<RowItem, String>(deleteButton) {
             @Override
             public String getValue(RowItem object) {
@@ -79,6 +81,8 @@ public class LinkedTableUtil {
                 }
             }
         });
+        deleteButtonColumn.setCellStyleNames(GlobalThemesManager.getCurrentTheme().commonCss().deleteColumn());
+
         return deleteButtonColumn;
     }
 }
