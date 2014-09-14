@@ -30,7 +30,7 @@ public class LinkedTableUtil {
     public static void configureNoneEditableTable(LinkedDomainObjectsTableState currentState, CellTable<RowItem> table) {
 
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
-        for (final SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfig()) {
+        for (final SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
             TextColumn<RowItem> column = new TextColumn<RowItem>() {
                 @Override
                 public String getValue(RowItem object) {
@@ -68,7 +68,7 @@ public class LinkedTableUtil {
                 if (stateKey != null) {
                     currentState.removeNewObjectState(stateKey);
                     currentState.removeEditedObjectState(stateKey);
-                    model.getList().remove(index);
+                    model.getList().remove(object);
                 } else {
                     // объекта нет в пуле, значит помечаем его для физического удаления
                     if (object.getObjectId() != null) {

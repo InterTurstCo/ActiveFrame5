@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,7 +106,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         List<DomainObject> domainObjects = crudService.find(selectedIds);
 
         List<SummaryTableColumnConfig> summaryTableColumnConfigs = widgetConfig
-                .getSummaryTableConfig().getSummaryTableColumnConfig();
+                .getSummaryTableConfig().getSummaryTableColumnConfigList();
 
         for (DomainObject domainObject : domainObjects) {
             RowItem rowItem;
@@ -212,5 +213,61 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
         return new LinkedTableTooltipResponse(rowItems);
     }
+
+    public Dto convertFormStateToRowItem(Dto inputParams) {
+        RepresentationRequest request = (RepresentationRequest) inputParams;
+        FormState createdObjectState = request.getCreatedObjectState();
+        SummaryTableConfig summaryTableConfig = request.getSummaryTableConfig();
+        RowItem item = new RowItem();
+        List<Id> requestIds = request.getIds();
+        if(requestIds != null && !requestIds.isEmpty()){
+            item.setObjectId(requestIds.get(0));
+        }
+        for (SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
+            String widgetId = summaryTableColumnConfig.getWidgetId();
+            WidgetState widgetState = createdObjectState.getFullWidgetsState().get(widgetId);
+            String selectionPattern = summaryTableColumnConfig.getPatternConfig().getValue();
+            StringBuilder representation = new StringBuilder();
+            Matcher matcher = fieldPatternMatcher(selectionPattern);
+            if (widgetState != null) {
+                FormattingConfig formattingConfig = summaryTableColumnConfig.getFormattingConfig();
+                if (widgetState instanceof TextState) {
+                    TextState textBoxState = (TextState) widgetState;
+                    String text = textBoxState.getText();
+                    representation.append(formatHandler.format(new StringValue(text), matcher, formattingConfig));
+                } else if (widgetState instanceof IntegerBoxState) {
+                    IntegerBoxState integerBoxState = (IntegerBoxState) widgetState;
+                    Long number = integerBoxState.getNumber();
+                    representation.append(formatHandler.format(new LongValue(number), matcher, formattingConfig));
+
+                } else if (widgetState instanceof DecimalBoxState) {
+                    DecimalBoxState decimalBoxState = (DecimalBoxState) widgetState;
+                    BigDecimal number = decimalBoxState.getNumber();
+                    representation.append(formatHandler.format(new DecimalValue(number), matcher, formattingConfig));
+
+                } else if (widgetState instanceof CheckBoxState) {
+                    CheckBoxState checkBoxState = (CheckBoxState) widgetState;
+                    Boolean checked = checkBoxState.isSelected();
+                    representation.append(formatHandler.format(new BooleanValue(checked), matcher, formattingConfig));
+
+                }else if (widgetState instanceof DateBoxState) {
+                    DateBoxState dateBoxState = (DateBoxState) widgetState;
+                    representation.append(formatHandler.format(dateBoxState, matcher, formattingConfig));
+
+                }
+                else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
+                    LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
+                    List<Id> ids = linkEditingWidgetState.getIds();
+                    representation.append(formatHandler.format(selectionPattern, ids, formattingConfig));
+
+                }
+                item.setValueByKey(widgetId, representation.toString());
+            }
+
+        }
+        return item;
+    }
+
+
 }
 

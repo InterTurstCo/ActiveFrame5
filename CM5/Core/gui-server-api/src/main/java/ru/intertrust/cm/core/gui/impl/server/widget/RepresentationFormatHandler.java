@@ -1,36 +1,24 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathsConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.NumberFormatConfig;
-import ru.intertrust.cm.core.gui.api.server.GuiContext;
-import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.DateTimeContext;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
+import static ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetRepresentationUtil.getDisplayValue;
 
 
 /**
@@ -40,10 +28,12 @@ import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
  */
 @ComponentName("representation-updater")
 public class RepresentationFormatHandler implements FormatHandler {
-
+    @Autowired
+    protected ApplicationContext applicationContext;
     @Autowired
     protected CrudService crudService;
 
+    @Deprecated
     public RepresentationResponse getRepresentation(Dto inputParams) {
         RepresentationRequest request = (RepresentationRequest) inputParams;
         String selectionPattern = request.getPattern();
@@ -65,6 +55,25 @@ public class RepresentationFormatHandler implements FormatHandler {
         return response;
     }
 
+    public String format(String selectionPattern, List<Id> ids, FormattingConfig formattingConfig) {
+
+        Matcher matcher = pattern.matcher(selectionPattern);
+        Iterator<Id> iterator = ids.iterator();
+        StringBuilder sb = new StringBuilder();
+        while (iterator.hasNext()) {
+            Id id = iterator.next();
+            DomainObject domainObject = crudService.find(id);
+            String representation = formatWithSplit(domainObject, matcher, formattingConfig);
+
+            sb.append(representation);
+            if (iterator.hasNext()) {
+                sb.append("; ");
+            }
+        }
+
+        return sb.toString();
+    }
+
     public RepresentationResponse getRepresentationForOneItem(Dto inputParams) {
         RepresentationRequest request = (RepresentationRequest) inputParams;
         String selectionPattern = request.getPattern();
@@ -80,7 +89,6 @@ public class RepresentationFormatHandler implements FormatHandler {
 
     private String formatWithSplit(IdentifiableObject identifiableObject, Matcher matcher, FormattingConfig formattingConfig) {
         StringBuffer replacement = new StringBuffer();
-
         while (matcher.find()) {
             String group = matcher.group();
             String fieldName = group.substring(1, group.length() - 1);
@@ -92,6 +100,37 @@ public class RepresentationFormatHandler implements FormatHandler {
         matcher.reset();
         return replacement.toString();
     }
+
+    public String format(Value value, Matcher matcher, FormattingConfig formattingConfig) {
+        StringBuffer replacement = new StringBuffer();
+
+        while (matcher.find()) {
+            String group = matcher.group();
+            String fieldName = group.substring(1, group.length() - 1);
+            String displayValue = getDisplayValue(fieldName, value, formattingConfig);
+            matcher.appendReplacement(replacement, displayValue);
+        }
+        matcher.appendTail(replacement);
+        matcher.reset();
+        return replacement.toString();
+    }
+
+    @Override
+    public String format(DateBoxState state, Matcher matcher, FormattingConfig formattingConfig) {
+        StringBuffer replacement = new StringBuffer();
+        while (matcher.find()) {
+            String group = matcher.group();
+            String fieldName = group.substring(1, group.length() - 1);
+            ValueEditingWidgetHandler valueEditingWidgetHandler = (ValueEditingWidgetHandler) applicationContext.getBean("date-box");
+            Value value = valueEditingWidgetHandler.getValue(state);
+            String displayValue = getDisplayValue(fieldName, value, formattingConfig);
+            matcher.appendReplacement(replacement, displayValue);
+        }
+        matcher.appendTail(replacement);
+        matcher.reset();
+        return replacement.toString();
+    }
+
 
     public String format(DomainObject domainObject, Matcher matcher, FormattingConfig formattingConfig) {
         return format((IdentifiableObject) domainObject, matcher, formattingConfig);
@@ -156,8 +195,10 @@ public class RepresentationFormatHandler implements FormatHandler {
                 case FIELD:
                     return getDisplayValue(iterator.getValue(), tempIdentifiableObject, formattingConfig);
                 case DIRECT_REFERENCE:
-                    tempIdentifiableObject = crudService.find(tempIdentifiableObject.
-                            getReference(iterator.getValue()));
+                    Id referenceId = tempIdentifiableObject.getReference(iterator.getValue());
+                    if(referenceId != null){
+                        tempIdentifiableObject = crudService.find(referenceId);
+                    }
                     break;
                 case BACK_REFERENCE_ONE_TO_ONE:
                     Id id = identifiableObject.getId();
@@ -175,100 +216,7 @@ public class RepresentationFormatHandler implements FormatHandler {
         return displayValue.toString();
     }
 
-    private String getDisplayValue(String field, Value value, FormattingConfig formattingConfig) {
-        StringBuilder displayValue = new StringBuilder();
-        if (value != null) {
-            Object primitiveValue = value.get();
 
-
-            if (value instanceof LongValue || value instanceof DecimalValue) {
-                displayValue.append(getNumberDisplayValue(field, primitiveValue, formattingConfig));
-            } else if (primitiveValue != null) {
-                SimpleDateFormat dateFormatter = prepareSimpleDateFormat(field, formattingConfig);
-                if (value instanceof DateTimeValue) {
-                    DateValueConverter<DateTimeValue> dateTimeValueDateValueConverter = new DateTimeValueConverter();
-                    String timeZoneId = getTimeZoneId(field, formattingConfig);
-                    DateTimeContext dateTimeContext = dateTimeValueDateValueConverter.valueToContext((DateTimeValue)value, timeZoneId,dateFormatter);
-                    displayValue.append(dateTimeContext.getDateTime());
-                } else if (value instanceof TimelessDateValue) {
-
-                    DateValueConverter<TimelessDateValue> dateValueConverter = new TimelessDateValueConverter();
-                    String timeZoneId = getTimeZoneId(field, formattingConfig);
-                    DateTimeContext dateTimeContext = dateValueConverter.valueToContext((TimelessDateValue)value, timeZoneId, dateFormatter);
-                    displayValue.append(dateTimeContext.getDateTime());
-                } else if (value instanceof DateTimeWithTimeZoneValue) {
-                    DateValueConverter<DateTimeWithTimeZoneValue> dateValueConverter = new DateTimeWithTimezoneValueConverter();
-                    String timeZoneId = getTimeZoneId(field, formattingConfig);
-                    DateTimeContext dateTimeContext = dateValueConverter.valueToContext((DateTimeWithTimeZoneValue)value, timeZoneId, dateFormatter);
-                    displayValue.append(dateTimeContext.getDateTime());
-
-                } else {
-                    displayValue.append(primitiveValue.toString());
-                }
-            }
-        }
-
-        return displayValue.toString();
-    }
-
-    private String getTimeZoneId(String field, FormattingConfig formattingConfig){
-        if(formattingConfig == null || formattingConfig.getDateFormatConfig() == null || !
-                isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
-            return  GuiContext.get().getUserInfo().getTimeZoneId();
-        }
-        return formattingConfig.getDateFormatConfig().getTimeZoneConfig().getId();
-    }
-
-    private SimpleDateFormat prepareSimpleDateFormat(String field, FormattingConfig formattingConfig) {
-        if(formattingConfig != null && formattingConfig.getDateFormatConfig() != null &&
-                isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
-          return new SimpleDateFormat(formattingConfig.getDateFormatConfig().getPattern());
-        }
-        return new SimpleDateFormat(ModelUtil.DEFAULT_DATE_PATTERN);
-    }
-
-    private String getNumberDisplayValue(String field, Object primitiveValue, FormattingConfig formattingConfig) {
-        String value = formattingConfig == null ? getNumberDisplayWithoutFormatter(primitiveValue)
-                : getNumberDisplayValueProbablyWithFormatting(field, primitiveValue, formattingConfig.getNumberFormatConfig());
-        return value;
-
-    }
-
-    private String getNumberDisplayValueProbablyWithFormatting(String field, Object primitiveValue,
-                                                               NumberFormatConfig numberFormatConfig) {
-       String value = isFormatterUsedForCurrentField(field, numberFormatConfig.getFieldsPathConfig()) ?
-               getNumberDisplayWithFormatting(primitiveValue, numberFormatConfig) :
-               getNumberDisplayWithoutFormatter(primitiveValue);
-       return value;
-    }
-
-    private String getNumberDisplayWithoutFormatter(Object primitiveValue) {
-        String value = primitiveValue == null ? "0" : primitiveValue.toString();
-        return value;
-    }
-
-    private String getNumberDisplayWithFormatting(Object primitiveValue, NumberFormatConfig numberFormatConfig) {
-        DecimalFormat decimalFormat = new DecimalFormat(numberFormatConfig.getPattern());
-        String value = primitiveValue == null ? decimalFormat.format(0) : decimalFormat.format(primitiveValue);
-        return value;
-    }
-
-    private boolean isFormatterUsedForCurrentField(String field, FieldPathsConfig fieldPathsConfig) {
-        List<FieldPathConfig> fieldPathConfigs = fieldPathsConfig.getFieldPathConfigsList();
-        for (FieldPathConfig fieldPathConfig : fieldPathConfigs) {
-            if (fieldPathConfig.getValue().equalsIgnoreCase(field)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String getDisplayValue(String fieldName, IdentifiableObject identifiableObject, FormattingConfig formattingConfig) {
-
-        Value value = identifiableObject.getValue(fieldName);
-        return getDisplayValue(fieldName, value, formattingConfig);
-
-    }
 }
 
 

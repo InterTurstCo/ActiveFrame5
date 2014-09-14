@@ -58,9 +58,6 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         return objectTypeName;
     }
 
-    public void setLinkedFormConfig() {
-    }
-
     public String addNewFormState(FormState formState) {
         String key = Long.toHexString(new Random().nextLong());
         newFormStates.put(key, formState);

@@ -17,6 +17,9 @@ public class FormattingConfig implements Dto {
     @Element(name = "number-format", required = false)
     private NumberFormatConfig numberFormatConfig;
 
+    @Element(name = "boolean-format", required = false)
+    private BooleanFormatConfig booleanFormatConfig;
+
     public DateFormatConfig getDateFormatConfig() {
         return dateFormatConfig;
     }
@@ -31,6 +34,14 @@ public class FormattingConfig implements Dto {
 
     public void setNumberFormatConfig(NumberFormatConfig numberFormatConfig) {
         this.numberFormatConfig = numberFormatConfig;
+    }
+
+    public BooleanFormatConfig getBooleanFormatConfig() {
+        return booleanFormatConfig;
+    }
+
+    public void setBooleanFormatConfig(BooleanFormatConfig booleanFormatConfig) {
+        this.booleanFormatConfig = booleanFormatConfig;
     }
 
     @Override
@@ -51,6 +62,10 @@ public class FormattingConfig implements Dto {
                 numberFormatConfig != null) {
             return false;
         }
+        if (booleanFormatConfig != null ? !booleanFormatConfig.equals(that.booleanFormatConfig) : that.
+                booleanFormatConfig != null) {
+            return false;
+        }
 
         return true;
     }
@@ -59,6 +74,7 @@ public class FormattingConfig implements Dto {
     public int hashCode() {
         int result = dateFormatConfig != null ? dateFormatConfig.hashCode() : 0;
         result = 31 * result + (numberFormatConfig != null ? numberFormatConfig.hashCode() : 0);
+        result = 31 * result + (booleanFormatConfig != null ? booleanFormatConfig.hashCode() : 0);
         return result;
     }
 }

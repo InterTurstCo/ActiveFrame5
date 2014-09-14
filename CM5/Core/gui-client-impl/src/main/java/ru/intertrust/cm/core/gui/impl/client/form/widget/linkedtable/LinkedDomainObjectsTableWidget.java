@@ -10,7 +10,6 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -23,6 +22,7 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.STATE_KEY;
@@ -39,7 +39,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     @Override
     public void setCurrentState(WidgetState state) {
         currentState = (LinkedDomainObjectsTableState) state;
-        currentState.getNewFormStates().clear();
+
+
         model = new ListDataProvider<>();
         List<RowItem> rowItems = currentState.getRowItems();
         for (RowItem rowItem : rowItems) {
@@ -90,13 +91,12 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
         VerticalPanel hp = new VerticalPanel();
-
         return hp;
     }
 
     @Override
     protected WidgetState createNewState() {
-        return this.currentState;
+        return currentState;
     }
 
     private Button createAddButton() {
@@ -145,12 +145,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                         return false;
                     }
                 }, true);
-                String stateKey = currentState.addNewFormState(formState);
-                RowItem rowItem = new RowItem();
-                convertFormStateAndFillRowItem(formState, rowItem, model);
-                rowItem.setParameter(STATE_KEY, stateKey);
 
-                model.getList().add(rowItem);
+                convertFormStateAndFillRowItem(formState, model, null);
+
             }
         };
         DialogBoxAction cancelAction = new DialogBoxAction() {
@@ -171,51 +168,28 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
 
     }
 
-    private void convertFormStateAndFillRowItem(FormState createdObjectState, RowItem item, ListDataProvider<RowItem> model) {
-        for (SummaryTableColumnConfig summaryTableColumnConfig : currentState.getLinkedDomainObjectsTableConfig()
-                .getSummaryTableConfig().getSummaryTableColumnConfig()) {
-            WidgetState widgetState = createdObjectState.getFullWidgetsState().get(summaryTableColumnConfig.getWidgetId());
-            if (widgetState != null) {
-                if (widgetState instanceof TextState) {
-                    TextState textBoxState = (TextState) widgetState;
-                    String text = textBoxState.getText();
-                    if (text != null) {
-                        item.setValueByKey(summaryTableColumnConfig.getWidgetId(), text);
-                    }
-
-                } else if (widgetState instanceof IntegerBoxState) {
-                    IntegerBoxState integerBoxState = (IntegerBoxState) widgetState;
-                    Long number = integerBoxState.getNumber();
-                    if (number != null) {
-                        item.setValueByKey(summaryTableColumnConfig.getWidgetId(), number.toString());
-                    }
-                } else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
-                    LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
-                    List<Id> ids = linkEditingWidgetState.getIds();
-                    String selectionPattern = summaryTableColumnConfig.getPatternConfig().getValue();
-                    getRepresentation(item, summaryTableColumnConfig.getWidgetId(), ids, selectionPattern, model);
-                }
-            }
-        }
-    }
-
-    @Override
-    public Component createNew() {
-        return new LinkedDomainObjectsTableWidget();
-    }
-
-    private void getRepresentation(final RowItem item, final String widgetId, List<Id> ids,
-                                   String selectionPattern, final ListDataProvider<RowItem> model) {
+    private void convertFormStateAndFillRowItem(final FormState formState, final ListDataProvider<RowItem> model, final Integer index) {
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, summaryTableConfig);
-        Command command = new Command("getRepresentation", "representation-updater", request);
+
+        RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
+        if(index != null){
+            List<Id> ids = Arrays.asList(currentState.getIds().get(index));
+            request.setIds(ids);
+        }
+        Command command = new Command("convertFormStateToRowItem", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
-                RepresentationResponse response = (RepresentationResponse) result;
-                String representation = response.getRepresentation();
-                item.setValueByKey(widgetId, representation);
-                model.refresh();
+                RowItem rowItem = (RowItem) result;
+
+                if (index == null) {
+                    model.getList().add(rowItem);
+                 String stateKey = currentState.addNewFormState(formState);
+                 rowItem.setParameter(STATE_KEY, stateKey);
+                } else {
+                    model.getList().set(index, rowItem);
+                }
+
             }
 
             @Override
@@ -223,6 +197,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                 GWT.log("something was going wrong while obtaining hyperlink");
             }
         });
+    }
+
+    @Override
+    public Component createNew() {
+        return new LinkedDomainObjectsTableWidget();
     }
 
     private void getWidgetItems() {
@@ -269,8 +248,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             } else {
                 LinkedTableUtil.configureNoneEditableTable(currentState, table);
             }
-
-
             tooltipModel.addDataDisplay(table);
             this.add(table);
             this.setStyleName("tooltip-popup");
@@ -281,7 +258,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
 
     public Button getShowTooltipButton() {
         Button openTooltip = new Button("..");
-        openTooltip.setStyleName("light-button");
+        openTooltip.setStyleName("tooltipButton");
         openTooltip.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -310,7 +287,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                             return false;
                         }
                     }, true);
-                    convertFormStateAndFillRowItem(formState, object, model);
+                    convertFormStateAndFillRowItem(formState, model, index);
                     Id id = object.getObjectId();
                     if (id != null) {
                         currentState.putEditedFormState(id.toStringRepresentation(), formState);
@@ -319,7 +296,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                         String stateKey = object.getParameter(STATE_KEY);
                         currentState.rewriteNewFormState(stateKey, formState);
                     }
-                    model.getList().set(index, object);
+
                 }
             };
             DialogBoxAction cancelAction = new DialogBoxAction() {

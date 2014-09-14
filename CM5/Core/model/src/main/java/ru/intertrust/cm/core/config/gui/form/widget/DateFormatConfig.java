@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -11,15 +10,12 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 12:05 PM
  */
 @Root(name = "date-format")
-public class DateFormatConfig implements Dto {
+public class DateFormatConfig extends AbstractTypeFormatConfig {
     @Attribute(name = "pattern")
     private String pattern;
 
     @Attribute(name = "style")
     private String style;
-
-    @Element(name = "field-paths")
-    private FieldPathsConfig fieldsPathConfig;
 
     @Element(name = "time-zone", required = false)
     private TimeZoneConfig timeZoneConfig;
@@ -40,14 +36,6 @@ public class DateFormatConfig implements Dto {
         this.style = style;
     }
 
-    public FieldPathsConfig getFieldsPathConfig() {
-        return fieldsPathConfig;
-    }
-
-    public void setFieldsPathConfig(FieldPathsConfig fieldsPathConfig) {
-        this.fieldsPathConfig = fieldsPathConfig;
-    }
-
     public TimeZoneConfig getTimeZoneConfig() {
         return timeZoneConfig;
     }
@@ -58,25 +46,23 @@ public class DateFormatConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+        if (this == o) return true;
+        if (!(o instanceof DateFormatConfig)) {
+            return false;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         DateFormatConfig that = (DateFormatConfig) o;
 
-        if (fieldsPathConfig != null ? !fieldsPathConfig.equals(that.fieldsPathConfig) : that.fieldsPathConfig != null) {
-            return false;
-        }
         if (pattern != null ? !pattern.equals(that.pattern) : that.pattern != null) {
             return false;
         }
         if (style != null ? !style.equals(that.style) : that.style != null) {
             return false;
         }
-        if (timeZoneConfig != null ? !timeZoneConfig.equals(that.timeZoneConfig) : that.timeZoneConfig != null) {
+        if (timeZoneConfig != null ? !timeZoneConfig.equals(that.timeZoneConfig) : that.timeZoneConfig != null){
             return false;
         }
 
@@ -85,9 +71,9 @@ public class DateFormatConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = pattern != null ? pattern.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
         result = 31 * result + (style != null ? style.hashCode() : 0);
-        result = 31 * result + (fieldsPathConfig != null ? fieldsPathConfig.hashCode() : 0);
         result = 31 * result + (timeZoneConfig != null ? timeZoneConfig.hashCode() : 0);
         return result;
     }

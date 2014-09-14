@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -110,6 +111,7 @@ public class LinkedFormDialogBoxBuilder {
     private FormPlugin buildLinkedFormPlugin(FormPluginConfig formPluginConfig) {
         FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
         formPlugin.setConfig(formPluginConfig);
+        formPlugin.setLocalEventBus(new SimpleEventBus());
         return formPlugin;
     }
 

@@ -17,11 +17,19 @@ public class SummaryTableConfig implements Dto {
 
     @ElementList(inline = true)
     private List<SummaryTableColumnConfig> summaryTableColumnConfigList = new ArrayList<SummaryTableColumnConfig>();
-
+    @Deprecated
     public List<SummaryTableColumnConfig> getSummaryTableColumnConfig() {
         return summaryTableColumnConfigList;
     }
 
+    public List<SummaryTableColumnConfig> getSummaryTableColumnConfigList() {
+        return summaryTableColumnConfigList;
+    }
+
+    public void setSummaryTableColumnConfigList(List<SummaryTableColumnConfig> summaryTableColumnConfigList) {
+        this.summaryTableColumnConfigList = summaryTableColumnConfigList;
+    }
+    @Deprecated
     public void setSummaryTableColumnConfig(List<SummaryTableColumnConfig> summaryTableColumnConfigList) {
         this.summaryTableColumnConfigList = summaryTableColumnConfigList;
     }

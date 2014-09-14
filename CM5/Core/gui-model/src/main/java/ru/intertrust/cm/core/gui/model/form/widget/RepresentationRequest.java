@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -18,6 +18,7 @@ public class RepresentationRequest implements Dto {
     private String pattern;
     private FormattingConfig formattingConfig;
     private SummaryTableConfig summaryTableConfig;
+    private FormState createdObjectState;
     public RepresentationRequest() {
     }
 
@@ -33,11 +34,16 @@ public class RepresentationRequest implements Dto {
         this.summaryTableConfig = summaryTableConfig;
     }
 
+    public RepresentationRequest(FormState createdObjectState, SummaryTableConfig summaryTableConfig) {
+         this.createdObjectState = createdObjectState;
+         this.summaryTableConfig = summaryTableConfig;
+    }
+
     public List<Id> getIds() {
         return ids;
     }
 
-    public void setIds(ArrayList<Id> ids) {
+    public void setIds(List<Id> ids) {
         this.ids = ids;
     }
 
@@ -63,5 +69,13 @@ public class RepresentationRequest implements Dto {
 
     public void setSummaryTableConfig(SummaryTableConfig summaryTableConfig) {
         this.summaryTableConfig = summaryTableConfig;
+    }
+
+    public FormState getCreatedObjectState() {
+        return createdObjectState;
+    }
+
+    public void setCreatedObjectState(FormState createdObjectState) {
+        this.createdObjectState = createdObjectState;
     }
 }
