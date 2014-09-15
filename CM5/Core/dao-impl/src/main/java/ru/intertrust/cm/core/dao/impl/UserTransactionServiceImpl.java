@@ -123,8 +123,10 @@ public class UserTransactionServiceImpl implements UserTransactionService{
 
         @Override
         public void beforeCompletion() {
-            for (ActionListener l : actionListeners) {
-                l.onCommit();
+            //Идем с конца спсика, чтобы не получить ошибку модификации списка в итераторе
+            //for (ActionListener l : actionListeners) {
+            for (int i=actionListeners.size()-1; i>=0; i--){
+                actionListeners.get(i).onCommit();
             }
         }
 
@@ -132,8 +134,9 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         public void afterCompletion(int status) {
             try {
                 if (Status.STATUS_ROLLEDBACK == status) {
-                    for (ActionListener l : actionListeners) {
-                        l.onRollback();
+                    //for (ActionListener l : actionListeners) {
+                    for (int i=actionListeners.size()-1; i>=0; i--){
+                        actionListeners.get(i).onRollback();
                     }
                 }
             } finally {

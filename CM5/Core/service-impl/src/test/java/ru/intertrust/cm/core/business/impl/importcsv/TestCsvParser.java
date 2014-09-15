@@ -7,9 +7,10 @@ import java.util.List;
 import org.junit.Test;
 
 import au.com.bytecode.opencsv.CSVReader;
+import static org.junit.Assert.assertTrue;
 
 public class TestCsvParser {
-    
+
     @Test
     public void testOpenCsv() throws Exception {
         List<String> etalon = new ArrayList<String>();
@@ -24,16 +25,19 @@ public class TestCsvParser {
         etalon.add("содержит \" кавычки");
         etalon.add("содержит ' апостроф");
         etalon.add("   содержащий пробелы по краям    ");
+        etalon.add("содержит\\слэш");
+        etalon.add("содержит//слэш");
 
-        CSVReader reader = new CSVReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("test.csv"), "ANSI-1251"), ';', '"');
-        String [] nextLine;
-        int j = 0;
-        while ((nextLine = reader.readNext()) != null) {
-            for (int i = 0; i < nextLine.length; i++) {
-                j++;
+        try (CSVReader reader = new CSVReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("test.csv"), "ANSI-1251"), ';', '"')) {
+            String[] nextLine;
+            int j = 0;
+            while ((nextLine = reader.readNext()) != null) {
+                for (int i = 0; i < nextLine.length; i++) {
+                    assertTrue(etalon.get(j) + " != " + nextLine[i], etalon.get(j).equals(nextLine[i]));
+                    j++;
+                }
             }
-        }        
+        }
     }
-    
-    
+
 }
