@@ -53,12 +53,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public void setValue(String field, Value value) {
+        originalKeys.add(field);
         if (value != null) {
             fieldValues.put(getLowerCaseKey(field), value);
-            originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -71,17 +70,16 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public ArrayList<String> getFields() {
-        return new ArrayList<String>(originalKeys);
+        return new ArrayList<>(originalKeys);
     }
 
     @Override
     public void setString(String field, String value) {
+        originalKeys.add(field);
         if (value != null) {
             fieldValues.put(getLowerCaseKey(field), new StringValue(value));
-            originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -94,12 +92,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public void setLong(String field, Long value) {
+        originalKeys.add(field);
         if (value != null) {
             fieldValues.put(getLowerCaseKey(field), new LongValue(value));
-            originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -112,12 +109,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public void setBoolean(String field, Boolean value) {
+        originalKeys.add(field);
         if (value != null) {
             fieldValues.put(getLowerCaseKey(field), new BooleanValue(value));
-            originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -130,12 +126,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public void setDecimal(String field, BigDecimal value) {
+        originalKeys.add(field);
         if (value != null) {
             fieldValues.put(getLowerCaseKey(field), new DecimalValue(value));
-            originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -148,12 +143,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public void setTimestamp(String field, Date value) {
+        originalKeys.add(field);
         if (value != null) {
             fieldValues.put(getLowerCaseKey(field), new DateTimeValue(value));
-            originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -166,12 +160,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public void setTimelessDate(String field, TimelessDate value) {
+        originalKeys.add(field);
         if (value != null) {
             fieldValues.put(getLowerCaseKey(field), new TimelessDateValue(value));
-            originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -184,12 +177,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public void setDateTimeWithTimeZone(String field, DateTimeWithTimeZone value) {
+        originalKeys.add(field);
         if (value != null) {
             fieldValues.put(getLowerCaseKey(field), new DateTimeWithTimeZoneValue(value));
-            originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -202,29 +194,27 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public void setReference(String field, DomainObject domainObject) {
+        originalKeys.add(field);
         if (domainObject != null) {
             Id id = domainObject.getId();
             if (id != null) {
                 fieldValues.put(getLowerCaseKey(field), new ReferenceValue(id));
-                originalKeys.add(field);
             } else {
                 throw new NullPointerException("Impossible to reference to an unsaved object");
             }
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }
 
     @Override
     public void setReference(String field, Id id) {
+        originalKeys.add(field);
         if (id != null) {
             fieldValues.put(getLowerCaseKey(field), new ReferenceValue(id));
-            originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
-            originalKeys.remove(field);
         }
         dirty = true;
     }

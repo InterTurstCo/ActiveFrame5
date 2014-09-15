@@ -1041,8 +1041,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put("updated_date",
                     getGMTDate(domainObject.getModifiedDate()));
 
-            Id currentUser = getCurrentUser(accessToken);
-
+            Id currentUser = domainObject.getCreatedBy();
             Long currentUserId = currentUser != null ? ((RdbmsId) currentUser).getId() : null;
             Integer currentUserType = currentUser != null ? ((RdbmsId) currentUser).getTypeId() : null;
 
@@ -1664,11 +1663,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject[] parentDOs = createParentDO(domainObjects,
                 domainObjectTypeConfig, type, accessToken, initialStatus);
 
+        Id currentUser = getCurrentUser(accessToken);
+
         for (int i = 0; i < updatedObjects.length; i++) {
             if (parentDOs != null) {
                 updatedObjects[i].setCreatedDate(parentDOs[i].getCreatedDate());
                 updatedObjects[i].setModifiedDate(parentDOs[i].getModifiedDate());
-
             } else {
                 Date currentDate = new Date();
                 updatedObjects[i].setCreatedDate(currentDate);
@@ -1676,6 +1676,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
 
             setInitialStatus(initialStatus, updatedObjects[i]);
+            updatedObjects[i].setCreatedBy(currentUser);
+            updatedObjects[i].setModifiedBy(currentUser);
         }
 
         String query = generateCreateQuery(domainObjectTypeConfig);
@@ -1696,6 +1698,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             RdbmsId doId = new RdbmsId(type, (Long) id);
             updatedObjects[i].setId(doId);
+            updatedObjects[i].resetDirty();
 
             parameters[i] = initializeCreateParameters(
                     updatedObjects[i], domainObjectTypeConfig, type, accessToken);

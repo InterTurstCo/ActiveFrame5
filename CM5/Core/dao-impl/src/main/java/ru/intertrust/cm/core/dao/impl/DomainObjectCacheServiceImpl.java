@@ -151,7 +151,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         Map<String, Id> ret = new HashMap();
         for (String fn : dobj.getFields()) {
             Value v = dobj.getValue(fn);
-            if (v.get() != null && v instanceof ReferenceValue) {
+            if (v != null && v.get() != null && v instanceof ReferenceValue) {
                 ret.put(fn, (Id) v.get());
             }
         }

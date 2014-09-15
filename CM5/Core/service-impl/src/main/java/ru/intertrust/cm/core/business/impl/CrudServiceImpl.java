@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
@@ -88,6 +89,15 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         try {
             GenericDomainObject domainObject = new GenericDomainObject();
             domainObject.setTypeName(name);
+
+            DomainObjectTypeConfig config = configurationExplorer.getDomainObjectTypeConfig(name);
+            for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
+                domainObject.setValue(fieldConfig.getName(), null);
+            }
+            for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+                domainObject.setValue(fieldConfig.getName(), null);
+            }
+
             Date currentDate = new Date();
             domainObject.setCreatedDate(currentDate);
             domainObject.setModifiedDate(currentDate);

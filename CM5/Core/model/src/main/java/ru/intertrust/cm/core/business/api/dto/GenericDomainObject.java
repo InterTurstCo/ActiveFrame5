@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.config.SystemField;
 
 import java.util.Date;
 
@@ -12,10 +13,9 @@ import java.util.Date;
 public class GenericDomainObject extends GenericIdentifiableObject implements DomainObject {
 
     private String typeName;
-    private Date createdDate;
-    private Date modifiedDate;
 
     public static String STATUS_FIELD_NAME = "status";
+
     public static String STATUS_DO = "status";
 
     public static final String USER_GROUP_DOMAIN_OBJECT = "User_Group";
@@ -44,13 +44,12 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     public GenericDomainObject(DomainObject source) {
         super(source);
 
-        typeName = source.getTypeName();
-        createdDate = source.getCreatedDate();
-        modifiedDate = source.getModifiedDate();
+        setTypeName(source.getTypeName());
+        setCreatedDate(source.getCreatedDate());
+        setModifiedDate(source.getModifiedDate());
         setStatus(source.getStatus());
     }
 
-    //@Override
     public void setTypeName(String typeName) {
         this.typeName = typeName;
     }
@@ -62,31 +61,47 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
 
     @Override
     public Date getCreatedDate() {
-        return createdDate;
+        return getTimestamp(SystemField.created_date.name());
     }
 
-    //@Override
     public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+        setValue(SystemField.created_date.name(), new DateTimeValue(createdDate));
     }
 
     @Override
     public Date getModifiedDate() {
-        return modifiedDate;
+        return getTimestamp(SystemField.updated_date.name());
     }
 
-    //@Override
     public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+        setValue(SystemField.updated_date.name(), new DateTimeValue(modifiedDate));
+    }
+
+    @Override
+    public Id getCreatedBy() {
+        return getReference(SystemField.created_by.name());
+    }
+
+    public void setCreatedBy(Id createdBy) {
+        setReference(SystemField.created_by.name(), createdBy);
+    }
+
+    @Override
+    public Id getModifiedBy() {
+        return getReference(SystemField.updated_by.name());
+    }
+
+    public void setModifiedBy(Id modifiedBy) {
+        setReference(SystemField.updated_by.name(), modifiedBy);
     }
 
     @Override
     public Id getStatus() {
-     return getReference(STATUS_FIELD_NAME);
+     return getReference(SystemField.status.name());
     }
 
     public void setStatus(Id status) {
-        setReference(STATUS_FIELD_NAME, status);
+        setReference(SystemField.status.name(), status);
     }
 
     @Override
@@ -100,8 +115,6 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         result.append('{').append('\n');
         result.append("Type = ").append(typeName).append('\n');
         result.append(ModelUtil.getDetailedDescription(this));
-        result.append("Created Date = ").append(createdDate).append('\n');
-        result.append("Modified Date = ").append(modifiedDate).append('\n');
         result.append('}');
         return result.toString();
     }

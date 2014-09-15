@@ -11,10 +11,6 @@ import java.util.Date;
  * Time: 17:20
  */
 public interface DomainObject extends IdentifiableObject {
-    /**
-     * Устанавливает тип доменного объекта
-     */
-    //void setTypeName(String typeName);
 
     /**
      * Возвращает тип доменного объекта
@@ -31,13 +27,6 @@ public interface DomainObject extends IdentifiableObject {
     Date getCreatedDate();
 
     /**
-     * Устанавливает дату создания данного доменного объекта
-     *
-     * @param createdDate дата создания данного доменного объекта
-     */
-    //void setCreatedDate(Date createdDate);
-
-    /**
      * Возвращает дату модификации данного доменного объекта
      *
      * @return дату модификации данного доменного объекта
@@ -45,18 +34,18 @@ public interface DomainObject extends IdentifiableObject {
     Date getModifiedDate();
 
     /**
-     * Устанавливает дату модификации данного доменного объекта
+     * Возвращает идентификатор создателя данного доменного объекта
      *
-     * @param modifiedDate дата модификации данного доменного объекта
+     * @return {@code ReferenceValue} на создателя данного доменного объекта
      */
-    //void setModifiedDate(Date modifiedDate);
+    Id getCreatedBy();
 
     /**
-     * Устанавливает идентификатор родительского доменного объекта
+     * Возвращает идентификатор пользователя, изменившего данный доменный объект
      *
-     * @param parent идентификатор родительского доменного объекта
+     * @return идентификатор пользователя, изменившего данный доменный объект
      */
-    //void setParent(Id parent);
+    Id getModifiedBy();
 
     /**
      * Определяет является ли объект новым
