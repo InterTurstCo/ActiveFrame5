@@ -10,7 +10,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
  *         Time: 12:05 PM
  */
 public class TextCell extends AbstractCell<String> {
-    private String style;
+    protected String style;
 
     public TextCell(String style) {
         this.style = style;

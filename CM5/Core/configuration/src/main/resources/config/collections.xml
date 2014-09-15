@@ -106,7 +106,18 @@
     <collection-view name="departments_default_view" collection="Departments" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="name" name="Название" editable="false" type="string" sortable="true"/>
+            <column field="name" name="Название" editable="false" type="string" sortable="true">
+                    
+                <child-collection-viewer filter="byDepartment"
+                           domain-object-type-to-create="Employee" bread-crumb="Сотрудник">
+                    <collection-viewer>
+                        <collection-ref name="Employees"/>
+                        <default-sort-criteria column-field="name" order="desc"/>
+                        <!--search-area-ref name="Employees-Search-Area"/>
+                        <search-collection-ref name="Employees"/-->
+                    </collection-viewer>
+               </child-collection-viewer>
+            </column>
         </display>
     </collection-view>
 
@@ -340,7 +351,20 @@
     <collection-view name="organizations_default_view" collection="Organizations" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="name" name="Название организации" editable="false" type="string" sortable="true"/>
+            <column field="name" name="Название организации" editable="false" type="string" sortable="true">
+                <!-- если ID типа Organization, то вызывается данная коллекция -->
+                <!-- если for-domain-object-type не указан, то данная коллекция используется "в последнюю очередь".
+                 это удобно для случая, когда текущая коллекция содержит элементы только одного типа -->
+                <!-- bread-crumb - название "хлебной крошки" для под-коллекции -->
+                <child-collection-viewer for-domain-object-type="Organization" filter="byOrganization"
+                        domain-object-type-to-create="Department" bread-crumb="Подразделение">
+                    <collection-viewer>
+                        <collection-ref name="Departments"/>
+                        <collection-view-ref name="departments_default_view"/>
+                        <default-sort-criteria column-field="name" order="desc"/>
+                    </collection-viewer>
+                </child-collection-viewer>
+            </column>
         </display>
     </collection-view>
 

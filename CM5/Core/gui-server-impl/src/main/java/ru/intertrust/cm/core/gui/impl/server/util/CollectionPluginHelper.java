@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
@@ -39,6 +40,10 @@ public class CollectionPluginHelper {
                 final String field = columnConfig.getField();
                 final CollectionColumnProperties properties =
                         GuiServerHelper.collectionColumnConfigToProperties(columnConfig, sortCriteriaConfig, initialFiltersConfig);
+                List<ChildCollectionViewerConfig> childViewerConfigs = columnConfig.getChildCollectionViewerConfigList();
+                if (childViewerConfigs != null && !childViewerConfigs.isEmpty()) {
+                    properties.addProperty(CollectionColumnProperties.CHILD_COLLECTIONS, childViewerConfigs);
+                }
                 columnPropertiesMap.put(field, properties);
             }
             return columnPropertiesMap;

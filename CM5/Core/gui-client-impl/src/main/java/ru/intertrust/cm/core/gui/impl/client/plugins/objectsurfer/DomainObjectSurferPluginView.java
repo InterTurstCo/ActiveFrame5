@@ -4,13 +4,17 @@ import java.util.logging.Logger;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -19,11 +23,17 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.system.SplitterSettingsActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 public class DomainObjectSurferPluginView extends PluginView {
     private static final int SCHEDULE_TIMEOUT = 3000;
@@ -52,6 +62,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         sourthRootWidget.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalEventBus();
         addSplitterWidgetResizeHandler();
+        addExpandHierarchicalCollectionHandler();
     }
 
     private void initSplitter() {
@@ -95,6 +106,33 @@ public class DomainObjectSurferPluginView extends PluginView {
                         event.isArrowsPress());
                 final int size = event.isType() ? event.getFirstWidgetWidth() : event.getFirstWidgetHeight();
                 storeSplitterSettings(event.isType(), size);
+            }
+        });
+    }
+
+    private void addExpandHierarchicalCollectionHandler() {
+        eventBus.addHandler(HierarchicalCollectionEvent.TYPE, new HierarchicalCollectionEventHandler() {
+            @Override
+            public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
+                //FIXME: to implement real logic of the selection correct config
+                //TODO: filter by parent id
+                CollectionViewerConfig childCollectionViewerConfig = event.getChildCollectionViewerConfigs().get(0)
+                        .getCollectionViewerConfig();
+                DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
+                domainObjectSurferConfig.setCollectionViewerConfig(childCollectionViewerConfig);
+                final Command command = new Command("initialize", "domain.object.surfer.plugin", domainObjectSurferConfig);
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        //TODO:
+                    }
+
+                    @Override
+                    public void onSuccess(Dto result) {
+                        plugin.setInitialData((PluginData) result);
+                        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(plugin));
+                    }
+                });
             }
         });
     }
