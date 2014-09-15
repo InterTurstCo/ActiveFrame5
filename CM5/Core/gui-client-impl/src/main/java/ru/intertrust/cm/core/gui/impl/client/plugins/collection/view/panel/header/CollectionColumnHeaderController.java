@@ -37,6 +37,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     private CollectionDataGrid dataGrid;
     private ColumnSelectorPopup popup;
     private int displayedWidth;
+    private boolean filtersVisibility;
 
     public CollectionColumnHeaderController(final String collectionViewName,
                                             final CollectionDataGrid dataGrid, int displayedWidth, EventBus eventBus) {
@@ -60,12 +61,13 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
     }
 
-
     public void changeFiltersInputsVisibility(boolean showFilter) {
+        filtersVisibility = showFilter;
         for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
             CollectionColumnHeader header = columnHeaderBlock.getHeader();
-            header.setSearchAreaVisibility(showFilter);
-
+            if (columnHeaderBlock.getColumn().isVisible()) {
+                header.setSearchAreaVisibility(showFilter);
+            }
         }
 
     }
@@ -73,8 +75,10 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     public void clearFilters() {
         for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
             CollectionColumnHeader header = columnHeaderBlock.getHeader();
-            header.hideClearButton();
-            header.resetFilterValue();
+            if (columnHeaderBlock.getColumn().isVisible()) {
+                header.hideClearButton();
+                header.resetFilterValue();
+            }
 
         }
 
@@ -83,7 +87,9 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     public void updateFilterValues() {
         for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
             CollectionColumnHeader header = columnHeaderBlock.getHeader();
-            header.updateFilterValue();
+            if (columnHeaderBlock.getColumn().isVisible()) {
+                header.updateFilterValue();
+            }
 
         }
     }
@@ -91,16 +97,31 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     public void saveFilterValues() {
         for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
             CollectionColumnHeader header = columnHeaderBlock.getHeader();
-            header.saveFilterValue();
+            if (columnHeaderBlock.getColumn().isVisible()) {
+                header.saveFilterValue();
+            }
 
         }
 
     }
 
+    private void changeFilterInputWidth() {
+        for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
+            CollectionColumnHeader header = columnHeaderBlock.getHeader();
+            CollectionColumn column = columnHeaderBlock.getColumn();
+            if (column.isVisible()) {
+                header.setFilterInputWidth(column.getDrawWidth() - FILTER_CONTAINER_MARGIN);
+            }
+
+        }
+    }
+
     public void setFocus() {
         for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
             CollectionColumnHeader header = columnHeaderBlock.getHeader();
-            header.setFocus();
+            if (columnHeaderBlock.getColumn().isVisible()) {
+                header.setFocus();
+            }
 
         }
     }
@@ -123,9 +144,9 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             if (visible && shouldChangeVisibilityState) {
                 dataGrid.insertColumn(i, collectionColumn, columnHeaderBlock.getHeader());
                 dataGrid.setColumnWidth(collectionColumn, collectionColumn.getDrawWidth() + "px");
+                columnHeaderBlock.getHeader().setSearchAreaVisibility(filtersVisibility);
                 columnHeaderBlock.setShouldChangeVisibilityState(false);
                 collectionColumn.setVisible(true);
-
 
             }
             if (!visible && shouldChangeVisibilityState) {
@@ -138,8 +159,8 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         }
 
         CollectionDataGridUtils.adjustColumnsWidth(Math.max(dataGrid.getOffsetWidth(), displayedWidth), dataGrid);
+        changeFilterInputWidth();
         dataGrid.redraw();
-
 
     }
 
@@ -178,7 +199,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             changeRelativeRightColumnWidth(index, delta);
 
         } else {
-           changeLastColumnWidth(delta);
+            changeLastColumnWidth(delta);
         }
         dataGrid.setColumnWidth(column, newWidth + "px");
         column.setDrawWidth(newWidth);
@@ -203,11 +224,9 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         relativeRightColumn.setUserWidth(adjustedNewDrawWidth);
         relativeRightColumnHeaderBlock.getHeader().setFilterInputWidth(adjustedNewDrawWidth - FILTER_CONTAINER_MARGIN);
 
-
     }
 
-
-    private  ColumnHeaderBlock findNextVisibleRightColumnBlock(int index) {
+    private ColumnHeaderBlock findNextVisibleRightColumnBlock(int index) {
         int columnCount = dataGrid.getColumnCount();
         if (columnCount == index + 1) {
             return null; //column is last
@@ -238,14 +257,16 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         }
         return null;
     }
-   private void changeLastColumnWidth(int delta) {
-       ColumnHeaderBlock lastColumnHeaderBlock = findLastVisibleColumnBlock();
-       if (lastColumnHeaderBlock == null || delta > 0) {
-           return;
-       }
-      displayedWidth += delta;
-   }
-    private  ColumnHeaderBlock findLastVisibleColumnBlock() {
+
+    private void changeLastColumnWidth(int delta) {
+        ColumnHeaderBlock lastColumnHeaderBlock = findLastVisibleColumnBlock();
+        if (lastColumnHeaderBlock == null || delta > 0) {
+            return;
+        }
+        displayedWidth += delta;
+    }
+
+    private ColumnHeaderBlock findLastVisibleColumnBlock() {
         int lastIndex = columnHeaderBlocks.size() - 1;
         while (lastIndex >= 0) {
             ColumnHeaderBlock lastColumnHeaderBlock = columnHeaderBlocks.get(lastIndex);
@@ -281,13 +302,11 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         }
     }
 
-
     private class ColumnSelectorPopup extends PopupPanel {
         private ColumnSelectorPopup() {
             super(true);
             initContent();
         }
-
 
         private void initContent() {
             this.setStyleName("columnSettingPopupPanel");
@@ -316,7 +335,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         private void initCheckboxItem(final ColumnHeaderBlock columnHeaderBlock, Panel container) {
             final CollectionColumn column = columnHeaderBlock.getColumn();
             String checkBoxLabel = column.getDataStoreName();
-            if(checkBoxLabel.equalsIgnoreCase(CHECK_BOX_COLUMN_NAME)){
+            if (checkBoxLabel.equalsIgnoreCase(CHECK_BOX_COLUMN_NAME)) {
                 return;
             }
             CheckBox checkBox = new CheckBox(column.getDataStoreName());

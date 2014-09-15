@@ -24,15 +24,13 @@ public class CollectionDataGridUtils {
         for (int index = 0; index < tableBody.getColumnCount(); index++) {
             final CollectionColumn column = (CollectionColumn) tableBody.getColumn(index);
             if (!column.isVisible()) {
-                processedColumnCount++;
+              //nothing anymore:)
             } else if (column.getUserWidth() > 0) {
                 int columnWidth = column.getUserWidth();
                 column.setUserWidth(columnWidth);
                 column.setDrawWidth(columnWidth);
-
                 tableWidth -= columnWidth;
                 processedColumnCount++;
-
                 widthMap.put(column, columnWidth);
             } else {
                 unProcessingColumnList.add(column);
