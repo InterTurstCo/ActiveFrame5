@@ -57,6 +57,9 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
         eventBus.addHandler(DateSelectedEvent.TYPE, new DateSelectedEventHandler() {
             @Override
             public void onDateSelected(DateSelectedEvent event) {
+                if(!popupDatePicker.equals(event.getSource())){
+                    return;
+                }
                 Date date = event.getDate();
                 String dateValue = dateTimeFormat.format(date);
                 setFilterValuesRepresentation(dateValue);

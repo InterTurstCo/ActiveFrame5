@@ -49,7 +49,6 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
                     endDate = endDateString == null || endDateString.isEmpty() ? null
                             : dateTimeFormat.parse(endDateString);
 
-
                 }
             } catch (IllegalArgumentException ex) {
                 ApplicationWindow.errorAlert(BusinessUniverseConstants.WRONG_DATE_FORMAT_ERROR_MESSAGE
@@ -66,6 +65,9 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
         eventBus.addHandler(RangeDateSelectedEvent.TYPE, new RangeDateSelectedEventHandler() {
             @Override
             public void onRangeDateSelected(RangeDateSelectedEvent event) {
+                if (!popupDatePicker.equals(event.getSource())) {
+                    return;
+                }
                 Date startDate = event.getStartDate();
                 String startDateValue = dateTimeFormat.format(startDate);
                 Date endDate = event.getEndDate();
@@ -78,7 +80,6 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(filterValueRepresentation);
                 DOM.getElementById(id + HEADER_CLEAR_BUTTON_ID_PART)
                         .setClassName(GlobalThemesManager.getCurrentTheme().commonCss().filterBoxClearButtonOn());
-               // event.kill();
                 setFocused(true);
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).focus();
 

@@ -88,11 +88,11 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
         @Override
         public void onClick(ClickEvent clickEvent) {
             List<Date> dates = getRequiredDate(dateDescription);
-            eventBus.fireEvent(new RangeDateSelectedEvent(dates.get(0), dates.get(1)));
+            eventBus.fireEventFromSource(new RangeDateSelectedEvent(dates.get(0), dates.get(1)),
+                    CollectionRangeDatePicker.this);
             eventBus.fireEvent(new FilterEvent(false));
             CollectionRangeDatePicker.this.hide();
         }
-
 
     }
 }

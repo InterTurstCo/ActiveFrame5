@@ -32,7 +32,7 @@ public class CollectionDatePicker extends OneDatePicker {
             @Override
             public void onClick(ClickEvent event) {
                 Date date = dateTimePicker.getFullDate();
-                eventBus.fireEvent(new DateSelectedEvent(date));
+                eventBus.fireEventFromSource(new DateSelectedEvent(date), CollectionDatePicker.this);
                 eventBus.fireEvent(new FilterEvent(false));
                 CollectionDatePicker.this.hide();
             }
