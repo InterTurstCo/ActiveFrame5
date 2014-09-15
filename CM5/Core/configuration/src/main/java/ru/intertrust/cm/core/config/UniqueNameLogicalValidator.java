@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config;
 
+import org.simpleframework.xml.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -10,7 +11,7 @@ import java.util.*;
 /**
  * Валидатор уникальности имен конфигураций верхнего уровня одного типа
  */
-public class UniqueNameLogicalValidator {
+public class UniqueNameLogicalValidator implements ConfigurationValidator {
 
     final static Logger logger = LoggerFactory.getLogger(UniqueNameLogicalValidator.class);
 
@@ -23,10 +24,13 @@ public class UniqueNameLogicalValidator {
     /**
      * Выполняет логическую валидацию конфигурации
      */
-    public void validate() {
+    @Override
+    public List<LogicalErrors> validate() {
+        List<LogicalErrors> logicalErrorsList = new ArrayList<>();
+
         Set<Class<?>> topLevelConfigClasses = configurationExplorer.getTopLevelConfigClasses();
         if (topLevelConfigClasses == null || topLevelConfigClasses.isEmpty()) {
-            return;
+            return logicalErrorsList;
         }
 
         for (Class topLevelConfigClass : topLevelConfigClasses) {
@@ -44,13 +48,14 @@ public class UniqueNameLogicalValidator {
                 TopLevelConfig config2 = configsList.get(i);
 
                 if (config1.getName() != null && nameComparator.compare(config1, config2) == 0) {
-                    throw new ConfigurationException("There are top level configurations of type '" +
-                            topLevelConfigClass.getName() + "' with identical name '" + config1.getName() + "'");
+                    LogicalErrors logicalErrors = LogicalErrors.getInstance(config1.getName(), getTopLevelConfigTagName(config1));
+                    logicalErrors.addError("There are top level configurations with identical name");
+                    logicalErrorsList.add(logicalErrors);
                 }
             }
         }
 
-        logger.info("Configuration has passed unique name logical validation");
+        return logicalErrorsList;
     }
 
     private List<TopLevelConfig> getConfigs(Class clazz) {
@@ -79,6 +84,15 @@ public class UniqueNameLogicalValidator {
             } else {
                 return o1.getName().compareTo(o2.getName());
             }
+        }
+    }
+
+    private String getTopLevelConfigTagName(TopLevelConfig topLevelConfig) {
+        Root root = topLevelConfig.getClass().getAnnotation(Root.class);
+        if (root != null) {
+            return root.name();
+        } else {
+            return topLevelConfig.getClass().getName();
         }
     }
 }

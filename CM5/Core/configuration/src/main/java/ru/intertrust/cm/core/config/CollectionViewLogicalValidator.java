@@ -16,28 +16,26 @@ import java.util.List;
  *         Date: 04/10/13
  *         Time: 12:05 PM
  */
-public class CollectionViewLogicalValidator {
+public class CollectionViewLogicalValidator implements ConfigurationValidator {
     final static Logger logger = LoggerFactory.getLogger(CollectionViewLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
-    private List<LogicalErrors> validationLogicalErrors;
+    private List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 
     public CollectionViewLogicalValidator(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
-        validationLogicalErrors = new ArrayList<LogicalErrors>();
     }
 
     /**
      * Выполняет логическую валидацию конфигурации представлений коллекции
      */
-    public void validate() {
+    public List<LogicalErrors> validate() {
         Collection<CollectionConfig> collectionConfigList = configurationExplorer.getConfigs(CollectionConfig.class);
 
         Collection<CollectionViewConfig> collectionViewConfigList = configurationExplorer.
                 getConfigs(CollectionViewConfig.class);
 
         if (collectionConfigList.isEmpty()) {
-            logger.error("Collection config couldn't be resolved");
             LogicalErrors logicalErrors = LogicalErrors.getInstance("Default", "collection");
             logicalErrors.addError("Collection config couldn't be resolved");
         } else {
@@ -45,23 +43,11 @@ public class CollectionViewLogicalValidator {
                 String name = collectionViewConfig.getName();
                 LogicalErrors logicalErrors = LogicalErrors.getInstance(name, "collection-view");
                 validateCollectionViewConfig(collectionViewConfig, collectionConfigList, logicalErrors);
-                validationLogicalErrors.add(logicalErrors);
+                logicalErrorsList.add(logicalErrors);
             }
         }
-        StringBuilder errorLogBuilder = new StringBuilder();
-        for (LogicalErrors errors : validationLogicalErrors) {
-            if (errors.getErrorCount() != 0) {
-                errorLogBuilder.append(errors.toString());
-                errorLogBuilder.append("\n");
-            }
-        }
-        String errorLog = errorLogBuilder.toString();
-        if (!errorLog.equalsIgnoreCase("")) {
-            throw new ConfigurationException(errorLog);
 
-        }
-        logger.info("Collection view configuration has passed logical validation without errors");
-
+        return logicalErrorsList;
     }
 
     private void validateCollectionViewConfig(CollectionViewConfig collectionViewConfig,

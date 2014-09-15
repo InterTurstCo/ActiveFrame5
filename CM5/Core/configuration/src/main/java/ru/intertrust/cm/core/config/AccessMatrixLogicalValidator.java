@@ -12,7 +12,7 @@ import java.util.List;
  *         Date: 04.04.14
  *         Time: 12:57
  */
-public class AccessMatrixLogicalValidator {
+public class AccessMatrixLogicalValidator implements ConfigurationValidator {
 
     private final ConfigurationExplorer configurationExplorer;
 
@@ -22,8 +22,10 @@ public class AccessMatrixLogicalValidator {
         this.configurationExplorer = configurationExplorer;
     }
 
-    public void validate() {
-        List<LogicalErrors> validationLogicalErrors = new ArrayList<LogicalErrors>();
+    @Override
+    public List<LogicalErrors> validate() {
+        List<LogicalErrors> logicalErrorsList = new ArrayList<>();
+
         Collection<AccessMatrixConfig> configList = configurationExplorer.getConfigs(AccessMatrixConfig.class);
         for (AccessMatrixConfig matrixConfig : configList) {
             LogicalErrors logicalErrors = LogicalErrors.getInstance(matrixConfig.getName(), "access-matrix");
@@ -47,17 +49,11 @@ public class AccessMatrixLogicalValidator {
                 }
             }
             if (logicalErrors.getErrorCount() > 0) {
-                validationLogicalErrors.add(logicalErrors);
+                logicalErrorsList.add(logicalErrors);
             }
         }
-        if (!validationLogicalErrors.isEmpty()) {
-            StringBuilder errorLogBuilder = new StringBuilder();
-            for (LogicalErrors errors : validationLogicalErrors) {
-                errorLogBuilder.append(errors.toString()).append("\n");
-            }
-            throw new ConfigurationException(errorLogBuilder.toString());
-        }
-    }
 
+        return logicalErrorsList;
+    }
 
 }

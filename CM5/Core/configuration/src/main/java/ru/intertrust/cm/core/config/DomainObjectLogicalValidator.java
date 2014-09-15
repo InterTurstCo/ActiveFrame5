@@ -3,17 +3,20 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Логически Валидирует конфигурацию
  * User: atsvetkov Date: 17.05.13 Time: 13:52
  */
-public class DomainObjectLogicalValidator {
+public class DomainObjectLogicalValidator implements ConfigurationValidator {
 
     final static Logger logger = LoggerFactory.getLogger(DomainObjectLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
+    private List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 
     public DomainObjectLogicalValidator(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -22,60 +25,68 @@ public class DomainObjectLogicalValidator {
     /**
      * Выполняет логическую валидацию конфигурации
      */
-    public void validate() {
-        Collection<DomainObjectTypeConfig> configList =
-                configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+    public List<LogicalErrors> validate() {
+        Collection<DomainObjectTypeConfig> configList = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+
         if (configList.isEmpty()) {
-            return;
+            return logicalErrorsList;
         }
+
         for (DomainObjectTypeConfig config : configList) {
-            validateDomainObjectConfig(config);
+            LogicalErrors logicalErrors = validateDomainObjectConfig(config);
+            if (logicalErrors != null && logicalErrors.getErrorCount() > 0) {
+                logicalErrorsList.add(logicalErrors);
+            }
         }
 
-        logger.info("Document has passed logical validation");
+        return logicalErrorsList;
     }
 
-    private void validateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+    private LogicalErrors validateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
         if (domainObjectTypeConfig == null) {
-            return;
+            return null;
         }
 
-        validateExtendsAttribute(domainObjectTypeConfig);
-        validateReferenceFields(domainObjectTypeConfig);
-        validateUniqueKeys(domainObjectTypeConfig);
-        validateIndices(domainObjectTypeConfig);
+        LogicalErrors logicalErrors = LogicalErrors.getInstance(domainObjectTypeConfig.getName(), "domain-object");
+
+        validateExtendsAttribute(domainObjectTypeConfig, logicalErrors);
+        validateReferenceFields(domainObjectTypeConfig, logicalErrors);
+        validateUniqueKeys(domainObjectTypeConfig, logicalErrors);
+        validateIndices(domainObjectTypeConfig, logicalErrors);
+
+        return logicalErrors;
     }
 
-    private void validateUniqueKeys(DomainObjectTypeConfig domainObjectTypeConfig) {
+    private void validateUniqueKeys(DomainObjectTypeConfig domainObjectTypeConfig, LogicalErrors logicalErrors) {
         for (UniqueKeyConfig uniqueKeyConfig : domainObjectTypeConfig.getUniqueKeyConfigs()) {
             for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
-                validateDomainObjectConfigContainsField(domainObjectTypeConfig, uniqueKeyFieldConfig.getName());
+                validateDomainObjectConfigContainsField(domainObjectTypeConfig, uniqueKeyFieldConfig.getName(), logicalErrors);
             }
         }
     }
 
-    private void validateIndices(DomainObjectTypeConfig domainObjectTypeConfig) {
+    private void validateIndices(DomainObjectTypeConfig domainObjectTypeConfig, LogicalErrors logicalErrors) {
         if (domainObjectTypeConfig.getIndicesConfig() != null) {
             for (IndexConfig indexConfig : domainObjectTypeConfig.getIndicesConfig().getIndices()) {
                 for (IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()) {
-                    validateDomainObjectConfigContainsField(domainObjectTypeConfig, indexFieldConfig.getName());
+                    validateDomainObjectConfigContainsField(domainObjectTypeConfig, indexFieldConfig.getName(), logicalErrors);
                 }
             }
         }
     }
 
     private void validateDomainObjectConfigContainsField(DomainObjectTypeConfig domainObjectTypeConfig,
-                                                         String fieldName) {
+                                                         String fieldName, LogicalErrors logicalErrors) {
         for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             if(fieldName.equals(fieldConfig.getName())) {
                 return;
             }
         }
-        throw new ConfigurationException("FieldConfig with name '" + fieldName + "' is not found in domain object '" +
-                domainObjectTypeConfig.getName() + "'");
+
+        logicalErrors.addError("FieldConfig with name '" + fieldName + "' is not found");
     }
 
-    private void validateReferenceFields(DomainObjectTypeConfig domainObjectTypeConfig) {
+    private void validateReferenceFields(DomainObjectTypeConfig domainObjectTypeConfig, LogicalErrors logicalErrors) {
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             if (!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 continue;
@@ -90,35 +101,35 @@ public class DomainObjectLogicalValidator {
             DomainObjectTypeConfig referencedConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, referenceFieldConfig.getType());
             if (referencedConfig == null) {
-                throw new ConfigurationException("Definition is not found for '" + referenceFieldConfig.getType() +
-                        "' referenced from '" + domainObjectTypeConfig.getName() + "'");
+                logicalErrors.addError("Definition is not found for '" + referenceFieldConfig.getType() + "'");
             }
         }
     }
 
-    private void validateExtendsAttribute(DomainObjectTypeConfig domainObjectTypeConfig) {
+    private void validateExtendsAttribute(DomainObjectTypeConfig domainObjectTypeConfig, LogicalErrors logicalErrors) {
         String extendsAttributeValue = domainObjectTypeConfig.getExtendsAttribute();
         if (extendsAttributeValue != null) {
             DomainObjectTypeConfig extendedConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, extendsAttributeValue);
 
             if (extendedConfig == null) {
-                throw new ConfigurationException("Extended DomainObject Configuration is not found for name '" +
+                logicalErrors.addError("Extended DomainObject Configuration is not found for name '" +
                         extendsAttributeValue + "'");
             }
 
-            validateForCoincidentFieldNamesInHierarchy(domainObjectTypeConfig, extendedConfig);
+            validateForCoincidentFieldNamesInHierarchy(domainObjectTypeConfig, extendedConfig, logicalErrors);
         }
     }
 
-    private void validateForCoincidentFieldNamesInHierarchy(DomainObjectTypeConfig config, DomainObjectTypeConfig parentConfig) {
+    private void validateForCoincidentFieldNamesInHierarchy(DomainObjectTypeConfig config,
+                                                            DomainObjectTypeConfig parentConfig, LogicalErrors logicalErrors) {
         for (FieldConfig fieldConfig : config.getFieldConfigs()) {
             FieldConfig parentFieldConfig = configurationExplorer.getFieldConfig(parentConfig.getName(),
                     fieldConfig.getName());
 
             if (parentFieldConfig != null) {
-                throw new ConfigurationException("FieldConfig with name '" + fieldConfig.getName() + "' is already " +
-                        "used in some inherited DomainObjectTypeConfig of '" + config.getName() + "'");
+                logicalErrors.addError("FieldConfig with name '" + fieldConfig.getName() +
+                        "' is already used in some ancestor");
             }
         }
     }

@@ -19,7 +19,7 @@ import java.util.List;
  *         Date: 07/10/13
  *         Time: 13:05 PM
  */
-public class FormLogicalValidator {
+public class FormLogicalValidator implements ConfigurationValidator {
 
     private static final String ALIGN_TOP = "top";
     private static final String ALIGN_BOTTOM = "bottom";
@@ -36,15 +36,13 @@ public class FormLogicalValidator {
     private final static Logger logger = LoggerFactory.getLogger(FormLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
-    private List<LogicalErrors> validationLogicalErrors;
+    private List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 
     public FormLogicalValidator() {
-        validationLogicalErrors = new ArrayList<LogicalErrors>();
     }
 
     public FormLogicalValidator(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
-        validationLogicalErrors = new ArrayList<LogicalErrors>();
     }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
@@ -54,33 +52,23 @@ public class FormLogicalValidator {
     /**
      * Выполняет логическую валидацию конфигурации форм
      */
-    public void validate() {
+    @Override
+    public List<LogicalErrors> validate() {
         Collection<FormConfig> formConfigList = configurationExplorer.getConfigs(FormConfig.class);
 
         if (formConfigList.isEmpty()) {
             logger.error("Form config couldn't be resolved");
-            return;
+            return logicalErrorsList;
         }
+
         for (FormConfig formConfig : formConfigList) {
             String formName = formConfig.getName();
             LogicalErrors logicalErrors = LogicalErrors.getInstance(formName, "form");
             validateFormConfig(formConfig, logicalErrors);
-            validationLogicalErrors.add(logicalErrors);
+            logicalErrorsList.add(logicalErrors);
         }
-        StringBuilder errorLogBuilder = new StringBuilder();
-        for (LogicalErrors errors : validationLogicalErrors) {
-            if (errors.getErrorCount() != 0) {
-                errorLogBuilder.append(errors.toString());
-                errorLogBuilder.append("\n");
-            }
-        }
-        String errorLog = errorLogBuilder.toString();
-        if (!errorLog.equalsIgnoreCase("")) {
-            throw new ConfigurationException(errorLog);
 
-        }
-        logger.info("Form's configuration has passed logical validation without errors");
-
+        return logicalErrorsList;
     }
 
     private void validateFormConfig(FormConfig formConfig, LogicalErrors logicalErrors) {

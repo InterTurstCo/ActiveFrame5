@@ -34,8 +34,8 @@ public class UniqueNameLogicalValidatorTest {
         createConfigurationExplorer(DOMAIN_OBJECTS_CONFIG_PATH);
 
         expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("There are top level configurations of type '" +
-                DomainObjectTypeConfig.class.getName() + "' with identical name 'Duplicated_Name'");
+        expectedException.expectMessage("Configuration of domain-object-type with name 'Duplicated_Name' was validated with errors.Count: 1 Content:\n" +
+                "There are top level configurations with identical name\n");
 
         // Check for configuration with duplicated name
         createConfigurationExplorer(DOMAIN_OBJECTS_DUPLICATED_NAME_CONFIG_PATH);

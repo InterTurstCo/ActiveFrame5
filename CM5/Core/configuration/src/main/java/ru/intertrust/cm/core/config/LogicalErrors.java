@@ -23,6 +23,19 @@ public class LogicalErrors {
         return logicalErrors;
     }
 
+    public static String toString(List<LogicalErrors> logicalErrorsList) {
+        if (logicalErrorsList == null || logicalErrorsList.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder errorLogBuilder = new StringBuilder();
+        for (LogicalErrors errors : logicalErrorsList) {
+            errorLogBuilder.append(errors.toString()).append("\n");
+        }
+
+        return errorLogBuilder.toString();
+    }
+
     public int getErrorCount() {
         return errorCount;
     }

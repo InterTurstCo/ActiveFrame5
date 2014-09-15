@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * @author larin
  * 
  */
-public class IndirectlyPermissionLogicalValidator {
+public class IndirectlyPermissionLogicalValidator implements ConfigurationValidator {
     final static Logger logger = LoggerFactory.getLogger(IndirectlyPermissionLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
@@ -27,11 +27,16 @@ public class IndirectlyPermissionLogicalValidator {
      * косвенные права и проверяем всю иерархию вверх и врих на то чтобы у всех
      * были аналогичные тип матрицы
      */
-    public void validate() {
+    @Override
+    public List<LogicalErrors> validate() {
+        List<LogicalErrors> logicalErrorsList = new ArrayList<>();
+
         Collection<AccessMatrixConfig> accessMatrixConfigs = configurationExplorer.getConfigs(AccessMatrixConfig.class);
         //Ищем все матрицы с косвенными правами
         for (AccessMatrixConfig accessMatrixConfig : accessMatrixConfigs) {
             if (accessMatrixConfig.getMatrixReference() != null && accessMatrixConfig.getMatrixReference().length() > 0) {
+                LogicalErrors logicalErrors = LogicalErrors.getInstance(accessMatrixConfig.getName(), "access-matrix");
+
                 //Получаем родительский тип для того типа к которому относится матрица прав
                 String rootType = configurationExplorer.getDomainObjectRootType(accessMatrixConfig.getType());
                 //Получаем всех потомков
@@ -42,12 +47,19 @@ public class IndirectlyPermissionLogicalValidator {
                     //Для каждого потомка проверяем тип матрицы
                     AccessMatrixConfig checkMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(checkType);
                     if (checkMatrixConfig != null && (checkMatrixConfig.getMatrixReference() == null || checkMatrixConfig.getMatrixReference().length() == 0)) {
-                        throw new ConfigurationException("Access Matrix tor type " + accessMatrixConfig.getType() + " has indirectly permissions, but type "
-                                + checkType + " from " + rootType + " type hierarchy has direct permission");
+                        logicalErrors.addError("Access Matrix tor type " + accessMatrixConfig.getType() +
+                                " has indirectly permissions, but type " + checkType + " from " + rootType +
+                                " type hierarchy has direct permission");
                     }
+                }
+
+                if (logicalErrors.getErrorCount() > 0) {
+                    logicalErrorsList.add(logicalErrors);
                 }
             }
         }
+
+        return logicalErrorsList;
     }
 
     /**

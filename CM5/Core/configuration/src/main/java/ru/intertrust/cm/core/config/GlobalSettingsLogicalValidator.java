@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,15 +13,18 @@ import java.util.List;
  *         Date: 31/10/13
  *         Time: 12:05 PM
  */
-public class GlobalSettingsLogicalValidator {
-    private static final Logger logger = LoggerFactory.getLogger(NavigationPanelLogicalValidator.class);
+public class GlobalSettingsLogicalValidator implements ConfigurationValidator {
     private Configuration configuration;
 
     public GlobalSettingsLogicalValidator(Configuration configuration) {
         this.configuration = configuration;
 
     }
-    public void validate(){
+
+    @Override
+    public List<LogicalErrors> validate(){
+        List<LogicalErrors> logicalErrorsList = new ArrayList<>();
+
         int globalConfigurationCount = 0;
         List<TopLevelConfig> topLevelConfigs = configuration.getConfigurationList();
         for(TopLevelConfig topLevelConfig : topLevelConfigs) {
@@ -28,12 +32,20 @@ public class GlobalSettingsLogicalValidator {
                  globalConfigurationCount++;
              }
         }
+
+        LogicalErrors logicalErrors = LogicalErrors.getInstance("Default", "global-settings");
+
         if (globalConfigurationCount == 0) {
-            throw new ConfigurationException("There is no global settings configuration!");
+            logicalErrors.addError("There is no global settings configuration!");
         }
         if (globalConfigurationCount > 1 ) {
-            throw new ConfigurationException("There are more then one global settings configurations!");
+            logicalErrors.addError("There are more then one global settings configurations!");
         }
-        logger.info("Global settings configuration has passed logical validation");
+
+        if (logicalErrors.getErrorCount() > 0) {
+            logicalErrorsList.add(logicalErrors);
+        }
+
+        return logicalErrorsList;
     }
 }

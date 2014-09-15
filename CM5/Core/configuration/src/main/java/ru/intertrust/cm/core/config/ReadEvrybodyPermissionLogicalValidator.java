@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * @author larin
  * 
  */
-public class ReadEvrybodyPermissionLogicalValidator {
+public class ReadEvrybodyPermissionLogicalValidator implements ConfigurationValidator {
     final static Logger logger = LoggerFactory.getLogger(ReadEvrybodyPermissionLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
@@ -29,7 +29,7 @@ public class ReadEvrybodyPermissionLogicalValidator {
      * всех были был read-everybody=true или read-everybody=null и отсутствовал
      * блок read в матрицах
      */
-    public void validate() {
+    public List<LogicalErrors> validate() {
         ConfigurationException exception = null;
         Collection<AccessMatrixConfig> accessMatrixConfigs = configurationExplorer.getConfigs(AccessMatrixConfig.class);
         for (AccessMatrixConfig accessMatrixConfig : accessMatrixConfigs) {
@@ -77,6 +77,8 @@ public class ReadEvrybodyPermissionLogicalValidator {
                 }
             }
         }
+
+        return new ArrayList<>();
     }
 
     /**
