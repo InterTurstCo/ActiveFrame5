@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.converter;
 
-import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import ru.intertrust.cm.core.config.ConfigurationException;
+
 import java.util.ArrayList;
 import java.util.List;
 
