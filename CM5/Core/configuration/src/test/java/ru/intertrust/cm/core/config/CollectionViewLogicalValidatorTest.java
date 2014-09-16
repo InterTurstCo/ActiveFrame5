@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.config;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -12,6 +14,7 @@ import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
+import static org.junit.Assert.assertEquals;
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
 /**
@@ -39,20 +42,17 @@ public class CollectionViewLogicalValidatorTest {
 
     @Test
     public void validateIncorrectCollectionView() throws Exception {
-        expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("Configuration of collection-view with name 'employees_default_view' "
+        String expectedMessage = "Configuration of collection-view with name 'employees_default_view' "
                 + "was validated with errors.Count: 1 Content:\n"
                 + "Couldn't find field 'updated_date' in sql query for collection with name 'Employees'\n"
                 + "Configuration of collection-view with name "
                 + "'countries_view' was validated with errors.Count: 1 Content:\n"
-                + "Couldn't find collection with name 'Countries'\n");
+                + "Couldn't find collection with name 'Countries'\n";
 
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_COLLECTION_VIEW_XML_PATH);
 
-        CollectionViewLogicalValidator collectionViewValidator =
-                new CollectionViewLogicalValidator(configurationExplorer);
-        collectionViewValidator.validate();
-
+        List<LogicalErrors> logicalErrorsList = new CollectionViewLogicalValidator(configurationExplorer).validate();
+        assertEquals(expectedMessage, LogicalErrors.toString(logicalErrorsList));
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {

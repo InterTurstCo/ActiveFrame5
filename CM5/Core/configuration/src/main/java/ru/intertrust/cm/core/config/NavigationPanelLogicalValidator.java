@@ -16,27 +16,21 @@ import java.util.List;
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-public class NavigationPanelLogicalValidator {
+public class NavigationPanelLogicalValidator implements ConfigurationValidator {
     private static final String PlUGIN_HANDLER_FULL_QUALIFIED_NAME =
             "ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler";
     private static final Logger logger = LoggerFactory.getLogger(NavigationPanelLogicalValidator.class);
 
-    private List<LogicalErrors> validationLogicalErrors;
+    private List<LogicalErrors> logicalErrorsList = new ArrayList<>();
     private ConfigurationExplorer configurationExplorer;
 
     @Autowired
     ApplicationContext context;
 
     public NavigationPanelLogicalValidator() {
-        validationLogicalErrors = new ArrayList<LogicalErrors>();
     }
     public NavigationPanelLogicalValidator(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
-        validationLogicalErrors = new ArrayList<LogicalErrors>();
-    }
-
-    public List<LogicalErrors> getValidationLogicalErrors() {
-        return validationLogicalErrors;
     }
 
     public ConfigurationExplorer getConfigurationExplorer() {
@@ -50,30 +44,21 @@ public class NavigationPanelLogicalValidator {
     /**
      * Выполняет логическую валидацию конфигурации панели навигации
      */
-    public void validate() {
+    @Override
+    public List<LogicalErrors> validate() {
         Collection<NavigationConfig> navigationConfigList = configurationExplorer.getConfigs(NavigationConfig.class);
 
         if (navigationConfigList.isEmpty()) {
             logger.info("Navigation Panel config couldn't be resolved");
-            return;
+            return logicalErrorsList;
         }
+
         for (NavigationConfig navigationConfig : navigationConfigList) {
             logger.info("Validating navigation panel with name '{}'", navigationConfig.getName());
             validateNavigateConfig(navigationConfig);
         }
-        StringBuilder errorLogBuilder = new StringBuilder();
-        for (LogicalErrors errors : validationLogicalErrors) {
-              if(errors.getErrorCount() != 0) {
-                  errorLogBuilder.append(errors.toString());
-                  errorLogBuilder.append("\n");
-              }
-        }
-        String errorLog = errorLogBuilder.toString();
-        if (!errorLog.equalsIgnoreCase("")) {
-            throw new ConfigurationException(errorLog);
 
-        }
-        logger.info("Navigation Panel configuration has passed logical validation without errors");
+        return logicalErrorsList;
     }
 
     private void validateNavigateConfig(NavigationConfig navigationConfig) {
@@ -92,7 +77,7 @@ public class NavigationPanelLogicalValidator {
             validatePluginHandlers(linkConfig, logicalErrors);
         }
 
-        validationLogicalErrors.add(logicalErrors);
+        logicalErrorsList.add(logicalErrors);
     }
 
     private void validateLinkConfig(LinkConfig linkConfig, LogicalErrors logicalErrors) {

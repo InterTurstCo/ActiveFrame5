@@ -82,7 +82,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         VerticalPanel hp = new VerticalPanel();
         Button addButton = createAddButton();
         addButton.removeStyleName("gwt-Button");
-        addButton.addStyleName("dark-button");
+        addButton.addStyleName("light-button ldotCreate");
         hp.add(addButton);
 
         return hp;
@@ -100,7 +100,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     }
 
     private Button createAddButton() {
-        Button button = new Button("Добавить");
+        Button button = new Button(""); // была прописана клавиша - Добавить
         button.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

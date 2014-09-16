@@ -73,7 +73,7 @@ public class ConfigurationControlServiceImplTest extends TestCase {
                 thenReturn(configurationExplorerImpl.getDomainObjectTypeConfig("Outgoing_Document"));
         when(configurationExplorer.getDomainObjectTypeConfig("Employee")).
                 thenReturn(configurationExplorerImpl.getDomainObjectTypeConfig("Employee"));
-        when(configurationSerializer.deserializeTrustedConfiguration(newConfigurationString, false)).
+        when(configurationSerializer.deserializeTrustedConfiguration(newConfigurationString)).
                 thenReturn(newConfiguration);
 
         assertFalse(configurationControlService.restartRequiredForFullUpdate(newConfigurationString));
@@ -88,7 +88,7 @@ public class ConfigurationControlServiceImplTest extends TestCase {
 
         newConfigurationString = ConfigurationSerializer.serializeConfiguration(newConfiguration);
 
-        when(configurationSerializer.deserializeTrustedConfiguration(newConfigurationString, false)).
+        when(configurationSerializer.deserializeTrustedConfiguration(newConfigurationString)).
                 thenReturn(newConfiguration);
 
         assertTrue(configurationControlService.restartRequiredForFullUpdate(newConfigurationString));

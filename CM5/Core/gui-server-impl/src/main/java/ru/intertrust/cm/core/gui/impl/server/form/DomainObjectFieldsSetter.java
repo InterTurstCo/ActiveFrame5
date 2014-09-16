@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -28,6 +29,9 @@ public class DomainObjectFieldsSetter {
 
     @Autowired
     private PersonService personService;
+
+    @Autowired
+    private CrudService crudService;
 
     private DomainObject linkedObject;
     private List<FieldValueConfig> fieldValueConfigs;
@@ -80,7 +84,7 @@ public class DomainObjectFieldsSetter {
             uniqueKeyValuesByName.put(fieldValueConfig.getName(), literalFieldValueParser.textToValue(fieldValueConfig, fieldConfig));
         }
 
-        return null; // todo findByUniqueKey
+        return crudService.findByUniqueKey(type, uniqueKeyValuesByName);
     }
 
 }

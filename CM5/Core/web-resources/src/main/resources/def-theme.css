@@ -2717,7 +2717,7 @@ td.datePickerMonth {
 }
 /* ------------>>> end breadcrumbs <<<------------ */
 
-.eeee{
+.eeee {
     color: green;
 }
 
@@ -2735,3 +2735,14 @@ td.datePickerMonth {
 }
 /* ------------>>> end Action Executor Widget <<<------------ */
 
+/* ------------>>> Linked Domain Objects Table Widget <<<------------ */
+.ldotCreate {
+    background: #f5f5f5 url(resources/defaulttheme/images/icons/icon-create.png) no-repeat 50% 7%;
+    height: 25px;
+    width: 25px;
+}
+
+.ldotCreate:active {
+    background: #f5f5f5 url(resources/defaulttheme/images/icons/icon-create.png) no-repeat 50% 7%;
+}
+/* ------------>>> end Linked Domain Objects Table Widget <<<------------ */

@@ -33,6 +33,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     private ApplicationEventPublisher applicationEventPublisher;
 
+    private List<ConfigurationException> logicalErrors = new ArrayList<>();
+
     @Autowired
     FormLogicalValidator formLogicalValidator;
 
@@ -91,17 +93,27 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      *
      */
     private void validate() {
-        new GlobalSettingsLogicalValidator(configStorage.configuration).validate();
-        new DomainObjectLogicalValidator(this).validate();
+        List<LogicalErrors> logicalErrorsList = new ArrayList<>();
+
+        logicalErrorsList.addAll(new GlobalSettingsLogicalValidator(configStorage.configuration).validate());
+        logicalErrorsList.addAll(new DomainObjectLogicalValidator(this).validate());
+
         if (configStorage.globalSettings.validateAccessMatrices()) {
-            new AccessMatrixLogicalValidator(this).validate();
+            logicalErrorsList.addAll(new AccessMatrixLogicalValidator(this).validate());
         }
-        new UniqueNameLogicalValidator(this).validate();
+
+        logicalErrorsList.addAll(new UniqueNameLogicalValidator(this).validate());
+
         if (configStorage.globalSettings.validateIndirectPermissions()) {
-            new IndirectlyPermissionLogicalValidator(this).validate();
+            logicalErrorsList.addAll(new IndirectlyPermissionLogicalValidator(this).validate());
         }
+
         if (configStorage.globalSettings.validateAccessMatrices()) {
-            new ReadEvrybodyPermissionLogicalValidator(this).validate();
+            logicalErrorsList.addAll(new ReadEvrybodyPermissionLogicalValidator(this).validate());
+        }
+
+        if (!logicalErrorsList.isEmpty()) {
+            throw new ConfigurationException(LogicalErrors.toString(logicalErrorsList));
         }
     }
 

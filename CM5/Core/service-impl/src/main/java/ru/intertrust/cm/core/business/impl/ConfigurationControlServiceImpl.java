@@ -80,14 +80,10 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     }
 
     private Configuration deserializeConfiguration(String configurationString) {
-        Configuration configuration;
-        try {
-            configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString, false);
-            if (configuration == null) {
-                throw new ConfigurationException("Failed to deserialize configuration");
-            }
-        } catch (ConfigurationException e) {
-            throw new ConfigurationException("Configuration loading aborted: failed to deserialize configuration", e);
+        Configuration configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString);
+
+        if (configuration == null) {
+            throw new ConfigurationException("Failed to deserialize configuration");
         }
 
         return configuration;
