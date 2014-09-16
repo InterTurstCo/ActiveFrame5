@@ -47,7 +47,7 @@ public class LinkedTableUtil {
         Column<RowItem, String> editButtonColumn = new Column<RowItem, String>(editButton) {
             @Override
             public String getValue(RowItem object) {
-                return "Редактировать";
+                return "";
             }
         };
         editButtonColumn.setCellStyleNames(GlobalThemesManager.getCurrentTheme().commonCss().editColumn());
@@ -60,7 +60,7 @@ public class LinkedTableUtil {
         Column<RowItem, String> deleteButtonColumn = new Column<RowItem, String>(deleteButton) {
             @Override
             public String getValue(RowItem object) {
-                return "Удалить";
+                return "";
             }
         };
         deleteButtonColumn.setFieldUpdater(new FieldUpdater<RowItem, String>() {
