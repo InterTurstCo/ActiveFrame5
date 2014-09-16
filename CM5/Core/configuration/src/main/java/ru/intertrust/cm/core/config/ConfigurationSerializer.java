@@ -14,7 +14,7 @@ import org.simpleframework.xml.strategy.Strategy;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.base.ErrorIgnoringConfiguration;
+import ru.intertrust.cm.core.config.converter.ConfigurationDeserializationException;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
@@ -59,16 +59,12 @@ public class ConfigurationSerializer {
      * @throws ConfigurationException
      *             в случае ошибки десериализации
      */
-    public Configuration deserializeTrustedConfiguration(String configurationString, boolean ignoreErrors) throws
+    public Configuration deserializeTrustedConfiguration(String configurationString) throws
             ConfigurationException {
         try {
-            if (ignoreErrors) {
-                return createSerializerInstance().read(ErrorIgnoringConfiguration.class, configurationString);
-            } else {
-                return createSerializerInstance().read(Configuration.class, configurationString);
-            }
+            return createSerializerInstance().read(Configuration.class, configurationString);
         } catch (Exception e) {
-            throw new ConfigurationException("Failed to serialize configuration from String", e);
+            throw new ConfigurationException("Failed to serialize configuration from string.\n" + e);
         }
     }
 
@@ -90,10 +86,25 @@ public class ConfigurationSerializer {
                 schemaPaths.add(moduleConfiguration.getConfigurationSchemaPath());
             }
             if (moduleConfiguration.getConfigurationPaths() != null) {
+                List<Exception> exceptionList = new ArrayList<>();
+
                 for (String configurationFilePath : moduleConfiguration.getConfigurationPaths()) {
-                    Configuration partialConfiguration = deserializeConfiguration(configurationFilePath, schemaPaths,
-                            moduleConfiguration.getModuleUrl());
-                    combineConfigurations(partialConfiguration, combinedConfiguration);
+                    try {
+                        Configuration partialConfiguration = deserializeConfiguration(configurationFilePath, schemaPaths,
+                                moduleConfiguration.getModuleUrl());
+                        combineConfigurations(partialConfiguration, combinedConfiguration);
+                    } catch (Exception e) {
+                        exceptionList.add(e);
+                    }
+                }
+
+                if (!exceptionList.isEmpty()) {
+                    StringBuilder errorMessage = new StringBuilder("Failed to deserialize configuration.\n");
+                    for (Exception exception : exceptionList) {
+                        errorMessage.append(exception.getMessage());
+                    }
+
+                    throw new ConfigurationException(errorMessage.toString());
                 }
             }
         }
@@ -121,7 +132,7 @@ public class ConfigurationSerializer {
      * @throws Exception
      */
     private Configuration deserializeConfiguration(String configurationFilePath,
-            List<String> configurationSchemaFilePath, URL moduleUrl)
+                                                   List<String> configurationSchemaFilePath, URL moduleUrl)
             throws Exception {
         try {
             InputStream[] schemaInputStreams = new InputStream[configurationSchemaFilePath.size()];
@@ -135,10 +146,13 @@ public class ConfigurationSerializer {
                             schemaInputStreams);
             schemaValidator.validate();
             final InputStream is = getStreamFromUrl(moduleUrl, configurationFilePath);
-            final Configuration result = createSerializerInstance().read(ErrorIgnoringConfiguration.class, is);
+            final Configuration result = createSerializerInstance().read(Configuration.class, is);
             return result;
+        } catch (ConfigurationDeserializationException e) {
+            e.setConfigurationFilePath(configurationFilePath);
+            throw e;
         } catch (Exception ex) {
-            throw new ConfigurationException("Error load " + configurationFilePath, ex);
+            throw new ConfigurationException("Error loading " + configurationFilePath + ":" + ex.getMessage());
         }
     }
 
