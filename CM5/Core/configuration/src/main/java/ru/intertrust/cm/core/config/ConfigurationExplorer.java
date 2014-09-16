@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
@@ -223,5 +224,13 @@ public interface ConfigurationExplorer {
      * @return
      */
     List<String> getAllowedToCreateUserGroups(String typeName);
+
+    /**
+     * Возвращает конфигурацию журнала системных событий
+     * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
+     * Изменение данного объекта недопустимо и напрямую приводит к некорректной работе приложения
+     * @return конфигурация журнала системных событий
+     */
+    EventLogsConfig getEventLogsConfiguration();
 
 }

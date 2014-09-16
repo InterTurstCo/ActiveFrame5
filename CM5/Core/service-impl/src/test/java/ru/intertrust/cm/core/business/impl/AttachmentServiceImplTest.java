@@ -16,10 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.business.api.BaseAttachmentService;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.IdService;
+import ru.intertrust.cm.core.business.api.*;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.impl.RdbmsIdServiceImpl;
@@ -135,6 +132,9 @@ public class AttachmentServiceImplTest {
         private CurrentUserAccessor currentUserAccessor;
 
         @Mock
+        private EventLogService eventLogService;
+
+        @Mock
         AccessToken accessToken;
 
         @Mock
@@ -224,6 +224,11 @@ public class AttachmentServiceImplTest {
             }).when(crudService).find(any(Id.class));
 
             return crudService;
+        }
+
+        @Bean
+        public EventLogService eventLogService() {
+            return eventLogService;
         }
 
         @Bean

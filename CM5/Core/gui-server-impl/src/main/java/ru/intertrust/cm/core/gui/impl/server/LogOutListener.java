@@ -1,0 +1,35 @@
+package ru.intertrust.cm.core.gui.impl.server;
+
+import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.EventLogService;
+import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
+
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
+
+/**
+ * Слушатель окончания сессии
+ */
+public class LogOutListener implements HttpSessionListener {
+
+    @Override
+    public void sessionCreated(HttpSessionEvent httpSessionEvent) {
+
+    }
+
+    @Override
+    public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
+
+        Object credentials = httpSessionEvent.getSession().getAttribute(LoginServiceImpl.USER_CREDENTIALS_SESSION_ATTRIBUTE);
+
+        if (credentials instanceof UserUidWithPassword){
+            UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
+            String login = userUidWithPassword.getUserUid();
+            ApplicationContext ctx = SpringApplicationContext.getContext();
+            EventLogService eventLogService = ctx.getBean(EventLogService.class);
+            eventLogService.logLogOutEvent(login);
+        }
+
+    }
+}

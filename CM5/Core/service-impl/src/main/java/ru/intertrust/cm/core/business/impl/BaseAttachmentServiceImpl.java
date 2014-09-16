@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.EventLogService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -50,6 +51,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private EventLogService eventLogService;
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -141,6 +144,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         try {
             InputStream inputStream = attachmentContentDao.loadContent(attachmentDomainObject);
             RemoteInputStream export = wrapStream(inputStream);
+            eventLogService.logDownloadAttachmentEvent(attachmentDomainObjectId);
             return export;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in loadAttachment", ex);

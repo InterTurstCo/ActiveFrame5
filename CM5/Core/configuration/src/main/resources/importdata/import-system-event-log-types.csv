@@ -1,0 +1,7 @@
+TYPE_NAME=sel_type;KEYS=code
+code;description
+LOGIN;User Login
+LOGOUT;User Logout
+DOWNLOAD_ATTACHMENT;Download attachment
+ACCESS_OBJECT;Access object
+ACCESS_COLLECTION;Access collection

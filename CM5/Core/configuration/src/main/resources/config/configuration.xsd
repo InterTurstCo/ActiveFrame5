@@ -609,6 +609,29 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+
+        <xs:element name="event-logs" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element name="login" minOccurs="0" maxOccurs="1">
+                        <xs:complexType>
+                            <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="logout" minOccurs="0" maxOccurs="1">
+                        <xs:complexType>
+                            <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="download-attachment" minOccurs="0" maxOccurs="1">
+                        <xs:complexType>
+                            <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+
         </xs:sequence>
     </xs:complexType>
 

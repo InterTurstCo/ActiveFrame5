@@ -1,10 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
+import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.EventLogService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.model.AuthenticationException;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
+import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,7 +33,9 @@ public class LoginServiceImpl implements LoginService {
             request.login(userUid, password);
             request.getSession().setAttribute(USER_CREDENTIALS_SESSION_ATTRIBUTE, credentials);
             request.logout();
+            getEventLogService().logLogInEvent(userUid, request.getRemoteAddr(), true);
         } catch (ServletException e) {
+            getEventLogService().logLogInEvent(userUid, request.getRemoteAddr(), false);
             throw new AuthenticationException(e);
         }
     }
@@ -42,5 +48,9 @@ public class LoginServiceImpl implements LoginService {
         } catch (ServletException e) {
             e.printStackTrace();
         }
+    }
+     private EventLogService getEventLogService(){
+        ApplicationContext ctx = SpringApplicationContext.getContext();
+        return ctx.getBean(EventLogService.class);
     }
 }

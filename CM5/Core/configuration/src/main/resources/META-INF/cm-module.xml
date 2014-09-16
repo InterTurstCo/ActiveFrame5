@@ -19,5 +19,6 @@
     <import-files>
         <import-file>importdata/status.csv</import-file>
         <import-file>importdata/import-authinfo.csv</import-file>
+        <import-file>importdata/import-system-event-log-types.csv</import-file>
     </import-files>
 </module>

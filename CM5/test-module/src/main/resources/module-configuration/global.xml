@@ -9,6 +9,11 @@
             <language id="ru"/>
             <language id="en"/>
         </search-languages>
+        <event-logs>
+            <login enable="false"/>
+            <logout enable="false"/>
+            <download-attachment enable="true"/>
+        </event-logs>
     </global-settings>
     <business-universe>
         <login-screen display-product-version="true" display-core-version="true">

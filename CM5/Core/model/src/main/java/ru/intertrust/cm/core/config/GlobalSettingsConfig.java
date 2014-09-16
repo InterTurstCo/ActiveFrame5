@@ -4,6 +4,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.search.SearchLanguageConfig;
 
 import java.util.List;
@@ -33,6 +34,9 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     @Element(name = "development-mode", required = false)
     private DevelopmentModeConfig developmentMode;
+
+    @Element(name = "event-logs", required = false)
+    private EventLogsConfig eventLogsConfig;
 
     public AuditLog getAuditLog() {
         return auditLog;
@@ -78,6 +82,14 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         this.developmentMode = developmentMode;
     }
 
+    public EventLogsConfig getEventLogsConfig() {
+        return eventLogsConfig;
+    }
+
+    public void setEventLogsConfig(EventLogsConfig eventLogsConfig) {
+        this.eventLogsConfig = eventLogsConfig;
+    }
+
     public boolean validateGui() {
         return devModeValidationRulesNotDefined() || developmentMode.getLogicalValidation().validateGui();
     }
@@ -117,6 +129,8 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
             return false;
         if (developmentMode != null ? !developmentMode.equals(that.developmentMode) : that.developmentMode != null)
+            return false;
+        if (eventLogsConfig != null ? !eventLogsConfig.equals(that.eventLogsConfig) : that.eventLogsConfig != null)
             return false;
 
         return true;

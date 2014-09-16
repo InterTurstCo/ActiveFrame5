@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
+import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
@@ -565,6 +566,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             }
         }
         return userGroups;
+    }
+
+    @Override
+    public EventLogsConfig getEventLogsConfiguration() {
+        return getGlobalSettings().getEventLogsConfig();
     }
 
 }

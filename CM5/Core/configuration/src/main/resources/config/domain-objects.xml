@@ -474,7 +474,77 @@
         </uniqueKey>
     </domain-object-type>
 
+    <!-- типы доменных объектов для системного журнала событий -->
+    <domain-object-type name="system_event_log" audit-log="false">
+        <fields>
+            <reference name="type" type="sel_type" not-null="true"/>
+            <reference name="subject" type="sel_subject" not-null="true"/>
+            <reference name="object" type="sel_object"/>
+            <date-time name="date" not-null="true"/>
+            <boolean name="success"/>
+        </fields>
+    </domain-object-type>
 
+    <domain-object-type name="sel_type" audit-log="false">
+        <fields>
+            <string name="code" length="20" not-null="true"/>
+            <string name="description" length="128"/>
+        </fields>
+        <uniqueKey>
+            <field name="code"/>
+        </uniqueKey>
+    </domain-object-type>
+    <domain-object-type name="sel_subject" audit-log="false"/>
+    <domain-object-type name="sel_object" audit-log="false"/>
 
+    <domain-object-type name="sel_subj_user" extends="sel_subject" audit-log="false">
+        <fields>
+            <reference name="person" type="Person"/>
+            <string name="user_id" length="128"/>
+            <string name="ip_address" length="20"/>
+            <text name="client_info"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="sel_subj_system_process" extends="sel_subject" audit-log="false">
+        <fields>
+            <string name="name" length="128" not-null="true"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="sel_subj_activity" extends="sel_subject" audit-log="false">
+        <fields>
+            <string name="process_id" length="128" not-null="true"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="sel_obj_object_access" extends="sel_object" audit-log="false">
+        <fields>
+            <reference name="object" type="*" not-null="true"/>
+            <string name="access_type" length="1" not-null="true"/> <!-- R|W -->
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="sel_obj_attachment" extends="sel_object" audit-log="false">
+        <fields>
+            <reference name="attachment" type="*" not-null="true"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="sel_obj_process" extends="sel_object" audit-log="false">
+        <fields>
+            <string name="template_name" length="25" not-null="true"/>
+            <reference name="object_id" type="*" not-null="true"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="sel_obj_collection" extends="sel_object" audit-log="false">
+        <fields>
+            <string name="collection_name" length="128"/>
+            <text name="query"/>
+            <text name="filters"/> <!-- xml представление -->
+            <boolean name="is_result_logged"/>
+        </fields>
+    </domain-object-type>
+    <domain-object-type name="sel_obj_collection_result" audit-log="false">
+        <fields>
+            <reference name="sel_obj_collection" type="sel_obj_collection" not-null="true"/>
+            <reference name="object" type="*" not-null="true"/>
+        </fields>
+    </domain-object-type>
 
 </configuration>
