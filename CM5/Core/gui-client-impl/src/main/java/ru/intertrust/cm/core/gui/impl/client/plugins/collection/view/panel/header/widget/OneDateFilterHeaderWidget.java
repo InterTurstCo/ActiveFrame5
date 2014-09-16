@@ -5,7 +5,7 @@ import com.google.gwt.user.client.DOM;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.FormDatePicker;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.CollectionDatePicker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -42,7 +42,7 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
                     + dateTimeFormat.getPattern());
         }
         boolean showSeconds = TimeUtil.showSeconds(dateTimeFormat.getPattern());
-        popupDatePicker = new FormDatePicker(date, eventBus, showTime, showSeconds);
+        popupDatePicker = new CollectionDatePicker(date, eventBus, showTime, showSeconds);
         initHandlers();
 
     }

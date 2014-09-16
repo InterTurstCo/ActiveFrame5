@@ -37,7 +37,7 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
             public void onClick(ClickEvent event) {
                 Date startDate = startDateTimePicker.getFullDate();
                 Date endDate = endDateTimePicker.getFullDate();
-                eventBus.fireEvent(new RangeDateSelectedEvent(startDate, endDate));
+                eventBus.fireEventFromSource(new RangeDateSelectedEvent(startDate, endDate), CollectionRangeDatePicker.this);
                 eventBus.fireEvent(new FilterEvent(false));
                 container.setStyleName("composite-date-time-container-hidden");
                 CollectionRangeDatePicker.this.hide();

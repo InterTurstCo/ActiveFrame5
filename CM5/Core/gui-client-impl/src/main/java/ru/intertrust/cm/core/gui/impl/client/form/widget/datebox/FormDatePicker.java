@@ -30,7 +30,7 @@ public class FormDatePicker extends OneDatePicker {
             @Override
             public void onClick(ClickEvent event) {
                 Date date = dateTimePicker.getFullDate();
-                eventBus.fireEvent(new DateSelectedEvent(date));
+                eventBus.fireEventFromSource(new DateSelectedEvent(date), FormDatePicker.this);
                 FormDatePicker.this.hide();
             }
         });
