@@ -2154,7 +2154,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         
         
         @Override
-        public void onCommit() {
+        public void onBeforeCommit() {
             AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
 
             for (Id createdId : createdDomainObjects) {
@@ -2265,6 +2265,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         @Override
         public void onRollback() {
             // Ничего не делаем            
+        }
+
+        @Override
+        public void onAfterCommit() {
+            // Ничего не делаем
+            
         }
         
     }

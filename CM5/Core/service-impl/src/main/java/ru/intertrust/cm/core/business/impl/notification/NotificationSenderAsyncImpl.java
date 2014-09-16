@@ -5,10 +5,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.EventTrigger;
 import ru.intertrust.cm.core.business.api.NotificationService;
@@ -53,14 +59,11 @@ import ru.intertrust.cm.core.tools.BaseScriptContext;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
-/**
- * 
- * @author atsvetkov
- *
- */
-public abstract class NotificationSenderExtensionPointBase {
-    
-    final static org.slf4j.Logger logger = LoggerFactory.getLogger(NotificationSenderExtensionPointBase.class);
+@Stateless(name="NotificationSenderAsync")
+@Local(NotificationSenderAsync.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
+public class NotificationSenderAsyncImpl implements NotificationSenderAsync{
+    final static Logger logger = LoggerFactory.getLogger(NotificationSenderAsyncImpl.class);
 
     @Autowired
     protected ConfigurationExplorer configurationExplorer;
@@ -88,7 +91,32 @@ public abstract class NotificationSenderExtensionPointBase {
 
     @Autowired
     private ScriptService scriptService;
-    
+
+    @Override
+    @Asynchronous
+    public void sendNotifications(DomainObject domainObject, EventType eventType, List<FieldModification> changedFields) {
+        Collection<NotificationConfig> notifications = configurationExplorer.getConfigs(NotificationConfig.class);
+        for (NotificationConfig notificationConfig : notifications) {
+            List<TriggerConfig> notificationTriggers =
+                    notificationConfig.getNotificationTypeConfig().getNotificationTriggersConfig().getTriggers();
+            for (TriggerConfig triggerConfig : notificationTriggers) {
+                boolean isTriggered = false;
+                if (triggerConfig.getRefName() != null) {
+                    isTriggered = eventTrigger.isTriggered(triggerConfig.getRefName(), eventType.toString(),
+                            domainObject, changedFields);
+                } else {
+                    isTriggered = eventTrigger.isTriggered(triggerConfig, eventType.toString(),
+                            domainObject, changedFields);
+                }
+
+                if (isTriggered) {
+                    sendNotification(domainObject, eventType, notificationConfig);
+                    break;
+                }
+            }
+        }
+    }
+
     public ConfigurationExplorer getConfigurationExplorer() {        
         return configurationExplorer;
     }
@@ -129,33 +157,7 @@ public abstract class NotificationSenderExtensionPointBase {
         this.domainObjectFinderService = domainObjectFinderService;
     }
 
-    protected void sendNotifications(DomainObject domainObject, List<FieldModification> changedFields) {
-        Collection<NotificationConfig> notifications = configurationExplorer.getConfigs(NotificationConfig.class);
-        for (NotificationConfig notificationConfig : notifications) {
-            List<TriggerConfig> notificationTriggers =
-                    notificationConfig.getNotificationTypeConfig().getNotificationTriggersConfig().getTriggers();
-            for (TriggerConfig triggerConfig : notificationTriggers) {
-                boolean isTriggered = false;
-                if (triggerConfig.getRefName() != null) {
-                    isTriggered = eventTrigger.isTriggered(triggerConfig.getRefName(), getEventType().toString(),
-                            domainObject, changedFields);
-                } else {
-                    isTriggered = eventTrigger.isTriggered(triggerConfig, getEventType().toString(),
-                            domainObject, changedFields);
-                }
-
-                if (isTriggered) {
-                    sendNotification(domainObject, notificationConfig);
-                    break;
-                }
-            }
-
-        }
-    }
-
-    abstract protected EventType getEventType();
-
-    protected void sendNotification(DomainObject domainObject, NotificationConfig notificationConfig) {
+    protected void sendNotification(DomainObject domainObject, EventType eventType, NotificationConfig notificationConfig) {
         String notificationType = notificationConfig.getNotificationTypeConfig().getName();
         NotificationContext notificationContext = new NotificationContext();
         notificationContext.setNotificationTypeConfig(notificationConfig.getNotificationTypeConfig());
@@ -166,7 +168,7 @@ public abstract class NotificationSenderExtensionPointBase {
         Id senderId = getSender(domainObject, notificationConfig);
 
         List<NotificationAddressee> addresseeList = getAddresseeList(domainObject, notificationConfig);
-        logger.info("Sending notification: " + notificationType + " on event: " + getEventType() +  " for Domain Object: " + domainObject);
+        logger.info("Sending notification: " + notificationType + " on event: " + eventType +  " for Domain Object: " + domainObject);
         notificationService.sendOnTransactionSuccess(notificationType, senderId,
                 addresseeList, priority, notificationContext);
     }
@@ -350,5 +352,6 @@ public abstract class NotificationSenderExtensionPointBase {
         }
         return query;
     }
-
+    
+    
 }

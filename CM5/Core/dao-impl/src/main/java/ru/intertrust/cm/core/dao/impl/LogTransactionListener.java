@@ -20,7 +20,7 @@ public class LogTransactionListener implements ActionListener {
     }
 
     @Override
-    public void onCommit() {
+    public void onBeforeCommit() {
         printTransactionTrace(true);
     }
 
@@ -46,6 +46,12 @@ public class LogTransactionListener implements ActionListener {
         if (delay > minTime) {
             SqlTransactionLogger.logTransactionTrace(this, isCommitted, delay);
         }
+    }
+
+    @Override
+    public void onAfterCommit() {
+        //Ничего не делаем
+        
     }
 
 

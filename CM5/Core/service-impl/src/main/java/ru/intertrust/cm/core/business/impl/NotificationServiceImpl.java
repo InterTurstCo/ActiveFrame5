@@ -208,7 +208,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         @Override
-        public void onCommit() {
+        public void onBeforeCommit() {
             //Вызываем асинхронный метод отправки уведомлений
             NotificationService notificationService = sessionContext.getBusinessObject(NotificationService.class);
             notificationService.sendNow(notificationType, sender, addresseeList, priority, context);
@@ -217,6 +217,12 @@ public class NotificationServiceImpl implements NotificationService {
         @Override
         public void onRollback() {
             // Ничего не делаем при откате транзакции
+        }
+
+        @Override
+        public void onAfterCommit() {
+            // Ничего не делаем
+            
         }
 
     }

@@ -86,6 +86,9 @@
     <jee:local-slsb id="profileService"
                     jndi-name="java:module/ProfileService!ru.intertrust.cm.core.business.api.ProfileService"
                     business-interface="ru.intertrust.cm.core.business.api.ProfileService"/>
+    <jee:local-slsb id="notificationSenderAsync"
+                    jndi-name="java:module/NotificationSenderAsync!ru.intertrust.cm.core.business.impl.notification.NotificationSenderAsync"
+                    business-interface="ru.intertrust.cm.core.business.impl.notification.NotificationSenderAsync"/>
 
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"

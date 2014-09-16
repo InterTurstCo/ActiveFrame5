@@ -98,7 +98,7 @@ public class UserTransactionServiceImpl implements UserTransactionService{
     public void addListenerForSaveFile(final String filePath) {
         addListener(new ActionListener() {
             @Override
-            public void onCommit() {
+            public void onBeforeCommit() {
             }
 
             @Override
@@ -110,6 +110,11 @@ public class UserTransactionServiceImpl implements UserTransactionService{
                     } catch (RuntimeException ex) {
                     }
                 }
+            }
+
+            @Override
+            public void onAfterCommit() {
+                // Ничего не делаем                
             }
         });
     }
@@ -126,7 +131,7 @@ public class UserTransactionServiceImpl implements UserTransactionService{
             //Идем с конца спсика, чтобы не получить ошибку модификации списка в итераторе
             //for (ActionListener l : actionListeners) {
             for (int i=actionListeners.size()-1; i>=0; i--){
-                actionListeners.get(i).onCommit();
+                actionListeners.get(i).onBeforeCommit();
             }
         }
 
@@ -138,6 +143,11 @@ public class UserTransactionServiceImpl implements UserTransactionService{
                     for (int i=actionListeners.size()-1; i>=0; i--){
                         actionListeners.get(i).onRollback();
                     }
+                }else if(Status.STATUS_COMMITTED == status){
+                    for (int i=actionListeners.size()-1; i>=0; i--){
+                        actionListeners.get(i).onAfterCommit();
+                    }
+                    
                 }
             } finally {
                 actionListeners = null;

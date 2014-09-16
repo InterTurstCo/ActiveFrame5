@@ -361,10 +361,12 @@
             <permit-group name="AllPersons" />
         </create>
         <status name="Active">
+             
+            <!-- На чтение есть права у родителя read-everybody 
             <read>
                 <permit-group name="Administrators" />
                 <permit-group name="Administrators_Read_Only" />
-            </read>
+            </read-->
             <write>
                 <permit-group name="Administrators" />
             </write>
