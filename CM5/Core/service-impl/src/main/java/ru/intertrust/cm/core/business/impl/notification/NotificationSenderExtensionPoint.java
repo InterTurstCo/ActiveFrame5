@@ -50,13 +50,6 @@ public class NotificationSenderExtensionPoint implements AfterSaveAfterCommitExt
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
         getTxListener().addSendNotificationInfo(domainObject, EventType.CHANGE, changedFields);
-        //задержка, эмуляция работы других точек расширения в этой транзакции
-        try {
-            Thread.currentThread().sleep(2000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 
     private NotificationSenderActionListener getTxListener() {
