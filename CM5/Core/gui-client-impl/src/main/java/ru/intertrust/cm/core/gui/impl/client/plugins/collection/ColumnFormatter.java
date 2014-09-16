@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
@@ -38,16 +37,15 @@ public class ColumnFormatter {
             collectionColumn = renderer.getImageColumn(mappingsConfig);
             collectionColumn.setFieldName(field);
             collectionColumn.setResizable(resizable);
-        } else  if (columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS) != null) {
+        } else  if (columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG) != null) {
             List<ChildCollectionViewerConfig> childCollectionsConfig =
-                    (List<ChildCollectionViewerConfig>) columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS);
+                    (List<ChildCollectionViewerConfig>) columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG);
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
             converter.init(columnProperties.getProperties());
             collectionColumn = new HierarchicalCollectionColumn(new HierarchyCell(getCssStyleForText(textBreakStyle)),
                     field, resizable, converter, childCollectionsConfig, eventBus);
-        }
-        else {
+        } else {
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
             converter.init(columnProperties.getProperties());

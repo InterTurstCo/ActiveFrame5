@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author Yaroslav Bondacrhuk
+ * @author Lesia Puhova
  *         Date: 14/02/14
  *         Time: 12:05 PM
  */
@@ -19,7 +19,7 @@ public class HierarchyCell extends TextCell {
 
     @Override
     public void render(Context context, String text, SafeHtmlBuilder sb) {
-        sb.append(SafeHtmlUtils.fromTrustedString("<a " + style + "/>" + text + "</a>"));
+        sb.append(SafeHtmlUtils.fromTrustedString("<a " + style + "/>" + text + " ►</a>"));
     }
 
     @Override

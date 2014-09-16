@@ -42,45 +42,46 @@ public class FilterBuilderUtil {
 
     public static Filter prepareSearchFilter(List<String> filterValues, CollectionColumnProperties columnProperties) {
         Filter filter = new Filter();
-        String filterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
-        filter.setFilter(filterName);
-        String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
-        switch (fieldType) {
-            case TIMELESS_DATE_TYPE:
-                try {
-                    prepareTimelessDateFilter(filter, filterValues, columnProperties);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case DATE_TIME_TYPE:
-                try {
-                    prepareDateTimeFilter(filter, filterValues, columnProperties);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case DATE_TIME_WITH_TIME_ZONE_TYPE:
-                try {
-                    prepareDateTimeWithTimeZoneFilter(filter, filterValues, columnProperties);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case LONG_TYPE:
-                prepareLongFilter(filter, filterValues);
-                break;
-            case DECIMAL_TYPE:
-                prepareDecimalFilter(filter, filterValues);
-                break;
-            case BOOLEAN_TYPE:
-                prepareBooleanFilter(filter, filterValues);
-                break;
-            default:
-                prepareStringFilter(filter, filterValues);
-                break;
+        if (columnProperties != null) {
+            String filterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+            filter.setFilter(filterName);
+            String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+            switch (fieldType) {
+                case TIMELESS_DATE_TYPE:
+                    try {
+                        prepareTimelessDateFilter(filter, filterValues, columnProperties);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case DATE_TIME_TYPE:
+                    try {
+                        prepareDateTimeFilter(filter, filterValues, columnProperties);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case DATE_TIME_WITH_TIME_ZONE_TYPE:
+                    try {
+                        prepareDateTimeWithTimeZoneFilter(filter, filterValues, columnProperties);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case LONG_TYPE:
+                    prepareLongFilter(filter, filterValues);
+                    break;
+                case DECIMAL_TYPE:
+                    prepareDecimalFilter(filter, filterValues);
+                    break;
+                case BOOLEAN_TYPE:
+                    prepareBooleanFilter(filter, filterValues);
+                    break;
+                default:
+                    prepareStringFilter(filter, filterValues);
+                    break;
+            }
         }
-
         return filter;
     }
 

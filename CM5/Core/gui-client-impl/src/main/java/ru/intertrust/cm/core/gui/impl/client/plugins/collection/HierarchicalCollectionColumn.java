@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import java.util.List;
 
 /**
- * @author Yaroslav Bondacrhuk
+ * @author Lesia Puhova
  *         Date: 14/02/14
  *         Time: 12:05 PM
  */
@@ -27,11 +27,6 @@ public class HierarchicalCollectionColumn extends TextCollectionColumn {
         super(cell, fieldName, resizable, converter);
         this.childCollectionViewerConfigs = childCollectionViewerConfigs;
         this.eventBus = eventBus;
-    }
-
-    @Override
-    public String getValue(CollectionRowItem object) {
-        return super.getValue(object) + " ►";
     }
 
     @Override

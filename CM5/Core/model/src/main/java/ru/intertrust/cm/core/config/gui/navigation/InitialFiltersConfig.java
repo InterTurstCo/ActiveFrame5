@@ -31,6 +31,7 @@ public class InitialFiltersConfig extends AbstractFiltersConfig implements Dto {
         List<AbstractFilterConfig> abstractFilterConfigs = getAbstractFilterConfigs();
         if(abstractFilterConfigs == null){
             abstractFilterConfigs = new ArrayList<AbstractFilterConfig>(1);
+            setAbstractFilterConfigs(abstractFilterConfigs);
         }
         abstractFilterConfigs.add(initialFilterConfig);
     }

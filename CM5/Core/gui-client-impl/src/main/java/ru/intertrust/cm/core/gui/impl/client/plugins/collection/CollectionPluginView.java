@@ -159,7 +159,7 @@ public class CollectionPluginView extends PluginView {
         Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
         root.addStyleName("collection-plugin-view-container");
         addHandlers();
-        if (!collectionPluginData.isExtendedSearchMarker()) {
+        if (!collectionPluginData.isExtendedSearchMarker() && ! collectionPluginData.isExpandHierarchyMarker()) {
             final com.google.gwt.user.client.Timer timer = new com.google.gwt.user.client.Timer() {
                 @Override
                 public void run() {

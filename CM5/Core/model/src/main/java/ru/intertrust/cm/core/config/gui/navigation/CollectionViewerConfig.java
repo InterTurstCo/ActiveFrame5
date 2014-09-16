@@ -48,6 +48,8 @@ public class CollectionViewerConfig extends PluginConfig {
 
     private TableBrowserParams tableBrowserParams;
 
+    private boolean isHierarchical;
+
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
     }
@@ -91,7 +93,18 @@ public class CollectionViewerConfig extends PluginConfig {
         this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
+    public boolean isHierarchical() {
+        return isHierarchical;
+    }
+
+    public void setHierarchical(boolean isHierarchical) {
+        this.isHierarchical = isHierarchical;
+    }
+
     public boolean isDisplayChosenValues() {
+        if (isHierarchical) {
+            return true;
+        }
         return tableBrowserParams == null ? false : tableBrowserParams.isDisplayChosenValues();
     }
 

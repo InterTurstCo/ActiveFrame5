@@ -104,16 +104,17 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         filters = CollectionPluginHelper.addFilterByText(collectionViewerConfig, filters);
         int initRowsNumber = collectionViewerConfig.getRowsChunk();
         pluginData.setRowsChunk(initRowsNumber);
-        if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {
+        if (!displayChosenValues) { //simplified condition: in boolean algebra "a && b || !a && b" is equivalent to just "b"
+        //if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {
             filters = CollectionPluginHelper.prepareFilterExcludeIds(tableBrowserParams, filters);
             ArrayList<CollectionRowItem> items =
                     getRows(collectionName, 0, initRowsNumber, filters, order, columnPropertyMap);
             pluginData.setItems(items);
             Collection<Id> selectedIds = tableBrowserParams == null ? new ArrayList<Id>() : tableBrowserParams.getExcludedIds();
             pluginData.setChosenIds(selectedIds);
-        }
-
-        if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)) {
+        } else {
+        //if (displayChosenValues) {//simplified condition
+        //if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)) {
             SelectionFiltersConfig selectionFiltersConfig = collectionViewerConfig.getSelectionFiltersConfig();
             filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             ArrayList<CollectionRowItem> items = getRows(collectionName,

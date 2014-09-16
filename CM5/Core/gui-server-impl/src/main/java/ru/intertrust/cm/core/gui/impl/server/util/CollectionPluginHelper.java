@@ -42,7 +42,7 @@ public class CollectionPluginHelper {
                         GuiServerHelper.collectionColumnConfigToProperties(columnConfig, sortCriteriaConfig, initialFiltersConfig);
                 List<ChildCollectionViewerConfig> childViewerConfigs = columnConfig.getChildCollectionViewerConfigList();
                 if (childViewerConfigs != null && !childViewerConfigs.isEmpty()) {
-                    properties.addProperty(CollectionColumnProperties.CHILD_COLLECTIONS, childViewerConfigs);
+                    properties.addProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG, childViewerConfigs);
                 }
                 columnPropertiesMap.put(field, properties);
             }

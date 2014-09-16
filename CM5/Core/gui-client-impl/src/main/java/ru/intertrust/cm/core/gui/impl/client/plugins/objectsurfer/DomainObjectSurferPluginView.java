@@ -1,24 +1,28 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
-import java.util.logging.Logger;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -32,8 +36,11 @@ import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.system.SplitterSettingsActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class DomainObjectSurferPluginView extends PluginView {
     private static final int SCHEDULE_TIMEOUT = 3000;
@@ -115,26 +122,53 @@ public class DomainObjectSurferPluginView extends PluginView {
             @Override
             public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
                 //FIXME: to implement real logic of the selection correct config
-                //TODO: filter by parent id
-                CollectionViewerConfig childCollectionViewerConfig = event.getChildCollectionViewerConfigs().get(0)
-                        .getCollectionViewerConfig();
+                ChildCollectionViewerConfig childCollectionViewerConfig =  event.getChildCollectionViewerConfigs().get(0);
+
+                CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();
+                collectionViewerConfig.setHierarchical(true);
+                collectionViewerConfig.setSelectionFiltersConfig(prepareFilterForHierarchicalCollection(
+                        childCollectionViewerConfig.getFilter(), event.getSelectedId()));
                 DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
-                domainObjectSurferConfig.setCollectionViewerConfig(childCollectionViewerConfig);
+                domainObjectSurferConfig.setCollectionViewerConfig(collectionViewerConfig);
+                domainObjectSurferConfig.setDomainObjectTypeToCreate(childCollectionViewerConfig.getDomainObjectTypeToCreate());
+
                 final Command command = new Command("initialize", "domain.object.surfer.plugin", domainObjectSurferConfig);
                 BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                     @Override
                     public void onFailure(Throwable caught) {
-                        //TODO:
+                        ApplicationWindow.errorAlert(caught.getMessage());
                     }
 
                     @Override
                     public void onSuccess(Dto result) {
-                        plugin.setInitialData((PluginData) result);
-                        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(plugin));
+                        DomainObjectSurferPluginData pluginData = (DomainObjectSurferPluginData) result;
+                        pluginData.getCollectionPluginData().setExpandHierarchyMarker(true);
+                        domainObjectSurferPlugin.setInitialData(pluginData);
+                        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent
+                                (domainObjectSurferPlugin));
                     }
                 });
             }
         });
+    }
+
+    private SelectionFiltersConfig prepareFilterForHierarchicalCollection(String filter, Id selectedId) {
+        AbstractFilterConfig initFilterConfig = new InitialFilterConfig();
+        initFilterConfig.setName(filter);
+        List<ParamConfig> paramConfigs = new ArrayList<>();
+        ParamConfig paramConfig = new ParamConfig();
+        paramConfig.setName(0);
+        paramConfig.setType(ModelConstants.REFERENCE_TYPE);
+        paramConfig.setValue(selectedId.toStringRepresentation());
+        paramConfigs.add(paramConfig);
+        initFilterConfig.setParamConfigs(paramConfigs);
+
+        SelectionFiltersConfig selectionFiltersConfig = new SelectionFiltersConfig();
+        List<AbstractFilterConfig> abstractFilterConfigs = new ArrayList<>();
+        abstractFilterConfigs.add(initFilterConfig);
+        selectionFiltersConfig.setAbstractFilterConfigs(abstractFilterConfigs);
+
+        return selectionFiltersConfig;
     }
 
     private void checkLastSplitterPosition(boolean isVertical, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {

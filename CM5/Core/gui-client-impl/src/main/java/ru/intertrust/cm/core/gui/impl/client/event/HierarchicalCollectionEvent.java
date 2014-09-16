@@ -13,10 +13,10 @@ import java.util.List;
  */
 public class HierarchicalCollectionEvent extends GwtEvent<HierarchicalCollectionEventHandler> {
 
-    public static final Type<HierarchicalCollectionEventHandler> TYPE = new Type<HierarchicalCollectionEventHandler>();
+    public static final Type<HierarchicalCollectionEventHandler> TYPE = new Type<>();
 
-    private Id selectedId;
-    private List<ChildCollectionViewerConfig> childCollectionViewerConfigs;
+    private final Id selectedId;
+    private final List<ChildCollectionViewerConfig> childCollectionViewerConfigs;
 
     public HierarchicalCollectionEvent(Id selectedId, List<ChildCollectionViewerConfig> childCollectionViewerConfigs) {
         this.selectedId = selectedId;
@@ -27,16 +27,8 @@ public class HierarchicalCollectionEvent extends GwtEvent<HierarchicalCollection
         return selectedId;
     }
 
-    public void setSelectedId(Id selectedId) {
-        this.selectedId = selectedId;
-    }
-
     public List<ChildCollectionViewerConfig> getChildCollectionViewerConfigs() {
         return childCollectionViewerConfigs;
-    }
-
-    public void setChildCollectionViewerConfigs(List<ChildCollectionViewerConfig> childCollectionViewerConfigs) {
-        this.childCollectionViewerConfigs = childCollectionViewerConfigs;
     }
 
     @Override

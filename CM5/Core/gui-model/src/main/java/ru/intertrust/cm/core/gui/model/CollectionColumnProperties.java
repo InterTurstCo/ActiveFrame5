@@ -34,7 +34,7 @@ public class CollectionColumnProperties implements Dto {
     public static final String INITIAL_FILTER_VALUES = "initialFilterValues";
     public static final String DATE_RANGE = "range-date";
     public static final String HIDDEN = "hidden";
-    public static final String CHILD_COLLECTIONS = "childCollections";
+    public static final String CHILD_COLLECTIONS_CONFIG = "childCollectionsConfig";
 
     private AscSortCriteriaConfig ascSortCriteriaConfig;
     private DescSortCriteriaConfig descSortCriteriaConfig;

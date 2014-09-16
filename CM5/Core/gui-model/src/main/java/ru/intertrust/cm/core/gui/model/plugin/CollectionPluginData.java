@@ -31,6 +31,7 @@ public class CollectionPluginData extends ActivePluginData {
     private int rowsChunk;
     private TableBrowserParams tableBrowserParams;
     private boolean extendedSearchMarker;
+    private boolean expandHierarchyMarker;
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<>();
     }
@@ -134,5 +135,13 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setExtendedSearchMarker(boolean extendedSearchMarker){
         this.extendedSearchMarker = extendedSearchMarker;
+    }
+
+    public boolean isExpandHierarchyMarker() {
+        return expandHierarchyMarker;
+    }
+
+    public void setExpandHierarchyMarker(boolean expandHierarchyMarker) {
+        this.expandHierarchyMarker = expandHierarchyMarker;
     }
 }
