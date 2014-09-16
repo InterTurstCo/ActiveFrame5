@@ -155,7 +155,7 @@ public class SqlQueryModifier {
         return columnToTableMapping;
     }
 
-    private void buildColumnToConfigMap(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {
+    private void buildColumnToConfigMap(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {        
         CollectingColumnConfigVisitor collectColumnConfigVisitor = new CollectingColumnConfigVisitor(configurationExplorer, plainSelect);        
 
         plainSelect.accept(collectColumnConfigVisitor);
@@ -488,6 +488,14 @@ public class SqlQueryModifier {
                     FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
                     columnToConfigMap.put(columnName, fieldConfig);
                 }
+            } else if (selectExpressionItem.getExpression() instanceof SubSelect) {
+
+                SubSelect subSelect = (SubSelect) selectExpressionItem.getExpression();
+                if (subSelect.getSelectBody() instanceof PlainSelect) {
+                    PlainSelect plainSubSelect = (PlainSelect) subSelect.getSelectBody();
+                    buildColumnToConfigMap(plainSubSelect, columnToConfigMap);
+                }
+
             } else if (selectExpressionItem.getExpression() instanceof CaseExpression) {
                 CaseExpression caseExpression = (CaseExpression) selectExpressionItem.getExpression();
                 boolean returnsId = caseExpressionReturnsId(caseExpression, plainSelect);

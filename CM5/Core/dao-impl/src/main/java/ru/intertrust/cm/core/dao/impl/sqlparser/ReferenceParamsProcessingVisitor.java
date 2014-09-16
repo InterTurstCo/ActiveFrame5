@@ -26,8 +26,8 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
  * следующую замену: t.id = {0} -> t.id = 1 and t.id_type = 2.
  * @author atsvetkov
  */
-public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor {
 
+public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor {
     private Map<String, String> replaceExpressions = new HashMap<>();
 
     protected List<? extends Value> params;

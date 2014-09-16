@@ -287,6 +287,19 @@ public class CollectionsIT extends IntegrationTestBase {
         params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
         IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
+        
+        query = "select name, (select count(e.id) from employee e where e.id = {0}) as count from employee where (select count(p.created_by) from person p where p.created_by = {1}) > 0";
+        
+        params = new ArrayList<>();
+        int personProfileTypeid = domainObjectTypeIdCache.getId("person_profile");
+        
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 2)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        
+        
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
     }
     
     @Test

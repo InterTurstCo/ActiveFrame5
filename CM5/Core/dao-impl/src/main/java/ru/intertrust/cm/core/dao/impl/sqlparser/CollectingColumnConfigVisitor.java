@@ -1,12 +1,19 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.FromItemVisitor;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectVisitor;
+import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
@@ -21,6 +28,8 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
 
     protected ConfigurationExplorer configurationExplorer;
     protected PlainSelect plainSelect;
+
+    protected List<PlainSelect> innerSubSelects = new ArrayList<>();
 
     protected String plainSelectQuery;
 
@@ -42,7 +51,18 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
 
     @Override
     protected void visitSubSelect(SubSelect subSelect) {
-        subSelect.getSelectBody().accept(this);
+        if (subSelect.getSelectBody() instanceof PlainSelect) {
+            PlainSelect subPlainSelect = (PlainSelect) subSelect.getSelectBody();
+            innerSubSelects.add(subPlainSelect);
+        }
+        subSelect.getSelectBody().accept(this);        
+    }
+
+    @Override
+    public void visit(SetOperationList setOpList) {
+
+        innerSubSelects.addAll(setOpList.getPlainSelects());
+        super.visit(setOpList);
     }
 
     @Override
@@ -53,7 +73,7 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
         if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null &&
                 selectExpressionItem.getExpression() instanceof Column) {
             Column column = (Column) selectExpressionItem.getExpression();
-            String aliasName = selectExpressionItem.getAlias().getName().toLowerCase();
+            String aliasName = DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase());
             if (columnToConfigMapping.get(aliasName) == null) {
                 columnToConfigMapping.put(aliasName, columnToConfigMapping.get(getColumnName(column)));
             }
@@ -74,6 +94,17 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
         FieldConfig fieldConfig =
                 configurationExplorer.getFieldConfig(SqlQueryModifier.getDOTypeName(plainSelect, column, false),
                         DaoUtils.unwrap(column.getColumnName()));
+        //если колонка не объявлена в основном запросе, выполняется поиск по подзапросам
+        if (fieldConfig == null) {
+            for (PlainSelect innerSubSelect : innerSubSelects) {
+                fieldConfig =
+                        configurationExplorer.getFieldConfig(SqlQueryModifier.getDOTypeName(innerSubSelect, column, false),
+                                DaoUtils.unwrap(column.getColumnName()));
+                if (fieldConfig != null) {
+                    break;
+                }
+            }
+        }
         if (fieldConfig != null) {
             columnToConfigMapping.put(getColumnName(column), fieldConfig);
         }
