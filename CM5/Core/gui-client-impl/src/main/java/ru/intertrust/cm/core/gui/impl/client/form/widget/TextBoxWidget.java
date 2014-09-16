@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
@@ -54,6 +55,8 @@ public class TextBoxWidget extends BaseWidget {
             public void onBlur(BlurEvent event) {
                 if (state instanceof TextState) {
                     TextState texState = (TextState) state;
+                    confirmation = ((TextState) state).getPrimaryWidgetId();
+                    confirmationFor = ((TextState) state).getConfirmationWidgetId();
                     validateTextState(texState);
                 } else {
                     validate();
@@ -65,21 +68,19 @@ public class TextBoxWidget extends BaseWidget {
     }
 
     private void validateTextState(TextState textState) {
-        if (textState.getConfirmationWidgetId() != null) {
-
-            confirmationFor = textState.getConfirmationWidgetId();
-            confirmation = textState.getPrimaryWidgetId();
-
+        if (textState.getConfirmationWidgetId() == null && textState.getPrimaryWidgetId() == null) {
+            validate();
+        }
+        if (textState.getConfirmationWidgetId() != null & textState.getPrimaryWidgetId() != null) {
             clearErrors();
             if (!validateConfirmation()) {
                 showErrors(new ValidationResult());
             }
-            if (textState.getConfirmationWidgetId() == null) {
-                validate();
+            else{
+                clearErrors();
             }
         }
-
-        if (textState.getConfirmationWidgetId() == null) {
+        else{
             validate();
         }
     }
@@ -88,20 +89,21 @@ public class TextBoxWidget extends BaseWidget {
     @Override
     public ValidationResult validate() {
         ValidationResult validationResult = super.validate();
-
-        if (confirmationFor != null) {
+        if(confirmation != null || confirmationFor != null){
+            clearErrors();
             if (!validateConfirmation()) {
                 validationResult.addError("Поля пароль/подтверждение не совпадают!");
-                showErrors(validationResult);
+                showErrors(new ValidationResult());
             }
         }
         return validationResult;
     }
 
     private boolean validateConfirmation() {
-        boolean result;
-        result = getValueFromWidgetById(confirmationFor).equals(getValueFromWidgetById(confirmation));
-
+        boolean result = false;
+        if (confirmation != null && confirmationFor != null) {
+            result = getValueFromWidgetById(confirmation).equals(getValueFromWidgetById(confirmationFor));
+        }
 
         return result;
     }
@@ -120,6 +122,9 @@ public class TextBoxWidget extends BaseWidget {
 
     public String getValueFromWidgetById(String id) {
         TextBoxWidget baseWidget = this.getContainer().getWidget(id);
+        if (this.getContainer().getWidget(id) == null) {
+            throw new ConfigurationException("widgetId is null");
+        }
         String result = (String) baseWidget.getValue();
         return result;
     }

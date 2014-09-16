@@ -32,11 +32,15 @@ public class TextBoxHandler extends ValueEditingWidgetHandler {
 
     private void setPaswordIds(WidgetContext context) {
             TextBoxConfig currentTextBoxConfig = context.getWidgetConfig();
-            state.setPrimaryWidgetId(currentTextBoxConfig.getId());
+
             if (currentTextBoxConfig.getConfirmationFor() != null) {
                 state.setConfirmationWidgetId(currentTextBoxConfig.getConfirmationFor().getWidgetId());
+                state.setPrimaryWidgetId(currentTextBoxConfig.getId());
             }
-
+            if (currentTextBoxConfig.getConfirmation() != null) {
+                state.setPrimaryWidgetId(currentTextBoxConfig.getConfirmation().getWidgetId());
+                state.setConfirmationWidgetId(currentTextBoxConfig.getId());
+            }
     }
 
 
