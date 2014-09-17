@@ -10,8 +10,8 @@
             <language id="en"/>
         </search-languages>
         <event-logs>
-            <login enable="false"/>
-            <logout enable="false"/>
+            <login enable="true"/>
+            <logout enable="true"/>
             <download-attachment enable="true"/>
         </event-logs>
     </global-settings>
