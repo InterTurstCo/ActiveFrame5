@@ -28,7 +28,7 @@ public interface BusinessUniverseServiceAsync {
 
     void getAttachmentUploadPercentage(AsyncCallback<AttachmentUploadPercentage> async);
 
-    void getCollectionCounters(CollectionCountersRequest req, AsyncCallback<? extends Dto> async);
+    void getCollectionCounters(CollectionCountersRequest req, AsyncCallback<CollectionCountersResponse> async);
 
 
     public static class Impl {
