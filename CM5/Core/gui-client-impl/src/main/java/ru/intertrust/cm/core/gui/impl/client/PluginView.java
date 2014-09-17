@@ -91,7 +91,7 @@ public abstract class PluginView implements IsWidget {
         LinkConfig currentLinkConfig = foundLinks.get(0);
         List<IsWidget> breadcrumbWidgets = new ArrayList<>();
         while (true) {
-            breadcrumbWidgets.add(new HyperLinkWithHistorySupport(currentLinkConfig.getDisplayText(), "link=" + currentLinkConfig.getName()));
+            breadcrumbWidgets.add(new Hyperlink(currentLinkConfig.getDisplayText(), "link=" + currentLinkConfig.getName()));
             ChildLinksConfig parentChildLinksConfig = currentLinkConfig.getParentChildLinksConfig();
             if (parentChildLinksConfig != null && parentChildLinksConfig.getGroupName() != null) {
                 breadcrumbWidgets.add(new Label(currentLinkConfig.getParentChildLinksConfig().getGroupName()));
