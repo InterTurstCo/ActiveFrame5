@@ -2,11 +2,14 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.ElementList;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class NotificationContextConfig {
+public class NotificationContextConfig implements Dto {
 
+    private static final long serialVersionUID = 7775473836468919797L;
     @ElementList(entry="context-object", type=NotificationContextObject.class, inline=true, required = false)
     private List<NotificationContextObject> contextObjects = new ArrayList<NotificationContextObject>();
 

@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.config.converter.FindObjectSettingsConverter;
 
 public class FindObjectsClassConfig implements FindObjectsType {
 
-    @Element(name = "find-person-settings", required = false)
+    @Element(name = "find-settings", required = false)
     @Convert(FindObjectSettingsConverter.class)
     private FindObjectSettings settings;
 

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.NotificationSettings;
 import ru.intertrust.cm.core.config.NotificationTypeConfig;
 
 /**
@@ -14,7 +15,7 @@ import ru.intertrust.cm.core.config.NotificationTypeConfig;
  */
 public class NotificationContext implements Dto{
     private Map<String, Dto> contextObjects = new Hashtable<String, Dto>();
-    private NotificationTypeConfig notificationTypeConfig;
+    private NotificationSettings notificationSettings;
     /**
      * Добавление контекстного объекта
      * @param name
@@ -71,11 +72,13 @@ public class NotificationContext implements Dto{
         return true;
     }
 
-    public NotificationTypeConfig getNotificationTypeConfig() {
-        return notificationTypeConfig;
+    public NotificationSettings getNotificationSettings() {
+        return notificationSettings;
     }
 
-    public void setNotificationTypeConfig(NotificationTypeConfig notificationTypeConfig) {
-        this.notificationTypeConfig = notificationTypeConfig;
+    public void setNotificationSettings(NotificationSettings notificationSettings) {
+        this.notificationSettings = notificationSettings;
     }
+
+    
 }

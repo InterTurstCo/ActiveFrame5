@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FindObjectSettings;
-import ru.intertrust.cm.core.config.NotificationTypeConfig;
+import ru.intertrust.cm.core.config.NotificationSettings;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinder;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.test.configuration.FindPersonByDomainObjectFieldsSettings;
@@ -30,7 +30,7 @@ public class TestNotificationAddresseFinder implements DomainObjectFinder {
 
     private FindObjectSettings settings;
 
-    private NotificationTypeConfig notificationTypeConfig;
+    private NotificationSettings notificationSettings;
 
     public TestNotificationAddresseFinder() {
         initializeSpringBeans();
@@ -39,7 +39,7 @@ public class TestNotificationAddresseFinder implements DomainObjectFinder {
     @Override
     public void init(FindObjectSettings settings, Dto extensionContext) {
         this.settings = settings;
-        this.notificationTypeConfig = (NotificationTypeConfig) extensionContext;
+        this.notificationSettings = (NotificationSettings) extensionContext;
     }
 
     private void initializeSpringBeans() {

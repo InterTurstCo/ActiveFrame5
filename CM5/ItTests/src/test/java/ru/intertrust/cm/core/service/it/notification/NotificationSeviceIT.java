@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.business.api.dto.notification.*;
 import ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig;
 import ru.intertrust.cm.core.config.FindObjectsConfig;
 import ru.intertrust.cm.core.config.FindObjectsQueryConfig;
+import ru.intertrust.cm.core.config.NotificationAddresseConfig;
 import ru.intertrust.cm.core.service.it.IntegrationTestBase;
 
 /**
@@ -312,8 +313,8 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             NotificationPriority priority = NotificationPriority.HIGH;
 
             NotificationTaskConfig testparam = new NotificationTaskConfig();
-            testparam.setNotificationType(notificationType);
-            testparam.setNotificationPriority(priority);
+            testparam.setName(notificationType);
+            testparam.setPriority(priority);
             testparam.setTaskMode(NotificationTaskMode.BY_DOMAIN_OBJECT);
 
             //По всем организациям
@@ -323,7 +324,11 @@ public class NotificationSeviceIT extends IntegrationTestBase {
 
             FindObjectsConfig findPersonObject = new FindObjectsConfig();
             findPersonObject.setFindObjectType(new FindObjectsQueryConfig("select id from person where login='person001'"));
-            testparam.setFindPersons(findPersonObject);
+            
+            NotificationAddresseConfig notificationAddresseConfig = new NotificationAddresseConfig();
+            notificationAddresseConfig.setFindPerson(findPersonObject);
+            
+            testparam.setNotificationAddresseConfig(notificationAddresseConfig);
 
             schedulerService.setTaskParams(task.getId(), testparam);
 

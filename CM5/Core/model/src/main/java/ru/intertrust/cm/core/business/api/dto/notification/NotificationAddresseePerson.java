@@ -25,4 +25,11 @@ public class NotificationAddresseePerson implements NotificationAddressee {
     public void setPersonId(Id personId) {
         this.personId = personId;
     }
+
+    @Override
+    public String toString() {
+        return "NotificationAddresseePerson [personId=" + personId.toStringRepresentation() + "]";
+    }
+    
+    
 }

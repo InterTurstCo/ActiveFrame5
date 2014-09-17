@@ -67,9 +67,9 @@
             <addressee>
                 <find-person>
                     <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
-                        <find-person-settings>
+                        <find-settings>
                               <domain-object-field-addressee field-name="testField"/>
-                        </find-person-settings>
+                        </find-settings>
                     </class-name>
                 </find-person>
             </addressee>            
@@ -85,9 +85,9 @@
             <addressee>
                 <find-person>
                     <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
-                        <find-person-settings>
+                        <find-settings>
                               <domain-object-field-addressee field-name="testField"/>
-                        </find-person-settings>
+                        </find-settings>
                     </class-name>
                 </find-person>
             </addressee>
@@ -106,9 +106,9 @@
             <addressee>
                 <find-person>
                     <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
-                        <find-person-settings>
+                        <find-settings>
                               <domain-object-field-addressee field-name="testField"/>
-                        </find-person-settings>
+                        </find-settings>
                     </class-name>
                 </find-person>
             </addressee>
@@ -127,17 +127,17 @@
             <addressee>
                 <find-person>
                     <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
-                        <find-person-settings>
+                        <find-settings>
                               <domain-object-field-addressee field-name="testField"/>
-                        </find-person-settings>
+                        </find-settings>
                     </class-name>
                 </find-person>
             </addressee>
             <sender>
                 <class-name name="ru.intertrust.cm.test.notification.TestNotificationSenderFinder">
-                    <find-person-settings>
+                    <find-settings>
                         <domain-object-field-addressee field-name="testField" />
-                    </find-person-settings>
+                    </find-settings>
                 </class-name>
             </sender>
             <triggers>

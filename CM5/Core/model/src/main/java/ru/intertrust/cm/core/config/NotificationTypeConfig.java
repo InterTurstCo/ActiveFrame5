@@ -4,19 +4,22 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 
 /**
  * 
  * @author atsvetkov
  *
  */
-public class NotificationTypeConfig implements Dto {
+public class NotificationTypeConfig implements Dto, NotificationSettings {
+
+    private static final long serialVersionUID = 1075187466777676077L;
 
     @Attribute(name = "name", required = true)
     private String name;
     
     @Attribute(name = "priority", required = true)
-    private String priority;
+    private NotificationPriority priority;
  
     @Element(name = "addressee", required = false)
     private NotificationAddresseConfig notificationAddresseConfig;
@@ -30,6 +33,7 @@ public class NotificationTypeConfig implements Dto {
     @Element(name = "context-config", required = false)
     private NotificationContextConfig notificationContextConfig = new NotificationContextConfig();
 
+    @Override
     public String getName() {
         return name;
     }
@@ -38,6 +42,7 @@ public class NotificationTypeConfig implements Dto {
         this.name = name;
     }
 
+    @Override
     public NotificationAddresseConfig getNotificationAddresseConfig() {
         return notificationAddresseConfig;
     }
@@ -46,6 +51,7 @@ public class NotificationTypeConfig implements Dto {
         this.notificationAddresseConfig = notificationAddresseConfig;
     }
     
+    @Override
     public FindObjectsConfig getSenderConfig() {
         return notificationSenderConfig;
     }
@@ -62,14 +68,16 @@ public class NotificationTypeConfig implements Dto {
         this.notificationTriggersConfig = notificationTriggersConfig;
     }
     
-    public String getPriority() {
+    @Override
+    public NotificationPriority getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(NotificationPriority priority) {
         this.priority = priority;
     }
 
+    @Override
     public NotificationContextConfig getNotificationContextConfig() {
         return notificationContextConfig;
     }
