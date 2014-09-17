@@ -54,7 +54,7 @@ public class TestNotificationAddresseFinder implements DomainObjectFinder {
         if (settings instanceof FindPersonByDomainObjectFieldsSettings) {
             String field = ((FindPersonByDomainObjectFieldsSettings) settings).getField();
             persons.add(new RdbmsId(domainObjectTypeIdCache.getId("Person"), 1));
-
+            persons.add(new RdbmsId(domainObjectTypeIdCache.getId("Employee"), 11));
         }
         return persons;
     }

@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -19,6 +20,9 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.TimeZone;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 
 import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
@@ -50,7 +54,6 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.FatalException;
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * Класс импортирования одного файла
@@ -100,13 +103,12 @@ public class ImportData {
      * @param loadFileAsByteArray
      */
     public void importData(byte[] loadFileAsByteArray, String encoding, Boolean rewrite) {
-        CSVReader reader = null;
+        Reader reader = null;
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(loadFileAsByteArray);
-            reader =
-                    new CSVReader(new InputStreamReader(input, encoding != null ? encoding : DEFAULT_ENCODING), ';',
-                            '"');
-            String[] readLine = null;
+            reader = new InputStreamReader(input, encoding != null ? encoding : DEFAULT_ENCODING);
+            
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
             int lineNum = 0;
 
             //имя типа доменного объекта который будет создаваться
@@ -119,12 +121,12 @@ public class ImportData {
             emptyStringSymbol = null;
 
             //итератор по строкам
-            while ((readLine = reader.readNext()) != null) {
+            for (CSVRecord record : records) {
 
                 //Первые две строки это метаданные
                 if (lineNum == 0) {
                     //Метаданные
-                    for (String metaData : readLine) {
+                    for (String metaData : record) {
                         String normalMetaData = metaData.trim();
                         String[] metaItem = normalMetaData.split("=");
                         if (metaItem[0].equalsIgnoreCase(ImportDataService.TYPE_NAME)) {
@@ -138,15 +140,15 @@ public class ImportData {
                 } else if (lineNum == 1) {
                     //Имена полей
                     List<String> fieldList = new ArrayList<String>();
-                    for (int i = 0; i < readLine.length; i++) {
-                        if (readLine[i].trim().length() > 0) {
-                            fieldList.add(readLine[i].trim());
+                    for (int i = 0; i < record.size(); i++) {
+                        if (record.get(i).trim().length() > 0) {
+                            fieldList.add(record.get(i).trim());
                         }
                         fields = fieldList.toArray(new String[fieldList.size()]);
                     }
                 } else {
                     //Импорт одной строки
-                    importLine(readLine, rewrite);
+                    importLine(csvRecordToArray(record), rewrite);
                 }
 
                 lineNum++;
@@ -161,6 +163,14 @@ public class ImportData {
         }
     }
 
+    private String[] csvRecordToArray(CSVRecord record){
+        String[] result = new String[record.size()];
+        for (int i = 0; i < record.size(); i++) {
+            result[i] = record.get(i);
+        }
+        return result;
+    }
+    
     /**
      * Импорт одной строки
      * @param line

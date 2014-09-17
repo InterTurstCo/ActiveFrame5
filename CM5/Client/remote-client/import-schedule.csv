@@ -1,50 +1,50 @@
 TYPE_NAME=schedule;KEYS=name;;;;;;;;;;;
 name;task_class;task_type;year;month;day_of_month;day_of_week;hour;minute;timeout;priority;parameters;active
 NotificationScheduleTask;ru.intertrust.cm.core.business.impl.notification.NotificationScheduleTask;1;*;*;*;*;*;*/1;5;4;"<scheduleTaskConfig>
-   <parameters class=""ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig"">
-      <notificationTaskConfig notificationType=""TEST_NOTIFICATION_SCHEDULE"" notificationPriority=""HIGH"" taskMode=""BY_DOMAIN_OBJECT"">
-         <findDomainObjects>
-            <find-query>select id from organization</find-query>
-         </findDomainObjects>
-         <findPersons>
-            <find-query>select id from person where login=&apos;person10&apos;</find-query>
-         </findPersons>
-      </notificationTaskConfig>
-   </parameters>
+ <parameters class=""ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig"">
+  <notificationTaskConfig notificationType=""TEST_NOTIFICATION_SCHEDULE"" notificationPriority=""HIGH"" taskMode=""BY_DOMAIN_OBJECT"">
+   <findDomainObjects>
+    <find-query>select id from organization</find-query>
+   </findDomainObjects>
+   <findPersons>
+    <find-query>select id from person where login=&apos;person10&apos;</find-query>
+   </findPersons>
+  </notificationTaskConfig>
+ </parameters>
 </scheduleTaskConfig>";false
 NotificationScheduleTask2;ru.intertrust.cm.core.business.impl.notification.NotificationScheduleTask;1;*;*;*;*;*;*/1;5;4;"<scheduleTaskConfig>
-   <parameters class=""ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig"">
-      <notificationTaskConfig notificationType=""TEST_NOTIFICATION_SCHEDULE"" notificationPriority=""HIGH"" taskMode=""BY_DOMAIN_OBJECT"">
-         <findDomainObjects>
-            <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
-                <find-settings>
-                      <domain-object-field-addressee field-name="testDOField"/>
-                </find-settings>
-            </class-name>
-         </findDomainObjects>
-         <addressee>
-			<find-person>
-	            <class-name name="ru.intertrust.cm.test.notification.TestNotificationAddresseFinder">
-	                <find-settings>
-	                      <domain-object-field-addressee field-name="testPersonField"/>
-	                </find-settings>
-	            </class-name>
-            </find-person>
-         </addressee>
-        <sender>
-            <find-query>select p.id from person p where p.login = 'person4'</find-query>
-        </sender>
-        <context-config>
-                <context-object name="test-context-object-1">
-                    <java-class>ru.intertrust.cm.core.business.impl.notification.NotificationContextObjectProducerImpl</java-class>
-                </context-object>
-                <context-object name="test-context-object-2">
-                    <query>select id from department_test where id={test-context-object-1}</query>
-                </context-object>
-                <context-object name="test-context-object-3">
-                    <doel source-object="document">Organization</doel>
-                </context-object>
-            </context-config>         
-      </notificationTaskConfig>
-   </parameters>
+ <parameters class=""ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig"">
+  <notificationTaskConfig notificationType=""TEST_NOTIFICATION_SCHEDULE"" notificationPriority=""HIGH"" taskMode=""BY_DOMAIN_OBJECT"">
+   <findDomainObjects>
+    <class-name name=""ru.intertrust.cm.test.notification.TestNotificationAddresseFinder"">
+     <find-settings>
+      <domain-object-field-addressee field-name=""testDOField""/>
+     </find-settings>
+    </class-name>
+   </findDomainObjects>
+   <addressee>
+    <find-person>
+     <class-name name=""ru.intertrust.cm.test.notification.TestNotificationAddresseFinder"">
+      <find-settings>
+       <domain-object-field-addressee field-name=""testPersonField""/>
+      </find-settings>
+     </class-name>
+    </find-person>
+   </addressee>
+   <sender>
+    <find-query>select p.id from person p where p.login = 'person4'</find-query>
+   </sender>
+   <context-config>
+    <context-object name=""test-context-object-1"">
+     <java-class>ru.intertrust.cm.core.business.impl.notification.NotificationContextObjectProducerImpl</java-class>
+    </context-object>
+    <context-object name=""test-context-object-2"">
+     <query>select id from department_test where id={test-context-object-1}</query>
+    </context-object>
+    <context-object name=""test-context-object-3"">
+     <doel source-object=""document"">Organization</doel>
+    </context-object>
+   </context-config>         
+  </notificationTaskConfig>
+ </parameters>
 </scheduleTaskConfig>";false
