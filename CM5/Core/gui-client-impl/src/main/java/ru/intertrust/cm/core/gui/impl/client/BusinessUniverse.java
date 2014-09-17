@@ -364,13 +364,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 message = ex.getMessage();
             } else {
                 GWT.log("Uncaught exception escaped", ex);
-                if (ex.getMessage() == null) {
-                    message = "Произошёл сбой. Обратитесь к администратору.";
-                } else {
-                    message = ex.getMessage();
-                }
+                message = null;
             }
-            ApplicationWindow.errorAlert(message);
+            if (message != null) {
+                ApplicationWindow.errorAlert(message);
+            }
         }
     }
 }

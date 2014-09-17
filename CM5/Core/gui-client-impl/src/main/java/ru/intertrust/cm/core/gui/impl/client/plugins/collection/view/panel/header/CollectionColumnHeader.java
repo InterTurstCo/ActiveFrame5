@@ -71,13 +71,13 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     public String getFilterValue() {
         if (widget.hasFilter()) {
             inputFilter = getInputFilter();
-            String value = inputFilter.getValue();
-            widget.setFilterValuesRepresentation(value);
-            return value;
-        } else {
-            return null;
-
+            if (inputFilter != null) {
+                String value = inputFilter.getValue();
+                widget.setFilterValuesRepresentation(value);
+                return value;
+            }
         }
+        return null;
     }
 
     public HeaderWidget getHeaderWidget() {
@@ -92,7 +92,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                 @Override
                 public void execute() {
                     inputFilter = getInputFilter();
-                    inputFilter.setValue(EMPTY_VALUE);
+                    if (inputFilter != null) {
+                        inputFilter.setValue(EMPTY_VALUE);
+                    }
 
                 }
             });
@@ -129,7 +131,9 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                 @Override
                 public void execute() {
                     inputFilter = getInputFilter();
-                    inputFilter.setValue(widget.getFilterValuesRepresentation());
+                    if (inputFilter != null) {
+                        inputFilter.setValue(widget.getFilterValuesRepresentation());
+                    }
 
                 }
             });
@@ -173,10 +177,13 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                if (visibility) {
-                    DOM.getElementById(widgetId).getStyle().clearDisplay();
-                } else {
-                    DOM.getElementById(widgetId).getStyle().setDisplay(Style.Display.NONE);
+                final Element element = DOM.getElementById(widgetId);
+                if (element != null) {
+                    if (visibility) {
+                        element.getStyle().clearDisplay();
+                    } else {
+                        element.getStyle().setDisplay(Style.Display.NONE);
+                    }
                 }
 
             }
