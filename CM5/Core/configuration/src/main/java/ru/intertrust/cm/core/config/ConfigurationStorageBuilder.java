@@ -24,10 +24,17 @@ public class ConfigurationStorageBuilder {
 
     private ConfigurationExplorer configurationExplorer;
     private ConfigurationStorage configurationStorage;
+    private AttachmentPrototypeHelper attachmentPrototypeHelper;
 
     public ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage) {
         this.configurationExplorer = configurationExplorer;
         this.configurationStorage = configurationStorage;
+
+        try {
+            attachmentPrototypeHelper = new AttachmentPrototypeHelper();
+        } catch (IOException e) {
+            throw new ConfigurationException(e);
+        }
     }
 
     public void buildConfigurationStorage() {
@@ -214,6 +221,49 @@ public class ConfigurationStorageBuilder {
         return result;
     }
 
+    public String[] fillDomainObjectTypesHierarchyMap(String typeName) {
+        List<String> typesHierarchy = new ArrayList<>();
+        buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
+        Collections.reverse(typesHierarchy);
+        String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
+        configurationStorage.domainObjectTypesHierarchy.put(typeName, types);
+        return types;
+    }
+
+    public void updateDomainObjectFieldConfig(DomainObjectTypeConfig oldType, DomainObjectTypeConfig newType) {
+        removeDomainObjectFieldConfigsFromMap(oldType);
+        fillDomainObjectFieldConfig(newType);
+    }
+
+    public void updateConfigurationMapOfChildDomainObjectType(DomainObjectTypeConfig type) {
+        String typeName = type.getName();
+
+        configurationStorage.directChildDomainObjectTypesMap.remove(typeName);
+        configurationStorage.indirectChildDomainObjectTypesMap.remove(typeName);
+
+        fillConfigurationMapOfChildDomainObjectType(type);
+    }
+
+    public void updateConfigurationMapsOfAttachmentDomainObjectType(DomainObjectTypeConfig oldConfig,
+                                                                    DomainObjectTypeConfig newConfig) {        try {
+            for (AttachmentTypeConfig attachmentTypeConfig :
+                    oldConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+                DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
+                        attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getName(), oldConfig.getName());
+
+                removeTopLevelConfigFromMap(oldConfig);
+                removeDomainObjectFieldConfigsFromMap(oldConfig);
+                configurationStorage.attachmentDomainObjectTypes.remove(attachmentDomainObjectTypeConfig.getName());
+            }
+
+            fillConfigurationMapsOfAttachmentDomainObjectType(newConfig);
+        } catch (IOException e) {
+            throw new ConfigurationException(e);
+        } catch (ClassNotFoundException e) {
+            throw new ConfigurationException(e);
+        }
+    }
+
     /**
      * Получение всех дочерних типов с учетом иерархии наследования
      * @param typeName
@@ -231,13 +281,42 @@ public class ConfigurationStorageBuilder {
         return result;
     }
 
-    public String[] fillDomainObjectTypesHierarchyMap(String typeName) {
-        List<String> typesHierarchy = new ArrayList<>();
-        buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
-        Collections.reverse(typesHierarchy);
-        String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
-        configurationStorage.domainObjectTypesHierarchy.put(typeName, types);
-        return types;
+    private void removeTopLevelConfigFromMap(TopLevelConfig config) {
+        CaseInsensitiveMap<TopLevelConfig> typeMap = configurationStorage.topLevelConfigMap.get(config.getClass());
+        if (typeMap != null) {
+            typeMap.remove(config.getName());
+        }
+    }
+
+    private void removeDomainObjectFieldConfigsFromMap(DomainObjectTypeConfig oldType) {
+        List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigs(oldType.getDomainObjectFieldsConfig(), configurationExplorer);
+
+        for (FieldConfig fieldConfig : allFieldsConfig) {
+            FieldConfigKey fieldConfigKey = new FieldConfigKey(oldType.getName(), fieldConfig.getName());
+            configurationStorage.fieldConfigMap.remove(fieldConfigKey);
+        }
+        for (FieldConfig fieldConfig : oldType.getSystemFieldConfigs()) {
+            FieldConfigKey fieldConfigKey = new FieldConfigKey(oldType.getName(), fieldConfig.getName());
+            configurationStorage.fieldConfigMap.remove(fieldConfigKey);
+        }
+    }
+
+    private void fillDomainObjectFieldConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+        List<FieldConfig> allFieldsConfig =
+                DomainObjectTypeUtility.getAllFieldConfigs(domainObjectTypeConfig.getDomainObjectFieldsConfig(), configurationExplorer);
+        domainObjectTypeConfig.getDomainObjectFieldsConfig().setFieldConfigs(allFieldsConfig);
+
+        fillFieldsConfigMap(domainObjectTypeConfig);
+    }
+
+    private void fillConfigurationMapOfChildDomainObjectType(DomainObjectTypeConfig type) {
+        ArrayList<DomainObjectTypeConfig> directChildTypes = new ArrayList<>();
+        ArrayList<DomainObjectTypeConfig> indirectChildTypes = new ArrayList<>();
+        String typeName = type.getName();
+
+        initConfigurationMapOfChildDomainObjectTypes(typeName, directChildTypes, indirectChildTypes, true);
+        configurationStorage.directChildDomainObjectTypesMap.put(typeName, directChildTypes);
+        configurationStorage.indirectChildDomainObjectTypesMap.put(typeName, indirectChildTypes);
     }
 
     /**
@@ -269,18 +348,11 @@ public class ConfigurationStorageBuilder {
                     "Configuration is null");
         }
 
-        List<DomainObjectTypeConfig> attachmentOwnerDots = new ArrayList<>();
         for (TopLevelConfig config : configurationStorage.configuration.getConfigurationList()) {            
             fillGlobalSettingsCache(config);
             fillTopLevelConfigMap(config);
             
-            if (DomainObjectTypeConfig.class.equals(config.getClass())) {
-                DomainObjectTypeConfig domainObjectTypeConfig = (DomainObjectTypeConfig) config;
-                
-                if (domainObjectTypeConfig.getAttachmentTypesConfig() != null) {
-                    attachmentOwnerDots.add(domainObjectTypeConfig);
-                }
-            } else if (CollectionViewConfig.class.equals(config.getClass())) {
+            if (CollectionViewConfig.class.equals(config.getClass())) {
                 CollectionViewConfig collectionViewConfig = (CollectionViewConfig) config;
                 fillCollectionColumnConfigMap(collectionViewConfig);
             } else if (ToolBarConfig.class.equals(config.getClass())) {
@@ -289,36 +361,15 @@ public class ConfigurationStorageBuilder {
             }
         }
 
-        fillDomainObjectFieldConfigs();
-        
-        initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
-        initConfigurationMapOfChildDomainObjectTypes();
+        Collection<DomainObjectTypeConfig> domainObjectTypeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+        for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
+            fillDomainObjectFieldConfig(domainObjectTypeConfig);
+            fillConfigurationMapsOfAttachmentDomainObjectType(domainObjectTypeConfig);
+            fillConfigurationMapOfChildDomainObjectType(domainObjectTypeConfig);
+        }
+
         //Заполнение таблицы read-evrybody. Вынесено сюда, потому что не для всех типов существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
         fillReadPermittedToEverybodyMap();
-    }
-
-    private void fillDomainObjectFieldConfigs() {
-        for (DomainObjectTypeConfig domainObjectTypeConfig : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
-            List<FieldConfig> allFieldsConfig =
-                    DomainObjectTypeUtility.getAllFieldConfigs(domainObjectTypeConfig.getDomainObjectFieldsConfig(), configurationExplorer);
-            domainObjectTypeConfig.getDomainObjectFieldsConfig().setFieldConfigs(allFieldsConfig);
-
-            fillFieldsConfigMap(domainObjectTypeConfig);
-
-        }
-    }
-
-    private void initConfigurationMapOfChildDomainObjectTypes() {
-        Collection<DomainObjectTypeConfig> allTypes = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
-        for (DomainObjectTypeConfig type : allTypes) {
-            ArrayList<DomainObjectTypeConfig> directChildTypes = new ArrayList<>();
-            ArrayList<DomainObjectTypeConfig> indirectChildTypes = new ArrayList<>();
-            String typeName = type.getName();
-
-            initConfigurationMapOfChildDomainObjectTypes(typeName, directChildTypes, indirectChildTypes, true);
-            configurationStorage.directChildDomainObjectTypesMap.put(typeName, directChildTypes);
-            configurationStorage.indirectChildDomainObjectTypesMap.put(typeName, indirectChildTypes);
-        }
     }
 
     private void initConfigurationMapOfChildDomainObjectTypes(String typeName, ArrayList<DomainObjectTypeConfig> directChildTypes,
@@ -362,30 +413,27 @@ public class ConfigurationStorageBuilder {
         fillSystemFields(domainObjectTypeConfig);
     }
 
-    private void initConfigurationMapsOfAttachmentDomainObjectTypes(List<DomainObjectTypeConfig> ownerAttachmentDOTs) {
-        if (ownerAttachmentDOTs == null || ownerAttachmentDOTs.isEmpty()) {
+    private void fillConfigurationMapsOfAttachmentDomainObjectType(DomainObjectTypeConfig domainObjectTypeConfig) {
+        if (domainObjectTypeConfig == null || domainObjectTypeConfig.getAttachmentTypesConfig() == null) {
             return;
         }
-
         try {
-            AttachmentPrototypeHelper factory = new AttachmentPrototypeHelper();
-            for (DomainObjectTypeConfig domainObjectTypeConfig : ownerAttachmentDOTs) {
-                for (AttachmentTypeConfig attachmentTypeConfig : domainObjectTypeConfig.getAttachmentTypesConfig()
-                        .getAttachmentTypeConfigs()) {
-                    DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                            factory.makeAttachmentConfig(attachmentTypeConfig.getName(),
-                                    domainObjectTypeConfig.getName());
-                    fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
-                    fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
-                    configurationStorage.attachmentDomainObjectTypes
-                            .put(attachmentDomainObjectTypeConfig.getName(), attachmentDomainObjectTypeConfig.getName());
-                }
+            for (AttachmentTypeConfig attachmentTypeConfig :
+                    domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+                DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
+                        attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getName(),
+                                domainObjectTypeConfig.getName());
+                fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
+                fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
+                configurationStorage.attachmentDomainObjectTypes.put(attachmentDomainObjectTypeConfig.getName(),
+                        attachmentDomainObjectTypeConfig.getName());
             }
         } catch (IOException e) {
             throw new ConfigurationException(e);
         } catch (ClassNotFoundException e) {
             throw new ConfigurationException(e);
         }
+
     }
 
     private void buildDomainObjectTypesHierarchy(List<String> typesHierarchy, String typeName) {

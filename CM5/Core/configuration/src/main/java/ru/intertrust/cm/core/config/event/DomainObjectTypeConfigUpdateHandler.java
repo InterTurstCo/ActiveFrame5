@@ -1,0 +1,34 @@
+package ru.intertrust.cm.core.config.event;
+
+
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationStorage;
+import ru.intertrust.cm.core.config.ConfigurationStorageBuilder;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+
+/**
+ * Обработчик изменения конфигурации {@link ru.intertrust.cm.core.config.DomainObjectTypeConfig}
+ */
+public class DomainObjectTypeConfigUpdateHandler extends ConfigurationUpdateHandler<DomainObjectTypeConfig> {
+
+    @Override
+    public void doUpdate(ConfigurationUpdateEvent configurationUpdateEvent) {
+        ConfigurationStorage configStorage = configurationUpdateEvent.getConfigurationStorage();
+        ConfigurationExplorer configurationExplorer = configurationUpdateEvent.getConfigurationExplorer();
+
+        DomainObjectTypeConfig newConfig = (DomainObjectTypeConfig) configurationUpdateEvent.getNewConfig();
+        DomainObjectTypeConfig oldConfig = (DomainObjectTypeConfig) configurationUpdateEvent.getOldConfig();
+
+        ConfigurationStorageBuilder configurationStorageBuilder = new ConfigurationStorageBuilder(configurationExplorer, configStorage);
+
+        configurationStorageBuilder.updateDomainObjectFieldConfig(oldConfig, newConfig);
+        configurationStorageBuilder.updateConfigurationMapsOfAttachmentDomainObjectType(oldConfig, newConfig);
+        configurationStorageBuilder.updateConfigurationMapOfChildDomainObjectType(newConfig);
+        configStorage.domainObjectTypesHierarchy.remove(oldConfig.getName());
+    }
+
+    @Override
+    protected Class<DomainObjectTypeConfig> getClazz() {
+        return DomainObjectTypeConfig.class;
+    }
+}

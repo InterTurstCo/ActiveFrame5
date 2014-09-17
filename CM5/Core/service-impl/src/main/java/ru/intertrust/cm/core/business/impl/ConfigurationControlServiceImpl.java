@@ -44,10 +44,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
         try {
             for (TopLevelConfig config : configuration.getConfigurationList()) {
-                if (DomainObjectTypeConfig.class.equals(config.getClass())) {
-                    continue;
-                }
-
                 TopLevelConfig oldConfig = configurationExplorer.getConfig(config.getClass(), config.getName());
                 if (oldConfig == null || !oldConfig.equals(config)) {
                     JmsUtils.sendTopicMessage(config, CONFIGURATION_UPDATE_JMS_TOPIC);
