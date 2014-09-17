@@ -8,8 +8,10 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
@@ -36,6 +38,7 @@ import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.system.SplitterSettingsActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -121,18 +124,9 @@ public class DomainObjectSurferPluginView extends PluginView {
         eventBus.addHandler(HierarchicalCollectionEvent.TYPE, new HierarchicalCollectionEventHandler() {
             @Override
             public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
-                //FIXME: to implement real logic of the selection correct config
-                ChildCollectionViewerConfig childCollectionViewerConfig =  event.getChildCollectionViewerConfigs().get(0);
-
-                CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();
-                collectionViewerConfig.setHierarchical(true);
-                collectionViewerConfig.setSelectionFiltersConfig(prepareFilterForHierarchicalCollection(
-                        childCollectionViewerConfig.getFilter(), event.getSelectedId()));
-                DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
-                domainObjectSurferConfig.setCollectionViewerConfig(collectionViewerConfig);
-                domainObjectSurferConfig.setDomainObjectTypeToCreate(childCollectionViewerConfig.getDomainObjectTypeToCreate());
-
-                final Command command = new Command("initialize", "domain.object.surfer.plugin", domainObjectSurferConfig);
+                ExpandHierarchicalCollectionData data = new ExpandHierarchicalCollectionData(
+                        event.getChildCollectionViewerConfigs(), event.getSelectedId());
+                final Command command = new Command("initializeForHierarchicalCollection", "domain.object.surfer.plugin", data);
                 BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                     @Override
                     public void onFailure(Throwable caught) {
@@ -150,25 +144,6 @@ public class DomainObjectSurferPluginView extends PluginView {
                 });
             }
         });
-    }
-
-    private SelectionFiltersConfig prepareFilterForHierarchicalCollection(String filter, Id selectedId) {
-        AbstractFilterConfig initFilterConfig = new InitialFilterConfig();
-        initFilterConfig.setName(filter);
-        List<ParamConfig> paramConfigs = new ArrayList<>();
-        ParamConfig paramConfig = new ParamConfig();
-        paramConfig.setName(0);
-        paramConfig.setType(ModelConstants.REFERENCE_TYPE);
-        paramConfig.setValue(selectedId.toStringRepresentation());
-        paramConfigs.add(paramConfig);
-        initFilterConfig.setParamConfigs(paramConfigs);
-
-        SelectionFiltersConfig selectionFiltersConfig = new SelectionFiltersConfig();
-        List<AbstractFilterConfig> abstractFilterConfigs = new ArrayList<>();
-        abstractFilterConfigs.add(initFilterConfig);
-        selectionFiltersConfig.setAbstractFilterConfigs(abstractFilterConfigs);
-
-        return selectionFiltersConfig;
     }
 
     private void checkLastSplitterPosition(boolean isVertical, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {

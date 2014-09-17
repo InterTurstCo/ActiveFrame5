@@ -3,19 +3,29 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
+import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
@@ -32,8 +42,12 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
 
     @Autowired
     private ApplicationContext applicationContext;
-    @Autowired private CurrentUserAccessor currentUserAccessor;
-    @Autowired private CollectionsService collectionsService;
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private CollectionsService collectionsService;
+    @Autowired
+    private CrudService crudService;
 
     public ActivePluginData initialize(Dto params) {
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) params;
@@ -82,5 +96,56 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
             }
         }
         return result;
+    }
+
+    public ActivePluginData initializeForHierarchicalCollection(Dto params) {
+        ExpandHierarchicalCollectionData data = (ExpandHierarchicalCollectionData)params;
+        ChildCollectionViewerConfig childCollectionViewerConfig = findChildCollectionViewerConfig(data);
+        if (childCollectionViewerConfig == null) {
+            throw new GuiException("Ошибка в конфигурации иерархической коллекции");
+        }
+        CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();
+        collectionViewerConfig.setHierarchical(true);
+        collectionViewerConfig.setSelectionFiltersConfig(prepareFilterForHierarchicalCollection(
+                childCollectionViewerConfig.getFilter(), data.getSelectedParentId()));
+
+        DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
+        domainObjectSurferConfig.setCollectionViewerConfig(collectionViewerConfig);
+        domainObjectSurferConfig.setDomainObjectTypeToCreate(childCollectionViewerConfig.getDomainObjectTypeToCreate());
+
+        return initialize(domainObjectSurferConfig);
+    }
+
+    private ChildCollectionViewerConfig findChildCollectionViewerConfig(ExpandHierarchicalCollectionData data ) {
+        ChildCollectionViewerConfig defaultChildCollectionViewerConfig = null;
+        String parentDomainObjectType = crudService.getDomainObjectType(data.getSelectedParentId());
+        for (ChildCollectionViewerConfig childConfig : data.getChildCollectionViewerConfigs()) {
+            if (parentDomainObjectType.equals(childConfig.getForDomainObjectType())) {
+                return childConfig;
+            }
+            if (childConfig.getForDomainObjectType() == null) {
+                defaultChildCollectionViewerConfig = childConfig;
+            }
+        }
+        return defaultChildCollectionViewerConfig;
+    }
+
+    private SelectionFiltersConfig prepareFilterForHierarchicalCollection(String filter, Id selectedId) {
+        AbstractFilterConfig initFilterConfig = new InitialFilterConfig();
+        initFilterConfig.setName(filter);
+        List<ParamConfig> paramConfigs = new ArrayList<>();
+        ParamConfig paramConfig = new ParamConfig();
+        paramConfig.setName(0);
+        paramConfig.setType(ModelConstants.REFERENCE_TYPE);
+        paramConfig.setValue(selectedId.toStringRepresentation());
+        paramConfigs.add(paramConfig);
+        initFilterConfig.setParamConfigs(paramConfigs);
+
+        SelectionFiltersConfig selectionFiltersConfig = new SelectionFiltersConfig();
+        List<AbstractFilterConfig> abstractFilterConfigs = new ArrayList<>();
+        abstractFilterConfigs.add(initFilterConfig);
+        selectionFiltersConfig.setAbstractFilterConfigs(abstractFilterConfigs);
+
+        return selectionFiltersConfig;
     }
 }
