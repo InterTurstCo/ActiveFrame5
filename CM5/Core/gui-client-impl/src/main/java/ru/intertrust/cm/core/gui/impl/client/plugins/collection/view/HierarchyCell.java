@@ -19,7 +19,7 @@ public class HierarchyCell extends TextCell {
 
     @Override
     public void render(Context context, String text, SafeHtmlBuilder sb) {
-        sb.append(SafeHtmlUtils.fromTrustedString("<a " + style + "/>" + text + " ►</a>"));
+        sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchial-column\" " + style + "/>" + text + " <span class=\"expand-arrow\">►<span></div>"));
     }
 
     @Override

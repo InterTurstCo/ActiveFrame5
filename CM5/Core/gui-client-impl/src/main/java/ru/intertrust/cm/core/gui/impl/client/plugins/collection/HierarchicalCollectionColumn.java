@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
@@ -32,7 +33,11 @@ public class HierarchicalCollectionColumn extends TextCollectionColumn {
     @Override
     public void onBrowserEvent(Cell.Context context, Element target, CollectionRowItem rowItem, NativeEvent event) {
         if ("click".equals(event.getType())) {
-            eventBus.fireEvent(new HierarchicalCollectionEvent(rowItem.getId(), childCollectionViewerConfigs));
+            EventTarget eventTarget = event.getEventTarget();
+            Element element = Element.as(eventTarget);
+            if ("expand-arrow".equals(element.getClassName())) {
+                eventBus.fireEvent(new HierarchicalCollectionEvent(rowItem.getId(), childCollectionViewerConfigs));
+            }
         }
     }
 
