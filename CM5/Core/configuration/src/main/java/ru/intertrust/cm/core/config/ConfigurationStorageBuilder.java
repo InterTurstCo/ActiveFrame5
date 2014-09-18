@@ -24,17 +24,11 @@ public class ConfigurationStorageBuilder {
 
     private ConfigurationExplorer configurationExplorer;
     private ConfigurationStorage configurationStorage;
-    private AttachmentPrototypeHelper attachmentPrototypeHelper;
+    private AttachmentPrototypeHelper attachmentPrototypeHelper = null;
 
     public ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage) {
         this.configurationExplorer = configurationExplorer;
         this.configurationStorage = configurationStorage;
-
-        try {
-            attachmentPrototypeHelper = new AttachmentPrototypeHelper();
-        } catch (IOException e) {
-            throw new ConfigurationException(e);
-        }
     }
 
     public void buildConfigurationStorage() {
@@ -249,7 +243,7 @@ public class ConfigurationStorageBuilder {
             for (AttachmentTypeConfig attachmentTypeConfig :
                     oldConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
                 DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                        attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getName(), oldConfig.getName());
+                        getAttachmentPrototypeHelper().makeAttachmentConfig(attachmentTypeConfig.getName(), oldConfig.getName());
 
                 removeTopLevelConfigFromMap(oldConfig);
                 removeDomainObjectFieldConfigsFromMap(oldConfig);
@@ -421,7 +415,7 @@ public class ConfigurationStorageBuilder {
             for (AttachmentTypeConfig attachmentTypeConfig :
                     domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
                 DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                        attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getName(),
+                        getAttachmentPrototypeHelper().makeAttachmentConfig(attachmentTypeConfig.getName(),
                                 domainObjectTypeConfig.getName());
                 fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
                 fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
@@ -571,5 +565,17 @@ public class ConfigurationStorageBuilder {
 
             return cloneDomainObjectTypeConfig;
         }
+    }
+
+    private AttachmentPrototypeHelper getAttachmentPrototypeHelper() {
+        if (attachmentPrototypeHelper == null) {
+            try {
+                attachmentPrototypeHelper = new AttachmentPrototypeHelper();
+            } catch (IOException e) {
+                throw new ConfigurationException(e);
+            }
+        }
+
+        return attachmentPrototypeHelper;
     }
 }

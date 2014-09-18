@@ -42,6 +42,10 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     public void updateConfiguration(String configurationString) throws ConfigurationException {
         Configuration configuration = deserializeConfiguration(configurationString);
 
+        if (containsDomainObjectTypeConfig(configuration)) {
+            //todo update database structure
+        }
+
         try {
             for (TopLevelConfig config : configuration.getConfigurationList()) {
                 TopLevelConfig oldConfig = configurationExplorer.getConfig(config.getClass(), config.getName());
@@ -83,6 +87,16 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         }
 
         return configuration;
+    }
+
+    private boolean containsDomainObjectTypeConfig(Configuration configuration) {
+        for (TopLevelConfig config : configuration.getConfigurationList()) {
+            if (DomainObjectTypeConfig.class.equals(config.getClass())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

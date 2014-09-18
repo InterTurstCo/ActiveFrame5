@@ -34,8 +34,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     private ApplicationEventPublisher applicationEventPublisher;
 
-    private List<ConfigurationException> logicalErrors = new ArrayList<>();
-
     @Autowired
     FormLogicalValidator formLogicalValidator;
 
