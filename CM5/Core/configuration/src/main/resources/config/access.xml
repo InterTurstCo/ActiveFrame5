@@ -704,55 +704,13 @@
         </create>
     </access-matrix>
     
-    <access-matrix type="profile">
+    <access-matrix type="profile" read-everybody="true">
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
 
-    <access-matrix type="system_profile">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="person_profile">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-    
-    <access-matrix type="profile_value">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="profile_value_long">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="profile_value_string">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-    
-    <access-matrix type="profile_value_boolean">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-    
-    <access-matrix type="profile_value_date">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-    
-    <access-matrix type="profile_value_locale">
+    <access-matrix type="profile_value" read-everybody="true">
         <create>
             <permit-group name="AllPersons" />
         </create>
