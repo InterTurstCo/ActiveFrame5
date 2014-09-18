@@ -21,6 +21,7 @@ public class TextBoxWidget extends BaseWidget {
     private String confirmation;
     private String confirmationFor;
 
+
     @Override
     public Component createNew() {
         return new TextBoxWidget();
@@ -49,15 +50,16 @@ public class TextBoxWidget extends BaseWidget {
     protected Widget asEditableWidget(final WidgetState state) {
 
         TextBox textBox = state instanceof TextState && ((TextState) state).isEncrypted() ? new PasswordTextBox() : new TextBox();
+        if (state instanceof TextState) {
+            confirmation = ((TextState) state).getPrimaryWidgetId();
+            confirmationFor = ((TextState) state).getConfirmationWidgetId();
+        }
         textBox.addBlurHandler(new BlurHandler() {
 
             @Override
             public void onBlur(BlurEvent event) {
                 if (state instanceof TextState) {
-                    TextState texState = (TextState) state;
-                    confirmation = ((TextState) state).getPrimaryWidgetId();
-                    confirmationFor = ((TextState) state).getConfirmationWidgetId();
-                    validateTextState(texState);
+                    validateTextState(confirmation, confirmationFor);
                 } else {
                     validate();
                 }
@@ -67,17 +69,17 @@ public class TextBoxWidget extends BaseWidget {
 
     }
 
-    private void validateTextState(TextState textState) {
-        if (textState.getConfirmationWidgetId() == null && textState.getPrimaryWidgetId() == null) {
+    private void validateTextState(String confirmation, String confirmationFor) {
+        if (confirmation == null && confirmationFor == null) {
             validate();
         }
-        if (textState.getConfirmationWidgetId() != null & textState.getPrimaryWidgetId() != null) {
+        if (confirmationFor != null & confirmation != null) {
             clearErrors();
             if (!validateConfirmation()) {
-                showErrors(new ValidationResult());
+                showPasswordErrors(confirmation, confirmationFor);
             }
             else{
-                clearErrors();
+                clearPasswordErrors(confirmation, confirmationFor);
             }
         }
         else{
@@ -85,15 +87,28 @@ public class TextBoxWidget extends BaseWidget {
         }
     }
 
+    private  void showPasswordErrors(String password, String confirmation){
+        getWidgetFrom(password).showErrors(new ValidationResult());
+        getWidgetFrom(confirmation).showErrors(new ValidationResult());
+    }
+    private  void clearPasswordErrors(String password, String confirmation){
+        getWidgetFrom(password).clearErrors();
+        getWidgetFrom(confirmation).clearErrors();
+    }
+
+    private TextBoxWidget getWidgetFrom(String id){
+        return this.getContainer().getWidget(id);
+    }
 
     @Override
     public ValidationResult validate() {
         ValidationResult validationResult = super.validate();
+
         if(confirmation != null || confirmationFor != null){
-            clearErrors();
+            //clearErrors();
             if (!validateConfirmation()) {
                 validationResult.addError("Поля пароль/подтверждение не совпадают!");
-                showErrors(new ValidationResult());
+                showErrors(validationResult);
             }
         }
         return validationResult;
