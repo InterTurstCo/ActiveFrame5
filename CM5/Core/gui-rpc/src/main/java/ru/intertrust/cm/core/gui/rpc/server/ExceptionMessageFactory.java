@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.rpc.server;
 
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.model.SystemException;
 
 /**
  * @author Sergey.Okolot
@@ -9,13 +10,19 @@ import ru.intertrust.cm.core.gui.model.GuiException;
  */
 public final class ExceptionMessageFactory {
 
+    private ExceptionMessageFactory() {
+    }
+
     public static String getMessage(final Command command, Throwable ex) {
-        if (ex instanceof GuiException) {
-            if (ex.getCause() == null) {
-                return ex.getMessage();
-            }
+        SystemException cause = ex instanceof SystemException ? (SystemException) ex : null;
+        while (ex.getCause() != null) {
             ex = ex.getCause();
-            switch(ex.getClass().getSimpleName()) {
+            if (ex instanceof SystemException) {
+                cause = (SystemException) ex;
+            }
+        }
+        if (cause != null) {
+            switch(cause.getClass().getSimpleName()) {
                 case "AccessException":
                     return "У вас нет прав доступа к даному объекту.";
                 case "ActionServiceException":

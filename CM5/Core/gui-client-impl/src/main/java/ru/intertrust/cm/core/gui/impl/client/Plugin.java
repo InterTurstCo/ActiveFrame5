@@ -62,9 +62,9 @@ public abstract class Plugin extends BaseComponent {
         viewCreatedEventListeners.add(listener);
     }
 
-    public void onDataLoadFailure() {
+    public void onDataLoadFailure(Throwable cause) {
         Application.getInstance().hideLoadingIndicator();
-        ApplicationWindow.errorAlert("Ошибка инициализации плагина " + this.getName());
+        ApplicationWindow.errorAlert("Ошибка инициализации плагина " + this.getName() + ". " + cause.getMessage());
     }
 
     /**
@@ -101,7 +101,7 @@ public abstract class Plugin extends BaseComponent {
 
             @Override
             public void onFailure(Throwable caught) {
-                Plugin.this.onDataLoadFailure();
+                Plugin.this.onDataLoadFailure(caught);
             }
         };
         fillHistoryData();
