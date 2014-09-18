@@ -21,7 +21,6 @@
                                 <form-mapping domain-object-type="country" form="country_form"/>
                                 <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
                             </form-viewer>
-                            <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -37,6 +36,7 @@
                                       </initial-filter>
                                   </initial-filters>-->
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>
@@ -50,6 +50,7 @@
                                 <collection-ref name="CountryUnions"/>
                                 <default-sort-criteria column-field="name" order="ask"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -59,6 +60,7 @@
                             <collection-viewer>
                                 <collection-ref name="a1_collection"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -68,6 +70,7 @@
                             <collection-viewer>
                                 <collection-ref name="a2_collection"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -77,6 +80,7 @@
                             <collection-viewer>
                                 <collection-ref name="a3_collection"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -118,6 +122,7 @@
                                 <collection-ref name="Departments" use-default="true"/>
                                 <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>
@@ -134,6 +139,7 @@
                                 <collection-ref name="Organizations" use-default="true"/>
                                 <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>
@@ -175,6 +181,7 @@
                             <collection-viewer>
                                 <collection-ref name="org_middle_collection"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -184,6 +191,7 @@
                             <collection-viewer>
                                 <collection-ref name="Internal_Document"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -194,6 +202,7 @@
                                 <collection-ref name="Notifications"/>
                                 <default-sort-criteria column-field="subject" order="desc"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>
@@ -276,6 +285,7 @@
                             <collection-viewer>
                                 <collection-ref name="Tasks"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -286,7 +296,7 @@
                             <collection-viewer>
                                 <collection-ref name="Letters"/>
                             </collection-viewer>
-                            <toggle-edit>true</toggle-edit>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -314,6 +324,7 @@
                                     <collection-viewer>
                                         <collection-ref name="Tasks"/>
                                     </collection-viewer>
+                                    <toggle-edit>false</toggle-edit>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
@@ -323,6 +334,7 @@
                                     <collection-viewer>
                                         <collection-ref name="Tasks"/>
                                     </collection-viewer>
+                                    <toggle-edit>false</toggle-edit>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
@@ -334,6 +346,7 @@
                             <collection-viewer>
                                 <collection-ref name="Tasks"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                     <child-links>
@@ -343,6 +356,7 @@
                                     <collection-viewer>
                                         <collection-ref name="Tasks"/>
                                     </collection-viewer>
+                                    <toggle-edit>false</toggle-edit>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
@@ -352,6 +366,7 @@
                                     <collection-viewer>
                                         <collection-ref name="Tasks"/>
                                     </collection-viewer>
+                                    <toggle-edit>false</toggle-edit>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
@@ -365,6 +380,7 @@
                             <collection-viewer>
                                 <collection-ref name="Letters"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -380,6 +396,7 @@
                             <collection-viewer>
                                 <collection-ref name="SO_Department_Collection"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -389,6 +406,7 @@
                             <collection-viewer>
                                 <collection-ref name="SO_OrgSystem_Collection"/>
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>

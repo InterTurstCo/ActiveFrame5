@@ -18,7 +18,7 @@ public class DomainObjectSurferConfig extends PluginConfig {
     private FormViewerConfig formViewerConfig;
 
     @Element(name = "toggle-edit", required = false)
-    private boolean toggleEdit;
+    private boolean toggleEdit = true;
 
     @Attribute(name = "domain-object-type-to-create", required = false)
     private String domainObjectTypeToCreate;
