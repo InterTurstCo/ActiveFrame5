@@ -7,7 +7,11 @@ import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -30,10 +34,11 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationControlServiceImpl.class);
 
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-    @Autowired
-    private ConfigurationSerializer configurationSerializer;
+    @Autowired private DataStructureDao dataStructureDao;
+    @Autowired private DomainObjectTypeIdDao domainObjectTypeIdDao;
+    @Autowired private ConfigurationDao configurationDao;
+    @Autowired private ConfigurationExplorer configurationExplorer;
+    @Autowired private ConfigurationSerializer configurationSerializer;
 
     /**
      * {@inheritDoc}
@@ -41,10 +46,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void updateConfiguration(String configurationString) throws ConfigurationException {
         Configuration configuration = deserializeConfiguration(configurationString);
-
-        if (containsDomainObjectTypeConfig(configuration)) {
-            //todo update database structure
-        }
+        updateConfiguration(configuration);
 
         try {
             for (TopLevelConfig config : configuration.getConfigurationList()) {
@@ -62,6 +64,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     /**
      * {@inheritDoc}
      */
+    @Deprecated // marked for removal
     @Override
     public boolean restartRequiredForFullUpdate(String configurationString) {
         Configuration configuration = deserializeConfiguration(configurationString);
@@ -89,14 +92,36 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         return configuration;
     }
 
-    private boolean containsDomainObjectTypeConfig(Configuration configuration) {
-        for (TopLevelConfig config : configuration.getConfigurationList()) {
-            if (DomainObjectTypeConfig.class.equals(config.getClass())) {
-                return true;
+    private Configuration buildNewConfiguration(Configuration configuration) {
+        Configuration oldConfiguration = new ObjectCloner().
+                cloneObject(configurationExplorer.getConfiguration(), Configuration.class);
+        for (TopLevelConfig topLevelConfig : configuration.getConfigurationList()) {
+            TopLevelConfig oldTopLevelConfig = configurationExplorer.
+                    getConfig(topLevelConfig.getClass(), topLevelConfig.getName());
+            if (oldTopLevelConfig == null) {
+                oldConfiguration.getConfigurationList().add(topLevelConfig);
+            } else if (!oldTopLevelConfig.equals(topLevelConfig)){
+                oldConfiguration.getConfigurationList().remove(oldTopLevelConfig);
+                oldConfiguration.getConfigurationList().add(topLevelConfig);
             }
         }
 
-        return false;
+        return oldConfiguration;
+    }
+
+    private void saveConfiguration(Configuration configuration) {
+        String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
+        configurationDao.save(configurationString);
+    }
+
+    private void updateConfiguration(Configuration configuration) {
+        Configuration newConfiguration = buildNewConfiguration(configuration);
+        ConfigurationExplorer newConfigurationExplorer = new ConfigurationExplorerImpl(newConfiguration);
+
+        RecursiveConfigurationMerger recursiveMerger = new RecursiveConfigurationMerger(dataStructureDao, domainObjectTypeIdDao);
+        recursiveMerger.merge(configurationExplorer, newConfigurationExplorer);
+
+        saveConfiguration(newConfiguration);
     }
 
 }

@@ -6,17 +6,14 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import java.util.*;
 
 /**
-* Created by vmatsukevich on 9/18/14.
+* Abstract class that contains common logic for recursive configuration processing
 */
-abstract class AbstractRecursiveLoader {
+abstract class AbstractRecursiveConfigurationLoader {
 
     protected DataStructureDao dataStructureDao;
     protected ConfigurationExplorer configurationExplorer;
-    private final Set<String> processedConfigs = new HashSet<>();
 
-    protected DataStructureDao getDataStructureDao() {
-        return dataStructureDao;
-    }
+    private final Set<String> processedConfigs = new HashSet<>();
 
     protected void setDataStructureDao(DataStructureDao dataStructureDao) {
         this.dataStructureDao = dataStructureDao;

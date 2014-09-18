@@ -7,14 +7,18 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import java.util.Collection;
 
 /**
-* Created by vmatsukevich on 9/18/14.
+* Recursively loads configuration
 */
-public class RecursiveConfigurationLoader extends AbstractRecursiveLoader {
+class RecursiveConfigurationLoader extends AbstractRecursiveConfigurationLoader {
 
     public RecursiveConfigurationLoader(DataStructureDao dataStructureDao) {
         setDataStructureDao(dataStructureDao);
     }
 
+    /**
+     * Recursively loads configuration from {@code ConfigurationExplorer}
+     * @param configurationExplorer {@code ConfigurationExplorer} used to load configuration
+     */
     public void load(ConfigurationExplorer configurationExplorer) {
         setConfigurationExplorer(configurationExplorer);
 

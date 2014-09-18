@@ -115,6 +115,7 @@ public class DomainObjectLogicalValidator implements ConfigurationValidator {
             if (extendedConfig == null) {
                 logicalErrors.addError("Extended DomainObject Configuration is not found for name '" +
                         extendsAttributeValue + "'");
+                return;
             }
 
             validateForCoincidentFieldNamesInHierarchy(domainObjectTypeConfig, extendedConfig, logicalErrors);

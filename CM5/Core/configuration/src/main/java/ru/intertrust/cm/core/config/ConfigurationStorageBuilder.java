@@ -239,15 +239,18 @@ public class ConfigurationStorageBuilder {
     }
 
     public void updateConfigurationMapsOfAttachmentDomainObjectType(DomainObjectTypeConfig oldConfig,
-                                                                    DomainObjectTypeConfig newConfig) {        try {
-            for (AttachmentTypeConfig attachmentTypeConfig :
-                    oldConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
-                DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                        getAttachmentPrototypeHelper().makeAttachmentConfig(attachmentTypeConfig.getName(), oldConfig.getName());
+                                                                    DomainObjectTypeConfig newConfig) {
+        try {
+            if (oldConfig != null && oldConfig.getAttachmentTypesConfig() != null) {
+                for (AttachmentTypeConfig attachmentTypeConfig :
+                        oldConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+                    DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
+                            getAttachmentPrototypeHelper().makeAttachmentConfig(attachmentTypeConfig.getName(), oldConfig.getName());
 
-                removeTopLevelConfigFromMap(oldConfig);
-                removeDomainObjectFieldConfigsFromMap(oldConfig);
-                configurationStorage.attachmentDomainObjectTypes.remove(attachmentDomainObjectTypeConfig.getName());
+                    removeTopLevelConfigFromMap(oldConfig);
+                    removeDomainObjectFieldConfigsFromMap(oldConfig);
+                    configurationStorage.attachmentDomainObjectTypes.remove(attachmentDomainObjectTypeConfig.getName());
+                }
             }
 
             fillConfigurationMapsOfAttachmentDomainObjectType(newConfig);

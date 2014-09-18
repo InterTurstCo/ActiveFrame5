@@ -28,5 +28,6 @@ public interface ConfigurationControlService {
      * @param configurationString строка конфигурации
      * @return true, если требуется перезагрузка, false - в противном случае
      */
+    @Deprecated // marked for removal
     boolean restartRequiredForFullUpdate(String configurationString);
 }

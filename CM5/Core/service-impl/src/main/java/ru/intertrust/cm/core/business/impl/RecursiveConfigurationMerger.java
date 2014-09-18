@@ -10,9 +10,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
-* Created by vmatsukevich on 9/18/14.
+* Recursively merges configurations
 */
-public class RecursiveConfigurationMerger extends AbstractRecursiveLoader {
+class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader {
 
     private static final String COMMON_ERROR_MESSAGE = "It's only allowed to add some new configuration " +
             "but not to modify or delete the existing one.";
@@ -25,6 +25,11 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveLoader {
         this.domainObjectTypeIdDao = domainObjectTypeIdDao;
     }
 
+    /**
+     * Recursively merges configurations from two instances of {@code ConfigurationExplorer}
+     * @param oldConfigExplorer {@code ConfigurationExplorer} with old configuration
+     * @param newConfigExplorer {@code ConfigurationExplorer} with new configuration
+     */
     public void merge(ConfigurationExplorer oldConfigExplorer, ConfigurationExplorer newConfigExplorer) {
         this.oldConfigExplorer = oldConfigExplorer;
         setConfigurationExplorer(newConfigExplorer);
