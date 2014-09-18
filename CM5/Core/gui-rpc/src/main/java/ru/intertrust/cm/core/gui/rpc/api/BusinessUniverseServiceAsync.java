@@ -50,7 +50,7 @@ public interface BusinessUniverseServiceAsync {
                 @Override
                 public void onFailure(Throwable caught) {
                     final String initialToken = History.getToken();
-                    if (caught.getMessage() != null && caught.getMessage().contains("")) {
+                    if (caught.getMessage() != null && caught.getMessage().contains("LoginPage")) {
                         String queryString = Window.Location.getQueryString() == null ? "" : Window.Location.getQueryString();
                         final StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
                                 .append("Login.html").append(queryString);
