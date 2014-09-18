@@ -6,20 +6,10 @@ package ru.intertrust.cm.core.business.api.dto;
  *         Time: 17:15
  */
 public class ConfigurationDeployedItem implements Dto {
-    private boolean restartRequired;
     private boolean success;
     private String message;
     private String fileName;
-    private static final String SUCCESS_BUT_RESTART_REQUIRED = "Кофнигурация загружена успешно. \n" +
-            "Требуется перезагрузка сервера, чтобы изменения прменились.";
-    private static final String SUCCESS = "Кофнигурация загружена успещно.";
-    public boolean isRestartRequired() {
-        return restartRequired;
-    }
-
-    public void setRestartRequired(boolean restartRequired) {
-        this.restartRequired = restartRequired;
-    }
+    private static final String SUCCESS = "Кофнигурация загружена успешно.";
 
     public boolean isSuccess() {
         return success;
@@ -30,9 +20,6 @@ public class ConfigurationDeployedItem implements Dto {
     }
 
     public String getMessage() {
-        if (success && restartRequired) {
-            return SUCCESS_BUT_RESTART_REQUIRED;
-        }
         if(success) {
             return SUCCESS;
         }
@@ -62,9 +49,6 @@ public class ConfigurationDeployedItem implements Dto {
 
         ConfigurationDeployedItem that = (ConfigurationDeployedItem) o;
 
-        if (restartRequired != that.restartRequired) {
-            return false;
-        }
         if (success != that.success) {
             return false;
         }
@@ -80,8 +64,7 @@ public class ConfigurationDeployedItem implements Dto {
 
     @Override
     public int hashCode() {
-        int result = (restartRequired ? 1 : 0);
-        result = 31 * result + (success ? 1 : 0);
+        int result = success ? 1 : 0;
         result = 31 * result + (message != null ? message.hashCode() : 0);
         result = 31 * result + (fileName != null ? fileName.hashCode() : 0);
         return result;

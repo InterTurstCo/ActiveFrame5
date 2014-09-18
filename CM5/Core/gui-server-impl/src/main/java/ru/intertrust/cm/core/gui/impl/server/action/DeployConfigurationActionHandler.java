@@ -50,8 +50,6 @@ public class DeployConfigurationActionHandler
             try {
                 String configAsString = readFileAsString(filePath, StandardCharsets.UTF_8);
                 configurationControlService.updateConfiguration(configAsString);
-                boolean restartRequired  = configurationControlService.restartRequiredForFullUpdate(configAsString);
-                configurationDeployedItem.setRestartRequired(restartRequired);
                 configurationDeployedItem.setSuccess(true);
             } catch (EJBException ejbException){
                 configurationDeployedItem.setSuccess(false);

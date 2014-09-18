@@ -34,10 +34,6 @@ public interface LucemThemeBundle extends ThemeBundle{
     ImageResource failedIm();
 
     @Override
-    @Source("images/refresh.png")
-    ImageResource restartRequiredIm();
-
-    @Override
     @Source("images/confirm.png")
     ImageResource doneIm();
 

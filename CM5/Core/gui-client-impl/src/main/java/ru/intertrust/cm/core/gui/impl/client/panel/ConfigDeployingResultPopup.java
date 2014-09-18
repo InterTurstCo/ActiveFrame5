@@ -75,11 +75,6 @@ public class ConfigDeployingResultPopup extends PopupPanel {
 
     private ImageResource getStatusImageResource(ConfigurationDeployedItem item) {
         boolean success = item.isSuccess();
-        boolean restartRequired = item.isRestartRequired();
-        if (success && restartRequired) {
-
-            return GlobalThemesManager.getCurrentTheme().restartRequiredIm();
-        }
         if (success) {
             refreshGui = true;
             return GlobalThemesManager.getCurrentTheme().doneIm();

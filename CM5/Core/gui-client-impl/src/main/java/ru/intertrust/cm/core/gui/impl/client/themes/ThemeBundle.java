@@ -24,8 +24,6 @@ public interface ThemeBundle extends ClientBundle {
 
     ImageResource failedIm();
 
-    ImageResource restartRequiredIm();
-
     @Source("images/ext-search.png")
     ImageResource extendedSearchIm();
 
