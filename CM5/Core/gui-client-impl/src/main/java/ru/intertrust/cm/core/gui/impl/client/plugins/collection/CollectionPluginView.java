@@ -595,7 +595,7 @@ public class CollectionPluginView extends PluginView {
 
     private void applySelectionModel() {
         if (singleChoice) {
-            selectionModel = new CheckedSelectionModel<>();
+            selectionModel = new CheckedSelectionModel<>(true);
         } else {
             selectionModel = new MultiSelectionModel<>();
         }

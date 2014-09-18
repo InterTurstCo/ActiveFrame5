@@ -140,7 +140,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     @Override
     public boolean isDirty() {
         final FormPluginView view = (FormPluginView) getView();
-        return view.isDirty();
+        return view == null ? false : view.isDirty();
     }
 
     @Override

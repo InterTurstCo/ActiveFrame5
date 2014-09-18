@@ -1,72 +1,41 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
 
-import java.util.Set;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.view.client.MultiSelectionModel;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 
+import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 public class CheckedSelectionModel<T extends CollectionRowItem> extends SingleSelectionModel<T> {
-  private static final int         SELECTION_DELAY   = 500;
 
-  private MultiSelectionModelEx<T> outerModel;
+    private boolean dirtySensitivity = false;
 
-  public CheckedSelectionModel() {
-    outerModel = new MultiSelectionModelEx<T>(this);
-  }
-
-  @Override
-  public Set<T> getSelectedSet() {
-    return super.getSelectedSet();
-  }
-
-  @Override
-  public boolean isSelected(T object) {
-    return super.isSelected(object);
-  }
-
-  @Override
-  public void setSelected(T object, boolean selected) {
-    if (object != null) {
-      super.setSelected(object, selected);
+    public CheckedSelectionModel() {
+        this(false);
     }
-  }
 
-
-
-  @Override
-  public void fireSelectionChangeEvent() {
-    super.fireSelectionChangeEvent();
-
-  }
-
-  private class MultiSelectionModelEx<T1 extends CollectionRowItem> extends MultiSelectionModel<T1> implements
-      SelectionChangeEvent.Handler {
-    private Timer selectionTimer = new SelectionTimer();
-
-    public MultiSelectionModelEx(CheckedSelectionModel<T1> sourceModel) {
-      sourceModel.addSelectionChangeHandler(this);
+    public CheckedSelectionModel(boolean dirtySensitivity) {
+        this.dirtySensitivity = dirtySensitivity;
     }
 
     @Override
-    public void onSelectionChange(SelectionChangeEvent event) {
+    public void setSelected(final T object, final boolean selected) {
+        if (object != null) {
+            if (dirtySensitivity) {
+                Application.getInstance().getActionManager().checkChangesBeforeExecution(new ConfirmCallback() {
+                    @Override
+                    public void onAffirmative() {
+                        CheckedSelectionModel.super.setSelected(object, selected);
+                    }
 
-      selectionTimer.cancel();
-      selectionTimer.schedule(SELECTION_DELAY);
+                    @Override
+                    public void onCancel() {
+                    }
+                });
+
+            } else {
+                super.setSelected(object, selected);
+            }
+        }
     }
-
-    private void onSelectionChangeScheduled() {
-
-      SelectionChangeEvent.fire(MultiSelectionModelEx.this);
-    }
-
-    private class SelectionTimer extends Timer {
-      @Override
-      public void run() {
-        onSelectionChangeScheduled();
-      }
-    }
-  }
 }

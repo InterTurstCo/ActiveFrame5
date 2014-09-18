@@ -57,7 +57,16 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
     @Override
     protected boolean isChanged() {
         final DateBoxState state = getInitialData();
-        final String initValue = state.getDateTimeContext() == null ? null : state.getDateTimeContext().getDateTime();
+        final String initValue;
+        if (state.getDateTimeContext() == null) {
+            initValue = null;
+        } else {
+            final DateTimeFormat dtoDateTimeFormat = DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN);
+            final Date initDate = dtoDateTimeFormat.parse(state.getDateTimeContext().getDateTime());
+            final DateTimeFormat stateDateTimeFormat = DateTimeFormat.getFormat(state.getPattern());
+            final Date clientDate = stateDateTimeFormat.parse(stateDateTimeFormat.format(initDate));
+            initValue = dtoDateTimeFormat.format(clientDate);
+        }
         final DecoratedDateTimeBox decorate = (DecoratedDateTimeBox) impl;
         final String currentValue = decorate.getText();
         return currentValue == null ? initValue != null : !currentValue.equals(initValue);
