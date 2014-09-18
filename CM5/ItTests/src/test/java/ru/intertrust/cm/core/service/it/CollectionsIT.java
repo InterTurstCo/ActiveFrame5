@@ -320,8 +320,8 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
 
-        query = "select t.created_by, '' as test from (select coalesce('<id>' || substring(created_by.name, 1, 5) || ':' || '</>', '<id></><shortName></>') " +
-        		" as created_by, '' as test2 from schedule s inner join schedule created_by on s.id = created_by.id) t ";
+        query = "select id, name, \"created_by\", '' as test from (select s.id, s.name, s.status,  " +
+        		"coalesce('<id>' || substring(created_by.\"name\", 1, 5) || ':' || '</>', '<id></><shortName></>') as \"created_by\", '' as test2 from schedule s inner join schedule created_by on s.id = created_by.id) t";
         params = new ArrayList<Value>();
         
         collection = collectionService.findCollectionByQuery(query, params);
