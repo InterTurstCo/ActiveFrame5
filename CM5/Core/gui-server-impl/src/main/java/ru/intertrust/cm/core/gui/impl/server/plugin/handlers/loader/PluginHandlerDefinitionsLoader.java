@@ -1,10 +1,21 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers.loader;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.type.classreading.MetadataReader;
@@ -13,12 +24,11 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.RegexPatternTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
+
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * A bean registry postprocessor which loads classes, annotated with {@link ComponentName} as bean definitions
@@ -28,18 +38,10 @@ import java.util.regex.Pattern;
 public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPostProcessor {
 
     private static final String VALUE_ATTRIBUTE = "value";
-    private String basePackage;
+    private static final Logger logger = LoggerFactory.getLogger(PluginHandlerDefinitionsLoader.class);
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        ScanningProvider componentProvider = new ScanningProvider();
-        Set<BeanDefinition> pluginHandlerDefinitions = componentProvider.findCandidateComponents(basePackage);
-
-        System.out.println("================================================ REGISTERED COMPONENTS =========================================================");
-        for (BeanDefinition pluginHandlerDefinition : pluginHandlerDefinitions) {
-            System.out.println(pluginHandlerDefinition.getBeanClassName());
-            registerBeanDefinitionInRegistry((ScannedGenericBeanDefinition) pluginHandlerDefinition, registry);
-        }
     }
 
     private void registerBeanDefinitionInRegistry(ScannedGenericBeanDefinition pluginHandlerDefinition, BeanDefinitionRegistry registry) {
@@ -53,13 +55,26 @@ public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPos
         registry.registerBeanDefinition(annotationValue, scannedGenericBeanDefinition);
     }
 
-    public void setBasePackage(String basePackage) {
-        this.basePackage = basePackage;
-    }
-
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        // no post processing
+        ModuleService moduleService = beanFactory.getBean(ModuleService.class);    
+        ScanningProvider componentProvider = new ScanningProvider();
+        
+        logger.info("================================================ REGISTERED COMPONENTS =========================================================");
+        for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
+            if (moduleConfiguration.getGuiComponentsPackages() != null){
+                for (String basePackage : moduleConfiguration.getGuiComponentsPackages()) {
+    
+                    Set<BeanDefinition> pluginHandlerDefinitions = componentProvider.findCandidateComponents(basePackage);
+    
+                    for (BeanDefinition pluginHandlerDefinition : pluginHandlerDefinitions) {
+                        logger.info(pluginHandlerDefinition.getBeanClassName());
+                        registerBeanDefinitionInRegistry((ScannedGenericBeanDefinition) pluginHandlerDefinition, (DefaultListableBeanFactory)beanFactory);
+                    }
+                }
+            }
+        }
+        logger.info("=============================================== END REGISTERED COMPONENTS ======================================================");
     }
 
     /**

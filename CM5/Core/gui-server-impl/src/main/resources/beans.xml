@@ -2,9 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
-    <bean class="ru.intertrust.cm.core.gui.impl.server.plugin.handlers.loader.PluginHandlerDefinitionsLoader">
-        <property name="basePackage" value="ru/intertrust"/>
-    </bean>
+    <bean class="ru.intertrust.cm.core.gui.impl.server.plugin.handlers.loader.PluginHandlerDefinitionsLoader"/>
 
     <jee:local-slsb id="guiService"
                     jndi-name="java:module/GuiServiceImpl!ru.intertrust.cm.core.gui.api.server.GuiService"
