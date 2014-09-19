@@ -6,7 +6,8 @@
         <extension-points-package>ru/intertrust/cm</extension-points-package>
     </extension-points-packages>
     <gui-components-packages>
-        <gui-components-package>ru.intertrust.cm.core.gui</gui-components-package>
+        <gui-components-package>ru</gui-components-package>
+        <gui-components-package>com</gui-components-package>
     </gui-components-packages>
     <configuration-schema-path>config/configuration.xsd</configuration-schema-path>
     <configuration-paths>
