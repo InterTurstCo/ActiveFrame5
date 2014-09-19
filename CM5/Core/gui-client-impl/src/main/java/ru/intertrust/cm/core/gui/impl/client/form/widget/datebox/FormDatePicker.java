@@ -34,7 +34,6 @@ public class FormDatePicker extends OneDatePicker {
                 FormDatePicker.this.hide();
             }
         });
-        this.addCloseHandler(new HideDateTimePickerCloseHandler(container));
         container.add(submit);
         return container;
     }

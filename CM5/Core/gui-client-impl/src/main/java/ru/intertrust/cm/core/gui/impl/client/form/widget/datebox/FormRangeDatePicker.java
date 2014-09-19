@@ -82,7 +82,6 @@ public class FormRangeDatePicker extends RangeDatePicker {
                 FormRangeDatePicker.this.hide();
             }
         });
-        this.addCloseHandler(new HideDateTimePickerCloseHandler(container));
         submit.setStyleName("dark-button");
         container.add(submit);
         return container;
