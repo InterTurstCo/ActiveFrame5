@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
+import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
@@ -32,6 +33,8 @@ import java.util.List;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ConfigurationControlServiceImpl implements ConfigurationControlService {
 
+    private enum UpdateType {CONFIGURATION, WORKFLOW, DATA_IMPORT}
+
     private static final String CONFIGURATION_UPDATE_JMS_TOPIC = "topic/ConfigurationUpdateTopic";
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationControlServiceImpl.class);
@@ -42,24 +45,25 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Autowired private ConfigurationExplorer configurationExplorer;
     @Autowired private ConfigurationSerializer configurationSerializer;
 
+    @Autowired private ProcessService processService;
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void updateConfiguration(String configurationString) throws ConfigurationException {
-        Configuration configuration = deserializeConfiguration(configurationString);
-        updateConfiguration(configuration);
+    public void updateConfiguration(String configurationString, String fileName) throws ConfigurationException {
+        UpdateType updateType = resolveUpdateType(configurationString, fileName);
 
-        try {
-            for (TopLevelConfig config : configuration.getConfigurationList()) {
-                TopLevelConfig oldConfig = configurationExplorer.getConfig(config.getClass(), config.getName());
-                if (oldConfig == null || !oldConfig.equals(config)) {
-                    JmsUtils.sendTopicMessage(config, CONFIGURATION_UPDATE_JMS_TOPIC);
-                }
+        switch (updateType) {
+            case CONFIGURATION: {
+                processConfigurationUpdate(configurationString);
+                break;
+            } case WORKFLOW:{
+                processWorkflowUpdate(configurationString, fileName);
+                break;
+            } case DATA_IMPORT: {
+                //todo
             }
-        } catch (Exception e) {
-            logger.error("Unexpected exception caught in updateConfiguration", e);
-            throw new UnexpectedException("ConfigurationControlService", "updateConfiguration", configurationString, e);
         }
     }
 
@@ -82,6 +86,27 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         }
 
         return false;
+    }
+
+    private void processConfigurationUpdate(String configurationString) {
+        Configuration configuration = deserializeConfiguration(configurationString);
+        updateConfiguration(configuration);
+
+        try {
+            for (TopLevelConfig config : configuration.getConfigurationList()) {
+                TopLevelConfig oldConfig = configurationExplorer.getConfig(config.getClass(), config.getName());
+                if (oldConfig == null || !oldConfig.equals(config)) {
+                    JmsUtils.sendTopicMessage(config, CONFIGURATION_UPDATE_JMS_TOPIC);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Unexpected exception caught in updateConfiguration", e);
+            throw new UnexpectedException("ConfigurationControlService", "updateConfiguration", configurationString, e);
+        }
+    }
+
+    private void processWorkflowUpdate(String configurationString, String fileName) {
+        processService.deployProcess(configurationString.getBytes(), fileName);
     }
 
     private Configuration deserializeConfiguration(String configurationString) {
@@ -130,6 +155,20 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         recursiveMerger.merge(configurationExplorer, newConfigurationExplorer);
 
         saveConfiguration(newConfiguration);
+    }
+
+    private UpdateType resolveUpdateType(String configurationString, String fileName) {
+        if (fileName.endsWith(".csv")) {
+            return UpdateType.DATA_IMPORT;
+        } else if (fileName.endsWith(".bpmn") && configurationString.startsWith("<?xml") &&
+                configurationString.contains("<process")) {
+            return UpdateType.WORKFLOW;
+        } else if (fileName.endsWith(".xml") && configurationString.startsWith("<?xml") &&
+                configurationString.contains("<configuration")) {
+            return UpdateType.CONFIGURATION;
+        }
+
+        throw new ConfigurationException("Unresolved configuration type for file " + fileName);
     }
 
 }
