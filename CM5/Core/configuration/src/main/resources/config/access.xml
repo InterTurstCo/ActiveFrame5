@@ -28,7 +28,7 @@
             <domain-object type="Person" />
         </context>
         <members>
-            <!-- Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их в соответствующую группу, т.е. где контекст 
+            <!-- Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их в соответствующую группу, т.е. где контекст
                 = объекту -->
             <track-domain-objects type="Person" status="Active">
                 <get-person>
@@ -63,7 +63,7 @@
         </members>
         <!-- Также включаем всех членов группы "Пользователь" с тем же контекстом -->
         <!-- include-group name="Пользователь" / -->
-        <!-- Вероятно, по соображениям эффективности выгоднее будет не включать здесь группу "Пользователь", а повторить тег trackObjects из 
+        <!-- Вероятно, по соображениям эффективности выгоднее будет не включать здесь группу "Пользователь", а повторить тег trackObjects из
             неё -->
     </dynamic-group>
 
@@ -284,10 +284,10 @@
         </groups>
     </context-role>
 
-    <!-- <dynamic-group name="Редактор Стран"> По одной группе на каждый объект "Person" (пользователь) в системе <context> <domain-object type="country" 
-        /> </context> <members> Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их в соответствующую группу, т.е. 
-        где контекст = объекту <track-domain-objects type="country" status="Active" /> </members> </dynamic-group> <context-role name="Редактор Стран"> 
-        <context> <domain-object type="country" /> </context> <groups> <track-domain-objects> <get-group name="Редактор Стран"> <doel>Author</doel> </get-group> 
+    <!-- <dynamic-group name="Редактор Стран"> По одной группе на каждый объект "Person" (пользователь) в системе <context> <domain-object type="country"
+        /> </context> <members> Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их в соответствующую группу, т.е.
+        где контекст = объекту <track-domain-objects type="country" status="Active" /> </members> </dynamic-group> <context-role name="Редактор Стран">
+        <context> <domain-object type="country" /> </context> <groups> <track-domain-objects> <get-group name="Редактор Стран"> <doel>Author</doel> </get-group>
         </track-domain-objects> </groups> </context-role> -->
 
     <!-- Матрицы доступа -->
@@ -317,7 +317,7 @@
     <access-matrix type="letter">
         <create>
             <permit-group name="AllPersons" />
-        </create>    
+        </create>
         <status name="*">
             <read>
                 <permit-group name="Administrators" />
@@ -338,7 +338,7 @@
     <access-matrix type="country">
         <create>
             <permit-group name="AllPersons" />
-        </create>    
+        </create>
         <status name="Active">
             <read>
                 <permit-group name="Administrators" />
@@ -361,8 +361,8 @@
             <permit-group name="AllPersons" />
         </create>
         <status name="Active">
-             
-            <!-- На чтение есть права у родителя read-everybody 
+
+            <!-- На чтение есть права у родителя read-everybody
             <read>
                 <permit-group name="Administrators" />
                 <permit-group name="Administrators_Read_Only" />
@@ -383,7 +383,7 @@
     <access-matrix type="Department">
         <create>
             <permit-group name="AllPersons" />
-        </create>        
+        </create>
         <status name="Active">
             <read>
                 <permit-group name="Administrators" />
@@ -404,7 +404,7 @@
     <access-matrix type="Organization">
         <create>
             <permit-group name="AllPersons" />
-        </create>    
+        </create>
         <status name="Active">
             <read>
                 <permit-group name="Administrators" />
@@ -415,6 +415,26 @@
             </write>
             <delete>
                 <permit-group name="Administrators" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="Administrators" />
+            </execute-action>
+        </status>
+    </access-matrix>
+
+    <access-matrix type="bu_user_settings">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
             </delete>
             <execute-action name="action1">
                 <permit-group name="Administrators" />
@@ -424,18 +444,17 @@
 
     <access-matrix type="bu_nav_link_collection">
         <create>
-            <permit-group name="AllPersons" />                        
-        </create>        
+            <permit-group name="AllPersons" />
+        </create>
         <status name="Active">
             <read>
-                <permit-group name="Administrators" />
-                <permit-group name="Administrators_Read_Only" />
+                <permit-group name="AllPersons" />
             </read>
             <write>
-                <permit-group name="Administrators" />
+                <permit-group name="AllPersons" />
             </write>
             <delete>
-                <permit-group name="Administrators" />
+                <permit-group name="AllPersons" />
             </delete>
             <execute-action name="action1">
                 <permit-group name="Administrators" />
@@ -445,7 +464,7 @@
 
     <access-matrix type="country_union">
         <create>
-            <permit-group name="AllPersons" />                        
+            <permit-group name="AllPersons" />
         </create>
         <status name="Active">
             <read>
@@ -486,7 +505,7 @@
     <!-- Внутренний документ -->
     <access-matrix type="Internal_Document">
         <create>
-            <permit-group name="AllPersons" />                        
+            <permit-group name="AllPersons" />
         </create>
         <status name="Draft">
             <read>
@@ -554,53 +573,53 @@
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="Resolution_Card" >
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="Status" read-everybody="true" >
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="Assignee_Person" read-everybody="true" >
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="Assignee_Group" read-everybody="true" >
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="Task_Attachment" read-everybody="true" >
         <create>
             <permit-group name="AllPersons" />
-        </create>    
+        </create>
     </access-matrix>
-    
+
     <access-matrix type="Person" read-everybody="true" >
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="Person_Task">
         <create>
             <permit-group name="AllPersons" />
-        </create>        
+        </create>
         <status name="*">
             <read>
                 <permit-role name="task-addressee" />
             </read>
         </status>
-    </access-matrix>    
+    </access-matrix>
 
     <access-matrix type="notification">
         <create>
@@ -613,25 +632,25 @@
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="Authentication_Info">
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="org_middle">
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="Tst_Employee">
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="Delegation">
         <create>
             <permit-group name="AllPersons" />
@@ -679,7 +698,7 @@
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="report_result">
         <create>
             <permit-group name="AllPersons" />
@@ -697,13 +716,13 @@
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="notification_text">
         <create>
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
+
     <access-matrix type="profile" read-everybody="true">
         <create>
             <permit-group name="AllPersons" />

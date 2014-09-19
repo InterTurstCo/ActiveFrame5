@@ -20,7 +20,7 @@
             <field name="Name"/>
         </uniqueKey>
     </domain-object-type>
-    <domain-object-type name="bu_user_settings">
+    <domain-object-type name="bu_user_settings" initial-status="Active">
         <fields>
             <reference name="person" type="person"/>
             <string name="theme" length="128"/>
@@ -28,7 +28,7 @@
             <long name="splitter_position"/>
         </fields>
     </domain-object-type>
-    <domain-object-type name="bu_nav_link_collection">
+    <domain-object-type name="bu_nav_link_collection" initial-status="Active">
         <fields>
             <reference name="person" type="person"/>
             <string name="link" length="128"/>
