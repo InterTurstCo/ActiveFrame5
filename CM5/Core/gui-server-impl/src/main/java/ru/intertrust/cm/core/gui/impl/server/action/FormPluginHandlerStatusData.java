@@ -12,7 +12,6 @@ public class FormPluginHandlerStatusData implements ActionHandler.HandlerStatusD
     public static final String PLUGIN_IN_CENTRAL_PANEL_ATTR = "pluginIsCentralPanel";
     public static final String TOGGLE_EDIT_ATTR = "toggleEdit";
     public static final String PREVIEW_ATTR = "preview";
-    public static final String IS_NEW_DOMAIN_OBJ_ATTR = "isNewDomainObject";
 
     private Map<String, Object> params;
 
@@ -33,10 +32,5 @@ public class FormPluginHandlerStatusData implements ActionHandler.HandlerStatusD
 
     public boolean isToggleEdit() {
         return Boolean.TRUE.equals(params.get(TOGGLE_EDIT_ATTR));
-    }
-
-    @Override
-    public boolean isNewDomainObject() {
-        return Boolean.TRUE.equals(params.get(IS_NEW_DOMAIN_OBJ_ATTR));
     }
 }

@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.action.FormPluginHandlerStatusData;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
@@ -89,8 +90,8 @@ public class FormPluginHandler extends ActivePluginHandler {
         formParams.put(FormPluginHandlerStatusData.PLUGIN_IN_CENTRAL_PANEL_ATTR, pluginState.isInCentralPanel());
         formParams.put(FormPluginHandlerStatusData.TOGGLE_EDIT_ATTR, pluginState.isToggleEdit());
         formParams.put(FormPluginHandlerStatusData.PREVIEW_ATTR, !pluginState.isEditable());
-        formParams.put(FormPluginHandlerStatusData.IS_NEW_DOMAIN_OBJ_ATTR,
-                pluginConfig.getDomainObjectTypeToCreate() != null);
+        formParams.put(PluginHandlerHelper.DOMAIN_OBJECT_KEY,
+                formData.getFormState().getObjects().getRootDomainObject());
         final ToolBarConfig toolbarConfig =
                 formData.getToolBarConfig() == null ? new ToolBarConfig() : formData.getToolBarConfig();
         ToolBarConfig defaultToolbarConfig;

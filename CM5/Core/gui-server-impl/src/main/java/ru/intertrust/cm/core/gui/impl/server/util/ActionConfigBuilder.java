@@ -11,6 +11,7 @@ import org.springframework.expression.PropertyAccessor;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
@@ -21,9 +22,11 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.action.ActionVisibilityChecker;
+import ru.intertrust.cm.core.gui.api.server.action.ActionVisibilityContext;
 import ru.intertrust.cm.core.gui.impl.server.action.DomainObjectPropertyAccessor;
 import ru.intertrust.cm.core.gui.impl.server.action.DomainObjectTypeComparator;
 import ru.intertrust.cm.core.gui.impl.server.action.FakeActionHandler;
+import ru.intertrust.cm.core.gui.impl.server.action.ReferenceValuePropertyAccessor;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 /**
@@ -36,6 +39,7 @@ public class ActionConfigBuilder {
     @Autowired private ApplicationContext applicationContext;
     @Autowired private ActionService actionService;
     @Autowired private CurrentUserAccessor currentUserAccessor;
+    @Autowired private CrudService crudService;
 
     private final Map<String, ActionConfig> referenceMap = new HashMap<>();
     private final ActionContextList contextList = new ActionContextList();
@@ -58,6 +62,7 @@ public class ActionConfigBuilder {
             if (config instanceof ActionRefConfig) {
                 config = resolveActionReference((ActionRefConfig) config);
             }
+            final DomainObject domainObject = (DomainObject) params.get(PluginHandlerHelper.DOMAIN_OBJECT_KEY);
             final ActionConfig actionConfig = (ActionConfig) config;
             ActionHandler actionHandler = new FakeActionHandler();
             final boolean hasHandler = applicationContext.containsBean(actionConfig.getComponentName());
@@ -68,10 +73,11 @@ public class ActionConfigBuilder {
             if (actionConfig.getVisibilityChecker() != null) {
                 final boolean contains = applicationContext.containsBean(actionConfig.getVisibilityChecker());
                 if (contains) {
+                    final ActionVisibilityContext avContext = new ActionVisibilityContext()
+                            .setDomainObject(domainObject);
                     ActionVisibilityChecker checker =
                             (ActionVisibilityChecker) applicationContext.getBean(actionConfig.getVisibilityChecker());
-//                    status = checker.isVisible(null) ? ActionHandler.Status.APPLY : ActionHandler.Status.SKIP; // FIXME context not declared
-                    status = ActionHandler.Status.APPLY;
+                    status = checker.isVisible(avContext) ? ActionHandler.Status.APPLY : ActionHandler.Status.SKIP;
                 } else {
                     throw new ConfigurationException("VisibilityChecker with name '"
                             + actionConfig.getVisibilityChecker() + "' not found");
@@ -80,21 +86,23 @@ public class ActionConfigBuilder {
             if (ActionHandler.Status.APPLY == status) {
                 final ActionHandler.HandlerStatusData statusData = actionHandler.getCheckStatusData();
                 statusData.initialize(params);
-                if (!actionConfig.isVisibleWhenNew() && statusData.isNewDomainObject()) {
+                final boolean isNew = domainObject != null && domainObject.isNew();
+                if (!actionConfig.isVisibleWhenNew() && isNew) {
                     status = ActionHandler.Status.SKIP;
                 } else {
                     status = actionHandler.getHandlerStatus(config.getRendered(), statusData);
                 }
             }
-            if (ActionHandler.Status.APPLY == status && actionConfig.getVisibilityStateCondition() != null) {
-                final DomainObject dobj = null; // FIXME get real Domain Object
-                final StandardEvaluationContext context = new StandardEvaluationContext(dobj);
+            if (ActionHandler.Status.APPLY == status && actionConfig.getVisibilityStateCondition() != null
+                    && domainObject != null) {
+                final StandardEvaluationContext context = new StandardEvaluationContext(domainObject);
                 final List<PropertyAccessor> accessors = new ArrayList<>();
                 accessors.add(new DomainObjectPropertyAccessor(currentUserAccessor.getCurrentUserId()));
+                accessors.add(new ReferenceValuePropertyAccessor(crudService));
                 context.setPropertyAccessors(accessors);
                 context.setTypeComparator(new DomainObjectTypeComparator());
                 final ExpressionParser expressionParser = new SpelExpressionParser();
-                boolean isVisible = expressionParser.parseExpression(actionConfig.getVisibilityStateCondition())
+                final boolean isVisible = expressionParser.parseExpression(actionConfig.getVisibilityStateCondition())
                         .getValue(context, Boolean.class);
                 status = isVisible ? ActionHandler.Status.APPLY : ActionHandler.Status.SKIP;
             }

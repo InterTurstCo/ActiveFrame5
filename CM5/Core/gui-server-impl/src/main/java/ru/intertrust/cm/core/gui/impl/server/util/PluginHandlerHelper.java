@@ -31,6 +31,8 @@ import ru.intertrust.cm.core.util.ObjectCloner;
  */
 public class PluginHandlerHelper {
 
+    public static final String DOMAIN_OBJECT_KEY = "domainObject";
+
     private PluginHandlerHelper() {}
 
     public static ActionConfig createActionConfig(final String name, final String component,

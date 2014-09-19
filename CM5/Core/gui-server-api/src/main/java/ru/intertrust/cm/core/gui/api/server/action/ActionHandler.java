@@ -74,8 +74,6 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
 
         void initialize(Map<String, Object> params);
 
-        boolean isNewDomainObject();
-
         Object getParameter(String key);
     }
 
@@ -87,11 +85,6 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
         @Override
         public Object getParameter(String key) {
             return null;
-        }
-
-        @Override
-        public boolean isNewDomainObject() {
-            return false;
         }
     }
 }
