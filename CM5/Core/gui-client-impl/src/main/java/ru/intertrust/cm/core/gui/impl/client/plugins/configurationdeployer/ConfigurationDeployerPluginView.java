@@ -69,8 +69,8 @@ public class ConfigurationDeployerPluginView extends PluginView {
         AcceptedTypesConfig acceptedTypesConfig = new AcceptedTypesConfig();
         List<AcceptedTypeConfig> acceptedTypeConfigs = new ArrayList<AcceptedTypeConfig>();
         AcceptedTypeConfig acceptedTypeConfig = new AcceptedTypeConfig();
-        acceptedTypeConfig.setExtensions("xml, txt");
-        acceptedTypeConfig.setMimeType("application/xml");
+        acceptedTypeConfig.setExtensions("xml, txt, bpmn, csv");
+        acceptedTypeConfig.setMimeType("application/txt");
         acceptedTypeConfigs.add(acceptedTypeConfig);
         acceptedTypesConfig.setAcceptedTypeConfigs(acceptedTypeConfigs);
         state.setAcceptedTypesConfig(acceptedTypesConfig);
