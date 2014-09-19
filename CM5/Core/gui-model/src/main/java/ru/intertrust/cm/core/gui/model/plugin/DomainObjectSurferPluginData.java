@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 
 public class DomainObjectSurferPluginData extends ActivePluginData {
@@ -12,6 +13,8 @@ public class DomainObjectSurferPluginData extends ActivePluginData {
      * 0 - горизонтальная, 1 - вертикальная
      */
     private Integer splitterOrientation;
+    private LinkConfig hierarchicalLink;
+
 
     public DomainObjectSurferConfig getDomainObjectSurferConfig() {
         return domainObjectSurferConfig;
@@ -51,6 +54,14 @@ public class DomainObjectSurferPluginData extends ActivePluginData {
 
     public void setSplitterOrientation(Integer splitterOrientation) {
         this.splitterOrientation = splitterOrientation;
+    }
+
+    public LinkConfig getHierarchicalLink() {
+        return hierarchicalLink;
+    }
+
+    public void setHierarchicalLink(LinkConfig hierarchicalLink) {
+        this.hierarchicalLink = hierarchicalLink;
     }
 
     @Override

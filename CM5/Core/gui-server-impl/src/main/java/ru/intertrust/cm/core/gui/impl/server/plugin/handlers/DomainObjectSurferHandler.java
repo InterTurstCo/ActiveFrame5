@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfi
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -113,7 +114,12 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         domainObjectSurferConfig.setCollectionViewerConfig(collectionViewerConfig);
         domainObjectSurferConfig.setDomainObjectTypeToCreate(childCollectionViewerConfig.getDomainObjectTypeToCreate());
 
-        return initialize(domainObjectSurferConfig);
+        DomainObjectSurferPluginData result = (DomainObjectSurferPluginData) initialize(domainObjectSurferConfig);
+
+        LinkConfig breadCrumbLink = new LinkConfig();
+        breadCrumbLink.setDisplayText(childCollectionViewerConfig.getBreadCrumb());
+        result.setHierarchicalLink(breadCrumbLink);
+        return result;
     }
 
     private ChildCollectionViewerConfig findChildCollectionViewerConfig(ExpandHierarchicalCollectionData data ) {

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +25,8 @@ public class CollectionPlugin extends Plugin {
 
     // поле для локальной шины событий
     protected EventBus eventBus;
+
+    private List<LinkConfig> hierarchicalLinks = new ArrayList<>();
 
     // установка локальной шины событий плагину
     public void setLocalEventBus(EventBus eventBus) {
@@ -83,4 +87,11 @@ public class CollectionPlugin extends Plugin {
         return new GwtEvent.Type[]{CollectionRowSelectedEvent.TYPE};
     }
 
+    public List<LinkConfig> getHierarchicalLinks() {
+        return hierarchicalLinks;
+    }
+
+    public void setHierarchicalLinks(List<LinkConfig> hierarchicalLinks) {
+        this.hierarchicalLinks = hierarchicalLinks;
+    }
 }

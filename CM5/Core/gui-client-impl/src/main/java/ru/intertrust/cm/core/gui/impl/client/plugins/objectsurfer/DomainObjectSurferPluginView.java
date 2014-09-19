@@ -8,19 +8,10 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
-import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
@@ -41,8 +32,6 @@ import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 public class DomainObjectSurferPluginView extends PluginView {
@@ -72,7 +61,6 @@ public class DomainObjectSurferPluginView extends PluginView {
         sourthRootWidget.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalEventBus();
         addSplitterWidgetResizeHandler();
-        addExpandHierarchicalCollectionHandler();
     }
 
     private void initSplitter() {
@@ -116,32 +104,6 @@ public class DomainObjectSurferPluginView extends PluginView {
                         event.isArrowsPress());
                 final int size = event.isType() ? event.getFirstWidgetWidth() : event.getFirstWidgetHeight();
                 storeSplitterSettings(event.isType(), size);
-            }
-        });
-    }
-
-    private void addExpandHierarchicalCollectionHandler() {
-        eventBus.addHandler(HierarchicalCollectionEvent.TYPE, new HierarchicalCollectionEventHandler() {
-            @Override
-            public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
-                ExpandHierarchicalCollectionData data = new ExpandHierarchicalCollectionData(
-                        event.getChildCollectionViewerConfigs(), event.getSelectedId());
-                final Command command = new Command("initializeForHierarchicalCollection", "domain.object.surfer.plugin", data);
-                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        ApplicationWindow.errorAlert(caught.getMessage());
-                    }
-
-                    @Override
-                    public void onSuccess(Dto result) {
-                        DomainObjectSurferPluginData pluginData = (DomainObjectSurferPluginData) result;
-                        pluginData.getCollectionPluginData().setExpandHierarchyMarker(true);
-                        domainObjectSurferPlugin.setInitialData(pluginData);
-                        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent
-                                (domainObjectSurferPlugin));
-                    }
-                });
             }
         });
     }

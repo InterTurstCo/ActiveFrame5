@@ -316,7 +316,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 Window.setTitle("Форма документа");
                 centralPluginPanel.open(formPlugin);
             } else {
-                throw new HistoryException("Переход по данным '" + url + "' невозможет");
+                throw new HistoryException("Переход по данным '" + url + "' невозможен");
             }
         }
         Application.getInstance().hideLoadingIndicator();

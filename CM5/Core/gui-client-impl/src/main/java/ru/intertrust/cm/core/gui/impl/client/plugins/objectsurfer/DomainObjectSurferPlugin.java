@@ -3,8 +3,10 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
@@ -12,6 +14,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -19,9 +22,11 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -31,7 +36,8 @@ import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SELECTED_I
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,
-        IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler {
+        IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler,
+        HierarchicalCollectionEventHandler {
 
     private CollectionPlugin collectionPlugin;
     private FormPlugin formPlugin;
@@ -50,6 +56,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         // устанавливается локальная шина событий
         eventBus = GWT.create(SimpleEventBus.class);
         eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
+        eventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
     }
 
     @Override
@@ -218,6 +225,29 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
     @Override
     public FormViewerConfig getFormViewerConfig() {
         return ((DomainObjectSurferConfig) this.getConfig()).getFormViewerConfig();
+    }
+
+    @Override
+    public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
+        ExpandHierarchicalCollectionData data = new ExpandHierarchicalCollectionData(
+                event.getChildCollectionViewerConfigs(), event.getSelectedId());
+        final Command command = new Command("initializeForHierarchicalCollection", "domain.object.surfer.plugin", data);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ApplicationWindow.errorAlert(caught.getMessage());
+            }
+            @Override
+            public void onSuccess(Dto result) {
+                DomainObjectSurferPluginData pluginData = (DomainObjectSurferPluginData) result;
+                pluginData.getCollectionPluginData().setExpandHierarchyMarker(true);
+                setInitialData(pluginData);
+                getCollectionPlugin().getHierarchicalLinks().add(pluginData.getHierarchicalLink());
+                Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent
+                        (DomainObjectSurferPlugin.this));
+
+            }
+        });
     }
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {
