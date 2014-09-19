@@ -49,7 +49,7 @@ public class DeployConfigurationActionHandler
             configurationDeployedItem.setFileName(attachmentItem.getName());
             try {
                 String configAsString = readFileAsString(filePath, StandardCharsets.UTF_8);
-                configurationControlService.updateConfiguration(configAsString);
+                configurationControlService.updateConfiguration(configAsString, attachmentItem.getName());
                 configurationDeployedItem.setSuccess(true);
             } catch (EJBException ejbException){
                 configurationDeployedItem.setSuccess(false);

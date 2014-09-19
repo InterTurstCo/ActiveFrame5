@@ -21,7 +21,7 @@ public interface ConfigurationControlService {
      * @param configurationString обновляемый фрагмент конфигурации
      * @throws ru.intertrust.cm.core.config.ConfigurationException
      */
-    void updateConfiguration(String configurationString) throws ConfigurationException;
+    void updateConfiguration(String configurationString, String fileName) throws ConfigurationException;
 
     /**
      * Проверяет требуется ли рестарт приложения для полного апдейта конфигурации
