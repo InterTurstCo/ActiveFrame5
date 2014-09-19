@@ -17,6 +17,8 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationControlService}
@@ -93,20 +95,26 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     }
 
     private Configuration buildNewConfiguration(Configuration configuration) {
-        Configuration oldConfiguration = new ObjectCloner().
+        Configuration oldConfigurationCopy = new ObjectCloner().
                 cloneObject(configurationExplorer.getConfiguration(), Configuration.class);
+
+        List<TopLevelConfig> newConfigs = new ArrayList<>();
+
         for (TopLevelConfig topLevelConfig : configuration.getConfigurationList()) {
             TopLevelConfig oldTopLevelConfig = configurationExplorer.
                     getConfig(topLevelConfig.getClass(), topLevelConfig.getName());
+
             if (oldTopLevelConfig == null) {
-                oldConfiguration.getConfigurationList().add(topLevelConfig);
+                newConfigs.add(topLevelConfig);
             } else if (!oldTopLevelConfig.equals(topLevelConfig)){
-                oldConfiguration.getConfigurationList().remove(oldTopLevelConfig);
-                oldConfiguration.getConfigurationList().add(topLevelConfig);
+                int index = configurationExplorer.getConfiguration().getConfigurationList().indexOf(oldTopLevelConfig);
+                oldConfigurationCopy.getConfigurationList().set(index, topLevelConfig);
             }
         }
 
-        return oldConfiguration;
+        oldConfigurationCopy.getConfigurationList().addAll(newConfigs);
+
+        return oldConfigurationCopy;
     }
 
     private void saveConfiguration(Configuration configuration) {
