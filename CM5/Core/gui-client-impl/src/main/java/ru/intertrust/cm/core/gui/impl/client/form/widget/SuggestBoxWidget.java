@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.ComponentHelper;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
@@ -36,8 +37,10 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 @ComponentName("suggest-box")
 public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
     private static final String ALL_SUGGESTIONS = "*";
-    private static final int HEIGHT_OFFSET = 20;
+    private static final int HEIGHT_OFFSET_DOWN = 20;
+    private static final int HEIGHT_OFFSET_UP = 20;
     private static final int INPUT_MARGIN = 35;
+    private static final int ONE_SUGGESTION_HEIGHT = 18;
     private SuggestBox suggestBox;
     private LinkedHashMap<Id, String> stateListValues = new LinkedHashMap<>(); //used for temporary state
     private List<MultiWordIdentifiableSuggestion> suggestions = new ArrayList<MultiWordIdentifiableSuggestion>();
@@ -375,14 +378,12 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
 
         public void getNotFilteredSuggestions() {
             suggestBox.setText(ALL_SUGGESTIONS);
-            changeSuggestionsPopupSize();
             lastScrollPos = 0;
             SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
             if (!display.getSuggestionPopup().isShowing()) {
                 lazyLoadState = null;
                 suggestBox.showSuggestionList();
             }
-
             suggestBox.setText(EMPTY_VALUE);
             suggestBox.setFocus(true);
 
@@ -392,11 +393,24 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
             SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
             Style popupStyle = display.getSuggestionPopup().getElement().getStyle();
             popupStyle.setWidth(container.getOffsetWidth(), Style.Unit.PX);
-            display.setLazyLoadPanelHeight(getSuggestionsAvailableHeight());
+            int screenAvailableHeight = getScreenAvailableHeight();
+            int suggestionsHeight = getSuggestionsHeight();
+            int lazyLoadPanelHeight = screenAvailableHeight >= suggestionsHeight ? suggestionsHeight : screenAvailableHeight;
+            display.setLazyLoadPanelHeight(lazyLoadPanelHeight);
         }
 
-        public int getSuggestionsAvailableHeight() {
-            return Window.getClientHeight() - suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - HEIGHT_OFFSET;
+        public int getScreenAvailableHeight() {
+            int fullHeight = Window.getClientHeight();
+            Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
+            int domainObjectHeight = center == null ? HEIGHT_OFFSET_UP : center.getAbsoluteTop();
+            int aboveSuggestBoxHeight = suggestBox.getAbsoluteTop() - domainObjectHeight;
+            int belowSuggestBoxHeight = fullHeight - suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - HEIGHT_OFFSET_DOWN;
+            return aboveSuggestBoxHeight >= belowSuggestBoxHeight ? aboveSuggestBoxHeight : belowSuggestBoxHeight;
+        }
+
+        public int getSuggestionsHeight(){
+            int size = suggestions.size();
+            return size * ONE_SUGGESTION_HEIGHT;
         }
 
         public Set<Id> getSelectedKeys() {
@@ -453,8 +467,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     }
                 });
             }
-            SuggestPresenter presenter = (SuggestPresenter) impl;
-            presenter.changeSuggestionsPopupSize();
+
         }
 
         private void changeSuggestInputWidth() {
@@ -663,6 +676,8 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                     suggestions.add(new MultiWordIdentifiableSuggestion(suggestionItem.getId(),
                             suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
                 }
+                SuggestPresenter presenter = (SuggestPresenter) impl;
+                presenter.changeSuggestionsPopupSize();
                 SuggestOracle.Response response = new SuggestOracle.Response();
                 response.setSuggestions(suggestions);
                 callback.onSuggestionsReady(request, response);
