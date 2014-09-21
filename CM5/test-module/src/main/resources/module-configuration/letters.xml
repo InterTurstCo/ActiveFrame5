@@ -110,75 +110,7 @@
             </suggest-box>
         </widget-config>
     </form>
-    <collection-view name="org_middle_default_view" collection="org_middle_collection" is-default="true">
-        <display>
 
-            <column field="name" name="name" editable="false" type="string" sortable="true"/>
-
-        </display>
-    </collection-view>
-    <collection name="org_middle_collection" idField="id">
-        <prototype>
-            <![CDATA[
-                    select
-                        om.id, om.name, om.organization
-                    from
-                        org_middle om
-                ]]>
-        </prototype>
-
-        <counting-prototype>
-            select count(*) from org_middle om
-        </counting-prototype>
-        <filter name="byText">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    om.name like {0}
-                ]]>
-            </criteria>
-        </filter>
-        <filter name="byId">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    om.collection like {0}
-                ]]>
-            </criteria>
-        </filter>
-    </collection>
-    <form-mappings name="org_middle_mappings">
-        <form-mapping domain-object-type="org_middle" form="org_middle_form">
-            <users>
-                <user uid="admin"/>
-            </users>
-            <groups>
-                <group name="Minister"/>
-            </groups>
-        </form-mapping>
-    </form-mappings>
-    <collection name="letters" idField="id">
-        <prototype>
-            <![CDATA[
-                    select
-                        l.id, l.subject, l.created_date, l.actual_start_period, l.actual_end_period
-                    from
-                        letter l
-                ]]>
-        </prototype>
-
-        <counting-prototype>
-            select count(*) from letter l
-        </counting-prototype>
-    </collection>
-
-    <collection-view name="letters_default_view" collection="Letters" is-default="true">
-        <display>
-            <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="subject" name="Тема" editable="false" type="string" sortable="true"/>
-            <column field="created_date" name="Дата" editable="false" type="string" sortable="true"/>
-            <column field="actual_start_period" name="Актуально с" editable="false" type="datetime" sortable="true"/>
-            <column field="actual_end_period" name="Актуально по" editable="false" type="datetime" sortable="true"/>
-        </display>
-    </collection-view>
 
     <form name="letter_form" domain-object-type="letter" is-default="true">
         <markup>
@@ -275,8 +207,8 @@
                 <!-- Уже выбранные элементы показываются помеченными галочками -->
                 <!-- collection - название коллекции для отображения списка значений узла -->
 
-                <node-collection-def collection="Organizations" domain-object-type="Organization"
-                                     title="Создать Организацию">
+                <node-collection-def collection="organizations" domain-object-type="organization"
+                                     title="Организацию">
                     <root-node-link title="Организации"/>
                     <!-- название фильтра по тексту, введённому пользователем -->
                     <input-text-filter name="byName"/>
@@ -284,22 +216,30 @@
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
                     <selection-filters row-limit="1"></selection-filters>
-                    <node-collection-def collection="Departments" parent-filter="byOrganization"
-                                         domain-object-type="Department">
+                    <node-collection-def collection="departments" parent-filter="byOrganization"
+                                         domain-object-type="department" title="Департамент">
                         <!-- название фильтра по тексту, введённому пользователем -->
                         <fill-parent-on-add field-to-fill="organization"/>
                         <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
+                        <node-collection-def collection="employees" parent-filter="byDepartment"
+                                             domain-object-type="employee" title="Сотрудника">
+                            <!-- название фильтра по тексту, введённому пользователем -->
+                            <fill-parent-on-add field-to-fill="department"/>
+                            <input-text-filter name="byName"/>
+                            <!-- паттерн отображения уже выбранных значений -->
+                            <selection-pattern value="{name} {position}"/>
+                            <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
 
+                        </node-collection-def>
                     </node-collection-def>
-                    <node-collection-def collection="OrganizationsDepartmentsEmployees" parent-filter="byDepAndOrg"
-                                         domain-object-type="Employee">
+                    <node-collection-def collection="employeesWithoutDepartment" parent-filter="byOrganization"
+                                         domain-object-type="employee" title="Сотрудника">
                         <!-- название фильтра по тексту, введённому пользователем -->
-                        <fill-parent-on-add field-to-fill="org_middle" collection="org_middle_collection"
-                                            filter-by-parent-id="byId"/>
-                        <input-text-filter name="byNameAndPosition"/>
+                        <fill-parent-on-add field-to-fill="organization"/>
+                        <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name} {position}"/>
 

@@ -1053,4 +1053,87 @@
 
     </collection>
 
+    <collection name="org_middle_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        om.id, om.name, om.organization
+                    from
+                        org_middle om  where
+                    1=1 ::where-clause
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from org_middle om
+        </counting-prototype>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    om.name like {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byId">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    om.organization = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+    <collection name="employeesWithoutDepartment" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        em.id, em.name, em.position
+                    from
+                        employee em  where
+                    em.organization IS NOT NULL ::where-clause
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from org_middle om
+        </counting-prototype>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    em.name like {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byOrganization">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    em.organization = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+    <form-mappings name="org_middle_mappings">
+        <form-mapping domain-object-type="org_middle" form="org_middle_form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <groups>
+                <group name="Minister"/>
+            </groups>
+        </form-mapping>
+    </form-mappings>
+    <collection name="letters" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        l.id, l.subject, l.created_date, l.actual_start_period, l.actual_end_period
+                    from
+                        letter l
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from letter l
+        </counting-prototype>
+    </collection>
+
 </configuration>

@@ -14,6 +14,22 @@
         </display>
     </collection-view>
 
+    <collection-view name="org_middle_default_view" collection="org_middle_collection" is-default="true">
+        <display>
+            <column field="name" name="name" editable="false" type="string" sortable="true"/>
+
+        </display>
+    </collection-view>
+
+    <collection-view name="letters_default_view" collection="Letters" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="subject" name="Тема" editable="false" type="string" sortable="true"/>
+            <column field="created_date" name="Дата" editable="false" type="string" sortable="true"/>
+            <column field="actual_start_period" name="Актуально с" editable="false" type="datetime" sortable="true"/>
+            <column field="actual_end_period" name="Актуально по" editable="false" type="datetime" sortable="true"/>
+        </display>
+    </collection-view>
     <collection-mappings>
         <collection-mapping collection="Employees" view="employees_minister_view">
             <users>

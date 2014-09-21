@@ -1,13 +1,17 @@
 TYPE_NAME=Employee;KEYS=Login,Name;;;;;;;;
-Login;FirstName;LastName;EMail;Name;Department;Position;Phone;_ATTACHMENT_;profile
-person1;Иван;Иванов;ivanov@inttrast.ru;Сотрудник 1;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-01;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""1"""
-person2;Петр;Петров;petrov@inttrast.ru;Сотрудник 2;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-02;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""2"""
-person3;Сидор;Сидоров;;Сотрудник 3;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-03;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""3"""
-person4;Егор;Егоров;;Сотрудник 4;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-04;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""4"""
-person5;Сперидон;Сперидонов;;Сотрудник 5;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-05;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""5"""
-person6;Алексей;Алексеев;;Сотрудник 6;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-06;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""6"""
-person7;Семен;Семенов;;Сотрудник 7;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-07;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""7"""
-person8;Григорий;Григорьев;;Сотрудник 8;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-08;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""8"""
-person9;Иннакентий;Иннакеньев;;Сотрудник 9;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-09;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""9"""
-person10;Сергей;Сергеев;;Сотрудник 10;select t.id from department t where t.name='Подразделение 2';Инженер;8 (495) 777-55-10;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""10"""
-person11;Сергей;Сергеев;;Сотрудник 11;select t.id from department t where t.name='Подразделение 2';Инженер;8 (495) 777-55-11;;
+Login;FirstName;LastName;EMail;Name;Department;Position;Phone;_ATTACHMENT_;profile;Organization;
+person1;Иван;Иванов;ivanov@inttrast.ru;Сотрудник 1;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-01;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""1""";
+person2;Петр;Петров;petrov@inttrast.ru;Сотрудник 2;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-02;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""2""";
+person3;Сидор;Сидоров;;Сотрудник 3;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-03;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""3""";
+person4;Егор;Егоров;;Сотрудник 4;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-04;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""4""";
+person5;Сперидон;Сперидонов;;Сотрудник 5;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-05;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""5""";
+person6;Алексей;Алексеев;;Сотрудник 6;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-06;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""6""";
+person7;Семен;Семенов;;Сотрудник 7;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-07;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""7""";
+person8;Григорий;Григорьев;;Сотрудник 8;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-08;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""8""";
+person9;Иннакентий;Иннакеньев;;Сотрудник 9;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-09;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""9""";
+person10;Сергей;Сергеев;;Сотрудник 10;select t.id from department t where t.name='Подразделение 2';Инженер;8 (495) 777-55-10;importdata/contents/photo1.jpg,importdata/contents/photo2.jpg;"empty=""10""";
+person11;Сергей;Сергеев;;Сотрудник 11;select t.id from department t where t.name='Подразделение 2';Инженер;8 (495) 777-55-11;;;
+owner1;Сергей;Владельцев;;Сергей Владельцев;;Владелец;8 (495) 777-55-777;;;select t.id from organization t where t.name='Организация 1'
+investor1;Владислав;Вкладов;;Владислав Вкладов;;Инвестор;8 (495) 777-55-778;;;select t.id from organization t where t.name='Организация 1'
+cofounder1;Виктор;Дитель;;Виктор Дитель;;Соучредитель;8 (495) 777-55-779;;;select t.id from organization t where t.name='Организация 1'
+investor2;Николай;Ушлый;;Николай Ушлый;;Инвестор;8 (495) 777-55-780;;;select t.id from organization t where t.name='Организация 2'
