@@ -43,7 +43,7 @@ public class ReportPluginHandler extends PluginHandler {
 
         List<ActionContext> activeContexts = new ArrayList<>();
         activeContexts.add(new GenerateReportActionContext(PluginHandlerHelper.createActionConfig(
-                "generate-report.action", "generate-report.action", "Создать Отчет", "icons/favorite-panel-off.png")));
+                "generate-report.action", "generate-report.action", "Создать Отчет", "images/icons/favorite-panel-off.png")));
         final ToolbarContext toolbarContext = new ToolbarContext();
         toolbarContext.setContexts(activeContexts, ToolbarContext.FacetName.LEFT);
         pluginData.setToolbarContext(toolbarContext);

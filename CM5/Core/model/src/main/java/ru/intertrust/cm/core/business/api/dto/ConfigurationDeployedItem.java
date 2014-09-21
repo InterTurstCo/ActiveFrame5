@@ -9,7 +9,7 @@ public class ConfigurationDeployedItem implements Dto {
     private boolean success;
     private String message;
     private String fileName;
-    private static final String SUCCESS = "Кофнигурация загружена успешно.";
+    private static final String SUCCESS = "Конфигурация загружена успешно.";
 
     public boolean isSuccess() {
         return success;

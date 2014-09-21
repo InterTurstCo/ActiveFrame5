@@ -225,7 +225,9 @@ public class ConfigurationStorageBuilder {
     }
 
     public void updateDomainObjectFieldConfig(DomainObjectTypeConfig oldType, DomainObjectTypeConfig newType) {
-        removeDomainObjectFieldConfigsFromMap(oldType);
+        if (oldType != null) {
+            removeDomainObjectFieldConfigsFromMap(oldType);
+        }
         fillDomainObjectFieldConfig(newType);
     }
 

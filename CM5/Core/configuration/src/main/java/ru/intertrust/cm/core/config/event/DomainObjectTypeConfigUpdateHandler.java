@@ -24,7 +24,9 @@ public class DomainObjectTypeConfigUpdateHandler extends ConfigurationUpdateHand
         configurationStorageBuilder.updateDomainObjectFieldConfig(oldConfig, newConfig);
         configurationStorageBuilder.updateConfigurationMapsOfAttachmentDomainObjectType(oldConfig, newConfig);
         configurationStorageBuilder.updateConfigurationMapOfChildDomainObjectType(newConfig);
-        configStorage.domainObjectTypesHierarchy.remove(oldConfig.getName());
+        if (oldConfig != null) {
+            configStorage.domainObjectTypesHierarchy.remove(oldConfig.getName());
+        }
     }
 
     @Override

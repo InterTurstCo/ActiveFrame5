@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.model.SystemException;
 
 /**
@@ -13,7 +13,7 @@ public final class ExceptionMessageFactory {
     private ExceptionMessageFactory() {
     }
 
-    public static String getMessage(final Command command, Throwable ex) {
+    public static Pair<String, Boolean> getMessage(final Command command, Throwable ex) {
         SystemException cause = ex instanceof SystemException ? (SystemException) ex : null;
         while (ex.getCause() != null) {
             ex = ex.getCause();
@@ -24,59 +24,61 @@ public final class ExceptionMessageFactory {
         if (cause != null) {
             switch(cause.getClass().getSimpleName()) {
                 case "AccessException":
-                    return "У вас нет прав доступа к даному объекту.";
+                    return new Pair<>("У вас нет прав доступа к даному объекту.", false);
                 case "ActionServiceException":
-                    return "Невозможно получить список действий для объекта.";
+                    return new Pair<>("Невозможно получить список действий для объекта.", true);
                 case "AuthenticationException":
-                    return "Ошибка авторизации.";
+                    return new Pair<>("Ошибка авторизации.", false);
                 case "CollectionConfigurationException":
-                    return "Ошибка конфигурации коллекции.";
+                    return new Pair<>("Ошибка конфигурации коллекции.", true);
                 case "CollectionQueryException":
-                    return "Ошибка в SQL запросе.";
+                    return new Pair<>("Ошибка в SQL запросе.", true);
                 case "ConfigurationException":
-                    return "Ошибка конфигурации объекта.";
+                    return new Pair<>("Ошибка конфигурации объекта.", true);
                 case "CrudException":
-                    return "Ошибка операции с БД.";
-                case "DaoException":
-                    return "Ошибка операции с БД.";
+                    return new Pair<>("Ошибка операции с БД.", true);
+                /*case "DaoException": parent exception for OptimisticLock and others
+                    return new Pair<>("Ошибка операции с БД.", true);*/
                 case "DoelException":
-                    return "Ошибка обработки DOEL выражения.";
+                    return new Pair<>("Ошибка обработки DOEL выражения.", true);
                 case "DoelParseException":
-                    return "Ошибка разбора DOEL выражения.";
+                    return new Pair<>("Ошибка разбора DOEL выражения.", true);
                 case "EventTriggerException":
-                    return "Ошибка инициализации тригера.";
+                    return new Pair<>("Ошибка инициализации тригера.", true);
                 case "ExtensionPointException":
-                    return "Ошибка инициализации точки расширения.";
+                    return new Pair<>("Ошибка инициализации точки расширения.", true);
                 case "FatalException":
-                    return "Фатальная ошибка приложения.";
+                    return new Pair<>("Фатальная ошибка приложения.", true);
+                case "GuiException" :
+                    return new Pair<>(ex.getMessage(), true);
 //                case "InboxNotificationException": не используется
                 case "InvalidIdException":
-                    return "Некоректный идентификатор ДО.";
+                    return new Pair<>("Некоректный идентификатор ДО.", true);
                 case "MailNotificationException":
-                    return "Ошибка отправки/приема сообщения по email.";
+                    return new Pair<>("Ошибка отправки/приема сообщения по email.", true);
                 case "NotificationException":
-                    return "Ошибка отправки сообщения.";
+                    return new Pair<>("Ошибка отправки сообщения.", true);
                 case "ObjectNotFoundException":
-                    return "Данные не найдено.";
+                    return new Pair<>("Данных не найдено.", true);
                 case "OptimisticLockException":
-                    return "Сохранение невозможно, данные изменены другим пользователем.";
+                    return new Pair<>("Сохранение невозможно, данные изменены другим пользователем.", false);
                 case "PermissionException":
-                    return "Ошибка создания группы.";
+                    return new Pair<>("Ошибка создания группы.", false);
                 case "ProcessException":
-                    return "Ошибка выполнения workflow процесса.";
+                    return new Pair<>("Ошибка выполнения workflow процесса.", true);
                 case "ProfileException":
-                    return "Ошибка обработки профиля системы/пользователя.";
+                    return new Pair<>("Ошибка обработки профиля системы/пользователя.", true);
                 case "ReportServiceException":
-                    return "Ошибка обработки отчета";
+                    return new Pair<>("Ошибка обработки отчета", true);
                 case "ScheduleException":
-                    return "Ошибка работы подсистемы периодических заданий";
+                    return new Pair<>("Ошибка работы подсистемы периодических заданий", true);
                 case "SearchException":
-                    return "Ошибка работы подсистемы поиска";
+                    return new Pair<>("Ошибка работы подсистемы поиска", true);
                 case "UnexpectedException":
-                    return "Неизвестная ошибка приложения.";
+                    return new Pair<>("Неизвестная ошибка приложения.", true);
 //                case "ValidationException": Сообщения обрабатываются самостоятельно
             }
         }
-        return  "Системная ошибка при выполнении '" + command.getName() + "', обратитесь к администратору.";
+        return  new Pair<>("Системная ошибка при выполнении '" + command.getName() + "', обратитесь к администратору.", true);
     }
 }

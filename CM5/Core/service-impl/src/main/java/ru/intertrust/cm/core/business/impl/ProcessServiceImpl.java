@@ -1,9 +1,26 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import org.activiti.engine.*;
+import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.DeploymentBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.business.api.IdService;
+import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.dao.api.StatusDao;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.ProcessException;
+import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.tools.DomainObjectAccessor;
+import ru.intertrust.cm.core.tools.Session;
 
 import javax.annotation.Resource;
 import javax.ejb.Local;
@@ -11,38 +28,8 @@ import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-
-import org.activiti.engine.FormService;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
-import org.activiti.engine.repository.Deployment;
-import org.activiti.engine.repository.DeploymentBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
-import ru.intertrust.cm.core.business.api.IdService;
-import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.*;
-import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.ProcessException;
-import ru.intertrust.cm.core.model.UnexpectedException;
-import ru.intertrust.cm.core.tools.DomainObjectAccessor;
-import ru.intertrust.cm.core.tools.Session;
+import java.nio.charset.Charset;
+import java.util.*;
 
 @Stateless(name = "ProcessService")
 @Local(ProcessService.class)
@@ -82,9 +69,9 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Autowired
     FormService formService;
-    
+
     @Autowired
-    private StatusDao statusDao;    
+    private StatusDao statusDao;
 
     /*
      * @PostConstruct public void init() throws JAXBException, SAXException,
@@ -125,7 +112,7 @@ public class ProcessServiceImpl implements ProcessService {
 
     /**
      * Формирование Map для передачи его процессу
-     * 
+     *
      * @param variables
      * @return
      */
@@ -155,23 +142,19 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public String deployProcess(byte[] processDefinition, String processName) {
-        InputStream inputStream = null;
         try {
-            inputStream = new ByteArrayInputStream(processDefinition);
-
+            ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+            RepositoryService repositoryService = processEngine.getRepositoryService();
             DeploymentBuilder db = repositoryService.createDeployment();
             db.enableDuplicateFiltering();
-            db.addInputStream(processName, inputStream);
+            final String text = new String(processDefinition, Charset.forName("UTF-8"));
+            db.addString(processName, text);
+            db.name(processName);
             Deployment depl = db.deploy();
             return depl.getId();
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in deployProcess", ex);
             throw new ProcessException("Error on deploy process", ex);
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException ignoreEx) {
-            }
         }
     }
 

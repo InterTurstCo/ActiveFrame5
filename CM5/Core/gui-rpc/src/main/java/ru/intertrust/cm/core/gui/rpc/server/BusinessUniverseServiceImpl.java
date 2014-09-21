@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
@@ -35,6 +37,7 @@ import java.util.*;
         urlPatterns = "/remote/BusinessUniverseService")
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
+    private static Logger log = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
 
     @EJB
     private GuiService guiService;
@@ -102,7 +105,12 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
-        final String message = ExceptionMessageFactory.getMessage(command, e.getCause() == null ? e : e.getCause());
+        final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e.getCause() == null ? e : e.getCause());
+        final String message = messageInfo.getFirst();
+        final Boolean toLog = messageInfo.getSecond();
+        if (toLog) {
+            log.error(message, e);
+        }
         return new GuiException(message);
     }
 

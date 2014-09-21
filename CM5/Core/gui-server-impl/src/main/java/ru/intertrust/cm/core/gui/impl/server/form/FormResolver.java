@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -15,25 +14,12 @@ import ru.intertrust.cm.core.config.gui.GroupConfig;
 import ru.intertrust.cm.core.config.gui.GroupsConfig;
 import ru.intertrust.cm.core.config.gui.UserConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
-import ru.intertrust.cm.core.config.gui.form.FormConfig;
-import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
-import ru.intertrust.cm.core.config.gui.form.FormMappingsConfig;
-import ru.intertrust.cm.core.config.gui.form.FormWidgetAccessConfig;
-import ru.intertrust.cm.core.config.gui.form.HideWidgetConfig;
-import ru.intertrust.cm.core.config.gui.form.WidgetGroupConfig;
-import ru.intertrust.cm.core.config.gui.form.WidgetRefConfig;
+import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -250,7 +236,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                 String domainObjectType = formMapping.getDomainObjectType();
                 FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formMapping.getForm());
 
-                if (!formType.equals(formConfig.getType())) {
+                if (formConfig == null || !formType.equals(formConfig.getType())) {
                     continue;
                 }
                 fillRoleAndDomainObjectTypeFormMappings(formMapping, domainObjectType, formConfig);
