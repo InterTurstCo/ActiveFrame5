@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.ObjectCloner;
@@ -39,6 +40,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationControlServiceImpl.class);
 
+    @Autowired private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired private DataStructureDao dataStructureDao;
     @Autowired private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Autowired private ConfigurationDao configurationDao;
@@ -155,6 +157,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         recursiveMerger.merge(configurationExplorer, newConfigurationExplorer);
 
         saveConfiguration(newConfiguration);
+        domainObjectTypeIdCache.build();
     }
 
     private UpdateType resolveUpdateType(String configurationString, String fileName) {
