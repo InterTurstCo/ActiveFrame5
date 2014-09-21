@@ -66,7 +66,7 @@ table.hierarh-browser-inline td {
     color: grey;
     border-radius: 3px;
     white-space: nowrap;
-    padding: 15px;
+    padding: 12px;
     box-shadow: 1px 1px 2px 1px #999;
     background: url(images/refresh.gif) no-repeat #fff center center;
 }
@@ -362,4 +362,9 @@ table.hierarh-browser-inline td {
 
 .hierarchyBrowserElement .facebook-btn:hover {
     background-position: -16px 0;
+}
+
+.hierarchyBrowserLabel {
+
+    padding: 5px !important;
 }
