@@ -288,6 +288,10 @@ public class ConfigurationStorageBuilder {
     }
 
     private void removeDomainObjectFieldConfigsFromMap(DomainObjectTypeConfig oldType) {
+        if (oldType == null) {
+            return;
+        }
+
         List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigs(oldType.getDomainObjectFieldsConfig(), configurationExplorer);
 
         for (FieldConfig fieldConfig : allFieldsConfig) {
