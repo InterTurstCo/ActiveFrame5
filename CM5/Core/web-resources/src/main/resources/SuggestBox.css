@@ -156,7 +156,8 @@ width: 207px;
     width: 5px !important;
     height: 5px !important;
 }
-html>body .gwt-SuggestBoxPopup {
+.gwt-SuggestBoxPopup {
+    z-index: 999;
 }
 * html .gwt-SuggestBoxPopup .popupTopLeftInner {
     width: 0px !important;
@@ -212,6 +213,7 @@ td .gwt-SuggestBox {
     margin: 0;
     font-family: Arial, sans-serif;
     width: 45px;
+    box-sizing: border-box;
 }
 
 .suggestWrapper{
