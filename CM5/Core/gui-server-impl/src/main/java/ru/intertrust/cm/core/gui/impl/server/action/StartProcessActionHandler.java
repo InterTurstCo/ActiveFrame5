@@ -38,6 +38,8 @@ public class StartProcessActionHandler extends ActionHandler<StartProcessActionC
         // get new form after process start
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(domainObjectId);
+        config.setPluginState(startProcessActionContext.getPluginState());
+        config.setFormViewerConfig(startProcessActionContext.getFormViewerConfig());
         StartProcessActionData result = new StartProcessActionData();
         result.setFormPluginData(handler.initialize(config));
         return result;

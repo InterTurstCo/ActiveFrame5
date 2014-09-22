@@ -1,12 +1,13 @@
 package ru.intertrust.cm.core.gui.model.action;
 
-import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 
-public class StartProcessActionContext extends ActionContext {
+public class StartProcessActionContext extends SaveActionContext {
+
     public StartProcessActionContext() {
     }
 
-    public StartProcessActionContext(AbstractActionConfig actionConfig) {
+    public StartProcessActionContext(ActionConfig actionConfig) {
         super(actionConfig);
     }
 }
