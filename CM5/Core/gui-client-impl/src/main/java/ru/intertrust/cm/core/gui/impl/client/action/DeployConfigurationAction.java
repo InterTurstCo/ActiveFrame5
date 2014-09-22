@@ -45,5 +45,9 @@ public class DeployConfigurationAction extends SimpleServerAction {
 
     }
 
+    @Override
+    protected String getDefaultOnSuccessMessage() {
+        return null;
+    }
 }
 
