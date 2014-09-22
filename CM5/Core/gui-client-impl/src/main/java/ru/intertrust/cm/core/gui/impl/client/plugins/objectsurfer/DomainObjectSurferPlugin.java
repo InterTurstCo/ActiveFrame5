@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -19,13 +20,31 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.IsActive;
+import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
+import ru.intertrust.cm.core.gui.model.plugin.IsIdentifiableObjectList;
+import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.List;
@@ -245,7 +264,9 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
                 getCollectionPlugin().getHierarchicalLinks().add(pluginData.getHierarchicalLink());
                 Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent
                         (DomainObjectSurferPlugin.this));
-
+                String displayText = pluginData.getHierarchicalLink().getDisplayText();
+                final String pageTitle = Application.getInstance().getPageName(displayText);
+                Window.setTitle(pageTitle);
             }
         });
     }
