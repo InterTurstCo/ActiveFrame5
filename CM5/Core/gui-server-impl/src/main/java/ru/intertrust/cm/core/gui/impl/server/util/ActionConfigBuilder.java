@@ -23,10 +23,10 @@ import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.action.ActionVisibilityChecker;
 import ru.intertrust.cm.core.gui.api.server.action.ActionVisibilityContext;
-import ru.intertrust.cm.core.gui.impl.server.action.DomainObjectPropertyAccessor;
-import ru.intertrust.cm.core.gui.impl.server.action.DomainObjectTypeComparator;
+import ru.intertrust.cm.core.gui.api.server.el.DomainObjectPropertyAccessor;
+import ru.intertrust.cm.core.gui.api.server.el.DomainObjectTypeComparator;
 import ru.intertrust.cm.core.gui.impl.server.action.FakeActionHandler;
-import ru.intertrust.cm.core.gui.impl.server.action.ReferenceValuePropertyAccessor;
+import ru.intertrust.cm.core.gui.api.server.el.ReferenceValuePropertyAccessor;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 /**
@@ -65,9 +65,9 @@ public class ActionConfigBuilder {
             final DomainObject domainObject = (DomainObject) params.get(PluginHandlerHelper.DOMAIN_OBJECT_KEY);
             final ActionConfig actionConfig = (ActionConfig) config;
             ActionHandler actionHandler = new FakeActionHandler();
-            final boolean hasHandler = applicationContext.containsBean(actionConfig.getComponentName());
+            final boolean hasHandler = applicationContext.containsBean(actionConfig.getActionHandler());
             if (hasHandler) {
-                actionHandler = (ActionHandler) applicationContext.getBean(actionConfig.getComponentName());
+                actionHandler = (ActionHandler) applicationContext.getBean(actionConfig.getActionHandler());
             }
             ActionHandler.Status status = ActionHandler.Status.APPLY;
             if (actionConfig.getVisibilityChecker() != null) {

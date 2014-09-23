@@ -10,10 +10,18 @@ import org.simpleframework.xml.Element;
 @Element(name = "after-execution")
 public class AfterActionExecutionConfig implements Serializable {
 
-    @Element(name = "on-success-message")
-    private OnSuccessMessageConfig messageConfig;
+    @Element(name = "on-success-message", required = false)
+    private OnSuccessMessageConfig successMessageConfig;
+
+    @Element(name = "on-error-message", required = false)
+    private MessageConfig errorMessageConfig;
+
 
     public OnSuccessMessageConfig getMessageConfig() {
-        return messageConfig == null ? new OnSuccessMessageConfig() : messageConfig;
+        return successMessageConfig;
+    }
+
+    public MessageConfig getErrorMessageConfig() {
+        return errorMessageConfig;
     }
 }

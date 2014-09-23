@@ -9,6 +9,7 @@
     <xs:element name="action-ref" type="act:actionRefType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action-separator" type="act:actionSeparatorType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action" type="act:actionEntryType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="simple-action" type="act:simpleActionType" substitutionGroup="act:abstract-action"/>
 
     <xs:element name="abstract-action" type="act:abstractActionType" abstract="true"/>
 
@@ -86,6 +87,14 @@
                 <xs:attribute name="visible-when-new" type="xs:boolean" default="true" use="optional"/>
                 <xs:attribute name="visibility-state-condition" type="xs:string" use="optional"/>
                 <xs:attribute name="visibility-checker" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="simpleActionType">
+        <xs:complexContent>
+            <xs:extension base="act:actionEntryType">
+                <xs:attribute name="action-handler" type="xs:string" use="required"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -174,8 +183,11 @@
     </xs:complexType>
 
     <xs:complexType name="onSuccessMessageType">
-        <xs:attribute name="text" type="xs:string" use="required"/>
-        <xs:attribute name="success-notification-type" type="act:notificationType" default="fading" use="optional"/>
+        <xs:complexContent>
+            <xs:extension base="act:messageType">
+                <xs:attribute name="success-notification-type" type="act:notificationType" default="fading" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:simpleType name="notificationType">
@@ -194,6 +206,7 @@
     <xs:complexType name="afterExecutionType">
         <xs:sequence>
             <xs:element name="on-success-message" type="act:onSuccessMessageType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="on-error-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 

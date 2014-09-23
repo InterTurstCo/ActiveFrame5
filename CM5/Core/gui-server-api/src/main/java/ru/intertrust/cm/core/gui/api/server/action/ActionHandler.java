@@ -1,19 +1,31 @@
 package ru.intertrust.cm.core.gui.api.server.action;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.PropertyAccessor;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.api.server.el.DomainObjectPropertyAccessor;
+import ru.intertrust.cm.core.gui.api.server.el.DomainObjectTypeComparator;
+import ru.intertrust.cm.core.gui.api.server.el.ReferenceValuePropertyAccessor;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
+import ru.intertrust.cm.core.gui.model.action.DomainObjectContextActionData;
 
 /**
  * @author Denis Mitavskiy
@@ -30,9 +42,28 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
     protected ApplicationContext applicationContext;
     @Autowired
     protected GuiService guiService;
+    @Autowired
+    protected CrudService crudService;
+    @Autowired
+    protected CurrentUserAccessor currentUserAccessor;
 
     public T executeAction(Dto context) {
-        return executeAction((E) context);
+        final ActionConfig config = context == null ? null : (ActionConfig) ((E) context).getActionConfig();
+        final T result = executeAction((E) context);
+        if (result != null && config != null && config.getAfterConfig() != null) {
+            final DomainObject dobj = context instanceof DomainObjectContextActionData
+                    ? ((DomainObjectContextActionData) context).getContextDomainObject()
+                    : null;
+            final String successPattern = (config.getAfterConfig().getMessageConfig() == null)
+                    ? null
+                    : config.getAfterConfig().getMessageConfig().getText();
+            result.setOnSuccessMessage(parseMessage(successPattern, dobj));
+            final String errorPattern = (config.getAfterConfig().getErrorMessageConfig() == null)
+                    ? null
+                    : config.getAfterConfig().getErrorMessageConfig().getText();
+            result.setOnErrorMessage(parseMessage(errorPattern, dobj));
+        }
+        return result;
     }
 
     public abstract T executeAction(E context);
@@ -70,6 +101,23 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
         return (boolean) expression.getValue(evaluationContext);
     }
 
+    private String parseMessage(final String pattern, final DomainObject dobj) {
+        if (pattern != null && dobj != null) {
+            final StandardEvaluationContext evaluationContext = new StandardEvaluationContext(dobj);
+            final List<PropertyAccessor> accessors = new ArrayList<>();
+            accessors.add(new DomainObjectPropertyAccessor(currentUserAccessor.getCurrentUserId()));
+            accessors.add(new ReferenceValuePropertyAccessor(crudService));
+            evaluationContext.setPropertyAccessors(accessors);
+            evaluationContext.setTypeComparator(new DomainObjectTypeComparator());
+            final ExpressionParser expressionParser = new SpelExpressionParser();
+            final String result = expressionParser.parseExpression(pattern, new ParserContextImpl())
+                    .getValue(evaluationContext, String.class);
+            return result;
+        } else {
+            return pattern;
+        }
+    }
+
     public interface HandlerStatusData {
 
         void initialize(Map<String, Object> params);
@@ -85,6 +133,24 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
         @Override
         public Object getParameter(String key) {
             return null;
+        }
+    }
+
+    private static class ParserContextImpl implements ParserContext {
+
+        @Override
+        public boolean isTemplate() {
+            return true;
+        }
+
+        @Override
+        public String getExpressionPrefix() {
+            return "{";
+        }
+
+        @Override
+        public String getExpressionSuffix() {
+            return "}";
         }
     }
 }

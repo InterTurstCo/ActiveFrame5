@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.action;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 
 /**
@@ -15,9 +16,8 @@ public class RefreshActionContext extends ActionContext {
     public RefreshActionContext() {
     }
 
-    public RefreshActionContext(CollectionRowsRequest request, Id id) {
-        this.request = request;
-        this.id = id;
+    public RefreshActionContext(AbstractActionConfig actionConfig) {
+        super(actionConfig);
     }
 
     public Id getId() {

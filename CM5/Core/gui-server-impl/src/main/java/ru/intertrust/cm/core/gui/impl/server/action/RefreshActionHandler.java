@@ -33,6 +33,6 @@ public class RefreshActionHandler extends ActionHandler<ActionContext, ActionDat
 
     @Override
     public ActionContext getActionContext(final ActionConfig actionConfig) {
-        return new ActionContext(actionConfig);
+        return new RefreshActionContext(actionConfig);
     }
 }

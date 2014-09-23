@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.server.action;
+package ru.intertrust.cm.core.gui.api.server.el;
 
 import org.springframework.expression.AccessException;
 import org.springframework.expression.EvaluationContext;
@@ -7,6 +7,7 @@ import org.springframework.expression.TypedValue;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 
 /**
  * @author Sergey.Okolot
@@ -14,6 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  */
 public class DomainObjectPropertyAccessor implements PropertyAccessor {
     private static final String CURRENT_USER = "current_user";
+    private static final String ID = "id";
 
     private final Id currentUserId;
 
@@ -28,7 +30,7 @@ public class DomainObjectPropertyAccessor implements PropertyAccessor {
 
     @Override
     public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {
-        if (CURRENT_USER.equals(name)) {
+        if (CURRENT_USER.equals(name) || ID.equals(name)) {
             return true;
         } else {
             final DomainObject dObj = (DomainObject) target;
@@ -43,7 +45,11 @@ public class DomainObjectPropertyAccessor implements PropertyAccessor {
             value = currentUserId;
         } else {
             final DomainObject dObj = (DomainObject) target;
-            value = dObj.getValue(name);
+            if (ID.equals(name)) {
+                value =  new StringValue(dObj.getId().toStringRepresentation());
+            } else {
+                value = dObj.getValue(name);
+            }
         }
         return new TypedValue(value);
     }

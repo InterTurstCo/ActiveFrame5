@@ -26,14 +26,14 @@ public class RefreshAction extends SimpleServerAction {
 
     @Override
     protected RefreshActionContext appendCurrentContext(ActionContext initialContext) {
+        final RefreshActionContext context = getInitialContext();
         DomainObjectSurferPlugin plugin = (DomainObjectSurferPlugin) getPlugin();
         CollectionRowsRequest request = plugin.getCollectionPlugin().getCollectionRowRequest();
+        context.setRequest(request);
         IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         FormState formState = editor.getFormState();
-
         Id id = formState.getObjects().getRootNode().getDomainObject().getId();
-        RefreshActionContext context = new RefreshActionContext(request, id);
-
+        context.setId(id);
         return context;
     }
 

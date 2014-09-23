@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.server.action;
+package ru.intertrust.cm.core.gui.api.server.el;
 
 import org.springframework.expression.AccessException;
 import org.springframework.expression.EvaluationContext;

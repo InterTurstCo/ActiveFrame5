@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.SimpleTextTooltip;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.ActionData;
 
 /**
  * <p>
@@ -88,17 +89,17 @@ public abstract class Action extends BaseComponent {
 
     protected abstract void execute();
 
-    protected void showOnSuccessMessage(final String defaultMessage) {
+    protected void showOnSuccessMessage(final ActionData actionData, final String defaultMessage) {
         final ActionConfig config = getInitialContext().getActionConfig();
         final String onSuggestMessageType;
-        final String onSuccessMessage;
         if (config == null || config.getAfterConfig() == null || config.getAfterConfig().getMessageConfig() == null) {
-            onSuccessMessage = defaultMessage;
             onSuggestMessageType = OnSuccessMessageConfig.DEFAULT_NOTIFICATION_TYPE;
         } else {
-            onSuccessMessage = config.getAfterConfig().getMessageConfig().getText();
             onSuggestMessageType = config.getAfterConfig().getMessageConfig().getSuccessNotificationType();
         }
+        String onSuccessMessage = (actionData == null || actionData.getOnSuccessMessage() == null)
+                ? defaultMessage
+                : actionData.getOnSuccessMessage();
         if (onSuccessMessage != null) {
             if (OnSuccessMessageConfig.DEFAULT_NOTIFICATION_TYPE.equals(onSuggestMessageType)) {
                 new SimpleTextTooltip(onSuccessMessage).center();
