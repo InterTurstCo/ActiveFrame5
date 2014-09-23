@@ -24,7 +24,6 @@ public class ConfigurationStorageBuilder {
 
     private ConfigurationExplorer configurationExplorer;
     private ConfigurationStorage configurationStorage;
-    private AttachmentPrototypeHelper attachmentPrototypeHelper = null;
 
     public ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage) {
         this.configurationExplorer = configurationExplorer;
@@ -244,13 +243,14 @@ public class ConfigurationStorageBuilder {
                                                                     DomainObjectTypeConfig newConfig) {
         try {
             if (oldConfig != null && oldConfig.getAttachmentTypesConfig() != null) {
+                AttachmentPrototypeHelper attachmentPrototypeHelper = new AttachmentPrototypeHelper();
                 for (AttachmentTypeConfig attachmentTypeConfig :
                         oldConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
                     DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                            getAttachmentPrototypeHelper().makeAttachmentConfig(attachmentTypeConfig.getName(), oldConfig.getName());
+                            attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getName(), oldConfig.getName());
 
-                    removeTopLevelConfigFromMap(oldConfig);
-                    removeDomainObjectFieldConfigsFromMap(oldConfig);
+                    removeTopLevelConfigFromMap(attachmentDomainObjectTypeConfig);
+                    removeDomainObjectFieldConfigsFromMap(attachmentDomainObjectTypeConfig);
                     configurationStorage.attachmentDomainObjectTypes.remove(attachmentDomainObjectTypeConfig.getName());
                 }
             }
@@ -421,10 +421,11 @@ public class ConfigurationStorageBuilder {
             return;
         }
         try {
+            AttachmentPrototypeHelper attachmentPrototypeHelper = new AttachmentPrototypeHelper();
             for (AttachmentTypeConfig attachmentTypeConfig :
                     domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
                 DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                        getAttachmentPrototypeHelper().makeAttachmentConfig(attachmentTypeConfig.getName(),
+                        attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getName(),
                                 domainObjectTypeConfig.getName());
                 fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
                 fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
@@ -574,17 +575,5 @@ public class ConfigurationStorageBuilder {
 
             return cloneDomainObjectTypeConfig;
         }
-    }
-
-    private AttachmentPrototypeHelper getAttachmentPrototypeHelper() {
-        if (attachmentPrototypeHelper == null) {
-            try {
-                attachmentPrototypeHelper = new AttachmentPrototypeHelper();
-            } catch (IOException e) {
-                throw new ConfigurationException(e);
-            }
-        }
-
-        return attachmentPrototypeHelper;
     }
 }
