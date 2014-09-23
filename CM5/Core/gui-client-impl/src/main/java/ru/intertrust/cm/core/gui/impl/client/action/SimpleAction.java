@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import com.google.gwt.user.client.Window;
 
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;

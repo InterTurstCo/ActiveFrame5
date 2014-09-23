@@ -200,6 +200,9 @@
     <xs:complexType name="beforeExecutionType">
         <xs:sequence>
             <xs:element name="confirmation-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="perform-validation" type="act:booleanValueType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="domain-object-to-create" type="act:doToCreateType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="save-context" type="act:booleanValueType" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -215,6 +218,31 @@
             <xs:any minOccurs="1" maxOccurs="1" processContents="skip"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="booleanValueType">
+        <xs:attribute name="value" type="xs:boolean" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="doToCreateType">
+        <xs:sequence>
+            <xs:element name="reference" type="act:doReferenceType" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="xs:string" use="required"/>
+        <xs:attribute name="form-name" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="doReferenceType">
+        <xs:attribute name="type" type="act:referenceTypeType" use="required"/>
+        <xs:attribute name="field-name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:simpleType name="referenceTypeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="direct"/>
+            <xs:enumeration value="back"/>
+        </xs:restriction>
+    </xs:simpleType>
+
 
     <xs:complexType name="actionContextType">
         <xs:sequence>
