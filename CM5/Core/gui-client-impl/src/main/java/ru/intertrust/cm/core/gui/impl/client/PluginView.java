@@ -88,26 +88,28 @@ public abstract class PluginView implements IsWidget {
         AbsolutePanel breadCrumbComponents = new AbsolutePanel();
         List<LinkConfig> foundLinks = new ArrayList<>();
         findLink(link, navigationConfig.getLinkConfigList(), foundLinks);
-        LinkConfig currentLinkConfig = foundLinks.get(0);
-        List<IsWidget> breadcrumbWidgets = new ArrayList<>();
-        while (true) {
-            breadcrumbWidgets.add(new Hyperlink(currentLinkConfig.getDisplayText(), "link=" + currentLinkConfig.getName()));
-            ChildLinksConfig parentChildLinksConfig = currentLinkConfig.getParentChildLinksConfig();
-            if (parentChildLinksConfig != null && parentChildLinksConfig.getGroupName() != null) {
-                breadcrumbWidgets.add(new Label(currentLinkConfig.getParentChildLinksConfig().getGroupName()));
+        if (!foundLinks.isEmpty()) {
+            LinkConfig currentLinkConfig = foundLinks.get(0);
+            List<IsWidget> breadcrumbWidgets = new ArrayList<>();
+            while (true) {
+                breadcrumbWidgets.add(new Hyperlink(currentLinkConfig.getDisplayText(), "link=" + currentLinkConfig.getName()));
+                ChildLinksConfig parentChildLinksConfig = currentLinkConfig.getParentChildLinksConfig();
+                if (parentChildLinksConfig != null && parentChildLinksConfig.getGroupName() != null) {
+                    breadcrumbWidgets.add(new Label(currentLinkConfig.getParentChildLinksConfig().getGroupName()));
+                }
+                currentLinkConfig = currentLinkConfig.getParentLinkConfig();
+                if (currentLinkConfig == null) {
+                    break;
+                }
             }
-            currentLinkConfig = currentLinkConfig.getParentLinkConfig();
-            if (currentLinkConfig == null) {
-                break;
-            }
-        }
-        Collections.reverse(breadcrumbWidgets);
-        Iterator<IsWidget> iterator = breadcrumbWidgets.iterator();
-        while (iterator.hasNext()) {
-            IsWidget next = iterator.next();
-            breadCrumbComponents.add(next);
-            if (iterator.hasNext()) {
-                breadCrumbComponents.add(new Label("/"));
+            Collections.reverse(breadcrumbWidgets);
+            Iterator<IsWidget> iterator = breadcrumbWidgets.iterator();
+            while (iterator.hasNext()) {
+                IsWidget next = iterator.next();
+                breadCrumbComponents.add(next);
+                if (iterator.hasNext()) {
+                    breadCrumbComponents.add(new Label("/"));
+                }
             }
         }
         return breadCrumbComponents;

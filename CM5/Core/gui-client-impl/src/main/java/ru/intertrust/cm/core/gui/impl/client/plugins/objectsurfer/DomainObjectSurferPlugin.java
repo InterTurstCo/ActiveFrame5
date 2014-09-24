@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -11,6 +10,8 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -20,11 +21,11 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
@@ -40,6 +41,7 @@ import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.HierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 import ru.intertrust.cm.core.gui.model.plugin.IsIdentifiableObjectList;
@@ -248,8 +250,10 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
+        String currentCollectionName = this.getCollectionPlugin().getCollectionRowRequest().getCollectionName();
         ExpandHierarchicalCollectionData data = new ExpandHierarchicalCollectionData(
-                event.getChildCollectionViewerConfigs(), event.getSelectedId());
+                event.getChildCollectionViewerConfigs(), event.getSelectedId(), currentCollectionName);
+
         final Command command = new Command("initializeForHierarchicalCollection", "domain.object.surfer.plugin", data);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -258,15 +262,20 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
             }
             @Override
             public void onSuccess(Dto result) {
-                DomainObjectSurferPluginData pluginData = (DomainObjectSurferPluginData) result;
-                pluginData.getCollectionPluginData().setExpandHierarchyMarker(true);
-                setInitialData(pluginData);
-                getCollectionPlugin().getHierarchicalLinks().add(pluginData.getHierarchicalLink());
-                Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent
-                        (DomainObjectSurferPlugin.this));
-                String displayText = pluginData.getHierarchicalLink().getDisplayText();
-                final String pageTitle = Application.getInstance().getPageName(displayText);
-                Window.setTitle(pageTitle);
+                HierarchicalCollectionData data = (HierarchicalCollectionData) result;
+                DomainObjectSurferConfig pluginConfig = data.getDomainObjectSurferConfig();
+                LinkConfig link = data.getHierarchicalLink();
+                NavigationConfig navigationConfig = getCollectionPlugin().getNavigationConfig();
+                addHierarchicalLinkToNavigationConfig(navigationConfig, link);
+                Application.getInstance().getEventBus().fireEvent(
+                        new NavigationTreeItemSelectedEvent(pluginConfig, link.getName(), navigationConfig));
+            }
+
+            private void addHierarchicalLinkToNavigationConfig(NavigationConfig navigationConfig, LinkConfig link) {
+                //TODO: [CMFIVE-451] would it better to organize links into a tree?
+                if (!navigationConfig.getHierarchicalLinkList().contains(link)) {
+                    navigationConfig.getHierarchicalLinkList().add(link);
+                }
             }
         });
     }

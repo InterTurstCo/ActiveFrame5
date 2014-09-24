@@ -207,6 +207,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                     .setLink(event.getLinkName());
             plugin.setDisplayActionToolBar(true);
             plugin.setNavigationConfig(event.getNavigationConfig());
+            navigationTreePlugin.setNavigationConfig(event.getNavigationConfig());
             centralPluginPanel.open(plugin);
         } else {
             History.fireCurrentHistoryState();

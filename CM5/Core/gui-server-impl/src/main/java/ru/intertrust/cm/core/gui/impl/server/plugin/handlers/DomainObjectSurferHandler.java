@@ -10,12 +10,14 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -30,6 +32,8 @@ import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.HierarchicalCollectionData;
+import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +103,8 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         return result;
     }
 
-    public ActivePluginData initializeForHierarchicalCollection(Dto params) {
+    //TODO: [CMFIVE-451] move this code out from the handler + rename.
+    public PluginData initializeForHierarchicalCollection(Dto params) {
         ExpandHierarchicalCollectionData data = (ExpandHierarchicalCollectionData)params;
         ChildCollectionViewerConfig childCollectionViewerConfig = findChildCollectionViewerConfig(data);
         if (childCollectionViewerConfig == null) {
@@ -107,18 +112,24 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         }
         CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();
         collectionViewerConfig.setHierarchical(true);
-        collectionViewerConfig.setSelectionFiltersConfig(prepareFilterForHierarchicalCollection(
-                childCollectionViewerConfig.getFilter(), data.getSelectedParentId()));
+        prepareFilterForHierarchicalCollection(collectionViewerConfig,
+                childCollectionViewerConfig.getFilter(), data.getSelectedParentId());
 
         DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
         domainObjectSurferConfig.setCollectionViewerConfig(collectionViewerConfig);
         domainObjectSurferConfig.setDomainObjectTypeToCreate(childCollectionViewerConfig.getDomainObjectTypeToCreate());
+        LinkConfig link = new LinkConfig();
 
-        DomainObjectSurferPluginData result = (DomainObjectSurferPluginData) initialize(domainObjectSurferConfig);
+        link.setName(createLinkForHierarchicalCollection(childCollectionViewerConfig, data.getCurrentCollectionName(),
+                data.getSelectedParentId()));
+        link.setDisplayText(childCollectionViewerConfig.getBreadCrumb());
+        LinkPluginDefinition pluginDefinition = new LinkPluginDefinition();
+        pluginDefinition.setPluginConfig(domainObjectSurferConfig);
+        link.setPluginDefinition(pluginDefinition);
 
-        LinkConfig breadCrumbLink = new LinkConfig();
-        breadCrumbLink.setDisplayText(childCollectionViewerConfig.getBreadCrumb());
-        result.setHierarchicalLink(breadCrumbLink);
+        HierarchicalCollectionData result = new HierarchicalCollectionData();
+        result.setDomainObjectSurferConfig(domainObjectSurferConfig);
+        result.setHierarchicalLink(link);
         return result;
     }
 
@@ -136,22 +147,28 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         return defaultChildCollectionViewerConfig;
     }
 
-    private SelectionFiltersConfig prepareFilterForHierarchicalCollection(String filter, Id selectedId) {
-        AbstractFilterConfig initFilterConfig = new InitialFilterConfig();
-        initFilterConfig.setName(filter);
+    private void prepareFilterForHierarchicalCollection(
+            CollectionViewerConfig collectionViewerConfig, String filter, Id selectedId) {
+        AbstractFilterConfig filterConfig = new InitialFilterConfig();
+        filterConfig.setName(filter);
         List<ParamConfig> paramConfigs = new ArrayList<>();
         ParamConfig paramConfig = new ParamConfig();
         paramConfig.setName(0);
         paramConfig.setType(ModelConstants.REFERENCE_TYPE);
         paramConfig.setValue(selectedId.toStringRepresentation());
         paramConfigs.add(paramConfig);
-        initFilterConfig.setParamConfigs(paramConfigs);
-
-        SelectionFiltersConfig selectionFiltersConfig = new SelectionFiltersConfig();
+        filterConfig.setParamConfigs(paramConfigs);
         List<AbstractFilterConfig> abstractFilterConfigs = new ArrayList<>();
-        abstractFilterConfigs.add(initFilterConfig);
-        selectionFiltersConfig.setAbstractFilterConfigs(abstractFilterConfigs);
+        abstractFilterConfigs.add(filterConfig);
+        AbstractFiltersConfig filtersConfig = new SelectionFiltersConfig();
+        filtersConfig.setAbstractFilterConfigs(abstractFilterConfigs);
+        collectionViewerConfig.setHierarchicalFiltersConfig(filtersConfig);
+    }
 
-        return selectionFiltersConfig;
+    private String createLinkForHierarchicalCollection(ChildCollectionViewerConfig  childCollectionViewerConfig,
+                                                       String currentCollectionName, Id parentId) {
+        CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();
+        return currentCollectionName + "-" + parentId.toStringRepresentation() + "."
+                + collectionViewerConfig.getCollectionRefConfig().getName();
     }
 }

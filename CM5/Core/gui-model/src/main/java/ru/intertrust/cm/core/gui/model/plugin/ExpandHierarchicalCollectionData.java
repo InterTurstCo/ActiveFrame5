@@ -15,15 +15,17 @@ public class ExpandHierarchicalCollectionData implements Dto {
 
     private List<ChildCollectionViewerConfig> childCollectionViewerConfigs;
     private Id selectedParentId;
+    private String currentCollectionName;
 
     public ExpandHierarchicalCollectionData() {
     }
 
     public ExpandHierarchicalCollectionData(List<ChildCollectionViewerConfig> childCollectionViewerConfigs,
-                                            Id selectedParentId) {
+                                            Id selectedParentId, String currentCollectionName) {
 
         this.childCollectionViewerConfigs = childCollectionViewerConfigs;
         this.selectedParentId = selectedParentId;
+        this.currentCollectionName = currentCollectionName;
     }
 
     public List<ChildCollectionViewerConfig> getChildCollectionViewerConfigs() {
@@ -32,5 +34,9 @@ public class ExpandHierarchicalCollectionData implements Dto {
 
     public Id getSelectedParentId() {
         return selectedParentId;
+    }
+
+    public String getCurrentCollectionName() {
+        return currentCollectionName;
     }
 }

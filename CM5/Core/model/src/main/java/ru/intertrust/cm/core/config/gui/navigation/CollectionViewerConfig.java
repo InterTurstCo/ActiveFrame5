@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.navigation;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
@@ -49,8 +50,13 @@ public class CollectionViewerConfig extends PluginConfig {
 
     private TableBrowserParams tableBrowserParams;
 
+    //Used for hierarchical collections. Not intended to be used in xml configs.
+    //Marked as @Attribute to be able to serialize the value in DB (in bu_nav_link_collection.collection_viewer)
+    @Attribute(name="hierarchical", required = false)
     private boolean isHierarchical;
 
+    //Used for hierarchical collections. Not intended to be used in xml configs.
+    //Marked as @Element to be able to serialize the value in DB (in bu_nav_link_collection.collection_viewer)
     @Element(name = "hierarchical-filters", required = false)
     private AbstractFiltersConfig hierarchicalFiltersConfig;
 

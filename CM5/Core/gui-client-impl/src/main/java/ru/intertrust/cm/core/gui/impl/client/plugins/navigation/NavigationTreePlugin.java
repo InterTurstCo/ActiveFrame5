@@ -1,21 +1,23 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
-import java.util.List;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+
+import java.util.List;
 
 @ComponentName("navigation.tree")
 public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler {
@@ -74,15 +76,28 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
         final HistoryManager historyManager = Application.getInstance().getHistoryManager();
         final NavigationTreePluginView view = (NavigationTreePluginView) getView();
         final String selectedLinkName = view.getSelectedLinkName() == null ? "" : view.getSelectedLinkName();
-        if (!selectedLinkName.equals(historyManager.getLink())) {
+        //TODO: [CMFIVE-451] commented out to be able to move back from hierarchical link to normal. Need to find a better way.
+        //if (!selectedLinkName.equals(historyManager.getLink())) {
             final NavigationTreePluginData data = getInitialData();
             final Pair<String, String> selectedNavigationItems = getHistoryNavigationItems(data);
             if (selectedNavigationItems != null) {
                 view.showAsSelectedRootLink(selectedNavigationItems.getFirst());
                 view.repaintNavigationTrees(selectedNavigationItems.getFirst(), selectedNavigationItems.getSecond());
                 return true;
+            } else {
+                //try to find requested link among hierarchical links and emulate tree item selection
+                NavigationConfig navigationConfig = getNavigationConfig();
+                for (LinkConfig hierarchicalLink : navigationConfig.getHierarchicalLinkList()) {
+                    if (hierarchicalLink.getName().equals(historyManager.getLink())) {
+                        Application.getInstance().getEventBus().fireEvent(new NavigationTreeItemSelectedEvent(
+                                hierarchicalLink.getPluginDefinition().getPluginConfig(), hierarchicalLink.getName(),
+                                navigationConfig));
+                        return true;
+                    }
+                }
+                ApplicationWindow.errorAlert("Пункт меню '" + historyManager.getLink() + "' не найден");
             }
-        }
+       // }
         return false;
     }
 
@@ -107,7 +122,6 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
             }
         }
         if (notExists) {
-            ApplicationWindow.errorAlert("Пункт меню '" + historyManager.getLink() + "' не найден");
             return null;
         } else {
             return result;

@@ -29,11 +29,13 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CommonSortCriterionConfig;
@@ -91,7 +93,6 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,6 +132,7 @@ public class CollectionPluginView extends PluginView {
     private SetSelectionModel<CollectionRowItem> selectionModel;
     private FilterPanelConfig filterPanelConfig;
     private int rowsChunk;
+    private AbstractFiltersConfig hierarchicalFiltersConfig;
 
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
@@ -181,13 +183,14 @@ public class CollectionPluginView extends PluginView {
         searchArea = collectionPluginData.getSearchArea();
         items = collectionPluginData.getItems();
         filterPanelConfig = collectionPluginData.getFilterPanelConfig();
+        hierarchicalFiltersConfig = collectionPluginData.getHierarchicalFiltersConfig();
         init();
 
         final List<Id> selectedIds = new ArrayList<>();
         final List<Id> selectedFromHistory = Application.getInstance().getHistoryManager().getSelectedIds();
         if (!selectedFromHistory.isEmpty()) {
             selectedIds.addAll(selectedFromHistory);
-        } else {
+        } else if (collectionPluginData.getChosenIds() != null) {
             selectedIds.addAll(collectionPluginData.getChosenIds());
         }
         if (!selectedIds.isEmpty()) {
@@ -200,7 +203,7 @@ public class CollectionPluginView extends PluginView {
         Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
         root.addStyleName("collection-plugin-view-container");
         addHandlers();
-        if (!collectionPluginData.isExtendedSearchMarker() && ! collectionPluginData.isExpandHierarchyMarker()) {
+        if (!collectionPluginData.isExtendedSearchMarker()) {
             final com.google.gwt.user.client.Timer timer = new com.google.gwt.user.client.Timer() {
                 @Override
                 public void run() {
@@ -394,6 +397,7 @@ public class CollectionPluginView extends PluginView {
                 JsonUtil.prepareJsonSortCriteria(requestObj, fieldPropertiesMap, sortCollectionState);
                 JsonUtil.prepareJsonColumnProperties(requestObj, fieldPropertiesMap, filtersMap);
                 JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig);
+                //TODO: [CMFIVE-451] add support for hierarchical collection filtering
                 csvController.doPostRequest(requestObj.toString());
 
             }
@@ -679,6 +683,7 @@ public class CollectionPluginView extends PluginView {
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
         collectionRowsRequest.setTableBrowserParams(tableBrowserParams);
+        collectionRowsRequest.setHierarchicalFiltersConfig(hierarchicalFiltersConfig);
         return collectionRowsRequest;
 
     }
@@ -709,6 +714,7 @@ public class CollectionPluginView extends PluginView {
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
         collectionRowsRequest.setTableBrowserParams(tableBrowserParams);
+        collectionRowsRequest.setHierarchicalFiltersConfig(hierarchicalFiltersConfig);
         return collectionRowsRequest;
 
     }

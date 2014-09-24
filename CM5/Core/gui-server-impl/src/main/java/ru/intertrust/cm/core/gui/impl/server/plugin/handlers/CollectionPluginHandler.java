@@ -115,6 +115,15 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         } else {
         //if (displayChosenValues) {//simplified condition
         //if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)) {
+            if (collectionViewerConfig.getHierarchicalFiltersConfig() != null) {
+                List<Filter> hierarchicalFilters = new ArrayList<>();
+                filterBuilder.prepareSelectionFilters(collectionViewerConfig.getHierarchicalFiltersConfig(), null, hierarchicalFilters);
+                if (!hierarchicalFilters.isEmpty()) {
+                    pluginData.setHierarchicalFiltersConfig(collectionViewerConfig.getHierarchicalFiltersConfig());
+                    filters.addAll(hierarchicalFilters);
+                }
+            }
+
             SelectionFiltersConfig selectionFiltersConfig = collectionViewerConfig.getSelectionFiltersConfig();
             filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             ArrayList<CollectionRowItem> items = getRows(collectionName,
@@ -257,6 +266,13 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         if (!includedIds.isEmpty()) {
             Filter includedIdsFilter = FilterBuilderUtil.prepareFilter(includedIds, FilterBuilderUtil.INCLUDED_IDS_FILTER);
             filters.add(includedIdsFilter);
+        }
+        if (request.getHierarchicalFiltersConfig() != null) {
+            List<Filter> hierarchicalFilters = new ArrayList<>();
+            filterBuilder.prepareSelectionFilters(request.getHierarchicalFiltersConfig(), null, hierarchicalFilters);
+            if (!hierarchicalFilters.isEmpty()) {
+                filters.addAll(hierarchicalFilters);
+            }
         }
         ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit);
 

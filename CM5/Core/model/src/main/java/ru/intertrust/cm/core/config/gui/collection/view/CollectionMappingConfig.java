@@ -20,10 +20,10 @@ public class CollectionMappingConfig implements Dto {
     @Attribute(name = "view", required = false)
     private String view;
 
-    @Element(name = "users")
+    @Element(name = "users", required = false)
     private UsersConfig usersConfig;
 
-    @Element(name = "groups")
+    @Element(name = "groups", required = false)
     private GroupsConfig groupsConfig;
 
     @Override
