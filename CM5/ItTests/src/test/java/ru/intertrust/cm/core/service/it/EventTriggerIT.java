@@ -64,10 +64,10 @@ public class EventTriggerIT extends IntegrationTestBase {
     
     @Test
     public void testReadTriggerConfiguration() {
-        DomainObject organizationDomainObject = createOrganizationDomainObject();
+        DomainObject organizationDomainObject = createOrganizationTestDomainObject();
         organizationDomainObject = crudService.save(organizationDomainObject);
         
-        DomainObject domainObject = createDepartmentDomainObject(organizationDomainObject);
+        DomainObject domainObject = createDepartmentTestDomainObject(organizationDomainObject);
         domainObject = crudService.save(domainObject);
 
         List<FieldModification> changedFileds = new ArrayList<FieldModification>();
@@ -89,10 +89,10 @@ public class EventTriggerIT extends IntegrationTestBase {
 
     @Test
     public void testTriggerChangeStatus() {
-        DomainObject organizationDomainObject = createOrganizationDomainObject();
+        DomainObject organizationDomainObject = createOrganizationTestDomainObject();
         organizationDomainObject = crudService.save(organizationDomainObject);
         
-        DomainObject domainObject = createDepartmentDomainObject(organizationDomainObject);
+        DomainObject domainObject = createDepartmentTestDomainObject(organizationDomainObject);
         domainObject = crudService.save(domainObject);
         List<FieldModification> changedFileds = new ArrayList<FieldModification>();
         changedFileds.add(new FieldModificationImpl("Name", new StringValue("Department1"), new StringValue("Department2")));        
@@ -102,9 +102,9 @@ public class EventTriggerIT extends IntegrationTestBase {
 
     @Test
     public void testExecuteScript() {
-        DomainObject organizationDomainObject = createOrganizationDomainObject();
+        DomainObject organizationDomainObject = createOrganizationTestDomainObject();
         organizationDomainObject = crudService.save(organizationDomainObject);
-        DomainObject domainObject = createDepartmentDomainObject(organizationDomainObject);
+        DomainObject domainObject = createDepartmentTestDomainObject(organizationDomainObject);
         domainObject = crudService.save(domainObject);
 
         List<FieldModification> changedFileds = new ArrayList<FieldModification>();        
@@ -114,31 +114,35 @@ public class EventTriggerIT extends IntegrationTestBase {
 
     @Test
     public void testExecuteComplexScript() {
-        DomainObject organizationDomainObject = createOrganizationDomainObject();
+        DomainObject organizationDomainObject = createOrganizationTestDomainObject();
         organizationDomainObject = crudService.save(organizationDomainObject);
-        DomainObject domainObject = createDepartmentDomainObject(organizationDomainObject);
-        domainObject = crudService.save(domainObject);
+        DomainObject departmentObject = createDepartmentTestDomainObject(organizationDomainObject);
+        departmentObject = crudService.save(departmentObject);
 
+        DomainObject employee = createEmployeeTestDomainObject(departmentObject);        
+        DomainObject savedEmployee = crudService.save(employee);
+
+        
         List<FieldModification> changedFileds = new ArrayList<FieldModification>();        
-        boolean isTriggered = eventTrigger.isTriggered("TriggerTestScript", "CHANGE", domainObject, changedFileds);
+        boolean isTriggered = eventTrigger.isTriggered("TriggerTestScript", "CHANGE", departmentObject, changedFileds);
         assertTrue(isTriggered);
         
         organizationDomainObject.setValue("Name", new StringValue("Organization2"));
         organizationDomainObject = crudService.save(organizationDomainObject);
-        domainObject = createDepartmentDomainObject(organizationDomainObject);
-        domainObject.setValue("Name", new StringValue("Department2"));
-        domainObject = crudService.save(domainObject);
+        departmentObject = createDepartmentTestDomainObject(organizationDomainObject);
+        departmentObject.setValue("Name", new StringValue("Department2"));
+        departmentObject = crudService.save(departmentObject);
 
         changedFileds = new ArrayList<FieldModification>();        
-        isTriggered = eventTrigger.isTriggered("TriggerTestScript", "CHANGE", domainObject, changedFileds);
+        isTriggered = eventTrigger.isTriggered("TriggerTestScript", "CHANGE", departmentObject, changedFileds);
         assertTrue(!isTriggered);
     }
     
     @Test
     public void testExecuteJavaClass() {
-        DomainObject organizationDomainObject = createOrganizationDomainObject();
+        DomainObject organizationDomainObject = createOrganizationTestDomainObject();
         organizationDomainObject = crudService.save(organizationDomainObject);
-        DomainObject domainObject = createDepartmentDomainObject(organizationDomainObject);
+        DomainObject domainObject = createDepartmentTestDomainObject(organizationDomainObject);
         domainObject = crudService.save(domainObject);
 
         List<FieldModification> changedFileds = new ArrayList<FieldModification>();        
@@ -150,7 +154,21 @@ public class EventTriggerIT extends IntegrationTestBase {
 
     }
 
-    private DomainObject createDepartmentDomainObject(DomainObject organizationDomainObject) {
+    private DomainObject createEmployeeTestDomainObject(DomainObject departmentObject) {
+        DomainObject employeeDomainObject = crudService.createDomainObject("employee_test");
+        
+        employeeDomainObject.setString("Name", "Name " + System.currentTimeMillis());
+        employeeDomainObject.setString("Position", "Position " + System.currentTimeMillis());
+        employeeDomainObject.setString("Phone", "" + System.currentTimeMillis()); 
+        employeeDomainObject.setString("Login", "Login" + System.currentTimeMillis()); 
+        employeeDomainObject.setString("EMail", "Email" + System.currentTimeMillis()); 
+        
+        employeeDomainObject.setReference("Department", departmentObject.getId());
+        
+        return employeeDomainObject;
+    }
+
+    private DomainObject createDepartmentTestDomainObject(DomainObject organizationDomainObject) {
         
         DomainObject departmentDomainObject = crudService.createDomainObject("department_test");
         departmentDomainObject.setString("Name", "Departmment");
@@ -164,7 +182,7 @@ public class EventTriggerIT extends IntegrationTestBase {
         return departmentDomainObject;
     }
 
-    private DomainObject createOrganizationDomainObject() {
+    private DomainObject createOrganizationTestDomainObject() {
         DomainObject organizationDomainObject = crudService.createDomainObject("organization_test");
         organizationDomainObject.setString("Name", "Organization");
         return organizationDomainObject;

@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.CaseExpression;
@@ -192,7 +194,7 @@ public class SqlQueryModifier {
         });
 
         for (Map.Entry<String, String> entry : replaceExpressions.entrySet()) {
-            modifiedQuery = modifiedQuery.replaceAll(entry.getKey(), entry.getValue());
+            modifiedQuery = modifiedQuery.replaceAll(Pattern.quote(entry.getKey()), Matcher.quoteReplacement(entry.getValue()));
         }
 
         return modifiedQuery;
@@ -205,14 +207,14 @@ public class SqlQueryModifier {
      * @param filterValues список фильтров
      * @return
      */
-    public String modifyQueryWithReferenceFilterValues(String query, final List<? extends Filter> filterValues) {
+    public String modifyQueryWithReferenceFilterValues(String query, final List<? extends Filter> filterValues, final Map<String, FieldConfig> columnToConfigMap) {
 
         final Map<String, String> replaceExpressions = new HashMap<>();
 
         String modifiedQuery = processQuery(query, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
-                ReferenceFilterValuesProcessingVisitor visitor = new ReferenceFilterValuesProcessingVisitor(filterValues);
+                ReferenceFilterValuesProcessingVisitor visitor = new ReferenceFilterValuesProcessingVisitor(filterValues, columnToConfigMap);
 
                 plainSelect.accept(visitor);
                 replaceExpressions.putAll(visitor.getReplaceExpressions());
@@ -221,7 +223,7 @@ public class SqlQueryModifier {
         });
 
         for (Map.Entry<String, String> entry : replaceExpressions.entrySet()) {
-            modifiedQuery = modifiedQuery.replaceAll(entry.getKey(), entry.getValue());
+            modifiedQuery = modifiedQuery.replaceAll(Pattern.quote(entry.getKey()), Matcher.quoteReplacement(entry.getValue()));
         }
 
         return modifiedQuery;

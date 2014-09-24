@@ -196,7 +196,6 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
         query = sqlQueryModifier.addServiceColumns(query);
         query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
-        query = sqlQueryModifier.modifyQueryWithReferenceFilterValues(query, filterValues);
 
         if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query);

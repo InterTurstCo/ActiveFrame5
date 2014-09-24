@@ -51,4 +51,9 @@ public class ListValue extends Value<ListValue> {
         }
         return resultValues;
     }
+
+    public ArrayList<Value> getValues() {
+        return values;
+    }
+    
 }

@@ -5,19 +5,22 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
-import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
@@ -27,7 +30,7 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
  * @author atsvetkov
  */
 
-public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor {
+public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVisitor {
     private Map<String, String> replaceExpressions = new HashMap<>();
 
     protected List<? extends Value> params;
@@ -55,6 +58,13 @@ public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor
         processReferenceParameters(notEqualsTo, false);
     }
 
+    @Override
+    public void visit(InExpression inExpression) {
+        inExpression.getLeftExpression().accept(this);
+        inExpression.getRightItemsList().accept(this);
+        boolean isInExpression = !inExpression.isNot();
+        processReferenceParameterInsideInExpression(inExpression, isInExpression);
+    }
 
     private void processReferenceParameters(BinaryExpression equalsTo, boolean isEquals) {
         if (params == null) {
@@ -65,19 +75,9 @@ public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor
 
             FieldConfig fieldConfig = columnToConfigMap.get(DaoUtils.unwrap(column.getColumnName().toLowerCase()));
 
-            if (fieldConfig instanceof ReferenceFieldConfig) {
+            if (fieldConfig instanceof ReferenceFieldConfig) {                
 
-                BinaryExpression modifiedEqualsToForReferenceId = null;
-                if (isEquals) {
-                    modifiedEqualsToForReferenceId = new EqualsTo();
-                } else {
-                    modifiedEqualsToForReferenceId = new NotEqualsTo();
-                }
-
-                modifiedEqualsToForReferenceId.setLeftExpression(equalsTo.getLeftExpression());
-                modifiedEqualsToForReferenceId.setRightExpression(equalsTo.getRightExpression());
-
-                String rightExpression = modifiedEqualsToForReferenceId.getRightExpression().toString();
+                String rightExpression = equalsTo.getRightExpression().toString();
 
                 ReferenceValue referenceValue = null;
                 if (rightExpression.indexOf(CollectionsDaoImpl.PARAM_NAME_PREFIX) > 0) {
@@ -91,28 +91,66 @@ public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor
                         referenceValue = new ReferenceValue(new RdbmsId(strValue));
                     }
 
-                    BinaryExpression equalsToForReferenceType =
-                            createComparisonExpressionForReferenceType(column, referenceValue, isEquals);
-
-                    long refId = ((RdbmsId) referenceValue.get()).getId();
-                    modifiedEqualsToForReferenceId.setRightExpression(new LongValue(refId + ""));
-                    // замена старого параметризованного фильтра по Reference полю (например, t.id = {0}) на рабочий
-                    // фильтр {например, t.id = 1 and t.id_type = 2 }
-                    BinaryExpression newReferenceExpression = null;
-                    if (isEquals) {
-                        newReferenceExpression =
-                                new AndExpression(modifiedEqualsToForReferenceId, equalsToForReferenceType);
-
-                    } else {
-                        newReferenceExpression =
-                                new OrExpression(modifiedEqualsToForReferenceId, equalsToForReferenceType);
-                    }
-
+                    BinaryExpression newReferenceExpression = createFilledReferenceExpression(column, referenceValue, equalsTo, isEquals);
                     replaceExpressions.put(equalsTo.toString(), newReferenceExpression.toString());
                 }
             }
         }
     }
+
+    private void processReferenceParameterInsideInExpression(InExpression inExpression, boolean isEquals) {
+        if (params == null) {
+            return;
+        }
+        if (inExpression.getRightItemsList() instanceof SubSelect) {
+            return;
+        }
+        if (inExpression.getLeftExpression() instanceof Column) {
+            Column column = (Column) inExpression.getLeftExpression();
+
+            FieldConfig fieldConfig = columnToConfigMap.get(DaoUtils.unwrap(column.getColumnName().toLowerCase()));
+
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+
+                String inExpressionStr = inExpression.toString();
+
+                ListValue listValue = null;
+                if (inExpressionStr.indexOf(CollectionsDaoImpl.PARAM_NAME_PREFIX) > 0) {
+
+                    Integer paramIndex = findParameterIndex(inExpressionStr);
+
+                    Expression finalExpression = null;
+
+                    if (params.get(paramIndex) instanceof ListValue) {
+                        listValue = (ListValue) params.get(paramIndex);
+
+                        int index = 0;
+                        for (Value value : listValue.getValues()) {
+                            ReferenceValue refValue = null;
+                            if (value instanceof ReferenceValue) {
+                                refValue = (ReferenceValue) value;
+                                // ссылочные параметры могут передаваться в строковом виде.
+                            } else if (value instanceof StringValue) {
+                                String strParamValue = ((StringValue) value).get();
+                                refValue = new ReferenceValue(new RdbmsId(strParamValue));
+                            }
+
+                            if (refValue == null) {
+                                continue;
+                            }
+                            finalExpression = updateFinalExpression(finalExpression, column, index, refValue, isEquals);                            
+                            index++;
+                        }
+                    }
+                    if (finalExpression != null) {
+                        finalExpression = new Parenthesis(finalExpression);
+                        replaceExpressions.put(inExpression.toString(), finalExpression.toString());
+
+                    }
+                }
+            }
+        }
+    }    
 
     private Integer findParameterIndex(String rightExpression) {
         int startParamNumberIndex =
@@ -123,26 +161,6 @@ public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor
         String paramName = rightExpression.substring(startParamNumberIndex, endParamNumberIndex);
         Integer paramIndex = Integer.parseInt(paramName);
         return paramIndex;
-    }
-
-    private BinaryExpression createComparisonExpressionForReferenceType(Column column,
-            ReferenceValue referenceValue, boolean isEquals) {
-        BinaryExpression comparisonExpressionForReferenceType = null;
-        if (isEquals) {
-            comparisonExpressionForReferenceType = new EqualsTo();
-        } else {
-            comparisonExpressionForReferenceType = new NotEqualsTo();
-        }
-        String typeColumnName = DaoUtils.unwrap(column.getColumnName()) + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-        Column typeColumn = new Column(column.getTable(), typeColumnName);
-
-        comparisonExpressionForReferenceType.setLeftExpression(typeColumn);
-
-        long refTypeId = ((RdbmsId) referenceValue.get()).getTypeId();
-
-        comparisonExpressionForReferenceType.setRightExpression(new LongValue(refTypeId + ""));
-
-        return comparisonExpressionForReferenceType;
-    }
+    }    
     
 }

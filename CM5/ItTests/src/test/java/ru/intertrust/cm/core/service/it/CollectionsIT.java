@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -22,7 +23,9 @@ import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
@@ -61,6 +64,9 @@ public class CollectionsIT extends IntegrationTestBase {
 
     @EJB
     private CollectionsService.Remote collectionService;
+
+    @EJB
+    private CrudService.Remote crudService;
 
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
     
@@ -136,47 +142,75 @@ public class CollectionsIT extends IntegrationTestBase {
         } finally {
             lc.logout();
         }
-
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
 
-
     }
-
+    
     @Test
-    public void testFindCollectionByQueryWithListParam() {
-        String query = "select * from Employee e where e.department in ({0}) and name = {1}";
+    public void testFindCollectionWithFilters() throws LoginException {
+        
+        DomainObject organizationDomainObject = createOrganizationTestDomainObject();
+        organizationDomainObject = crudService.save(organizationDomainObject);
+        DomainObject departmentTestObject = createDepartmentTestDomainObject(organizationDomainObject);
+        departmentTestObject = crudService.save(departmentTestObject);
 
-        Integer departmentTypeid = domainObjectTypeIdCache.getId(DEPARTMENT_TYPE);
+        DomainObject employee = createEmployeeTestDomainObject(departmentTestObject);        
+        DomainObject savedEmployee = crudService.save(employee);
 
-        List<Value> departments = new ArrayList<>();
-        departments.add(new ReferenceValue(new RdbmsId(departmentTypeid, 1)));
-        departments.add(new ReferenceValue(new RdbmsId(departmentTypeid, 2)));
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("e.id", Order.ASCENDING));
 
-        ListValue departmentsParam = new ListValue(departments);
+        List<Filter> filterValues = new ArrayList<Filter>();
+        Filter filter = new Filter();
+        filter.setFilter("inDepartment");
+        int departmentTypeId = domainObjectTypeIdCache.getId("department");
+        List<Value> referenceValues = new ArrayList<>();
+        referenceValues.add(new ReferenceValue(departmentTestObject.getId()));
+        ListValue listValue = new ListValue(referenceValues);
+        filter.addCriterion(0, listValue);
 
-        List<Value> params = new ArrayList<Value>();
-        params.add(departmentsParam);
-        params.add(new StringValue(EMPLOYEE_1_NAME));
+        filterValues.add(filter);
 
-        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
+        filter = new Filter();
+        filter.setFilter("byDepartmentNames");
+        List<Value> departmentNames = new ArrayList<>();
+        departmentNames.add(new StringValue(departmentTestObject.getString("Name")));
+        listValue = new ListValue(departmentNames);
+        filter.addCriterion(0, listValue);
+        filterValues.add(filter);
 
-        query = "select * from Employee e where name in ({0})";
-        List<Value> employees = new ArrayList<>();
+        IdentifiableObjectCollection employeesCollection = null;
+        employeesCollection =
+                collectionService.findCollection("Employees_Test", sortOrder, filterValues, 0, 0);
 
-        employees.add(new StringValue(EMPLOYEE_1_NAME));
-        employees.add(new StringValue("Сотрудник 2"));
-        employees.add(new StringValue("Сотрудник 3"));
+        assertNotNull(employeesCollection);
+        assertTrue(employeesCollection.size() >= 1);
 
-        ListValue employeesParam = new ListValue(employees);
-        params = new ArrayList<Value>();
-        params.add(employeesParam);
+        filter = new Filter();
+        filter.setFilter("notInDepartment");
+        referenceValues = new ArrayList<>();
+        referenceValues.add(new ReferenceValue(departmentTestObject.getId()));
+        listValue = new ListValue(referenceValues);
+        filter.addCriterion(0, listValue);
 
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
+        filterValues = new ArrayList<Filter>();
+        filterValues.add(filter);
+
+        filter = new Filter();
+        filter.setFilter("inDepartment");
+        referenceValues = new ArrayList<>();
+        referenceValues.add(new ReferenceValue(departmentTestObject.getId()));
+        listValue = new ListValue(referenceValues);
+        filter.addCriterion(0, listValue);
+        filterValues.add(filter);
+
+        employeesCollection =
+                collectionService.findCollection("Employees_Test", sortOrder, filterValues, 0, 0);
+
+        assertNotNull(employeesCollection);
     }
-
+    
     @Test
     public void testFindCollectionByQueryWithParams() {
         String query = "select * from Employee e where e.department = {0} and name = {1}";
@@ -276,6 +310,118 @@ public class CollectionsIT extends IntegrationTestBase {
         query = "SELECT cnt.id, kv.\"Owner\", cnt.\"Module\"  FROM Num_Counter cnt JOIN Num_KeyValue kv ON kv.\"Owner\" = cnt.id WHERE kv.\"Value\" = {0} AND cnt.\"Module\" = {1}";
         params = Arrays.<Value>asList(new StringValue("value"), new ReferenceValue(new RdbmsId(moduleTypeid, 1)));
         IdentifiableObjectCollection coll = collectionService.findCollectionByQuery(query, params, 0, 2);
+
+        assertNotNull(coll);
+    }       
+
+    @Test
+    public void testFindCollectionByQueryWithReferenceParamsInListValue() {
+
+        String query = "select * from employee e where e.department in ({0})";
+        int departmentTypeId = domainObjectTypeIdCache.getId("department");
+
+        List<Value> referenceValues =
+                Arrays.<Value> asList(new ReferenceValue(new RdbmsId(departmentTypeId, 1)), new ReferenceValue(new RdbmsId(departmentTypeId, 2)));
+        ListValue listValue = new ListValue(referenceValues);
+
+        List<Value> params = new ArrayList<>();
+        params.add(listValue);
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() > 0);
+
+        query = "select * from employee e where e.department not in ({0})";
+
+        referenceValues = Arrays.<Value> asList(new ReferenceValue(new RdbmsId(departmentTypeId, 1)));
+        listValue = new ListValue(referenceValues);
+        params = new ArrayList<>();
+        params.add(listValue);
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() > 0);
+    }
+    
+    @Test
+    public void testFindCollectionByQueryWithListParam() {
+        String query = "select * from Employee e where e.department in ({0}) and name = {1}";
+
+        Integer departmentTypeid = domainObjectTypeIdCache.getId(DEPARTMENT_TYPE);
+
+        List<Value> departments = new ArrayList<>();
+        departments.add(new ReferenceValue(new RdbmsId(departmentTypeid, 1)));
+        departments.add(new ReferenceValue(new RdbmsId(departmentTypeid, 2)));
+
+        ListValue departmentsParam = new ListValue(departments);
+
+        List<Value> params = new ArrayList<Value>();
+        params.add(departmentsParam);
+        params.add(new StringValue(EMPLOYEE_1_NAME));
+
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        query = "select * from Employee e where name in ({0})";
+        List<Value> employees = new ArrayList<>();
+
+        employees.add(new StringValue(EMPLOYEE_1_NAME));
+        employees.add(new StringValue("Сотрудник 2"));
+        employees.add(new StringValue("Сотрудник 3"));
+
+        ListValue employeesParam = new ListValue(employees);
+        params = new ArrayList<Value>();
+        params.add(employeesParam);
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+    }
+    
+    private DomainObject createEmployeeTestDomainObject(DomainObject departmentObject) {
+        DomainObject employeeDomainObject = crudService.createDomainObject("employee_test");
+        
+        employeeDomainObject.setString("Name", "Name " + System.currentTimeMillis());
+        employeeDomainObject.setString("Position", "Position " + System.currentTimeMillis());
+        employeeDomainObject.setString("Phone", "" + System.currentTimeMillis()); 
+        employeeDomainObject.setString("Login", "Login" + System.currentTimeMillis()); 
+        employeeDomainObject.setString("EMail", "Email" + System.currentTimeMillis()); 
+        
+        employeeDomainObject.setReference("Department", departmentObject.getId());
+        
+        return employeeDomainObject;
+    }
+
+    private DomainObject createDepartmentTestDomainObject(DomainObject organizationDomainObject) {
+        
+        DomainObject departmentDomainObject = crudService.createDomainObject("department_test");
+        departmentDomainObject.setString("Name", "Departmment");
+        departmentDomainObject.setLong("Number1", new Long(1));
+        departmentDomainObject.setLong("Number2", new Long(2));
+        
+        departmentDomainObject.setTimestamp("Date1", new Date());
+        departmentDomainObject.setTimestamp("Date2", new Date());
+
+        departmentDomainObject.setReference("Organization", organizationDomainObject.getId());
+        return departmentDomainObject;
+    }
+
+    private DomainObject createDepartmentDomainObject(DomainObject organizationDomainObject) {
+        
+        DomainObject departmentDomainObject = crudService.createDomainObject("Department");
+        departmentDomainObject.setString("Name", "Departmment");
+        departmentDomainObject.setLong("Number1", new Long(1));
+        departmentDomainObject.setLong("Number2", new Long(2));
+        
+        departmentDomainObject.setTimestamp("Date1", new Date());
+        departmentDomainObject.setTimestamp("Date2", new Date());
+
+        departmentDomainObject.setReference("Organization", organizationDomainObject.getId());
+        return departmentDomainObject;
+    }
+
+    private DomainObject createOrganizationTestDomainObject() {
+        DomainObject organizationDomainObject = crudService.createDomainObject("organization_test");
+        organizationDomainObject.setString("Name", "Organization");
+        return organizationDomainObject;
     }
     
     @Test
@@ -353,26 +499,6 @@ public class CollectionsIT extends IntegrationTestBase {
 
     }
 
-    
-    @Test
-    public void testFindCollectionWithFilters() throws LoginException {
-        SortOrder sortOrder = new SortOrder();
-        sortOrder.add(new SortCriterion("e.id", Order.ASCENDING));
-
-        List<Filter> filterValues = new ArrayList<Filter>();
-        Filter filter = new Filter();
-        filter.setFilter("byDepartment");
-        filter.addCriterion(0, new LongValue(1));
-        filterValues.add(filter);
-
-        IdentifiableObjectCollection employeesCollection = null;
-        employeesCollection =
-                collectionService.findCollection("Employees", sortOrder, filterValues, 0, 0);
-
-        assertNotNull(employeesCollection);
-        assertTrue(employeesCollection.size() >= 1);
-
-    }
 
 //    @Test
     public void testFindCollectionWithAcl() throws LoginException {
