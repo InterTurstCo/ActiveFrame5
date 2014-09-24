@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.server.widget.util;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
-import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeWithTimezoneValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateValueConverter;
@@ -63,7 +62,7 @@ public class WidgetRepresentationUtil {
     private static String getTimeZoneId(String field, FormattingConfig formattingConfig){
         if(formattingConfig == null || formattingConfig.getDateFormatConfig() == null || !
                 isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
-            return  GuiContext.get().getUserInfo().getTimeZoneId();
+            return  ModelUtil.DEFAULT_TIME_ZONE_ID;
         }
         return formattingConfig.getDateFormatConfig().getTimeZoneConfig().getId();
     }

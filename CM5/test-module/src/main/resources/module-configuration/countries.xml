@@ -431,14 +431,14 @@
                 <drop-down-pattern value="{name} {population}"/>
 
                 <!-- паттерн отображения уже выбранных значений -->
-                <selection-pattern value="{name} {population} {year_of_foundation}"/>
+                <selection-pattern value="{name} {population} {created_date}"/>
 
                 <!-- название фильтра по тексту, введённому пользователем -->
                 <input-text-filter name="byText"/>
 
                 <!-- количество элементов, показываемых на одной странице выпадающего списка -->
                 <page-size>30</page-size>
-
+                   <display-values-as-links value="true"/>
                 <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
@@ -618,6 +618,9 @@
                         <td width="100%" h-align="left">
                             <widget id="2"/>
                         </td>
+                        <td width="100%" h-align="left">
+                            <widget id="date"/>
+                        </td>
                         <!-- text-box (Название) -->
                     </tr>
                 </table>
@@ -699,6 +702,10 @@
             </body>
         </markup>
         <widget-config>
+            <date-box id="date">
+                <field-path value="created_date"/>
+
+            </date-box>
             <label id="1">
                 <field-path/>
                 <text>Название:</text>
@@ -888,7 +895,7 @@
                     min-width="300px" text-break-style="cut"/>
             <column field="independence_day" name="День Независимости" type="datetime" editable="false" resizable="true"
                     min-width="270px"
-                    sortable="true" search-filter="byIndependenceDay" date-pattern="dd.MM.yyyy" time-pattern="HH:mm:ss"
+                    sortable="true" search-filter="byIndependenceDay" date-pattern="dd.MM.yyyy"
                     date-range="true"/>
             <column field="population" name="Популяция" type="long" editable="false" sortable="true"
                     search-filter="byPopulation">

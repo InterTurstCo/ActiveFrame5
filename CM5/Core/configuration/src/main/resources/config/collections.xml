@@ -180,7 +180,7 @@
         <prototype>
             <![CDATA[
                 select
-                 ci.id,   ci.name, ci.population, ci.year_of_foundation, ci.latitude, ci.longitude, ci.square
+                 ci.id,   ci.name, ci.population, ci.year_of_foundation, ci.latitude, ci.longitude, ci.square, ci.created_date
                 from
                     city ci left outer join country co on ci.country = co.id
                      ::from-clause

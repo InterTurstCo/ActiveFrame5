@@ -25,6 +25,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
     private static final String VALUE_SEPARATOR = " - ";
+    private String currentSeparator;
 
     public RangeDateHeaderWidget(CollectionColumn column, CollectionColumnProperties columnProperties,
                                  List<String> initialFilterValues) {
@@ -46,8 +47,14 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
                         : dateTimeFormat.parse(startDateString);
                 if (dateStrings.size() == 2) {
                     String endDateString = dateStrings.get(1);
-                    endDate = endDateString == null || endDateString.isEmpty() ? null
-                            : dateTimeFormat.parse(endDateString);
+                    if (startDateString.equalsIgnoreCase(endDateString)) {
+                        endDate = (Date) startDate.clone();
+                        currentSeparator = null;
+                    } else {
+                        endDate = endDateString == null || endDateString.isEmpty() ? null
+                                : dateTimeFormat.parse(endDateString);
+                        currentSeparator = VALUE_SEPARATOR;
+                    }
 
                 }
             } catch (IllegalArgumentException ex) {
@@ -68,13 +75,20 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
                 if (!popupDatePicker.equals(event.getSource())) {
                     return;
                 }
+                event.kill();
                 Date startDate = event.getStartDate();
                 String startDateValue = dateTimeFormat.format(startDate);
                 Date endDate = event.getEndDate();
                 String endDateValue = dateTimeFormat.format(endDate);
                 StringBuilder filterValueBuilder = new StringBuilder(startDateValue);
-                filterValueBuilder.append(VALUE_SEPARATOR);
-                filterValueBuilder.append(endDateValue);
+                if (startDateValue.equalsIgnoreCase(endDateValue)) {
+
+                    currentSeparator = null;
+                } else {
+                    filterValueBuilder.append(VALUE_SEPARATOR);
+                    filterValueBuilder.append(endDateValue);
+                    currentSeparator = VALUE_SEPARATOR;
+                }
                 String filterValueRepresentation = filterValueBuilder.toString();
                 setFilterValuesRepresentation(filterValueRepresentation);
                 InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(filterValueRepresentation);
@@ -91,6 +105,6 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
 
     @Override
     public List<String> getFilterValues() {
-        return HeaderWidgetUtil.getFilterValues(VALUE_SEPARATOR, filterValuesRepresentation);
+        return HeaderWidgetUtil.getFilterValues(currentSeparator, filterValuesRepresentation);
     }
 }

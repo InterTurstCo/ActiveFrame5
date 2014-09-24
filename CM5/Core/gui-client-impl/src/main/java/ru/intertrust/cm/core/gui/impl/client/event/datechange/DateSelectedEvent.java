@@ -11,7 +11,7 @@ import java.util.Date;
  *         Time: 23:12
  */
 public class DateSelectedEvent extends GwtEvent<DateSelectedEventHandler> {
-    public static final  Type<DateSelectedEventHandler> TYPE = new Type<DateSelectedEventHandler>();
+    public static final Type<DateSelectedEventHandler> TYPE = new Type<DateSelectedEventHandler>();
     private Date date;
 
     public DateSelectedEvent(Date date) {
@@ -31,5 +31,9 @@ public class DateSelectedEvent extends GwtEvent<DateSelectedEventHandler> {
 
     public Date getDate() {
         return date;
+    }
+
+    public void kill() {
+        super.kill();
     }
 }

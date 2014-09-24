@@ -60,6 +60,7 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
                 if(!popupDatePicker.equals(event.getSource())){
                     return;
                 }
+                event.kill();
                 Date date = event.getDate();
                 String dateValue = dateTimeFormat.format(date);
                 setFilterValuesRepresentation(dateValue);

@@ -36,4 +36,8 @@ public class RangeDateSelectedEvent extends GwtEvent<RangeDateSelectedEventHandl
     public Date getEndDate() {
         return endDate;
     }
+
+    public void kill(){
+        super.kill();
+    }
 }

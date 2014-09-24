@@ -15,10 +15,7 @@ import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.JsonUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonCsvRequest;
@@ -208,10 +205,10 @@ public class JsonExportToCsv {
                 DateFormat dateFormat;
                 Calendar calendar;
                 String timeZoneId;
-                final String datePattern =
+                String datePattern =
                         (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.DATE_PATTERN);
-                final String dateTimePattern = datePattern + " " +
-                        columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.TIME_PATTERN);
+                String timePattern = (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.TIME_PATTERN);
+                String dateTimePattern = DateUtil.prepareDatePattern(datePattern, timePattern);
                 switch (value.getFieldType()) {
                     case DATETIMEWITHTIMEZONE:
                         final DateTimeWithTimeZone dateTimeWithTimeZone = (DateTimeWithTimeZone) value.get();
