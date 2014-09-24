@@ -29,6 +29,10 @@ public class NavigationConfig implements TopLevelConfig {
         return name;
     }
 
+    //Used for history and breadcrumbs support in hierarchical collections
+    //Not shown in navigation tree.
+    private List<LinkConfig> hierarchicalLinkList = new ArrayList<LinkConfig>();
+
     public List<LinkConfig> getLinkConfigList() {
         return linkConfigList;
     }
@@ -47,6 +51,10 @@ public class NavigationConfig implements TopLevelConfig {
 
     public void setDefault(boolean isDefault) {
         this.isDefault = isDefault;
+    }
+
+    public List<LinkConfig> getHierarchicalLinkList() {
+        return hierarchicalLinkList;
     }
 
     @Override

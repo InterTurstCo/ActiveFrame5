@@ -20,10 +20,10 @@ public class FormMappingConfig implements Dto {
     @Attribute(name = "domain-object-type", required = false)
     private String domainObjectType;
 
-    @Element(name = "users")
+    @Element(name = "users", required = false)
     private UsersConfig usersConfig;
 
-    @Element(name = "groups")
+    @Element(name = "groups", required = false)
     private GroupsConfig groupsConfig;
 
     public UsersConfig getUsersConfig() {

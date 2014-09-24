@@ -15,10 +15,10 @@ public class NavigationPanelMappingConfig implements Dto {
     @Attribute(name = "name", required = false)
     private String name;
 
-    @Element(name = "users")
+    @Element(name = "users", required = false)
     private UsersConfig usersConfig;
 
-    @Element(name = "groups")
+    @Element(name = "groups", required = false)
     private GroupsConfig groupsConfig;
 
     public String getName() {

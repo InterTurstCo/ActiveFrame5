@@ -1127,9 +1127,9 @@
         </navigation-panel-mapping>
 
         <navigation-panel-mapping name="panel_1">
-            <users>
+            <!--users>
                 <user uid="person1"/>
-            </users>
+            </users-->
             <groups>
                 <group-name value="test-group-2" priority="100"/>
             </groups>
