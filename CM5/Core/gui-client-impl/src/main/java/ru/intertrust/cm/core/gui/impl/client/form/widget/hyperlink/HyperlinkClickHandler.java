@@ -43,8 +43,7 @@ public class HyperlinkClickHandler implements ClickHandler {
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(TITLE);
         final FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectId(id);
-        config.getPluginState().setToggleEdit(true);
-        config.getPluginState().setInCentralPanel(true);
+        config.getPluginState().setEditable(false);
         final FormPlugin plugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
