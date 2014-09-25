@@ -2,8 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -23,12 +22,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
-import ru.intertrust.cm.core.gui.api.client.ActionManager;
-import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.BaseComponent;
-import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
+import ru.intertrust.cm.core.gui.api.client.*;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
@@ -108,6 +102,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 centralDivPanel.add(right);
 
                 header.setStyleName("header-section");
+                header.getElement().getStyle().clearDisplay();
                 header.getElement().setId(ComponentHelper.HEADER_ID);
                 action.setStyleName("action-section");
                 left.setStyleName("left-section-active");
@@ -147,10 +142,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 glEventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
                     @Override
                     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
-
-                        left.setStyleName(event.getStyleForLeftSector());
-                        centralDivPanel.setStyleName(event.getStyleForCenterSector());
-
+                        final CompactModeState compactModeState = Application.getInstance().getCompactModeState();
+                        if(!compactModeState.isExpanded()){
+                            left.setStyleName(event.getStyleForLeftSector());
+                            centralDivPanel.setStyleName(event.getStyleForCenterSector());
+                        }
                     }
                 });
 
@@ -174,7 +170,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 RootLayoutPanel.get().add(root);
                 RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
 
-                if (initialToken != null && !initialToken.isEmpty()) {
+               if (initialToken != null && !initialToken.isEmpty()) {
                     Application.getInstance().getHistoryManager().setToken(initialToken);
                 }
                 History.addValueChangeHandler(new HistoryValueChangeHandler());
