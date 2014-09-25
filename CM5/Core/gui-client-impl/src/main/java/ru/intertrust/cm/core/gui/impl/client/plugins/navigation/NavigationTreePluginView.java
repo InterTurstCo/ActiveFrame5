@@ -2,15 +2,12 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.MouseOutEvent;
-import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.EventListener;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -162,6 +159,7 @@ public class NavigationTreePluginView extends PluginView {
                         navigationTreesPanel);
                 resizeTreeAnimation.run(DURATION);
                 iSOpenTheAnimatedTreePanel = true;
+                navigationTreesPanel.getElement().getStyle().setDisplay(Style.Display.BLOCK);
             }
         };
         mouseHoldTimer.schedule(650);
@@ -177,9 +175,10 @@ public class NavigationTreePluginView extends PluginView {
                         Application.getInstance().getEventBus()
                                 .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
                         resizeTreeAnimation.run(DURATION);
+                        navigationTreesPanel.getElement().getStyle().clearDisplay();
                     }
                 };
-                mouseHoldTimer.schedule(500);
+                mouseHoldTimer.schedule(650);
             }
         }
     }
@@ -398,11 +397,13 @@ public class NavigationTreePluginView extends PluginView {
                 public void onBrowserEvent(Event event) {
                     switch (event.getTypeInt()) {
                         case Event.ONMOUSEOVER:
-                            openTheAnimatedTreePanel();
+                            if(!pinButtonClick){
+                                openTheAnimatedTreePanel();
+                            }
                             break;
                         case Event.ONMOUSEOUT:
                             mouseHoldTimer.cancel();
-                            if (!iSOpenTheAnimatedTreePanel == true) {
+                            if (!iSOpenTheAnimatedTreePanel == true & !pinButtonClick) {
                                 hideTreePanel();
                             }
                             break;

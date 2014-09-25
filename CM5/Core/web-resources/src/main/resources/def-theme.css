@@ -981,6 +981,7 @@ td.datePickerMonth {
     left: 15px;
     padding-top: 20px;
     width: 0px;
+    display: none;
 
 }
 
@@ -989,7 +990,7 @@ td.datePickerMonth {
     padding-top: 20px;
     overflow-y: auto;
     overflow-x: hidden;
-
+    display: block;
 }
 
 .navigation-dynamic-panel::-webkit-scrollbar,
