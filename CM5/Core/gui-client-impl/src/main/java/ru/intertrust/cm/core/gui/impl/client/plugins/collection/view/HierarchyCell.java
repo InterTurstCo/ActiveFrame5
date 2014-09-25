@@ -13,13 +13,21 @@ import java.util.Set;
  */
 public class HierarchyCell extends TextCell {
 
-    public HierarchyCell(String style) {
+    private String drillDownStyle;
+
+    public HierarchyCell(String style, String drillDownStyle) {
         super(style);
+        this.drillDownStyle = drillDownStyle;
     }
 
     @Override
     public void render(Context context, String text, SafeHtmlBuilder sb) {
-        sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchical-column\" " + style + "/>" + text + " <span class=\"expand-arrow\">►<span></div>"));
+        if ("combined-link".equals(drillDownStyle)) {
+            sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchical-column\" " + style + "/><span class=\"expand-arrow\">"
+                    + text + " ►<span></div>"));
+        } else {
+            sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchical-column\" " + style + "/>" + text + " <span class=\"expand-arrow\">►<span></div>"));
+        }
     }
 
     @Override

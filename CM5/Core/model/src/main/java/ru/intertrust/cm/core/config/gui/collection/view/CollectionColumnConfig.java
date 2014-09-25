@@ -67,6 +67,9 @@ public class CollectionColumnConfig implements Dto {
     @Attribute(name = "date-range", required = false)
     private boolean dateRange;
 
+    @Attribute(name ="drill-down-style", required = false)
+    private String drillDownStyle;
+
     @Element(name = "asc-sort-criteria", required = false)
     private AscSortCriteriaConfig ascSortCriteriaConfig;
 
@@ -210,6 +213,10 @@ public class CollectionColumnConfig implements Dto {
         this.textBreakStyle = textBreakStyle;
     }
 
+    public String getDrillDownStyle() {
+        return drillDownStyle;
+    }
+
     public ImageMappingsConfig getImageMappingsConfig() {
         return imageMappingsConfig;
     }
@@ -325,7 +332,9 @@ public class CollectionColumnConfig implements Dto {
         if (width != null ? !width.equals(that.width) : that.width != null) {
             return false;
         }
-
+        if (drillDownStyle != null ? !drillDownStyle.equals(that.drillDownStyle) : that.drillDownStyle != null) {
+            return false;
+        }
         return true;
     }
 
@@ -352,6 +361,7 @@ public class CollectionColumnConfig implements Dto {
         result = 31 * result + (imageMappingsConfig != null ? imageMappingsConfig.hashCode() : 0);
         result = 31 * result + (rendererConfig != null ? rendererConfig.hashCode() : 0);
         result = 31 * result + (childCollectionViewerConfigList != null ? childCollectionViewerConfigList.hashCode() : 0);
+        result = 31 * result + (drillDownStyle != null ? drillDownStyle.hashCode() : 0);
         return result;
     }
 }

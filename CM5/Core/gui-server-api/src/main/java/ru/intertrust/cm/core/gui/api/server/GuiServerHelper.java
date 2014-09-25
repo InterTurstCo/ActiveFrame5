@@ -76,7 +76,8 @@ public final class GuiServerHelper {
                 .addProperty(CollectionColumnProperties.TEXT_BREAK_STYLE, config.getTextBreakStyle())
                 .addProperty(CollectionColumnProperties.SORTABLE, config.isSortable())
                 .addProperty(CollectionColumnProperties.DATE_RANGE, config.isDateRange())
-                .addProperty(CollectionColumnProperties.HIDDEN, config.isHidden());
+                .addProperty(CollectionColumnProperties.HIDDEN, config.isHidden())
+                .addProperty(CollectionColumnProperties.DRILL_DOWN_STYLE, config.getDrillDownStyle());
         if (field.equalsIgnoreCase(sortedField)) {
             properties.addProperty(
                     CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));

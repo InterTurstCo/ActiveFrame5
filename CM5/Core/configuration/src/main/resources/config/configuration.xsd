@@ -2545,6 +2545,7 @@
         <xs:attribute type="xs:boolean" name="resizable" default="true"/>
         <xs:attribute type="con:textBreakStyleType" name="text-break-style"/>
         <xs:attribute type="xs:boolean" name="date-range" use="optional"/>
+        <xs:attribute type="con:drillDownStyleType" name="drill-down-style" use="optional"/>
 
     </xs:complexType>
     <xs:simpleType name="columnFieldTypeEnum">
@@ -2582,6 +2583,13 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="drillDownStyleType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="arrow-only-link"/>
+            <xs:enumeration value="combined-link"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
     <xs:complexType name="displayType">
         <xs:sequence>
             <xs:element type="con:columnType" name="column"

@@ -106,7 +106,7 @@
     <collection-view name="departments_default_view" collection="Departments" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="name" name="Название" editable="false" type="string" sortable="true">
+            <column field="name" name="Название" editable="false" type="string" sortable="true" drill-down-style="combined-link">
                     
                 <child-collection-viewer filter="byDepartment"
                            domain-object-type-to-create="Employee" bread-crumb="Сотрудник">

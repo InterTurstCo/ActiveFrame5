@@ -41,9 +41,10 @@ public class ColumnFormatter {
             List<ChildCollectionViewerConfig> childCollectionsConfig =
                     (List<ChildCollectionViewerConfig>) columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG);
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+            String drillDownStyle = (String) columnProperties.getProperty(CollectionColumnProperties.DRILL_DOWN_STYLE);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
             converter.init(columnProperties.getProperties());
-            collectionColumn = new HierarchicalCollectionColumn(new HierarchyCell(getCssStyleForText(textBreakStyle)),
+            collectionColumn = new HierarchicalCollectionColumn(new HierarchyCell(getCssStyleForText(textBreakStyle), drillDownStyle),
                     field, resizable, converter, childCollectionsConfig, eventBus);
         } else {
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
