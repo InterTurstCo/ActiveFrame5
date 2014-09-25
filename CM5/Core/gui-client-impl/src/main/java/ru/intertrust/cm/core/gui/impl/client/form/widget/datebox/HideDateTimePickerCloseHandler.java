@@ -19,6 +19,6 @@ public class HideDateTimePickerCloseHandler implements CloseHandler<PopupPanel> 
 
     @Override
     public void onClose(CloseEvent<PopupPanel> event) {
-        container.setStyleName("composite-date-time-container-hidden");
+        container.setStyleName("compositeDateTimeContainerHidden");
     }
 }

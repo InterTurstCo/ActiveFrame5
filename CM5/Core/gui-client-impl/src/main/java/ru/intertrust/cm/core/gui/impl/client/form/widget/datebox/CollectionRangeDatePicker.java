@@ -28,7 +28,7 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
     protected Panel initDatePickerPanel(final DateTimePicker startDateTimePicker, final DateTimePicker endDateTimePicker) {
         final Panel container = new AbsolutePanel();
 
-        container.setStyleName("composite-date-time-container-hidden");
+        container.setStyleName("compositeDateTimeContainerHidden");
         container.add(startDateTimePicker);
         container.add(endDateTimePicker);
         Button submit = new Button(BusinessUniverseConstants.DATETIME_PICKER_BUTTON);
@@ -39,7 +39,7 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
                 Date endDate = endDateTimePicker.getFullDate();
                 eventBus.fireEventFromSource(new RangeDateSelectedEvent(startDate, endDate), CollectionRangeDatePicker.this);
                 eventBus.fireEvent(new FilterEvent(false));
-                container.setStyleName("composite-date-time-container-hidden");
+                container.setStyleName("compositeDateTimeContainerHidden");
                 CollectionRangeDatePicker.this.hide();
             }
         });
@@ -74,7 +74,7 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
         container.add(dateTimePickersPanel);
 
         this.add(container);
-        this.setStyleName("composite-datetime-picker");
+        this.setStyleName("compositeDatetimePicker");
 
     }
 

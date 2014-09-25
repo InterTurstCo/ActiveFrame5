@@ -96,7 +96,7 @@ public abstract class RangeDatePicker extends DatePickerPopup {
 
         @Override
         public void onClick(ClickEvent clickEvent) {
-            container.setStyleName("composite-date-time-container-shown");
+            container.setStyleName("compositeDateTimeContainerShown");
 
         }
     }

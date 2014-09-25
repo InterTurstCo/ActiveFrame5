@@ -28,7 +28,7 @@ public class DateTimePicker extends Composite {
     private void initWidgetContent(boolean showTime, boolean showSeconds) {
         container = new AbsolutePanel();
         picker = new DatePicker();
-        picker.setStyleName("date-picker-decorate");
+        picker.setStyleName("datePickerDecorate");
         container.add(picker);
         if (showTime) {
             timePicker = new TimeBox(date, showSeconds);

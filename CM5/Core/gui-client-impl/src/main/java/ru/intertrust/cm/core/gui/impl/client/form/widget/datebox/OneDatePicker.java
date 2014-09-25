@@ -36,7 +36,7 @@ public class OneDatePicker extends DatePickerPopup {
         Panel container = new AbsolutePanel();
         container.add(dateTimePickerPanel);
         this.add(container);
-        this.setStyleName("composite-datetime-picker");
+        this.setStyleName("compositeDatetimePicker");
 
     }
 

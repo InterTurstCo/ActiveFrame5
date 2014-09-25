@@ -15,8 +15,8 @@ import java.util.Date;
 public class TimeBox extends Composite {
 
     private static final String STYLE_TIMEPICKER_ENTRY = "timePickerEntrySmall";
-    private static final String STYLE_TIMEBOX_SEPARATOR = "timebox-separator";
-    private static final String STYLE_TIMEBOX_BUTTON = "timebox-button-up-down";
+    private static final String STYLE_TIMEBOX_SEPARATOR = "timeboxSeparator";
+    private static final String STYLE_TIMEBOX_BUTTON = "timeboxButtonUpDown";
 
     private ValueTextBox hoursBox;
     private ValueTextBox minutesBox;
@@ -30,7 +30,7 @@ public class TimeBox extends Composite {
 
         this.useSeconds = useSeconds;
         AbsolutePanel container = new AbsolutePanel();
-        container.setStyleName("timebox-container");
+        container.setStyleName("timeboxContainer");
         int hours = time.getHours();
         int minutes = time.getMinutes();
         int seconds = time.getSeconds();

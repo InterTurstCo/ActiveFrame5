@@ -55,7 +55,7 @@ public class FormRangeDatePicker extends RangeDatePicker {
         container.add(dateTimePickersPanel);
 
         this.add(container);
-        this.setStyleName("composite-datetime-picker");
+        this.setStyleName("compositeDatetimePicker");
     }
 
     public FormRangeDatePicker(Date startDate, Date endDate, EventBus eventBus, boolean showTime,
@@ -68,7 +68,7 @@ public class FormRangeDatePicker extends RangeDatePicker {
     protected Panel initDatePickerPanel(final DateTimePicker startDateTimePicker, final DateTimePicker endDateTimePicker) {
         final Panel container = new AbsolutePanel();
 
-        container.setStyleName("composite-date-time-container-hidden");
+        container.setStyleName("compositeDateTimeContainerHidden");
         container.add(startDateTimePicker);
         container.add(endDateTimePicker);
         Button submit = new Button(BusinessUniverseConstants.DATETIME_PICKER_BUTTON);
@@ -78,7 +78,7 @@ public class FormRangeDatePicker extends RangeDatePicker {
                 Date startDate = startDateTimePicker.getFullDate();
                 Date endDate = endDateTimePicker.getFullDate();
                 eventBus.fireEvent(new FormRangeDateSelectedEvent(startDate, endDate, rangeStartConfig, rangeEndConfig));
-                container.setStyleName("composite-date-time-container-hidden");
+                container.setStyleName("compositeDateTimeContainerHidden");
                 FormRangeDatePicker.this.hide();
             }
         });
