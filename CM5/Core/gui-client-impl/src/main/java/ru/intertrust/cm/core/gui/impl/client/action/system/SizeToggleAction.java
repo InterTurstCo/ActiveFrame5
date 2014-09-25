@@ -35,16 +35,20 @@ public class SizeToggleAction extends ToggleAction {
         final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
         final Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
         if (state.isExpanded()) {
-            header.getStyle().setDisplay(Style.Display.NONE);
-            left.getStyle().setDisplay(Style.Display.NONE);
+//            header.getStyle().setDisplay(Style.Display.NONE);
+//            left.getStyle().setDisplay(Style.Display.NONE);
+            header.replaceClassName("header-section", "header-sectionNone");
+            left.replaceClassName("left-section", "left-sectionNone");
             center.replaceClassName("central-div-panel-test", "central-div-panel-test-full");
 
             if(Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()){
                 center.removeClassName("central-div-panel-test-active");
             }
         } else {
-            header.getStyle().setDisplay(Style.Display.BLOCK);
-            left.getStyle().setDisplay(Style.Display.BLOCK);
+//            header.getStyle().setDisplay(Style.Display.BLOCK);
+//            left.getStyle().setDisplay(Style.Display.BLOCK);
+            header.replaceClassName("header-sectionNone", "header-section");
+            left.replaceClassName("left-sectionNone", "left-section");
             center.replaceClassName("central-div-panel-test-full", "central-div-panel-test");
 
             if(Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {

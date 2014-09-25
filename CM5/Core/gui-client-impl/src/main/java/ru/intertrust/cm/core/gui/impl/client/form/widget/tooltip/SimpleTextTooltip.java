@@ -22,10 +22,11 @@ public class SimpleTextTooltip extends PopupPanel {
         final com.google.gwt.user.client.Timer timer = new com.google.gwt.user.client.Timer() {
             @Override
             public void run() {
+                SimpleTextTooltip.this.getElement().replaceClassName("tooltip-popup", "tooltip-popupHidden");
                 SimpleTextTooltip.this.hide();
                 this.cancel();
             }
         };
-        timer.scheduleRepeating(2000);
+        timer.scheduleRepeating(100);
     }
 }

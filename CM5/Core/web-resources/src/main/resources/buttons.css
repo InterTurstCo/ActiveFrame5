@@ -115,6 +115,8 @@ a.light-button:active {
     margin: 5px;
     padding: 6px 9px;
 }
+
+/* ------------>>> tooltip button <<<------------ */
 .tooltipButton {
     background: #ffffff; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
@@ -160,4 +162,4 @@ a.tooltipButton:hover {
 a.tooltipButton:active {
     text-decoration: none;
 }
-
+/* ------------>>> end tooltip button <<<------------ */

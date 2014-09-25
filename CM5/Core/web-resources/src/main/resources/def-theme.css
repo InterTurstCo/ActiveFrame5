@@ -44,7 +44,7 @@ h1 {
 .white {
     background-color: #ffffff;
     border-radius: 5px;
-    padding: 4px 4px 4px 4px;
+    padding: 4px;
     width: 100%;
     margin-left: 3px;
     margin-right: 1%;
@@ -819,6 +819,22 @@ td.datePickerMonth {
 
 }
 
+.header-section {
+    box-shadow: 0 4px 10px 0 #2d5b7d;
+    display: block;
+    height: 60px;
+    -webkit-transition: opacity 1.5s; /* For Safari 3.1 to 6.0 */
+    transition: opacity 1.5s;
+    opacity: 100;
+    z-index: 99;
+}
+
+.header-sectionNone {
+    -webkit-transition: opacity 0.8s; /* For Safari 3.1 to 6.0 */
+    transition: opacity 0.8s;
+    opacity: 0;
+}
+
 .left-section {
     float: left;
     z-index: 15 !important;
@@ -836,7 +852,16 @@ td.datePickerMonth {
     top: 0;
     left: 0;
     bottom: 0;
-    /*width: 140px;*/
+    -webkit-transition: opacity 1s; /* For Safari 3.1 to 6.0 */
+    transition: opacity 1s;
+    opacity: 100;
+    margin-top: 60px;
+}
+
+.left-sectionNone {
+    -webkit-transition: opacity 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: opacity 0.5s;
+    opacity: 0;
     margin-top: 60px;
 }
 
@@ -873,6 +898,8 @@ td.datePickerMonth {
     left: 0;
     right: 0;
     bottom: 0;
+    -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: margin 0.5s;
     margin: 70px 11px 11px 130px;
 }
 
@@ -885,6 +912,8 @@ td.datePickerMonth {
     left: 0;
     right: 0;
     bottom: 0;
+    -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: margin 0.5s;
     margin: 11px;
 }
 
@@ -1088,12 +1117,6 @@ td.datePickerMonth {
     margin-left: -20px;
     min-width: 20px;
     width: 20px;
-}
-
-.header-section {
-    height: 60px;
-    box-shadow: 0 4px 10px 0 #2d5b7d;
-    z-index: 99;
 }
 
 .H-B-V-button {
@@ -2626,20 +2649,6 @@ td.datePickerMonth {
     cursor: pointer;
 }
 
-.tooltip-popup {
-    background: #fafafa;;
-    border: 1px solid #999;
-    box-shadow: 2px 2px 5px rgba(128, 128, 128, .7);
-    padding: 2px;
-    z-index: 45;
-    overflow: auto !important;
-}
-
-.tooltip-button {
-    cursor: pointer;
-
-}
-
 .menuSeparatorInner {
     border-right: 1px solid rgb(211, 211, 211);
     height: 40px;
@@ -2660,7 +2669,6 @@ td.datePickerMonth {
 
 .navigation-scroll {
     position: absolute !important;
-
 }
 
 .tree-hidden {
