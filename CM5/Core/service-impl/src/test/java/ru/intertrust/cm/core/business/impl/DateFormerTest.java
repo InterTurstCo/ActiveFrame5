@@ -19,8 +19,8 @@ import ru.intertrust.cm.core.business.api.DateFormer;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Profile;
-import ru.intertrust.cm.core.business.api.dto.ProfileObject;
+import ru.intertrust.cm.core.business.api.dto.PersonProfile;
+import ru.intertrust.cm.core.business.api.dto.PersonProfileObject;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
@@ -34,9 +34,9 @@ public class DateFormerTest {
     
     @Before
     public void setUp() {
-        Profile profile = new ProfileObject();
+        PersonProfile profile = new PersonProfileObject();
         profile.setString(ProfileService.LOCALE, "RU");        
-        when(profileService.getPersonProfile((Id)anyObject())).thenReturn(profile);
+        when(profileService.getPersonProfileByPersonId((Id)anyObject())).thenReturn(profile);
     }
     
     @Test
