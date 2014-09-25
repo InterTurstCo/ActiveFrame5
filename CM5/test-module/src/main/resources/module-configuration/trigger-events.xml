@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd">
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <notification name="NotificationAddresseeQuery">
         <notification-type name="TestNotificationType" priority="HIGH">
@@ -30,7 +29,11 @@
             </triggers>
             <context-config>
                 <context-object name="test-context-object-1">
-                    <java-class>ru.intertrust.cm.core.business.impl.notification.NotificationContextObjectProducerImpl</java-class>
+                    <java-class name="ru.intertrust.cm.test.notification.TestNotificationContextObjectProducerImpl">
+                        <settings>
+                            <notification-context-object-producer-settings field-name="testField"/>
+                        </settings>
+                    </java-class>
                 </context-object>
                 <context-object name="test-context-object-2">
                     <query>select id from department_test where id={test-context-object-1}</query>

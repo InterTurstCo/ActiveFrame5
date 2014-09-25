@@ -211,7 +211,20 @@
     </xs:complexType>
     <xs:complexType name="notificationContextObjectType">
         <xs:choice>
-            <xs:element name="java-class" minOccurs="0" maxOccurs="1" type="con:javaClassNameType"/>
+            <xs:element name="java-class" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="settings" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:any maxOccurs="1" minOccurs="0" processContents="skip"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="name" type="con:javaClassNameType" />
+                </xs:complexType>
+            </xs:element>
             <xs:element name="spring-bean" minOccurs="0" maxOccurs="1" type="xs:string"/>
             <xs:element name="java-script" minOccurs="0" maxOccurs="1" type="xs:string"/>
             <xs:element name="doel" minOccurs="0" maxOccurs="1" type="con:notificationContextObjectDoelType"/>

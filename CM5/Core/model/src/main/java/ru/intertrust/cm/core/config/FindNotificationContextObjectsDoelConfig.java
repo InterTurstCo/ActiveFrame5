@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
 
-public class FindNotificationContextObjectsDoelConfig extends FindNotificationContextObjectsConfig {
+public class FindNotificationContextObjectsDoelConfig extends FindNotificationContextObjectsConfigBase {
     @Attribute(required = false, name = "source-object")
     private String sourceObject;
 

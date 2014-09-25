@@ -98,8 +98,9 @@ public abstract class NotificationSenderBase {
             if (findConfig instanceof FindNotificationContextObjectsJavaClassConfig) {
                 //Поиск с помощью класса
                 FindNotificationContextObjectsJavaClassConfig config = (FindNotificationContextObjectsJavaClassConfig) findConfig;
-                Class<NotificationContextObjectProducer> producerClass = (Class<NotificationContextObjectProducer>) Class.forName(config.getData());
+                Class<NotificationContextObjectProducer> producerClass = (Class<NotificationContextObjectProducer>) Class.forName(config.getClassName());
                 NotificationContextObjectProducer producer = producerClass.newInstance();
+                producer.init(config.getSettings());
                 return producer.getContextObject(context);
             } else if (findConfig instanceof FindNotificationContextObjectsSpringBeanConfig) {
                 // поиск с помощью Spring бина

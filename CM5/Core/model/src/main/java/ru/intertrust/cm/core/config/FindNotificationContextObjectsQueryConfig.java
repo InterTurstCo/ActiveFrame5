@@ -1,4 +1,4 @@
 package ru.intertrust.cm.core.config;
 
-public class FindNotificationContextObjectsQueryConfig extends FindNotificationContextObjectsConfig {
+public class FindNotificationContextObjectsQueryConfig extends FindNotificationContextObjectsConfigBase {
 }
