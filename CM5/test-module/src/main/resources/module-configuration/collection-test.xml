@@ -47,7 +47,7 @@
                     select
                         e.id, e.name, e.position, e.department
                     from
-                        Employee e
+                        employee_test e
                          ::from-clause
                     where
                         1=1 ::where-clause
@@ -56,7 +56,7 @@
     
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
         <counting-prototype>
-            select count(*) from Employee e
+            select count(*) from employee_test e
             ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
     
@@ -83,7 +83,7 @@
         <filter name="byDepartmentNames">
             <reference placeholder="from-clause">
                      <![CDATA[
-                        inner join department d on e.department = d.id
+                        inner join department_test d on e.department = d.id
                     ]]>
             </reference>
     

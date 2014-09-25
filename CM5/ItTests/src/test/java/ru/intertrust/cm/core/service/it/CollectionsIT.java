@@ -164,7 +164,7 @@ public class CollectionsIT extends IntegrationTestBase {
         List<Filter> filterValues = new ArrayList<Filter>();
         Filter filter = new Filter();
         filter.setFilter("inDepartment");
-        int departmentTypeId = domainObjectTypeIdCache.getId("department");
+        int departmentTypeId = domainObjectTypeIdCache.getId("department_test");
         List<Value> referenceValues = new ArrayList<>();
         referenceValues.add(new ReferenceValue(departmentTestObject.getId()));
         ListValue listValue = new ListValue(referenceValues);
@@ -190,7 +190,7 @@ public class CollectionsIT extends IntegrationTestBase {
         filter = new Filter();
         filter.setFilter("notInDepartment");
         referenceValues = new ArrayList<>();
-        referenceValues.add(new ReferenceValue(departmentTestObject.getId()));
+        referenceValues.add(new ReferenceValue(new RdbmsId(departmentTypeId, 1)));
         listValue = new ListValue(referenceValues);
         filter.addCriterion(0, listValue);
 
@@ -209,6 +209,7 @@ public class CollectionsIT extends IntegrationTestBase {
                 collectionService.findCollection("Employees_Test", sortOrder, filterValues, 0, 0);
 
         assertNotNull(employeesCollection);
+        assertTrue(employeesCollection.size() >= 1);
     }
     
     @Test

@@ -133,7 +133,11 @@ public class CrudServiceIT extends IntegrationTestBase {
         DomainObject savedOrganization = crudService.save(organization);
         DomainObject department = createDepartmentDomainObject(savedOrganization);
         DomainObject savedDepartment = crudService.save(department);
-
+        
+        DomainObject employee = createEmployeeDomainObject(savedDepartment);        
+        DomainObject savedEmployee = crudService.save(employee);
+        
+        
         List<DomainObject> linkedObjects =
                 crudService.findLinkedDomainObjects(savedOrganization.getId(), "Department", "Organization");
         assertNotNull(linkedObjects);
@@ -157,6 +161,17 @@ public class CrudServiceIT extends IntegrationTestBase {
     private DomainObject createPersonDomainObject() {
         DomainObject personDomainObject = crudService.createDomainObject("Person");
         personDomainObject.setString("Login", "login " + new Date());
+        return personDomainObject;
+    }
+
+    private DomainObject createEmployeeDomainObject(DomainObject departmentObject) {
+        DomainObject personDomainObject = crudService.createDomainObject("Employee");
+        
+        personDomainObject.setString("Name", "Name " + System.currentTimeMillis());
+        personDomainObject.setString("Position", "Position " + System.currentTimeMillis());
+        personDomainObject.setString("Phone", "" + System.currentTimeMillis());        
+        personDomainObject.setReference("Department", departmentObject.getId());
+        
         return personDomainObject;
     }
 
