@@ -30,8 +30,6 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
 
     private static final String SUBJECT_INBOX_PART = "subject";
 
-    private static final String LOCALE_EN = "EN";
-
     @Autowired
     protected CrudService crudService;
             
@@ -42,7 +40,7 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
     @Override
     public void send(String notificationType, Id senderId, Id addresseeId, NotificationPriority priority,
             NotificationContext context) {
-        Id locale = findLocaleIdByName(LOCALE_EN);
+        Id locale = findLocaleIdByName(getPersonLocale(addresseeId));
         AccessToken systemAccessToken = accessControlService.createSystemAccessToken(INBOX_NOTIFICATION_CHANNEL);
 
         String subject =

@@ -98,11 +98,7 @@ public class TimelessDate implements Dto, Comparable<TimelessDate> {
 
     @Override
     public String toString() {
-        return new StringBuilder().append("TimelessDate{")
-                .append(year).append("-")
-                .append(month + 1).append("-")
-                .append(dayOfMonth).append("}")
-                .toString();
+        return year + "-" + (month + 1) + "-" + dayOfMonth;
     }
 
     @Override

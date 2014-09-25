@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Profile;
  * 
  */
 public interface ProfileService {
+    public static final String LOCALE = "LOCALE";
 
     public interface Remote extends ProfileService {
     }

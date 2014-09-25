@@ -54,7 +54,7 @@ public class TestNotificationSenderFinder implements DomainObjectFinder {
         List<Id> persons = new ArrayList();
         if (settings instanceof FindPersonByDomainObjectFieldsSettings) {
             String field = ((FindPersonByDomainObjectFieldsSettings) settings).getField();
-            persons.add(new RdbmsId(domainObjectTypeIdCache.getId("Person"), PERSON_ID));
+            persons.add(new RdbmsId(domainObjectTypeIdCache.getId("Employee"), PERSON_ID));
 
         }
         return persons;

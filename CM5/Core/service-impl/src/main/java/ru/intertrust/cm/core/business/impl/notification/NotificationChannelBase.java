@@ -8,8 +8,10 @@ import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.NotificationTextFormer;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.PersonProfile;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -42,6 +44,9 @@ public class NotificationChannelBase {
     @Autowired
     protected ConfigurationExplorer configurationExplorer;
     
+    @Autowired
+    protected ProfileService profileService;
+    
     @Inject
     protected AttachmentService attachmentService;    
 
@@ -63,6 +68,11 @@ public class NotificationChannelBase {
 
     public void setCollectionService(CollectionsService.Remote collectionService) {
         this.collectionService = collectionService;
+    }
+    
+    protected String getPersonLocale(Id personId){
+        PersonProfile profile = profileService.getPersonProfileByPersonId(personId);
+        return profile.getString(ProfileService.LOCALE);
     }
     
     protected Id findLocaleIdByName(String localeName) {

@@ -46,8 +46,6 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
 
     private static final String EMAIL_FIELD = "email";
 
-    private static final String LOCALE_EN = "EN";
-
     private static final Logger logger = Logger.getLogger(MailNotificationChannel.class);
 
     @Override
@@ -75,7 +73,9 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         if (senderId != null) {
             GenericDomainObject senderDO = (GenericDomainObject) domainObjectDao.find(senderId, systemAccessToken);
             senderMail = senderDO.getString(EMAIL_FIELD);
-        } else {
+        }
+        
+        if (senderMail == null) {
             senderMail = mailSenderWrapper.getDefaultSender();
         }
 
@@ -83,7 +83,7 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         GenericDomainObject addresseDO = (GenericDomainObject) domainObjectDao.find(addresseeId, systemAccessToken);
         String addresseMail = addresseDO.getString(EMAIL_FIELD);
 
-        Id locale = findLocaleIdByName(LOCALE_EN);
+        Id locale = findLocaleIdByName(getPersonLocale(addresseeId));
         String subject =
                 notificationTextFormer.format(notificationType, SUBJECT_MAIL_PART, addresseeId, locale,
                         MAIL_NOTIFICATION_CHANNEL, context);
