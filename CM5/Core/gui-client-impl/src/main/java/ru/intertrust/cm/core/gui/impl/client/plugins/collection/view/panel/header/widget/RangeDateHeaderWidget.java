@@ -69,13 +69,13 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
     }
 
     private void initHandlers() {
-        eventBus.addHandler(RangeDateSelectedEvent.TYPE, new RangeDateSelectedEventHandler() {
+        removePreviousHandlerIfExist();
+        handlerRegistration = eventBus.addHandler(RangeDateSelectedEvent.TYPE, new RangeDateSelectedEventHandler() {
             @Override
             public void onRangeDateSelected(RangeDateSelectedEvent event) {
-                if (event.isDead() || !popupDatePicker.equals(event.getSource())) {
+                if (!popupDatePicker.equals(event.getSource())) {
                     return;
                 }
-                event.kill();
                 Date startDate = event.getStartDate();
                 String startDateValue = dateTimeFormat.format(startDate);
                 Date endDate = event.getEndDate();

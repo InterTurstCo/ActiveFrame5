@@ -53,14 +53,13 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
     }
 
     protected void initHandlers() {
-
-        eventBus.addHandler(DateSelectedEvent.TYPE, new DateSelectedEventHandler() {
+    removePreviousHandlerIfExist();
+    handlerRegistration = eventBus.addHandler(DateSelectedEvent.TYPE, new DateSelectedEventHandler() {
             @Override
             public void onDateSelected(DateSelectedEvent event) {
-                if(event.isDead() || !popupDatePicker.equals(event.getSource())){
+                if (!popupDatePicker.equals(event.getSource())) {
                     return;
                 }
-                event.kill();
                 Date date = event.getDate();
                 String dateValue = dateTimeFormat.format(date);
                 setFilterValuesRepresentation(dateValue);

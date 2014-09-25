@@ -33,11 +33,4 @@ public class DateSelectedEvent extends GwtEvent<DateSelectedEventHandler> {
         return date;
     }
 
-    public void kill() {
-        super.kill();
-    }
-
-    public boolean isDead(){
-        return !super.isLive();
-    }
 }

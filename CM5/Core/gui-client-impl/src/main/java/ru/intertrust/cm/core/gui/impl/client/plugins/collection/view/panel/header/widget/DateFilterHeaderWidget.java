@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DatePickerPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -21,7 +22,7 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
     protected String fieldType;
     protected String timePattern;
     protected DateTimeFormat dateTimeFormat;
-
+    protected HandlerRegistration handlerRegistration;
     public DateFilterHeaderWidget(CollectionColumn column, CollectionColumnProperties columnProperties,
                                   List<String> initialFilterValues, String valueSeparator) {
         super(column, columnProperties, initialFilterValues, valueSeparator);
@@ -73,5 +74,12 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
 
     public DatePickerPopup getDateBox() {
         return popupDatePicker;
+    }
+
+    protected void removePreviousHandlerIfExist(){
+        if(handlerRegistration == null){
+            return;
+        }
+        handlerRegistration.removeHandler();
     }
 }

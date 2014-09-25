@@ -117,7 +117,7 @@ public class DecoratedDateTimeBox extends Composite {
         eventBus.addHandler(DateSelectedEvent.TYPE, new DateSelectedEventHandler() {
             @Override
             public void onDateSelected(DateSelectedEvent event) {
-                if(!event.isDead() && picker.equals(event.getSource())){
+                if(picker.equals(event.getSource())){
                 dateBox.setValue(event.getDate());
                 }
             }
