@@ -72,7 +72,7 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
         eventBus.addHandler(RangeDateSelectedEvent.TYPE, new RangeDateSelectedEventHandler() {
             @Override
             public void onRangeDateSelected(RangeDateSelectedEvent event) {
-                if (!popupDatePicker.equals(event.getSource())) {
+                if (event.isDead() || !popupDatePicker.equals(event.getSource())) {
                     return;
                 }
                 event.kill();

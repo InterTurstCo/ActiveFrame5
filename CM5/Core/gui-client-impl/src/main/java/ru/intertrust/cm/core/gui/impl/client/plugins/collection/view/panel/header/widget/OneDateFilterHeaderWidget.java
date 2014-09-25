@@ -57,7 +57,7 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
         eventBus.addHandler(DateSelectedEvent.TYPE, new DateSelectedEventHandler() {
             @Override
             public void onDateSelected(DateSelectedEvent event) {
-                if(!popupDatePicker.equals(event.getSource())){
+                if(event.isDead() || !popupDatePicker.equals(event.getSource())){
                     return;
                 }
                 event.kill();

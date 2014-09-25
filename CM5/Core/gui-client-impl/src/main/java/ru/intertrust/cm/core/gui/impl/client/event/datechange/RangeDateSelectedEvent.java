@@ -40,4 +40,8 @@ public class RangeDateSelectedEvent extends GwtEvent<RangeDateSelectedEventHandl
     public void kill(){
         super.kill();
     }
+
+   public boolean isDead(){
+       return !isLive();
+   }
 }
