@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer.ConfigurationDeployerPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
@@ -73,24 +74,14 @@ public abstract class PluginView implements IsWidget {
         return breadCrumbPanel;
     }
 
-    private void markNavigationHierarchy(List<LinkConfig> linkConfigList, LinkConfig parent, ChildLinksConfig parentChildLinksConfig) {
-        for (LinkConfig linkConfig : linkConfigList) {
-            linkConfig.setParentLinkConfig(parent);
-            linkConfig.setParentChildLinksConfig(parentChildLinksConfig);
-            for (ChildLinksConfig childLinksConfig : linkConfig.getChildLinksConfigList()) {
-                markNavigationHierarchy(childLinksConfig.getLinkConfigList(), linkConfig, childLinksConfig);
-            }
-        }
-    }
-
     private Panel buildBreadCrumbPanel(String link, NavigationConfig navigationConfig) {
-        markNavigationHierarchy(navigationConfig.getLinkConfigList(), null, null);
+        LinkUtil.markNavigationHierarchy(navigationConfig.getLinkConfigList(), null, null);
         AbsolutePanel breadCrumbComponents = new AbsolutePanel();
         List<LinkConfig> foundLinks = new ArrayList<>();
-        findLink(link, navigationConfig.getLinkConfigList(), foundLinks);
+        LinkUtil.findLink(link, navigationConfig.getLinkConfigList(), foundLinks);
+        List<IsWidget> breadcrumbWidgets = new ArrayList<>();
         if (!foundLinks.isEmpty()) {
             LinkConfig currentLinkConfig = foundLinks.get(0);
-            List<IsWidget> breadcrumbWidgets = new ArrayList<>();
             while (true) {
                 breadcrumbWidgets.add(new Hyperlink(currentLinkConfig.getDisplayText(), "link=" + currentLinkConfig.getName()));
                 ChildLinksConfig parentChildLinksConfig = currentLinkConfig.getParentChildLinksConfig();
@@ -102,29 +93,29 @@ public abstract class PluginView implements IsWidget {
                     break;
                 }
             }
-            Collections.reverse(breadcrumbWidgets);
-            Iterator<IsWidget> iterator = breadcrumbWidgets.iterator();
-            while (iterator.hasNext()) {
-                IsWidget next = iterator.next();
-                breadCrumbComponents.add(next);
-                if (iterator.hasNext()) {
-                    breadCrumbComponents.add(new Label("/"));
-                }
+        }
+        List<LinkConfig> hierarchicalLinks = plugin.getNavigationConfig().getHierarchicalLinkList();
+        LinkConfig currentLinkConfig = null;
+        for (LinkConfig hierarchicalLink : hierarchicalLinks) {
+            if (hierarchicalLink.getName().equals(link)) {
+                currentLinkConfig = hierarchicalLink;
+            }
+        }
+        while (currentLinkConfig != null) {
+            breadcrumbWidgets.add(new Hyperlink(currentLinkConfig.getDisplayText(), "link=" + currentLinkConfig.getName()));
+            currentLinkConfig = currentLinkConfig.getParentLinkConfig();
+        }
+
+        Collections.reverse(breadcrumbWidgets);
+        Iterator<IsWidget> iterator = breadcrumbWidgets.iterator();
+        while (iterator.hasNext()) {
+            IsWidget next = iterator.next();
+            breadCrumbComponents.add(next);
+            if (iterator.hasNext()) {
+                breadCrumbComponents.add(new Label("/"));
             }
         }
         return breadCrumbComponents;
-    }
-
-    private void findLink(String link, List<LinkConfig> linkConfigList, List<LinkConfig> results) {
-        for (LinkConfig linkConfig : linkConfigList) {
-            if (linkConfig.getName().equals(link)) {
-                results.add(linkConfig);
-                return;
-            }
-            for (ChildLinksConfig childLinksConfig : linkConfig.getChildLinksConfigList()) {
-                findLink(link, childLinksConfig.getLinkConfigList(), results);
-            }
-        }
     }
 
     public void updateActionToolBar() {
@@ -271,7 +262,7 @@ public abstract class PluginView implements IsWidget {
 
         private void updateByConfig(UIObject uiobj, BaseAttributeConfig config) {
             if (config.getStyle() != null) {
-                // todo will be implements
+                // todo will be implemented
             }
             if (config.getStyleClass() != null) {
                 uiobj.setStyleName(config.getStyleClass());

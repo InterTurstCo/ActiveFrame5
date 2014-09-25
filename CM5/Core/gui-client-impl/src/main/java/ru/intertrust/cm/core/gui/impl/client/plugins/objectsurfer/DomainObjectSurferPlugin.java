@@ -32,6 +32,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
+import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -49,6 +50,7 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -266,17 +268,36 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
                 DomainObjectSurferConfig pluginConfig = data.getDomainObjectSurferConfig();
                 LinkConfig link = data.getHierarchicalLink();
                 NavigationConfig navigationConfig = getCollectionPlugin().getNavigationConfig();
+
+
                 addHierarchicalLinkToNavigationConfig(navigationConfig, link);
                 Application.getInstance().getEventBus().fireEvent(
                         new NavigationTreeItemSelectedEvent(pluginConfig, link.getName(), navigationConfig));
             }
 
             private void addHierarchicalLinkToNavigationConfig(NavigationConfig navigationConfig, LinkConfig link) {
-                //TODO: [CMFIVE-451] would it better to organize links into a tree?
+                LinkConfig parentLink = findParentLink(navigationConfig, link);
+                link.setParentLinkConfig(parentLink);
                 if (!navigationConfig.getHierarchicalLinkList().contains(link)) {
                     navigationConfig.getHierarchicalLinkList().add(link);
                 }
             }
+
+            private LinkConfig findParentLink(NavigationConfig navigationConfig, LinkConfig link) {
+                LinkConfig parentLinkConfig = null;
+                HistoryManager manager = Application.getInstance().getHistoryManager();
+                String parentLinkName = manager.getLink();
+                List<LinkConfig> results = new ArrayList<>();
+                LinkUtil.findLink(parentLinkName, navigationConfig.getLinkConfigList(), results);
+                if (results.isEmpty()) {
+                    LinkUtil.findLink(parentLinkName, navigationConfig.getHierarchicalLinkList(), results);
+                }
+                if (!results.isEmpty()) {
+                    parentLinkConfig = results.get(0);
+                }
+                return parentLinkConfig;
+            }
+
         });
     }
 

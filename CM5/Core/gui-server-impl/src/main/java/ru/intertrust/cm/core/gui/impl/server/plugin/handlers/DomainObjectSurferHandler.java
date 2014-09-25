@@ -118,8 +118,8 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
         domainObjectSurferConfig.setCollectionViewerConfig(collectionViewerConfig);
         domainObjectSurferConfig.setDomainObjectTypeToCreate(childCollectionViewerConfig.getDomainObjectTypeToCreate());
-        LinkConfig link = new LinkConfig();
 
+        LinkConfig link = new LinkConfig();
         link.setName(createLinkForHierarchicalCollection(childCollectionViewerConfig, data.getCurrentCollectionName(),
                 data.getSelectedParentId()));
         link.setDisplayText(childCollectionViewerConfig.getBreadCrumb());

@@ -29,7 +29,6 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -261,18 +260,6 @@ public class CollectionPluginView extends PluginView {
             return true;
         }
         return false;
-    }
-
-    protected Panel createBreadCrumbsPanel() {
-        Panel breadCrumbPanel = super.createBreadCrumbsPanel();
-        List<LinkConfig> hierarchicalLinks = ((CollectionPlugin)plugin).getHierarchicalLinks();
-
-        String linkName = Application.getInstance().getHistoryManager().getLink();
-        for (LinkConfig link : hierarchicalLinks) {
-            breadCrumbPanel.add(new Label("/"));
-            breadCrumbPanel.add(new Hyperlink(link.getDisplayText(), "link=" + linkName + ";hierarchy-chain=Organization.Department"));
-        }
-        return breadCrumbPanel;
     }
 
     private void createTableColumns() {
