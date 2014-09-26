@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
+import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
@@ -569,6 +570,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Override
     public EventLogsConfig getEventLogsConfiguration() {
         return getGlobalSettings().getEventLogsConfig();
+    }
+
+    @Override
+    public LogDomainObjectAccessConfig getDomainObjectAccessEventLogsConfiguration(String typeName) {
+        readLock.lock();
+        try {
+            if (this.configStorage.eventLogDomainObjectAccessConfig.containsKey(typeName)){
+                return getReturnObject(this.configStorage.eventLogDomainObjectAccessConfig.get(typeName), LogDomainObjectAccessConfig.class);
+            } else {
+                return getReturnObject(this.configStorage.eventLogDomainObjectAccessConfig.get("*"), LogDomainObjectAccessConfig.class);
+            }
+        } finally {
+            readLock.unlock();
+        }
     }
 
 }

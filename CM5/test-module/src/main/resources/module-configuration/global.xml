@@ -13,6 +13,23 @@
             <login enable="true"/>
             <logout enable="true"/>
             <download-attachment enable="true"/>
+            <domain-object-access enable="false">
+                <!-- настройка для всех типов ДО включающая логгировае на запись-->
+                <log enable="true" accessType="W" accessWasGranted="*">
+                    <domain-object-type name="*"/>
+                </log>
+                <!-- спец настройки логгирования для определенных типов ДО -->
+                <log enable="true" accessType="*" accessWasGranted="*">
+                    <domain-object-type name="city"/>
+                    <domain-object-type name="Outgoing_Document"/>
+                    <domain-object-type name="Internal_Document"/>
+                </log>
+                <!-- отключение логгирования по типам ДО -->
+                <log enable="false" accessType="*" accessWasGranted="*">
+                    <domain-object-type name="country"/>
+                    <domain-object-type name="schedule"/>
+                </log>
+            </domain-object-access>
         </event-logs>
     </global-settings>
     <business-universe>

@@ -10,16 +10,19 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
+import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Stateless
@@ -36,6 +39,9 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
 
     @Autowired
     private DomainObjectDao domainObjectDao;
+
+    @Autowired
+    protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Autowired
     private AccessControlService accessControlService;
@@ -99,6 +105,74 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
         return false;
     }
 
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void logAccessDomainObjectEvent(Id objectId, String accessType, boolean success) {
+        logAccessDomainObject(objectId, accessType, success);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success) {
+        for (Id objectId : objectIds) {
+            logAccessDomainObject(objectId, accessType, success);
+        }
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success) {
+        for (DomainObject object : objects) {
+            logAccessDomainObject(object.getId(), accessType, success);
+        }
+    }
+
+    private void logAccessDomainObject(Id objectId, String accessType, boolean success) {
+        if (!ACCESS_OBJECT_READ.equals(accessType) && !ACCESS_OBJECT_WRITE.equals(accessType)){
+            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
+        }
+
+        if (objectId == null) return;
+
+        if (!isAccessDomainObjectEventEnabled(objectId, accessType, success)) return;
+
+        DomainObject selSubjUser = createSelSubjUserRecord(getCurrentUserId(), null, null);
+        DomainObject selObjObjectAccess = crudService.createDomainObject("sel_obj_object_access");
+        selObjObjectAccess.setReference("object", objectId);
+        selObjObjectAccess.setString("access_type", accessType);
+        selObjObjectAccess = domainObjectDao.save(selObjObjectAccess, getEventLogAccessToken());
+
+        createSystemEventLogRecord(ACCESS_OBJECT, success, selSubjUser, selObjObjectAccess);
+    }
+
+
+    private boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success) {
+        EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
+        if (eventLogsConfiguration != null && eventLogsConfiguration.getDomainObjectAccess() != null) {
+            if (!eventLogsConfiguration.getDomainObjectAccess().isEnable()) return false;
+
+            String typeName = domainObjectTypeIdCache.getName(objectId);
+
+            if (typeName.startsWith("sel_")) return false;
+
+            LogDomainObjectAccessConfig accessEventLogsConfiguration = configurationExplorer.getDomainObjectAccessEventLogsConfiguration(typeName);
+
+            if (!accessEventLogsConfiguration.isEnable()) return false;
+
+            if (!"*".equals(accessEventLogsConfiguration.getAccessType()) && !accessType.equals(accessEventLogsConfiguration.getAccessType())){
+                return false;
+            }
+
+            String accessWasGranted = success ? ACCESS_OBJECT_WAS_GRANTED_YES : ACCESS_OBJECT_WAS_GRANTED_NO;
+            if (!"*".equals(accessEventLogsConfiguration.getAccessWasGranted())
+                    && !accessWasGranted.equals(accessEventLogsConfiguration.getAccessWasGranted())){
+                return false;
+            }
+
+            return true;
+        }
+        return false;
+    }
 
 
     private DomainObject createSystemEventLogRecord(String type, boolean success, DomainObject subject, DomainObject object) {

@@ -14,6 +14,9 @@ public class EventLogsConfig implements Dto {
     @Element(name = "download-attachment", required = false)
     private SimpleConfig downloadAttachment;
 
+    @Element(name = "domain-object-access", required = false)
+    private DomainObjectAccessConfig domainObjectAccess;
+
     public SimpleConfig getLoginConfig() {
         return loginConfig;
     }
@@ -38,6 +41,14 @@ public class EventLogsConfig implements Dto {
         this.downloadAttachment = downloadAttachment;
     }
 
+    public DomainObjectAccessConfig getDomainObjectAccess() {
+        return domainObjectAccess;
+    }
+
+    public void setDomainObjectAccess(DomainObjectAccessConfig domainObjectAccess) {
+        this.domainObjectAccess = domainObjectAccess;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -48,6 +59,7 @@ public class EventLogsConfig implements Dto {
         if (loginConfig != null ? !loginConfig.equals(that.loginConfig) : that.loginConfig != null) return false;
         if (logoutConfig != null ? !logoutConfig.equals(that.logoutConfig) : that.logoutConfig != null) return false;
         if (downloadAttachment != null ? !downloadAttachment.equals(that.downloadAttachment) : that.downloadAttachment != null) return false;
+        if (domainObjectAccess != null ? !domainObjectAccess.equals(that.domainObjectAccess) : that.domainObjectAccess != null) return false;
 
         return true;
     }
@@ -57,6 +69,7 @@ public class EventLogsConfig implements Dto {
         int result = loginConfig != null ? loginConfig.hashCode() : 0;
         result = 31 * result + (logoutConfig != null ? logoutConfig.hashCode() : 0);
         result = 31 * result + (downloadAttachment != null ? downloadAttachment.hashCode() : 0);
+        result = 31 * result + (domainObjectAccess != null ? domainObjectAccess.hashCode() : 0);
         return result;
     }
 }

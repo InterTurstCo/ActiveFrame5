@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.eventlog.DomainObjectAccessConfig;
+import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
+import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
@@ -373,6 +376,8 @@ public class ConfigurationStorageBuilder {
 
         //Заполнение таблицы read-evrybody. Вынесено сюда, потому что не для всех типов существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
         fillReadPermittedToEverybodyMap();
+
+        fillEventLogDomainObjectAccessConfig();
     }
 
     private void initConfigurationMapOfChildDomainObjectTypes(String typeName, ArrayList<DomainObjectTypeConfig> directChildTypes,
@@ -516,6 +521,37 @@ public class ConfigurationStorageBuilder {
         }
         return result;
     }
+
+    private void fillEventLogDomainObjectAccessConfig() {
+        EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
+        if (eventLogsConfiguration == null || eventLogsConfiguration.getDomainObjectAccess() == null
+                || !eventLogsConfiguration.getDomainObjectAccess().isEnable()) return;
+
+        DomainObjectAccessConfig domainObjectAccessConfig = eventLogsConfiguration.getDomainObjectAccess();
+        List<LogDomainObjectAccessConfig> logs = domainObjectAccessConfig.getLogs();
+        if (logs != null) {
+            for (LogDomainObjectAccessConfig log : logs) {
+                List<DomainObjectTypeConfig> domainObjectTypeConfigList = log.getDomainObjectTypeConfigList();
+                if (domainObjectTypeConfigList != null){
+                    for (DomainObjectTypeConfig objectTypeConfig : domainObjectTypeConfigList) {
+                        configurationStorage.eventLogDomainObjectAccessConfig.put(objectTypeConfig.getName(), log);
+                    }
+                }
+            }
+        }
+
+        // если настройка на произвольный тип ДО не указана явно, то по умолчанию логгируем все события
+        if (!configurationStorage.eventLogDomainObjectAccessConfig.containsKey("*")){
+            LogDomainObjectAccessConfig allEvents = new LogDomainObjectAccessConfig();
+            allEvents.setEnable(true);
+            allEvents.setAccessWasGranted("*");
+            allEvents.setAccessType("*");
+            configurationStorage.eventLogDomainObjectAccessConfig.put("*", allEvents);
+        }
+
+    }
+
+
 
     @Deprecated
     private void fillReadPermittedToEverybodyMapFromStatus(AccessMatrixConfig accessMatrixConfig) {

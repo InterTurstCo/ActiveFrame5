@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.business.api;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+
+import java.util.List;
 
 
 /**
@@ -17,6 +20,12 @@ public interface EventLogService {
     public final static String ACCESS_OBJECT = "ACCESS_OBJECT";
     public final static String ACCESS_COLLECTION = "ACCESS_COLLECTION";
 
+    public final static String ACCESS_OBJECT_READ = "R";
+    public final static String ACCESS_OBJECT_WRITE = "W";
+
+    public final static String ACCESS_OBJECT_WAS_GRANTED_YES = "Y";
+    public final static String ACCESS_OBJECT_WAS_GRANTED_NO = "N";
+
     public interface Remote extends EventLogService {
     }
 
@@ -25,4 +34,10 @@ public interface EventLogService {
     public void logLogOutEvent(String login);
 
     public void logDownloadAttachmentEvent(Id attachment);
+
+    public void logAccessDomainObjectEvent(Id objectId, String accessType, boolean success);
+
+    public void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success);
+
+    public void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success);
 }

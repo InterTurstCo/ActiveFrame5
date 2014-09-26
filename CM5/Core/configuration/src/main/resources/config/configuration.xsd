@@ -642,6 +642,27 @@
                             <xs:attribute name="enable" use="required" type="xs:boolean"/>
                         </xs:complexType>
                     </xs:element>
+                    <xs:element name="domain-object-access" minOccurs="0" maxOccurs="1">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="log" maxOccurs="unbounded">
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element name="domain-object-type" maxOccurs="unbounded" minOccurs="1">
+                                                <xs:complexType>
+                                                    <xs:attribute name="name" use="required" type="con:typeNameType"/>
+                                                </xs:complexType>
+                                            </xs:element>
+                                        </xs:sequence>
+                                        <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                                        <xs:attribute name="accessType" use="required" type="xs:string"/>
+                                        <xs:attribute name="accessWasGranted" use="required" type="xs:string"/>
+                                    </xs:complexType>
+                                </xs:element>
+                            </xs:sequence>
+                            <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                        </xs:complexType>
+                    </xs:element>
                 </xs:sequence>
             </xs:complexType>
         </xs:element>

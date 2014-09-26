@@ -8,6 +8,7 @@ import java.util.Map;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
@@ -42,4 +43,6 @@ public class ConfigurationStorage {
     public CaseInsensitiveMap<String> attachmentDomainObjectTypes = new CaseInsensitiveMap<>();
 
     public CaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new CaseInsensitiveMap<>();
+
+    public CaseInsensitiveMap<LogDomainObjectAccessConfig> eventLogDomainObjectAccessConfig = new CaseInsensitiveMap<>();
 }

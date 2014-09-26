@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
+import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
@@ -232,5 +233,14 @@ public interface ConfigurationExplorer {
      * @return конфигурация журнала системных событий
      */
     EventLogsConfig getEventLogsConfiguration();
+
+    /**
+     * Возвращает конфигурацию журнала доступа к объектам по типу ДО
+     * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
+     * Изменение данного объекта недопустимо и напрямую приводит к некорректной работе приложения
+     * @return конфигурацию журнала доступа к объектам по типу ДО
+     */
+    LogDomainObjectAccessConfig getDomainObjectAccessEventLogsConfiguration(String typeName);
+
 
 }
