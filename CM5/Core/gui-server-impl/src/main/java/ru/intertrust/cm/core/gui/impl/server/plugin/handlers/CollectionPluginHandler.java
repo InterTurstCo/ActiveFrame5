@@ -116,14 +116,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         //if (displayChosenValues) {//simplified condition
         //if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)) {
             if (collectionViewerConfig.getHierarchicalFiltersConfig() != null) {
-                List<Filter> hierarchicalFilters = new ArrayList<>();
-                filterBuilder.prepareSelectionFilters(collectionViewerConfig.getHierarchicalFiltersConfig(), null, hierarchicalFilters);
-                if (!hierarchicalFilters.isEmpty()) {
+                if (filterBuilder.prepareSelectionFilters(collectionViewerConfig.getHierarchicalFiltersConfig(), null, filters)) {
                     pluginData.setHierarchicalFiltersConfig(collectionViewerConfig.getHierarchicalFiltersConfig());
-                    filters.addAll(hierarchicalFilters);
                 }
             }
-
             SelectionFiltersConfig selectionFiltersConfig = collectionViewerConfig.getSelectionFiltersConfig();
             filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             ArrayList<CollectionRowItem> items = getRows(collectionName,

@@ -131,7 +131,7 @@ public class CollectionPluginView extends PluginView {
     private SetSelectionModel<CollectionRowItem> selectionModel;
     private FilterPanelConfig filterPanelConfig;
     private int rowsChunk;
-    private AbstractFiltersConfig hierarchicalFiltersConfig;
+    private InitialFiltersConfig hierarchicalFiltersConfig;
 
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
@@ -383,8 +383,8 @@ public class CollectionPluginView extends PluginView {
                 JsonUtil.prepareJsonAttributes(requestObj, collectionName, simpleSearchQuery, searchArea);
                 JsonUtil.prepareJsonSortCriteria(requestObj, fieldPropertiesMap, sortCollectionState);
                 JsonUtil.prepareJsonColumnProperties(requestObj, fieldPropertiesMap, filtersMap);
-                JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig);
-                //TODO: [CMFIVE-451] add support for hierarchical collection filtering
+                JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig, "jsonInitialFilters");
+                JsonUtil.prepareJsonInitialFilters(requestObj, hierarchicalFiltersConfig, "jsonHierarchicalFilters");
                 csvController.doPostRequest(requestObj.toString());
 
             }

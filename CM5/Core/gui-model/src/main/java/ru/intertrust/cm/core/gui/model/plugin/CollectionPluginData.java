@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
@@ -32,7 +31,7 @@ public class CollectionPluginData extends ActivePluginData {
     private int rowsChunk;
     private TableBrowserParams tableBrowserParams;
     private boolean extendedSearchMarker;
-    private AbstractFiltersConfig hierarchicalFiltersConfig;
+    private InitialFiltersConfig hierarchicalFiltersConfig;
 
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<>();
@@ -139,11 +138,11 @@ public class CollectionPluginData extends ActivePluginData {
         this.extendedSearchMarker = extendedSearchMarker;
     }
 
-    public AbstractFiltersConfig getHierarchicalFiltersConfig() {
+    public InitialFiltersConfig getHierarchicalFiltersConfig() {
         return hierarchicalFiltersConfig;
     }
 
-    public void setHierarchicalFiltersConfig(AbstractFiltersConfig hierarchicalFiltersConfig) {
+    public void setHierarchicalFiltersConfig(InitialFiltersConfig hierarchicalFiltersConfig) {
         this.hierarchicalFiltersConfig = hierarchicalFiltersConfig;
     }
 }

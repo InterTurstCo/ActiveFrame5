@@ -10,12 +10,12 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
@@ -160,7 +160,7 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         filterConfig.setParamConfigs(paramConfigs);
         List<AbstractFilterConfig> abstractFilterConfigs = new ArrayList<>();
         abstractFilterConfigs.add(filterConfig);
-        AbstractFiltersConfig filtersConfig = new SelectionFiltersConfig();
+        InitialFiltersConfig filtersConfig = new InitialFiltersConfig();
         filtersConfig.setAbstractFilterConfigs(abstractFilterConfigs);
         collectionViewerConfig.setHierarchicalFiltersConfig(filtersConfig);
     }

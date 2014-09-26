@@ -1,6 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
-import com.google.gwt.json.client.*;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
@@ -118,7 +122,8 @@ public class JsonUtil {
         requestObj.put("simpleSearchArea", new JSONString(searchArea));
     }
 
-    public static void prepareJsonInitialFilters(JSONObject requestObj, InitialFiltersConfig initialFiltersConfig) {
+    public static void prepareJsonInitialFilters(JSONObject requestObj, InitialFiltersConfig initialFiltersConfig,
+                                                 String filterAttributeName) {
         if (initialFiltersConfig == null) {
             return;
         }
@@ -136,7 +141,7 @@ public class JsonUtil {
             index++;
         }
         jsonInitialFiltersObj.put("jsonInitialFilters", jsonInitialFiltersArr);
-        requestObj.put("jsonInitialFilters", jsonInitialFiltersObj);
+        requestObj.put(filterAttributeName, jsonInitialFiltersObj);
 
     }
 
@@ -164,7 +169,8 @@ public class JsonUtil {
         jsonFilterParamObj.put("name", new JSONNumber(name));
         String value = paramConfig.getValue();
         jsonFilterParamObj.put("value", new JSONString(value));
-
+        String type = paramConfig.getType();
+        jsonFilterParamObj.put("type", new JSONString(type));
         jsonFilterParamArr.set(index, jsonFilterParamObj);
     }
 }

@@ -16,6 +16,7 @@ public class JsonCsvRequest {
     private List<JsonColumnProperties> columnProperties;
     private JsonSortCriteria sortCriteria;
     private JsonInitialFilters jsonInitialFilters;
+    private JsonInitialFilters jsonHierarchicalFilters;
 
     public JsonCsvRequest() {
     }
@@ -82,5 +83,13 @@ public class JsonCsvRequest {
 
     public void setJsonInitialFilters(JsonInitialFilters jsonInitialFilters) {
         this.jsonInitialFilters = jsonInitialFilters;
+    }
+
+    public JsonInitialFilters getJsonHierarchicalFilters() {
+        return jsonHierarchicalFilters;
+    }
+
+    public void setJsonHierarchicalFilters(JsonInitialFilters jsonHierarchicalFilters) {
+        this.jsonHierarchicalFilters = jsonHierarchicalFilters;
     }
 }

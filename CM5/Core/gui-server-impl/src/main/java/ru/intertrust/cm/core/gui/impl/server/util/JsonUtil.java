@@ -103,6 +103,7 @@ public class JsonUtil {
                 ParamConfig paramConfig = new ParamConfig();
                 paramConfig.setName(jsonFilterParam.getName());
                 paramConfig.setValue(jsonFilterParam.getValue());
+                paramConfig.setType(jsonFilterParam.getType());
                 paramConfigs.add(paramConfig);
             }
             initialFilterConfig.setParamConfigs(paramConfigs);
