@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,10 +60,10 @@ public class DateFormerTest {
 
     @Test
     public void testDateTimeWithTimeZone() throws ParseException{
-        DateTimeWithTimeZone testDate = new DateTimeWithTimeZone(4, 2014, 1, 28, 18, 36, 41, 356);
+        DateTimeWithTimeZone testDate = new DateTimeWithTimeZone("GMT+5", 2014, 1, 28, 18, 36, 41, 356);
         
         String result = former.format(testDate, new RdbmsId(1,1));
-        assertTrue(result.equals("28 февраля 2014 г., 22:36"));
+        assertTrue(result.equals("28 февраля 2014 г., 18:36:41 GMT+05:00"));
     }
     
 }

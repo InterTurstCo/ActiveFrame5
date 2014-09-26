@@ -58,7 +58,7 @@ public class DateFormerImpl implements DateFormer {
         String result = "";
         if (date != null) {
             Locale locale = getPersonLocale(personId);
-            DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT, locale);
+            DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);
             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(date.getTimeZoneContext().getTimeZoneId()));
 
             calendar.set(Calendar.YEAR, date.getYear());
@@ -68,6 +68,7 @@ public class DateFormerImpl implements DateFormer {
             calendar.set(Calendar.MINUTE, date.getMinutes());
             calendar.set(Calendar.SECOND, date.getSeconds());
             calendar.set(Calendar.MILLISECOND, date.getMilliseconds());
+            formatter.setTimeZone(calendar.getTimeZone());
             result = formatter.format(calendar.getTime());
         }
         return result;
