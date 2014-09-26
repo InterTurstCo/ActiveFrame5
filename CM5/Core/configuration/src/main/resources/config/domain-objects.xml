@@ -386,12 +386,6 @@
 
     <domain-object-type name="profile">
         <fields>
-            <reference name="parent" type="profile" not-null="false"/>
-        </fields>
-    </domain-object-type>
-
-    <domain-object-type name="system_profile" extends="profile">
-        <fields>
             <string name="name" length="256" not-null="true" />
         </fields>
         <uniqueKey>
@@ -399,10 +393,15 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="system_profile" extends="profile">
+        <fields>
+            <reference name="parent" type="system_profile" not-null="false"/>
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="person_profile" extends="profile">
         <fields>
-            <!-- empty unused field because are problems with DO creation  -->
-            <string name="empty" length="5" not-null="false" />
+            <reference name="parent" type="system_profile" not-null="false"/>
         </fields>
     </domain-object-type>
 

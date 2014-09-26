@@ -55,7 +55,7 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
 
         notification = domainObjectDao.save(notification, systemAccessToken);
 
-        logger.info("Notification sent by InboxNotificationChannel notificationType=" + notificationType
+        logger.debug("Notification sent by InboxNotificationChannel notificationType=" + notificationType
                 + "; senderId="
                 + senderId + "; addresseeId=" + addresseeId + "; priority=" + priority + "; context=" + context);
 

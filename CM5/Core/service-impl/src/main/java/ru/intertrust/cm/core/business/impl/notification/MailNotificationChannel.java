@@ -57,7 +57,7 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
             if (mailSenderWrapper.getHost() != null) {
                 MimeMessage message = createMailMesssage(notificationType, senderId, addresseeId, context);
                 mailSenderWrapper.send(message);
-                logger.info("Notification sent by MailNotificationChannel notificationType=" + notificationType
+                logger.debug("Notification sent by MailNotificationChannel notificationType=" + notificationType
                         + "; senderId="
                         + senderId + "; addresseeId=" + addresseeId + "; priority=" + priority + "; context=" + context);
             }

@@ -1,12 +1,12 @@
-TYPE_NAME=person_profile;KEYS=empty
-empty;parent
-1;select id from system_profile where name='default_system_profile'
-2;select id from system_profile where name='default_system_profile'
-3;select id from system_profile where name='default_system_profile'
-4;select id from system_profile where name='default_system_profile'
-5;select id from system_profile where name='default_system_profile'
-6;select id from system_profile where name='default_system_profile'
-7;select id from system_profile where name='default_system_profile'
-8;select id from system_profile where name='default_system_profile'
-9;select id from system_profile where name='default_system_profile'
-10;select id from system_profile where name='default_system_profile'
+TYPE_NAME=person_profile;KEYS=name
+name;parent
+1;select id from profile where name='default_system_profile'
+2;select id from profile where name='default_system_profile'
+3;select id from profile where name='default_system_profile'
+4;select id from profile where name='default_system_profile'
+5;select id from profile where name='default_system_profile'
+6;select id from profile where name='default_system_profile'
+7;select id from profile where name='default_system_profile'
+8;select id from profile where name='default_system_profile'
+9;select id from profile where name='default_system_profile'
+10;select id from profile where name='default_system_profile'
