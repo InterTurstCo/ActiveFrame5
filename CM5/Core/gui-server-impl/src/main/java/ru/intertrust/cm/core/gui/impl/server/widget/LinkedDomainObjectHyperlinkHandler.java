@@ -16,13 +16,13 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
-import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -97,7 +97,6 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         IdentifiableObjectCollection collection = null;
         if(limit == 0) {
             collection = collectionsService.findCollection(collectionName, null, filters);
-
         } else {
             collection = tooltipContent
                     ? collectionsService.findCollection(collectionName, null, filters,limit, WidgetConstants.UNBOUNDED_LIMIT)

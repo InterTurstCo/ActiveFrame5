@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -48,10 +49,9 @@ public class NoneEditableHierarchyBrowserHyperlinkContentManager extends Hierarc
                 Id id = response.getId();
                 String representation = response.getRepresentation();
                 HierarchyBrowserItem updatedItem = new HierarchyBrowserItem(id, representation);
-
                 panel.cleanPanel();
-                List<HierarchyBrowserItem> browserItems = getUpdatedHyperlinks(updatedItem, items);
-                panel.displayHyperlinks(browserItems);
+                HierarchyBrowserUtil.handleUpdateChosenItem(updatedItem, items);
+                panel.displayHyperlinks(items);
 
             }
 
@@ -61,20 +61,6 @@ public class NoneEditableHierarchyBrowserHyperlinkContentManager extends Hierarc
             }
         });
     }
-    private List<HierarchyBrowserItem> getUpdatedHyperlinks(HierarchyBrowserItem updatedItem, List<HierarchyBrowserItem> items) {
 
-        Id idToFind = updatedItem.getId();
-
-        for (HierarchyBrowserItem item : items) {
-            if (idToFind.equals(item.getId())) {
-                int index = items.indexOf(item);
-                String collectionName = item.getNodeCollectionName();
-                updatedItem.setChosen(true);
-                updatedItem.setNodeCollectionName(collectionName);
-                items.set(index, updatedItem);
-            }
-        }
-        return items;
-    }
 
 }

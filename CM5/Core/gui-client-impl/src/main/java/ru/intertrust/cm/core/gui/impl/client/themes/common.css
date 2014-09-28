@@ -108,6 +108,17 @@
     width: 16px;
 }
 
+@sprite .hBFilterClearButton {
+    gwt-image: "filterClearButtonIm";
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    border: 0;
+    cursor: pointer;
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+}
+
 .filterBoxClearButtonOn:hover {
     background-position: -16px 0;
 }
@@ -154,4 +165,10 @@
     margin-left: -25px;
     min-width: 20px;
     width: 36px;
+}
+
+@sprite .magnifierButton {
+    gwt-image: "magnifierIm";
+    padding: 3px 2px 0px 1px;
+
 }

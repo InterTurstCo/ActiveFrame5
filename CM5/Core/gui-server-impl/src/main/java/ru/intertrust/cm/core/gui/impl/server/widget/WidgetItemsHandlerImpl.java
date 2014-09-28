@@ -13,10 +13,10 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetItemsHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
-import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;

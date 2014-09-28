@@ -2,8 +2,9 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserCheckBoxUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserCheckBoxUpdateEventHandler;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ public class HierarchyBrowserEditableTooltip extends PopupPanel {
     private HierarchyBrowserItemsView widgetItemsView;
     private boolean displayAsHyperlinks;
 
-
     public HierarchyBrowserEditableTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
                                            boolean displayAsHyperlinks) {
 
@@ -26,6 +26,14 @@ public class HierarchyBrowserEditableTooltip extends PopupPanel {
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
         init(selectionStyleConfig);
+        eventBus.addHandler(HierarchyBrowserCheckBoxUpdateEvent.TYPE, new HierarchyBrowserCheckBoxUpdateEventHandler() {
+            @Override
+            public void onHierarchyBrowserCheckBoxUpdate(HierarchyBrowserCheckBoxUpdateEvent event) {
+                if(widgetItemsView.isEmpty()){
+                    HierarchyBrowserEditableTooltip.this.hide();
+                }
+            }
+        });
     }
 
     private void init(SelectionStyleConfig selectionStyleConfig) {
@@ -36,8 +44,8 @@ public class HierarchyBrowserEditableTooltip extends PopupPanel {
 
     }
 
-    public void displayItems(ArrayList<HierarchyBrowserItem> items, ArrayList<Id> selectedIds) {
-        widgetItemsView.handleAddingChosenItems(items, selectedIds);
+    public void displayItems(ArrayList<HierarchyBrowserItem> items) {
+        widgetItemsView.displayChosenItems(items, false);
 
     }
 }

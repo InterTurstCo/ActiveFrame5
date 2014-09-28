@@ -5,7 +5,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
@@ -14,7 +13,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBro
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -24,89 +23,64 @@ import java.util.ArrayList;
 public class HierarchyBrowserView extends Composite {
 
     private HierarchyBrowserItemsView widgetChosenContent;
-    private ArrayList<HierarchyBrowserItem> chosenItems;
+
     private Panel widgetContainer;
     private FocusPanel openPopupButton;
     private FocusPanel clearButton;
-    private VerticalPanel buttonActionPanel;
     private EventBus eventBus;
     private SelectionStyleConfig selectionStyleConfig;
     private boolean displayAsHyperlinks;
-    private boolean shouldDrawTooltipButton;
-    private ArrayList<Id> selectedIds;
-    public HierarchyBrowserView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
-                                boolean displayAsHyperlinks, boolean shouldDrawTooltipButton) {
+
+    public HierarchyBrowserView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,boolean displayAsHyperlinks) {
+
         this.eventBus = eventBus;
         this.selectionStyleConfig = selectionStyleConfig;
         this.displayAsHyperlinks = displayAsHyperlinks;
-        this.shouldDrawTooltipButton = shouldDrawTooltipButton;
         widgetContainer = new HorizontalPanel();
-
         initWidget(widgetContainer);
     }
 
-    public void setChosenItems(ArrayList<HierarchyBrowserItem> chosenItems) {
-        this.chosenItems = chosenItems;
-    }
-
-    public ArrayList<HierarchyBrowserItem> getChosenItems() {
-        return widgetChosenContent.getChosenItems();
-    }
-
-    public void handleReplacingChosenItem(HierarchyBrowserItem item) {
-        widgetChosenContent.handleReplacingChosenItem(item);
-
-    }
-
-    public ArrayList<Id> getSelectedIds() {
-        return widgetChosenContent.getSelectedIds();
-    }
-
-    public void setSelectedIds(ArrayList<Id> selectedIds) {
-        this.selectedIds = selectedIds;
-    }
 
     @Override
     public Widget asWidget() {
         return widgetContainer;
     }
 
-    public void initWidgetContent(HierarchyBrowserConfig config) {
+    public void initWidgetContent(HierarchyBrowserConfig config, ClickHandler clearHandler) {
         openPopupButton = new FocusPanel();
         widgetChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarchyBrowserBorder");
         widgetContainer.add(widgetChosenContent);
         initAddButton(config.getAddButtonConfig());
-        initClearButtonIfItIs(config.getClearAllButtonConfig());
+        initClearButtonIfItIs(config.getClearAllButtonConfig(), clearHandler);
 
     }
 
     public HandlerRegistration addButtonClickHandler(ClickHandler openButtonClickHandler) {
-       return openPopupButton.addClickHandler(openButtonClickHandler);
+       return openPopupButton.addDomHandler(openButtonClickHandler, ClickEvent.getType());
     }
 
-    public void displayBaseWidget(String width, String height) {
+    public void displayBaseWidget(String width, String height, List<HierarchyBrowserItem> chosenItems, boolean shouldDrawTooltipButton) {
         setSizeIfConfigured(width, height);
-        widgetChosenContent.handleAddingChosenItems(chosenItems, selectedIds);
-        if(shouldDrawTooltipButton) {
-            widgetChosenContent.addShowTooltipLabel(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    eventBus.fireEvent(new HierarchyBrowserShowTooltipEvent(widgetChosenContent));
-                }
-            });
-        }
 
+        widgetChosenContent.setTooltipClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                eventBus.fireEvent(new HierarchyBrowserShowTooltipEvent(widgetChosenContent));
+            }
+        });
 
+        widgetChosenContent.displayChosenItems(chosenItems, shouldDrawTooltipButton);
 
     }
+
     private void setSizeIfConfigured(String width, String height){
         if(width != null){
             widgetContainer.setWidth(width);
         }
         if(height != null){
             widgetContainer.setWidth(height);
-             widgetChosenContent.setHeight("100px"); //TODO find other solution to see scrollbar
+            widgetChosenContent.setHeight("100px"); //TODO find other solution to see scrollbar
         }
     }
 
@@ -115,7 +89,6 @@ public class HierarchyBrowserView extends Composite {
         openPopupButton.clear();
         ButtonForm buttonForm;
         String text = config.getText();
-
         if (config != null) {
             buttonForm = new ButtonForm(openPopupButton, config.getImage(), text);
         } else {
@@ -126,7 +99,7 @@ public class HierarchyBrowserView extends Composite {
         widgetContainer.add(openPopupButton);
     }
 
-    public void initClearButtonIfItIs(ClearAllButtonConfig config) {
+    public void initClearButtonIfItIs(ClearAllButtonConfig config, ClickHandler clickHandler) {
         if (config != null) {
             if (clearButton != null) {
                 clearButton.removeFromParent();
@@ -136,18 +109,15 @@ public class HierarchyBrowserView extends Composite {
             clearButton.add(buttonForm);
             clearButton.addStyleName("hierar-clear-button");
             widgetContainer.add(clearButton);
-            clearButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    chosenItems.clear();
-                    widgetChosenContent.handleAddingChosenItems(chosenItems, selectedIds);
+            clearButton.addClickHandler(clickHandler);
 
-                }
-            });
         }
     }
 
    public void clear(){
        widgetContainer.clear();
+   }
+   public void displayChosenItems(List<HierarchyBrowserItem> chosenItems, boolean shouldDisplayTooltipButton){
+       widgetChosenContent.displayChosenItems(chosenItems, shouldDisplayTooltipButton);
    }
 }

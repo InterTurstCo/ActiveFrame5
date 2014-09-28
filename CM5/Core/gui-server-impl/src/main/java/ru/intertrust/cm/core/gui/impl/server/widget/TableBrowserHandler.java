@@ -14,11 +14,11 @@ import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.*;
 

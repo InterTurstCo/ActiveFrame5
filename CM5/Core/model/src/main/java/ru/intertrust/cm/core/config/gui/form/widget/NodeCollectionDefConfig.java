@@ -54,6 +54,8 @@ public class NodeCollectionDefConfig implements Dto {
     @ElementList(inline = true, name ="node-collection-def", required = false)
     private List<NodeCollectionDefConfig> nodeCollectionDefConfigs = new ArrayList<NodeCollectionDefConfig>();
 
+    private int elementsCount;
+
     public SelectionPatternConfig getSelectionPatternConfig() {
         return selectionPatternConfig;
     }
@@ -148,6 +150,14 @@ public class NodeCollectionDefConfig implements Dto {
 
     public void setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
         this.selectionFiltersConfig = selectionFiltersConfig;
+    }
+
+    public int getElementsCount() {
+        return elementsCount;
+    }
+
+    public void setElementsCount(int elementsCount) {
+        this.elementsCount = elementsCount;
     }
 
     @Override

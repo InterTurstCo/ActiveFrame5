@@ -21,16 +21,11 @@ import java.util.Map;
  *         Date: 03.01.14
  *         Time: 13:15
  */
-public class EditableHierarchyBrowserHyperlinkContentManager extends HierarchyBrowserHyperlinkContentManager {
-    private HierarchyBrowserView view;
-    private HierarchyBrowserMainPopup mainPopup;
+public abstract class EditableHierarchyBrowserHyperlinkContentManager extends HierarchyBrowserHyperlinkContentManager {
 
     public EditableHierarchyBrowserHyperlinkContentManager(Id id, String collectionName, HierarchyBrowserConfig config,
-                                                           HierarchyBrowserView view, HierarchyBrowserMainPopup mainPopup,
                                                            Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
         super(id, collectionName, config, collectionNameNodeMap);
-        this.view = view;
-        this.mainPopup = mainPopup;
     }
 
     @Override
@@ -48,11 +43,7 @@ public class EditableHierarchyBrowserHyperlinkContentManager extends HierarchyBr
                 Id id = response.getId();
                 String representation = response.getRepresentation();
                 HierarchyBrowserItem updatedItem = new HierarchyBrowserItem(id, representation);
-                if (mainPopup != null) {
-                    mainPopup.handleReplacingChosenItem(updatedItem);
-                } else {
-                    view.handleReplacingChosenItem(updatedItem);
-                }
+                handleHyperlinkUpdate(updatedItem);
 
             }
 
@@ -62,5 +53,5 @@ public class EditableHierarchyBrowserHyperlinkContentManager extends HierarchyBr
             }
         });
     }
-
+    protected abstract void handleHyperlinkUpdate(HierarchyBrowserItem updatedItem);
 }

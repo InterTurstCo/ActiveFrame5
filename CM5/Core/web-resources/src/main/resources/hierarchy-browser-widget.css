@@ -71,9 +71,14 @@ table.hierarh-browser-inline td {
     background: url(images/refresh.gif) no-repeat #fff center center;
 }
 
-.one-node-scroll {
+.oneNodeScroll {
     border-collapse: separate !important;
     border-spacing: 0px !important;
+    overflow-x: hidden;
+    background: #fff;
+    border: 2px solid #FFA500;
+    width: 100%;
+    margin-right: 50px;
 }
 
 .popup-body {
@@ -105,20 +110,13 @@ table.hierarh-browser-inline td {
     margin-right: 8px;
 }
 
-.node {
+.hierarchyBrowserNode {
     background: #DCDCDC;
     padding-right: 4px;
 }
 
 .one-node-body {
     width: 100%;
-}
-
-.one-node-scroll {
-    background: #fff;
-    border: 2px solid #FFA500;
-    width: 100%;
-    margin-right: 50px;
 }
 
 .bottom-popup-button {
@@ -358,6 +356,11 @@ table.hierarh-browser-inline td {
     vertical-align: middle;
     width: 15px;
 
+}
+
+.hBArrowRight {
+    float: right;
+    margin-right: 2px;
 }
 
 .hierarchyBrowserElement .facebook-btn:hover {

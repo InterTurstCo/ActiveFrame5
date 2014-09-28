@@ -15,7 +15,6 @@ public class HierarchyBrowserCheckBoxUpdateEvent extends GwtEvent<HierarchyBrows
 
     public HierarchyBrowserCheckBoxUpdateEvent(HierarchyBrowserItem item) {
         this.item = item;
-
     }
 
     @Override

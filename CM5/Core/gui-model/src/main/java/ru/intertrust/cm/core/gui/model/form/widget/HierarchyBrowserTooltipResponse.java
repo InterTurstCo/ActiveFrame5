@@ -18,6 +18,11 @@ public class HierarchyBrowserTooltipResponse implements Dto {
     public HierarchyBrowserTooltipResponse() {
     }
 
+    public HierarchyBrowserTooltipResponse(ArrayList<HierarchyBrowserItem> items, ArrayList<Id> selectedIds) {
+        this.items = items;
+        this.selectedIds = selectedIds;
+    }
+
     public HierarchyBrowserTooltipResponse(ArrayList<HierarchyBrowserItem> items, ArrayList<Id> selectedIds,
                                            SelectionFiltersConfig selectionFiltersConfig) {
         this.items = items;

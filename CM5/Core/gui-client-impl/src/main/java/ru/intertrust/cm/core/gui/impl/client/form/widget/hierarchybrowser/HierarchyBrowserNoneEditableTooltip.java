@@ -17,14 +17,13 @@ public class HierarchyBrowserNoneEditableTooltip extends PopupPanel {
     private HierarchyBrowserNoneEditablePanel widgetItemsView;
     private boolean displayAsHyperlinks;
 
-
     public HierarchyBrowserNoneEditableTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
                                                boolean displayAsHyperlinks) {
-
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
         init(selectionStyleConfig);
+
     }
 
     private void init(SelectionStyleConfig selectionStyleConfig) {

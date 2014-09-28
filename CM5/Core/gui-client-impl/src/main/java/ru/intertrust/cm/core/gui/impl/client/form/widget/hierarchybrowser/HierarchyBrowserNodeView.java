@@ -1,8 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -11,6 +8,9 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.*;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.ArrayList;
@@ -30,7 +30,6 @@ public class HierarchyBrowserNodeView implements IsWidget {
     private int factor;
     private ScrollPanel scroll = new ScrollPanel();
     private TextBox textBox;
-    private boolean dontShowResetButton;
 
     private boolean selective;
     private HorizontalPanel styledActivePanel = new HorizontalPanel();
@@ -42,8 +41,8 @@ public class HierarchyBrowserNodeView implements IsWidget {
         scroll.setHeight(nodeHeight + "px");
         scroll.setAlwaysShowScrollBars(false);
         scroll.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
-        root.addStyleName("node");
-        scroll.addStyleName("one-node-scroll");
+        root.addStyleName("hierarchyBrowserNode");
+        scroll.addStyleName("oneNodeScroll");
         currentNodePanel.addStyleName("one-node-body");
 
     }
@@ -127,6 +126,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
                 }
             });
             panelLeft.add(checkBox);
+            panelLeft.setCellVerticalAlignment(checkBox, HasVerticalAlignment.ALIGN_MIDDLE);
         }
 
         Label anchor = new Label(item.getStringRepresentation());
@@ -142,8 +142,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         FocusPanel focusPanel = new FocusPanel();
         if(item.isMayHaveChildren()){
         Label arrow = new Label("►");
-        arrow.getElement().getStyle().setFloat(Style.Float.RIGHT);
-        arrow.getElement().getStyle().setMarginRight(2, Style.Unit.PX);
+        arrow.addStyleName("hBArrowRight");
         focusPanel.add(arrow);
         focusPanel.addClickHandler(new ClickHandler() {
             @Override
@@ -163,7 +162,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         currentItemPanel.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                if (childClicked(event, id)) {
+                if (GuiUtil.isChildClicked(event, id)) {
                     return;
                 }
                 eventBus.fireEvent(new HierarchyBrowserNodeClickEvent(item.getNodeCollectionName(), item.getId()));
@@ -191,13 +190,15 @@ public class HierarchyBrowserNodeView implements IsWidget {
         root.add(buttonsPanel);
     }
 
-    private FocusPanel createAddItemButton(final Id parentId, final String parentCollectionName, final Map.Entry<String, String> entry) {
+    private FocusPanel createAddItemButton(final Id parentId, final String parentCollectionName,
+                                           final Map.Entry<String, String> entry) {
         final FocusPanel addItemPanel = new FocusPanel();
         addItemPanel.addStyleName("light-button button-extra-style");
         AbsolutePanel buttonPanel = new AbsolutePanel();
         Image plus = new Image("images/green-plus.png");
 
         Label text = new Label(entry.getValue());
+        text.addStyleName("hierarchyBrowserLabel");
         buttonPanel.add(plus);
         buttonPanel.add(text);
         addItemPanel.add(buttonPanel);
@@ -226,16 +227,26 @@ public class HierarchyBrowserNodeView implements IsWidget {
     }
 
     private AbsolutePanel createSearchBar(final Id parentId, final String parentCollectionName) {
-        final AbsolutePanel searchBar = new AbsolutePanel();
-        searchBar.addStyleName("search-bar");
+        final AbsolutePanel result = new AbsolutePanel();
+        result.addStyleName("search-bar");
         textBox = new TextBox();
-        textBox.removeStyleName("gwt-TextBox");
-        textBox.getElement().setAttribute("placeholder", "Поиск");
-        textBox.addStyleName("input-text");
-        Image magnifier = new Image("images/loupe.png");
-        FocusPanel magnifierPanel = new FocusPanel();
-        magnifierPanel.addStyleName("magnifier");
-        magnifierPanel.addClickHandler(new ClickHandler() {
+        Panel resetButton = initResetButton(parentId, parentCollectionName);
+        initFilterInput(resetButton, parentId, parentCollectionName);
+        Panel magnifier = initMagnifier(parentId, parentCollectionName);
+        result.add(magnifier);
+        result.add(textBox);
+        result.add(resetButton);
+
+        return result;
+    }
+
+    private Panel initMagnifier(final Id parentId, final String parentCollectionName){
+
+        Panel magnifier = new AbsolutePanel();
+        magnifier.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().magnifierButton());
+        FocusPanel result = new FocusPanel();
+        result.addStyleName("magnifier");
+        result.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 String inputText = textBox.getText();
@@ -246,35 +257,42 @@ public class HierarchyBrowserNodeView implements IsWidget {
 
             }
         });
-        magnifierPanel.add(magnifier);
-        searchBar.add(magnifierPanel);
-        searchBar.add(textBox);
-        final Image resetButton = new Image("icons/icon-delete.png");
+        result.add(magnifier);
+        return result;
+    }
+
+    private Panel initResetButton(final Id parentId, final String parentCollectionName){
+        final Panel result = new AbsolutePanel();
+        result.addStyleName("reset-button");
+        result.getElement().getStyle().setDisplay(Style.Display.NONE);
+        result.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().hBFilterClearButton());
+        result.addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                textBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
+                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName));
+                result.removeFromParent();
+                factor = 0;
+            }
+        }, ClickEvent.getType());
+
+        return result;
+    }
+
+    private void initFilterInput(final Panel resetButton, final Id parentId, final String parentCollectionName){
+        textBox.getElement().setAttribute("placeholder", "Поиск");
+        textBox.setStyleName("input-text");
         textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
             public void onValueChange(ValueChangeEvent event) {
-                if (dontShowResetButton) {
-                    return;
-                }
-                String inputText = textBox.getValue();
-                if ("".equalsIgnoreCase(inputText)) {
-                    resetButton.removeFromParent();
-                    dontShowResetButton = false;
-                }
+                Style style = resetButton.getElement().getStyle();
+                String inputText = textBox.getText();
+                if (BusinessUniverseConstants.EMPTY_VALUE.equalsIgnoreCase(inputText)) {
+                    style.setDisplay(Style.Display.NONE);
+                } else {
+                    style.clearDisplay();
 
-                resetButton.addStyleName("reset-button");
-                resetButton.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        textBox.setText("");
-                        eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName));
-                        resetButton.removeFromParent();
-                        dontShowResetButton = false;
-                        factor = 0;
-                    }
-                });
-                searchBar.add(resetButton);
-                dontShowResetButton = true;
+                }
             }
 
         });
@@ -287,23 +305,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
                 }
             }
         });
-        return searchBar;
+
     }
 
-    private boolean childClicked(ClickEvent event, String id) {
-        NodeList<Element> checkBoxes = Document.get().getElementById(id).getElementsByTagName("input");
-        Element target = Element.as(event.getNativeEvent().getEventTarget());
-        for (int i = 0; i < checkBoxes.getLength(); i++) {
-            if (checkBoxes.getItem(i).isOrHasChild(target)) {
-                return true;
-            }
-        }
-        NodeList<Element> links = Document.get().getElementById(id).getElementsByTagName("div");
-        for (int i = 0; i < links.getLength(); i++) {
-            if (links.getItem(i).isOrHasChild(target)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

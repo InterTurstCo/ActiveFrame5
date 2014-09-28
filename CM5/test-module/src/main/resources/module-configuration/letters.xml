@@ -215,11 +215,15 @@
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
-                    <selection-filters row-limit="1"></selection-filters>
+                    <selection-filters row-limit="2">
+
+                    </selection-filters>
+                    <!--<selection-filters row-limit="1"></selection-filters>-->
                     <node-collection-def collection="departments" parent-filter="byOrganization"
                                          domain-object-type="department" title="Департамент">
                         <!-- название фильтра по тексту, введённому пользователем -->
                         <fill-parent-on-add field-to-fill="organization"/>
+
                         <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>

@@ -14,9 +14,9 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
-import ru.intertrust.cm.core.gui.impl.server.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -73,7 +73,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         state.setHierarchyBrowserConfig(widgetConfig);
         state.setChosenItems(chosenItems);
         state.setRootNodeLinkConfig(nodeConfig.getRootNodeLinkConfig());
-        state.setShouldDrawTooltipButton(!noLimit && !selectedIds.isEmpty());
+
         return state;
     }
 
@@ -87,16 +87,22 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
-        if(limit == 0) {
+        if(limit == 0 && !tooltipContent) {
             collection = collectionsService.findCollection(collectionName, null, filters);
 
-        } else {
+        } else if(limit != 0) {
             collection = tooltipContent
                     ? collectionsService.findCollection(collectionName, null, filters,limit, WidgetConstants.UNBOUNDED_LIMIT)
                     : collectionsService.findCollection(collectionName, null, filters, 0, limit);
+            int collectionCount = collectionsService.findCollectionCount(collectionName, filters);
+            nodeConfig.setElementsCount(collectionCount);
+        }
+        if(collection == null){
+            return;
         }
         SelectionPatternConfig selectionPatternConfig = nodeConfig.getSelectionPatternConfig();
         Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
+
         for (IdentifiableObject identifiableObject : collection) {
             HierarchyBrowserItem item = createHierarchyBrowserItem(collectionName, identifiableObject, matcher, formattingConfig);
             items.add(item);
@@ -243,6 +249,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             return nodeCollectionDefConfigs;
         }
     }
+
     public HierarchyBrowserTooltipResponse fetchWidgetItems(Dto inputParams){
         HierarchyBrowserTooltipRequest request = (HierarchyBrowserTooltipRequest) inputParams;
         HierarchyBrowserConfig config = request.getHierarchyBrowserConfig();
@@ -260,15 +267,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                     selectedIds, chosenItems, true);
         }
 
-        SelectionFiltersConfig selectionFiltersConfig  = null;
-        //TODO fix this stub
-        for (NodeCollectionDefConfig nodeCollectionDefConfig : collectionNameNodeMap.values()) {
-            SelectionFiltersConfig randomSelectionFiltersConfig = nodeCollectionDefConfig.getSelectionFiltersConfig();
-            if(randomSelectionFiltersConfig != null){
-                selectionFiltersConfig = randomSelectionFiltersConfig;
-            }
-        }
-        HierarchyBrowserTooltipResponse response = new HierarchyBrowserTooltipResponse(chosenItems, selectedIds, selectionFiltersConfig);
+        HierarchyBrowserTooltipResponse response = new HierarchyBrowserTooltipResponse(chosenItems, selectedIds);
         return response;
     }
 

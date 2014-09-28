@@ -60,6 +60,9 @@ public interface ThemeBundle extends ClientBundle {
     @ClientBundle.Source("images/arrowDown.png")
     ImageResource arrowDownIm();
 
+    @ClientBundle.Source("images/magnifier.png")
+    ImageResource magnifierIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

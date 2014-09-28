@@ -51,4 +51,10 @@ public interface CommonCssResource extends CssResource {
 
     @ClassName("arrowDownButton")
     String arrowDownButton();
+
+    @ClassName("hBFilterClearButton")
+    String hBFilterClearButton();
+
+    @ClassName("magnifierButton")
+    String magnifierButton();
 }

@@ -93,4 +93,16 @@ public class HierarchyBrowserItem implements Dto {
         result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
+
+    public HierarchyBrowserItem getCopy(){
+        HierarchyBrowserItem result = new HierarchyBrowserItem();
+        result.setStringRepresentation(stringRepresentation);
+        result.setId(id);
+        result.setNodeCollectionName(nodeCollectionName);
+        result.setChosen(chosen);
+        result.setMayHaveChildren(mayHaveChildren);
+
+        return result;
+
+    }
 }

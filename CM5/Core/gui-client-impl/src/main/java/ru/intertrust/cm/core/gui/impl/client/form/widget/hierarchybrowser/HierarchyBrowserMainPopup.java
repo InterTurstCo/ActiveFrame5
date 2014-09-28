@@ -6,11 +6,13 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.RootNodeLinkConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 
 import java.util.*;
 
@@ -29,8 +31,7 @@ public class HierarchyBrowserMainPopup {
     private int popupWidth;
     private int popupHeight;
     private HyperLinkWithHistorySupport linkLabel;
-    private int nodeHeight;
-    private ArrayList<HierarchyBrowserItem> chosenItems;
+
     private EventBus eventBus;
     private Button okButton;
     private Map<String, HierarchyBrowserNodeView> containerMap;
@@ -39,43 +40,24 @@ public class HierarchyBrowserMainPopup {
     private boolean displayAsHyperlinks;
     private Button cancelButton;
     private double nodeSectionWidth;
-    private RootNodeLinkConfig rootNodeLinkConfig;
+    private String title;
     private boolean shouldDrawTooltipButton;
-    public HierarchyBrowserMainPopup(EventBus eventBus, ArrayList<HierarchyBrowserItem> chosenItems,
-                                     int popupWidth, int popupHeight, SelectionStyleConfig selectionStyleConfig,
-                                     boolean displayAsHyperlinks, RootNodeLinkConfig rootNodeLinkConfig, boolean shouldDrawTooltipButton) {
+
+    public HierarchyBrowserMainPopup(EventBus eventBus, HierarchyBrowserWidgetState state) {
         this.eventBus = eventBus;
-        this.chosenItems = chosenItems;
-        this.selectionStyleConfig = selectionStyleConfig;
-        this.displayAsHyperlinks = displayAsHyperlinks;
-        this.shouldDrawTooltipButton = shouldDrawTooltipButton;
+
+        this.selectionStyleConfig = state.getHierarchyBrowserConfig().getSelectionStyleConfig();
+        this.displayAsHyperlinks = HierarchyBrowserUtil.isDisplayingHyperlinks(state);
+        this.shouldDrawTooltipButton = state.isTooltipAvailable();
+        title = state.getRootNodeLinkConfig() == null ? "link" : state.getRootNodeLinkConfig().getTitle();
         containerMap = new HashMap<String, HierarchyBrowserNodeView>();
         nodeTypes = new ArrayList<String>();
-        this.rootNodeLinkConfig = rootNodeLinkConfig;
-        setWidgetSize(popupWidth, popupHeight);
-    }
 
-    public ArrayList<HierarchyBrowserItem> getChosenItems() {
-        return popupChosenContent.getChosenItems();
-    }
-
-    public void setChosenItems(ArrayList<HierarchyBrowserItem> chosenItems) {
-        this.chosenItems = chosenItems;
-    }
-
-    public void handleAddingItem(HierarchyBrowserItem item, boolean singleChoice) {
-        popupChosenContent.handleAddingItem(item, singleChoice);
-    }
-    public ArrayList<Id> getSelectedIds() {
-        return popupChosenContent.getSelectedIds();
-    }
-
-    public void handleRemovingItem(HierarchyBrowserItem item) {
-        popupChosenContent.handleRemovingItem(item);
-
-    }
-    public void handleReplacingChosenItem(HierarchyBrowserItem item) {
-        popupChosenContent.handleReplacingChosenItem(item);
+        DialogWindowConfig dialogWindowConfig = state.getHierarchyBrowserConfig().getDialogWindowConfig();
+        popupWidth = HierarchyBrowserUtil.getSizeFromString(dialogWindowConfig != null ?
+                dialogWindowConfig.getWidth() : null, HierarchyBrowserMainPopup.DEFAULT_WIDTH);
+        popupHeight = HierarchyBrowserUtil.getSizeFromString(dialogWindowConfig != null ?
+                dialogWindowConfig.getHeight() : null, HierarchyBrowserMainPopup.DEFAULT_HEIGHT);
 
     }
 
@@ -120,7 +102,7 @@ public class HierarchyBrowserMainPopup {
         linkLabel = new HyperLinkWithHistorySupport();
         linkLabel.removeStyleName("gwt-Hyperlink ");
         linkLabel.addStyleName("node-link");
-        String title = rootNodeLinkConfig == null ? "link" : rootNodeLinkConfig.getTitle();
+
         linkLabel.setText(title);
         linkLabel.getElement().getStyle().setColor("white");
         Image arrow = new Image("images/arrow-right.png");
@@ -131,8 +113,11 @@ public class HierarchyBrowserMainPopup {
         linksSection.add(nodePanel);
 
     }
+    public void displayChosenItems(List<HierarchyBrowserItem> chosenItems, boolean shouldDisplayTooltipButton){
+        popupChosenContent.displayChosenItems(chosenItems, shouldDisplayTooltipButton);
+    }
 
-    public void createAndShowPopup(ArrayList<Id> selectedIds) {
+    public void createAndShowPopup(List<HierarchyBrowserItem> chosenItems) {
         dialogBox = new DialogBox();
 
         dialogBox.setAnimationEnabled(true);
@@ -140,25 +125,21 @@ public class HierarchyBrowserMainPopup {
         dialogBox.addStyleName("popup-body");
         dialogBox.setModal(true);
         dialogBox.add(initPopup());
-        popupChosenContent.handleAddingChosenItems(chosenItems, selectedIds);
-        if(shouldDrawTooltipButton) {
-            popupChosenContent.addShowTooltipLabel(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                  eventBus.fireEvent(new HierarchyBrowserShowTooltipEvent(popupChosenContent));
-                }
-            });
-        }
+
+        popupChosenContent.setTooltipClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                eventBus.fireEvent(new HierarchyBrowserShowTooltipEvent(popupChosenContent));
+            }
+        });
+
+        popupChosenContent.displayChosenItems(chosenItems, shouldDrawTooltipButton);
+
         dialogBox.setHeight(popupHeight + "px");
         dialogBox.setWidth(popupWidth + "px");
         dialogBox.center();
     }
 
-    public void setWidgetSize(int width, int height) {
-        popupWidth = width != 0 ? width : DEFAULT_WIDTH;
-        popupHeight = height != 0 ? height : DEFAULT_HEIGHT;
-        nodeHeight = (int) (0.6 * popupHeight);
-    }
 
     private AbsolutePanel createFooterButtonPanel() {
         AbsolutePanel buttonsPanel = new AbsolutePanel();
@@ -202,7 +183,7 @@ public class HierarchyBrowserMainPopup {
                 }
             }
         }
-        HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus, nodeHeight,
+        HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus,  (int) (0.6 * popupHeight),
                selective);
         nodesSection.add(nodeView);
         nodeView.drawNode(parentId, parentCollectionName, items, domainObjectTypesAndTitles);
@@ -261,5 +242,6 @@ public class HierarchyBrowserMainPopup {
             nodeView.asWidget().getElement().getStyle().setWidth(oneNodeWidthInPercentage, Style.Unit.PX);
         }
     }
+
 }
 

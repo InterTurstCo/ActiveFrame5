@@ -1,14 +1,13 @@
-package ru.intertrust.cm.core.gui.impl.server.util;
+package ru.intertrust.cm.core.gui.model.util;
 
 import ru.intertrust.cm.core.config.gui.form.widget.DisplayValuesAsLinksConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 
 /**
  * @author Yaroslav Bondarchuk
- *         Date: 06.07.2014
- *         Time: 12:18
+ *         Date: 18.09.2014
+ *         Time: 23:49
  */
-@Deprecated
 public class WidgetUtil {
     public static int getLimit(SelectionFiltersConfig selectionFiltersConfig) {
         int limit = 0;
@@ -21,4 +20,5 @@ public class WidgetUtil {
     public static boolean isDisplayingAsHyperlinks(DisplayValuesAsLinksConfig displayValuesAsLinksConfig) {
         return displayValuesAsLinksConfig != null && displayValuesAsLinksConfig.isValue();
     }
+
 }

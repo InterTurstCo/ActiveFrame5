@@ -5,13 +5,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserCheckBoxUpdateEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -22,11 +21,10 @@ public class HierarchyBrowserItemsView extends Composite {
     private AbsolutePanel container;
     private AbsolutePanel mainBoxPanel;
     private EventBus eventBus;
-    private ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
-    private ArrayList<Id> selectedIds;
     private Style.Display displayStyle;
     private PopupPanel popupPanel;
     private boolean displayAsHyperlinks;
+    private ClickHandler tooltipClickHandler;
 
     public HierarchyBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlink) {
         this.eventBus = eventBus;
@@ -43,14 +41,6 @@ public class HierarchyBrowserItemsView extends Composite {
         initWidget(container);
     }
 
-    public ArrayList<Id> getSelectedIds() {
-        return selectedIds;
-    }
-
-    public ArrayList<HierarchyBrowserItem> getChosenItems() {
-        return chosenItems;
-    }
-
     public EventBus getEventBus() {
         return eventBus;
     }
@@ -61,6 +51,11 @@ public class HierarchyBrowserItemsView extends Composite {
 
     private void displayChosenItem(final HierarchyBrowserItem item) {
 
+        Panel element = createChosenItem(item);
+        mainBoxPanel.add(element);
+    }
+
+    private Panel createChosenItem(final HierarchyBrowserItem item) {
         final AbsolutePanel element = new AbsolutePanel();
         element.getElement().getStyle().setMarginLeft(5, Style.Unit.PX);
         element.getElement().getStyle().setDisplay(displayStyle);
@@ -77,90 +72,49 @@ public class HierarchyBrowserItemsView extends Composite {
         delBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                chosenItems.remove(item);
+
                 element.removeFromParent();
                 item.setChosen(false);
-                selectedIds.remove(item.getId());
+
                 eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item));
             }
         });
         element.add(label);
         element.add(delBtn);
-        mainBoxPanel.add(element);
+        return element;
     }
 
-    private void displayChosenItems() {
+    public void displayChosenItems(List<HierarchyBrowserItem> chosenItems, boolean shouldDisplayTooltipButton) {
         mainBoxPanel.clear();
         for (HierarchyBrowserItem item : chosenItems) {
             displayChosenItem(item);
         }
-
-    }
-
-    public void handleAddingItem(HierarchyBrowserItem item, boolean singleChoice) {
-        if (singleChoice) {
-            if (!chosenItems.isEmpty()) {
-                HierarchyBrowserItem itemToDelete = chosenItems.get(0);
-                itemToDelete.setChosen(false);
-                eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(itemToDelete));
-            }
-            chosenItems.clear();
-
-            mainBoxPanel.clear();
+        if (shouldDisplayTooltipButton) {
+            createTooltipLabel();
         }
-        chosenItems.add(item);
-        selectedIds.add(item.getId());
-        displayChosenItem(item);
-    }
-
-    public void handleRemovingItem(HierarchyBrowserItem item) {
-        chosenItems.remove(item);
-        selectedIds.remove(item.getId());
-        displayChosenItems();
-    }
-
-    public void handleAddingChosenItems(ArrayList<HierarchyBrowserItem> chosenItems, ArrayList<Id> selectedIds) {
-        this.chosenItems = chosenItems;
-        this.selectedIds = selectedIds;
-        displayChosenItems();
 
     }
 
-    public void handleReplacingChosenItem(HierarchyBrowserItem updatedItem) {
-        HierarchyBrowserItem itemToReplace = findHierarchyBrowserItem(updatedItem.getId());
-        if (itemToReplace == null) {
-            return;
-        }
-        String collectionName = itemToReplace.getNodeCollectionName();
-        updatedItem.setNodeCollectionName(collectionName);
-        updatedItem.setChosen(itemToReplace.isChosen());
-        int index = chosenItems.indexOf(itemToReplace);
-        chosenItems.set(index, updatedItem);
-        displayChosenItems();
-
+    public void setTooltipClickHandler(ClickHandler tooltipClickHandler) {
+        this.tooltipClickHandler = tooltipClickHandler;
     }
 
-    private HierarchyBrowserItem findHierarchyBrowserItem(Id id) {
-        for (HierarchyBrowserItem item : chosenItems) {
-            if (item.getId().equals(id)) {
-                return item;
-            }
-        }
-        return null;
-    }
-
-    public void addShowTooltipLabel(ClickHandler handler) {
+    public void createTooltipLabel() {
         Button openTooltip = new Button("...");
         openTooltip.setStyleName("tooltipButton");
         AbsolutePanel wrapper = new AbsolutePanel();
         wrapper.setStyleName("hierarchyBrowserElement");
         wrapper.add(openTooltip);
         mainBoxPanel.add(wrapper);
-        openTooltip.addClickHandler(handler);
+        openTooltip.addClickHandler(tooltipClickHandler);
     }
 
-    public void setHeight(String height){
+    public void setHeight(String height) {
         container.setHeight(height);
+    }
+
+    public boolean isEmpty() {
+        return mainBoxPanel.getWidgetCount() == 0;
     }
 }
 
