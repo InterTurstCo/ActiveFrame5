@@ -8,12 +8,10 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -117,6 +115,11 @@ public class ExtensionServiceImpl implements ExtensionService{
 
                                         // Получаем фильтр из аннотации
                                         String filter = annatation.filter();
+                                        
+                                        // CMFIVE-1491 значение фильтра должно быть case-insensitive                                        
+                                        if (filter != null){
+                                            filter = filter.toLowerCase();
+                                        }
 
                                         if (extentionPoint == null) {
                                             // Проверяем есть ли спринг бин этого
@@ -219,7 +222,7 @@ public class ExtensionServiceImpl implements ExtensionService{
             if (filter != null) {
                 // Получение точек расширения по фильтру
                 List<ExtensionPointHandler> filteredExtension = oneTypeExtensions
-                        .get(filter);
+                        .get(filter.toLowerCase());
                 // Если точки расширения по фильтру найдены то добавляем их в
                 // результат
                 if (filteredExtension != null && filteredExtension.size() > 0) {

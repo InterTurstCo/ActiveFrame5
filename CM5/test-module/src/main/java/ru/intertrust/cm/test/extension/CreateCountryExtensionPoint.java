@@ -4,7 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 
-@ExtensionPoint(filter="country")
+@ExtensionPoint(filter="CoUnTrY")
 public class CreateCountryExtensionPoint implements AfterCreateExtentionHandler{
 
     @Override
