@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.api;
+package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -25,9 +25,6 @@ public interface EventLogService {
 
     public final static String ACCESS_OBJECT_WAS_GRANTED_YES = "Y";
     public final static String ACCESS_OBJECT_WAS_GRANTED_NO = "N";
-
-    public interface Remote extends EventLogService {
-    }
 
     public void logLogInEvent(String login, String ip, boolean success);
 

@@ -1,22 +1,14 @@
-package ru.intertrust.cm.core.business.impl;
+package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.EventLogService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.dao.api.*;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
@@ -27,12 +19,8 @@ import java.util.Map;
 
 @Stateless
 @Local(EventLogService.class)
-@Remote(EventLogService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-public class EventLogServiceImpl implements EventLogService, EventLogService.Remote {
-
-    @Autowired
-    private CrudService crudService;
+public class EventLogServiceImpl implements EventLogService {
 
     @Autowired
     private PersonServiceDao personServiceDao;
@@ -58,7 +46,7 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
         if (!isLoginEventEnabled()) return;
 
         DomainObject selSubjUser = createSelSubjUserRecord(success ? getCurrentUserId() : null, login, ip);
-        createSystemEventLogRecord(LOGIN, success, selSubjUser, null);
+        createSystemEventLogRecord(EventLogService.LOGIN, success, selSubjUser, null);
     }
 
     private boolean isLoginEventEnabled() {
@@ -75,7 +63,7 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
         if (!isLogoutEventEnabled()) return;
 
         DomainObject selSubjUser = createSelSubjUserRecord(findPersonByLogin(login), null, null);
-        createSystemEventLogRecord(LOGOUT, true, selSubjUser, null);
+        createSystemEventLogRecord(EventLogService.LOGOUT, true, selSubjUser, null);
     }
 
     private boolean isLogoutEventEnabled() {
@@ -91,10 +79,10 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
     public void logDownloadAttachmentEvent(Id attachment) {
         if (!isDownloadAttachmentEventEnabled()) return;
         DomainObject selSubjUser = createSelSubjUserRecord(getCurrentUserId(), null, null);
-        DomainObject selObjAttachment = crudService.createDomainObject("sel_obj_attachment");
+        DomainObject selObjAttachment = createDomainObject("sel_obj_attachment");
         selObjAttachment.setReference("attachment", attachment);
         selObjAttachment = domainObjectDao.save(selObjAttachment, getEventLogAccessToken());
-        createSystemEventLogRecord(DOWNLOAD_ATTACHMENT, true, selSubjUser, selObjAttachment);
+        createSystemEventLogRecord(EventLogService.DOWNLOAD_ATTACHMENT, true, selSubjUser, selObjAttachment);
     }
 
     private boolean isDownloadAttachmentEventEnabled() {
@@ -128,7 +116,7 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
     }
 
     private void logAccessDomainObject(Id objectId, String accessType, boolean success) {
-        if (!ACCESS_OBJECT_READ.equals(accessType) && !ACCESS_OBJECT_WRITE.equals(accessType)){
+        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)){
             throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
         }
 
@@ -137,12 +125,12 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
         if (!isAccessDomainObjectEventEnabled(objectId, accessType, success)) return;
 
         DomainObject selSubjUser = createSelSubjUserRecord(getCurrentUserId(), null, null);
-        DomainObject selObjObjectAccess = crudService.createDomainObject("sel_obj_object_access");
+        DomainObject selObjObjectAccess = createDomainObject("sel_obj_object_access");
         selObjObjectAccess.setReference("object", objectId);
         selObjObjectAccess.setString("access_type", accessType);
         selObjObjectAccess = domainObjectDao.save(selObjObjectAccess, getEventLogAccessToken());
 
-        createSystemEventLogRecord(ACCESS_OBJECT, success, selSubjUser, selObjObjectAccess);
+        createSystemEventLogRecord(EventLogService.ACCESS_OBJECT, success, selSubjUser, selObjObjectAccess);
     }
 
 
@@ -163,7 +151,7 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
                 return false;
             }
 
-            String accessWasGranted = success ? ACCESS_OBJECT_WAS_GRANTED_YES : ACCESS_OBJECT_WAS_GRANTED_NO;
+            String accessWasGranted = success ? EventLogService.ACCESS_OBJECT_WAS_GRANTED_YES : EventLogService.ACCESS_OBJECT_WAS_GRANTED_NO;
             if (!"*".equals(accessEventLogsConfiguration.getAccessWasGranted())
                     && !accessWasGranted.equals(accessEventLogsConfiguration.getAccessWasGranted())){
                 return false;
@@ -176,7 +164,7 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
 
 
     private DomainObject createSystemEventLogRecord(String type, boolean success, DomainObject subject, DomainObject object) {
-        DomainObject systemEventLog = crudService.createDomainObject("system_event_log");
+        DomainObject systemEventLog = createDomainObject("system_event_log");
 
         systemEventLog.setTimestamp("date", new Date());
         systemEventLog.setReference("type", findSelTypeId(type));
@@ -188,7 +176,7 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
     }
 
     private DomainObject createSelSubjUserRecord(DomainObject person, String login, String ip) {
-        DomainObject selSubjUser = crudService.createDomainObject("sel_subj_user");
+        DomainObject selSubjUser = createDomainObject("sel_subj_user");
         selSubjUser.setReference("person", person);
         selSubjUser.setString("user_id", login);
         selSubjUser.setString("ip_address", ip);
@@ -221,6 +209,16 @@ public class EventLogServiceImpl implements EventLogService, EventLogService.Rem
     private AccessToken getEventLogAccessToken() {
         return accessControlService.createSystemAccessToken(this.getClass().getName());
     }
+
+    private DomainObject createDomainObject(String type) {
+        GenericDomainObject domainObject = new GenericDomainObject();
+        domainObject.setTypeName(type);
+        Date currentDate = new Date();
+        domainObject.setCreatedDate(currentDate);
+        domainObject.setModifiedDate(currentDate);
+        return domainObject;
+    }
+
 
 
 }

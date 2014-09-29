@@ -89,10 +89,6 @@
     <jee:local-slsb id="notificationSenderAsync"
                     jndi-name="java:module/NotificationSenderAsync!ru.intertrust.cm.core.business.impl.notification.NotificationSenderAsync"
                     business-interface="ru.intertrust.cm.core.business.impl.notification.NotificationSenderAsync"/>
-    <jee:local-slsb id="eventLogService"
-                    jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.business.api.EventLogService"
-                    business-interface="ru.intertrust.cm.core.business.api.EventLogService"/>
-
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
           p:authenticationDao-ref="authenticationDao" p:md5Service-ref="md5Service"

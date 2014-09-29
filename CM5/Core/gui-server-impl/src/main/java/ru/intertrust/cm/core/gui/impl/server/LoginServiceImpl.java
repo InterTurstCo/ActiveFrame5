@@ -1,14 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
 import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.business.api.EventLogService;
+
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.model.AuthenticationException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
-import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
