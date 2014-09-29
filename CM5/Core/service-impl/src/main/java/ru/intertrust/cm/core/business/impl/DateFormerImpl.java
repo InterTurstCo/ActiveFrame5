@@ -1,7 +1,10 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,12 +13,7 @@ import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.PersonProfile;
-import ru.intertrust.cm.core.business.api.dto.Profile;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-
-import com.ibm.icu.text.DateFormat;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.TimeZone;
 
 /**
  * Имплементация сервиса формирования дат

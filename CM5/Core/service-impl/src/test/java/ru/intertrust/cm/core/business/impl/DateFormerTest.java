@@ -45,7 +45,7 @@ public class DateFormerTest {
         SimpleDateFormat detaeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
         Date testDate = detaeFormat.parse("2014-02-28 18:36:41 356");
         String result = former.format(testDate, new RdbmsId(1,1));
-        assertTrue(result.equals("28 февраля 2014 г., 18:36"));
+        assertTrue(result.equals("28 Февраль 2014 г. 18:36"));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class DateFormerTest {
         testDate.setMonth(1);
         testDate.setDayOfMonth(28);
         String result = former.format(testDate, new RdbmsId(1,1));
-        assertTrue(result.equals("28 февраля 2014 г."));
+        assertTrue(result.equals("28 Февраль 2014 г."));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class DateFormerTest {
         DateTimeWithTimeZone testDate = new DateTimeWithTimeZone("GMT+5", 2014, 1, 28, 18, 36, 41, 356);
         
         String result = former.format(testDate, new RdbmsId(1,1));
-        assertTrue(result.equals("28 февраля 2014 г., 18:36:41 GMT+05:00"));
+        assertTrue(result.equals("28 Февраль 2014 г. 18:36:41 GMT+05:00"));
     }
     
 }

@@ -33,6 +33,7 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelLoader;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelSelector;
+import ru.intertrust.cm.core.business.api.notification.NotificationChannelSelectorFactory;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.ActionListener;
@@ -55,7 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
     private PersonManagementService personManagementService;
 
     @Autowired
-    private NotificationChannelSelector notificationChannelSelector;
+    private NotificationChannelSelectorFactory notificationChannelSelectorFactory;
 
     @Autowired
     private NotificationChannelLoader notificationChannelLoader;
@@ -98,7 +99,7 @@ public class NotificationServiceImpl implements NotificationService {
                 context.addContextObject("addressee", new DomainObjectAccessor(personId));
                 //Получаем список каналов для персоны
                 List<String> channelNames =
-                        notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
+                        notificationChannelSelectorFactory.getService().getNotificationChannels(notificationType, personId, priority);
                 for (String channelName : channelNames) {
                     try {
                         NotificationChannelHandle notificationChannelHandle =
