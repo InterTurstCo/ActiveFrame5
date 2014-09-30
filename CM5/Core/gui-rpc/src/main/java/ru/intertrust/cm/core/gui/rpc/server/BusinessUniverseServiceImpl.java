@@ -111,7 +111,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         if (toLog) {
             log.error(message, e);
         }
-        return new GuiException(message);
+        return new GuiException(message, e);
     }
 
     @Override

@@ -56,9 +56,6 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Autowired
     private ExtensionService extensionService;
-
-    @Autowired
-    private EventLogService eventLogService;
     
     
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
@@ -161,13 +158,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
                 throw new ObjectNotFoundException(domainObject.getId());
             }
 
-            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_WRITE, true);
-
             return result;
-        } catch (AccessException ex) {
-            eventLogService.logAccessDomainObjectEvent(domainObject.getId(), EventLogService.ACCESS_OBJECT_WRITE, false);
-            throw ex;
-        } catch (ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
+        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in save", ex.getMessage());
@@ -185,13 +177,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             }
 
             AccessToken accessToken = createSystemAccessToken();
-            List<DomainObject> result = domainObjectDao.save(domainObjects, accessToken);
-            eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_WRITE, true);
-            return result;
-        } catch (AccessException ex) {
-            eventLogService.logAccessDomainObjectEventByDo(domainObjects, EventLogService.ACCESS_OBJECT_WRITE, false);
-            throw ex;
-        } catch ( ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
+            return domainObjectDao.save(domainObjects, accessToken);
+        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in save", ex);
@@ -232,13 +219,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
                 throw new ObjectNotFoundException(id);
             }
 
-            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
-
             return result;
-        } catch (AccessException ex) {
-            eventLogService.logAccessDomainObjectEvent(id, EventLogService.ACCESS_OBJECT_READ, false);
-            throw ex;
-        } catch ( ObjectNotFoundException | NullPointerException ex) {
+        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in find", ex);
@@ -266,13 +248,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
                 throw new ObjectNotFoundException(id);
             }
 
-            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
-
             return result;
-        } catch (AccessException ex) {
-            eventLogService.logAccessDomainObjectEvent(id, EventLogService.ACCESS_OBJECT_READ, false);
-            throw ex;
-        } catch (ObjectNotFoundException | NullPointerException ex) {
+        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findAndLock", ex);
@@ -292,15 +269,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             AccessToken accessToken =
                     accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.READ, false);
 
-            List<DomainObject> result = domainObjectDao.find(ids, accessToken);
-
-            eventLogService.logAccessDomainObjectEvent(ids, EventLogService.ACCESS_OBJECT_READ, true);
-
-            return result;
-        } catch (AccessException ex) {
-            eventLogService.logAccessDomainObjectEvent(ids, EventLogService.ACCESS_OBJECT_READ, false);
-            throw ex;
-        }  catch ( ObjectNotFoundException | NullPointerException ex) {
+            return domainObjectDao.find(ids, accessToken);
+        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in find", ex);
@@ -323,11 +293,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
                 accessToken = accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
             }
 
-            List<DomainObject> result = domainObjectDao.findAll(domainObjectType, accessToken);
-
-            eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
-
-            return result;
+            return domainObjectDao.findAll(domainObjectType, accessToken);
         } catch (AccessException | ObjectNotFoundException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -345,11 +311,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             AccessToken accessToken = null;
             accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
             domainObjectDao.delete(id, accessToken);
-            eventLogService.logAccessDomainObjectEvent(id, EventLogService.ACCESS_OBJECT_WRITE, true);
-        } catch (AccessException ex) {
-            eventLogService.logAccessDomainObjectEvent(id, EventLogService.ACCESS_OBJECT_WRITE, false);
-            throw ex;
-        } catch (ObjectNotFoundException | NullPointerException | CrudException ex) {
+        } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in delete", ex);
@@ -371,13 +333,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             Id[] idsArray = ids.toArray(new Id[ids.size()]);
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
-            int deleted = domainObjectDao.delete(ids, accessToken);
-            eventLogService.logAccessDomainObjectEvent(ids, EventLogService.ACCESS_OBJECT_WRITE, true);
-            return deleted;
-        } catch (AccessException ex) {
-            eventLogService.logAccessDomainObjectEvent(ids, EventLogService.ACCESS_OBJECT_WRITE, false);
-            throw ex;
-        } catch (ObjectNotFoundException | NullPointerException | CrudException ex) {
+            return domainObjectDao.delete(ids, accessToken);
+        } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in delete", ex);
@@ -389,9 +346,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField) {
         try {
             AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
-            List<DomainObject> result = domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, accessToken);
-            eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
-            return result;
+            return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, accessToken);
         } catch (AccessException  ex) {
             throw ex;
         } catch (Exception ex) {
@@ -406,9 +361,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
         try {
             AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
-            List<Id> result = domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
-            eventLogService.logAccessDomainObjectEvent(result, EventLogService.ACCESS_OBJECT_READ, true);
-            return result;
+            return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
         } catch (AccessException  ex) {
             throw ex;
         } catch (Exception ex) {

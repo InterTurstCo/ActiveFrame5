@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.validation;
 
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +43,23 @@ public class SimpleValidator extends AbstractValidator {
 
     @Override
     void doValidation(CanBeValidated canBeValidated, ValidationResult validationResult) {
-        String value = (String) canBeValidated.getValue();
+        Object object = canBeValidated.getValue();
+        if (object == null && Constraint.KEYWORD_NOT_EMPTY.equals(wordOrPattern)) {
+            validationResult.addError(messageKey);
+        } else if (object instanceof Collection) {
+            if (((Collection) object).isEmpty() && Constraint.KEYWORD_NOT_EMPTY.equals(wordOrPattern)) {
+                validationResult.addError(messageKey);
+            }
+            for (Object item : (Collection)object ) {
+                validateStringValue(item.toString(), validationResult);
+            }
+        }
+        else {
+            validateStringValue(canBeValidated.getValue().toString(), validationResult);
+        }
+    }
+
+    private void validateStringValue(String value, ValidationResult validationResult) {
         if (value != null && pattern!= null && !value.matches(pattern)) {
             validationResult.addError(messageKey);
         }

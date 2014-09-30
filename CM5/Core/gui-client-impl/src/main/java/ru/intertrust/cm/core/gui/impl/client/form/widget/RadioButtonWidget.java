@@ -154,6 +154,6 @@ public class RadioButtonWidget extends BaseWidget {
                 }
             }
         }
-        return null;
+        return ""; // to be able to validate for non-emptiness
     }
 }

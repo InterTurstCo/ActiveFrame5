@@ -76,7 +76,8 @@ public final class ExceptionMessageFactory {
                     return new Pair<>("Ошибка работы подсистемы поиска", true);
                 case "UnexpectedException":
                     return new Pair<>("Неизвестная ошибка приложения.", true);
-//                case "ValidationException": Сообщения обрабатываются самостоятельно
+                case "ValidationException":
+                    return new Pair<>("Исправьте ошибки перед сохранением", true);
             }
         }
         return  new Pair<>("Системная ошибка при выполнении '" + command.getName() + "', обратитесь к администратору.", true);

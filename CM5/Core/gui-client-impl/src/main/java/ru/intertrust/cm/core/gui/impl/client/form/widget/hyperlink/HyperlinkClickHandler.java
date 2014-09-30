@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -70,11 +71,7 @@ public class HyperlinkClickHandler implements ClickHandler {
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        final SaveAction action = ComponentRegistry.instance.get("save.action");
-                        SaveActionContext saveActionContext = new SaveActionContext();
-
-                        action.setInitialContext(saveActionContext);
-                        action.setPlugin(formPluginEditable);
+                        final SaveAction action = getSaveAction(formPluginEditable, id);
                         action.addActionSuccessListener(new ActionSuccessListener() {
                             @Override
                             public void onSuccess() {
@@ -102,5 +99,17 @@ public class HyperlinkClickHandler implements ClickHandler {
                 noneEditableFormDialogBox.hide();
             }
         });
+    }
+
+    private SaveAction getSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
+        SaveActionContext saveActionContext = new SaveActionContext();
+        saveActionContext.setRootObjectId(rootObjectId);
+        final ActionConfig actionConfig = new ActionConfig("save.action");
+        saveActionContext.setActionConfig(actionConfig);
+
+        final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());
+        action.setInitialContext(saveActionContext);
+        action.setPlugin(formPlugin);
+        return action;
     }
 }

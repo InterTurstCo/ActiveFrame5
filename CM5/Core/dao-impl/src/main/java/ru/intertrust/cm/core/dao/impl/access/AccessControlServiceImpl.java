@@ -35,6 +35,7 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.model.AccessException;
 
 /**
@@ -69,6 +70,9 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
+    @Autowired
+    private EventLogService eventLogService;
+
     /**
      * Устанавливает программный агент, которому делегируются функции физической проверки прав доступа
      * через запросы в БД. 
@@ -102,14 +106,27 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Override
     public AccessToken createAccessToken(String login, Id objectId, AccessType type)
             throws AccessException {
-        
+        return createAccessToken(login, objectId, type, true);
+    }
+
+    public boolean verifyAccess(String login, Id objectId, AccessType type) {
+        try {
+            createAccessToken(login, objectId, type, false);
+            return true;
+        } catch (AccessException e) {
+            return false;
+        }
+    }
+
+    private AccessToken createAccessToken(String login, Id objectId, AccessType type, boolean log) throws AccessException {
+
         Id personId = getUserIdByLogin(login);
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
         boolean isSuperUser = isPersonSuperUser(personId);
 
         if (isSuperUser) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
-        }       
+        }
 
         boolean deferred = false;
         if (DomainObjectAccessType.READ.equals(type)) {
@@ -117,11 +134,18 @@ public class AccessControlServiceImpl implements AccessControlService {
         } else { // Для всех других типов доступа к доменному объекту производим запрос в БД
 
             if (!databaseAgent.checkDomainObjectAccess(personIdInt, objectId, type)) {
+                if (log) {
+                    eventLogService.logAccessDomainObjectEvent(objectId, EventLogService.ACCESS_OBJECT_WRITE, false);
+                }
                 throw new AccessException();
             }
         }
-        
+
         AccessToken token = new SimpleAccessToken(new UserSubject(personIdInt), objectId, type, deferred);
+
+        if (log && (DomainObjectAccessType.WRITE.equals(type) || DomainObjectAccessType.DELETE.equals(type))) {
+            eventLogService.logAccessDomainObjectEvent(objectId, EventLogService.ACCESS_OBJECT_WRITE, true);
+        }
         return token;
     }
     

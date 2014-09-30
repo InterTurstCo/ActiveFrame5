@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.model.validation;
 
-import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.model.SystemException;
 
 import java.util.List;
