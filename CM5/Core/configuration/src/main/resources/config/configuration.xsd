@@ -1155,18 +1155,12 @@
 
     <xs:complexType name="formViewerType">
         <xs:sequence>
-            <xs:element name="form-mapping" type="con:formViewerMappingType"
+            <xs:element name="form-mapping" type="con:formMappingType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute name="form-mapping-component" use="optional"/>
     </xs:complexType>
-
-    <xs:complexType name="formViewerMappingType">
-        <xs:attribute type="xs:string" name="domain-object-type"/>
-        <xs:attribute type="xs:string" name="form"/>
-    </xs:complexType>
-
 
     <xs:complexType name="nonReadElementsDefinitionType">
         <xs:choice maxOccurs="unbounded">
@@ -2610,7 +2604,7 @@
             <xs:enumeration value="combined-link"/>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:complexType name="displayType">
         <xs:sequence>
             <xs:element type="con:columnType" name="column"

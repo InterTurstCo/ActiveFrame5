@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 
 /**
  * @author Sergey.Okolot
@@ -11,21 +12,21 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class DomainObjectToCreateConfig implements Dto {
 
-    @Attribute(name = "type")
-    private String type;
+    @Attribute(name = "title")
+    private String title;
 
-    @Attribute(name = "form-name", required = false)
-    private String formName;
+    @Element(name = "form-mapping")
+    private FormMappingConfig formMappingConfig;
 
     @Element(name = "reference")
     private ReferenceTypeConfig referenceTypeConfig;
 
-    public String getType() {
-        return type;
+    public String getTitle() {
+        return title;
     }
 
-    public String getFormName() {
-        return formName;
+    public FormMappingConfig getFormMappingConfig() {
+        return formMappingConfig;
     }
 
     public String getReferenceType() {

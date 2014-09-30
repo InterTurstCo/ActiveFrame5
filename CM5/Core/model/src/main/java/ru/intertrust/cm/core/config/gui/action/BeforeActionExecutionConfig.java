@@ -34,4 +34,8 @@ public class BeforeActionExecutionConfig implements Dto {
     public boolean isSaveContext() {
         return saveContext == null ? true : saveContext.getValue();
     }
+
+    public DomainObjectToCreateConfig getDomainObjectToCreateConfig() {
+        return domainObjectToCreateConfig;
+    }
 }

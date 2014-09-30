@@ -1,15 +1,27 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import java.util.ArrayList;
+import java.util.List;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.SimpleEventBus;
+
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.BeforeActionExecutionConfig;
+import ru.intertrust.cm.core.config.gui.action.DomainObjectToCreateConfig;
 import ru.intertrust.cm.core.config.gui.action.OnSuccessMessageConfig;
+import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.SimpleTextTooltip;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 /**
  * <p>
@@ -135,12 +147,49 @@ public abstract class Action extends BaseComponent {
         @Override
         public void onAffirmative() {
             if (!shouldBeValidated() || isValid()) {
-                execute();
+                final ActionConfig actionConfig = Action.this.getInitialContext().getActionConfig();
+                final BeforeActionExecutionConfig beforeExecutionConfig =
+                        actionConfig == null ? null : actionConfig.getBeforeConfig();
+                if (beforeExecutionConfig != null && beforeExecutionConfig.getDomainObjectToCreateConfig() != null) {
+                    final DomainObjectToCreateConfig doToCreateConfig =
+                            beforeExecutionConfig.getDomainObjectToCreateConfig();
+                    final FormDialogBox formDialogBox = new FormDialogBox(doToCreateConfig.getTitle());
+                    formDialogBox.initButton("Продолжить", new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            formDialogBox.hide();
+                            execute();
+                        }
+                    });
+                    formDialogBox.initButton("Отмена", new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            formDialogBox.hide();
+                        }
+                    });
+                    final FormPluginConfig config = new FormPluginConfig();
+                    config.setFormViewerConfig(new FormViewerConfig()
+                            .addFormMappingConfig(actionConfig.getBeforeConfig().getDomainObjectToCreateConfig()
+                                    .getFormMappingConfig()));
+                    formDialogBox.createFormPlugin(config, new SimpleEventBus());
+                } else {
+                    execute();
+                }
             }
         }
 
         @Override
         public void onCancel() {
         }
+    }
+
+    private static class PrepareFormDialog extends FormDialogBox {
+        // todo or method or class
+
+        private PrepareFormDialog(DomainObjectToCreateConfig config) {
+            super(config.getTitle());
+        }
+
+        // init buttons OK/Cancel
     }
 }

@@ -1,13 +1,13 @@
 package ru.intertrust.cm.core.config.gui.navigation;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.gui.form.FormViewerMappingConfig;
 
-import java.util.ArrayList;
-import java.util.List;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 
 /**
  * @author Lesia Puhova
@@ -21,7 +21,7 @@ public class FormViewerConfig implements Dto {
     private String formMappingComponent;
 
     @ElementList(inline = true, required = false)
-    private List<FormViewerMappingConfig> formMappingConfigList = new ArrayList<>();
+    private List<FormMappingConfig> formMappingConfigList = new ArrayList<>();
 
     public String getFormMappingComponent() {
         return formMappingComponent;
@@ -31,12 +31,17 @@ public class FormViewerConfig implements Dto {
         this.formMappingComponent = formMappingComponent;
     }
 
-    public List<FormViewerMappingConfig> getFormMappingConfigList() {
+    public List<FormMappingConfig> getFormMappingConfigList() {
         return formMappingConfigList;
     }
 
-    public void setFormMappingConfigList(List<FormViewerMappingConfig> formMappingConfigList) {
+    public void setFormMappingConfigList(List<FormMappingConfig> formMappingConfigList) {
         this.formMappingConfigList = formMappingConfigList;
+    }
+
+    public FormViewerConfig addFormMappingConfig(final FormMappingConfig formMappingConfig) {
+        formMappingConfigList.add(formMappingConfig);
+        return this;
     }
 
     @Override

@@ -226,9 +226,39 @@
     <xs:complexType name="doToCreateType">
         <xs:sequence>
             <xs:element name="reference" type="act:doReferenceType" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="form-mapping" type="act:formMappingType" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
-        <xs:attribute name="type" type="xs:string" use="required"/>
-        <xs:attribute name="form-name" type="xs:string" use="optional"/>
+        <xs:attribute name="title" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="formMappingType">
+        <xs:sequence>
+            <xs:element type="act:usersType" name="users" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="act:rolesType" name="groups" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="domain-object-type"/>
+        <xs:attribute type="xs:string" name="form"/>
+    </xs:complexType>
+
+    <xs:complexType name="usersType">
+        <xs:sequence>
+            <xs:element name="user" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="uid" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="rolesType">
+        <xs:sequence>
+            <xs:element name="group" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute type="xs:string" name="name"/>
+                    <xs:attribute type="xs:integer" name="priority"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="doReferenceType">

@@ -1,8 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -11,7 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
-import ru.intertrust.cm.core.config.gui.form.FormViewerMappingConfig;
+import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
@@ -30,13 +37,6 @@ import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
 import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
 import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -205,7 +205,7 @@ public class FormRetriever extends FormProcessor {
                 formConfig = formMappingHandler.findEditingFormConfig(root, getUserUid());
             }
         } else if (formViewerConfig != null && formViewerConfig.getFormMappingConfigList() != null) {
-            for (FormViewerMappingConfig mappingConfig : formViewerConfig.getFormMappingConfigList()) {
+            for (FormMappingConfig mappingConfig : formViewerConfig.getFormMappingConfigList()) {
                 if (root.getTypeName().equals(mappingConfig.getDomainObjectType())) {
                     String formName = mappingConfig.getForm();
                     formConfig = configurationExplorer.getConfig(FormConfig.class, formName);
