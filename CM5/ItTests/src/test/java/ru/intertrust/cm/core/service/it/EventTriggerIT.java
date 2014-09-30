@@ -72,17 +72,17 @@ public class EventTriggerIT extends IntegrationTestBase {
 
         List<FieldModification> changedFileds = new ArrayList<FieldModification>();
         changedFileds.add(new FieldModificationImpl("Name", new StringValue("Department1"), new StringValue("Department2")));        
-        boolean isTriggered = eventTrigger.isTriggered("TriggerForDepartmentTestChange", "CHANGE", domainObject, changedFileds);
+        boolean isTriggered = eventTrigger.isTriggered("TriggerForDepartChange", "CHANGE", domainObject, changedFileds);
         assertTrue(isTriggered);
         
         changedFileds = new ArrayList<FieldModification>();
         changedFileds.add(new FieldModificationImpl("Boss", new StringValue("Boss1"), new StringValue("Boss2")));        
-        isTriggered = eventTrigger.isTriggered("TriggerForDepartmentTestChange", "CHANGE", domainObject, changedFileds);
+        isTriggered = eventTrigger.isTriggered("TriggerForDepartChange", "CHANGE", domainObject, changedFileds);
         assertTrue(!isTriggered);
         
         changedFileds = new ArrayList<FieldModification>();
         changedFileds.add(new FieldModificationImpl("Name", new StringValue("Department1"), new StringValue("Department2")));        
-        isTriggered = eventTrigger.isTriggered("TriggerForDepartmentTestChange", "CREATE", domainObject, changedFileds);
+        isTriggered = eventTrigger.isTriggered("TriggerForDepartChange", "CREATE", domainObject, changedFileds);
         assertTrue(!isTriggered);        
         
     }
