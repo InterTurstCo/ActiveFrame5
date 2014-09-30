@@ -2541,13 +2541,14 @@ a:active .icon.back {
 }
 
 .breadcrumbPanel .gwt-Hyperlink a {
-    color: #1F76A5;
+    border-bottom: 1px solid;
+    color: #0068c8;
+    font-size: 12px;
     text-decoration: none;
 }
 
 .breadcrumbPanel .gwt-Hyperlink a:hover {
-    border-bottom: 1px dotted #0000aa;
-    color: #0000aa;
+    color: #f00;
 }
 
 .breadcrumbPanel .gwt-Label {

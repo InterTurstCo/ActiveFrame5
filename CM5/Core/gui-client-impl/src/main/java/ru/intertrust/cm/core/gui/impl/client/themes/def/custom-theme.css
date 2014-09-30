@@ -435,7 +435,7 @@ div.gwt-Good-Label {
     background: none;
 }
 
-/*** TAB PANEL***/
+/* ------------>>> Tab panel <<<------------ */
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
     padding-top: 6px;
     padding-left: 5px;
@@ -508,6 +508,7 @@ div.gwt-Good-Label {
     right: 0;
     bottom: 0;
 }
+/* ------------>>> end Tab panel <<<------------ */
 
 /* ------------>>> top date picker <<<------------ */
 .gwt-ToggleButton-up,
@@ -526,6 +527,7 @@ div.gwt-Good-Label {
 .gwt-TreeItem[role="treeitem"] {
     background: none;
     display: inline-block !important;
+    margin-left: 5px;
 }
 
 .treeItemSelectionDecorator {

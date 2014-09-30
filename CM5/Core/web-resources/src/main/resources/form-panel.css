@@ -61,7 +61,7 @@
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected .gwt-Label {
-    margin-left: 0px !important;
+    margin-left: 0 !important;
     text-decoration: none;
 }
 
@@ -75,8 +75,16 @@
     text-decoration: underline;
 }
 
+.gwt-TabBarItem-wrapper .gwt-Label {
+    font-weight: normal;
+}
+
+.gwt-TabBarItem-selected .gwt-Label {
+    font-weight: bold;
+}
+
 .gwt-Label:hover {
-    text-decoration: none;
+    /*text-decoration: none;*/
 }
 
 .textBoxNonEditable{
@@ -410,10 +418,11 @@
 }
 
 .decorated-action-link a.action-bar-button {
-    border-bottom: 1px solid rgba(0, 0, 0, 0);
+    border-bottom: 1px dotted;
     color: #000;
     cursor: pointer;
     float: left;
+    line-height: 14px;
     margin: 14px 15px 14px 0;
     text-decoration: none;
 }
