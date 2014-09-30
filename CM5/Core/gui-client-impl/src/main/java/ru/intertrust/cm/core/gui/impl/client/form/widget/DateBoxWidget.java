@@ -106,7 +106,7 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
     @Override
     public Object getValue() {
         Date value = ((DecoratedDateTimeBox) impl).getValue();
-        return value != null ? value.getTime() + "" : null;
+        return value != null ? value.getTime() + "" : ""; //return "" rather than null to be able to validate for non-emptiness
     }
 
 
@@ -118,12 +118,14 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
         }
         impl.setTitle(errorString);
         ((DecoratedDateTimeBox) impl).getDateBox().addStyleName("validation-error");
+        impl.addStyleName("validation-error");
     }
 
     @Override
     public void clearErrors() {
         impl.setTitle(null);
         ((DecoratedDateTimeBox) impl).getDateBox().removeStyleName("validation-error");
+        impl.removeStyleName("validation-error");
     }
 
     @Override
