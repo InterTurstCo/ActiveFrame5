@@ -40,6 +40,15 @@ public interface AccessControlService {
      */
     AccessToken createAccessToken(String login, Id objectId, AccessType type)
             throws AccessException;
+
+    /**
+     * Проверяет возможнось доступа к объекту для заданного пользователя.
+     * @param login имя пользователя
+     * @param objectId Идентификатор доменного объекта
+     * @param type Тип доступа
+     * @return true если есть доступ, false в противном случае
+     */
+    boolean verifyAccess(String login, Id objectId, AccessType type);
     
     /**
      * Формирует маркер доступа на чтение коллекции для заданного пользователя. 

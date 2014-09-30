@@ -95,6 +95,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private UserTransactionService userTransactionService;
 
     @Autowired
+    private EventLogService eventLogService;
+
+    @Autowired
     public void setDomainObjectCacheService(
             DomainObjectCacheServiceImpl domainObjectCacheService) {
         this.domainObjectCacheService = domainObjectCacheService;
@@ -752,8 +755,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.putAll(getAclParameters(accessToken));
         }
 
-        return jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
+        DomainObject result = jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
                 typeName, configurationExplorer, domainObjectTypeIdCache));
+
+        eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
+
+        return result;
     }
 
     @Override
@@ -779,8 +786,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.putAll(getAclParameters(accessToken));
         }
 
-        return jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
+        DomainObject result = jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
                 typeName, configurationExplorer, domainObjectTypeIdCache));
+
+        eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
+
+        return result;
     }
 
     @Override
@@ -823,6 +834,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         configurationExplorer, domainObjectTypeIdCache));
         domainObjectCacheService.putObjectToCache(result, cacheKey);
 
+        eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
+
         return result;
     }
 
@@ -844,6 +857,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             allDomainObjects.addAll(findDomainObjects(doTypeName,
                     idsOfSingleType, accessToken, doTypeName));
         }
+
+        eventLogService.logAccessDomainObjectEventByDo(allDomainObjects, EventLogService.ACCESS_OBJECT_READ, true);
 
         return allDomainObjects;
     }
@@ -983,6 +998,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 domainObjects.set(i, find(domainObject.getId(), accessTokenToFind));
             }
         }
+
+        eventLogService.logAccessDomainObjectEventByDo(domainObjects, EventLogService.ACCESS_OBJECT_READ, true);
 
         return domainObjects;
     }

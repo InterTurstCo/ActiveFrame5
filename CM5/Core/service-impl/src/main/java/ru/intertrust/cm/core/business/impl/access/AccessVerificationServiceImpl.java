@@ -57,30 +57,25 @@ public class AccessVerificationServiceImpl /*extends AccessControlServiceImpl*/ 
     @Override
     public boolean isWritePermitted(Id objectId) {
         String currentUser = currentUserAccessor.getCurrentUser();
-        try {
-            accessControlService.createAccessToken(currentUser, objectId, DomainObjectAccessType.WRITE);
-        } catch (AccessException ex) {
+        boolean result = accessControlService.verifyAccess(currentUser, objectId, DomainObjectAccessType.WRITE);
+        if (!result){
             if (logger.isDebugEnabled()) {
                 logger.debug("Write permission to " + objectId + " is denied for user:" + currentUser);
             }
-            return false;
         }
-        return true;
+        return result;
     }
 
     @Override
     public boolean isDeletePermitted(Id objectId) {
-
         String currentUser = currentUserAccessor.getCurrentUser();
-        try {
-            accessControlService.createAccessToken(currentUser, objectId, DomainObjectAccessType.DELETE);
-        } catch (AccessException ex) {
+        boolean result = accessControlService.verifyAccess(currentUser, objectId, DomainObjectAccessType.DELETE);
+        if (!result) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Delete permission to " + objectId + " is denied for user:" + currentUser);
             }
-            return false;
         }
-        return true;
+        return result;
     }
 
     @Override

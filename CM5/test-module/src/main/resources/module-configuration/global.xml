@@ -26,7 +26,6 @@
                 </log>
                 <!-- отключение логгирования по типам ДО -->
                 <log enable="false" accessType="*" accessWasGranted="*">
-                    <domain-object-type name="country"/>
                     <domain-object-type name="schedule"/>
                 </log>
             </domain-object-access>
