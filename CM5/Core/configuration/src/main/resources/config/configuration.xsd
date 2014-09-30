@@ -77,7 +77,7 @@
             <xs:element name="trigger" minOccurs="0" maxOccurs="1" type="con:triggerType">
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="name" use="optional" type="con:domainObjectNameType"/>
+        <xs:attribute name="name" use="optional" type="con:namedObjectType"/>
     </xs:complexType>
 
     <xs:complexType name="triggerType">
@@ -166,7 +166,7 @@
             <xs:element name="notification-type" minOccurs="0" maxOccurs="1" type="con:notificationTypeType">
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="name" use="required" type="con:notificationNameType"/>
+        <xs:attribute name="name" use="required" type="con:namedObjectType"/>
     </xs:complexType>
 
     <xs:complexType name="notificationTypeType">
@@ -241,7 +241,7 @@
     </xs:complexType>
 
 
-    <xs:simpleType name="notificationNameType">
+    <xs:simpleType name="namedObjectType">
         <xs:restriction base="xs:string">
             <xs:pattern
                     value="[a-zA-Z0-9_]*">
