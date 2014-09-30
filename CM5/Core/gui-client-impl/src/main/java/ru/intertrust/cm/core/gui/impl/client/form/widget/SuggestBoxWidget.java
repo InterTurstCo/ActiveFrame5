@@ -28,6 +28,8 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.*;
@@ -206,7 +208,7 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
                 }
                 presenter.changeSuggestInputWidth();
                 sourceObject.setFocus(true);
-
+                clearErrors();
             }
         });
         Event.sinkEvents(suggestBox.getElement(), Event.ONBLUR);
@@ -249,6 +251,34 @@ public class SuggestBoxWidget extends TooltipWidget implements HyperlinkStateCha
 
         display.setPositionRelativeTo(presenter);
         return presenter;
+    }
+
+    @Override
+    public Object getValue() {
+        Map<Id, String> currentValue = ((SuggestPresenter) impl).selectedSuggestions;
+        return currentValue.values();
+    }
+
+    @Override
+    public void showErrors(ValidationResult errors) {
+        String errorString = StringUtil.join(getMessages(errors), "\n");
+        if (impl.getTitle() != null) {
+            errorString = impl.getTitle() + errorString;
+        }
+        impl.setTitle(errorString);
+        if (isEditable()) {
+            final SuggestPresenter presenter = (SuggestPresenter) impl;
+            presenter.container.addClassName("validation-error");
+        }
+    }
+
+    @Override
+    public void clearErrors() {
+        impl.setTitle(null);
+        if (isEditable()) {
+            final SuggestPresenter presenter = (SuggestPresenter) impl;
+            presenter.container.removeClassName("validation-error");
+        }
     }
 
     private void initState(final SuggestBoxState state, final SuggestBox suggestBox) {

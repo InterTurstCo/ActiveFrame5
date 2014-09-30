@@ -83,6 +83,11 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
     }
 
+    @Override
+    public Object getValue() {
+        return currentState.getChosenItems();
+    }
+
     private void setCurrentStateForEditableWidget() {
         final HierarchyBrowserView view = (HierarchyBrowserView) impl;
         view.clear();
