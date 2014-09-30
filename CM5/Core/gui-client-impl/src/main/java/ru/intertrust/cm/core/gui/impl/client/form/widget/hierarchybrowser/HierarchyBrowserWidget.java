@@ -12,6 +12,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -288,11 +289,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        final SaveAction action = ComponentRegistry.instance.get("save.action");
-                        SaveActionContext saveActionContext = new SaveActionContext();
-                        saveActionContext.setRootObjectId(id);
-                        action.setInitialContext(saveActionContext);
-                        action.setPlugin(editableFormPlugin);
+                        final SaveAction action = getSaveAction(editableFormPlugin, id);
                         action.addActionSuccessListener(new ActionSuccessListener() {
                             @Override
                             public void onSuccess() {
@@ -403,11 +400,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                final SaveAction action = ComponentRegistry.instance.get("save.action");
-                SaveActionContext saveActionContext = new SaveActionContext();
-                saveActionContext.setRootObjectId(parentId);
-                action.setInitialContext(saveActionContext);
-                action.setPlugin(createFormPlugin);
+                final SaveAction action = getSaveAction(createFormPlugin, parentId);
                 action.addActionSuccessListener(new ActionSuccessListener() {
                     @Override
                     public void onSuccess() {
@@ -545,6 +538,18 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             tooltip.displayItems(items);
             tooltip.showRelativeTo(itemsView);
         }
+    }
+
+    private SaveAction getSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
+        SaveActionContext saveActionContext = new SaveActionContext();
+        saveActionContext.setRootObjectId(rootObjectId);
+        final ActionConfig actionConfig = new ActionConfig("save.action");
+        saveActionContext.setActionConfig(actionConfig);
+
+        final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());
+        action.setInitialContext(saveActionContext);
+        action.setPlugin(formPlugin);
+        return action;
     }
 
     private class ClearButtonClickHandler implements ClickHandler {
