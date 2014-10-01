@@ -24,8 +24,6 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
 
     private static final Logger logger = Logger.getLogger(InboxNotificationChannel.class);
 
-    private static final String INBOX_NOTIFICATION_CHANNEL = "InboxNotificationChannel";
-
     private static final String BODY_INBOX_PART = "body";
 
     private static final String SUBJECT_INBOX_PART = "subject";

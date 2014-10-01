@@ -11,6 +11,11 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
  */
 public interface NotificationChannelHandle {
 
+    public static final String INBOX_NOTIFICATION_CHANNEL = "InboxNotificationChannel";
+
+    public static final String MAIL_NOTIFICATION_CHANNEL = "MailNotificationChannel";
+
+
     /**
      * Отправка сообщения с помощью канала
      * @param notificationType

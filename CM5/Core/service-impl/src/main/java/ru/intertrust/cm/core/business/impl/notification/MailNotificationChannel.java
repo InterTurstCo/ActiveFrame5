@@ -36,8 +36,6 @@ import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 @NotificationChannel(name = "MailNotificationChannel", description = "Канал отправки по электронной почте")
 public class MailNotificationChannel extends NotificationChannelBase implements NotificationChannelHandle {
 
-    public static final String MAIL_NOTIFICATION_CHANNEL = "MailNotificationChannel";
-
     private static final String BODY_MAIL_PART = "body";
 
     private static final String SUBJECT_MAIL_PART = "subject";
