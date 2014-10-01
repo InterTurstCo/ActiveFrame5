@@ -8,7 +8,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.HierarchyCell;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.HierarchicalCell;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class HierarchicalCollectionColumn extends TextCollectionColumn {
     private final List<ChildCollectionViewerConfig> childCollectionViewerConfigs;
     private final EventBus eventBus;
 
-    public HierarchicalCollectionColumn(HierarchyCell cell, String fieldName, Boolean resizable, ValueConverter converter,
+    public HierarchicalCollectionColumn(HierarchicalCell cell, String fieldName, Boolean resizable, ValueConverter converter,
                                         List<ChildCollectionViewerConfig> childCollectionViewerConfigs, EventBus eventBus) {
         super(cell, fieldName, resizable, converter);
         this.childCollectionViewerConfigs = childCollectionViewerConfigs;

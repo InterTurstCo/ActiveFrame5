@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverterFactory;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.HierarchyCell;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.HierarchicalCell;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.TextCell;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
@@ -44,7 +44,7 @@ public class ColumnFormatter {
             String drillDownStyle = (String) columnProperties.getProperty(CollectionColumnProperties.DRILL_DOWN_STYLE);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
             converter.init(columnProperties.getProperties());
-            collectionColumn = new HierarchicalCollectionColumn(new HierarchyCell(getCssStyleForText(textBreakStyle), drillDownStyle),
+            collectionColumn = new HierarchicalCollectionColumn(new HierarchicalCell(getCssStyleForText(textBreakStyle), drillDownStyle),
                     field, resizable, converter, childCollectionsConfig, eventBus);
         } else {
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
