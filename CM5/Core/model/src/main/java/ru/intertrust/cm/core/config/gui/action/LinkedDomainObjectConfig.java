@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
  * @author Sergey.Okolot
  *         Created on 23.09.2014 17:12.
  */
-public class DomainObjectToCreateConfig implements Dto {
+public class LinkedDomainObjectConfig implements Dto {
 
     @Attribute(name = "title")
     private String title;
@@ -21,6 +21,9 @@ public class DomainObjectToCreateConfig implements Dto {
     @Element(name = "reference")
     private ReferenceTypeConfig referenceTypeConfig;
 
+    @Element(name = "perform-validation", required = false)
+    private BooleanValueConfig performValidation;
+
     public String getTitle() {
         return title;
     }
@@ -29,11 +32,11 @@ public class DomainObjectToCreateConfig implements Dto {
         return formMappingConfig;
     }
 
-    public String getReferenceType() {
-        return referenceTypeConfig.getType();
+    public String getReferenceFieldPath() {
+        return referenceTypeConfig.getFieldPath();
     }
 
-    public String getReferenceFieldName() {
-        return referenceTypeConfig.getFieldName();
+    public boolean isPerformValidation() {
+        return performValidation == null ? true : performValidation.getValue();
     }
 }

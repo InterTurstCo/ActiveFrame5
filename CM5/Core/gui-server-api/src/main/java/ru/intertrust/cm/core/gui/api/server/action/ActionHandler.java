@@ -58,24 +58,11 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
                     ? null
                     : config.getAfterConfig().getMessageConfig().getText();
             result.setOnSuccessMessage(parseMessage(successPattern, dobj));
-            final String errorPattern = (config.getAfterConfig().getErrorMessageConfig() == null)
-                    ? null
-                    : config.getAfterConfig().getErrorMessageConfig().getText();
-            result.setOnErrorMessage(parseMessage(errorPattern, dobj));
         }
         return result;
     }
 
     public abstract T executeAction(E context);
-
-    /**
-     * @deprecated
-     * Нужно использовать {@link ActionHandler#getActionContext(ActionConfig)}
-     */
-    @Deprecated
-    public <E extends ActionContext> E getActionContext() {
-        return (E) new ActionContext();
-    }
 
     public <E extends ActionContext> E getActionContext(ActionConfig actionConfig) {
         return null;

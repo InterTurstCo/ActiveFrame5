@@ -200,8 +200,7 @@
     <xs:complexType name="beforeExecutionType">
         <xs:sequence>
             <xs:element name="confirmation-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="perform-validation" type="act:booleanValueType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="domain-object-to-create" type="act:doToCreateType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="linked-domain-object" type="act:linkedDomainObjectType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="save-context" type="act:booleanValueType" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
@@ -209,7 +208,6 @@
     <xs:complexType name="afterExecutionType">
         <xs:sequence>
             <xs:element name="on-success-message" type="act:onSuccessMessageType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="on-error-message" type="act:messageType" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -223,9 +221,10 @@
         <xs:attribute name="value" type="xs:boolean" use="required"/>
     </xs:complexType>
 
-    <xs:complexType name="doToCreateType">
+    <xs:complexType name="linkedDomainObjectType">
         <xs:sequence>
             <xs:element name="reference" type="act:doReferenceType" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="perform-validation" type="act:booleanValueType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="form-mapping" type="act:formMappingType" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
         <xs:attribute name="title" type="xs:string" use="required"/>
@@ -262,17 +261,8 @@
     </xs:complexType>
 
     <xs:complexType name="doReferenceType">
-        <xs:attribute name="type" type="act:referenceTypeType" use="required"/>
-        <xs:attribute name="field-name" type="xs:string" use="required"/>
+        <xs:attribute name="field-path" type="xs:string" use="required"/>
     </xs:complexType>
-
-    <xs:simpleType name="referenceTypeType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="direct"/>
-            <xs:enumeration value="back"/>
-        </xs:restriction>
-    </xs:simpleType>
-
 
     <xs:complexType name="actionContextType">
         <xs:sequence>

@@ -10,7 +10,6 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 public class ActionData implements Dto {
 
     private String onSuccessMessage;
-    private String onErrorMessage;
 
     public String getOnSuccessMessage() {
         return onSuccessMessage;
@@ -18,13 +17,5 @@ public class ActionData implements Dto {
 
     public void setOnSuccessMessage(String onSuccessMessage) {
         this.onSuccessMessage = onSuccessMessage;
-    }
-
-    public String getOnErrorMessage() {
-        return onErrorMessage;
-    }
-
-    public void setOnErrorMessage(String onErrorMessage) {
-        this.onErrorMessage = onErrorMessage;
     }
 }

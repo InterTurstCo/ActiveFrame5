@@ -14,11 +14,8 @@ public class BeforeActionExecutionConfig implements Dto {
     @Element(name = "confirmation-message", required = false)
     private MessageConfig messageConfig;
 
-    @Element(name = "perform-validation", required = false)
-    private BooleanValueConfig performValidation;
-
-    @Element(name = "domain-object-to-create", required = false)
-    private DomainObjectToCreateConfig domainObjectToCreateConfig;
+    @Element(name = "linked-domain-object", required = false)
+    private LinkedDomainObjectConfig linkedDomainObjectConfig;
 
     @Element(name = "save-context", required = false)
     private BooleanValueConfig saveContext;
@@ -27,15 +24,11 @@ public class BeforeActionExecutionConfig implements Dto {
         return messageConfig == null ? new MessageConfig() : messageConfig;
     }
 
-    public boolean isPerformValidation() {
-        return performValidation == null ? true : performValidation.getValue();
-    }
-
     public boolean isSaveContext() {
         return saveContext == null ? true : saveContext.getValue();
     }
 
-    public DomainObjectToCreateConfig getDomainObjectToCreateConfig() {
-        return domainObjectToCreateConfig;
+    public LinkedDomainObjectConfig getLinkedDomainObjectConfig() {
+        return linkedDomainObjectConfig;
     }
 }

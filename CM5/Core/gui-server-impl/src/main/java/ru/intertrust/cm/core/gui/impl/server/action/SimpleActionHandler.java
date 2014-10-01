@@ -17,9 +17,6 @@ public class SimpleActionHandler extends ActionHandler<ActionContext, ActionData
         final ActionData result = new ActionData();
         final ActionConfig config = context.getActionConfig();
         if (config.getAfterConfig() != null) {
-            result.setOnErrorMessage(config.getAfterConfig().getErrorMessageConfig() == null
-                    ? null
-                    : config.getAfterConfig().getErrorMessageConfig().getText());
             result.setOnSuccessMessage(config.getAfterConfig().getMessageConfig() == null
                     ? null
                     : config.getAfterConfig().getMessageConfig().getText());

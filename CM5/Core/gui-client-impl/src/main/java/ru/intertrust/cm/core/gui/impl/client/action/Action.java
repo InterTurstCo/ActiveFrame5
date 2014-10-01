@@ -1,16 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.BeforeActionExecutionConfig;
-import ru.intertrust.cm.core.config.gui.action.DomainObjectToCreateConfig;
+import ru.intertrust.cm.core.config.gui.action.LinkedDomainObjectConfig;
 import ru.intertrust.cm.core.config.gui.action.OnSuccessMessageConfig;
-import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
@@ -150,9 +147,9 @@ public abstract class Action extends BaseComponent {
                 final ActionConfig actionConfig = Action.this.getInitialContext().getActionConfig();
                 final BeforeActionExecutionConfig beforeExecutionConfig =
                         actionConfig == null ? null : actionConfig.getBeforeConfig();
-                if (beforeExecutionConfig != null && beforeExecutionConfig.getDomainObjectToCreateConfig() != null) {
-                    final DomainObjectToCreateConfig doToCreateConfig =
-                            beforeExecutionConfig.getDomainObjectToCreateConfig();
+                if (beforeExecutionConfig != null && beforeExecutionConfig.getLinkedDomainObjectConfig() != null) {
+                    final LinkedDomainObjectConfig doToCreateConfig =
+                            beforeExecutionConfig.getLinkedDomainObjectConfig();
                     final FormDialogBox formDialogBox = new FormDialogBox(doToCreateConfig.getTitle());
                     formDialogBox.initButton("Продолжить", new ClickHandler() {
                         @Override
@@ -169,8 +166,10 @@ public abstract class Action extends BaseComponent {
                     });
                     final FormPluginConfig config = new FormPluginConfig();
                     config.setFormViewerConfig(new FormViewerConfig()
-                            .addFormMappingConfig(actionConfig.getBeforeConfig().getDomainObjectToCreateConfig()
+                            .addFormMappingConfig(actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
                                     .getFormMappingConfig()));
+                    config.setDomainObjectTypeToCreate(actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
+                            .getFormMappingConfig().getDomainObjectType());
                     formDialogBox.createFormPlugin(config, new SimpleEventBus());
                 } else {
                     execute();
@@ -186,7 +185,7 @@ public abstract class Action extends BaseComponent {
     private static class PrepareFormDialog extends FormDialogBox {
         // todo or method or class
 
-        private PrepareFormDialog(DomainObjectToCreateConfig config) {
+        private PrepareFormDialog(LinkedDomainObjectConfig config) {
             super(config.getTitle());
         }
 

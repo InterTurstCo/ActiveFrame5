@@ -10,17 +10,10 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class ReferenceTypeConfig implements Dto {
 
-    @Attribute(name = "type")
-    private String type;
+    @Attribute(name = "field-path")
+    private String fieldPath;
 
-    @Attribute(name = "field-name")
-    private String fieldName;
-
-    public String getType() {
-        return type;
-    }
-
-    public String getFieldName() {
-        return fieldName;
+    public String getFieldPath() {
+        return fieldPath;
     }
 }

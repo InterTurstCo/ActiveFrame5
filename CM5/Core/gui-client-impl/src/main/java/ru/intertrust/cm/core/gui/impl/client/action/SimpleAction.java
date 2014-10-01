@@ -29,7 +29,7 @@ public class SimpleAction extends SimpleServerAction {
 
     @Override
     protected void onSuccess(ActionData result) {
-        Window.alert(result.getOnSuccessMessage() + '\n' + result.getOnErrorMessage());
+        Window.alert(result.getOnSuccessMessage());
     }
 
     @Override

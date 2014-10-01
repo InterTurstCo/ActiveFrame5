@@ -14,10 +14,13 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionSeparatorConfig;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -40,6 +43,7 @@ public class ActionConfigBuilder {
     @Autowired private ActionService actionService;
     @Autowired private CurrentUserAccessor currentUserAccessor;
     @Autowired private CrudService crudService;
+    @Autowired private ConfigurationExplorer configurationExplorer;
 
     private final Map<String, ActionConfig> referenceMap = new HashMap<>();
     private final ActionContextList contextList = new ActionContextList();
@@ -63,7 +67,7 @@ public class ActionConfigBuilder {
                 config = resolveActionReference((ActionRefConfig) config);
             }
             final DomainObject domainObject = (DomainObject) params.get(PluginHandlerHelper.DOMAIN_OBJECT_KEY);
-            final ActionConfig actionConfig = (ActionConfig) config;
+            final ActionConfig actionConfig = PluginHandlerHelper.cloneActionConfig((ActionConfig) config);
             ActionHandler actionHandler = new FakeActionHandler();
             final boolean hasHandler = applicationContext.containsBean(actionConfig.getActionHandler());
             if (hasHandler) {
@@ -107,7 +111,16 @@ public class ActionConfigBuilder {
                 status = isVisible ? ActionHandler.Status.APPLY : ActionHandler.Status.SKIP;
             }
             if (ActionHandler.Status.APPLY == status) {
-                ActionContext actionContext = actionHandler.getActionContext(actionConfig);
+                final FormMappingConfig formMappingConfig = (actionConfig.getBeforeConfig() != null
+                                            && actionConfig.getBeforeConfig().getLinkedDomainObjectConfig() != null)
+                        ? actionConfig.getBeforeConfig().getLinkedDomainObjectConfig().getFormMappingConfig()
+                        : null;
+                if (formMappingConfig != null) {
+                    final FormConfig formConfig =
+                            configurationExplorer.getConfig(FormConfig.class, formMappingConfig.getForm());
+                    formMappingConfig.setDomainObjectType(formConfig.getDomainObjectType());
+                }
+                final ActionContext actionContext = actionHandler.getActionContext(actionConfig);
                 actionContext.setActionConfig(actionConfig);
                 contextList.addContext(actionContext);
             }

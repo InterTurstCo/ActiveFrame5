@@ -13,15 +13,7 @@ public class AfterActionExecutionConfig implements Serializable {
     @Element(name = "on-success-message", required = false)
     private OnSuccessMessageConfig successMessageConfig;
 
-    @Element(name = "on-error-message", required = false)
-    private MessageConfig errorMessageConfig;
-
-
     public OnSuccessMessageConfig getMessageConfig() {
         return successMessageConfig;
-    }
-
-    public MessageConfig getErrorMessageConfig() {
-        return errorMessageConfig;
     }
 }
