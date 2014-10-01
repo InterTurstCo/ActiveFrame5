@@ -758,7 +758,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject result = jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
                 typeName, configurationExplorer, domainObjectTypeIdCache));
 
-        eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
+        if (result != null) {
+            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
+        }
 
         return result;
     }
