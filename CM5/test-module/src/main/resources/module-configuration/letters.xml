@@ -459,7 +459,7 @@
                         </td>
 
                         <td width="100%" h-align="left">
-                            <widget id="hyperlink"/>
+                            <widget id="departmentsTableBro"/>
                         </td>
                         <!-- text-box (Название) -->
                     </tr>
@@ -518,6 +518,34 @@
             <date-box id="cmfive1377">
                 <field-path value="created_date"/>
             </date-box>
+
+            <table-browser id="departmentsTableBro" read-only="false">
+                <field-path value="department^organization"/>
+                <collection-ref name="Departments"/>
+
+                <collection-view-ref name="departments_default_view"/>
+                <selection-filters row-limit="100">
+
+                </selection-filters>
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name}"/>
+
+                <input-text-filter name="byName"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <!--input-text-filter name="byNameforTableBrowser"/-->
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
+                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
+                <page-size>30</page-size>
+                <display-chosen-values value="false"/>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="Add" />
+                <!--default-sort-criteria column-field="created_date" order="desc" /-->
+                <display-values-as-links value="true"/>
+            </table-browser>
         </widget-config>
     </form>
 

@@ -18,9 +18,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
@@ -34,14 +32,12 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CommonSortCriterionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -132,6 +128,7 @@ public class CollectionPluginView extends PluginView {
     private FilterPanelConfig filterPanelConfig;
     private int rowsChunk;
     private InitialFiltersConfig hierarchicalFiltersConfig;
+    private Panel breadCrumbsPanel;
 
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
@@ -537,7 +534,7 @@ public class CollectionPluginView extends PluginView {
         filterButton.setStyleName("show-filter-button");
         root.add(treeLinkWidget);
         if (plugin.isShowBreadcrumbs()) {
-            Panel breadCrumbsPanel = createBreadCrumbsPanel();
+            breadCrumbsPanel = createBreadCrumbsPanel();
             if (breadCrumbsPanel != null) {
                 root.add(breadCrumbsPanel);
             }
@@ -916,6 +913,8 @@ public class CollectionPluginView extends PluginView {
         return config;
     }
 
-
+    public Panel getBreadCrumbsPanel() {
+        return breadCrumbsPanel;
+    }
 }
 

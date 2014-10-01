@@ -4,7 +4,17 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
@@ -16,21 +26,46 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
+import ru.intertrust.cm.core.gui.model.plugin.HierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -40,7 +75,7 @@ import java.util.List;
  *         Time: 11:15
  */
 @ComponentName("table-browser")
-public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
+public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler, HierarchicalCollectionEventHandler {
     public static final int DEFAULT_DIALOG_WIDTH = 500;
     public static final int DEFAULT_DIALOG_HEIGHT = 300;
     private PluginPanel pluginPanel;
@@ -54,6 +89,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private DialogBox dialogBox;
     private TableBrowserItemsView widgetItemsView;
     private Panel root = new HorizontalPanel();
+
+    private List<BreadCrumbItem> breadCrumbItems = new ArrayList<>();
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -195,20 +232,25 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         return collectionViewerConfig;
     }
 
-    private void openCollectionPlugin() {
+    private CollectionPlugin openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig) {
 
-        CollectionPlugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
-        CollectionViewerConfig collectionViewerConfig = initCollectionConfig();
+        final CollectionPlugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         collectionPlugin.setConfig(collectionViewerConfig);
         collectionPlugin.setLocalEventBus(localEventBus);
+        collectionPlugin.setNavigationConfig(navigationConfig);
         collectionPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
                 dialogBox.center();
+                CollectionPluginView view = (CollectionPluginView) collectionPlugin.getView();
+                Panel breadCrumbsPanel = view.getBreadCrumbsPanel();
+                if (breadCrumbsPanel != null) {
+                    addBreadCrumbsToPanel(breadCrumbsPanel);
+                }
             }
         });
         pluginPanel.open(collectionPlugin);
-
+        return collectionPlugin;
     }
 
     private Panel initWidgetView(SelectionStyleConfig selectionStyleConfig) {
@@ -337,12 +379,73 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         return "widget-items-handler";
     }
 
+    @Override
+    public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
+        TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
+        //FIXME: this is not likely to work on 2nd level hierarchy. need to store current collection name in state.
+        String currentCollectionName = tableBrowserConfig.getCollectionRefConfig().getName();// this.getCollectionPlugin().getCollectionRowRequest().getCollectionName();
+        ExpandHierarchicalCollectionData data = new ExpandHierarchicalCollectionData(
+                event.getChildCollectionViewerConfigs(), event.getSelectedId(), currentCollectionName);
+
+        final Command command = new Command("initializeForHierarchicalCollection", "domain.object.surfer.plugin", data);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                ApplicationWindow.errorAlert(caught.getMessage());
+            }
+            @Override
+            public void onSuccess(Dto result) {
+                HierarchicalCollectionData data = (HierarchicalCollectionData) result;
+                DomainObjectSurferConfig pluginConfig = data.getDomainObjectSurferConfig();
+                CollectionViewerConfig collectionViewerConfig = pluginConfig.getCollectionViewerConfig();
+                LinkConfig link = data.getHierarchicalLink();
+                NavigationConfig navigationConfig = new NavigationConfig();
+                addHierarchicalLinkToNavigationConfig(navigationConfig, link);
+
+                if (breadCrumbItems.isEmpty()) {
+                    //TODO: what can we use as display text for the parent (root) bread crumb?
+                    breadCrumbItems.add(new BreadCrumbItem("Root", "Root", initCollectionConfig())); //TODO: don't recreate current view, store it in state
+                }
+                breadCrumbItems.add(new BreadCrumbItem(link.getName(), link.getDisplayText(), collectionViewerConfig));
+
+                openCollectionPlugin(collectionViewerConfig, navigationConfig);
+            }
+
+            //TODO: extract common code (here and DOSP)
+            private void addHierarchicalLinkToNavigationConfig(NavigationConfig navigationConfig, LinkConfig link) {
+                LinkConfig parentLink = findParentLink(navigationConfig, link);
+                link.setParentLinkConfig(parentLink);
+                if (!navigationConfig.getHierarchicalLinkList().contains(link)) {
+                    navigationConfig.getHierarchicalLinkList().add(link);
+                }
+            }
+
+            private LinkConfig findParentLink(NavigationConfig navigationConfig, LinkConfig link) {
+                LinkConfig parentLinkConfig = null;
+                HistoryManager manager = Application.getInstance().getHistoryManager();
+                String parentLinkName = manager.getLink();
+                List<LinkConfig> results = new ArrayList<>();
+                LinkUtil.findLink(parentLinkName, navigationConfig.getLinkConfigList(), results);
+                if (results.isEmpty()) {
+                    LinkUtil.findLink(parentLinkName, navigationConfig.getHierarchicalLinkList(), results);
+                }
+                if (!results.isEmpty()) {
+                    parentLinkConfig = results.get(0);
+                }
+                return parentLinkConfig;
+            }
+        });
+    }
+
     private class FetchFilteredRowsClickHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
+            temporaryStateOfSelectedIds.clear();
+            final List<Id> selectedFromHistory = Application.getInstance().getHistoryManager().getSelectedIds();
+            temporaryStateOfSelectedIds.addAll(selectedFromHistory);
+            breadCrumbItems.clear();
             initDialogView();
-            openCollectionPlugin();
-
+            openCollectionPlugin(initCollectionConfig(), null);
         }
     }
 
@@ -371,7 +474,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 }
             }
         });
-
+        localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
     }
 
     private void addClickHandlersForSingleChoice(final Button okButton, final Button cancelButton, final DialogBox dialogBox) {
@@ -394,7 +497,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
             }
         });
-
+        localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
     }
 
     private void initDialogWindowSize() {
@@ -485,5 +588,30 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         return listValues;
     }
 
+    private void addBreadCrumbsToPanel(Panel panel) {
+        panel.clear();
+        Iterator<BreadCrumbItem> iterator = breadCrumbItems.iterator();
+        while (iterator.hasNext()) {
+            BreadCrumbItem next = iterator.next();
+            Label breadCrumb = new Label(next.displayText);
+            //TODO: add on click
+            panel.add(breadCrumb);
+            if (iterator.hasNext()) {
+                panel.add(new Label("/"));
+            }
+        }
+    }
+
+    private static class BreadCrumbItem {
+        private final String name;
+        private final String displayText;
+        private final CollectionViewerConfig config;
+
+        private BreadCrumbItem(String name, String displayText, CollectionViewerConfig config) {
+            this.name = name;
+            this.displayText = displayText;
+            this.config = config;
+        }
+    }
 
 }
