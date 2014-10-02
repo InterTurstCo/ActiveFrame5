@@ -46,6 +46,10 @@
 .dataGridHeaderRow {
 }
 
+.dataGridHeaderRow:hover th {
+    border-right: 1px dashed #ffffff;
+}
+
 .table-browser-dialog.popup-z-index .dialogTopCenter {
     display: block;
 }
