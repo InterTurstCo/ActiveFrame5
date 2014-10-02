@@ -2645,7 +2645,7 @@
         <xs:attribute type="xs:string" name="for-domain-object-type"/>
         <xs:attribute type="xs:string" name="filter" use="required"/>
         <xs:attribute type="xs:string" name="domain-object-type-to-create" use="required"/>
-        <xs:attribute type="xs:string" name="bread-crumb" use="required"/>
+        <xs:attribute type="xs:string" name="bread-crumb" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="collectionMappingType">

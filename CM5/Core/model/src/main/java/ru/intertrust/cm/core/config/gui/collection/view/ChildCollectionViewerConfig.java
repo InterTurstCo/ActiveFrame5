@@ -23,7 +23,7 @@ public class ChildCollectionViewerConfig implements Dto {
     @Attribute(name="domain-object-type-to-create")
     private String domainObjectTypeToCreate;
 
-    @Attribute(name="bread-crumb")
+    @Attribute(name="bread-crumb", required = false)
     private String breadCrumb;
 
     @Element(name = "collection-viewer")

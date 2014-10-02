@@ -54,7 +54,8 @@ public class HierarchicalCollectionBuilder implements ComponentHandler {
         LinkConfig link = new LinkConfig();
         link.setName(createLinkForHierarchicalCollection(childCollectionViewerConfig, data.getCurrentCollectionName(),
                 data.getSelectedParentId()));
-        link.setDisplayText(childCollectionViewerConfig.getBreadCrumb());
+        link.setDisplayText(childCollectionViewerConfig.getBreadCrumb() != null ?
+                childCollectionViewerConfig.getBreadCrumb() : "Не определён");
         LinkPluginDefinition pluginDefinition = new LinkPluginDefinition();
         pluginDefinition.setPluginConfig(domainObjectSurferConfig);
         link.setPluginDefinition(pluginDefinition);
