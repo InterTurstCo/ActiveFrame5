@@ -435,37 +435,28 @@
     left: 0;
     display: block;
     height: 100%;
-    /* width: 100%;
-     overflow: hidden;
-     position: absolute;
-     *//*min-height: 20px;*//*
-     height: 300px;
-     border: none;
-     border-collapse: collapse;*/
 }
 
 .dataGridEvenRow {
-    /*    background-color: transparent;*/
 }
 
 .dataGridHeader {
     border-spacing: 2px;
-    background-color: rgb(176, 189, 206);
-    color: #ffffff;
-    overflow: hidden;
-    border-top: 1px solid #4177B3;
-    border-bottom: 1px solid #4073AD;
+    background-color: rgba(176, 189, 206, 1);
+    color: #fafafa;
+    border-right: 1px solid rgba(176, 189, 206, 1);
     text-align: left;
     font-weight: bold;
     padding: 6px 0 6px 10px;
 }
 
 .dataGridHeaderRow {
-
+    border-top: 1px solid #4177B3;
+    border-bottom: 1px solid #4073AD;
 }
 
 .dataGridHeader:hover {
-    /*border-right: 1px dashed #FFFFFF;*/
+    /*border-right: 1px dashed #fafafa;*/
 }
 
 .dataGridFirstColumn {
@@ -502,6 +493,7 @@
 }
 
 .dataGridSortableHeader {
+    text-decoration: underline;
 }
 
 .dataGridSortableHeader div:first-child {
@@ -556,24 +548,9 @@
 }
 
 .dataGridHoveredRow {
-    /* box-shadow: 0 3px 6px #ccc;
-     background: #fff682;
-     background: literal("-moz-linear-gradient(top, #fff682 0%, #f9d998 100%)");
-     background: literal("-webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff682), color-stop(100%, #f9d998))");
-     background: literal("-webkit-linear-gradient(top, #fff682 0%, #f9d998 100%)");
-     background: literal("-o-linear-gradient(top, #fff682 0%, #f9d998 100%)");
-     background: literal("-ms-linear-gradient(top, #fff682 0%, #f9d998 100%)");
-     filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff682', endColorstr='#f9d998', GradientType=0)");
-     background: literal("linear-gradient(top, #fff682 0%, #f9d998 100%)");
-     \-moz-box-shadow: literal("0 3px 6px #ccc");
-     \-webkit-box-shadow: literal("0 3px 6px #ccc");
-     z-index: 2;*/
     border: none;
     border-collapse: collapse;
     background: rgba(200, 200, 200, 0.3);
-    /*box-shadow: 0 3px 6px #ddd;*/
-    -moz-box-shadow: 0 3px 6px #ddd;
-    -webkit-box-shadow: 0 3px 6px #ddd;
     z-index: 1;
 }
 
@@ -589,7 +566,7 @@
 }
 
 .dataGridKeyboardSelectedRow {
-    /*    background: #ffc;*/
+     /*background: #ffc;*/
 }
 
 .dataGridKeyboardSelectedRowCell {
@@ -606,8 +583,8 @@
     filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff682', endColorstr='#f9d998', GradientType=0)");
     background: literal("linear-gradient(top, #fff682 0%, #f9d998 100%)");
     box-shadow: 0 3px 6px #ccc;
-    \-moz-box-shadow: literal("0 3px 6px #000000");
-    \-webkit-box-shadow: literal("0 3px 6px #000000");
+    -moz-box-shadow: literal("0 3px 6px #000000");
+    -webkit-box-shadow: literal("0 3px 6px #000000");
     z-index: 2;
     color: #000000;
     height: auto;
@@ -615,12 +592,12 @@
 }
 
 .dataGridSelectedRowCell {
-    /* border: selectionBorderWidth solid #628cd5;*/
+     /*border: selectionBorderWidth solid #628cd5;*/
 }
 
 /**
  * The keyboard selected cell is visible over selection.
  */
 .dataGridKeyboardSelectedCell {
-    /*  border: selectionBorderWidth solid #d7dde8;*/
+      /*border: selectionBorderWidth solid #d7dde8;*/
 }
