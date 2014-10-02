@@ -96,6 +96,9 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private HandlerRegistration checkBoxRegistration;
     private HandlerRegistration rowSelectedRegistration;
 
+    private String collectionName;
+    private CollectionViewerConfig initialCollectionViewerConfig;
+
     @Override
     public void setCurrentState(WidgetState state) {
         initialData = state;
@@ -242,6 +245,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         collectionPlugin.setConfig(collectionViewerConfig);
         collectionPlugin.setLocalEventBus(localEventBus);
         collectionPlugin.setNavigationConfig(navigationConfig);
+        CollectionRefConfig collectionRefConfig = collectionViewerConfig.getCollectionRefConfig();
+        collectionName = collectionRefConfig.getName();
         collectionPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
@@ -316,7 +321,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         dialogBox = new DialogBox();
         dialogBox.removeStyleName("gwt-DialogBox");
         dialogBox.addStyleName("table-browser-dialog popup-z-index");
-        initCollectionConfig();
+        //initCollectionConfig();
         initCollectionPluginPanel();
         Button okButton = new Button("OK");
         okButton.removeStyleName("gwt-Button");
@@ -382,9 +387,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
     @Override
     public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
-        TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
-        //FIXME: this is not likely to work on 2nd level hierarchy. need to store current collection name in state.
-        String currentCollectionName = tableBrowserConfig.getCollectionRefConfig().getName();// this.getCollectionPlugin().getCollectionRowRequest().getCollectionName();
+        String currentCollectionName = collectionName;
         ExpandHierarchicalCollectionData data = new ExpandHierarchicalCollectionData(
                 event.getChildCollectionViewerConfigs(), event.getSelectedId(), currentCollectionName);
 
@@ -404,8 +407,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 addHierarchicalLinkToNavigationConfig(navigationConfig, link);
 
                 if (breadCrumbItems.isEmpty()) {
-                    //TODO: what can we use as a display text for the parent (root) bread crumb?
-                    breadCrumbItems.add(new BreadCrumbItem("root", "Исходная коллекция", initCollectionConfig())); //TODO: don't recreate current view, store it in state
+                    breadCrumbItems.add(new BreadCrumbItem("root", "Исходная коллекция", //we haven't display text for the root
+                            initialCollectionViewerConfig));
                 }
                 breadCrumbItems.add(new BreadCrumbItem(link.getName(), link.getDisplayText(), collectionViewerConfig));
 
@@ -447,7 +450,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
             breadCrumbItems.clear();
             unregisterHandlers();
             initDialogView();
-            openCollectionPlugin(initCollectionConfig(), null);
+            initialCollectionViewerConfig = initCollectionConfig();
+            openCollectionPlugin(initialCollectionViewerConfig, null);
         }
     }
 
@@ -630,6 +634,9 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         breadCrumbItems.subList(removeFrom, breadCrumbItems.size()).clear();
         if (config != null) {
             openCollectionPlugin(config, new NavigationConfig());
+            //TODO: adding to history makes the rows to be highlighted. can we just check checkbox without highlighting?
+            Application.getInstance().getHistoryManager().setSelectedIds(temporaryStateOfSelectedIds.toArray(
+                    new Id[temporaryStateOfSelectedIds.size()]));
         }
     }
 
