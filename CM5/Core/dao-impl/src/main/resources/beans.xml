@@ -121,6 +121,8 @@
 
     <bean id="domainObjectFinderService" class="ru.intertrust.cm.core.dao.impl.DomainObjectFinderServiceImpl" />
 
+    <bean id="serverComponentService" class="ru.intertrust.cm.core.dao.impl.ServerComponentServiceImpl"/>
+
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>
@@ -131,5 +133,6 @@
             class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
             init-method="init"/>
     </beans>
+
 
 </beans>

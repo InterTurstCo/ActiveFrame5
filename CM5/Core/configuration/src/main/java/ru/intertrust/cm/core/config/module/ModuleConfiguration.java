@@ -27,6 +27,9 @@ public class ModuleConfiguration implements Dto {
     @ElementList(entry="gui-components-package", required=false, name="gui-components-packages")
     private List<String> guiComponentsPackages;
 
+    @ElementList(entry="server-components-package", required=false, name="server-components-packages")
+    private List<String> serverComponentsPackages;
+
     @Element(required=false, name="import-files")
     private ImportFilesConfiguration importFiles;
 
@@ -85,6 +88,12 @@ public class ModuleConfiguration implements Dto {
     }
     public void setGuiComponentsPackages(List<String> guiComponentsPackages) {
         this.guiComponentsPackages = guiComponentsPackages;
+    }        
+    public List<String> getServerComponentsPackages() {
+        return serverComponentsPackages;
+    }
+    public void setServerComponentsPackages(List<String> serverComponentsPackages) {
+        this.serverComponentsPackages = serverComponentsPackages;
     }
     public ImportFilesConfiguration getImportFiles() {
         return importFiles;

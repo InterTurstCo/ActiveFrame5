@@ -283,7 +283,7 @@ public class CollectionsIT extends IntegrationTestBase {
         params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
         params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
         params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
-        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));        
         
         collection = collectionService.findCollectionByQuery(query, params);
         
@@ -591,7 +591,27 @@ public class CollectionsIT extends IntegrationTestBase {
         filterValues.add(filter);        
         isEmpty = collectionService.isCollectionEmpty("Employees", filterValues);
 
-        assertTrue(isEmpty);
+        assertTrue(isEmpty);        
+    }
+    
+    @Test
+    public void testFindCollectionUsingGenerator() throws LoginException {
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("e.id", Order.ASCENDING));
+        List<Filter> filterValues;
+        filterValues = new ArrayList<Filter>();
+        Filter filter = new Filter();
+        filter.setFilter("byDepartmentNames");
+        List<Value> departmentNames = new ArrayList<Value>();
+        departmentNames.add(new StringValue(DEPARTMENT_1));
+        departmentNames.add(new StringValue(DEPARTMENT_2));
+        filter.addMultiCriterion(0, departmentNames);
+        filterValues.add(filter);
+
+        IdentifiableObjectCollection collection =
+                collectionService.findCollection("EmployeesGenerator", sortOrder, filterValues, 0, 0);
         
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
     }
 }

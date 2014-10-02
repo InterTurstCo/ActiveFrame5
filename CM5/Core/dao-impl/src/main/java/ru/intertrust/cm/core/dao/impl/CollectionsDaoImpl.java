@@ -21,7 +21,6 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
@@ -30,6 +29,8 @@ import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.ServerComponentService;
+import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
@@ -64,6 +65,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
+    @Autowired
+    private ServerComponentService serverComponentService;
+    
     public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -110,6 +114,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
             }
         }
 
+        if (collectionConfig.getRenderer() != null) {
+            String collectionGeneratorComponent = collectionConfig.getRenderer().getClassName();
+            return getCollectionFromGenerator(collectionGeneratorComponent, filterValues, sortOrder, offset, limit);
+        }
+        
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filterValues, sortOrder, offset, limit, accessToken);
 
@@ -140,6 +149,12 @@ public class CollectionsDaoImpl implements CollectionsDao {
         }
 
         return collection;
+    }
+
+    private IdentifiableObjectCollection getCollectionFromGenerator(String collectionGeneratorComponent, List<? extends Filter> filterValues,
+            SortOrder sortOrder, int offset, int limit) {
+        CollectionDataGenerator collectionDataGenerator = (CollectionDataGenerator) serverComponentService.getServerComponent(collectionGeneratorComponent);
+        return collectionDataGenerator.findCollection(filterValues, sortOrder, offset, limit);
     }
 
     /**
@@ -260,6 +275,13 @@ public class CollectionsDaoImpl implements CollectionsDao {
         checkFilterValues(filterValues);
 
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+
+        if (collectionConfig.getRenderer() != null) {
+            String collectionGeneratorComponent = collectionConfig.getRenderer().getClassName();
+            IdentifiableObjectCollection collection = getCollectionFromGenerator(collectionGeneratorComponent, filterValues, null, 0, 0);
+            return collection.size();
+        }
+
         String collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
