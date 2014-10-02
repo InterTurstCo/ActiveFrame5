@@ -226,7 +226,7 @@
 }
 
 .decorated-action-link .actionBar-refresh {
-    background: url("resources/defaulttheme/images/icons/refresh.png") no-repeat 0 0;
+    background: url("resources/defaulttheme/images/icons/icon-refresh.png") no-repeat 50% 48%;
     float: left;
     height: 35px;
     margin: 4px 0 0 0;
