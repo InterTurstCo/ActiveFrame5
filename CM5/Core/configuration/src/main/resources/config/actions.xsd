@@ -57,11 +57,24 @@
 
     <xs:complexType name="abstractActionType" abstract="true"/>
 
-    <xs:complexType name="actionEntryType">
+    <xs:complexType name="baseActionType" abstract="true">
         <xs:complexContent>
             <xs:extension base="act:abstractActionType">
                 <xs:sequence>
                     <xs:element name="action-params" type="act:actionParamsType" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+                <xs:attribute name="visible-when-new" type="xs:boolean" default="true" use="optional"/>
+                <xs:attribute name="visibility-state-condition" type="xs:string" use="optional"/>
+                <xs:attribute name="visibility-checker" type="xs:string" use="optional"/>
+                <xs:attribute name="permissions" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="actionEntryType">
+        <xs:complexContent>
+            <xs:extension base="act:baseActionType">
+                <xs:sequence>
                     <xs:element name="before-execution" type="act:beforeExecutionType" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="after-execution" type="act:afterExecutionType" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="action-settings" type="act:actionSettingsType" minOccurs="0" maxOccurs="1"/>
@@ -84,9 +97,6 @@
                 <xs:attribute name="weight" type="xs:positiveInteger"/>
                 <xs:attribute name="groupId" type="xs:string" />
                 <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
-                <xs:attribute name="visible-when-new" type="xs:boolean" default="true" use="optional"/>
-                <xs:attribute name="visibility-state-condition" type="xs:string" use="optional"/>
-                <xs:attribute name="visibility-checker" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -101,19 +111,13 @@
 
     <xs:complexType name="actionRefType">
         <xs:complexContent>
-            <xs:extension base="act:abstractActionType">
-                <xs:sequence>
-                    <xs:element name="action-params" type="act:actionParamsType" minOccurs="0" maxOccurs="1"/>
-                </xs:sequence>
+            <xs:extension base="act:baseActionType">
                 <xs:attribute name="actionId" type="act:idType" use="required"/>
                 <xs:attribute name="showText" type="xs:boolean" default="true"/>
                 <xs:attribute name="showImage" type="xs:boolean" default="true"/>
                 <xs:attribute name="order" type="xs:positiveInteger" />
                 <xs:attribute name="rendered" type="xs:string" default="true"/>
                 <xs:attribute name="merged" type="xs:boolean" default="false" />
-                <xs:attribute name="visible-when-new" type="xs:boolean" default="true" use="optional"/>
-                <xs:attribute name="visibility-state-condition" type="xs:string" use="optional"/>
-                <xs:attribute name="visibility-checker" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

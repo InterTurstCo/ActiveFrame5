@@ -1,16 +1,13 @@
 package ru.intertrust.cm.core.config.gui.action;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
-import org.simpleframework.xml.core.Commit;
 
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ActionDisplayTypeConverter;
@@ -22,7 +19,7 @@ import ru.intertrust.cm.core.config.converter.ActionTypeConverter;
  *         Time: 16:02
  */
 @Root(name="action")
-public class ActionConfig extends AbstractActionConfig implements TopLevelConfig {
+public class ActionConfig extends BaseActionConfig implements TopLevelConfig {
 
     @Element(name = "before-execution", required = false)
     private BeforeActionExecutionConfig beforeConfig;
@@ -81,26 +78,12 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
     @Attribute(required = false)
     private boolean dirtySensitivity = true;
 
-    @Attribute(name = "visible-when-new", required = false)
-    private boolean visibleWhenNew = true;
-
-    @Attribute(name = "visibility-state-condition", required = false)
-    private String visibilityStateCondition;
-
-    @Attribute(name = "visibility-checker", required = false)
-    private String visibilityChecker;
-
     @ElementListUnion({
             @ElementList(entry = "action", type = ActionConfig.class, inline = true, required = false),
             @ElementList(entry = "action-ref", type = ActionRefConfig.class, inline = true, required = false),
             @ElementList(entry = "action-separator", type = ActionSeparatorConfig.class, inline = true, required = false)
     })
     private List<AbstractActionConfig> children;
-
-    @ElementList(name = "action-params", required = false)
-    private List<ActionParamConfig> actionParams;
-
-    private Map<String, String> properties = new HashMap<>();
 
     /**
      * Default constructor to support GWT serialization
@@ -114,16 +97,6 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
     public ActionConfig(final String componentName, final String name) {
         this.componentName = componentName;
         this.name = name;
-    }
-
-    @Commit
-    public void commit() {
-        if (actionParams != null && !actionParams.isEmpty()) {
-            for (ActionParamConfig param : actionParams) {
-                properties.put(param.getName(), param.getValue());
-            }
-            actionParams = null;
-        }
     }
 
     public BeforeActionExecutionConfig getBeforeConfig() {
@@ -239,37 +212,5 @@ public class ActionConfig extends AbstractActionConfig implements TopLevelConfig
 
     public List<AbstractActionConfig> getChildren() {
         return children == null ? Collections.EMPTY_LIST : children;
-    }
-
-    public boolean isVisibleWhenNew() {
-        return visibleWhenNew;
-    }
-
-    public void setVisibleWhenNew(boolean visibleWhenNew) {
-        this.visibleWhenNew = visibleWhenNew;
-    }
-
-    public String getVisibilityStateCondition() {
-        return visibilityStateCondition;
-    }
-
-    public void setVisibilityStateCondition(String visibilityStateCondition) {
-        this.visibilityStateCondition = visibilityStateCondition;
-    }
-
-    public String getVisibilityChecker() {
-        return visibilityChecker;
-    }
-
-    public void setVisibilityChecker(String visibilityChecker) {
-        this.visibilityChecker = visibilityChecker;
-    }
-
-    public String getProperty(final String key) {
-        return properties == null ? null : properties.get(key);
-    }
-
-    public Map<String, String> getProperties() {
-        return properties;
     }
 }

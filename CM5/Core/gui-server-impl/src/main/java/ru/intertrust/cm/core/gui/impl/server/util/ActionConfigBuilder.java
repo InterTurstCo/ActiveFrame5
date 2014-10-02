@@ -12,7 +12,9 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
@@ -44,6 +46,7 @@ public class ActionConfigBuilder {
     @Autowired private CurrentUserAccessor currentUserAccessor;
     @Autowired private CrudService crudService;
     @Autowired private ConfigurationExplorer configurationExplorer;
+    @Autowired private AccessVerificationService accessVerificationService;
 
     private final Map<String, ActionConfig> referenceMap = new HashMap<>();
     private final ActionContextList contextList = new ActionContextList();
@@ -67,6 +70,9 @@ public class ActionConfigBuilder {
                 config = resolveActionReference((ActionRefConfig) config);
             }
             final DomainObject domainObject = (DomainObject) params.get(PluginHandlerHelper.DOMAIN_OBJECT_KEY);
+            if (!hasPermission(domainObject, (ActionConfig) config)) {
+                continue;
+            }
             final ActionConfig actionConfig = PluginHandlerHelper.cloneActionConfig((ActionConfig) config);
             ActionHandler actionHandler = new FakeActionHandler();
             final boolean hasHandler = applicationContext.containsBean(actionConfig.getActionHandler());
@@ -146,6 +152,38 @@ public class ActionConfigBuilder {
             if (config.getId() != null && !config.getId().isEmpty() && (config instanceof ActionConfig)) {
                 referenceMap.put(config.getId(), (ActionConfig) config);
             }
+        }
+    }
+
+    private boolean hasPermission(final DomainObject domainObject, final ActionConfig config) {
+        if (domainObject != null && config.getPermissions() != null && !config.getPermissions().isEmpty()) {
+            final String[] permissions = config.getPermissions().split(",");
+            final Id id = domainObject.getId();
+            boolean result = false;
+            for (String permission : permissions) {
+                switch (permission.trim().toLowerCase()) {
+                    case "write":
+                        result = accessVerificationService.isWritePermitted(id);
+                        break;
+                    case "delete":
+                        result = accessVerificationService.isDeletePermitted(id);
+                        break;
+                    case "create":
+                        result = accessVerificationService.isCreatePermitted(domainObject.getTypeName());
+                        break;
+                    case "execute":
+                        result = accessVerificationService.isExecuteActionPermitted(config.getName(), id);
+                        break;
+                    default:
+                        result = true;
+                }
+                if (result) {
+                    break;
+                }
+            }
+            return result;
+        } else {
+            return true;
         }
     }
 

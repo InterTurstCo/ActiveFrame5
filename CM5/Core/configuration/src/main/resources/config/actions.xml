@@ -7,15 +7,17 @@
                 order="10" merged="false" dirtySensitivity="true"/>
     <act:action id="aCreate" componentName="create.new.object.action"
                 text="Создать" tooltip="Создать новый" imageClass="actionBar-create" order="100"
-                dirtySensitivity="true"/>
+                dirtySensitivity="true" permissions="Create"/>
     <act:action id="aSave" componentName="save.action" order="200" dirtySensitivity="false"
-                text="Сохранить" tooltip="Сохранить изменения" imageClass="actionBar-save"/>
+                text="Сохранить" tooltip="Сохранить изменения" imageClass="actionBar-save"
+                permissions="Write"/>
     <act:action id="aDelete" componentName="delete.action" order="300"
-                text="Удалить" imageClass="actionBar-delete" dirtySensitivity="true"/>
+                text="Удалить" imageClass="actionBar-delete" dirtySensitivity="true"
+                permissions="Delete"/>
     <act:action id="aToggleEditOff" componentName="close.in.central.panel.action" order="100"
                 text="Закрыть" imageClass="actionBar-close"/>
     <act:action id="aToggleEditOn" componentName="toggle.edit.on.action" order="150" dirtySensitivity="false"
-                text="Редактировать" imageClass="actionBar-edit"/>
+                text="Редактировать" imageClass="actionBar-edit" permissions="Write"/>
     <act:action id="aOpenLink" componentName="open.link.action" order="150" dirtySensitivity="false"
                 text="open link"/>
 

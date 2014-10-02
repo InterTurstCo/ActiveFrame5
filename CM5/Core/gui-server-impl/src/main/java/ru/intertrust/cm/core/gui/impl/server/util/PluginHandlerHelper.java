@@ -72,6 +72,9 @@ public class PluginHandlerHelper {
         if (source.getVisibilityChecker() != null) {
             target.setVisibilityChecker(source.getVisibilityChecker());
         }
+        if (source.getPermissions() != null) {
+            target.setPermissions(source.getPermissions());
+        }
         target.getProperties().putAll(source.getProperties());
     }
 
