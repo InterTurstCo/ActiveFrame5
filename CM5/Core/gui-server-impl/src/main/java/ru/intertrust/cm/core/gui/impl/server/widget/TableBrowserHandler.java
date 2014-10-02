@@ -45,6 +45,21 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         Set<Id> selectedIdsSet = new LinkedHashSet<>(selectedIds);
         state.setSelectedIds(selectedIdsSet);
         LinkedHashMap<Id, String> listValues = null;
+
+        if (context.getDefaultValues() != null) {
+            Value[] defaultValues = context.getDefaultValues();
+            ArrayList<Id> defaultValueList = new ArrayList<>();
+            for (Value defaultValue : defaultValues) {
+                if (defaultValue instanceof ReferenceValue) {
+                    defaultValueList.add(((ReferenceValue) defaultValue).get());
+                }
+            }
+            if (!defaultValueList.isEmpty()) {
+                selectedIds = defaultValueList;
+            }
+        }
+
+
         if (!selectedIds.isEmpty()) {
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
             Filter includeIds = FilterBuilderUtil.prepareFilter(selectedIdsSet, FilterBuilderUtil.INCLUDED_IDS_FILTER);

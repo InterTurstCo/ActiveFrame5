@@ -15,7 +15,7 @@ import java.util.List;
 @Root(name = "unique-key-value")
 public class UniqueKeyValueConfig implements Dto{
 
-    @ElementList(inline = true)
+    @ElementList(inline = true, entry = "field")
     private List<FieldValueConfig> fieldValueConfigs = new ArrayList<FieldValueConfig>();
 
     @Attribute(name = "type", required = false)

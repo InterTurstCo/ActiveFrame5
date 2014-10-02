@@ -17,6 +17,8 @@ import ru.intertrust.cm.core.gui.model.form.FormObjects;
  *         Time: 17:54
  */
 public class WidgetContext implements Dto {
+
+
     public static final FieldPath[] NOT_INITIALIZED_FIELD_PATHS = new FieldPath[0];
     public static final FieldPath[] EMPTY_PATHS = new FieldPath[1];
 
@@ -26,6 +28,9 @@ public class WidgetContext implements Dto {
     private transient Map<String, WidgetConfig> widgetConfigsById;
     private transient FieldPath[] fieldPaths = NOT_INITIALIZED_FIELD_PATHS;
     private String formType;
+
+    private Value defaultValue;
+    private Value[] defaultValues;
 
     public WidgetContext() {
     }
@@ -155,5 +160,21 @@ public class WidgetContext implements Dto {
 
     public void setFormType(String formType) {
         this.formType = formType;
+    }
+
+    public Value getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(Value defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    public Value[] getDefaultValues() {
+        return defaultValues;
+    }
+
+    public void setDefaultValues(Value[] defaultValues) {
+        this.defaultValues = defaultValues;
     }
 }

@@ -90,7 +90,8 @@
         <link name="Administration" display-text="Состав" image="images/cases.png" child-to-open="Employee">
             <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
             <child-links> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
-                <link name="Employee" display-text="Сотрудники" image="images/inbox.png" display-counter="true" counter-type="non-read">
+                <link name="Employee" display-text="Сотрудники" image="images/inbox.png" display-counter="true"
+                      counter-type="non-read">
                     <plugin>
                         <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
                         <!-- если используется collection-view, то collection нельзя использовать -->
@@ -100,7 +101,7 @@
                                 <default-sort-criteria column-field="name" order="desc"/>
                                 <non-read-elements-definition>
                                     <non-read-check-collection name=""/>
-                                        <object-read-handler component-name=""/>
+                                    <object-read-handler component-name=""/>
 
                                 </non-read-elements-definition>
                             </collection-viewer>
@@ -171,6 +172,39 @@
                             <collection-viewer>
                                 <collection-ref name="letters"/>
                             </collection-viewer>
+                            <!--<form-viewer>
+                                <form-mapping domain-object-type="letter" form="letter_form">
+                                    <field-path value="subject">
+                                        <default-value>
+                                            <field value="Тема по умолчанию"/>
+                                        </default-value>
+                                    </field-path>
+                                    <field-path value="actual_end_period">
+                                        <default-value>
+                                            <field set-current-moment="true"/>
+                                        </default-value>
+                                    </field-path>
+                                    <field-path value="letter_creator^letter.employee">
+                                        <default-values>
+                                            <default-value>
+                                                <field>
+                                                    <unique-key-value type="Employee">
+                                                        <field name="Phone" value="8 (495) 777-55-01"/>
+                                                    </unique-key-value>
+                                                </field>
+                                            </default-value>
+                                            <default-value>
+                                                <field>
+                                                    <unique-key-value type="Employee">
+                                                        <field name="Phone" value="8 (495) 777-55-04"/>
+                                                    </unique-key-value>
+                                                </field>
+                                            </default-value>
+                                        </default-values>
+                                    </field-path>
+                                </form-mapping>
+                                &lt;!&ndash;<form-mapping domain-object-type="superCountry" form="my-custom-form"/>&ndash;&gt;
+                            </form-viewer>-->
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>

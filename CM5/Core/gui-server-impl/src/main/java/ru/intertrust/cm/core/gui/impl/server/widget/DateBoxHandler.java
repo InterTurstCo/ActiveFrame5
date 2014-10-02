@@ -34,7 +34,13 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         state.setDisplayTimeZoneChoice(displayTimeZoneChoice);
         final DateValueConverter converter = getConverter(fieldType);
         final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
-        final DateTimeContext context = converter.valueToContext(widgetContext.getValue(), config.getTimeZoneId(), dateFormat);
+        final DateTimeContext context;
+        if (widgetContext.getDefaultValue() == null) {
+            context = converter.valueToContext(widgetContext.getValue(), config.getTimeZoneId(), dateFormat);
+        } else {
+            context = converter.valueToContext(widgetContext.getDefaultValue(), ModelUtil.DEFAULT_TIME_ZONE_ID,
+                    dateFormat);
+        }
         context.setTimeZoneId(config.getTimeZoneId());
         boolean displayTime = fieldType == FieldType.TIMELESSDATE ? false : config.isDisplayTimeBox();
         state.setDisplayTime(displayTime);

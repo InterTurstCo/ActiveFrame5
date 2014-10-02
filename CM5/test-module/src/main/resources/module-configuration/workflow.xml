@@ -62,69 +62,69 @@
     </collection>
     <collection-view name="persons-view" collection="Persons" is-default="true">
         <display>
-             <column field ="id" name="id" type="integer" editable="false"/>
-             <column field ="login" name="Логин" type="string" editable="false"/>
-             <column field ="firstname" name="Имя" type="string" editable="false"/>
+            <column field="id" name="id" type="integer" editable="false"/>
+            <column field="login" name="Логин" type="string" editable="false"/>
+            <column field="firstname" name="Имя" type="string" editable="false"/>
         </display>
     </collection-view>
     <collection-view name="task-view" collection="Tasks"
-        is-default="true">
+                     is-default="true">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
             <column field="mainattachment" name="id" type="integer"
-                hidden="true" sortable="false" />
+                    hidden="true" sortable="false"/>
             <column field="name" name="Название" type="string"
-                editable="false" hidden="false" sortable="false" />
+                    editable="false" hidden="false" sortable="false"/>
             <column field="description" name="Описание" editable="false"
-                type="string" sortable="true" />
+                    type="string" sortable="true"/>
             <column field="login" name="Адресат" editable="false"
-                type="string" sortable="true" />
+                    type="string" sortable="true"/>
         </display>
     </collection-view>
 
     <collection-view name="Internal-Document-view"
-        collection="Internal_Document" is-default="true">
+                     collection="Internal_Document" is-default="true">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
             <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
+                    sortable="false"/>
             <column field="name" name="Название" type="string"
-                editable="false" hidden="false" sortable="false" />
+                    editable="false" hidden="false" sortable="false"/>
             <column field="status_name" name="Статус" type="string"
-                editable="false" hidden="false" sortable="false" />
-                
+                    editable="false" hidden="false" sortable="false"/>
+
         </display>
     </collection-view>
 
     <form name="Internal_Document_form" domain-object-type="Internal_Document"
-        is-default="true" debug="false">
+          is-default="true" debug="false">
         <markup>
             <header>
                 <table>
                     <tr>
                         <!-- label (Название) -->
                         <td width="100px" h-align="right">
-                            <widget id="1" />
+                            <widget id="1"/>
                         </td>
                         <!-- text-box (Название) -->
                         <td width="100%" h-align="left">
-                            <widget id="2" />
+                            <widget id="2"/>
                         </td>
                         <!-- label (RegNum) -->
                         <td width="100px" h-align="right">
-                            <widget id="regNumLabel" />
+                            <widget id="regNumLabel"/>
                         </td>
                         <!-- text-box (RegNum) -->
                         <td width="100%" h-align="left">
-                            <widget id="regNum" />
+                            <widget id="regNum"/>
                         </td>
                         <!-- label (Автор) -->
                         <td width="100px" h-align="right">
-                            <widget id="docAuthorLabel" />
+                            <widget id="docAuthorLabel"/>
                         </td>
                         <!-- text-box (Автор) -->
                         <td width="100%" h-align="left">
-                            <widget id="docAuthor" />
+                            <widget id="docAuthor"/>
                         </td>
                     </tr>
                 </table>
@@ -133,37 +133,37 @@
                 <tab name="Согласование"> <!-- закладка состоит из групп с разметкой -->
                     <single-entry-group> <!-- наследник от TabGroupsConfig -->
                         <tab-group> <!-- вхождение в группу уже может содержать разметку -->
-                            <table>                            
+                            <table>
                                 <tr>
                                     <td h-align="center" v-align="center">
-                                        <widget id="ReturnOnRejectLabel" />
+                                        <widget id="ReturnOnRejectLabel"/>
                                     </td>
                                     <!-- label (Возвращать при первом несогласовании) -->
                                     <td h-align="left">
-                                        <widget id="ReturnOnReject" />
+                                        <widget id="ReturnOnReject"/>
                                     </td>
                                     <!-- integer-box (Возвращать при первом несогласовании) -->
                                 </tr>
                                 <tr>
                                     <td h-align="center" v-align="center">
-                                        <widget id="3" />
+                                        <widget id="3"/>
                                     </td>
                                     <!-- label (Согласующие) -->
                                     <td h-align="left">
-                                        <widget id="4" />
+                                        <widget id="4"/>
                                     </td>
                                     <!-- integer-box (Согласующие) -->
                                 </tr>
                                 <tr>
                                     <td h-align="center" v-align="center">
-                                        <widget id="5" />
+                                        <widget id="5"/>
                                     </td>
                                     <!-- label (Регистратор) -->
                                     <td h-align="left">
-                                        <widget id="6" />
+                                        <widget id="6"/>
                                     </td>
                                     <!-- combobox-box (Регистратор) -->
-                                </tr>                                
+                                </tr>
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -172,37 +172,37 @@
         </markup>
         <widget-config>
             <label id="1">
-                <field-path />
+                <field-path/>
                 <text>Название:</text>
             </label>
             <text-box id="2">
-                <field-path value="Name" />
+                <field-path value="Name"/>
             </text-box>
 
             <label id="regNumLabel">
-                <field-path />
+                <field-path/>
                 <text>Регистрационный номер:</text>
             </label>
             <text-box id="regNum">
-                <field-path value="RegNum" />
+                <field-path value="RegNum"/>
             </text-box>
 
             <label id="ReturnOnRejectLabel">
-                <field-path />
+                <field-path/>
                 <text>Возвращать при первой отрицательной визе:</text>
             </label>
             <text-box id="ReturnOnReject">
-                <field-path value="ReturnOnReject" />
+                <field-path value="ReturnOnReject"/>
             </text-box>
 
             <label id="3">
                 <text>Согласующие:</text>
             </label>
-           <!-- <list-box id="4">
-                <field-path
-                    value="Negotiation_Card^Parent_Document.Negotiator" />
-                <pattern value="{Login}" />
-            </list-box>-->
+            <!-- <list-box id="4">
+                 <field-path
+                     value="Negotiation_Card^Parent_Document.Negotiator" />
+                 <pattern value="{Login}" />
+             </list-box>-->
             <suggest-box id="4">
                 <field-path value="Negotiation_Card^Parent_Document.Negotiator"/>
                 <collection-ref name="Persons"/>
@@ -214,8 +214,8 @@
             </suggest-box>
             <label id="5">
                 <text>Регистратор:</text>
-            </label>            
-            <list-box id="6"> 
+            </label>
+            <list-box id="6">
                 <field-path value="Registrant"/>
                 <!-- редактирует названи-->
                 <pattern value="{Login}"/>
@@ -223,30 +223,30 @@
 
             <label id="docAuthorLabel">
                 <text>Автор:</text>
-            </label>            
-            <list-box id="docAuthor"> 
+            </label>
+            <list-box id="docAuthor">
                 <field-path value="docAuthor"/>
                 <!-- редактирует названи-->
                 <pattern value="{Login}"/>
             </list-box>
-            
+
         </widget-config>
     </form>
 
 
     <form name="Negotiation_Card_form" domain-object-type="Negotiation_Card"
-        is-default="true" debug="false">
+          is-default="true" debug="false">
         <markup>
             <header>
                 <table>
                     <tr>
                         <!-- label (Название) -->
                         <td width="100px" h-align="right">
-                            <widget id="1" />
+                            <widget id="1"/>
                         </td>
                         <!-- text-box (Название) -->
                         <td width="100%" h-align="left">
-                            <widget id="2" />
+                            <widget id="2"/>
                         </td>
                     </tr>
                 </table>
@@ -258,11 +258,11 @@
                             <table>
                                 <tr>
                                     <td h-align="center" v-align="center">
-                                        <widget id="3" />
+                                        <widget id="3"/>
                                     </td>
                                     <!-- label (Согласующие) -->
                                     <td h-align="left">
-                                        <widget id="4" />
+                                        <widget id="4"/>
                                     </td>
                                     <!-- integer-box (Согласующие) -->
                                 </tr>
@@ -274,11 +274,11 @@
         </markup>
         <widget-config>
             <label id="1">
-                <field-path />
+                <field-path/>
                 <text>Название:</text>
             </label>
             <text-box id="2">
-                <field-path value="Name" />
+                <field-path value="Name"/>
             </text-box>
 
             <label id="3">
@@ -287,20 +287,20 @@
 
             <list-box id="4">
                 <field-path
-                    value="Negotiation_Card^Add_Negotiation_Card.Negotiator" />
-                <pattern value="{Login}" />
+                        value="Negotiation_Card^Add_Negotiation_Card.Negotiator"/>
+                <pattern value="{Login}"/>
             </list-box>
-            
+
         </widget-config>
     </form>
 
-    <form name="report-all-form" type="report"  report-template="all-employee">
+    <form name="report-all-form" type="report" report-template="all-employee">
         <markup>
             <header>
                 <table>
                     <tr>
                         <td h-align="left">
-                            <widget id="reportDescriptionLabel" />
+                            <widget id="reportDescriptionLabel"/>
                         </td>
                     </tr>
                 </table>
@@ -316,13 +316,13 @@
         </widget-config>
     </form>
 
-    <form name="report-params-form" type="report"  report-template="all-employee-params">
+    <form name="report-params-form" type="report" report-template="all-employee-params">
         <markup>
             <header>
                 <table>
                     <tr>
                         <td h-align="left">
-                            <widget id="reportDescriptionLabel" />
+                            <widget id="reportDescriptionLabel"/>
                         </td>
                     </tr>
                 </table>
@@ -332,9 +332,9 @@
                     <single-entry-group>
                         <tab-group>
                             <table width="800px" height="100px">
-                                <tr  height="45px">
+                                <tr height="45px">
                                     <td h-align="left">
-                                        <widget id="startLabel" />
+                                        <widget id="startLabel"/>
                                     </td>
                                     <td>
                                         <widget id="startInput"/>
@@ -367,7 +367,7 @@
                 <field-path value="paramStart"/>
             </date-box>
             <label id="endLabel">
-                <field-path />
+                <field-path/>
                 <text>Конец:</text>
             </label>
             <date-box id="endInput">
@@ -382,7 +382,7 @@
                 <table width="800px" height="40px">
                     <tr>
                         <td h-align="left">
-                            <widget id="reportDescriptionLabel" />
+                            <widget id="reportDescriptionLabel"/>
                         </td>
                     </tr>
                 </table>
@@ -404,7 +404,7 @@
                 <table width="800px" height="40px">
                     <tr>
                         <td h-align="left">
-                            <widget id="reportDescriptionLabel" />
+                            <widget id="reportDescriptionLabel"/>
                         </td>
                     </tr>
                 </table>
@@ -426,7 +426,7 @@
                 <table width="800px" height="40px">
                     <tr>
                         <td h-align="left">
-                            <widget id="reportDescriptionLabel" />
+                            <widget id="reportDescriptionLabel"/>
                         </td>
                     </tr>
                 </table>
@@ -442,13 +442,13 @@
         </widget-config>
     </form>
 
-    <form name="report-param-list-form" type="report"  report-template="all-employee-param-list">
+    <form name="report-param-list-form" type="report" report-template="all-employee-param-list">
         <markup>
             <header>
                 <table>
                     <tr>
                         <td h-align="left">
-                            <widget id="reportDescriptionLabel" />
+                            <widget id="reportDescriptionLabel"/>
                         </td>
                     </tr>
                 </table>
@@ -458,9 +458,9 @@
                     <single-entry-group>
                         <tab-group>
                             <table width="800px" height="100px">
-                                <tr  height="45px">
+                                <tr height="45px">
                                     <td h-align="left">
-                                        <widget id="paramIdListLabel" />
+                                        <widget id="paramIdListLabel"/>
                                     </td>
                                     <td width="200px">
                                         <widget id="employeesSuggestBox"/>
@@ -492,7 +492,7 @@
                 <page-size>30</page-size>
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
-                <clear-all-button  text="Очистить"/>
+                <clear-all-button text="Очистить"/>
                 <default-sort-criteria column-field="name" order="asc"/>
             </suggest-box>
 
@@ -500,10 +500,10 @@
     </form>
 
     <act:action name="start-internal-document-process" componentName="start.process.action"
-        text="Отправить на согласование" image="sign.png" merged="true">
+                text="Отправить на согласование" image="sign.png" merged="true">
         <act:before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
-            <act:confirmation-message text="Отправить на согласование?" />
+            <act:confirmation-message text="Отправить на согласование?"/>
 
             <!-- Доменный объект, который требуется создать перед выполнением 
                 данного действия. При этом перед выполнением открывается форма редактирования 
@@ -520,10 +520,10 @@
 
         <act:after-execution>
             <!-- Текст-подтверждение после выполнения данного действия -->
-            <act:on-success-message text="Документ подписан" />
+            <act:on-success-message text="Документ подписан"/>
         </act:after-execution>
         <act:action-settings>
-            <act:start-process-action-settings process-name="InternalDocument" />
+            <act:start-process-action-settings process-name="InternalDocument"/>
         </act:action-settings>
     </act:action>
 
@@ -532,7 +532,23 @@
             <act:type>Internal_Document</act:type>
             <act:status>Draft</act:status>
         </act:domain-object-context>
-        <act:action name="start-internal-document-process" />
+        <act:action name="start-internal-document-process"/>
     </act:action-context>
+
+    <form-mappings name="report_form_mappings">
+        <form-mapping form="report-params-form">
+            <field-path value="paramEnd">
+                <default-value>
+                    <field set-current-moment="true"/>
+                </default-value>
+            </field-path>
+            <users>
+                <user uid="user1"/>
+            </users>
+            <groups>
+                <group name="users"/>
+            </groups>
+        </form-mapping>
+    </form-mappings>
 
 </configuration>

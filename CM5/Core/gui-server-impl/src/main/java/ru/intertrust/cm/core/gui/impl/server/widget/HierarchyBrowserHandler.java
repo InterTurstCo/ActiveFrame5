@@ -37,7 +37,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     @Override
     public HierarchyBrowserWidgetState getInitialState(WidgetContext context) {
-
         HierarchyBrowserConfig widgetConfig = context.getWidgetConfig();
         NodeCollectionDefConfig nodeConfig = widgetConfig.getNodeCollectionDefConfig();
         ArrayList<Id> selectedIds = context.getAllObjectIds();
@@ -49,6 +48,18 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
         boolean hasSelectionFilters = false;
         boolean noLimit = true;
+        if (context.getDefaultValues() != null) {
+            Value[] defaultValues = context.getDefaultValues();
+            ArrayList<Id> defaultValueList = new ArrayList<>();
+            for (Value defaultValue : defaultValues) {
+                if (defaultValue instanceof ReferenceValue) {
+                    defaultValueList.add(((ReferenceValue) defaultValue).get());
+                }
+            }
+            if (!defaultValueList.isEmpty()) {
+                selectedIds = defaultValueList;
+            }
+        }
         if (!selectedIds.isEmpty()) {
             Set<String> collectionNames = collectionNameNodeMap.keySet();
             for (String collectionName : collectionNames) {
@@ -92,7 +103,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
         } else if(limit != 0) {
             collection = tooltipContent
-                    ? collectionsService.findCollection(collectionName, null, filters,limit, WidgetConstants.UNBOUNDED_LIMIT)
+                    ? collectionsService.findCollection(collectionName, null, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
                     : collectionsService.findCollection(collectionName, null, filters, 0, limit);
             int collectionCount = collectionsService.findCollectionCount(collectionName, filters);
             nodeConfig.setElementsCount(collectionCount);
@@ -154,7 +165,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         int offset = nodeContentRequest.getOffset();
         ArrayList<Id> chosenIds = nodeContentRequest.getChosenIds();
         Map<String, String> domainObjectTypesAndTitles = new HashMap<>();
-
         for (NodeCollectionDefConfig nodeCollectionDefConfig : nodeCollectionDefConfigs) {
             String domainObjectType = nodeCollectionDefConfig.getDomainObjectType();
             String titleFromConfig = nodeCollectionDefConfig.getTitle();
@@ -177,7 +187,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             IdentifiableObjectCollection collection = collectionsService.
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
-
             List<NodeCollectionDefConfig> children = nodeCollectionDefConfig.getNodeCollectionDefConfigs();
             boolean mayHaveChildren = !children.isEmpty();
             FormattingConfig formattingConfig = nodeContentRequest.getFormattingConfig();
@@ -240,7 +249,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     private List<NodeCollectionDefConfig> getNodeCollectionConfigs(NodeCollectionDefConfig rootNodeCollectionDefConfig,
                                                                    Id parentId) {
-
         if (parentId != null) {
             return rootNodeCollectionDefConfig.getNodeCollectionDefConfigs();
         } else {
@@ -249,7 +257,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             return nodeCollectionDefConfigs;
         }
     }
-
     public HierarchyBrowserTooltipResponse fetchWidgetItems(Dto inputParams){
         HierarchyBrowserTooltipRequest request = (HierarchyBrowserTooltipRequest) inputParams;
         HierarchyBrowserConfig config = request.getHierarchyBrowserConfig();
@@ -267,7 +274,15 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                     selectedIds, chosenItems, true);
         }
 
-        HierarchyBrowserTooltipResponse response = new HierarchyBrowserTooltipResponse(chosenItems, selectedIds);
+        SelectionFiltersConfig selectionFiltersConfig  = null;
+        //TODO fix this stub
+        for (NodeCollectionDefConfig nodeCollectionDefConfig : collectionNameNodeMap.values()) {
+            SelectionFiltersConfig randomSelectionFiltersConfig = nodeCollectionDefConfig.getSelectionFiltersConfig();
+            if(randomSelectionFiltersConfig != null){
+                selectionFiltersConfig = randomSelectionFiltersConfig;
+            }
+        }
+        HierarchyBrowserTooltipResponse response = new HierarchyBrowserTooltipResponse(chosenItems, selectedIds, selectionFiltersConfig);
         return response;
     }
 

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import java.util.ArrayList;

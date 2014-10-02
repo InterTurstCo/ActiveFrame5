@@ -45,6 +45,12 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         state.setSuggestBoxConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
+        if (context.getDefaultValues() != null) {
+            List<Id> defaultIds = HandlerUtils.takeDefaultReferenceValues(context);
+            if (!defaultIds.isEmpty()) {
+                selectedIds = new ArrayList<>(defaultIds);
+            }
+        }
         if (!selectedIds.isEmpty()) {
             DefaultSortCriteriaConfig sortCriteriaConfig = widgetConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
@@ -71,8 +77,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean isReportForm = FormConfig.TYPE_REPORT.equals(context.getFormType());
         boolean singleChoice = isReportForm ? singleChoiceFromConfig : isSingleChoice(context, singleChoiceFromConfig);
-
-        state.setSelectedIds(new LinkedHashSet<Id>(selectedIds));
+        state.setSelectedIds(new LinkedHashSet<>(selectedIds));
         state.setSingleChoice(singleChoice);
         state.setListValues(objects);
         boolean displayingAsHyperlinks = WidgetUtil.isDisplayingAsHyperlinks(widgetConfig.getDisplayValuesAsLinksConfig());
@@ -83,11 +88,9 @@ public class SuggestBoxHandler extends ListWidgetHandler {
     public SuggestionList obtainSuggestions(Dto inputParams) {
         SuggestionRequest suggestionRequest = (SuggestionRequest) inputParams;
         List<Filter> filters = new ArrayList<>();
-
         if (!suggestionRequest.getExcludeIds().isEmpty()) {
             filters.add(FilterBuilderUtil.prepareFilter(suggestionRequest.getExcludeIds(), FilterBuilderUtil.EXCLUDED_IDS_FILTER));
         }
-
         filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));
         DefaultSortCriteriaConfig sortCriteriaConfig = suggestionRequest.getDefaultSortCriteriaConfig();
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
@@ -96,10 +99,8 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         boolean isRequestForMoreItems = lazyLoadState.getOffset() != 0;
         IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters,
                 lazyLoadState.getOffset(), lazyLoadState.getPageSize());
-
         Matcher dropDownMatcher = FormatHandler.pattern.matcher(suggestionRequest.getDropdownPattern());
         Matcher selectionMatcher = FormatHandler.pattern.matcher(suggestionRequest.getSelectionPattern());
-
         ArrayList<SuggestionItem> suggestionItems = new ArrayList<>();
         FormattingConfig formattingConfig = suggestionRequest.getFormattingConfig();
         for (IdentifiableObject identifiableObject : collection) {

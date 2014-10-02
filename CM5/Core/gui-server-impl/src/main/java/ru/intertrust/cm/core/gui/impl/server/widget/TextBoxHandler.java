@@ -1,4 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
+
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -23,7 +24,11 @@ public class TextBoxHandler extends ValueEditingWidgetHandler {
     public TextState getInitialState(WidgetContext context) {
         final FieldConfig fieldConfig = getFieldConfig(context);
         boolean encrypted = fieldConfig instanceof StringFieldConfig && ((StringFieldConfig) fieldConfig).isEncrypted();
-        state = new TextState(context.<String>getFieldPlainValue(), encrypted);
+        if (context.getDefaultValue() == null)
+            state = new TextState(context.<String>getFieldPlainValue(), encrypted);
+        else {
+            state = new TextState(context.getDefaultValue().get().toString(), encrypted);
+        }
         if (context.getWidgetConfig() instanceof TextBoxConfig) {
             setPaswordIds(context);
         }
@@ -31,16 +36,15 @@ public class TextBoxHandler extends ValueEditingWidgetHandler {
     }
 
     private void setPaswordIds(WidgetContext context) {
-            TextBoxConfig currentTextBoxConfig = context.getWidgetConfig();
-
-            if (currentTextBoxConfig.getConfirmationFor() != null) {
-                state.setConfirmationWidgetId(currentTextBoxConfig.getConfirmationFor().getWidgetId());
-                state.setPrimaryWidgetId(currentTextBoxConfig.getId());
-            }
-            if (currentTextBoxConfig.getConfirmation() != null) {
-                state.setPrimaryWidgetId(currentTextBoxConfig.getConfirmation().getWidgetId());
-                state.setConfirmationWidgetId(currentTextBoxConfig.getId());
-            }
+        TextBoxConfig currentTextBoxConfig = context.getWidgetConfig();
+        if (currentTextBoxConfig.getConfirmationFor() != null) {
+            state.setConfirmationWidgetId(currentTextBoxConfig.getConfirmationFor().getWidgetId());
+            state.setPrimaryWidgetId(currentTextBoxConfig.getId());
+        }
+        if (currentTextBoxConfig.getConfirmation() != null) {
+            state.setPrimaryWidgetId(currentTextBoxConfig.getConfirmation().getWidgetId());
+            state.setConfirmationWidgetId(currentTextBoxConfig.getId());
+        }
     }
 
 

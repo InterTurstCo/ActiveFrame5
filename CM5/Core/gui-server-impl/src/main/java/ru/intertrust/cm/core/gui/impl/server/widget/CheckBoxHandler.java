@@ -17,7 +17,13 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 public class CheckBoxHandler extends ValueEditingWidgetHandler {
     @Override
     public CheckBoxState getInitialState(WidgetContext context) {
-        return new CheckBoxState(context.<Boolean>getFieldPlainValue());
+        CheckBoxState checkBoxState;
+        if (context.getDefaultValue() == null) {
+            checkBoxState = new CheckBoxState(context.<Boolean>getFieldPlainValue());
+        } else {
+            checkBoxState = new CheckBoxState(((BooleanValue) context.getDefaultValue()).get());
+        }
+        return checkBoxState;
     }
 
     @Override

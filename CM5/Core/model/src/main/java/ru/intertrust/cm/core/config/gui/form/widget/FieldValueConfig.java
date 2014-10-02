@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  * Created by tbilyi on 18.06.2014.
  */
 
-public class FieldValueConfig implements Dto{
+public class FieldValueConfig implements Dto {
 
     @Attribute(name = "name", required = false)
     private String name;
@@ -107,9 +107,7 @@ public class FieldValueConfig implements Dto{
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         FieldValueConfig that = (FieldValueConfig) o;
-
         if (setBaseObject != that.setBaseObject) {
             return false;
         }
@@ -134,7 +132,6 @@ public class FieldValueConfig implements Dto{
         if (timeZoneId != null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) {
             return false;
         }
-
         return true;
     }
 

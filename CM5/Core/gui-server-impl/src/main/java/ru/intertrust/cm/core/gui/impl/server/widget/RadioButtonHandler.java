@@ -5,6 +5,8 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RadioButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleSelectionWidgetConfig;
@@ -34,21 +36,18 @@ public class RadioButtonHandler extends ListWidgetHandler {
     public RadioButtonState getInitialState(WidgetContext context) {
         RadioButtonState widgetState = new RadioButtonState();
         setupInitialState(widgetState, context);
-
         RadioButtonConfig radioButtonConfig = context.getWidgetConfig();
         if (radioButtonConfig.getLayoutConfig() != null && "horizontal".equalsIgnoreCase(radioButtonConfig.getLayoutConfig().getName())) {
             widgetState.setLayout(RadioButtonState.Layout.HORIZONTAL);
         } else {
             widgetState.setLayout(RadioButtonState.Layout.VERTICAL);
         }
-
         return widgetState;
     }
 
     private void setupInitialState(RadioButtonState widgetState, WidgetContext context) {
         SingleSelectionWidgetConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         widgetState.setListValues(idDisplayMapping);
         String field = fieldPath.getFieldName();
@@ -61,7 +60,14 @@ public class RadioButtonHandler extends ListWidgetHandler {
             if (listToDisplay != null) {
                 appendDisplayMappings(listToDisplay, widgetConfig.getPatternConfig().getValue(), idDisplayMapping);
                 Id selectedId = context.getFieldPlainValue();
-                widgetState.setSelectedId(selectedId);
+                if (context.getDefaultValue() == null) {
+                    widgetState.setSelectedId(selectedId);
+                } else {
+                    Value defaultValue = context.getDefaultValue();
+                    if (defaultValue instanceof ReferenceValue) {
+                        widgetState.setSelectedId(((ReferenceValue) defaultValue).get());
+                    }
+                }
             }
         }
     }

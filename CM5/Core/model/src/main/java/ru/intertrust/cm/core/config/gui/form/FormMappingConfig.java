@@ -2,10 +2,15 @@ package ru.intertrust.cm.core.config.gui.form;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.GroupsConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -19,6 +24,9 @@ public class FormMappingConfig implements Dto {
 
     @Attribute(name = "domain-object-type", required = false)
     private String domainObjectType;
+
+    @ElementList(name = "field-path", required = false, inline = true)
+    List<FieldPathConfig> fieldPathConfigs = new ArrayList<>();
 
     @Element(name = "users", required = false)
     private UsersConfig usersConfig;
@@ -60,37 +68,34 @@ public class FormMappingConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         FormMappingConfig that = (FormMappingConfig) o;
-
-        if (groupsConfig != null ? !groupsConfig.equals(that.groupsConfig) : that.groupsConfig != null) {
+        if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null)
             return false;
-        }
-        if (usersConfig != null ? !usersConfig.equals(that.usersConfig) : that.usersConfig != null) {
+        if (fieldPathConfigs != null ? !fieldPathConfigs.equals(that.fieldPathConfigs) : that.fieldPathConfigs != null)
             return false;
-        }
-        if (form != null ? !form.equals(that.form) : that.form != null) {
-            return false;
-        }
-        if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
-            return false;
-        }
-
+        if (form != null ? !form.equals(that.form) : that.form != null) return false;
+        if (groupsConfig != null ? !groupsConfig.equals(that.groupsConfig) : that.groupsConfig != null) return false;
+        if (usersConfig != null ? !usersConfig.equals(that.usersConfig) : that.usersConfig != null) return false;
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = usersConfig != null ? usersConfig.hashCode() : 0;
-        result = 31 * result + (groupsConfig != null ? groupsConfig.hashCode() : 0);
-        result = 31 * result + (groupsConfig != null ? groupsConfig.hashCode() : 0);
+        int result = form != null ? form.hashCode() : 0;
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
+        result = 31 * result + (usersConfig != null ? usersConfig.hashCode() : 0);
+        result = 31 * result + (groupsConfig != null ? groupsConfig.hashCode() : 0);
+        result = 31 * result + (fieldPathConfigs != null ? fieldPathConfigs.hashCode() : 0);
         return result;
+    }
+
+    public List<FieldPathConfig> getFieldPathConfigs() {
+        return fieldPathConfigs;
+    }
+
+    public void setFieldPathConfigs(List<FieldPathConfig> fieldPathConfigs) {
+        this.fieldPathConfigs = fieldPathConfigs;
     }
 }

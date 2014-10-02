@@ -8,7 +8,12 @@
             <date-time name="actual_end_period"/>
         </fields>
     </domain-object-type>
-
+    <domain-object-type name="letter_creator" initial-status="Active">
+        <fields>
+            <reference name="letter" type="letter"/>
+            <reference name="employee" type="Employee"/>
+        </fields>
+    </domain-object-type>
     <domain-object-type name="letter_addressee">
         <fields>
             <reference name="letter" type="letter"/>
@@ -159,6 +164,12 @@
                                     <td h-align="left">
                                         <widget id="actual_end_period"/>
                                     </td>
+                                    <td h-align="left">
+                                        <widget id="letter_creators_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="letter_creators"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -180,6 +191,20 @@
             </body>
         </markup>
         <widget-config>
+            <label id="letter_creators_label">
+                <field-path/>
+                <text>Создатели письма:</text>
+            </label>
+            <suggest-box id="letter_creators">
+                <field-path value="letter_creator^letter.employee"/>
+                <collection-ref name="Employees"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byFirstLetter"/>
+                <page-size>20</page-size>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+            </suggest-box>
             <label id="subject_label">
                 <field-path/>
                 <text>Тема:</text>
@@ -548,6 +573,42 @@
             </table-browser>
         </widget-config>
     </form>
+
+    <form-mappings name="letter_mappings">
+        <form-mapping domain-object-type="letter" form="letter_form">
+            <field-path value="subject">
+                <default-value>
+                    <field value="Тема по умолчанию (из form-mapping)"/>
+                </default-value>
+            </field-path>
+            <field-path value="letter_creator^letter.employee">
+                <default-values>
+                    <default-value>
+                        <field>
+                            <unique-key-value type="Employee">
+                                <field name="Phone" value="8 (495) 777-55-01"/>
+                            </unique-key-value>
+                        </field>
+                    </default-value>
+                    <default-value>
+                        <field>
+                            <unique-key-value type="Employee">
+                                <field name="Phone" value="8 (495) 777-55-04"/>
+                            </unique-key-value>
+                        </field>
+                    </default-value>
+                </default-values>
+            </field-path>
+            <users>
+                <user uid="person2"/>
+                <user uid="person7"/>
+            </users>
+            <groups>
+                <group name="EmployeeBosses"/>
+                <group name="test-group-2" priority="2"/>
+            </groups>
+        </form-mapping>
+    </form-mappings>
 
     <collection-view name="org_middle_default_view" collection="org_middle_collection" is-default="true">
         <display>

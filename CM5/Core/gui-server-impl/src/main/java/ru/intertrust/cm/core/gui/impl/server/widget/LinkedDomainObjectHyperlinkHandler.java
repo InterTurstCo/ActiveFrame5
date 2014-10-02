@@ -67,7 +67,13 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
             state.setListValues(listValues);
         }
         state.setWidgetConfig(widgetConfig);
-        state.setSelectedIds(selectedIds);
+
+        if (context.getDefaultValues() != null) {
+            List<Id> defaultIds = HandlerUtils.takeDefaultReferenceValues(context);
+            state.setSelectedIds(new ArrayList<>(defaultIds));
+        } else {
+            state.setSelectedIds(selectedIds);
+        }
         state.setDisplayingAsHyperlinks(true);
         return state;
     }
@@ -95,11 +101,11 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
-        if(limit == 0) {
+        if (limit == 0) {
             collection = collectionsService.findCollection(collectionName, null, filters);
         } else {
             collection = tooltipContent
-                    ? collectionsService.findCollection(collectionName, null, filters,limit, WidgetConstants.UNBOUNDED_LIMIT)
+                    ? collectionsService.findCollection(collectionName, null, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
                     : collectionsService.findCollection(collectionName, null, filters, 0, limit);
         }
         List<Id> selectedFilteredIds = new ArrayList<>();

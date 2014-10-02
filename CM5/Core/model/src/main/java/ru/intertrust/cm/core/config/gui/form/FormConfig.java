@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
  *         Date: 05.09.13
  *         Time: 15:58
  */
-@Root( name = "form", strict = false)
+@Root(name = "form", strict = false)
 public class FormConfig implements Dto, TopLevelConfig {
 
     public static final String TYPE_EDIT = "edit";
@@ -27,20 +27,23 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Attribute(name = "domain-object-type", required = false)
     private String domainObjectType;
 
-    @Attribute(name = "is-default",required = false)
+    @Attribute(name = "is-default", required = false)
     private boolean isDefault;
 
-    @Attribute(name = "debug",required = false)
+    @Attribute(name = "debug", required = false)
     private boolean debug;
 
-    @Attribute(name = "min-width",required = false)
+    @Attribute(name = "min-width", required = false)
     private String minWidth;
 
-    @Attribute(name = "type",required = false)
+    @Attribute(name = "type", required = false)
     private String type;
 
     @Attribute(name = "report-template", required = false)
     private String reportTemplate;
+
+    @Attribute(name = "initial-value-setter", required = false)
+    private String initialValueSetter;
 
     @Element(name = "tool-bar", required = false)
     private ToolBarConfig toolbarConfig;
@@ -72,6 +75,7 @@ public class FormConfig implements Dto, TopLevelConfig {
     public void setMarkup(MarkupConfig markup) {
         this.markup = markup;
     }
+
     @Override
     public String getName() {
         return name;
@@ -137,6 +141,14 @@ public class FormConfig implements Dto, TopLevelConfig {
         return widgetGroupsConfig;
     }
 
+    public String getInitialValueSetter() {
+        return initialValueSetter;
+    }
+
+    public void setInitialValueSetter(String initialValueSetter) {
+        this.initialValueSetter = initialValueSetter;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -145,9 +157,7 @@ public class FormConfig implements Dto, TopLevelConfig {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         FormConfig that = (FormConfig) o;
-
         if (isDefault != that.isDefault) {
             return false;
         }
@@ -169,6 +179,9 @@ public class FormConfig implements Dto, TopLevelConfig {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
+        if (initialValueSetter != null ? !initialValueSetter.equals(that.initialValueSetter) : that.initialValueSetter != null) {
+            return false;
+        }
         if (widgetConfigurationConfig != null ? !widgetConfigurationConfig.equals(that.
                 widgetConfigurationConfig) : that.widgetConfigurationConfig != null) {
             return false;
@@ -177,7 +190,7 @@ public class FormConfig implements Dto, TopLevelConfig {
                 formObjectsRemoverConfig) : that.formObjectsRemoverConfig != null) {
             return false;
         }
-        if (widgetGroupsConfig != null ? !widgetGroupsConfig.equals(that. widgetGroupsConfig) :
+        if (widgetGroupsConfig != null ? !widgetGroupsConfig.equals(that.widgetGroupsConfig) :
                 that.widgetGroupsConfig != null) {
             return false;
         }
@@ -191,6 +204,7 @@ public class FormConfig implements Dto, TopLevelConfig {
         result = 31 * result + (isDefault ? 1 : 0);
         result = 31 * result + (debug ? 1 : 0);
         result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
+        result = 31 * result + (initialValueSetter != null ? initialValueSetter.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (reportTemplate != null ? reportTemplate.hashCode() : 0);
         result = 31 * result + (toolbarConfig != null ? toolbarConfig.hashCode() : 0);
@@ -224,6 +238,7 @@ public class FormConfig implements Dto, TopLevelConfig {
     /**
      * Возвращает имя "целевого объекта" формы, т.е. тип доменного объекта (для формы редактирования или поиска),
      * либо имя отчета (для формы отчета)
+     *
      * @return тип доменного объекта либо имя отчета
      */
     public String getTargetTypeName() {

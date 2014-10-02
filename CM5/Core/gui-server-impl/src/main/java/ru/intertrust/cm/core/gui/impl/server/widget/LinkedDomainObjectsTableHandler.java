@@ -52,7 +52,13 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         state.setSingleChoice(singleChoiceFromConfig);
         ArrayList<Id> ids = context.getAllObjectIds();
-        state.setIds(ids);
+
+        if (context.getDefaultValues() != null) {
+            List<Id> defaultIds = HandlerUtils.takeDefaultReferenceValues(context);
+            state.setIds(new ArrayList<>(defaultIds));
+        } else {
+            state.setIds(ids);
+        }
 
         String linkedFormName = domainObjectsTableConfig.getLinkedFormConfig().getName();
         if (linkedFormName != null && !linkedFormName.isEmpty()) {
@@ -69,6 +75,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
         return state;
     }
+
 
     private List<RowItem> generateFilteredRowItems(LinkedDomainObjectsTableConfig widgetConfig,
                                                    List<Id> selectedIds, boolean tooltipContent) {
@@ -220,7 +227,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         SummaryTableConfig summaryTableConfig = request.getSummaryTableConfig();
         RowItem item = new RowItem();
         List<Id> requestIds = request.getIds();
-        if(requestIds != null && !requestIds.isEmpty()){
+        if (requestIds != null && !requestIds.isEmpty()) {
             item.setObjectId(requestIds.get(0));
         }
         for (SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
@@ -250,12 +257,11 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                     Boolean checked = checkBoxState.isSelected();
                     representation.append(formatHandler.format(new BooleanValue(checked), matcher, formattingConfig));
 
-                }else if (widgetState instanceof DateBoxState) {
+                } else if (widgetState instanceof DateBoxState) {
                     DateBoxState dateBoxState = (DateBoxState) widgetState;
                     representation.append(formatHandler.format(dateBoxState, matcher, formattingConfig));
 
-                }
-                else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
+                } else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
                     LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
                     List<Id> ids = linkEditingWidgetState.getIds();
                     representation.append(formatHandler.format(selectionPattern, ids, formattingConfig));

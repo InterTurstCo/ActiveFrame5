@@ -2,10 +2,16 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.converter.FieldPathOnDeleteActionConverter;
+import ru.intertrust.cm.core.config.gui.form.DefaultValueConfig;
+import ru.intertrust.cm.core.config.gui.form.DefaultValuesConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -62,6 +68,12 @@ public class FieldPathConfig implements Dto {
     @Element(name = "on-unlink", required = false)
     private OnUnlinkConfig onUnlinkConfig;
 
+    @Element(name = "default-value", required = false)
+    private DefaultValueConfig defaultValueConfig;
+
+    @Element(name = "default-values", required = false)
+    DefaultValuesConfig defaultValuesConfig;
+
 
     public String getValue() {
         return value;
@@ -101,6 +113,22 @@ public class FieldPathConfig implements Dto {
 
     public void setOnLinkConfig(OnLinkConfig onLinkConfig) {
         this.onLinkConfig = onLinkConfig;
+    }
+
+    public DefaultValueConfig getDefaultValueConfig() {
+        return defaultValueConfig;
+    }
+
+    public void setDefaultValueConfig(DefaultValueConfig defaultValueConfig) {
+        this.defaultValueConfig = defaultValueConfig;
+    }
+
+    public DefaultValuesConfig getDefaultValuesConfig() {
+        return defaultValuesConfig;
+    }
+
+    public void setDefaultValuesConfig(DefaultValuesConfig defaultValuesConfig) {
+        this.defaultValuesConfig = defaultValuesConfig;
     }
 
     @Override

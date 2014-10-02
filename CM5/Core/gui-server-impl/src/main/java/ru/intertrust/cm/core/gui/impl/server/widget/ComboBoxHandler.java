@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleSelectionWidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -32,14 +33,12 @@ public class ComboBoxHandler extends ListWidgetHandler {
     public ComboBoxState getInitialState(WidgetContext context) {
         ComboBoxState widgetState = new ComboBoxState();
         setupInitialState(widgetState, context);
-
         return widgetState;
     }
 
     private void setupInitialState(ComboBoxState widgetState, WidgetContext context) {
         SingleSelectionWidgetConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         idDisplayMapping.put(null, "");
         widgetState.setListValues(idDisplayMapping);
@@ -52,7 +51,12 @@ public class ComboBoxHandler extends ListWidgetHandler {
             List<DomainObject> listToDisplay = crudService.findAll(fieldConfig.getType());
             if (listToDisplay != null) {
                 appendDisplayMappings(listToDisplay, widgetConfig.getPatternConfig().getValue(), idDisplayMapping);
-                Id selectedId = context.getFieldPlainValue();
+                Id selectedId = null;
+                if (context.getDefaultValue() == null) {
+                    selectedId = context.getFieldPlainValue();
+                } else {
+                    selectedId = ((ReferenceValue) context.getDefaultValue()).get();
+                }
                 widgetState.setSelectedId(selectedId);
             }
         }
