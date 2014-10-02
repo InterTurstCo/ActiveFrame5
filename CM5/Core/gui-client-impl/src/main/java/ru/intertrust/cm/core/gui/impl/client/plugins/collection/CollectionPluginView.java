@@ -19,6 +19,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
@@ -88,6 +89,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +130,7 @@ public class CollectionPluginView extends PluginView {
     private FilterPanelConfig filterPanelConfig;
     private int rowsChunk;
     private InitialFiltersConfig hierarchicalFiltersConfig;
-    private Panel breadCrumbsPanel;
+    private List<IsWidget> breadcrumbWidgets = new ArrayList<>();
 
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
@@ -534,13 +536,26 @@ public class CollectionPluginView extends PluginView {
         filterButton.setStyleName("show-filter-button");
         root.add(treeLinkWidget);
         if (plugin.isShowBreadcrumbs()) {
-            breadCrumbsPanel = createBreadCrumbsPanel();
+            Panel breadCrumbsPanel = createBreadCrumbsPanel();
             if (breadCrumbsPanel != null) {
                 root.add(breadCrumbsPanel);
             }
         }
         root.add(tableBody);
 
+    }
+
+    protected Panel createBreadCrumbsPanel() {
+        Panel breadCrumbsPanel = super.createBreadCrumbsPanel();
+        Iterator<IsWidget> iterator = breadcrumbWidgets.iterator();
+        while (iterator.hasNext()) {
+            IsWidget next = iterator.next();
+            breadCrumbsPanel.add(next);
+            if (iterator.hasNext()) {
+                breadCrumbsPanel.add(new Label("/"));
+            }
+        }
+        return breadCrumbsPanel;
     }
 
     private void createTableColumnsWithCheckBoxes(
@@ -913,8 +928,11 @@ public class CollectionPluginView extends PluginView {
         return config;
     }
 
-    public Panel getBreadCrumbsPanel() {
-        return breadCrumbsPanel;
+    public void setBreadcrumbWidgets(List<IsWidget> breadcrumbWidgets) {
+        this.breadcrumbWidgets.clear();
+        if (breadcrumbWidgets != null) {
+            this.breadcrumbWidgets.addAll(breadcrumbWidgets);
+        }
     }
 }
 

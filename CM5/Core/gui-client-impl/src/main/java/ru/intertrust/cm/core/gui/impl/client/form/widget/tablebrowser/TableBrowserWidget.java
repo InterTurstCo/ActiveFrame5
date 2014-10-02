@@ -5,16 +5,17 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
@@ -65,7 +66,6 @@ import ru.intertrust.cm.core.gui.model.plugin.HierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -91,6 +91,10 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private Panel root = new HorizontalPanel();
 
     private List<BreadCrumbItem> breadCrumbItems = new ArrayList<>();
+
+    private HandlerRegistration expandHierarchyRegistration;
+    private HandlerRegistration checkBoxRegistration;
+    private HandlerRegistration rowSelectedRegistration;
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -241,12 +245,9 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         collectionPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
+                CollectionPluginView view = (CollectionPluginView)collectionPlugin.getView();
+                view.setBreadcrumbWidgets(breadCrumbItemsToWidgets());
                 dialogBox.center();
-                CollectionPluginView view = (CollectionPluginView) collectionPlugin.getView();
-                Panel breadCrumbsPanel = view.getBreadCrumbsPanel();
-                if (breadCrumbsPanel != null) {
-                    addBreadCrumbsToPanel(breadCrumbsPanel);
-                }
             }
         });
         pluginPanel.open(collectionPlugin);
@@ -403,8 +404,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 addHierarchicalLinkToNavigationConfig(navigationConfig, link);
 
                 if (breadCrumbItems.isEmpty()) {
-                    //TODO: what can we use as display text for the parent (root) bread crumb?
-                    breadCrumbItems.add(new BreadCrumbItem("Root", "Root", initCollectionConfig())); //TODO: don't recreate current view, store it in state
+                    //TODO: what can we use as a display text for the parent (root) bread crumb?
+                    breadCrumbItems.add(new BreadCrumbItem("root", "Исходная коллекция", initCollectionConfig())); //TODO: don't recreate current view, store it in state
                 }
                 breadCrumbItems.add(new BreadCrumbItem(link.getName(), link.getDisplayText(), collectionViewerConfig));
 
@@ -440,10 +441,11 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private class FetchFilteredRowsClickHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
-            temporaryStateOfSelectedIds.clear();
+           // temporaryStateOfSelectedIds.clear();
             final List<Id> selectedFromHistory = Application.getInstance().getHistoryManager().getSelectedIds();
             temporaryStateOfSelectedIds.addAll(selectedFromHistory);
             breadCrumbItems.clear();
+            unregisterHandlers();
             initDialogView();
             openCollectionPlugin(initCollectionConfig(), null);
         }
@@ -462,7 +464,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 widgetItemsView.clearFilterInput();
             }
         });
-        localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, new CheckBoxFieldUpdateEventHandler() {
+        checkBoxRegistration = localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, new CheckBoxFieldUpdateEventHandler() {
             @Override
             public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
                 Id id = event.getId();
@@ -474,7 +476,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 }
             }
         });
-        localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
+        expandHierarchyRegistration = localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
     }
 
     private void addClickHandlersForSingleChoice(final Button okButton, final Button cancelButton, final DialogBox dialogBox) {
@@ -489,7 +491,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 widgetItemsView.clearFilterInput();
             }
         });
-        localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
+        rowSelectedRegistration = localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
             @Override
             public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
                 temporaryStateOfSelectedIds.clear();
@@ -497,7 +499,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
             }
         });
-        localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
+        expandHierarchyRegistration = localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
     }
 
     private void initDialogWindowSize() {
@@ -588,17 +590,46 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         return listValues;
     }
 
-    private void addBreadCrumbsToPanel(Panel panel) {
-        panel.clear();
-        Iterator<BreadCrumbItem> iterator = breadCrumbItems.iterator();
-        while (iterator.hasNext()) {
-            BreadCrumbItem next = iterator.next();
-            Label breadCrumb = new Label(next.displayText);
-            //TODO: add on click
-            panel.add(breadCrumb);
-            if (iterator.hasNext()) {
-                panel.add(new Label("/"));
+    private void unregisterHandlers() {
+        if (expandHierarchyRegistration != null) {
+            expandHierarchyRegistration.removeHandler();
+        }
+        if (checkBoxRegistration != null) {
+            checkBoxRegistration.removeHandler();
+        }
+        if (rowSelectedRegistration != null) {
+            rowSelectedRegistration.removeHandler();
+        }
+    }
+
+    private List<IsWidget> breadCrumbItemsToWidgets() {
+        List<IsWidget> breadCrumbWidgets = new ArrayList<>();
+        for (final BreadCrumbItem item : breadCrumbItems) {
+            Anchor breadCrumb = new Anchor(item.displayText);
+            breadCrumb.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    navigateByBreadCrumb(item.name);
+                }
+            });
+            breadCrumbWidgets.add(breadCrumb);
+        }
+        return breadCrumbWidgets;
+    }
+
+    private void navigateByBreadCrumb(String linkName) {
+        CollectionViewerConfig config = null;
+        int removeFrom = breadCrumbItems.size();
+        for (int i = 0; i < breadCrumbItems.size() - 1; i++) { // skip last item
+            BreadCrumbItem breadCrumbItem = breadCrumbItems.get(i);
+            if (breadCrumbItem.name.equals(linkName)) {
+                config = breadCrumbItem.config;
+                removeFrom = i;
             }
+        }
+        breadCrumbItems.subList(removeFrom, breadCrumbItems.size()).clear();
+        if (config != null) {
+            openCollectionPlugin(config, new NavigationConfig());
         }
     }
 
