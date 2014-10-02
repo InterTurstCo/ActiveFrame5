@@ -97,4 +97,8 @@
         </filter>            
     </collection>
 
+    <collection name="EmployeesGenerator" idField="id">
+        <renderer className="employee.collection.test" />
+    </collection>
+    
 </configuration>
