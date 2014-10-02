@@ -33,7 +33,6 @@ import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
@@ -391,7 +390,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         ExpandHierarchicalCollectionData data = new ExpandHierarchicalCollectionData(
                 event.getChildCollectionViewerConfigs(), event.getSelectedId(), currentCollectionName);
 
-        final Command command = new Command("initializeForHierarchicalCollection", "domain.object.surfer.plugin", data);
+        final Command command = new Command("prepareHierarchicalCollectionData", "hierarchical.collection.builder", data);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -404,7 +403,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 CollectionViewerConfig collectionViewerConfig = pluginConfig.getCollectionViewerConfig();
                 LinkConfig link = data.getHierarchicalLink();
                 NavigationConfig navigationConfig = new NavigationConfig();
-                addHierarchicalLinkToNavigationConfig(navigationConfig, link);
+                LinkUtil.addHierarchicalLinkToNavigationConfig(navigationConfig, link);
 
                 if (breadCrumbItems.isEmpty()) {
                     breadCrumbItems.add(new BreadCrumbItem("root", "Исходная коллекция", //we haven't display text for the root
@@ -413,30 +412,6 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 breadCrumbItems.add(new BreadCrumbItem(link.getName(), link.getDisplayText(), collectionViewerConfig));
 
                 openCollectionPlugin(collectionViewerConfig, navigationConfig);
-            }
-
-            //TODO: extract common code (here and DOSP)
-            private void addHierarchicalLinkToNavigationConfig(NavigationConfig navigationConfig, LinkConfig link) {
-                LinkConfig parentLink = findParentLink(navigationConfig, link);
-                link.setParentLinkConfig(parentLink);
-                if (!navigationConfig.getHierarchicalLinkList().contains(link)) {
-                    navigationConfig.getHierarchicalLinkList().add(link);
-                }
-            }
-
-            private LinkConfig findParentLink(NavigationConfig navigationConfig, LinkConfig link) {
-                LinkConfig parentLinkConfig = null;
-                HistoryManager manager = Application.getInstance().getHistoryManager();
-                String parentLinkName = manager.getLink();
-                List<LinkConfig> results = new ArrayList<>();
-                LinkUtil.findLink(parentLinkName, navigationConfig.getLinkConfigList(), results);
-                if (results.isEmpty()) {
-                    LinkUtil.findLink(parentLinkName, navigationConfig.getHierarchicalLinkList(), results);
-                }
-                if (!results.isEmpty()) {
-                    parentLinkConfig = results.get(0);
-                }
-                return parentLinkConfig;
             }
         });
     }

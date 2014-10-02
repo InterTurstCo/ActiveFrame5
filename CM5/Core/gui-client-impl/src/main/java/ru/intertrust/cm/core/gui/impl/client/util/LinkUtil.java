@@ -2,7 +2,11 @@ package ru.intertrust.cm.core.gui.impl.client.util;
 
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,5 +39,28 @@ public class LinkUtil {
                 findLink(link, childLinksConfig.getLinkConfigList(), results);
             }
         }
+    }
+
+    public static void addHierarchicalLinkToNavigationConfig(NavigationConfig navigationConfig, LinkConfig link) {
+        LinkConfig parentLink = findParentLink(navigationConfig, link);
+        link.setParentLinkConfig(parentLink);
+        if (!navigationConfig.getHierarchicalLinkList().contains(link)) {
+            navigationConfig.getHierarchicalLinkList().add(link);
+        }
+    }
+
+    public static LinkConfig findParentLink(NavigationConfig navigationConfig, LinkConfig link) {
+        LinkConfig parentLinkConfig = null;
+        HistoryManager manager = Application.getInstance().getHistoryManager();
+        String parentLinkName = manager.getLink();
+        List<LinkConfig> results = new ArrayList<>();
+        LinkUtil.findLink(parentLinkName, navigationConfig.getLinkConfigList(), results);
+        if (results.isEmpty()) {
+            LinkUtil.findLink(parentLinkName, navigationConfig.getHierarchicalLinkList(), results);
+        }
+        if (!results.isEmpty()) {
+            parentLinkConfig = results.get(0);
+        }
+        return parentLinkConfig;
     }
 }
