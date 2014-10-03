@@ -276,7 +276,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     /**
      * Обрабатывает все разрешения на выполнение переданной операции.
      * @param invalidContextId
-     *            идентификатор доменного объекта, для которого расчитывается список доступа
+     *            идентификатор доменного объекта, для которого расчитывается
+     *            список доступа
      * @param operationPermitConfig
      *            конфигурация разрешений для операции
      * @param accessType
@@ -402,7 +403,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     private String generateDeleteAclReadRecordQuery(RdbmsId objectId) {
         String tableName = null;
-        tableName = AccessControlUtility.getAclReadTableName(configurationExplorer, 
+        tableName = AccessControlUtility.getAclReadTableName(configurationExplorer,
                 domainObjectTypeIdCache.getName(objectId.getTypeId()));
 
         StringBuilder query = new StringBuilder();
@@ -418,7 +419,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String tableName = null;
 
         tableName = AccessControlUtility.getAclReadTableName(configurationExplorer,
-                        domainObjectTypeIdCache.getName(objectId.getTypeId()));
+                domainObjectTypeIdCache.getName(objectId.getTypeId()));
 
         StringBuilder query = new StringBuilder();
         query.append("insert  into ");
@@ -446,7 +447,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String topLevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, objectType);
         return topLevelParentType;
     }
-    
+
     private String generateDeleteAclRecordQuery(RdbmsId objectId) {
         String tableName = null;
         tableName = AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
@@ -460,8 +461,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         return query.toString();
     }
-
-
 
     private Map<String, Object> initializeDeleteAclRecordParameters(AccessType accessType, RdbmsId rdbmsObjectId,
             RdbmsId rdbmsDynamicGroupId) {
@@ -499,11 +498,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         if (contextRoleConfig.getContext() != null && contextRoleConfig.getContext().getDomainObject() != null) {
             roleContextType = contextRoleConfig.getContext().getDomainObject().getType().toLowerCase();
         }
-        
+
         //Получение всех вышестоящих типов
         List<String> parentTypeList = new ArrayList<String>();
         String parentType = domainObjectType;
-        while (parentType != null){
+        while (parentType != null) {
             parentTypeList.add(parentType.toLowerCase());
             parentType = configurationExplorer.getDomainObjectParentType(parentType);
         }
@@ -514,7 +513,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                     + " does not match the domain object type in access matrix configuration for: "
                     + domainObjectType);
         }
-        
+
     }
 
     @Override
@@ -739,16 +738,17 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String objectType = domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId());
         String permissionType = objectType;
         String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(permissionType);
-        if (matrixRefType != null){
-            permissionType = getMatrixRefType(objectType, matrixRefType, rdbmsObjectId); 
+        if (matrixRefType != null) {
+            permissionType = getMatrixRefType(objectType, matrixRefType, rdbmsObjectId);
         }
-        
-        String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, objectType));
+
+        String domainObjectBaseTable =
+                DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, objectType));
         String tableNameRead =
                 AccessControlUtility.getAclReadTableName(configurationExplorer, permissionType);
         String tableNameAcl =
                 AccessControlUtility.getAclTableName(permissionType);
-        
+
         StringBuilder query = new StringBuilder();
         query.append("select 'R' as operation, gm.").append(DaoUtils.wrap("person_id")).append(", gm.").
                 append(DaoUtils.wrap("person_id_type")).append(" from ").append(DaoUtils.wrap(tableNameRead))
@@ -758,11 +758,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ")
                 .append(DaoUtils.wrap("group_member")).
                 append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.")
-                .append(DaoUtils.wrap("usergroup")).                
+                .append(DaoUtils.wrap("usergroup")).
                 //обавляем в связи с появлением функциональности замещения прав
                 append("inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
                 .append(DaoUtils.wrap("access_object_id")).
-                append(" = r.").append(DaoUtils.wrap("object_id")).                                
+                append(" = r.").append(DaoUtils.wrap("object_id")).
                 append(") where o.").append(DaoUtils.wrap("id")).append(" = :object_id ");
         if (personId != null) {
             query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id ");
@@ -781,7 +781,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 //обавляем в связи с появлением функциональности замещения прав
                 append("inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
                 .append(DaoUtils.wrap("access_object_id")).
-                append(" = a.").append(DaoUtils.wrap("object_id")).                                
+                append(" = a.").append(DaoUtils.wrap("object_id")).
                 append(") where o.").append(DaoUtils.wrap("id")).append(" = :object_id ");
         if (personId != null) {
             query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");
@@ -838,33 +838,37 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     /**
-     * Получение имени типа у которого заимствуются права. При этом учитывается то что в матрице при заимствование 
-     * может быть указан атрибут ссылающийся на родительский тип того объекта, у которого реально надо взять матрицу прав
+     * Получение имени типа у которого заимствуются права. При этом учитывается
+     * то что в матрице при заимствование может быть указан атрибут ссылающийся
+     * на родительский тип того объекта, у которого реально надо взять матрицу
+     * прав
      * @param childType
      * @param parentType
      * @param id
      * @return
      */
-    private String getMatrixRefType(String childType, String parentType, RdbmsId id){
-    	String rootForChildType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, childType);
+    private String getMatrixRefType(String childType, String parentType, RdbmsId id) {
+        String rootForChildType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, childType);
         String rootForParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, parentType);
-        String query = "select p.id_type from " + rootForChildType + " c inner join " + rootForParentType + " p on (c.access_object_id = p.id) where c.id = :id";
-    	
-    	Map<String, Object> parameters = new HashMap<String, Object>();
+        String query =
+                "select p.id_type from " + rootForChildType + " c inner join " + rootForParentType + " p on (c.access_object_id = p.id) where c.id = :id";
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", id.getId());
 
-        int typeId = jdbcTemplate.query(query, parameters, new ResultSetExtractor<Integer>(){
+        int typeId = jdbcTemplate.query(query, parameters, new ResultSetExtractor<Integer>() {
 
-			@Override
-			public Integer extractData(ResultSet rs) throws SQLException,
-					DataAccessException {
-				rs.next();
-				return rs.getInt("id_type");
-			}});
-        
+            @Override
+            public Integer extractData(ResultSet rs) throws SQLException,
+                    DataAccessException {
+                rs.next();
+                return rs.getInt("id_type");
+            }
+        });
+
         return domainObjectTypeIdCache.getName(typeId);
-    }    
-    
+    }
+
     private void regRecalcInvalidAcl(List<Id> invalidContext) {
         //не обрабатываем вне транзакции
         if (getTxReg().getTransactionKey() == null) {
@@ -1001,6 +1005,24 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             if (!result.contains(domainObject.getId())) {
                 result.add(domainObject.getId());
             }
+        }
+    }
+
+    /**
+     * Предоставление прав на новые доменные обьекты
+     */
+    @Override
+    public void grantNewObjectPermissions(Id domainObject) {
+        //Получение текущего пользователя
+        Id currentPersonId = currentUserAccessor.getCurrentUserId();
+
+        //Проверка наличия контекста пользователя и проверка что пользователь не суперпользователь
+        if (currentPersonId != null && !userGroupGlobalCache.isPersonSuperUser(currentPersonId)) {
+            //Получение динамической группы текущего пользователя.
+            Id currentPersonGroup = getUserGroupByGroupNameAndObjectId("Person", currentPersonId);
+
+            //Добавляем права группе
+            insertAclRecord(DomainObjectAccessType.READ, domainObject, currentPersonGroup);
         }
     }
 }

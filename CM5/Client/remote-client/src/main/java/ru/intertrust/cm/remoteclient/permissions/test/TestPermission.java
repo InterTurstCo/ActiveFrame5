@@ -75,6 +75,7 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "StartProcessAction");
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "ChangeStatusAction");
+            etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "start-internal-document-process");            
             checkPermissions(internalDocument.getId(), etalon, "Status Draft");
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Status Draft");
@@ -287,6 +288,11 @@ public class TestPermission extends ClientBase {
 
             //Проверка косвенных прав на удаление с помощью метода множественного удаления 
             notAdminCrudservice.delete(Collections.singletonList(testEmployee.getId()));
+            
+            //Проверка создания обьектов и наличия к ним доступа из той же транзакции CMFIVE-1779
+            DomainObject country1 = notAdminCrudservice.createDomainObject("country");
+            country1.setString("name", "Name-" + System.nanoTime());
+            notAdminCrudservice.save(country1);
             
             
             log("Test complete");

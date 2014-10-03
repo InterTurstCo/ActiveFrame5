@@ -73,5 +73,12 @@ public interface PermissionServiceDao {
      * @return
      */
     List<Id> getPersons(Id contextId, String roleName);
-    
+
+    /**
+     * Дать временные права на вновь созданный доменный объект. 
+     * Необходимо выполнить сразу после создания не дожидаясь окончания транзакции, 
+     * чтобы можно юыло уже получать объект запросом в течение текущей транзакции
+     * @param domainObject
+     */
+    void grantNewObjectPermissions(Id domainObject);
 }

@@ -84,7 +84,7 @@
     
     <domain-object-type name="employee_test" extends="person_test" audit-log="true" initial-status="Active">
         <fields>
-            <reference name="Department" type="*" not-null="true"/>
+            <reference name="Department" type="department_test" not-null="true"/>
             <string name="Name" length="64" not-null="true" />
             <string name="Position" length="64" not-null="true" />
             <string name="Phone" length="32" />

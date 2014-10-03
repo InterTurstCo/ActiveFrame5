@@ -193,6 +193,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         for (DomainObject createdObject : createdObjects) {
             domainObjectCacheService.putObjectToCache(createdObject);
             refreshDynamiGroupsAndAclForCreate(createdObject);
+            //Добавляем временные права на чтение для новых объектов
+            permissionService.grantNewObjectPermissions(createdObject.getId());
             
             //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
             DomainObjectActionListener listener = getTransactionListener();
