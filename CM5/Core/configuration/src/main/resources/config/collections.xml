@@ -369,8 +369,7 @@
     </collection-view>
 
     <collection name="Employees_2" idField="id">
-        <renderer
-            className="employee.collection.test" />
+        <generator class-name="employee.collection.test" />
         <filter name="byName" />
         <filter name="byDepartment" />
     </collection>

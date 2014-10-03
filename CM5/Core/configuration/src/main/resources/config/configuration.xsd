@@ -787,10 +787,10 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="rendererType">
+    <xs:complexType name="generatorType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="className"/>
+                <xs:attribute type="xs:string" name="class-name"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -802,7 +802,7 @@
             <xs:element type="xs:string" name="counting-prototype"
                         minOccurs="0">
             </xs:element>
-            <xs:element type="con:rendererType" name="renderer"
+            <xs:element type="con:generatorType" name="generator"
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:filterType" name="filter"
                         maxOccurs="unbounded" minOccurs="0"

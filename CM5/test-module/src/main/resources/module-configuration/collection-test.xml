@@ -98,7 +98,7 @@
     </collection>
 
     <collection name="EmployeesGenerator" idField="id">
-        <renderer className="employee.collection.test" />
+        <generator class-name="employee.collection.test" />
     </collection>
     
 </configuration>

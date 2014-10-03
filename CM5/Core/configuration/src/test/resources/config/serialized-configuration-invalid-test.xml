@@ -53,7 +53,8 @@
        </display>
       <filter name="byName"/>
       <filter name="byDepartment"/>
-      <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
+      
+      <generator class-name="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
    </collection>
    <domain-object-type name="Outgoing Document">
       <fields>

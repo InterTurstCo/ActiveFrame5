@@ -114,8 +114,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
             }
         }
 
-        if (collectionConfig.getRenderer() != null) {
-            String collectionGeneratorComponent = collectionConfig.getRenderer().getClassName();
+        if (collectionConfig.getGenerator() != null) {
+            String collectionGeneratorComponent = collectionConfig.getGenerator().getClassName();
             return getCollectionFromGenerator(collectionGeneratorComponent, filterValues, sortOrder, offset, limit);
         }
         
@@ -276,10 +276,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
 
-        if (collectionConfig.getRenderer() != null) {
-            String collectionGeneratorComponent = collectionConfig.getRenderer().getClassName();
-            IdentifiableObjectCollection collection = getCollectionFromGenerator(collectionGeneratorComponent, filterValues, null, 0, 0);
-            return collection.size();
+        if (collectionConfig.getGenerator() != null) {
+            String collectionGeneratorComponent = collectionConfig.getGenerator().getClassName();
+            CollectionDataGenerator collectionDataGenerator = (CollectionDataGenerator) serverComponentService.getServerComponent(collectionGeneratorComponent);
+            return collectionDataGenerator.findCollectionCount(filterValues);
         }
 
         String collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);

@@ -18,14 +18,13 @@ import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-//import ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl;
 import ru.intertrust.cm.core.model.AccessException;
 
 @Stateless
 @Local(AccessVerificationService.class)
 @Remote(AccessVerificationService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-public class AccessVerificationServiceImpl /*extends AccessControlServiceImpl*/ implements AccessVerificationService {
+public class AccessVerificationServiceImpl implements AccessVerificationService {
 
     final static Logger logger = LoggerFactory.getLogger(AccessVerificationServiceImpl.class);
     

@@ -169,7 +169,7 @@
    <collection name="Employees_2" idField="id">
       <filter name="byName"/>
       <filter name="byDepartment"/>
-      <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
+      <generator class-name="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
    </collection>
    <global-settings>
       <product title="Платформа CM Сочи"/>
