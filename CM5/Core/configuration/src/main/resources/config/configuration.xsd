@@ -1908,6 +1908,42 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <xs:element type="con:enumBoxType" name="enumeration-box" substitutionGroup="con:widget"/>
+    <xs:complexType name="enumBoxType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:choice>
+                        <xs:element type="con:enumMappingType" name="mapping" minOccurs="0"
+                                    xmlns:con="https://cm5.intertrust.ru/config"/>
+                        <xs:element type="con:enumMapProviderType" name="map-provider" minOccurs="0"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="enumMappingType">
+        <xs:sequence>
+            <xs:element type="con:enumMapType" maxOccurs="unbounded"
+                        name="map" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="enumMapType">
+        <xs:attribute name="display-text" use="optional" type="xs:string"/>
+        <xs:attribute name="value" use="optional" type="xs:string"/>
+        <xs:attribute name="null-value" use="optional" type="xs:boolean"/>
+    </xs:complexType>
+    
+    <xs:complexType name="enumMapProviderType">
+        <xs:attribute name="component" use="required" type="xs:string"/>
+    </xs:complexType>
+
     <xs:complexType name="initialFilterType">
         <xs:sequence>
             <xs:element type="con:paramType" name="param" minOccurs="0" maxOccurs="unbounded"
