@@ -50,8 +50,8 @@ public class CollectionConfig implements TopLevelConfig {
     @ElementList(entry = "filter", required = false, inline=true)
     private List<CollectionFilterConfig> filters = new ArrayList<CollectionFilterConfig>();
 
-    @Element(name = "renderer", required = false)
-    private CollectionRendererConfig renderer;
+    @Element(name = "generator", required = false)
+    private CollectionGeneratorConfig generator;
 
     @Override
     public String getName() {
@@ -106,12 +106,12 @@ public class CollectionConfig implements TopLevelConfig {
         }
     }
 
-    public CollectionRendererConfig getRenderer() {
-        return renderer;
+    public CollectionGeneratorConfig getGenerator() {
+        return generator;
     }
 
-    public void setRenderer(CollectionRendererConfig renderer) {
-        this.renderer = renderer;
+    public void setGenerator(CollectionGeneratorConfig generator) {
+        this.generator = generator;
     }
 
     @Override
@@ -140,7 +140,7 @@ public class CollectionConfig implements TopLevelConfig {
         if (prototype != null ? !prototype.equals(that.prototype) : that.prototype != null) {
             return false;
         }
-        if (renderer != null ? !renderer.equals(that.renderer) : that.renderer != null) {
+        if (generator != null ? !generator.equals(that.generator) : that.generator != null) {
             return false;
         }
         if (transactionCache != that.transactionCache) {

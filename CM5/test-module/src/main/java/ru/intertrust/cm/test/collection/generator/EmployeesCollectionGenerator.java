@@ -30,4 +30,9 @@ public class EmployeesCollectionGenerator implements CollectionDataGenerator {
         this.collection = collectionService.findCollection("Employees", sortOrder, filters, 0, 0);
         return collection;
     }
+
+    @Override
+    public int findCollectionCount(List<? extends Filter> filterValues) {
+        return findCollection(filterValues, null, 0, 0).size();
+    }
 }

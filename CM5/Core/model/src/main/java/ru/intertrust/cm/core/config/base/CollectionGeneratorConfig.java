@@ -4,9 +4,9 @@ import org.simpleframework.xml.Attribute;
 
 import java.io.Serializable;
 
-public class CollectionRendererConfig implements Serializable {
+public class CollectionGeneratorConfig implements Serializable {
 
-    @Attribute(name = "className", required = true)
+    @Attribute(name = "class-name", required = true)
     private String className;
 
     public String getClassName() {
@@ -26,7 +26,7 @@ public class CollectionRendererConfig implements Serializable {
             return false;
         }
 
-        CollectionRendererConfig that = (CollectionRendererConfig) o;
+        CollectionGeneratorConfig that = (CollectionGeneratorConfig) o;
 
         if (className != null ? !className.equals(that.className) : that.className != null) {
             return false;
