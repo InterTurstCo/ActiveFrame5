@@ -25,7 +25,7 @@ public class TestCsvParser {
         etalon.add("field 3");
         etalon.add("По русски");
         etalon.add("c пробелами");
-        etalon.add("Несколько строк\r\nвторая строка");
+        etalon.add("Несколько строк" + System.getProperty("line.separator") + "вторая строка");
         etalon.add("содержащий точку ; с запятой");
         etalon.add("содержит, запятую");
         etalon.add("содержит \" кавычки");

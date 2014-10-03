@@ -196,4 +196,7 @@
     <bean id="conditionsScriptDomainObjectFilter" class="ru.intertrust.cm.core.business.impl.search.ConditionsScriptDomainObjectFilter"/>
 
     <bean id="dateFormer" class="ru.intertrust.cm.core.business.impl.DateFormerImpl"/>
+    
+    <bean id="fontLoader" class="ru.intertrust.cm.core.report.FontLoader"/>
+    
 </beans>

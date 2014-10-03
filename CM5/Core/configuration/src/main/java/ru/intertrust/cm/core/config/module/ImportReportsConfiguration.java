@@ -18,6 +18,9 @@ public class ImportReportsConfiguration {
     @ElementList(inline=true, required=false, entry="report-template")
     private List<ReportTemplateConfiguration> reportTemplates = new ArrayList<ReportTemplateConfiguration>();
 
+    @ElementList(inline=true, required=false, entry="font-dir")
+    private List<String> fontDir;
+    
     public List<ReportTemplateDirConfiguration> getReportTemplateDirs() {
         return reportTemplateDirs;
     }
@@ -32,5 +35,13 @@ public class ImportReportsConfiguration {
 
     public void setReportTemplates(List<ReportTemplateConfiguration> reportTemplates) {
         this.reportTemplates = reportTemplates;
+    }
+
+    public List<String> getFontDir() {
+        return fontDir;
+    }
+
+    public void setFontDir(List<String> fontDir) {
+        this.fontDir = fontDir;
     }
 }

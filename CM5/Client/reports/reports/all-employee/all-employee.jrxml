@@ -20,7 +20,7 @@
 			<staticText>
 				<reportElement x="159" y="0" width="236" height="20" uuid="9af2dd75-c5ca-4a05-8c16-67c229f9f61e"/>
 				<textElement textAlignment="Center">
-					<font pdfFontName="DejaVuSans.ttf" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font fontName="Times New Roman" pdfFontName="DejaVuSans.ttf" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Отчет все сотрудники (простой отчет)]]></text>
 			</staticText>

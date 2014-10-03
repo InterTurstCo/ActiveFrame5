@@ -119,6 +119,8 @@
             <template-file>reports/all-employee-param-list/template.xml</template-file>
             <template-file>reports/all-employee-param-list/all-employee-param-list.jrxml</template-file>
         </report-template>
+        
+        <font-dir>reports/fonts</font-dir>
     </import-reports>
     <deploy-processes>
         <process-definition>workflow/SimpleProcess.bpmn</process-definition>

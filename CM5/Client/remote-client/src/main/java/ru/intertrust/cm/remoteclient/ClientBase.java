@@ -168,7 +168,7 @@ public abstract class ClientBase {
             clientProperties.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
             clientProperties.put("remote.connections", "default");
             clientProperties.put("remote.connection.default.port", "4447");
-            clientProperties.put("remote.connection.default.host", "localhost");
+            clientProperties.put("remote.connection.default.host", address.split(":")[0]);
             clientProperties.put("remote.connection.default.username", login);
             clientProperties.put("remote.connection.default.password", password);
             clientProperties.put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
