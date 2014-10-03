@@ -208,7 +208,7 @@ h1 {
 }
 
 .H_td_user {
-    padding: 0px 20px;
+    padding: 0 20px;
     white-space: nowrap;
 }
 
@@ -222,14 +222,14 @@ h1 {
 }
 
 .H_td_links {
-    padding: 0px 20px;
-    white-space: nowrap;
-    border: 1px solid #e5e5e5;
+    border: solid #e5e5e5;
     border-width: 0 1px;
+    padding: 0 20px;
+    white-space: nowrap;
 }
 
 .H_td_logout {
-    padding: 0px 20px;
+    padding: 0 20px;
     white-space: nowrap;
 }
 
