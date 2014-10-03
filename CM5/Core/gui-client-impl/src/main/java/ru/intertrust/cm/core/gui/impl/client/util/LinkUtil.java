@@ -49,7 +49,7 @@ public class LinkUtil {
         }
     }
 
-    public static LinkConfig findParentLink(NavigationConfig navigationConfig, LinkConfig link) {
+    private static LinkConfig findParentLink(NavigationConfig navigationConfig, LinkConfig link) {
         LinkConfig parentLinkConfig = null;
         HistoryManager manager = Application.getInstance().getHistoryManager();
         String parentLinkName = manager.getLink();

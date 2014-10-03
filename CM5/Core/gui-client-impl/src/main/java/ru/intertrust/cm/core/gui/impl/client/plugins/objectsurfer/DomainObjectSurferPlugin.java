@@ -251,7 +251,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
-        String currentCollectionName = this.getCollectionPlugin().getCollectionRowRequest().getCollectionName();
+        String currentCollectionName = getCollectionPlugin().getCollectionRowRequest().getCollectionName();
         ExpandHierarchicalCollectionData data = new ExpandHierarchicalCollectionData(
                 event.getChildCollectionViewerConfigs(), event.getSelectedId(), currentCollectionName);
 

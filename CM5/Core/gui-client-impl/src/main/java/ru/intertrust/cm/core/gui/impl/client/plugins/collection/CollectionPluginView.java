@@ -545,6 +545,7 @@ public class CollectionPluginView extends PluginView {
 
     }
 
+    @Override
     protected Panel createBreadCrumbsPanel() {
         Panel breadCrumbsPanel = super.createBreadCrumbsPanel();
         Iterator<IsWidget> iterator = breadcrumbWidgets.iterator();
