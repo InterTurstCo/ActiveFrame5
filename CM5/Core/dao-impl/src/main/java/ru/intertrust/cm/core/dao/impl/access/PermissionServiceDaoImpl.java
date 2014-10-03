@@ -765,7 +765,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 append(" = r.").append(DaoUtils.wrap("object_id")).                                
                 append(") where o.").append(DaoUtils.wrap("id")).append(" = :object_id ");
         if (personId != null) {
-            query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");
+            query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id ");
         }
         query.append("union ");
         query.append("select a.").append(DaoUtils.wrap("operation")).append(", gm.").append(DaoUtils.wrap("person_id"))

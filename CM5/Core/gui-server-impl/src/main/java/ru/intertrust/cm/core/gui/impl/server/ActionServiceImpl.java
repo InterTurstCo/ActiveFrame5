@@ -1,30 +1,40 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionContextConfig;
-import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
-import ru.intertrust.cm.core.gui.api.server.ActionService;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
-import ru.intertrust.cm.core.model.ActionServiceException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.PermissionService;
+import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionContextConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.gui.api.server.ActionService;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
+import ru.intertrust.cm.core.model.ActionServiceException;
 
 @Stateless
 @Local(ActionService.class)
@@ -43,6 +53,15 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
 
     @EJB
     private ProcessService processService;
+    
+    @EJB
+    private PermissionService permissionService;
+    
+    @Autowired
+    private UserGroupGlobalCache userGroupGlobalCache;
+    
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
 
     @Override
     public List<ActionContext> getActions(Id domainObjectId) {
@@ -74,7 +93,10 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                                 actionContext.setActionConfig(actConfig);
                                 actionContext.setRootObjectId(domainObject.getId());
 
-                                list.add(actionContext);
+                                //Проверка прав
+                                if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || hasActionPermission(domainObjectId, actConfig.getName())){
+                                    list.add(actionContext);
+                                }
                             }
                         }
 
@@ -94,10 +116,16 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                             String[] taskActionAndNameArr = taskActionAndName.split("=");
                             String taskActionItem = taskActionAndNameArr[0];
                             String taskActionName = taskActionAndNameArr[1];
-                            list.add(getCompleteTaskActionContext(taskActionItem, taskActionName, domainObject.getId(), actConfig, task));
+                            //Проверка прав на задачи процесса
+                            //if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || hasActionPermission(domainObjectId, taskActionItem)){
+                                list.add(getCompleteTaskActionContext(taskActionItem, taskActionName, domainObject.getId(), actConfig, task));
+                            //}
                         }
                     } else {
-                        list.add(getCompleteTaskActionContext(null, task.getString("Name"), domainObject.getId(), actConfig, task));
+                        //Проверка прав на задачи процесса
+                        //if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || hasActionPermission(domainObjectId, task.getString("ActivityId"))){
+                            list.add(getCompleteTaskActionContext(null, task.getString("Name"), domainObject.getId(), actConfig, task));
+                        //}
                     }
 
                 }
@@ -108,6 +136,21 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
         }
     }
 
+    /**
+     * Проверка прав у текущего пользователя на выполнение действия
+     * @param domainObjectId
+     * @param action
+     * @return
+     */
+    private boolean hasActionPermission(Id domainObjectId, String action){
+        boolean result = false; 
+        DomainObjectPermission permission = permissionService.getObjectPermission(domainObjectId);
+        if (permission != null && permission.getActions() != null){
+            result = permission.getActions().contains(action);
+        }
+        return result;
+    }
+    
     private List<Id> getStatusNames(List<String> statuses) {
         String query = "select t.id from " + GenericDomainObject.STATUS_DO + " t where t.name in (";
 

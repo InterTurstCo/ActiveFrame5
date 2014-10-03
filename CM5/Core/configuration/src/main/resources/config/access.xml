@@ -526,6 +526,9 @@
             <execute-action name="ChangeStatusAction">
                 <permit-role name="Author" />
             </execute-action>
+            <execute-action name="start-internal-document-process">
+                <permit-role name="Author" />
+            </execute-action>            
         </status>
         <status name="Negotiation">
             <read>
