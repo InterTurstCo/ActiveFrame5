@@ -62,7 +62,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
             boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
-            boolean noLimit = limit == 0;
+            boolean noLimit = limit == -1;
             IdentifiableObjectCollection collection = noLimit
                     ? collectionsService.findCollection(collectionName, sortOrder, filters)
                     : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);

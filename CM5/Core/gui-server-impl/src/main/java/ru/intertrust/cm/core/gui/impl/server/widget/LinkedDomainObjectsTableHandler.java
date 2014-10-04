@@ -86,9 +86,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         filters.add(includedIds);
 
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
-        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        Integer limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
-        if (limit == 0) {
+        if (limit == -1) {
             collection = collectionsService.findCollection(collectionName, null, filters);
 
         } else {

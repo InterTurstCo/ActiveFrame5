@@ -30,11 +30,11 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         this.linkedDomainObjectsTableConfig = linkedDomainObjectsTableConfig;
     }
 
-    public boolean isShouldDrawTooltipButton() {
+    public boolean shouldDrawTooltipButton() {
         return linkedDomainObjectsTableConfig.getSelectionFiltersConfig() != null &&
-                linkedDomainObjectsTableConfig.getSelectionFiltersConfig().getRowLimit() != 0
-                && selectedIds.size() > linkedDomainObjectsTableConfig.getSelectionFiltersConfig().getRowLimit()
-                && linkedDomainObjectsTableConfig.getCollectionRefConfig() != null;
+                linkedDomainObjectsTableConfig.getSelectionFiltersConfig().getRowLimit() != -1
+                && linkedDomainObjectsTableConfig.getCollectionRefConfig() != null
+                && (selectedIds.size() + newFormStates.size() > linkedDomainObjectsTableConfig.getSelectionFiltersConfig().getRowLimit());
 
     }
 

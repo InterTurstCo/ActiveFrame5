@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "selection-filters")
 public class SelectionFiltersConfig extends AbstractFiltersConfig implements Dto {
     @Attribute(name = "row-limit", required = false)
-    private int rowLimit;
+    private int rowLimit = -1;
 
     @Attribute(name = "max-tooltip-width", required = false)
     private String maxTooltipWidth;
@@ -34,7 +34,7 @@ public class SelectionFiltersConfig extends AbstractFiltersConfig implements Dto
     }
 
     public int getRowLimit() {
-        return rowLimit;
+        return rowLimit < 0 ? -1 : rowLimit;
     }
 
     public void setRowLimit(int rowLimit) {
@@ -61,7 +61,7 @@ public class SelectionFiltersConfig extends AbstractFiltersConfig implements Dto
         if (rowLimit != that.rowLimit) {
             return false;
         }
-        if (maxTooltipHeight != null ? !maxTooltipHeight.equals(that.maxTooltipHeight) : that.maxTooltipHeight != null) {
+        if (maxTooltipHeight != null ? !maxTooltipHeight.equals(that.maxTooltipHeight) : that.maxTooltipHeight != null){
             return false;
         }
         if (maxTooltipWidth != null ? !maxTooltipWidth.equals(that.maxTooltipWidth) : that.maxTooltipWidth != null) {

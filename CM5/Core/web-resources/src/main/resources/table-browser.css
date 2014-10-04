@@ -60,6 +60,7 @@
 .tableBrowserFilterInput {
     border: hidden;
     display: inline-block;
+    margin-top: 8px;
 
 }
 .inlineStyle {

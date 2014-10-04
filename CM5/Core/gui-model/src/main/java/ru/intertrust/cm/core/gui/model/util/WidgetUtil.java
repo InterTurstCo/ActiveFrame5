@@ -9,8 +9,8 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfi
  *         Time: 23:49
  */
 public class WidgetUtil {
-    public static int getLimit(SelectionFiltersConfig selectionFiltersConfig) {
-        int limit = 0;
+    public static Integer getLimit(SelectionFiltersConfig selectionFiltersConfig) {
+        int limit = -1;
         if (selectionFiltersConfig != null) {
             limit = selectionFiltersConfig.getRowLimit();
         }

@@ -4,10 +4,14 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
@@ -15,7 +19,12 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.IWidgetStateFilter;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
+import ru.intertrust.cm.core.gui.impl.client.event.linkedtable.LinkedTableRowDeletedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.linkedtable.LinkedTableRowDeletedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -29,18 +38,18 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 
 
 @ComponentName("linked-domain-objects-table")
-public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
+public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements LinkedTableRowDeletedEventHandler {
 
     private LinkedDomainObjectsTableState currentState;
     private CellTable<RowItem> table;
     private ListDataProvider<RowItem> model;
     private Button tooltipButton;
+    private LinkedDomainObjectsTableTooltip tooltip;
+    private EventBus localEventBus = new SimpleEventBus();
 
     @Override
     public void setCurrentState(WidgetState state) {
         currentState = (LinkedDomainObjectsTableState) state;
-
-
         model = new ListDataProvider<>();
         List<RowItem> rowItems = currentState.getRowItems();
         for (RowItem rowItem : rowItems) {
@@ -50,24 +59,18 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         if (table != null) {
             view.remove(table);
         }
-
         table = new CellTable<RowItem>();
         view.add(table);
+        SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
         if (isEditable()) {
-            LinkedTableUtil.configureEditableTable(currentState, table, model, new TableFieldUpdater(model));
+            LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(model, false),
+                    localEventBus);
         } else {
-            LinkedTableUtil.configureNoneEditableTable(currentState, table);
+            LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table);
         }
 
         model.addDataDisplay(table);
-        if (tooltipButton != null) {
-            view.remove(tooltipButton);
-        }
-        if (currentState.isShouldDrawTooltipButton()) {
-
-            tooltipButton = getShowTooltipButton();
-            view.add(tooltipButton);
-        }
+        drawTooltipButtonIfRequired();
     }
 
     @Override
@@ -84,7 +87,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         addButton.removeStyleName("gwt-Button");
         addButton.addStyleName("light-button ldotCreate");
         hp.add(addButton);
-
+        localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this);
         return hp;
     }
 
@@ -145,8 +148,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                         return false;
                     }
                 }, true);
-
-                convertFormStateAndFillRowItem(formState, model, null);
+                convertFormStateAndFillRowItem(formState);
 
             }
         };
@@ -168,11 +170,58 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
 
     }
 
-    private void convertFormStateAndFillRowItem(final FormState formState, final ListDataProvider<RowItem> model, final Integer index) {
-        SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
+    private void insertInCorrectModel(RowItem rowItem) {
+        if (currentState.shouldDrawTooltipButton()) {
+            if (tooltip == null) {
+                tooltip = new LinkedDomainObjectsTableTooltip(Arrays.asList(rowItem));
+                drawTooltipButtonIfRequired();
+            } else {
+                tooltip.getTooltipModel().getList().add(rowItem);
+                drawTooltipButtonIfRequired();
+            }
+        } else {
+            model.getList().add(rowItem);
+        }
 
+    }
+
+    private void drawTooltipButtonIfRequired() {
+        VerticalPanel view = (VerticalPanel) impl;
+        if (tooltipButton != null) {
+            view.remove(tooltipButton);
+        }
+        if (currentState.shouldDrawTooltipButton()) {
+            initTooltipButton();
+            view.add(tooltipButton);
+        }
+    }
+
+    private void convertFormStateAndFillRowItem(final FormState formState) {
+        SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
         RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
-        if(index != null){
+
+        Command command = new Command("convertFormStateToRowItem", getName(), request);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                RowItem rowItem = (RowItem) result;
+                String stateKey = currentState.addNewFormState(formState);
+                rowItem.setParameter(STATE_KEY, stateKey);
+                insertInCorrectModel(rowItem);
+
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining hyperlink");
+            }
+        });
+    }
+
+    private void convertFormStateAndUpdateRowItem(final FormState formState, final Integer index, final boolean tooltipContent) {
+        SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
+        RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
+        if (index != null && currentState.getIds().size() > index) {
             List<Id> ids = Arrays.asList(currentState.getIds().get(index));
             request.setIds(ids);
         }
@@ -181,15 +230,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             @Override
             public void onSuccess(Dto result) {
                 RowItem rowItem = (RowItem) result;
-
-                if (index == null) {
-                    model.getList().add(rowItem);
-                 String stateKey = currentState.addNewFormState(formState);
-                 rowItem.setParameter(STATE_KEY, stateKey);
+                if (tooltipContent) {
+                    tooltip.getTooltipModel().getList().set(index, rowItem);
                 } else {
                     model.getList().set(index, rowItem);
                 }
-
             }
 
             @Override
@@ -205,6 +250,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
     }
 
     private void getWidgetItems() {
+        if (tooltip != null) {
+            tooltip.showRelativeTo(impl);
+            return;
+        }
         LinkedTableTooltipRequest request = new LinkedTableTooltipRequest(currentState.getLinkedDomainObjectsTableConfig(),
                 currentState.getIds());
         Command command = new Command("fetchWidgetItems", getName(), request);
@@ -213,7 +262,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             public void onSuccess(Dto result) {
                 LinkedTableTooltipResponse response = (LinkedTableTooltipResponse) result;
                 List<RowItem> rowItems = response.getRowItems();
-                LinkedDomainObjectsTableTooltip tooltip = new LinkedDomainObjectsTableTooltip(rowItems);
+                tooltip = new LinkedDomainObjectsTableTooltip(rowItems);
                 tooltip.showRelativeTo(impl);
             }
 
@@ -224,16 +273,104 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
         });
     }
 
+    private void getWidgetItems(final TooltipCallback tooltipCallback) {
+        LinkedTableTooltipRequest request = new LinkedTableTooltipRequest(currentState.getLinkedDomainObjectsTableConfig(),
+                currentState.getIds());
+        Command command = new Command("fetchWidgetItems", getName(), request);
+        final HandlerRegistration handlerRegistration = Event.addNativePreviewHandler(new EventBlocker(impl));
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                handlerRegistration.removeHandler();
+                LinkedTableTooltipResponse response = (LinkedTableTooltipResponse) result;
+                List<RowItem> rowItems = response.getRowItems();
+                tooltip = new LinkedDomainObjectsTableTooltip(rowItems);
+                tooltipCallback.perform();
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining hyperlink");
+                handlerRegistration.removeHandler();
+            }
+        });
+    }
+
+    @Override
+    public void onLinkedTableRowDeletedEvent(LinkedTableRowDeletedEvent event) {
+        RowItem rowItem = event.getRowItem();
+        String stateKey = rowItem.getParameter(BusinessUniverseConstants.STATE_KEY);
+        boolean tooltipContent = event.isTooltipContent();
+        if (tooltipContent) {
+            removeFromTooltipContent(rowItem);
+        } else {
+            removeFromContent(rowItem);
+        }
+
+        if (stateKey != null) {
+            currentState.removeNewObjectState(stateKey);
+            currentState.removeEditedObjectState(stateKey);
+
+        } else {
+            // объекта нет в пуле, значит помечаем его для физического удаления
+            if (rowItem.getObjectId() != null) {
+                currentState.getIds().remove(rowItem.getObjectId());
+                currentState.getRowItems().remove(rowItem);
+
+            }
+        }
+
+
+    }
+
+    private void removeFromTooltipContent(RowItem rowItem) {
+        tooltip.getTooltipModel().getList().remove(rowItem);
+        if (tooltip.getTooltipModel().getList().isEmpty()) {
+            tooltip.hide();
+            tooltipButton.removeFromParent();
+            tooltipButton = null;
+        }
+    }
+
+    private void removeFromContent(RowItem rowItem) {
+        model.getList().remove(rowItem);
+        if (currentState.shouldDrawTooltipButton()) {
+            if (tooltip == null) {
+                getWidgetItems(new TooltipCallback() {
+                    @Override
+                    public void perform() {
+                        tryPoolFromTooltipContent();
+                    }
+                });
+            } else {
+                tryPoolFromTooltipContent();
+            }
+        }
+    }
+
+    private void tryPoolFromTooltipContent() {
+        List<RowItem> tooltipItems = tooltip.getTooltipModel().getList();
+        RowItem rowItemFromTooltip = tooltipItems.get(0);
+        model.getList().add(rowItemFromTooltip);
+        tooltipItems.remove(rowItemFromTooltip);
+        if (tooltipItems.isEmpty()) {
+            tooltipButton.removeFromParent();
+        }
+    }
+
+
     private class LinkedDomainObjectsTableTooltip extends PopupPanel {
         private List<RowItem> rowItems;
         private ListDataProvider<RowItem> tooltipModel;
 
         private LinkedDomainObjectsTableTooltip(List<RowItem> rowItems) {
-
             super(true);
             this.rowItems = rowItems;
-
             init();
+        }
+
+        public ListDataProvider<RowItem> getTooltipModel() {
+            return tooltipModel;
         }
 
         private void init() {
@@ -242,11 +379,13 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             for (RowItem rowItem : rowItems) {
                 tooltipModel.getList().add(rowItem);
             }
+            SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
             if (isEditable()) {
-                LinkedTableUtil.configureEditableTable(currentState, table, tooltipModel,
-                        new TableFieldUpdater(tooltipModel));
+                LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(tooltipModel, true),
+                        localEventBus);
+
             } else {
-                LinkedTableUtil.configureNoneEditableTable(currentState, table);
+                LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table);
             }
             tooltipModel.addDataDisplay(table);
             this.add(table);
@@ -256,24 +395,33 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
 
     }
 
-    public Button getShowTooltipButton() {
-        Button openTooltip = new Button("..");
-        openTooltip.setStyleName("tooltipButton");
-        openTooltip.addClickHandler(new ClickHandler() {
+    public void initTooltipButton() {
+        tooltipButton = new Button("..");
+        tooltipButton.setStyleName("tooltipButton");
+        tooltipButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 getWidgetItems();
             }
         });
-        return openTooltip;
 
     }
 
     public class TableFieldUpdater implements FieldUpdater<RowItem, String> {
         private ListDataProvider<RowItem> model;
+        private boolean tooltipContent;
 
-        private TableFieldUpdater(ListDataProvider<RowItem> model) {
+        private TableFieldUpdater(ListDataProvider<RowItem> model, boolean tooltipContent) {
             this.model = model;
+            this.tooltipContent = tooltipContent;
+        }
+
+        public ListDataProvider<RowItem> getModel() {
+            return model;
+        }
+
+        public boolean isTooltipContent() {
+            return tooltipContent;
         }
 
         @Override
@@ -287,7 +435,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
                             return false;
                         }
                     }, true);
-                    convertFormStateAndFillRowItem(formState, model, index);
+                    convertFormStateAndUpdateRowItem(formState, index, tooltipContent);
                     Id id = object.getObjectId();
                     if (id != null) {
                         currentState.putEditedFormState(id.toStringRepresentation(), formState);
@@ -315,7 +463,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget {
             }
             DialogBox db;
             if (pooledEditedFormState != null) {
-
                 db = new LinkedFormDialogBoxBuilder()
                         .setSaveAction(saveAction)
                         .setCancelAction(cancelAction)

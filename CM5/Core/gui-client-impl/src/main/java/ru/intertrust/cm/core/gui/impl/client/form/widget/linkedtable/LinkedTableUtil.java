@@ -5,12 +5,11 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.view.client.ListDataProvider;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.linkedtable.LinkedTableRowDeletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
 import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
 
 /**
@@ -19,18 +18,16 @@ import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
  *         Time: 0:21
  */
 public class LinkedTableUtil {
-    public static void configureEditableTable(LinkedDomainObjectsTableState currentState, CellTable<RowItem> table,
-                                              ListDataProvider<RowItem> model, LinkedDomainObjectsTableWidget.TableFieldUpdater fieldUpdater) {
-
-        configureNoneEditableTable(currentState, table);
+    public static void configureEditableTable(SummaryTableConfig summaryTableConfig, CellTable<RowItem> table,
+                                              LinkedDomainObjectsTableWidget.TableFieldUpdater fieldUpdater,
+                                              EventBus localEventBus) {
+        configureNoneEditableTable(summaryTableConfig, table);
         table.addColumn(buildEditButtonColumn(fieldUpdater), "");
-        table.addColumn(buildDeleteButtonColumn(currentState, model), "");
+        table.addColumn(buildDeleteButtonColumn(localEventBus, fieldUpdater.isTooltipContent()), "");
 
     }
 
-    public static void configureNoneEditableTable(LinkedDomainObjectsTableState currentState, CellTable<RowItem> table) {
-
-        SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
+    public static void configureNoneEditableTable(SummaryTableConfig summaryTableConfig, CellTable<RowItem> table) {
         for (final SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
             TextColumn<RowItem> column = new TextColumn<RowItem>() {
                 @Override
@@ -55,7 +52,7 @@ public class LinkedTableUtil {
         return editButtonColumn;
     }
 
-    private static Column<RowItem, String> buildDeleteButtonColumn(final LinkedDomainObjectsTableState currentState, final ListDataProvider<RowItem> model) {
+    private static Column<RowItem, String> buildDeleteButtonColumn(final EventBus localEventBus, final boolean tooltipContent) {
         ButtonCell deleteButton = new StyledButtonCell(GlobalThemesManager.getCurrentTheme().commonCss().deleteButton());
         Column<RowItem, String> deleteButtonColumn = new Column<RowItem, String>(deleteButton) {
             @Override
@@ -66,19 +63,8 @@ public class LinkedTableUtil {
         deleteButtonColumn.setFieldUpdater(new FieldUpdater<RowItem, String>() {
             @Override
             public void update(int index, RowItem object, String value) {
-                String stateKey = object.getParameter(BusinessUniverseConstants.STATE_KEY);
-                if (stateKey != null) {
-                    currentState.removeNewObjectState(stateKey);
-                    currentState.removeEditedObjectState(stateKey);
-                    model.getList().remove(object);
-                } else {
-                    // объекта нет в пуле, значит помечаем его для физического удаления
-                    if (object.getObjectId() != null) {
-                        currentState.getIds().remove(object.getObjectId());
-                        currentState.getRowItems().remove(object);
-                        model.getList().remove(object);
-                    }
-                }
+                localEventBus.fireEvent(new LinkedTableRowDeletedEvent(object, tooltipContent));
+
             }
         });
         deleteButtonColumn.setCellStyleNames(GlobalThemesManager.getCurrentTheme().commonCss().deleteColumn());

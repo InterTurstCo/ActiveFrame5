@@ -28,8 +28,8 @@ public class NoneEditableTooltip extends PopupPanel {
     }
 
     private void init(SelectionStyleConfig selectionStyleConfig) {
-        hyperlinkNoneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, eventBus);
-        hyperlinkNoneEditablePanel.setPopupPanel(this);
+        hyperlinkNoneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, eventBus, true);
+
         this.add(hyperlinkNoneEditablePanel);
         this.setStyleName("tooltip-popup");
 
@@ -37,9 +37,9 @@ public class NoneEditableTooltip extends PopupPanel {
 
     public void displayItems(LinkedHashMap<Id, String> listValues) {
         if (displayAsHyperlinks) {
-            hyperlinkNoneEditablePanel.displayHyperlinks(listValues);
+            hyperlinkNoneEditablePanel.displayHyperlinks(listValues, false);
         } else {
-            hyperlinkNoneEditablePanel.displayItems(listValues.values());
+            hyperlinkNoneEditablePanel.displayItems(listValues.values(), false);
         }
 
     }

@@ -43,7 +43,7 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
     public LinkedHashMap<Id, String> generateWidgetItemsFromCollection(SelectionPatternConfig selectionPatternConfig,
                                                                        FormattingConfig formattingConfig,
                                                                        IdentifiableObjectCollection collection) {
-        LinkedHashMap<Id, String> listValues = new LinkedHashMap();
+        LinkedHashMap<Id, String> listValues = new LinkedHashMap<>();
         Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
         for (IdentifiableObject collectionObject : collection) {
             Id id = collectionObject.getId();
@@ -57,7 +57,7 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
                                                                              FormattingConfig formattingConfig,
                                                                              IdentifiableObjectCollection collection,
                                                                              List<Id> selectedIds) {
-        LinkedHashMap<Id, String> listValues = new LinkedHashMap();
+        LinkedHashMap<Id, String> listValues = new LinkedHashMap<>();
         Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
         for (IdentifiableObject collectionObject : collection) {
             Id id = collectionObject.getId();
@@ -82,10 +82,10 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
         SelectionFiltersConfig selectionFiltersConfig = widgetItemsRequest.getSelectionFiltersConfig();
         boolean selectionFiltersWereApplied = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
-        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        Integer limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
         boolean hasLostItems = false;
-        if (limit != 0) {
+        if (limit != null) {
             collection = collectionsService.findCollection(collectionName, sortOrder, filters, limit,
                     WidgetConstants.UNBOUNDED_LIMIT); //limit becomes offset for tooltip
             hasLostItems = collection.size() < (selectedIds.size() - limit);

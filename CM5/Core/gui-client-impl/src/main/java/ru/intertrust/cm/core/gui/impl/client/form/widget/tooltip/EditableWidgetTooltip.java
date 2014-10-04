@@ -4,10 +4,11 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetItemsView;
 
 import java.util.LinkedHashMap;
-import java.util.Set;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -18,33 +19,39 @@ public class EditableWidgetTooltip extends PopupPanel {
     private EventBus eventBus;
     private WidgetItemsView widgetItemsView;
     private boolean displayAsHyperlinks;
-    private Set<Id> selectedIds;
 
-    public EditableWidgetTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlinks,
-                                 Set<Id> selectedIds) {
+    public EditableWidgetTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus
+                                                                 ,boolean displayAsHyperlinks) {
+
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
-        this.selectedIds = selectedIds;
         init(selectionStyleConfig);
+        eventBus.addHandler(WidgetItemRemoveEvent.TYPE, new WidgetItemRemoveEventHandler() {
+            @Override
+            public void onWidgetItemRemove(WidgetItemRemoveEvent event) {
+                if(widgetItemsView.isEmpty()){
+                    EditableWidgetTooltip.this.hide();
+                }
+            }
+        });
     }
 
     private void init(SelectionStyleConfig selectionStyleConfig) {
         widgetItemsView = new WidgetItemsView(selectionStyleConfig);
-        widgetItemsView.setPopupPanel(this);
-        widgetItemsView.setSelectedIds(selectedIds);
         widgetItemsView.setEventBus(eventBus);
+        widgetItemsView.setTooltipContent(true);
         this.add(widgetItemsView);
         this.setStyleName("tooltip-popup");
 
     }
 
     public void displayItems(LinkedHashMap<Id, String> listValues) {
-        widgetItemsView.setListValues(listValues);
+
         if (displayAsHyperlinks) {
-            widgetItemsView.displayHyperlinkItems();
+            widgetItemsView.displayHyperlinks(listValues, false);
         } else {
-            widgetItemsView.displayItems();
+            widgetItemsView.displayItems(listValues, false);
         }
 
     }

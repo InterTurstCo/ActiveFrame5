@@ -4,17 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -23,50 +13,34 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
-import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.EditableTooltipWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.model.plugin.HierarchicalCollectionData;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -74,14 +48,14 @@ import java.util.List;
  *         Time: 11:15
  */
 @ComponentName("table-browser")
-public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler, HierarchicalCollectionEventHandler {
+public class TableBrowserWidget extends EditableTooltipWidget implements WidgetItemRemoveEventHandler,
+        HyperlinkStateChangedEventHandler, HierarchicalCollectionEventHandler {
     public static final int DEFAULT_DIALOG_WIDTH = 500;
     public static final int DEFAULT_DIALOG_HEIGHT = 300;
     private PluginPanel pluginPanel;
     private FocusPanel openDialogButton;
     private FocusPanel clearButton;
 
-    private ArrayList<Id> temporaryStateOfSelectedIds = new ArrayList<Id>();
     private TableBrowserState currentState;
     private int dialogWidth;
     private int dialogHeight;
@@ -102,10 +76,12 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     public void setCurrentState(WidgetState state) {
         initialData = state;
         currentState = (TableBrowserState) state;
+        currentState.resetChanges();
+
         if (isEditable()) {
-            setCurrentStateForEditableWidget(currentState);
+            setCurrentStateForEditableWidget();
         } else {
-            setCurrentStateForNoneEditableWidget(currentState);
+            setCurrentStateForNoneEditableWidget();
         }
     }
 
@@ -114,48 +90,29 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         return false;
     }
 
-    private void setCurrentStateForEditableWidget(TableBrowserState state) {
-
-        widgetItemsView.setListValues(state.getListValues());
-        widgetItemsView.setShouldDrawTooltipButton(shouldDrawTooltipButton());
-        widgetItemsView.setTooltipClickHandler(new ShowTooltipHandler());
+    private void setCurrentStateForEditableWidget() {
         initDialogWindowSize();
-
         initAddButton();
         initClearAllButton();
-        widgetItemsView.setSelectedIds(state.getSelectedIds());
-        if (isDisplayingAsHyperlink()) {
-            widgetItemsView.setEventBus(localEventBus);
-            widgetItemsView.displayHyperlinkItems();
-        } else {
-            widgetItemsView.displayItems();
-        }
+        displayItems();
 
     }
 
-    private void setCurrentStateForNoneEditableWidget(TableBrowserState state) {
+    private void setCurrentStateForNoneEditableWidget() {
         HyperlinkNoneEditablePanel noneEditablePanel = (HyperlinkNoneEditablePanel) impl;
-        LinkedHashMap<Id, String> listValues = state.getListValues();
+        LinkedHashMap<Id, String> listValues = currentState.getListValues();
         if (isDisplayingAsHyperlink()) {
-            noneEditablePanel.displayHyperlinks(listValues);
+            noneEditablePanel.displayHyperlinks(listValues, shouldDrawTooltipButton());
         } else {
-            noneEditablePanel.displayItems(listValues.values());
+            noneEditablePanel.displayItems(listValues.values(), shouldDrawTooltipButton());
         }
-        if (shouldDrawTooltipButton()) {
-            noneEditablePanel.addShowTooltipLabel(new ShowTooltipHandler());
-        }
+
     }
 
     @Override
-    protected TableBrowserState createNewState() {
+    public TableBrowserState createNewState() {
         TableBrowserState state = new TableBrowserState();
         TableBrowserState previousState = getInitialData();
-        if (isEditable()) {
-            state.setListValues(widgetItemsView.getListValues());
-        } else {
-            LinkedHashMap<Id, String> listValues = previousState.getListValues();
-            state.setListValues(listValues);
-        }
         state.setSelectedIds(previousState.getSelectedIds());
         return state;
     }
@@ -181,6 +138,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         commonInitialization(state);
+        localEventBus.addHandler(WidgetItemRemoveEvent.TYPE, this);
         SelectionStyleConfig selectionStyleConfig = currentState.getTableBrowserConfig().getSelectionStyleConfig();
         return initWidgetView(selectionStyleConfig);
     }
@@ -189,13 +147,14 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     protected Widget asNonEditableWidget(WidgetState state) {
         commonInitialization(state);
         SelectionStyleConfig selectionStyleConfig = currentState.getTableBrowserConfig().getSelectionStyleConfig();
-        return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus);
+        return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false);
 
     }
 
     private void commonInitialization(WidgetState state) {
         currentState = (TableBrowserState) state;
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
+        localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
 
     }
 
@@ -249,7 +208,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         collectionPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
-                CollectionPluginView view = (CollectionPluginView)collectionPlugin.getView();
+                CollectionPluginView view = (CollectionPluginView) collectionPlugin.getView();
                 view.setBreadcrumbWidgets(breadCrumbItemsToWidgets());
                 dialogBox.center();
             }
@@ -259,7 +218,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     }
 
     private Panel initWidgetView(SelectionStyleConfig selectionStyleConfig) {
-        widgetItemsView = new TableBrowserItemsView(selectionStyleConfig);
+        widgetItemsView = new TableBrowserItemsView(selectionStyleConfig, localEventBus);
 
         openDialogButton = new FocusPanel();
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());
@@ -267,10 +226,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         clearButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                temporaryStateOfSelectedIds.clear();
-                widgetItemsView.getListValues().clear();
-                widgetItemsView.displayItems();
-                currentState.getSelectedIds().clear();
+                currentState.clearState();
 
             }
         });
@@ -278,7 +234,6 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         root.add(openDialogButton);
         root.add(clearButton);
 
-        localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         return root;
     }
 
@@ -328,7 +283,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         Button cancelButton = new Button("Отмена");
         cancelButton.removeStyleName("gwt-Button");
         cancelButton.addStyleName("light-button buttons-fixed position-margin-left");
-        if (isSingleChoice()) {
+        if (currentState.isSingleChoice()) {
             addClickHandlersForSingleChoice(okButton, cancelButton, dialogBox);
         } else {
             addClickHandlersForMultiplyChoice(okButton, cancelButton, dialogBox);
@@ -350,18 +305,13 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
     }
 
-    private boolean isSingleChoice() {
-        return currentState.isSingleChoice();
-
-    }
-
     private void addCancelButtonClickHandler(final Button cancelButton, final DialogBox dialogBox) {
 
         cancelButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 dialogBox.hide();
-                temporaryStateOfSelectedIds.clear();
+                currentState.resetChanges();
                 widgetItemsView.clearFilterInput();
             }
         });
@@ -369,19 +319,33 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
     @Override
     public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
-        PopupPanel popupPanel = event.getPopupPanel();
-        if (popupPanel != null) {
-            popupPanel.hide();
-            fetchWidgetItems();
-            return;
-        }
-        Id id = event.getId();
-        updateHyperlink(id, currentState.getTableBrowserConfig().getSelectionPatternConfig().getValue());
+        updateHyperlink(event);
     }
 
     @Override
     protected String getTooltipHandlerName() {
         return "widget-items-handler";
+    }
+
+    @Override
+    protected void removeTooltipButton() {
+        widgetItemsView.removeTooltipButton();
+    }
+
+    @Override
+    protected void drawItemFromTooltipContent() {
+        Map.Entry<Id, String> entry = pollItemFromTooltipContent();
+        currentState.getListValues().put(entry.getKey(), entry.getValue());
+        displayItems();
+    }
+
+    private void displayItems() {
+        if (isDisplayingAsHyperlink()) {
+            widgetItemsView.displayHyperlinks(currentState.getListValues(), shouldDrawTooltipButton());
+        } else {
+            widgetItemsView.displayItems(currentState.getListValues(), shouldDrawTooltipButton());
+        }
+        widgetItemsView.changeInputFilterWidth();
     }
 
     @Override
@@ -396,6 +360,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
             public void onFailure(Throwable caught) {
                 ApplicationWindow.errorAlert(caught.getMessage());
             }
+
             @Override
             public void onSuccess(Dto result) {
                 HierarchicalCollectionData data = (HierarchicalCollectionData) result;
@@ -416,12 +381,27 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         });
     }
 
+    @Override
+    public void onWidgetItemRemove(WidgetItemRemoveEvent event) {
+        if (!event.isTooltipContent()) {
+            tryToPoolFromTooltipContent();
+            currentState.getListValues().remove(event.getId());
+        } else {
+            currentState.getTooltipValues().remove(event.getId());
+        }
+        currentState.getSelectedIds().remove(event.getId());
+        displayItems();
+
+
+    }
+
     private class FetchFilteredRowsClickHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
-           // temporaryStateOfSelectedIds.clear();
+            // temporaryStateOfSelectedIds.clear();
             final List<Id> selectedFromHistory = Application.getInstance().getHistoryManager().getSelectedIds();
-            temporaryStateOfSelectedIds.addAll(selectedFromHistory);
+            //  currentState.getTemporarySelectedIds().addAll(selectedFromHistory);//causes not expected behaviour for  table browser!
+
             breadCrumbItems.clear();
             unregisterHandlers();
             initDialogView();
@@ -436,8 +416,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                currentState.getSelectedIds().addAll(temporaryStateOfSelectedIds);
-                temporaryStateOfSelectedIds.clear();
+                currentState.applyChanges();
                 fetchTableBrowserItems();
                 dialogBox.hide();
                 widgetItemsView.clearFilterInput();
@@ -448,10 +427,10 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
             public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
                 Id id = event.getId();
                 if (event.isDeselected()) {
-                    temporaryStateOfSelectedIds.remove(id);
-                    widgetItemsView.removeChosenItem(id);
+                    currentState.removeFromTemporaryState(id);
+
                 } else {
-                    temporaryStateOfSelectedIds.add(id);
+                    currentState.addToTemporaryState(id);
                 }
             }
         });
@@ -463,8 +442,7 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                currentState.getSelectedIds().clear();
-                currentState.getSelectedIds().addAll(temporaryStateOfSelectedIds);
+                currentState.applyChanges();
                 fetchTableBrowserItems();
                 dialogBox.hide();
                 widgetItemsView.clearFilterInput();
@@ -473,8 +451,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         rowSelectedRegistration = localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
             @Override
             public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-                temporaryStateOfSelectedIds.clear();
-                temporaryStateOfSelectedIds.add(event.getId());
+                currentState.resetChanges();
+                currentState.addToTemporaryState(event.getId());
 
             }
         });
@@ -492,24 +470,24 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
     private void fetchTableBrowserItems() {
 
         if (currentState.getSelectedIds().isEmpty()) {
-            widgetItemsView.displayItems();
+            widgetItemsView.displayItems(currentState.getListValues(), shouldDrawTooltipButton());
             return;
         }
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
         WidgetItemsRequest widgetItemsRequest = new WidgetItemsRequest();
         widgetItemsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
-        widgetItemsRequest.setSelectedIds(currentState.getIds());
+        widgetItemsRequest.setSelectedIds(currentState.getTemporarySelectedIds());
         widgetItemsRequest.setCollectionName(tableBrowserConfig.getCollectionRefConfig().getName());
         widgetItemsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
         widgetItemsRequest.setDefaultSortCriteriaConfig(tableBrowserConfig.getDefaultSortCriteriaConfig());
         widgetItemsRequest.setSelectionFiltersConfig(tableBrowserConfig.getSelectionFiltersConfig());
-        Command command = new Command("fetchTableBrowserItems",getName(), widgetItemsRequest);
+        Command command = new Command("fetchTableBrowserItems", getName(), widgetItemsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
                 WidgetItemsResponse list = (WidgetItemsResponse) result;
                 LinkedHashMap<Id, String> listValues = list.getListValues();
-                handleItemsForMainContent(listValues);
+                handleItems(listValues);
 
             }
 
@@ -521,19 +499,68 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
 
     }
 
-    private void handleItemsForMainContent(LinkedHashMap<Id, String> listValues) {
-        if (isSingleChoice()) {
-            widgetItemsView.setListValues(listValues);
+    private void handleItems(LinkedHashMap<Id, String> listValues) {
+        currentState.resetChanges();
+        if (currentState.isSingleChoice()) {
+            currentState.setListValues(listValues);
         } else {
-            widgetItemsView.getListValues().putAll(listValues);
+            if (shouldDrawTooltipButton()) {
+                putToCorrectContent(listValues);
+            } else {
+                currentState.getListValues().putAll(listValues);
+            }
         }
-        widgetItemsView.displayItems();
-        temporaryStateOfSelectedIds.clear();
+        displayItems();
+
 
     }
 
-    private void updateHyperlink(Id id, String selectionPattern) {
+    private void putToCorrectContent(LinkedHashMap<Id, String> listValues) {
+        int limit = WidgetUtil.getLimit(currentState.getTableBrowserConfig().getSelectionFiltersConfig());
+        int size = currentState.getListValues().size();
+        if (size <= limit) {
+            int delta = limit - size; //how much will be shown in main content
+            putInMainContentAndRemoveFromCommon(listValues, delta);
+            putInTooltipContent(listValues);
+
+        } else {
+            putInTooltipContent(listValues);
+        }
+    }
+
+    private void putInTooltipContent(final LinkedHashMap<Id, String> listValues) {
+        final LinkedHashMap<Id, String> tooltipValues = currentState.getTooltipValues();
+        if (tooltipValues == null) {
+            fetchWidgetItems(new TooltipCallback() {
+                @Override
+                public void perform() {
+                    tooltipValues.putAll(listValues);
+                }
+            });
+        } else {
+            tooltipValues.putAll(listValues);
+        }
+
+    }
+
+    private void putInMainContentAndRemoveFromCommon(LinkedHashMap<Id, String> commonListValues, int delta) {
+
+        LinkedHashMap<Id, String> currentListValues = currentState.getListValues();
+        Iterator<Id> idIterator = commonListValues.keySet().iterator();
+        int count = 0;
+        while (idIterator.hasNext() && count < delta) {
+            count++;
+            Id id = idIterator.next();
+            String representation = commonListValues.get(id);
+            currentListValues.put(id, representation);
+            idIterator.remove();
+        }
+    }
+
+    private void updateHyperlink(final HyperlinkStateChangedEvent event) {
         List<Id> ids = new ArrayList<Id>();
+        Id id = event.getId();
+        String selectionPattern = currentState.getTableBrowserConfig().getSelectionPatternConfig().getValue();
         ids.add(id);
         RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, currentState.
                 getTableBrowserConfig().getFormattingConfig());
@@ -544,14 +571,9 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
                 RepresentationResponse response = (RepresentationResponse) result;
                 Id id = response.getId();
                 String representation = response.getRepresentation();
-                if (isEditable()) {
-                    widgetItemsView.updateHyperlinkItem(id, representation);
-                } else {
-                    HyperlinkNoneEditablePanel noneEditablePanel = (HyperlinkNoneEditablePanel) impl;
-                    noneEditablePanel.cleanPanel();
-                    LinkedHashMap<Id, String> listValues = getUpdatedHyperlinks(id, representation);
-                    noneEditablePanel.displayHyperlinks(listValues);
-                }
+                LinkedHashMap<Id, String> listValues = getUpdatedHyperlinks(id, representation, event.isTooltipContent());
+                HyperlinkDisplay hyperlinkDisplay = event.getHyperlinkDisplay();
+                hyperlinkDisplay.displayHyperlinks(listValues, !event.isTooltipContent() && shouldDrawTooltipButton());
 
             }
 
@@ -562,9 +584,9 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         });
     }
 
-    private LinkedHashMap<Id, String> getUpdatedHyperlinks(Id id, String representation) {
-        TableBrowserState state = getInitialData();
-        LinkedHashMap<Id, String> listValues = state.getListValues();
+    private LinkedHashMap<Id, String> getUpdatedHyperlinks(Id id, String representation, boolean tooltipContent) {
+        LinkedHashMap<Id, String> listValues = tooltipContent ? currentState.getTooltipValues()
+                : currentState.getListValues();
         listValues.put(id, representation);
         return listValues;
     }
@@ -610,8 +632,8 @@ public class TableBrowserWidget extends TooltipWidget implements HyperlinkStateC
         if (config != null) {
             openCollectionPlugin(config, new NavigationConfig());
             //TODO: adding to history makes the rows to be highlighted. can we just check checkbox without highlighting?
-            Application.getInstance().getHistoryManager().setSelectedIds(temporaryStateOfSelectedIds.toArray(
-                    new Id[temporaryStateOfSelectedIds.size()]));
+            Application.getInstance().getHistoryManager().setSelectedIds(currentState.getTemporarySelectedIds().toArray(
+                    new Id[currentState.getTemporarySelectedIds().size()]));
         }
     }
 

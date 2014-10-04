@@ -23,6 +23,8 @@ import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.*;
+import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
@@ -51,7 +53,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserRefreshClickEventHandler, HierarchyBrowserSearchClickEventHandler,
         HierarchyBrowserScrollEventHandler, HierarchyBrowserAddItemClickEventHandler,
         HierarchyBrowserHyperlinkStateUpdatedEventHandler, HierarchyBrowserCloseDialogEventHandler,
-        HierarchyBrowserShowTooltipEventHandler {
+        HierarchyBrowserShowTooltipEventHandler, ShowTooltipEventHandler {
     private HierarchyBrowserWidgetState currentState;
     private HierarchyBrowserMainPopup mainPopup;
     private Map<String, NodeCollectionDefConfig> collectionNameNodeMap;
@@ -141,21 +143,14 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     private void setCurrentStateForNoneEditableWidget() {
         List<HierarchyBrowserItem> hierarchyBrowserItems = currentState.getChosenItems();
         HierarchyBrowserNoneEditablePanel noneEditablePanel = (HierarchyBrowserNoneEditablePanel) impl;
-        noneEditablePanel.cleanPanel();
+
         if (HierarchyBrowserUtil.isDisplayingHyperlinks(currentState)) {
-            noneEditablePanel.displayHyperlinks(hierarchyBrowserItems);
+            noneEditablePanel.displayHyperlinks(hierarchyBrowserItems, currentState.isTooltipAvailable());
         } else {
-            noneEditablePanel.displayHierarchyBrowserItems(hierarchyBrowserItems);
+            noneEditablePanel.displayHierarchyBrowserItems(hierarchyBrowserItems, currentState.isTooltipAvailable());
 
         }
-        if (currentState.isTooltipAvailable()) {
-            noneEditablePanel.addShowTooltipLabel(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    onTooltipElementClick(null);
-                }
-            });
-        }
+
     }
 
     @Override
@@ -299,7 +294,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                             @Override
                             public void onSuccess() {
                                 editableFormDialogBox.hide();
-                                localEventBus.fireEvent(new HyperlinkStateChangedEvent(id, null));
+                                localEventBus.fireEvent(new HyperlinkStateChangedEvent(id, null, false));
 
                             }
                         });
@@ -533,7 +528,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             HierarchyBrowserNoneEditableTooltip tooltip = new HierarchyBrowserNoneEditableTooltip(styleConfig,
                     localEventBus, HierarchyBrowserUtil.isDisplayingHyperlinks(currentState));
             TooltipSizer.setWidgetBounds(config, tooltip);
-            tooltip.displayItems(items);
+            tooltip.displayItems(items, currentState.isTooltipAvailable());
             tooltip.showRelativeTo(impl);
         } else {
             HierarchyBrowserEditableTooltip tooltip = new HierarchyBrowserEditableTooltip(styleConfig, localEventBus,
@@ -555,6 +550,11 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         action.setInitialContext(saveActionContext);
         action.setPlugin(formPlugin);
         return action;
+    }
+
+    @Override
+    public void showTooltip(ShowTooltipEvent event) {
+        onTooltipElementClick(null);
     }
 
     private class ClearButtonClickHandler implements ClickHandler {

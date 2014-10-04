@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
  *         Date: 03.01.14
  *         Time: 13:15
  */
-public class AbstractNoneEditablePanel extends Composite {
+public abstract class AbstractNoneEditablePanel extends Composite {
     protected AbsolutePanel mainBoxPanel;
     protected AbsolutePanel container;
     protected Style.Display displayStyle;
@@ -27,7 +27,4 @@ public class AbstractNoneEditablePanel extends Composite {
 
     }
 
-    public void cleanPanel() {
-        mainBoxPanel.clear();
-    }
 }

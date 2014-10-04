@@ -34,11 +34,11 @@ public class HierarchyBrowserNoneEditableTooltip extends PopupPanel {
 
     }
 
-    public void displayItems(ArrayList<HierarchyBrowserItem> items) {
+    public void displayItems(ArrayList<HierarchyBrowserItem> items, boolean drawTooltipButton) {
         if (displayAsHyperlinks) {
-            widgetItemsView.displayHyperlinks(items);
+            widgetItemsView.displayHyperlinks(items, drawTooltipButton);
         } else {
-            widgetItemsView.displayHierarchyBrowserItems(items);
+            widgetItemsView.displayHierarchyBrowserItems(items, drawTooltipButton);
         }
 
     }

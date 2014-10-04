@@ -172,7 +172,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
             NodeCollectionDefConfig config = collectionNameNodeMap.get(collectionName);
             int count = isHandlingTemporarySate ? temporaryCountOfType.get(collectionName) : config.getElementsCount();
             int limit = WidgetUtil.getLimit(config.getSelectionFiltersConfig());
-            if (limit != 0 && count + delta > limit) {
+            if (limit != -1 && count + delta > limit) {
                 result = true;
                 break;
             }

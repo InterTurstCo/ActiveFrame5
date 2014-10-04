@@ -1,11 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
@@ -19,17 +16,12 @@ import java.util.Set;
  *         Date: 03.01.14
  *         Time: 13:15
  */
-public class HyperlinkNoneEditablePanel extends NoneEditablePanel {
-    protected EventBus eventBus;
-    private PopupPanel popupPanel;
+public class HyperlinkNoneEditablePanel extends NoneEditablePanel implements HyperlinkDisplay {
+    private boolean tooltipContent;
 
-    public HyperlinkNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus) {
-        super(selectionStyleConfig);
-        this.eventBus = eventBus;
-    }
-
-    public void setPopupPanel(PopupPanel popupPanel) {
-        this.popupPanel = popupPanel;
+    public HyperlinkNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean tooltipContent) {
+        super(selectionStyleConfig, eventBus);
+        this.tooltipContent = tooltipContent;
     }
 
     public void displayHyperlink(Id id, String itemRepresentation) {
@@ -38,7 +30,7 @@ public class HyperlinkNoneEditablePanel extends NoneEditablePanel {
         Label label = new Label(itemRepresentation);
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
-        label.addClickHandler(new HyperlinkClickHandler(id, popupPanel, eventBus));
+        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, tooltipContent));
         element.getElement().getStyle().setDisplay(displayStyle);
         element.add(label);
         if (displayStyle.equals(Style.Display.INLINE_BLOCK)) {
@@ -49,20 +41,18 @@ public class HyperlinkNoneEditablePanel extends NoneEditablePanel {
         mainBoxPanel.add(element);
     }
 
-    public void displayHyperlinks(LinkedHashMap<Id, String> listValues) {
+    public void displayHyperlinks(LinkedHashMap<Id, String> listValues, boolean drawTooltipButton) {
+        mainBoxPanel.clear();
         Set<Map.Entry<Id, String>> entries = listValues.entrySet();
         for (Map.Entry<Id, String> entry : entries) {
             Id id = entry.getKey();
             String representation = entry.getValue();
             displayHyperlink(id, representation);
         }
+        if(drawTooltipButton){
+            addTooltipButton();
+        }
     }
 
-    public void addShowTooltipLabel(ClickHandler handler) {
-        Button openTooltip = new Button("...");
-        openTooltip.setStyleName("tooltipButton");
-        mainBoxPanel.add(openTooltip);
-        openTooltip.addClickHandler(handler);
 
-    }
 }

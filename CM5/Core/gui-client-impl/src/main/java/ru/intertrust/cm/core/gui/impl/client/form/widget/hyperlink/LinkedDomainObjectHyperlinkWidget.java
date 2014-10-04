@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -46,10 +45,9 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         selectionPattern = state.getWidgetConfig().getPatternConfig().getValue();
         formattingConfig = state.getWidgetConfig().getFormattingConfig();
         LinkedHashMap<Id, String> listValues = state.getListValues();
-        displayHyperlinks(listValues);
-        if (shouldDrawTooltipButton()) {
-            ((HyperlinkNoneEditablePanel) (impl)).addShowTooltipLabel(new ShowTooltipHandler());
-        }
+        HyperlinkNoneEditablePanel panel = (HyperlinkNoneEditablePanel) impl;
+        panel.displayHyperlinks(listValues, shouldDrawTooltipButton());
+
     }
 
     @Override
@@ -68,7 +66,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         LinkedDomainObjectHyperlinkState linkedDomainObjectHyperlinkState = (LinkedDomainObjectHyperlinkState) state;
         SelectionStyleConfig selectionStyleConfig = linkedDomainObjectHyperlinkState.getWidgetConfig().getSelectionStyleConfig();
-        return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus);
+        return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false);
     }
 
     @Override
@@ -78,13 +76,8 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
 
     @Override
     public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
-        PopupPanel popupPanel = event.getPopupPanel();
+        final HyperlinkDisplay hyperlinkDisplay = event.getHyperlinkDisplay();
 
-        if (popupPanel != null) {
-            popupPanel.hide();
-            fetchWidgetItems();
-            return;
-        }
         Id id = event.getId();
 
         List<Id> ids = new ArrayList<Id>();
@@ -98,7 +91,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
                 String representation = response.getRepresentation();
                 Id id = response.getId();
                 LinkedHashMap<Id, String> listValues = getUpdatedHyperlinks(id, representation);
-                displayHyperlinks(listValues);
+                hyperlinkDisplay.displayHyperlinks(listValues, shouldDrawTooltipButton());
 
             }
 
@@ -107,16 +100,6 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
                 GWT.log("something was going wrong while obtaining hyperlink");
             }
         });
-    }
-
-    private void displayHyperlinks(LinkedHashMap<Id, String> listValues) {
-        if (listValues == null) {
-            return;
-        }
-        HyperlinkNoneEditablePanel panel = (HyperlinkNoneEditablePanel) impl;
-        panel.cleanPanel();
-        panel.displayHyperlinks(listValues);
-
     }
 
     private LinkedHashMap<Id, String> getUpdatedHyperlinks(Id id, String representation) {
@@ -130,5 +113,6 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
     protected String getTooltipHandlerName() {
         return "linked-domain-object-hyperlink";
     }
+
 }
 

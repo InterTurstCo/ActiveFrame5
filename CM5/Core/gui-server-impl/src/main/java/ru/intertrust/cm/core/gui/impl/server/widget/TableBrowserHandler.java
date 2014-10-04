@@ -70,7 +70,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
             boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
-            boolean noLimit = limit == 0;
+            boolean noLimit = limit == -1;
             IdentifiableObjectCollection collection = noLimit
                     ? collectionsService.findCollection(collectionName, sortOrder, filters)
                     : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
@@ -81,14 +81,15 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
                     : widgetItemsHandler.generateWidgetItemsFromCollection(selectionPatternConfig,
                     formattingConfig, collection);
             state.setListValues(listValues);
-            boolean displayingAsHyperlinks = WidgetUtil.isDisplayingAsHyperlinks(widgetConfig.getDisplayValuesAsLinksConfig());
-            state.setDisplayingAsHyperlinks(displayingAsHyperlinks);
+
         }
 
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
         state.setSingleChoice(singleChoice);
+        boolean displayingAsHyperlinks = WidgetUtil.isDisplayingAsHyperlinks(widgetConfig.getDisplayValuesAsLinksConfig());
+        state.setDisplayingAsHyperlinks(displayingAsHyperlinks);
 
         return state;
     }
@@ -104,16 +105,14 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
         SelectionFiltersConfig selectionFiltersConfig = widgetItemsRequest.getSelectionFiltersConfig();
         boolean selectionFiltersWereApplied = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
-        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
         boolean hasLostItems = false;
-        boolean noLimit = limit == 0;
-        if (noLimit) {
+        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        boolean noLimit = limit == -1;
+
             collection = collectionsService.findCollection(collectionName, sortOrder, filters);
             hasLostItems = collection.size() != selectedIds.size();
-        } else {
-            collection = collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
-        }
+
         if (selectionFiltersWereApplied || !noLimit) {
             hasLostItems = false;
         }

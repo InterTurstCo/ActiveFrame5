@@ -49,9 +49,8 @@ public class NoneEditableHierarchyBrowserHyperlinkContentManager extends Hierarc
                 Id id = response.getId();
                 String representation = response.getRepresentation();
                 HierarchyBrowserItem updatedItem = new HierarchyBrowserItem(id, representation);
-                panel.cleanPanel();
                 HierarchyBrowserUtil.handleUpdateChosenItem(updatedItem, items);
-                panel.displayHyperlinks(items);
+                panel.displayHyperlinks(items, false); //TODO change
 
             }
 

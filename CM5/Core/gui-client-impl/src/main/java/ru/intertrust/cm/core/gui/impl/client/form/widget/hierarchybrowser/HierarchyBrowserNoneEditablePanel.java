@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
@@ -19,12 +17,10 @@ import java.util.List;
  *         Time: 13:15
  */
 public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
-    protected EventBus eventBus;
     private PopupPanel popupPanel;
 
     public HierarchyBrowserNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus) {
-        super(selectionStyleConfig);
-        this.eventBus = eventBus;
+        super(selectionStyleConfig, eventBus);
     }
 
     public void setPopupPanel(PopupPanel popupPanel) {
@@ -48,24 +44,24 @@ public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
         mainBoxPanel.add(element);
     }
 
-    public void displayHierarchyBrowserItems(List<HierarchyBrowserItem> items) {
+    public void displayHierarchyBrowserItems(List<HierarchyBrowserItem> items, boolean drawTooltipButton) {
+        mainBoxPanel.clear();
         for (HierarchyBrowserItem item : items) {
             displayItem(item.getStringRepresentation());
         }
-    }
-
-    public void displayHyperlinks(List<HierarchyBrowserItem> items) {
-        for (HierarchyBrowserItem item : items) {
-            displayHyperlink(item);
+        if(drawTooltipButton){
+            addTooltipButton();
         }
     }
 
-    public void addShowTooltipLabel(ClickHandler handler) {
-        Button openTooltip = new Button("...");
-        openTooltip.setStyleName("tooltipButton");
-        mainBoxPanel.add(openTooltip);
-        openTooltip.addClickHandler(handler);
-
-
+    public void displayHyperlinks(List<HierarchyBrowserItem> items, boolean drawTooltipButton) {
+        mainBoxPanel.clear();
+        for (HierarchyBrowserItem item : items) {
+            displayHyperlink(item);
+        }
+        if(drawTooltipButton){
+            addTooltipButton();
+        }
     }
+
 }

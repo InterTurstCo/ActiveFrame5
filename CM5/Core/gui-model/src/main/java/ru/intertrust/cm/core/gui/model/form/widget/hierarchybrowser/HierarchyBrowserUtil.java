@@ -67,11 +67,11 @@ public class HierarchyBrowserUtil {
         String collectionName = item.getNodeCollectionName();
         SelectionFiltersConfig selectionFiltersConfig = state.getCollectionNameNodeMap()
                 .get(collectionName).getSelectionFiltersConfig();
-        int expected = WidgetUtil.getLimit(selectionFiltersConfig);
+        Integer expected = WidgetUtil.getLimit(selectionFiltersConfig);
         List<HierarchyBrowserItem > listOfParticularCollection = getListOfParticularCollection(temporaryChosenItems,
                 collectionName);
         int actual = listOfParticularCollection.size();
-        if(expected < actual){
+        if(expected == null || expected < actual){
             return;
         }
         HierarchyBrowserItem itemForTooltip = temporaryChosenItems.remove(temporaryChosenItems.size() - 1);

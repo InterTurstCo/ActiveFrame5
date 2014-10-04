@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -24,14 +23,15 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 public class HyperlinkClickHandler implements ClickHandler {
     private static final String TITLE = "Елемент";
     private Id id;
-    private PopupPanel popupPanel;
     private EventBus eventBus;
+    private HyperlinkDisplay hyperlinkDisplay;
+    private boolean tooltipContent;
 
-    public HyperlinkClickHandler(Id id, PopupPanel popupPanel, EventBus eventBus) {
-
+    public HyperlinkClickHandler(Id id, HyperlinkDisplay hyperlinkDisplay, EventBus eventBus, boolean tooltipContent) {
         this.id = id;
-        this.popupPanel = popupPanel;
+        this.hyperlinkDisplay = hyperlinkDisplay;
         this.eventBus = eventBus;
+        this.tooltipContent = tooltipContent;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class HyperlinkClickHandler implements ClickHandler {
                             @Override
                             public void onSuccess() {
                                 editableFormDialogBox.hide();
-                                eventBus.fireEvent(new HyperlinkStateChangedEvent(id, popupPanel));
+                                eventBus.fireEvent(new HyperlinkStateChangedEvent(id, hyperlinkDisplay, tooltipContent));
                             }
                         });
                         action.perform();

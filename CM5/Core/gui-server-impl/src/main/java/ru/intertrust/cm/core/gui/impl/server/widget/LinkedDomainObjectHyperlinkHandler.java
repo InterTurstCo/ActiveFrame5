@@ -101,11 +101,11 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;
-        if (limit == 0) {
+        if(limit == -1) {
             collection = collectionsService.findCollection(collectionName, null, filters);
         } else {
             collection = tooltipContent
-                    ? collectionsService.findCollection(collectionName, null, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
+                    ? collectionsService.findCollection(collectionName, null, filters,limit, WidgetConstants.UNBOUNDED_LIMIT)
                     : collectionsService.findCollection(collectionName, null, filters, 0, limit);
         }
         List<Id> selectedFilteredIds = new ArrayList<>();

@@ -426,7 +426,7 @@
                 <field-path value="city^country"/>
 
                 <collection-ref name="Cities"/>
-
+                <selection-filters row-limit="1"></selection-filters>
                 <!-- паттерн отображения значений выпадающего списка -->
                 <drop-down-pattern value="{name} {population}"/>
 
@@ -573,7 +573,9 @@
                 <field-path value="country_most_famous_city^country.city"/>
                 <linked-form name="city_form" inline="true"/>
                 <collection-ref name="Cities"/>
+                <selection-filters row-limit="1">
 
+                </selection-filters>
                 <summary-table>
                     <summary-table-column header="Название" widget-id="2">
                         <pattern value="{name}"/>
