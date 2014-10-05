@@ -2346,6 +2346,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:selectionFiltersType" name="selection-filters"
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:selectionSortCriteriaType" name="selection-sort-criteria"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
         <xs:attribute type="xs:string" name="collection" use="required"/>
         <xs:attribute type="xs:string" name="parent-filter" use="optional"/>
