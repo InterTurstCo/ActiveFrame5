@@ -94,7 +94,7 @@ public class AttachmentUploaderView extends Composite {
         root = new AbsolutePanel();
         root.addStyleName("attachment-plugin-wrapper");
         mainBoxPanel = new AbsolutePanel();
-        mainBoxPanel.setStyleName("facebook-main-box");
+        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
         initSubmitForm();
         initFileUpload();
@@ -131,7 +131,7 @@ public class AttachmentUploaderView extends Composite {
     public void displayAttachmentItem(final AttachmentItem item, AttachmentBoxWidget.CancelUploadAttachmentHandler handler) {
         final AbsolutePanel element = new AbsolutePanel();
 
-        element.setStyleName("facebook-element");
+        element.setStyleName("facebook-element linkedWidgetsBorderStyle");
         element.addStyleName("loading-attachment");
         Label label = new Label(item.getName());
         label.setStyleName("facebook-label");

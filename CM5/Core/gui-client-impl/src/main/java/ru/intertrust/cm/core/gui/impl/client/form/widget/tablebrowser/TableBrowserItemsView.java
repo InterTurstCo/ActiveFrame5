@@ -47,7 +47,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus) {
         this.eventBus = eventBus;
         mainBoxPanel = new AbsolutePanel();
-        mainBoxPanel.setStyleName("facebook-main-box");
+        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         initWidget(mainBoxPanel);
     }

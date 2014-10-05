@@ -31,7 +31,7 @@ public class WidgetItemsView extends Composite implements HyperlinkDisplay {
 
     public WidgetItemsView(SelectionStyleConfig selectionStyleConfig) {
         mainBoxPanel = new AbsolutePanel();
-        mainBoxPanel.setStyleName("facebook-main-box");
+        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         container = new AbsolutePanel();
         container.add(mainBoxPanel);
