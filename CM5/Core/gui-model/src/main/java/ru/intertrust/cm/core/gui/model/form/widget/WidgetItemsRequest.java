@@ -4,7 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 
 import java.util.ArrayList;
 
@@ -17,7 +17,7 @@ public class WidgetItemsRequest implements Dto {
     private String selectionPattern;
     private ArrayList<Id> selectedIds;
     private String collectionName;
-    private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
+    private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
     private FormattingConfig formattingConfig;
     private SelectionFiltersConfig selectionFiltersConfig;
     public String getSelectionPattern() {
@@ -44,14 +44,6 @@ public class WidgetItemsRequest implements Dto {
         this.collectionName = collectionName;
     }
 
-    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
-        return defaultSortCriteriaConfig;
-    }
-
-    public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
-        this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
-    }
-
     public FormattingConfig getFormattingConfig() {
         return formattingConfig;
     }
@@ -68,4 +60,11 @@ public class WidgetItemsRequest implements Dto {
         this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
+    public SelectionSortCriteriaConfig getSelectionSortCriteriaConfig() {
+        return selectionSortCriteriaConfig;
+    }
+
+    public void setSelectionSortCriteriaConfig(SelectionSortCriteriaConfig selectionSortCriteriaConfig) {
+        this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
+    }
 }

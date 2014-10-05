@@ -1268,6 +1268,13 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:complexType name="selectionSortCriteriaType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:sortCriterionType" name="sort-criterion"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="descSortCriteriaType">
         <xs:sequence>
             <xs:element type="con:sortCriterionType" name="sort-criterion"
@@ -1727,6 +1734,8 @@
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:collectionRefType" name="collection-ref"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionSortCriteriaType" name="selection-sort-criteria"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required"/>
                 <xs:attribute type="xs:string" name="modal-width"/>
@@ -1901,6 +1910,8 @@
                     <xs:element type="con:formattingType" name="formatting"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:selectionFiltersType" name="selection-filters"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionSortCriteriaType" name="selection-sort-criteria"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
@@ -2096,6 +2107,8 @@
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:selectionFiltersType" name="selection-filters"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionSortCriteriaType" name="selection-sort-criteria"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -2121,6 +2134,8 @@
                     <xs:element type="con:selectionFiltersType" name="selection-filters"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:collectionRefType" name="collection-ref"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionSortCriteriaType" name="selection-sort-criteria"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required"/>

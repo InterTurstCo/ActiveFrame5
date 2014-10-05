@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
@@ -31,6 +32,9 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
 
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
+
+    @Element(name = "selection-sort-criteria",required = false)
+    private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
 
     @Override
     public boolean isReadOnly() {
@@ -97,6 +101,14 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
         this.collectionRefConfig = collectionRefConfig;
     }
 
+    public SelectionSortCriteriaConfig getSelectionSortCriteriaConfig() {
+        return selectionSortCriteriaConfig;
+    }
+
+    public void setSelectionSortCriteriaConfig(SelectionSortCriteriaConfig selectionSortCriteriaConfig) {
+        this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -132,6 +144,10 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
                 that.collectionRefConfig != null) {
             return false;
         }
+        if (selectionSortCriteriaConfig != null ? !selectionSortCriteriaConfig.equals(that.selectionSortCriteriaConfig) :
+                that.selectionSortCriteriaConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -144,6 +160,7 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
+        result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         return result;
     }
 

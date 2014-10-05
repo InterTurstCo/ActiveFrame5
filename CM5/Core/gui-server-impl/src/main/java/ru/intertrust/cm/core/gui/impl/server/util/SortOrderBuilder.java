@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
@@ -58,6 +59,20 @@ public class SortOrderBuilder {
          return sortOrder;
      }
 
+    public static SortOrder getSelectionSortOrder(SelectionSortCriteriaConfig sortCriteriaConfig){
+        if (sortCriteriaConfig == null){
+            return null;
+        }
+        SortOrder sortOrder = new SortOrder();
+        List<SortCriterionConfig> sortCriterionList = sortCriteriaConfig.getSortCriterionConfigs();
+        for (SortCriterionConfig sortCriterionConfig : sortCriterionList){
+            SortCriterion sortCriterion = getSortCriterion(sortCriterionConfig);
+            sortOrder.add(sortCriterion);
+
+        }
+        return sortOrder;
+    }
+
     private static SortCriterion getSortCriterion(SortCriterionConfig sortCriterionConfig) {
         SortCriterion.Order order = sortCriterionConfig.getOrder();
         String field = sortCriterionConfig.getField();
@@ -91,7 +106,6 @@ public class SortOrderBuilder {
     }
 
     public static SortOrder getSortOrder(SortCriteriaConfig sortCriteriaConfig, String fieldName, boolean ascend ) {
-
         SortOrder sortOrder = getComplexSortOrder(sortCriteriaConfig);
         if (sortOrder == null) {
             sortOrder = new SortOrder();

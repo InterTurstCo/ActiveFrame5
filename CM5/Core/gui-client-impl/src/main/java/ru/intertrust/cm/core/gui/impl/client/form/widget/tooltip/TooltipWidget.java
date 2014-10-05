@@ -64,7 +64,7 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
         request.setSelectedIds(state.getIds());
         request.setCollectionName(config.getCollectionRefConfig().getName());
         request.setFormattingConfig(config.getFormattingConfig());
-        request.setDefaultSortCriteriaConfig(config.getDefaultSortCriteriaConfig());
+        request.setSelectionSortCriteriaConfig(config.getSelectionSortCriteriaConfig());
         request.setSelectionFiltersConfig(config.getSelectionFiltersConfig());
         return request;
     }

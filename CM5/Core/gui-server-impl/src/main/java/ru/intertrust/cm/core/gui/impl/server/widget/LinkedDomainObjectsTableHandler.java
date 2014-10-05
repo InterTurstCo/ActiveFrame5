@@ -14,7 +14,9 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
+import ru.intertrust.cm.core.gui.impl.server.util.DomainObjectsSorter;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
+import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
@@ -87,14 +89,15 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
         Integer limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(widgetConfig.getSelectionSortCriteriaConfig());
         IdentifiableObjectCollection collection = null;
-        if (limit == -1) {
-            collection = collectionsService.findCollection(collectionName, null, filters);
+        if (limit == - 1) {
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
 
         } else {
             collection = tooltipContent
-                    ? collectionsService.findCollection(collectionName, null, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
-                    : collectionsService.findCollection(collectionName, null, filters, 0, limit);
+                    ? collectionsService.findCollection(collectionName, sortOrder, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
+                    : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
         }
         List<Id> selectedFilteredIds = new ArrayList<>();
         for (IdentifiableObject object : collection) {
@@ -111,7 +114,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             return rowItems;
         }
         List<DomainObject> domainObjects = crudService.find(selectedIds);
-
+        DomainObjectsSorter.sort(widgetConfig.getSelectionSortCriteriaConfig(), domainObjects);
         List<SummaryTableColumnConfig> summaryTableColumnConfigs = widgetConfig
                 .getSummaryTableConfig().getSummaryTableColumnConfigList();
 

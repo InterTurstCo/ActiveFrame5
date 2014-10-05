@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 
 /**
@@ -38,6 +39,9 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
 
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
+
+    @Element(name = "selection-sort-criteria",required = false)
+    private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
 
     public LinkedFormConfig getLinkedFormConfig() {
         return linkedFormConfig;
@@ -110,6 +114,14 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
         this.collectionRefConfig = collectionRefConfig;
     }
 
+    public SelectionSortCriteriaConfig getSelectionSortCriteriaConfig() {
+        return selectionSortCriteriaConfig;
+    }
+
+    public void setSelectionSortCriteriaConfig(SelectionSortCriteriaConfig selectionSortCriteriaConfig) {
+        this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
+    }
+
     @Override
     public String getComponentName() {
         return "linked-domain-objects-table";  //To change body of implemented methods use File | Settings | File Templates.
@@ -158,6 +170,10 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
                 that.collectionRefConfig != null) {
             return false;
         }
+        if (selectionSortCriteriaConfig != null ? !selectionSortCriteriaConfig.equals(that.selectionSortCriteriaConfig) :
+                that.selectionSortCriteriaConfig != null) {
+            return false;
+        }
 
         return true;
     }
@@ -174,6 +190,7 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
         result = 31 * result + (singleChoiceConfig != null ? singleChoiceConfig.hashCode() : 0);
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
+        result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         return result;
     }
 }

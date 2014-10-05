@@ -76,7 +76,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
     public void setCurrentState(WidgetState state) {
         initialData = state;
         currentState = (TableBrowserState) state;
-        currentState.resetChanges();
+        currentState.resetTemporaryState();
 
         if (isEditable()) {
             setCurrentStateForEditableWidget();
@@ -261,10 +261,8 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
         if (tableBrowserConfig.getClearAllButtonConfig() != null) {
             String img = tableBrowserConfig.getClearAllButtonConfig().getImage();
             String text = tableBrowserConfig.getClearAllButtonConfig().getText();
-
             clearButton.clear();
             ButtonForm buttonForm = new ButtonForm(clearButton, img, text);
-
             clearButton.add(buttonForm);
 
         }
@@ -311,7 +309,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
             @Override
             public void onClick(ClickEvent event) {
                 dialogBox.hide();
-                currentState.resetChanges();
+                currentState.resetTemporaryState();
                 widgetItemsView.clearFilterInput();
             }
         });
@@ -345,7 +343,6 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
         } else {
             widgetItemsView.displayItems(currentState.getListValues(), shouldDrawTooltipButton());
         }
-        widgetItemsView.changeInputFilterWidth();
     }
 
     @Override
@@ -451,7 +448,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
         rowSelectedRegistration = localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
             @Override
             public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-                currentState.resetChanges();
+                currentState.resetTemporaryState();
                 currentState.addToTemporaryState(event.getId());
 
             }
@@ -476,10 +473,10 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
         WidgetItemsRequest widgetItemsRequest = new WidgetItemsRequest();
         widgetItemsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
-        widgetItemsRequest.setSelectedIds(currentState.getTemporarySelectedIds());
+        widgetItemsRequest.setSelectedIds(currentState.getIds());
         widgetItemsRequest.setCollectionName(tableBrowserConfig.getCollectionRefConfig().getName());
         widgetItemsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
-        widgetItemsRequest.setDefaultSortCriteriaConfig(tableBrowserConfig.getDefaultSortCriteriaConfig());
+        widgetItemsRequest.setSelectionSortCriteriaConfig(tableBrowserConfig.getSelectionSortCriteriaConfig());
         widgetItemsRequest.setSelectionFiltersConfig(tableBrowserConfig.getSelectionFiltersConfig());
         Command command = new Command("fetchTableBrowserItems", getName(), widgetItemsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
@@ -500,7 +497,6 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
     }
 
     private void handleItems(LinkedHashMap<Id, String> listValues) {
-        currentState.resetChanges();
         if (currentState.isSingleChoice()) {
             currentState.setListValues(listValues);
         } else {
@@ -512,20 +508,13 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
         }
         displayItems();
 
-
     }
 
     private void putToCorrectContent(LinkedHashMap<Id, String> listValues) {
         int limit = WidgetUtil.getLimit(currentState.getTableBrowserConfig().getSelectionFiltersConfig());
-        int size = currentState.getListValues().size();
-        if (size <= limit) {
-            int delta = limit - size; //how much will be shown in main content
-            putInMainContentAndRemoveFromCommon(listValues, delta);
-            putInTooltipContent(listValues);
+        putInMainContentAndRemoveFromCommon(listValues, limit);
+        putInTooltipContent(listValues);
 
-        } else {
-            putInTooltipContent(listValues);
-        }
     }
 
     private void putInTooltipContent(final LinkedHashMap<Id, String> listValues) {
@@ -546,6 +535,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
     private void putInMainContentAndRemoveFromCommon(LinkedHashMap<Id, String> commonListValues, int delta) {
 
         LinkedHashMap<Id, String> currentListValues = currentState.getListValues();
+        currentListValues.clear();
         Iterator<Id> idIterator = commonListValues.keySet().iterator();
         int count = 0;
         while (idIterator.hasNext() && count < delta) {

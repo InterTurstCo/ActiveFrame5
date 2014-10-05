@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
@@ -62,6 +63,9 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
 
     @Element(name = "selection-filters", required = false)
     private SelectionFiltersConfig selectionFiltersConfig;
+
+    @Element(name = "selection-sort-criteria",required = false)
+    private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
@@ -191,6 +195,14 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
+    public SelectionSortCriteriaConfig getSelectionSortCriteriaConfig() {
+        return selectionSortCriteriaConfig;
+    }
+
+    public void setSelectionSortCriteriaConfig(SelectionSortCriteriaConfig selectionSortCriteriaConfig) {
+        this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -266,7 +278,12 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
             return false;
         }
-        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) : that.selectionFiltersConfig != null) {
+        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig)
+                : that.selectionFiltersConfig != null) {
+            return false;
+        }
+        if (selectionSortCriteriaConfig != null ? !selectionSortCriteriaConfig.equals(that.selectionSortCriteriaConfig)
+                : that.selectionSortCriteriaConfig != null) {
             return false;
         }
         return true;
@@ -291,6 +308,7 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
+        result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         return result;
     }
 

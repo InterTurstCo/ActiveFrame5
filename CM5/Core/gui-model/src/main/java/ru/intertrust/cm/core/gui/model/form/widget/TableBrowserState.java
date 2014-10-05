@@ -40,7 +40,7 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
         return temporarySelectedIds;
     }
 
-    public void resetChanges(){
+    public void resetTemporaryState(){
         temporarySelectedIds.clear();
     }
 
@@ -50,7 +50,9 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
         }else  {
             selectedIds.addAll(temporarySelectedIds);
         }
+        resetTemporaryState();
     }
+
     public void clearState(){
         selectedIds.clear();
         temporarySelectedIds.clear();

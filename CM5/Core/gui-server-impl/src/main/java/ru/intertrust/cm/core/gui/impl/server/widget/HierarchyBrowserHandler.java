@@ -97,16 +97,17 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
         filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
         Integer limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(nodeConfig.getSelectionSortCriteriaConfig());
         IdentifiableObjectCollection collection = null;
         if(limit == -1 && !tooltipContent) {
-            collection = collectionsService.findCollection(collectionName, null, filters);
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
 
         } else if(limit != -1) {
             collection = tooltipContent
-                    ? collectionsService.findCollection(collectionName, null, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
-                    : collectionsService.findCollection(collectionName, null, filters, 0, limit);
+                    ? collectionsService.findCollection(collectionName, sortOrder, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
+                    : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
             if(!tooltipContent){
-            int collectionCount = collectionsService.findCollection(collectionName, null, filters).size();
+            int collectionCount = collectionsService.findCollection(collectionName, sortOrder, filters).size();
             nodeConfig.setElementsCount(collectionCount);
             }
         }

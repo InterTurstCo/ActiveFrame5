@@ -445,6 +445,9 @@
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
                 <default-sort-criteria column-field="name" order="asc"/>
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
             </suggest-box>
 
             <!--<label id="best_friend_label">
@@ -564,7 +567,9 @@
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
              <!--   <add-button image="..." text="Добавить"/>-->
-
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
                 <display-values-as-links value="true"/>
             </table-browser>
             <!--<linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">-->
@@ -597,6 +602,9 @@
                         <pattern value="{population}"/>
                     </summary-table-column>
                 </summary-table>
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
                 <single-choice value="false"/>
 
             </linked-domain-objects-table>
@@ -773,7 +781,9 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
-
+               <selection-sort-criteria>
+                   <sort-criterion field="name" order="asc"/>
+               </selection-sort-criteria>
 
             </suggest-box>
         </widget-config>

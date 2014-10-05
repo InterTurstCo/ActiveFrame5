@@ -36,6 +36,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         filter = new TextBox();
         filter.setStyleName("tableBrowserFilterInput");
         mainBoxPanel.add(filter);
+        changeInputFilterWidth();
         filter.setFocus(true);
     }
 
@@ -152,7 +153,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         openTooltip.removeFromParent();
     }
 
-    public void changeInputFilterWidth() {
+    private void changeInputFilterWidth() {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {

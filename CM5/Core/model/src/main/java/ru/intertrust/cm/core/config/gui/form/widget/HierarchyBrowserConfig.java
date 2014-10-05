@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -37,6 +38,9 @@ public class HierarchyBrowserConfig extends WidgetConfig {
 
     @Element(name = "formatting", required = false)
     private FormattingConfig formattingConfig;
+
+    @Element(name = "selection-sort-criteria",required = false)
+    private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
 
     public NodeCollectionDefConfig getNodeCollectionDefConfig() {
         return nodeCollectionDefConfig;
@@ -110,6 +114,14 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         this.formattingConfig = formattingConfig;
     }
 
+    public SelectionSortCriteriaConfig getSelectionSortCriteriaConfig() {
+        return selectionSortCriteriaConfig;
+    }
+
+    public void setSelectionSortCriteriaConfig(SelectionSortCriteriaConfig selectionSortCriteriaConfig) {
+        this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -161,6 +173,10 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
             return false;
         }
+        if (selectionSortCriteriaConfig != null ? !selectionSortCriteriaConfig.equals(that.selectionSortCriteriaConfig) :
+                that.selectionSortCriteriaConfig!= null) {
+            return false;
+        }
         return true;
     }
 
@@ -176,6 +192,7 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
         result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
+        result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         return result;
     }
 

@@ -5,6 +5,7 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Transient;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
@@ -61,6 +62,9 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
 
     @Element(name = "selection-filters", required = false)
     private SelectionFiltersConfig selectionFiltersConfig;
+
+    @Element(name = "selection-sort-criteria",required = false)
+    private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
 
     @Override
     public String getComponentName() {
@@ -179,6 +183,14 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
+    public SelectionSortCriteriaConfig getSelectionSortCriteriaConfig() {
+        return selectionSortCriteriaConfig;
+    }
+
+    public void setSelectionSortCriteriaConfig(SelectionSortCriteriaConfig selectionSortCriteriaConfig) {
+        this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -253,6 +265,10 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
                 that.selectionFiltersConfig != null) {
             return false;
         }
+        if (selectionSortCriteriaConfig != null ? !selectionSortCriteriaConfig.equals(that.selectionSortCriteriaConfig) :
+                that.selectionSortCriteriaConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -273,6 +289,7 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
+        result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         return result;
     }
 }

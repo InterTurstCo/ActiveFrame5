@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
@@ -52,8 +53,8 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             }
         }
         if (!selectedIds.isEmpty()) {
-            DefaultSortCriteriaConfig sortCriteriaConfig = widgetConfig.getDefaultSortCriteriaConfig();
-            SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
+            SelectionSortCriteriaConfig sortCriteriaConfig = widgetConfig.getSelectionSortCriteriaConfig();
+            SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(sortCriteriaConfig);
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
             List<Filter> filters = new ArrayList<Filter>();
             Set<Id> idsIncluded = new HashSet<Id>(selectedIds);
