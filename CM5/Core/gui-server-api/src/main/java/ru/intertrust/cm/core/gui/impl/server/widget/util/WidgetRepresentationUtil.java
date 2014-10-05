@@ -31,7 +31,7 @@ public class WidgetRepresentationUtil {
                     DateValueConverter<DateTimeValue> dateTimeValueDateValueConverter = new DateTimeValueConverter();
                     String timeZoneId = getTimeZoneId(fieldName, formattingConfig);
                     DateTimeContext dateTimeContext = dateTimeValueDateValueConverter
-                            .valueToContext((DateTimeValue)value, timeZoneId,dateFormatter);
+                            .valueToContext((DateTimeValue)value, timeZoneId, dateFormatter);
                     displayValue.append(dateTimeContext.getDateTime());
                 } else if (value instanceof TimelessDateValue) {
 
@@ -60,8 +60,9 @@ public class WidgetRepresentationUtil {
     }
 
     private static String getTimeZoneId(String field, FormattingConfig formattingConfig){
-        if(formattingConfig == null || formattingConfig.getDateFormatConfig() == null || !
-                isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
+        if(formattingConfig == null || formattingConfig.getDateFormatConfig() == null
+                || formattingConfig.getDateFormatConfig().getTimeZoneConfig() == null
+                || !isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
             return  ModelUtil.DEFAULT_TIME_ZONE_ID;
         }
         return formattingConfig.getDateFormatConfig().getTimeZoneConfig().getId();

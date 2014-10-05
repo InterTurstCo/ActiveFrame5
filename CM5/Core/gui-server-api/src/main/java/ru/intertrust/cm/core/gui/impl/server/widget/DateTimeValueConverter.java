@@ -21,10 +21,10 @@ public class DateTimeValueConverter implements DateValueConverter<DateTimeValue>
     @Override
     public DateTimeContext valueToContext(DateTimeValue value, String timeZoneIdP, DateFormat dateFormat) {
         final DateTimeContext result = new DateTimeContext();
+        result.setTimeZoneId(timeZoneIdP);
         result.setOrdinalFieldType(FieldType.DATETIME.ordinal());
         if (value != null && value.get() != null) {
-            final String timeZoneId = getTimeZoneId(result, timeZoneIdP);
-
+            final String timeZoneId = getTimeZoneId(result);
             dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
             result.setDateTime(dateFormat.format(value.get()));
         }
@@ -36,7 +36,7 @@ public class DateTimeValueConverter implements DateValueConverter<DateTimeValue>
     public DateTimeValue contextToValue(final DateTimeContext context) {
         final DateTimeValue result = new DateTimeValue();
         if (context.getDateTime() != null) {
-            final String timeZoneId = getTimeZoneId(context, context.getTimeZoneId());
+            final String timeZoneId = getTimeZoneId(context);
             final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
             dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
             try {
@@ -48,15 +48,15 @@ public class DateTimeValueConverter implements DateValueConverter<DateTimeValue>
         }
         return result;
     }
-
-    protected String getTimeZoneId(final DateTimeContext context, final String timeZoneId) {
-        switch (timeZoneId) {
+    public static String getTimeZoneId(final DateTimeContext context) {
+        switch (context.getTimeZoneId()) {
             case ModelUtil.DEFAULT_TIME_ZONE_ID:
             case ModelUtil.LOCAL_TIME_ZONE_ID:
             case ModelUtil.ORIGINAL_TIME_ZONE_ID:
                 return GuiContext.get().getUserInfo().getTimeZoneId();
+            default: return context.getTimeZoneId();
         }
-        return context.getTimeZoneId();
     }
+
 }
 

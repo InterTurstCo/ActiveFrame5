@@ -14,7 +14,9 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * Created by User on 03.04.2014.
+ * @author Yaroslav Bondarchuk
+ *         Date: 13.09.2014
+ *         Time: 12:33
  */
 public class DateUtil {
     /**
