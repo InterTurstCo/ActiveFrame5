@@ -241,6 +241,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                                            Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
         List<NodeCollectionDefConfig> nodeCollectionConfigs = nodeConfig.getNodeCollectionDefConfigs();
         for (NodeCollectionDefConfig node : nodeCollectionConfigs) {
+            node.setElementsCount(0); // config is not clean
             collectionNameNodeMap.put(node.getCollection(), node);
             List<NodeCollectionDefConfig> childNodes = node.getNodeCollectionDefConfigs();
             for (NodeCollectionDefConfig childNode : childNodes) {
