@@ -92,10 +92,19 @@ public class ValueUtil {
             case PASSWORD:
                 return new StringValue(string);
             case BOOLEAN:
+                if (string == null) {
+                    return new BooleanValue(null);
+                }
                 return new BooleanValue("true".equals(string) ? Boolean.TRUE : Boolean.FALSE);
             case LONG:
+                if (string == null) {
+                    return new LongValue((Long) null);
+                }
                 return new LongValue(Long.parseLong(string));
             case DECIMAL:
+                if (string == null) {
+                    return new DecimalValue((Long) null);
+                }
                 return new DecimalValue(new BigDecimal(string));
             case DATETIMEWITHTIMEZONE:
                 return parseDateTimeWithTimezone(string);
