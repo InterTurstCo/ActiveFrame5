@@ -112,7 +112,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     }
 
     private Configuration deserializeConfiguration(String configurationString) {
-        Configuration configuration = configurationSerializer.deserializeTrustedConfiguration(configurationString);
+        Configuration configuration = configurationSerializer.deserializeLoadedConfiguration(configurationString);
 
         if (configuration == null) {
             throw new ConfigurationException("Failed to deserialize configuration");

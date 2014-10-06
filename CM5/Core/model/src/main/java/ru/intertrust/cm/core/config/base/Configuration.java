@@ -37,7 +37,7 @@ public class Configuration implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || !getClass().isAssignableFrom(o.getClass())) {
             return false;
         }
 

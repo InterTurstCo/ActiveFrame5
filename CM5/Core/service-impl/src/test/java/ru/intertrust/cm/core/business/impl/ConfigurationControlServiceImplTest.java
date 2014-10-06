@@ -10,7 +10,6 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -49,7 +48,7 @@ public class ConfigurationControlServiceImplTest extends TestCase {
 
         when(configurationExplorer.getConfig(GlobalSettingsConfig.class, GlobalSettingsConfig.NAME)).
                 thenReturn(configurationExplorerImpl.getConfig(GlobalSettingsConfig.class, GlobalSettingsConfig.NAME));
-        when(configurationSerializer.deserializeTrustedConfiguration(newConfigurationString, false)).
+        when(configurationSerializer.deserializeLoadedConfiguration(newConfigurationString, false)).
                 thenReturn(newConfiguration);
 
         configurationControlService.updateConfiguration(newConfigurationString);
@@ -73,7 +72,7 @@ public class ConfigurationControlServiceImplTest extends TestCase {
                 thenReturn(configurationExplorerImpl.getDomainObjectTypeConfig("Outgoing_Document"));
         when(configurationExplorer.getDomainObjectTypeConfig("Employee")).
                 thenReturn(configurationExplorerImpl.getDomainObjectTypeConfig("Employee"));
-        when(configurationSerializer.deserializeTrustedConfiguration(newConfigurationString)).
+        when(configurationSerializer.deserializeLoadedConfiguration(newConfigurationString)).
                 thenReturn(newConfiguration);
 
         assertFalse(configurationControlService.restartRequiredForFullUpdate(newConfigurationString));
@@ -88,7 +87,7 @@ public class ConfigurationControlServiceImplTest extends TestCase {
 
         newConfigurationString = ConfigurationSerializer.serializeConfiguration(newConfiguration);
 
-        when(configurationSerializer.deserializeTrustedConfiguration(newConfigurationString)).
+        when(configurationSerializer.deserializeLoadedConfiguration(newConfigurationString)).
                 thenReturn(newConfiguration);
 
         assertTrue(configurationControlService.restartRequiredForFullUpdate(newConfigurationString));

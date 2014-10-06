@@ -66,12 +66,12 @@ public class ConfigurationSerializerTest {
     }
 
     @Test
-    public void testDeserializeTrustedConfiguration() throws Exception {
+    public void testDeserializeLoadedConfiguration() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
 
         String deserializedConfiguration = readTextFile(SERIALIZED_CONFIGURATION_PATH);
         Configuration testConfiguration =
-                configurationSerializer.deserializeTrustedConfiguration(deserializedConfiguration);
+                configurationSerializer.deserializeLoadedConfiguration(deserializedConfiguration);
         assertNotNull(testConfiguration);
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
@@ -80,30 +80,10 @@ public class ConfigurationSerializerTest {
     }
 
     @Test
-    public void testDeserializeTrustedConfigurationInvalid() throws Exception {
+    public void testDeserializeLoadedConfigurationInvalid() throws Exception {
         String serializedConfiguration = readTextFile(INVALID_SERIALIZED_CONFIGURATION_PATH);
-
-        expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("Failed to serialize configuration from string.\n" +
-                "ru.intertrust.cm.core.config.converter.ConfigurationDeserializationException: " +
-                "Configuration deserialization errors were encountered:\n" +
-                "Failed to serialize configuration item: type='collection', name='Employees'\n" +
-                "Failed to serialize configuration item: type='column', name='id'\n" +
-                "Failed to serialize configuration item: type='column', name='type'\n" +
-                "Failed to serialize configuration item: type='column', name='Имя'\n" +
-                "Failed to serialize configuration item: type='column', name='Должность'\n" +
-                "Failed to serialize configuration item: type='column', name='Дата создания'\n" +
-                "Failed to serialize configuration item: type='column', name='Дата модификации'\n" +
-                "Failed to serialize configuration item: type='collection', name='Employees_2'\n" +
-                "Failed to serialize configuration item: type='column', name='id'\n" +
-                "Failed to serialize configuration item: type='column', name='type'\n" +
-                "Failed to serialize configuration item: type='column', name='Имя'\n" +
-                "Failed to serialize configuration item: type='column', name='Должность'\n" +
-                "Failed to serialize configuration item: type='column', name='Дата создания'\n" +
-                "Failed to serialize configuration item: type='column', name='Дата модификации'\n");
-
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
-        configurationSerializer.deserializeTrustedConfiguration(serializedConfiguration);
+        configurationSerializer.deserializeLoadedConfiguration(serializedConfiguration);
     }
 
     @Test
