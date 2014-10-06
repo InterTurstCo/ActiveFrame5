@@ -1592,6 +1592,8 @@
     </xs:complexType>
     <xs:complexType name="markupType">
         <xs:sequence>
+            <xs:element type="con:titleType" name="title"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
             <xs:element type="con:headerType" name="header"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:bodyType" name="body"
@@ -2214,14 +2216,15 @@
 
 
     <xs:complexType name="linkedFormType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
+       <xs:sequence maxOccurs="1" minOccurs="0">
+           <xs:element type="con:titleType" name="title"
+                       minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+       </xs:sequence>
                 <xs:attribute type="xs:string" name="name"
                               use="optional"/>
                 <xs:attribute type="xs:string" name="inline"
                               use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
+
     </xs:complexType>
     <xs:complexType name="widgetTemplateType">
         <xs:sequence>
@@ -2992,4 +2995,45 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="abstractRepresentationType" abstract="true">
+       <xs:choice maxOccurs="unbounded" minOccurs="0">
+           <xs:element type="con:patternType" name="pattern"
+                minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
+           <xs:element type="con:formattingType" name="formatting"
+                minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
+       </xs:choice>
+
+    </xs:complexType>
+    <!-- Form title -->
+
+    <xs:complexType name="abstractTitleRepresentationType" abstract="true">
+        <xs:complexContent>
+            <xs:extension base="con:abstractRepresentationType">
+                <xs:attribute type="xs:string" name="label-widget-id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="newObjectType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractTitleRepresentationType"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="existingObjectType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractTitleRepresentationType"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="titleType">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element type="con:newObjectType" name="new-object"
+                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:existingObjectType" name="existing-object"
+                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
 </xs:schema>

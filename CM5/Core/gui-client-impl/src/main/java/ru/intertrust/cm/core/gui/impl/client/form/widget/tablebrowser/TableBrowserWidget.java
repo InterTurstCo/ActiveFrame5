@@ -518,16 +518,15 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
     }
 
     private void putInTooltipContent(final LinkedHashMap<Id, String> listValues) {
-        final LinkedHashMap<Id, String> tooltipValues = currentState.getTooltipValues();
-        if (tooltipValues == null) {
+        if (currentState.getTooltipValues() == null) {
             fetchWidgetItems(new TooltipCallback() {
                 @Override
                 public void perform() {
-                    tooltipValues.putAll(listValues);
+                    currentState.getTooltipValues().putAll(listValues);
                 }
             });
         } else {
-            tooltipValues.putAll(listValues);
+            currentState.getTooltipValues().putAll(listValues);
         }
 
     }

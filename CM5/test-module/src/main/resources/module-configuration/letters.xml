@@ -243,6 +243,9 @@
                     <selection-filters row-limit="2">
 
                     </selection-filters>
+                    <selection-sort-criteria>
+                        <sort-criterion field="name" order="asc"/>
+                    </selection-sort-criteria>
                     <!--<selection-filters row-limit="1"></selection-filters>-->
                     <node-collection-def collection="departments" parent-filter="byOrganization"
                                          domain-object-type="department" title="Департамент">
@@ -461,6 +464,10 @@
 
     <form name="organization_form" domain-object-type="Organization" is-default="true">
         <markup>
+            <title>
+                <new-object label-widget-id="titleNew"/>
+                <existing-object label-widget-id="titleExisting"/>
+            </title>
             <header>
                 <table>
                     <tr>
@@ -571,6 +578,22 @@
                 <!--default-sort-criteria column-field="created_date" order="desc" /-->
                 <display-values-as-links value="true"/>
             </table-browser>
+            <label id="titleExisting">
+                <pattern value="date: {created_date}"/>
+                <field-path value="created_date"/>
+                <formatting>
+
+                    <date-format pattern="dd.MM.yyyy HH:mm" style="short">
+
+                        <field-paths>
+                            <field-path value="created_date"/>
+                        </field-paths>
+                    </date-format>
+                </formatting>
+            </label>
+            <label id="titleNew">
+                <text>Coздание города</text>
+            </label>
         </widget-config>
     </form>
 

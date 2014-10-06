@@ -41,7 +41,7 @@ public class HyperlinkClickHandler implements ClickHandler {
     }
 
     public void onClick() {
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(TITLE);
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox();
         final FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectId(id);
         config.getPluginState().setEditable(false);
@@ -65,8 +65,8 @@ public class HyperlinkClickHandler implements ClickHandler {
                 final FormPluginConfig config = new FormPluginConfig();
                 config.setDomainObjectId(id);
                 config.getPluginState().setEditable(true);
-                final FormDialogBox editableFormDialogBox =
-                        new FormDialogBox("Редактирование ");
+                final FormDialogBox editableFormDialogBox =  new FormDialogBox();
+
                 final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override

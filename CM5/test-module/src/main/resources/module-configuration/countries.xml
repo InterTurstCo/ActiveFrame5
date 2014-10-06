@@ -304,6 +304,9 @@
                                     <td>
                                         <widget id="17a" width="600px"/>
                                     </td>
+                                    <td>
+                                        <widget id="bad_label" width="600px"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -608,6 +611,19 @@
                 <single-choice value="false"/>
 
             </linked-domain-objects-table>
+            <label id="bad_label">
+                <pattern value="date {created_date}"/>
+                <field-path value="created_date"/>
+            <formatting>
+
+                <date-format pattern="dd.MM.yyyy HH:mm" style="short">
+                <time-zone id="Etc/GMT+1"/>
+                    <field-paths>
+                        <field-path value="created_date"/>
+                    </field-paths>
+                </date-format>
+            </formatting>
+            </label>
         </widget-config>
         <widget-groups>
             <widget-group name="country-union-group">
@@ -618,6 +634,10 @@
     </form>
     <form name="city_form" domain-object-type="city" is-default="true">
         <markup>
+            <title>
+                <new-object label-widget-id="titleNew"/>
+                <existing-object label-widget-id="titleExisting"/>
+            </title>
             <header>
                 <table>
                     <tr>
@@ -786,6 +806,22 @@
                </selection-sort-criteria>
 
             </suggest-box>
+            <label id="titleExisting">
+                <pattern value="date: {created_date}"/>
+                <field-path value="created_date"/>
+                <formatting>
+
+                    <date-format pattern="dd.MM.yyyy HH:mm" style="short">
+
+                        <field-paths>
+                            <field-path value="created_date"/>
+                        </field-paths>
+                    </date-format>
+                </formatting>
+            </label>
+            <label id="titleNew">
+                <text>Coздание города</text>
+            </label>
         </widget-config>
     </form>
 

@@ -86,9 +86,7 @@ public class HierarchyBrowserUtil {
         if(!state.isTooltipAvailable()){
             return;
         }
-        boolean isHandlingTemporaryState = state.isHandlingTemporarySate();
-        List<HierarchyBrowserItem> content = isHandlingTemporaryState ? state.getTemporaryChosenItems()
-                :state.getChosenItems();
+        List<HierarchyBrowserItem> content = state.getCurrentItems();
        if(content.contains(item)){
         List<HierarchyBrowserItem> tooltipItems = state.getTooltipChosenItems();
         HierarchyBrowserItem itemToContent = tooltipItems.remove(0);
@@ -120,8 +118,8 @@ public class HierarchyBrowserUtil {
         int index = chosenItems.indexOf(itemToReplace);
         chosenItems.set(index, updatedItem);
 
-
     }
+
     private static HierarchyBrowserItem findHierarchyBrowserItem(Id id, List<HierarchyBrowserItem> chosenItems) {
         for (HierarchyBrowserItem item : chosenItems) {
             if (item.getId().equals(id)) {

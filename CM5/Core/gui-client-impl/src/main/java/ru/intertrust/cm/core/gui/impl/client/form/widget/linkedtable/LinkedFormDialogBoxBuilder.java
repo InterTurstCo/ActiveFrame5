@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -33,6 +34,7 @@ public class LinkedFormDialogBoxBuilder {
     private FormPlugin formPlugin;
     private String height = "300px";
     private String width = "1000px";
+    private DialogBox dialogBox;
 
     public FormPlugin getFormPlugin() {
         return formPlugin;
@@ -64,20 +66,21 @@ public class LinkedFormDialogBoxBuilder {
     }
 
     public LinkedFormDialogBoxBuilder withWidth(String width) {
-        if(width != null) {
-        this.width = width;
-        }
-        return this;
-    }
-    public LinkedFormDialogBoxBuilder withHeight(String height) {
-        if(height != null) {
-        this.height = height;
+        if (width != null) {
+            this.width = width;
         }
         return this;
     }
 
-    public DialogBox buildDialogBox() {
-        FormPluginConfig linkedFormPluginConfig;
+    public LinkedFormDialogBoxBuilder withHeight(String height) {
+        if (height != null) {
+            this.height = height;
+        }
+        return this;
+    }
+
+    public LinkedFormDialogBoxBuilder buildDialogBox() {
+        final FormPluginConfig linkedFormPluginConfig;
         if (id != null) {
             linkedFormPluginConfig = createLinkedFormPluginConfig(id);
         } else if (this.objectTypeName != null) {
@@ -87,18 +90,23 @@ public class LinkedFormDialogBoxBuilder {
         }
         this.formPlugin = buildLinkedFormPlugin(linkedFormPluginConfig);
         final PluginPanel formPluginPanel = new PluginPanel();
+        dialogBox = buildLinkedFormDialogBox(formPluginPanel);
         this.formPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
                 if (formState != null) {
                     refreshEditableState();
                     formPlugin.setFormState(formState);
+
                 }
+                String title = (GuiUtil.getConfiguredTitle(formPlugin,
+                        linkedFormPluginConfig.getDomainObjectId() == null));
+                dialogBox.getCaption().setText(title);
             }
         });
 
         formPluginPanel.open(this.formPlugin);
-        return buildLinkedFormDialogBox(formPluginPanel);
+        return this;
     }
 
     private void refreshEditableState() {
@@ -189,5 +197,9 @@ public class LinkedFormDialogBoxBuilder {
         FormPluginState formPluginState = new FormPluginState();
         formPluginState.setEditable(true);
         config.setPluginState(formPluginState);
+    }
+
+    public void display() {
+        dialogBox.center();
     }
 }

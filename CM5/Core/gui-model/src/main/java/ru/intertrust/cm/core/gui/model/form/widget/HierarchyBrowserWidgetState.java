@@ -52,6 +52,9 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     public void setRootNodeLinkConfig(RootNodeLinkConfig rootNodeLinkConfig) {
         this.rootNodeLinkConfig = rootNodeLinkConfig;
     }
+    public ArrayList<HierarchyBrowserItem> getCurrentItems(){
+        return isHandlingTemporarySate ? temporaryChosenItems : chosenItems;
+    }
 
     public ArrayList<HierarchyBrowserItem> getChosenItems() {
         return chosenItems;
@@ -63,10 +66,6 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
 
     public void setSelectedIds(ArrayList<Id> selectedIds) {
         this.selectedIds = selectedIds;
-    }
-
-    public boolean isHandlingTemporarySate() {
-        return isHandlingTemporarySate;
     }
 
     public ArrayList<HierarchyBrowserItem> getTooltipChosenItems() {

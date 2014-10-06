@@ -4,6 +4,12 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
+import ru.intertrust.cm.core.config.gui.form.title.AbstractTitleRepresentationConfig;
+import ru.intertrust.cm.core.config.gui.form.title.TitleConfig;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -26,5 +32,19 @@ public class GuiUtil {
             }
         }
         return false;
+    }
+
+    public static String getConfiguredTitle(FormPlugin formPlugin, boolean isNewObjectForm){
+        FormPluginData formPluginData = formPlugin.getInitialData();
+        FormDisplayData displayData = formPluginData.getFormDisplayData();
+        TitleConfig titleConfig = displayData.getMarkup().getTitle();
+        if(titleConfig == null){
+            return BusinessUniverseConstants.EMPTY_VALUE;
+        }
+        AbstractTitleRepresentationConfig config = isNewObjectForm ? titleConfig.getNewObjectConfig()
+                : titleConfig.getExistingObjectConfig();
+        LabelState labelState = (LabelState) displayData.getFormState().getWidgetState(config.getLabelWidgetId());
+        return labelState.getLabel();
+
     }
 }

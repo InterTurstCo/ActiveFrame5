@@ -155,13 +155,10 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     protected HierarchyBrowserWidgetState createNewState() {
-
         HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
-
-        HierarchyBrowserWidgetState previousState = getInitialData();
-        ArrayList<HierarchyBrowserItem> chosenItems = previousState.getChosenItems();
+        ArrayList<HierarchyBrowserItem> chosenItems = currentState.getChosenItems();
         state.setChosenItems(chosenItems);
-        state.setSelectedIds(previousState.getIds());
+        state.setSelectedIds(currentState.getIds());
 
         return state;
     }
@@ -220,7 +217,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
         int delta = item.isChosen() ? 1 : 0;
         if (HierarchyBrowserUtil.shouldInitializeTooltip(currentState, delta)) {
-            fetchWidgetItems(null, new TooltipCallback() {
+            fetchWidgetItems(new TooltipCallback() {
                 @Override
                 public void perform() {
                     handleItemChangeState(item);
@@ -256,13 +253,10 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         if (BusinessUniverseConstants.UNDEFINED_COLLECTION_NAME.equalsIgnoreCase(collectionName)) {
             return;
         }
-        NodeCollectionDefConfig nodeCollectionDefConfig = collectionNameNodeMap.get(collectionName);
-        final String title = nodeCollectionDefConfig.getDomainObjectType();
-
         final FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectId(id);
         config.getPluginState().setEditable(false);
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox();
         config.getPluginState().setToggleEdit(true);
         config.getPluginState().setInCentralPanel(true);
         final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
@@ -284,7 +278,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
                 noneEditableFormDialogBox.hide();
                 config.getPluginState().setEditable(true);
-                final FormDialogBox editableFormDialogBox = new FormDialogBox("Редактирование " + title);
+                final FormDialogBox editableFormDialogBox = new FormDialogBox();
                 final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
@@ -380,8 +374,6 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
         final Id parentId = event.getParentId();
         String domainObjectTypeToCreate = event.getEntry().getKey();
-        String title = event.getEntry().getValue();
-
         final String parentCollectionName = event.getParentCollectionName();
         NodeCollectionDefConfig collectionDefConfig = HierarchyBrowserUtil.getRequiredNodeConfig(parentCollectionName,
                 domainObjectTypeToCreate, collectionNameNodeMap);
@@ -395,7 +387,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             config.setUpdaterContext(hierarchyBrowserUpdaterContext);
             config.setDomainObjectUpdatorComponent("hierarchy-browser-do-updater");
         }
-        final FormDialogBox createItemDialogBox = new FormDialogBox(title);
+        final FormDialogBox createItemDialogBox = new FormDialogBox();
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus);
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
@@ -438,7 +430,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                             collectionNameNodeMap) {
                         @Override
                         protected void handleHyperlinkUpdate(HierarchyBrowserItem updatedItem) {
-                            List<HierarchyBrowserItem> chosenItems = currentState.getChosenItems();
+                            List<HierarchyBrowserItem> chosenItems = currentState.getCurrentItems();
                             HierarchyBrowserUtil.handleUpdateChosenItem(updatedItem, chosenItems);
                             boolean shouldDrawTooltipButton = currentState.isTooltipAvailable();
                             if (mainPopup != null) {
@@ -483,7 +475,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         onTooltipElementClick(itemsView);
     }
 
-    private void fetchWidgetItems(final HierarchyBrowserItemsView itemsView, final TooltipCallback tooltipCallback) {
+    private void fetchWidgetItems(final TooltipCallback tooltipCallback) {
         final HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
         final HierarchyBrowserTooltipRequest request = new HierarchyBrowserTooltipRequest(config, currentState.getIds());
         Command command = new Command("fetchWidgetItems", getName(), request);
@@ -508,7 +500,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
         if (currentState.getTooltipChosenItems() == null) {
             final HandlerRegistration blockerHandler = Event.addNativePreviewHandler(new EventBlocker(impl));
-            fetchWidgetItems(itemsView, new TooltipCallback() {
+            fetchWidgetItems(new TooltipCallback() {
                 @Override
                 public void perform() {
                     blockerHandler.removeHandler();

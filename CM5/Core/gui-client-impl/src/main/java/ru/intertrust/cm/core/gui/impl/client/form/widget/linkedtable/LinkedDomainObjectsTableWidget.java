@@ -8,7 +8,10 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -158,15 +161,13 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 // no op
             }
         };
-        DialogBox db = linkedFormDialogBoxBuilder
+        LinkedFormDialogBoxBuilder lfb = linkedFormDialogBoxBuilder
                 .setSaveAction(saveAction)
                 .setCancelAction(cancelAction)
                 .withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
                 .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
                 .withObjectType(currentState.getObjectTypeName()).buildDialogBox();
-
-        db.center();
-        db.show();
+        lfb.display();
 
     }
 
@@ -461,9 +462,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             } else if (pooledFormStateKey != null) {
                 pooledEditedFormState = currentState.getFromNewStates(pooledFormStateKey);
             }
-            DialogBox db;
+            LinkedFormDialogBoxBuilder lfb;
             if (pooledEditedFormState != null) {
-                db = new LinkedFormDialogBoxBuilder()
+                lfb = new LinkedFormDialogBoxBuilder()
                         .setSaveAction(saveAction)
                         .setCancelAction(cancelAction)
                         .withObjectType(currentState.getObjectTypeName())
@@ -473,7 +474,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .buildDialogBox();
 
             } else {
-                db = new LinkedFormDialogBoxBuilder()
+                lfb = new LinkedFormDialogBoxBuilder()
                         .setSaveAction(saveAction)
                         .setCancelAction(cancelAction)
                         .withId(object.getObjectId())
@@ -481,8 +482,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
                         .buildDialogBox();
             }
-            db.center();
-            db.show();
+            lfb.display();
         }
     }
 }
