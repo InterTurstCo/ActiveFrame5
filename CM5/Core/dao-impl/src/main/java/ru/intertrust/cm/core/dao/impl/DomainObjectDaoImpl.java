@@ -963,11 +963,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             AccessToken accessToken) {
         String[] cacheKey = new String[] { linkedType,linkedField,
                 String.valueOf(offset),String.valueOf(limit) };
-        List<DomainObject> domainObjects = domainObjectCacheService
+        //CMFIVE-1785: Временное отключение использования кэша
+        /*List<DomainObject> domainObjects = domainObjectCacheService
                 .getObjectToCache(domainObjectId, cacheKey);
         if (domainObjects != null) {
             return domainObjects;
-        }
+        }*/
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
@@ -978,11 +979,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.putAll(getAclParameters(accessToken));
         }
 
-        domainObjects = jdbcTemplate.query(query, parameters,
+        List<DomainObject> domainObjects = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(linkedType, configurationExplorer,
                         domainObjectTypeIdCache));
-        domainObjectCacheService.putObjectToCache(domainObjectId,
-                domainObjects, cacheKey);
+        //CMFIVE-1785: Временное отключение использования кэша
+        /*domainObjectCacheService.putObjectToCache(domainObjectId,
+                domainObjects, cacheKey);*/
 
         if (domainObjects == null || domainObjects.isEmpty()) {
             return domainObjects;
@@ -992,7 +994,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         for (int i = 0; i < domainObjects.size(); i++) {
             DomainObject domainObject = domainObjects.get(i);
             if (!linkedType.equals(domainObject.getTypeName())) {
-                domainObjectCacheService.removeObjectFromCache(domainObject.getId());
+                //CMFIVE-1785: Временное отключение использования кэша
+                /*domainObjectCacheService.removeObjectFromCache(domainObject.getId());*/
                 AccessToken accessTokenToFind = null;
                 if (configurationExplorer.isReadPermittedToEverybody(domainObject.getTypeName())){
                     accessTokenToFind = accessControlService.createSystemAccessToken(getClass().getName());
@@ -1021,11 +1024,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             AccessToken accessToken) {
         String[] cacheKey = new String[] { linkedType,linkedField,
                 String.valueOf(offset),String.valueOf(limit) };
-        List<DomainObject> domainObjects = domainObjectCacheService
+        //CMFIVE-1785: Временное отключение использования кэша
+        /*List<DomainObject> domainObjects = domainObjectCacheService
                 .getObjectToCache(domainObjectId, cacheKey);
         if (domainObjects != null) {
             return extractIds(domainObjects);
-        }
+        }*/
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
