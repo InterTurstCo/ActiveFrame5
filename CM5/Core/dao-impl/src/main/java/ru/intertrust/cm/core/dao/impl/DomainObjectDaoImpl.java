@@ -994,8 +994,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         for (int i = 0; i < domainObjects.size(); i++) {
             DomainObject domainObject = domainObjects.get(i);
             if (!linkedType.equals(domainObject.getTypeName())) {
-                //CMFIVE-1785: Временное отключение использования кэша
-                /*domainObjectCacheService.removeObjectFromCache(domainObject.getId());*/
+                domainObjectCacheService.removeObjectFromCache(domainObject.getId());
                 AccessToken accessTokenToFind = null;
                 if (configurationExplorer.isReadPermittedToEverybody(domainObject.getTypeName())){
                     accessTokenToFind = accessControlService.createSystemAccessToken(getClass().getName());
