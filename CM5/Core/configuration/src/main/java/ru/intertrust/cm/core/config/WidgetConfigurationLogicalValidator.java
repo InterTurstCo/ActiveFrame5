@@ -20,12 +20,17 @@ import java.util.regex.Pattern;
  */
 public class WidgetConfigurationLogicalValidator {
     private static final String FIELD_TYPE_BOOLEAN = "BOOLEAN";
+    private static final String FIELD_TYPE_STRING = "STRING";
+    private static final String FIELD_TYPE_LONG = "LONG";
+    private static final String FIELD_TYPE_DECIMAL = "DECIMAL";
+
     private static final String WIDGET_CHECK_BOX = "check-box";
     private static final String WIDGET_SUGGEST_BOX = "suggest-box";
     private static final String WIDGET_TABLE_BROWSER = "table-browser";
     private static final String WIDGET_HIERARCHY_BROWSER = "hierarchy-browser";
     private static final String WIDGET_RADIO_BUTTON = "radio-button";
     private static final String WIDGET_LABEL = "label";
+    private static final String WIDGET_ENUM_BOX = "enumeration-box";
     private static final String REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME =
             "ru.intertrust.cm.core.config.ReferenceFieldConfig";
 
@@ -221,6 +226,8 @@ public class WidgetConfigurationLogicalValidator {
             validateRadioButtonWidget(widget, logicalErrors);
         } else if (thisIsLabelWidget(componentName)) {
             validateLabelWidget(widget, logicalErrors);
+        } else if (thisIsEnumBoxWidget(componentName)) {
+            validateEnumBoxWidget(widget, logicalErrors);
         }
 
     }
@@ -285,6 +292,41 @@ public class WidgetConfigurationLogicalValidator {
             logicalErrors.addError(error);
         }
 
+    }
+
+    private void validateEnumBoxWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
+        String fieldType = widget.getFieldConfigToValidate().getFieldType().name();
+        EnumBoxConfig config = (EnumBoxConfig)widget.getWidgetConfig();
+        if (!fieldTypeIsString(fieldType) && !fieldTypeIsBoolean(fieldType) &&
+                !fieldTypeIsLong(fieldType) && !fieldTypeIsDecimal(fieldType)) {
+            String error = String.format("Invalid field type '%s' for enumeration-box with id '%s'." +
+                    "Only String, Boolean, Long and Decimal are allowed", fieldType, config.getId());
+            logger.error(error);
+            logicalErrors.addError(error);
+        }
+        EnumMappingConfig mappingConfig = config.getEnumMappingConfig();
+        if (mappingConfig != null) {
+            for (EnumMapConfig mapConfig : mappingConfig.getEnumMapConfigs()) {
+                if (fieldTypeIsString(fieldType) && mapConfig.isNullValue() && mapConfig.getValue() != null) {
+                    String error = String.format("Mapping for enumeration-box with id '%s' contains both 'null-value' " +
+                            "and 'value' attributes", config.getId());
+                    logger.error(error);
+                    logicalErrors.addError(error);
+                } else if (!fieldTypeIsString(fieldType) && mapConfig.isNullValue() && mapConfig.getValue() != null &&
+                        !"".equals(mapConfig.getValue())) {
+                    String error = String.format("Mapping for enumeration-box with id '%s' contains both 'null-value' " +
+                            "and non-empty 'value' attributes", config.getId());
+                    logger.error(error);
+                    logicalErrors.addError(error);
+                }
+                if (mapConfig.getValue() == null && mapConfig.getDisplayText() == null && !mapConfig.isNullValue()) {
+                    String error = String.format("Mapping for enumeration-box with id '%s' contains neither value " +
+                            "nor display-text, and is not-null", config.getId());
+                    logger.error(error);
+                    logicalErrors.addError(error);
+                }
+            }
+        }
     }
 
     private void validatePattern(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
@@ -433,6 +475,18 @@ public class WidgetConfigurationLogicalValidator {
         return FIELD_TYPE_BOOLEAN.equalsIgnoreCase(fieldType);
     }
 
+    private boolean fieldTypeIsString(String fieldType) {
+        return FIELD_TYPE_STRING.equalsIgnoreCase(fieldType);
+    }
+
+    private boolean fieldTypeIsLong(String fieldType) {
+        return FIELD_TYPE_LONG.equalsIgnoreCase(fieldType);
+    }
+
+    private boolean fieldTypeIsDecimal(String fieldType) {
+        return FIELD_TYPE_DECIMAL.equalsIgnoreCase(fieldType);
+    }
+
     private boolean thisIsCheckBoxWidget(String componentName) {
         return WIDGET_CHECK_BOX.equalsIgnoreCase(componentName);
     }
@@ -457,4 +511,7 @@ public class WidgetConfigurationLogicalValidator {
         return WIDGET_LABEL.equalsIgnoreCase(componentName);
     }
 
+    private boolean thisIsEnumBoxWidget(String componentName) {
+        return WIDGET_ENUM_BOX.equalsIgnoreCase(componentName);
+    }
 }
