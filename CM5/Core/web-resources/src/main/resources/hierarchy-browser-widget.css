@@ -338,6 +338,8 @@ table.hierarh-browser-inline td {
     display: inline-block;
     border-radius: 5px;
     border: 1px solid #f1f1f1;
+    cursor: pointer;
+    cursor: hand;
 }
 .hierarchyBrowserElement .facebook-btn {
     background-attachment: scroll;
