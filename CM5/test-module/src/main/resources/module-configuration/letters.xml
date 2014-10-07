@@ -6,6 +6,7 @@
             <string name="password" length="128" encrypted="true"/>
             <date-time name="actual_start_period"/>
             <date-time name="actual_end_period"/>
+            <long name="priority"/>
         </fields>
     </domain-object-type>
     <domain-object-type name="letter_creator" initial-status="Active">
@@ -170,7 +171,14 @@
                                     <td h-align="left">
                                         <widget id="letter_creators"/>
                                     </td>
+                                    <td>
+                                        <widget id="letter_priority_label"/>
+                                    </td>
+                                    <td>
+                                        <widget id="letter_priority"/>
+                                    </td>
                                 </tr>
+
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -223,6 +231,19 @@
             <label id="addressees_label">
                 <text>Адресаты:</text>
             </label>
+
+            <label id="letter_priority_label">
+                <field-path/>
+                <text>Приоритет:</text>
+            </label>
+            <enumeration-box id="letter_priority">
+                <field-path value="priority"/>
+                <mapping>
+                    <map value="1" display-text="низкий"/>
+                    <map value="2" display-text="обычный"/>
+                    <map value="3" display-text="срочный"/>
+                </mapping>
+            </enumeration-box>
 
             <hierarchy-browser id="2c">
                 <field-path

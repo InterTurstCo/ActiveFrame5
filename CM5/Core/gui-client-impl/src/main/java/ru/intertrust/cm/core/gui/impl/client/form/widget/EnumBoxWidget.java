@@ -70,7 +70,7 @@ public class EnumBoxWidget extends BaseWidget  {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        return new ListBox(true);
+        return new ListBox(false);
     }
 
     @Override
