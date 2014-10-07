@@ -25,7 +25,6 @@ import ru.intertrust.cm.core.gui.api.server.el.DomainObjectTypeComparator;
 import ru.intertrust.cm.core.gui.api.server.el.ReferenceValuePropertyAccessor;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.DomainObjectContextActionData;
 
 /**
  * @author Denis Mitavskiy
@@ -51,8 +50,8 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
         final ActionConfig config = context == null ? null : (ActionConfig) ((E) context).getActionConfig();
         final T result = executeAction((E) context);
         if (result != null && config != null && config.getAfterConfig() != null) {
-            final DomainObject dobj = context instanceof DomainObjectContextActionData
-                    ? ((DomainObjectContextActionData) context).getContextDomainObject()
+            final DomainObject dobj = ((E) context).getRootObjectId() != null
+                    ? crudService.find(((E) context).getRootObjectId())
                     : null;
             final String successPattern = (config.getAfterConfig().getMessageConfig() == null)
                     ? null

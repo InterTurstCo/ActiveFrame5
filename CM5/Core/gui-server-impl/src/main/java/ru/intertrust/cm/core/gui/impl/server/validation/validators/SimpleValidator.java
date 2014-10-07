@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class SimpleValidator implements ServerValidator {
     }
 
     @Override
-    public void init(ActionContext context) {
+    public void init(final FormState formState) {
         // do nothing
     }
 

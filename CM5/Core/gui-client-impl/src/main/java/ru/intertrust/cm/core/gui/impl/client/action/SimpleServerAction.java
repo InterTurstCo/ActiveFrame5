@@ -60,8 +60,7 @@ public abstract class SimpleServerAction extends Action {
         };
         try {
             ActionContext currentContext = appendCurrentContext(initialContext);
-            final String actionHandler = ((ActionConfig) initialContext.getActionConfig()).getActionHandler();
-            Command command = new Command("executeAction", actionHandler, currentContext);
+            Command command = new Command("executeAction", getName(), currentContext);
             final AbstractActionConfig abstractActionConfig = getInitialContext().getActionConfig();
             if (abstractActionConfig instanceof ActionConfig) {
                 command.setDirtySensitivity(((ActionConfig) abstractActionConfig).isDirtySensitivity());

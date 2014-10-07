@@ -4,12 +4,15 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -17,11 +20,26 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.DateRangeValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.DecimalRangeValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.IntRangeValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.LengthValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.ScaleAndPrecisionValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.ServerValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.SimpleValidator;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
+import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.ObjectCloner;
 
@@ -186,5 +204,93 @@ public class PluginHandlerHelper {
             }
         }
         throw new UnexpectedException("Couldn't find view for collection with name '" + collectionName + "'");
+    }
+
+    public static List<String> doServerSideValidation(final FormState formState,
+                                                      final ApplicationContext applicationContext) {
+        //Simple Server Validation
+        List<Constraint> constraints = new ArrayList<Constraint>();
+        for (WidgetState state : formState.getFullWidgetsState().values()) {
+            constraints.addAll(state.getConstraints());
+        }
+        List<String> errorMessages = new ArrayList<String>();
+        for (Constraint constraint : constraints) {
+            Value valueToValidate = getValueToValidate(constraint, formState, applicationContext);
+            ServerValidator validator = createValidator(constraint);
+            if (validator != null) {
+                validator.init(formState);
+                ValidationResult validationResult = validator.validate(valueToValidate);
+                if (validationResult.hasErrors()) {
+                    errorMessages.addAll(getMessages(validationResult, constraint.getParams()));
+                }
+            }
+        }
+        // Custom Server Validation
+//        if (context.getActionConfig() != null) {
+//            for (ValidatorConfig config : context.getActionConfig().getValidatorConfigs()) {
+//                String widgetId = config.getWidgetId();
+//                ServerValidator customValidator = CustomValidatorFactory.createInstance(config.getClassName(), widgetId);
+//                if (customValidator != null) {
+//                    WidgetState state = formState.getWidgetState(widgetId);
+//                    customValidator.init(context);
+//                    ValidationResult validationResult = customValidator.validate(state);
+//                    if (validationResult.hasErrors()) {
+//                        errorMessages.addAll(getMessages(validationResult, null));
+//                    }
+//                }
+//            }
+//        }
+        return errorMessages;
+    }
+
+    private static Value getValueToValidate(Constraint constraint, FormState formState,
+                                            final ApplicationContext applicationContext) {
+        String widgetId = constraint.param(Constraint.PARAM_WIDGET_ID);
+        String componentName = formState.getWidgetComponent(widgetId);
+
+        WidgetState state = formState.getWidgetState(widgetId);
+        if (state != null && componentName != null) {
+            WidgetHandler handler = getWidgetHandler(componentName, applicationContext);
+            return handler.getValue(state);
+        }
+        return null;
+    }
+
+    private static WidgetHandler getWidgetHandler(String componentName, final ApplicationContext applicationContext) {
+        return (WidgetHandler) applicationContext.getBean(componentName);
+    }
+
+    private static ServerValidator createValidator(Constraint constraint) {
+        switch (constraint.getType()) {
+            case SIMPLE:
+                return new SimpleValidator(constraint);
+            case LENGTH:
+                return new LengthValidator(constraint);
+            case INT_RANGE:
+                return new IntRangeValidator(constraint);
+            case DECIMAL_RANGE:
+                return new DecimalRangeValidator(constraint);
+            case DATE_RANGE:
+                return new DateRangeValidator(constraint);
+            case SCALE_PRECISION:
+                return new ScaleAndPrecisionValidator(constraint);
+        }
+        return null;
+    }
+
+    private static List<String> getMessages(ValidationResult validationResult,  Map<String, String> params) {
+        List<String> messages = new ArrayList<String>();
+        for (ValidationMessage msg : validationResult.getMessages()) {
+            messages.add(getMessageText(msg.getMessage(), params));
+        }
+        return messages;
+    }
+
+    private static String getMessageText(String messageKey, Map<String, String> props) {
+        if ( MessageResourceProvider.getMessages().get(messageKey) != null) {
+            return PlaceholderResolver.substitute(MessageResourceProvider.getMessage(messageKey), props);
+        } else {
+            return messageKey;//let's return at least messageKey if the message is not found
+        }
     }
 }

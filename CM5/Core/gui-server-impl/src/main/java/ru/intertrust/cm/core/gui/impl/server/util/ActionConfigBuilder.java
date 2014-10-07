@@ -75,9 +75,9 @@ public class ActionConfigBuilder {
             }
             final ActionConfig actionConfig = PluginHandlerHelper.cloneActionConfig((ActionConfig) config);
             ActionHandler actionHandler = new FakeActionHandler();
-            final boolean hasHandler = applicationContext.containsBean(actionConfig.getActionHandler());
+            final boolean hasHandler = applicationContext.containsBean(actionConfig.getComponentName());
             if (hasHandler) {
-                actionHandler = (ActionHandler) applicationContext.getBean(actionConfig.getActionHandler());
+                actionHandler = (ActionHandler) applicationContext.getBean(actionConfig.getComponentName());
             }
             ActionHandler.Status status = ActionHandler.Status.APPLY;
             if (actionConfig.getVisibilityChecker() != null) {

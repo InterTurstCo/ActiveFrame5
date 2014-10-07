@@ -138,10 +138,6 @@ public class ActionConfig extends BaseActionConfig implements TopLevelConfig {
         return componentName;
     }
 
-    public String getActionHandler() {
-        return componentName;
-    }
-
     public String getText() {
         return text;
     }

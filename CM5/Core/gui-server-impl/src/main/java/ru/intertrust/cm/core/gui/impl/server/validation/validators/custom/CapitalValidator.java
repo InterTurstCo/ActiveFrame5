@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.impl.server.validation.validators.ServerValidator;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestBoxState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -28,8 +28,8 @@ public class CapitalValidator implements ServerValidator {
 
     private static Logger log = LoggerFactory.getLogger(CapitalValidator.class);
 
-    public void init(ActionContext context) {
-        rootCountryId = context.getRootObjectId();
+    public void init(final FormState formState) {
+        rootCountryId = formState.getObjects().getRootDomainObject().getId();
     }
 
     @Override

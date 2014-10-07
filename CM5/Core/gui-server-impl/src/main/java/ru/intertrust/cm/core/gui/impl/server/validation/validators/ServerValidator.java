@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.validation.validators;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 /**
@@ -12,5 +13,5 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 public interface ServerValidator {
     ValidationResult validate (Dto dtoToValidate);
 
-    void init(ActionContext context);
+    void init(FormState formState);
 }

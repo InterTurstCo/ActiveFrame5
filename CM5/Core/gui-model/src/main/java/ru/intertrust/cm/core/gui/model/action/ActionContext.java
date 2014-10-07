@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.model.action;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 
 /**
  * @author Denis Mitavskiy
@@ -13,6 +14,8 @@ public class ActionContext implements Dto {
     private Id rootObjectId;
 
     private AbstractActionConfig actionConfig;
+
+    private FormState confirmFormState;
 
     /**
      * Default constructor.
@@ -37,5 +40,13 @@ public class ActionContext implements Dto {
 
     public void setActionConfig(AbstractActionConfig actionConfig) {
         this.actionConfig = actionConfig;
+    }
+
+    public FormState getConfirmFormState() {
+        return confirmFormState;
+    }
+
+    public void setConfirmFormState(FormState confirmFormState) {
+        this.confirmFormState = confirmFormState;
     }
 }

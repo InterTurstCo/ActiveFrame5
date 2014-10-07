@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.server.validation.validators;
 
+import java.util.logging.Logger;
+
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
-
-import java.util.logging.Logger;
 
 /**
  * @author Lesia Puhova
@@ -48,7 +48,7 @@ public abstract class RangeValidator<T extends Comparable> implements ServerVali
     abstract T convert(String s);
 
     @Override
-    public void init(ActionContext context) {
+    public void init(final FormState formState) {
         // do nothing
     }
 

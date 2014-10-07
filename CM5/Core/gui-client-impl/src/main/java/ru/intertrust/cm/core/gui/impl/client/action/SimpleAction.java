@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
@@ -20,11 +21,8 @@ public class SimpleAction extends SimpleServerAction {
     protected ActionContext appendCurrentContext(ActionContext initialContext) {
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         initialContext.setRootObjectId(editor.getRootDomainObject().getId());
+        ((SimpleActionContext) initialContext).setMainFormState(editor.getFormState());
         return initialContext;
-    }
-
-    private FormPluginData DomainObject(FormPluginData initialData) {
-        return null;
     }
 
     @Override

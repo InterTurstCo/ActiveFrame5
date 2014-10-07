@@ -16,8 +16,4 @@ public class SimpleActionConfig extends ActionConfig {
     public String getActionHandler() {
         return actionHandler;
     }
-
-    public void setActionHandler(String actionHandler) {
-        this.actionHandler = actionHandler;
-    }
 }
