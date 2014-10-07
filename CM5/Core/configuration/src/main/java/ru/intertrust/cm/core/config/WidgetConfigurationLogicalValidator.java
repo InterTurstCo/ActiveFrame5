@@ -6,8 +6,21 @@ import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.EnumBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.EnumMapConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.EnumMappingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.RadioButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -307,24 +320,58 @@ public class WidgetConfigurationLogicalValidator {
         EnumMappingConfig mappingConfig = config.getEnumMappingConfig();
         if (mappingConfig != null) {
             for (EnumMapConfig mapConfig : mappingConfig.getEnumMapConfigs()) {
-                if (fieldTypeIsString(fieldType) && mapConfig.isNullValue() && mapConfig.getValue() != null) {
+                String value = mapConfig.getValue();
+
+                checkTypeForEnumBoxMapping(value, fieldType, config.getId(), logicalErrors);
+
+                if (fieldTypeIsString(fieldType) && mapConfig.isNullValue() && value != null) {
                     String error = String.format("Mapping for enumeration-box with id '%s' contains both 'null-value' " +
                             "and 'value' attributes", config.getId());
                     logger.error(error);
                     logicalErrors.addError(error);
-                } else if (!fieldTypeIsString(fieldType) && mapConfig.isNullValue() && mapConfig.getValue() != null &&
-                        !"".equals(mapConfig.getValue())) {
+                } else if (!fieldTypeIsString(fieldType) && mapConfig.isNullValue() && value != null &&
+                        !"".equals(value)) {
                     String error = String.format("Mapping for enumeration-box with id '%s' contains both 'null-value' " +
                             "and non-empty 'value' attributes", config.getId());
                     logger.error(error);
                     logicalErrors.addError(error);
                 }
-                if (mapConfig.getValue() == null && mapConfig.getDisplayText() == null && !mapConfig.isNullValue()) {
+                if (value == null && mapConfig.getDisplayText() == null && !mapConfig.isNullValue()) {
                     String error = String.format("Mapping for enumeration-box with id '%s' contains neither value " +
                             "nor display-text, and is not-null", config.getId());
                     logger.error(error);
                     logicalErrors.addError(error);
                 }
+            }
+        }
+    }
+
+    private void checkTypeForEnumBoxMapping(String value, String fieldType, String widgetId, LogicalErrors logicalErrors) {
+        boolean wrongType = false;
+        if (value != null && !value.isEmpty()) {
+            if (fieldTypeIsLong(fieldType)) {
+                try {
+                    Long.parseLong(value);
+                } catch (NumberFormatException nfe) {
+                    wrongType = true;
+                }
+            } else if (fieldTypeIsDecimal(fieldType)) {
+                try {
+                    new BigDecimal(value);
+                } catch (NumberFormatException nfe) {
+                    wrongType = true;
+                }
+            } else if (fieldTypeIsBoolean(fieldType)) {
+                if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) {
+                   wrongType = true;
+                }
+            }
+
+            if (wrongType) {
+                String error = String.format("Mapping for enumeration-box with id '%s' contains value of wrong type: %s.' " +
+                        "Expected data type is %s.", widgetId, value, fieldType);
+                logger.error(error);
+                logicalErrors.addError(error);
             }
         }
     }
