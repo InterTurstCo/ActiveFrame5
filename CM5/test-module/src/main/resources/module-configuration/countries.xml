@@ -28,7 +28,6 @@
 
     <domain-object-type name="superCountry" initial-status="Active" extends="country"/>
 
-
     <domain-object-type name="country_best_friend" initial-status="Active">
         <fields>
             <reference name="country" type="country"/>
@@ -79,6 +78,17 @@
         </fields>
     </domain-object-type>
 
+    <domain-object-type name="confirm_country" initial-status="Active">
+        <fields>
+            <reference name="country" type="country" not-null="true"/>
+            <string name="description" length="100" not-null="true">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="city" initial-status="Active">
         <fields>
             <reference name="country" type="country"/>
@@ -107,9 +117,37 @@
         </fields>
     </domain-object-type>
 
-
     <form name="country_form" domain-object-type="country" is-default="true" debug="false" min-width="900px">
-        <act:tool-bar useDefault="true"/>
+        <act:tool-bar useDefault="true">
+            <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action"
+                               permissions="Delete,Write,Create">
+                <act:action-params>
+                    <act:action-param name="param1" value="value1" />
+                    <act:action-param name="param2" value="value2" />
+                    <act:action-param name="param3" value="value3" />
+                    <act:action-param name="param4" value="value4" />
+                </act:action-params>
+                <act:before-execution>
+                    <act:confirmation-message text="Are you sure?"/>
+                    <act:linked-domain-object title="Заголовок доп. формы">
+                        <act:reference field-path="description_form|country" />
+                        <act:perform-validation value="true"/>
+                        <act:form-mapping form="confirm_country">
+                            <act:users>
+                                <act:user uid="admin"/>
+                            </act:users>
+                            <act:groups>
+                                <act:group name="Administrators" priority="1"/>
+                            </act:groups>
+                        </act:form-mapping>
+                    </act:linked-domain-object>
+                    <act:save-context value="true"/>
+                </act:before-execution>
+                <act:after-execution>
+                    <act:on-success-message text="Document id={id} saved"/>
+                </act:after-execution>
+            </act:simple-action>
+        </act:tool-bar>
         <markup>
             <header>
                 <!--width="800px" height="200px"-->
@@ -632,6 +670,34 @@
             </widget-group>
         </widget-groups>
     </form>
+
+    <form name="confirm_country" domain-object-type="confirm_country" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td h-align="right">
+                            <widget id="confirm_label"/>
+                        </td>
+                        <td>
+                            <widget id="confirm_description"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab=""></body>
+        </markup>
+        <widget-config>
+            <label id="confirm_label">
+                <force-required-asterisk value="true"/>
+                <text>Добавить комментарий:</text>
+            </label>
+            <text-box id="confirm_description">
+                <field-path value="description"/>
+            </text-box>
+        </widget-config>
+    </form>
+
     <form name="city_form" domain-object-type="city" is-default="true">
         <markup>
             <title>
@@ -986,6 +1052,15 @@
 
     <form-mappings name="country_mappings">
         <form-mapping domain-object-type="country" form="country_form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <groups>
+                <group name="Administrators"/>
+            </groups>
+        </form-mapping>
+
+        <form-mapping domain-object-type="confirm_country" form="confirm_country">
             <users>
                 <user uid="admin"/>
             </users>

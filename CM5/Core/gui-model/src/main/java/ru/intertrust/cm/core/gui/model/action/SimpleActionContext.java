@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
  *         Created on 02.10.2014 17:41.
  */
 public class SimpleActionContext extends ActionContext {
+    public static final String COMPONENT_NAME = "simple.action";
 
     private FormState mainFormState;
     private FormViewerConfig viewerConfig;

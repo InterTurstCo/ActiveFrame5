@@ -1,18 +1,25 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
+import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
@@ -22,7 +29,7 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationException;
  * @author Sergey.Okolot
  *         Created on 23.09.2014 11:50.
  */
-@ComponentName("simple.action")
+@ComponentName(SimpleActionContext.COMPONENT_NAME)
 public class SimpleActionHandler extends ActionHandler<SimpleActionContext, SimpleActionData> {
 
     @Override
@@ -42,22 +49,46 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
                 : config.getBeforeConfig().isSaveContext();
         if (isSaveContext) {
             final UserInfo userInfo = GuiContext.get().getUserInfo();
-            final FormState maiFormState = context.getMainFormState();
+            final FormState mainFormState = context.getMainFormState();
             final FormState confirmFormState = context.getConfirmFormState();
             final DomainObject mainDomainObject;
             if (confirmFormState != null) {
-                // fixme resolve references
-                mainDomainObject = guiService.saveForm(maiFormState, userInfo);
-//                final DomainObject confirmDomainObject = guiService.saveForm(confirmFormState, userInfo);
-//                context.setConfirmDomainObjectId(confirmDomainObject.getId());
+                // Если confirmState существует, должен быть и referenceFieldPath
+                final FieldPath path = FieldPath.createPaths(
+                        config.getBeforeConfig().getLinkedDomainObjectConfig().getReferenceFieldPath())[0];
+                if (path.isMultiBackReference()) {
+                    throw new GuiException("Reference " + path + " not supported");
+                }
+                final FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
+                final Map<FieldPath, Value> values = new HashMap<>();
+                final DomainObject confirmDomainObject;
+                if (path.isOneToOneBackReference()) {
+                    mainDomainObject = guiService.saveForm(mainFormState, userInfo);
+                    values.put(FieldPath.createPaths(path.getLinkToParentName())[0],
+                            new ReferenceValue(mainDomainObject.getId()));
+                    formSaver.setContext(confirmFormState, values);
+                    confirmDomainObject = formSaver.saveForm();
+                } else {
+                    confirmDomainObject = guiService.saveForm(confirmFormState, userInfo);
+                    values.put(path, new ReferenceValue(confirmDomainObject.getId()));
+                    formSaver.setContext(mainFormState, values);
+                    mainDomainObject = formSaver.saveForm();
+                }
+                context.setConfirmDomainObjectId(confirmDomainObject.getId());
             } else {
-                mainDomainObject = guiService.saveForm(maiFormState, userInfo);
+                mainDomainObject = guiService.saveForm(mainFormState, userInfo);
             }
             context.setContextSaved();
             context.setRootObjectId(mainDomainObject.getId());
+
         }
-        final ActionHandler delegate = (ActionHandler) applicationContext.getBean(config.getActionHandler());
-        final SimpleActionData result = (SimpleActionData) delegate.executeAction(context);
+        final SimpleActionData result;
+        if (SimpleActionContext.COMPONENT_NAME.equals(config.getActionHandler())) {
+            result = new SimpleActionData();
+        } else {
+            final ActionHandler delegate = (ActionHandler) applicationContext.getBean(config.getActionHandler());
+            result = (SimpleActionData) delegate.executeAction(context);
+        }
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig formPluginConfig = new FormPluginConfig(context.getRootObjectId());
         formPluginConfig.setPluginState(context.getPluginState());

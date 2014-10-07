@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.SimpleTextTooltip;
@@ -151,10 +152,21 @@ public abstract class Action extends BaseComponent {
                     final LinkedDomainObjectConfig doToCreateConfig =
                             beforeExecutionConfig.getLinkedDomainObjectConfig();
                     final FormDialogBox formDialogBox = new FormDialogBox(doToCreateConfig.getTitle());
+                    final FormPluginConfig config = new FormPluginConfig();
+                    config.setFormViewerConfig(new FormViewerConfig()
+                            .addFormMappingConfig(actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
+                                    .getFormMappingConfig()));
+                    config.setDomainObjectTypeToCreate(actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
+                            .getFormMappingConfig().getDomainObjectType());
+                    final FormPlugin formPlugin = formDialogBox.createFormPlugin(config, new SimpleEventBus());
                     formDialogBox.initButton("Продолжить", new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
+                            if (actionConfig.getBeforeConfig().getLinkedDomainObjectConfig().isPerformValidation()) {
+                                // FIXME check validation after https://jira.inttrust.ru:8443/browse/CMFIVE-1789
+                            }
                             formDialogBox.hide();
+                            Action.this.getInitialContext().setConfirmFormState(formPlugin.getFormState());
                             execute();
                         }
                     });
@@ -164,13 +176,6 @@ public abstract class Action extends BaseComponent {
                             formDialogBox.hide();
                         }
                     });
-                    final FormPluginConfig config = new FormPluginConfig();
-                    config.setFormViewerConfig(new FormViewerConfig()
-                            .addFormMappingConfig(actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
-                                    .getFormMappingConfig()));
-                    config.setDomainObjectTypeToCreate(actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
-                            .getFormMappingConfig().getDomainObjectType());
-                    formDialogBox.createFormPlugin(config, new SimpleEventBus());
                 } else {
                     execute();
                 }
@@ -180,15 +185,5 @@ public abstract class Action extends BaseComponent {
         @Override
         public void onCancel() {
         }
-    }
-
-    private static class PrepareFormDialog extends FormDialogBox {
-        // todo or method or class
-
-        private PrepareFormDialog(LinkedDomainObjectConfig config) {
-            super(config.getTitle());
-        }
-
-        // init buttons OK/Cancel
     }
 }
