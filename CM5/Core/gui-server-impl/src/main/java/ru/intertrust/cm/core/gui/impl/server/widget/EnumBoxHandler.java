@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ValueUtil;
@@ -24,6 +26,9 @@ import java.util.Map;
 @ComponentName("enumeration-box")
 public class EnumBoxHandler extends ValueEditingWidgetHandler {
 
+    @Autowired
+    protected ApplicationContext applicationContext;
+
     @Override
     public EnumBoxState getInitialState(WidgetContext context) {
         EnumBoxState enumBoxState = new EnumBoxState();
@@ -33,9 +38,10 @@ public class EnumBoxHandler extends ValueEditingWidgetHandler {
         enumBoxState.setFieldType(fieldType);
 
         EnumBoxConfig config = context.getWidgetConfig();
-        Map<String, Value> displayTextToValue = new LinkedHashMap<>();
+        Map<String, Value> displayTextToValue;
         if (config.getEnumMapProviderConfig() != null) {
-            //TODO: CMFIVE-1595 get custom mapping from provider
+            EnumerationMapProvider provider = (EnumerationMapProvider)applicationContext.getBean(config.getEnumMapProviderConfig().getComponent());
+            displayTextToValue = provider.getMap(context);
         } else {
             displayTextToValue = populateMapping(config.getEnumMappingConfig(), fieldType);
         }
