@@ -1,15 +1,12 @@
 package ru.intertrust.cm.core.gui.api.server.action;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.ParserContext;
-import org.springframework.expression.PropertyAccessor;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
@@ -17,12 +14,11 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
-import ru.intertrust.cm.core.gui.api.server.el.DomainObjectPropertyAccessor;
-import ru.intertrust.cm.core.gui.api.server.el.DomainObjectTypeComparator;
-import ru.intertrust.cm.core.gui.api.server.el.ReferenceValuePropertyAccessor;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 
@@ -45,6 +41,9 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
     protected CrudService crudService;
     @Autowired
     protected CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private FormatHandler formatHandler;
+
 
     public T executeAction(Dto context) {
         final ActionConfig config = context == null ? null : (ActionConfig) ((E) context).getActionConfig();
@@ -87,20 +86,15 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
         return (boolean) expression.getValue(evaluationContext);
     }
 
-    private String parseMessage(final String pattern, final DomainObject dobj) {
-        if (pattern != null && dobj != null) {
-            final StandardEvaluationContext evaluationContext = new StandardEvaluationContext(dobj);
-            final List<PropertyAccessor> accessors = new ArrayList<>();
-            accessors.add(new DomainObjectPropertyAccessor(currentUserAccessor.getCurrentUserId()));
-            accessors.add(new ReferenceValuePropertyAccessor(crudService));
-            evaluationContext.setPropertyAccessors(accessors);
-            evaluationContext.setTypeComparator(new DomainObjectTypeComparator());
-            final ExpressionParser expressionParser = new SpelExpressionParser();
-            final String result = expressionParser.parseExpression(pattern, new ParserContextImpl())
-                    .getValue(evaluationContext, String.class);
+    private String parseMessage(final String displayPattern, final DomainObject dobj) {
+        if (displayPattern != null && dobj != null) {
+            final Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
+            Matcher matcher = pattern.matcher(displayPattern);
+            final FormattingConfig formattingConfig = new FormattingConfig();
+            final String result = formatHandler.format(dobj, matcher, formattingConfig);
             return result;
         } else {
-            return pattern;
+            return displayPattern;
         }
     }
 
@@ -119,24 +113,6 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
         @Override
         public Object getParameter(String key) {
             return null;
-        }
-    }
-
-    private static class ParserContextImpl implements ParserContext {
-
-        @Override
-        public boolean isTemplate() {
-            return true;
-        }
-
-        @Override
-        public String getExpressionPrefix() {
-            return "{";
-        }
-
-        @Override
-        public String getExpressionSuffix() {
-            return "}";
         }
     }
 }

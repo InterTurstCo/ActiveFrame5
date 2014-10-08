@@ -144,7 +144,7 @@
                     <act:save-context value="true"/>
                 </act:before-execution>
                 <act:after-execution>
-                    <act:on-success-message text="Document id={id} saved"/>
+                    <act:on-success-message text="Country '{name}' saved"/>
                 </act:after-execution>
             </act:simple-action>
         </act:tool-bar>
