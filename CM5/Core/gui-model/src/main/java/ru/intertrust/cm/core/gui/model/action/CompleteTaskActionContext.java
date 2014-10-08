@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 public class CompleteTaskActionContext extends ActionContext {
     private Id taskId;
     private String taskAction;
+    private String activityId;
 
     public CompleteTaskActionContext() {
     }
@@ -28,5 +29,13 @@ public class CompleteTaskActionContext extends ActionContext {
 
     public void setTaskAction(String taskAction) {
         this.taskAction = taskAction;
+    }
+
+    public String getActivityId() {
+        return activityId;
+    }
+
+    public void setActivityId(String activityId) {
+        this.activityId = activityId;
     }
 }

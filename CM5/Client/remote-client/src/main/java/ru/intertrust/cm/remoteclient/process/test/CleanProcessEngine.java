@@ -39,15 +39,19 @@ public class CleanProcessEngine extends ClientBase {
         }
 
         // Удаление задач
-       /* List<DomainObject> tasks = service.getUserTasks();
-        log("Find " +
-                tasks.size() + " tasks");
+        List<DomainObject> assignee = crudService.findAll("Assignee_Person");
+        for (DomainObject domainObject : assignee) {
+            crudService.delete(domainObject.getId());
+        }
+
+        
+        List<DomainObject> tasks = crudService.findAll("person_task");
+        log("Find " + tasks.size() + " tasks");
         for (DomainObject domainObject : tasks) {
             crudService.delete(domainObject.getId());
-            log("Delete " +
-                    domainObject.getId());
+            log("Delete " + domainObject.getId());
         }
-        */
+        
         writeLog();
     }
 }

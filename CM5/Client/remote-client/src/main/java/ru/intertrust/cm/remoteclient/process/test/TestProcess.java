@@ -7,11 +7,19 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import javax.naming.NamingException;
+
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.gui.api.server.ActionService;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 /**
@@ -34,9 +42,6 @@ public class TestProcess extends ClientBase {
         try {
             super.execute(args);
 
-            ProcessService.Remote service = (ProcessService.Remote) getService(
-                    "ProcessService", ProcessService.Remote.class);
-
             CrudService.Remote crudService = (CrudService.Remote) getService(
                     "CrudServiceImpl", CrudService.Remote.class);
 
@@ -54,8 +59,8 @@ public class TestProcess extends ClientBase {
                 person = crudService.save(person);
             }
 
-            byte[] processDef = getProcessAsByteArray("templates/SimpleProcess.bpmn");
-            String defId = service.deployProcess(processDef,
+            byte[] processDef = getProcessAsByteArray("templates/TestSimpleProcess.bpmn");
+            String defId = getProcessService("admin").deployProcess(processDef,
                     "SimpleProcess.bpmn");
 
             // Создание документа, который НЕ будет прикреплен к процессу
@@ -77,61 +82,92 @@ public class TestProcess extends ClientBase {
             attachment.setLong("test_long", 10L);
             attachment.setDecimal("test_decimal", new BigDecimal(10));
             attachment.setTimestamp("test_date", new Date());
-            // attachment.setReference("person", new RdbmsId("person|1"));
+            attachment.setReference("author", getEmployee("person2"));
+            attachment.setReference("signer", getEmployee("person3"));
+            attachment.setReference("registrator", getEmployee("person4"));
             attachment = crudService.save(attachment);
 
+            //Получение действий для регистратора
+            ActionService personActionService = getActionService("person4");
+            List<ActionContext> actions = personActionService.getActions(attachment.getId());
+            assertTrue("Action count to start", actions.size() == 0);
+
+            //Получение действий для автора
+            personActionService = getActionService("person2");
+            actions = personActionService.getActions(attachment.getId());
+            assertTrue("Action count to start",
+                    actions.size() == 1 && ((ActionConfig) actions.get(0).getActionConfig()).getName().equals("start-test_process_attachment-process"));
+
             // Запуск процесса
-            service.startProcess("simpleProcess", attachment.getId(), null);
+            getProcessService("person2").startProcess("testSimpleProcess", attachment.getId(), null);
+
+            //Получение задачь у пользователя 5
+            personActionService = getActionService("person5");
+            actions = personActionService.getActions(attachment.getId());
+            assertTrue("Action count to task 1", actions.size() == 1 && ((CompleteTaskActionContext) actions.get(0)).getActivityId().equals("usertask1"));
 
             // Получение всех задач пользователя и их завершение
-            List<DomainObject> tasks = service.getUserTasks();
-            log("Find " + tasks.size() + " tasks");
-            assertTrue("Find all tasks", tasks.size() > 0);
-            for (DomainObject task : tasks) {
-                if ("usertask1".equals(task.getString("ActivityId"))) {
-                    service.completeTask(task.getId(), null, null);
-                    log("Complete " + task.getId());
-                }
+            for (ActionContext actionContext : actions) {
+                CompleteTaskActionContext taskActionContext = (CompleteTaskActionContext) actionContext;
+                getProcessService("person5").completeTask(taskActionContext.getTaskId(), null, taskActionContext.getTaskAction());
             }
 
             // Получение всех задач по документу который не прикреплен к
             // процессу. Должно получится 0 задач
-            tasks = service.getUserDomainObjectTasks(attachmentNotInProcess
+            List<DomainObject> tasks = getProcessService("admin").getUserDomainObjectTasks(attachmentNotInProcess
                     .getId());
             log("Find " + tasks.size()
                     + " tasks for noattached to process document");
             assertTrue("Find all to not attached document tasks", tasks.size() == 0);
 
+            //Получение задачь у пользователя 2, автора
+            personActionService = getActionService("person2");
+            actions = personActionService.getActions(attachment.getId());
+            assertTrue("Action count to task 2", actions.size() == 1 && ((CompleteTaskActionContext) actions.get(0)).getActivityId().equals("usertask2"));
+
             // Получение всех задач по документу и их завершение
-            tasks = service.getUserDomainObjectTasks(attachment.getId());
-            log("Find " + tasks.size() + " tasks");
-            for (DomainObject task : tasks) {
-                if ("usertask2".equals(task.getString("ActivityId"))) {
-                    service.completeTask(task.getId(), null, null);
-                    log("Complete " + task.getId());
-                }
+            for (ActionContext actionContext : actions) {
+                CompleteTaskActionContext taskActionContext = (CompleteTaskActionContext) actionContext;
+                getProcessService("person2").completeTask(taskActionContext.getTaskId(), null, taskActionContext.getTaskAction());
+            }
+
+            //Получение задачь у пользователя 3, подписывающего
+            personActionService = getActionService("person3");
+            actions = personActionService.getActions(attachment.getId());
+            assertTrue("Action count to task 3", actions.size() == 1 && ((CompleteTaskActionContext) actions.get(0)).getActivityId().equals("usertask6")
+                    && ((CompleteTaskActionContext) actions.get(0)).getTaskAction().equals("first-action"));
+
+            //Получение задачь у пользователя 4, регистратора
+            personActionService = getActionService("person4");
+            actions = personActionService.getActions(attachment.getId());
+            assertTrue("Action count to task 3", actions.size() == 1 && ((CompleteTaskActionContext) actions.get(0)).getActivityId().equals("usertask6")
+                    && ((CompleteTaskActionContext) actions.get(0)).getTaskAction().equals("second-action"));            
+            
+            for (ActionContext actionContext : actions) {
+                CompleteTaskActionContext taskActionContext = (CompleteTaskActionContext) actionContext;
+                getProcessService("person4").completeTask(taskActionContext.getTaskId(), null, taskActionContext.getTaskAction());
             }
 
             // Получение всех задач пользователя по документу и их завершение с
             // определенным результатом
-            tasks = service.getUserDomainObjectTasks(attachment.getId());
+            tasks = getProcessService("admin").getUserDomainObjectTasks(attachment.getId());
             log("Find " + tasks.size() + " tasks");
             for (DomainObject task : tasks) {
                 if ("usertask3".equals(task.getString("ActivityId"))) {
                     // Получаем все доступные действия
-                    String actions = task.getString("Actions");
-                    log("All actions = " + actions);
-                    service.completeTask(task.getId(), null, "YES");
+                    String taskActions = task.getString("Actions");
+                    log("All actions = " + taskActions);
+                    getProcessService("admin").completeTask(task.getId(), null, "YES");
                     log("Complete " + task.getId());
                 }
             }
 
             // Получение задачи в подпроцессе и завершение одной из них
-            tasks = service.getUserDomainObjectTasks(attachment.getId());
+            tasks = getProcessService("admin").getUserDomainObjectTasks(attachment.getId());
             log("Find " + tasks.size() + " tasks");
             for (DomainObject task : tasks) {
                 if ("usertask4".equals(task.getString("ActivityId"))) {
-                    service.completeTask(task.getId(), null, null);
+                    getProcessService("admin").completeTask(task.getId(), null, null);
                     log("Complete " + task.getId());
                     // Завершаем только одну из двух
                     break;
@@ -140,12 +176,12 @@ public class TestProcess extends ClientBase {
 
             // Получение задачи, по подпроцессу задачи быть не должно, задача
             // должна быть только по следующей активнности
-            tasks = service.getUserDomainObjectTasks(attachment.getId());
+            tasks = getProcessService("admin").getUserDomainObjectTasks(attachment.getId());
             log("Find " + tasks.size() + " tasks");
             assertTrue("Delete subprocess task", tasks.size() == 1);
             for (DomainObject task : tasks) {
                 if ("usertask5".equals(task.getString("ActivityId"))) {
-                    service.completeTask(task.getId(), null, null);
+                    getProcessService("admin").completeTask(task.getId(), null, null);
                     log("Complete " + task.getId());
                     break;
                 }
@@ -153,6 +189,7 @@ public class TestProcess extends ClientBase {
 
             crudService.delete(attachmentNotInProcess.getId());
 
+            log("Test complete");
         } finally {
             writeLog();
         }
@@ -177,4 +214,35 @@ public class TestProcess extends ClientBase {
             out.close();
         }
     }
+
+    private DomainObject getEmployee(String employeeName) throws NamingException {
+        DomainObject result = null;
+        IdentifiableObjectCollection collection =
+                getCollectionService().findCollectionByQuery("select t.id from person t where t.login = '" + employeeName
+                        + "'");
+        if (collection.size() > 0) {
+            result = getCrudService().find(collection.getId(0));
+        }
+        return result;
+    }
+
+    private CollectionsService.Remote getCollectionService() throws NamingException {
+        return (CollectionsService.Remote) getService("CollectionsServiceImpl", CollectionsService.Remote.class);
+    }
+
+    private CrudService.Remote getCrudService() throws NamingException {
+        return (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class);
+    }
+
+    private ActionService getActionService(String login) throws NamingException {
+        ActionService actionService =
+                (ActionService) getService("ActionServiceImpl", ActionService.Remote.class, login, "admin");
+        return actionService;
+    }
+
+    private ProcessService getProcessService(String login) throws NamingException {
+        ProcessService service = (ProcessService) getService("ProcessService", ProcessService.Remote.class, login, "admin");
+        return service;
+    }
+
 }

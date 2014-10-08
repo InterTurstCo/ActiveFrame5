@@ -23,7 +23,12 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
+import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ExecuteActionConfig;
 import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
@@ -117,15 +122,17 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                             String taskActionItem = taskActionAndNameArr[0];
                             String taskActionName = taskActionAndNameArr[1];
                             //Проверка прав на задачи процесса
-                            //if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || hasActionPermission(domainObjectId, taskActionItem)){
+                            String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId") + "." + taskActionItem;
+                            if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)){
                                 list.add(getCompleteTaskActionContext(taskActionItem, taskActionName, domainObject.getId(), actConfig, task));
-                            //}
+                            }
                         }
                     } else {
                         //Проверка прав на задачи процесса
-                        //if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || hasActionPermission(domainObjectId, task.getString("ActivityId"))){
+                        String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId");
+                        if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)){
                             list.add(getCompleteTaskActionContext(null, task.getString("Name"), domainObject.getId(), actConfig, task));
-                        //}
+                        }
                     }
 
                 }
@@ -151,6 +158,35 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
         return result;
     }
     
+    private boolean hasActionInAccessMatrix(DomainObject domainObject, String action){
+        AccessMatrixStatusConfig matrix = configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObject.getTypeName(), getStatusName(domainObject.getStatus()));
+        boolean result = false;
+        for (BaseOperationPermitConfig permission : matrix.getPermissions()) {
+            if (permission instanceof ExecuteActionConfig){
+                ExecuteActionConfig executeActionConfig = (ExecuteActionConfig)permission;
+                if (executeActionConfig.getName().equals(action)){
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    
+    private String getStatusName(Id statusId) {
+        String query = "select t.name from " + GenericDomainObject.STATUS_DO + " t where t.id = {0}";
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(statusId));
+
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
+        String result = null;
+        if (collection.size() > 0){
+            result = collection.get(0).getString("name");
+        }
+        return result;
+        
+    }
+
     private List<Id> getStatusNames(List<String> statuses) {
         String query = "select t.id from " + GenericDomainObject.STATUS_DO + " t where t.name in (";
 
@@ -184,6 +220,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
 
         actionContext.setTaskAction(action);
         actionContext.setTaskId(task.getId());
+        actionContext.setActivityId(task.getString("ActivityId"));
 
         if (actConfig != null) {
             actionContext.setActionConfig(actConfig);

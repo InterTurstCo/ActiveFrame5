@@ -107,15 +107,17 @@
                             <widget id="1"/>
                         </td>
                         <!-- text-box (Название) -->
-                        <td width="100%" h-align="left">
+                        <td width="200px" h-align="left">
                             <widget id="2"/>
                         </td>
+                    </tr>
+                    <tr>
                         <!-- label (RegNum) -->
                         <td width="100px" h-align="right">
                             <widget id="regNumLabel"/>
                         </td>
                         <!-- text-box (RegNum) -->
-                        <td width="100%" h-align="left">
+                        <td width="100px" h-align="left">
                             <widget id="regNum"/>
                         </td>
                         <!-- label (Автор) -->
@@ -123,7 +125,7 @@
                             <widget id="docAuthorLabel"/>
                         </td>
                         <!-- text-box (Автор) -->
-                        <td width="100%" h-align="left">
+                        <td width="100px" h-align="left">
                             <widget id="docAuthor"/>
                         </td>
                     </tr>
@@ -550,5 +552,94 @@
             </groups>
         </form-mapping>
     </form-mappings>
+
+    <!-- Для работы класса TestProcess-->
+    <act:action name="start-test_process_attachment-process" componentName="start.process.action"
+                text="Запустить тестовый процесс" image="sign.png" merged="true">
+        <act:before-execution>
+            <act:confirmation-message text="Запустить процесс?"/>
+        </act:before-execution>
+        <act:after-execution>
+            <act:on-success-message text="Процесс запущен"/>
+        </act:after-execution>
+        <act:action-settings>
+            <act:start-process-action-settings process-name="testSimpleProcess"/>
+        </act:action-settings>
+    </act:action>
+
+    <act:action-context name="start-test_process_attachment-process-context">
+        <act:domain-object-context>
+            <act:type>test_process_attachment</act:type>
+            <act:status>Draft</act:status>
+        </act:domain-object-context>
+        <act:action name="start-test_process_attachment-process"/>
+    </act:action-context>
+
+    <context-role name="test_process_attachment_author">
+        <context>
+            <domain-object type="test_process_attachment" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>author</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <context-role name="test_process_attachment_signer">
+        <context>
+            <domain-object type="test_process_attachment" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>signer</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <context-role name="test_process_attachment_registrator">
+        <context>
+            <domain-object type="test_process_attachment" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>registrator</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+    
+    <access-matrix type="test_process_attachment">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>        
+        <status name="Draft">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <execute-action name="start-test_process_attachment-process">
+                <permit-role name="test_process_attachment_author"/>
+            </execute-action>
+        </status>
+        <status name="Run">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <execute-action name="testSimpleProcess.usertask2">
+                <permit-role name="test_process_attachment_author"/>
+            </execute-action>
+            <execute-action name="testSimpleProcess.usertask6.first-action">
+                <permit-role name="test_process_attachment_signer"/>
+            </execute-action>
+            <execute-action name="testSimpleProcess.usertask6.second-action">
+                <permit-role name="test_process_attachment_registrator"/>
+            </execute-action>
+        </status>
+    </access-matrix>    
 
 </configuration>

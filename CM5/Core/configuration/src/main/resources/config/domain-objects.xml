@@ -240,6 +240,7 @@
     <domain-object-type name="Person_Task" initial-status="Send">
         <fields>
             <string name="TaskId" length="32"  not-null="true"/>
+            <string name="ProcessId" length="32"  not-null="true"/>
             <string name="ActivityId" length="32"  not-null="true"/>
             <string name="Name" length="512"  not-null="true"/>
             <string name="Description" length="1024" />
@@ -276,13 +277,16 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="test_process_attachment">
+    <domain-object-type name="test_process_attachment" initial-status="Draft">
         <fields>
             <string name="test_text" length="512"/>
             <date-time name="test_date"/>
             <long name="test_long"/>
             <decimal name="test_decimal" precision="10" scale="2"/>
             <string name="new_field" length="512"/>
+            <reference name="author" type="Employee"/>
+            <reference name="signer" type="Employee"/>
+            <reference name="registrator" type="Employee"/>            
         </fields>
     </domain-object-type>
 

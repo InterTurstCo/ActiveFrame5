@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.FormService;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.RepositoryService;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.ExecutionListener;
@@ -61,10 +64,14 @@ public class GlobalCreateTaskListener extends SpringClient implements
      */
     @Override
     public void notify(DelegateTask delegateTask) {
+        ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        
         // Создание доменного обьекта Task
         DomainObject taskDomainObject = createDomainObject("Person_Task");
         taskDomainObject.setString("TaskId", delegateTask.getId());
         taskDomainObject.setString("ActivityId", delegateTask.getTaskDefinitionKey());
+        taskDomainObject.setString("ProcessId", repositoryService.getProcessDefinition(delegateTask.getProcessDefinitionId()).getKey());
         taskDomainObject.setString("Name", delegateTask.getName());
         taskDomainObject
                 .setString("Description", delegateTask.getDescription());
@@ -108,34 +115,55 @@ public class GlobalCreateTaskListener extends SpringClient implements
                 .createSystemAccessToken("GlobalCreateTaskListener");
         // Сохранение доменного объекта
         taskDomainObject = domainObjectDao.save(taskDomainObject, accessToken);
-        Id assigneeId = idService.createId(delegateTask.getAssignee());
-        DomainObject assignee = domainObjectDao.find(assigneeId, accessToken);
+        //Получение адресатов
+        List<DomainObject> assigneeList = getAssigneeList(delegateTask.getAssignee(), accessToken);
+        for (DomainObject assignee : assigneeList) {
+            // Создание связанного AssigneePerson или AssigneeGroup
+            if (assignee.getTypeName().equals("UserGroup")) {
+                DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Group");
 
-        // Создание связанного AssigneePerson или AssigneeGroup
-        if (assignee.getTypeName().equals("UserGroup")) {
-            DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Group");
+                assigneePersonDomainObject.setReference("PersonTask",
+                        taskDomainObject);
+                assigneePersonDomainObject.setReference("UserGroup", assignee);
 
-            assigneePersonDomainObject.setReference("PersonTask",
-                    taskDomainObject);
-            assigneePersonDomainObject.setReference("UserGroup",
-                    idService.createId(delegateTask.getAssignee()));
+                domainObjectDao.save(assigneePersonDomainObject, accessToken);
+            } else {
+                DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Person");
 
-            domainObjectDao.save(assigneePersonDomainObject, accessToken);
-        } else {
-            DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Person");
+                assigneePersonDomainObject.setReference("PersonTask",
+                        taskDomainObject);
+                assigneePersonDomainObject.setReference("Person", assignee);
 
-            assigneePersonDomainObject.setReference("PersonTask",
-                    taskDomainObject);
-            assigneePersonDomainObject.setReference("Person",
-                    idService.createId(delegateTask.getAssignee()));
-
-            domainObjectDao.save(assigneePersonDomainObject, accessToken);
+                domainObjectDao.save(assigneePersonDomainObject, accessToken);
+            }
         }
-
         // Отправка почтовых сообщений
         // TODO Отправка почтовых сообщений
     }
 
+    /**
+     * Получение адресатов
+     * @param assigneeAsString
+     * @return
+     */
+    private List<DomainObject> getAssigneeList(String assigneeAsString, AccessToken accessToken){
+
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        
+        //Разделяем по запятой
+        String[] assigneeArray = assigneeAsString.split(",");
+        
+        for (String assigneeExpression : assigneeArray) {
+            // TODO реализовать конструкции PERSON:admin, GROUP:admins, CONTEXT_ROLE:admins, DYNAMIC_GROUP:admins
+
+            Id assigneeId = idService.createId(assigneeExpression);
+            DomainObject assignee = domainObjectDao.find(assigneeId, accessToken);
+            result.add(assignee);
+        }
+        
+        return result;
+    }
+    
     /**
      * Создание нового доменного обьекта переданного типа
      * 

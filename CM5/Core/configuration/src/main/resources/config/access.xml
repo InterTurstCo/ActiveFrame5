@@ -678,12 +678,6 @@
         </create>
     </access-matrix>
 
-    <access-matrix type="test_process_attachment">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
     <access-matrix type="group_group_settings">
         <create>
             <permit-group name="AllPersons" />
