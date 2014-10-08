@@ -4,6 +4,7 @@ import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 /**
@@ -33,21 +34,21 @@ public interface DomainObjectCacheService {
      * @param dobj кешируемый объект
      * @return Id кешируемого объекта
      */
-    public Id putObjectToCache(DomainObject dobj);
+    public Id putObjectToCache(DomainObject dobj, AccessToken accessToken);
 
     /**
      * Кеширование списка DomainObject, в транзакционный кеш.
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
-     * @see #putObjectToCache(DomainObject)
+     * @see #putObjectToCache(DomainObject, ru.intertrust.cm.core.dao.access.AccessToken)
      * @param dobjs список кешируемых доменных объектов
      * @return список идентификаторов кешируемых доменных объектов
      */
-    public List<Id> putObjectToCache(List<DomainObject> dobjs);
+    public List<Id> putObjectToCache(List<DomainObject> dobjs, AccessToken accessToken);
     
     /**
      * Кеширование списка DomainObject, в транзакционный кеш,
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
-     * @see #putObjectToCache(DomainObject)
+     * @see #putObjectToCache(DomainObject, ru.intertrust.cm.core.dao.access.AccessToken)
      * @param parentId - идентификатор родительского доменного объекта.
      * @param dobjs список кешируемых доменных объектов
      * @param key ключевая фраза - формирует уникальный список дочерних доменных объектов
@@ -55,34 +56,34 @@ public interface DomainObjectCacheService {
      * @return список идентификаторов доменных объектов добавленных в кеш
      * @throws DaoException - если key == null или содержит пустой список.
      */
-    public List<Id> putObjectToCache(Id parentId, List<DomainObject> dobjs, String ... key);
+    public List<Id> putObjectToCache(Id parentId, List<DomainObject> dobjs, AccessToken accessToken, String ... key);
     
     /**
      * Кеширование списка DomainObject в транзакционный кеш для случая, когда список не имеет родительского доменного
      * объекта.
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
-     * @see #putObjectToCache(DomainObject)
+     * @see #putObjectToCache(DomainObject, ru.intertrust.cm.core.dao.access.AccessToken)
      * @param dobjs список кешируемых доменных объектов
      * @param key ключевая фраза - формирует уникальный список дочерних доменных объектов
      * для указанного родительского доменного объекта.
      * @return список идентификаторов доменных объектов добавленных в кеш
      * @throws DaoException - если key == null или содержит пустой список.
      */
-    public List<Id> putObjectToCache(List<DomainObject> dobjs, String ... key);
+    public List<Id> putObjectToCache(List<DomainObject> dobjs, AccessToken accessToken, String ... key);
 
     /**
      * Возвращает клон доменного объекта из кеш
      * @param id - Id запрашиваемого доменного объекта
      * @return клон доменного объект
      */
-    public DomainObject getObjectToCache(Id id);
+    public DomainObject getObjectToCache(Id id, AccessToken accessToken);
 
     /**
      * Возвращает список клонированных доменных объектов из кеш
      * @param ids - список Id запрашиваемых доменных объектов
      * @return список доменных объектов, null - если не согласованно с базой данных
      */
-    public List<DomainObject> getObjectToCache(List<? extends Id> ids);
+    public List<DomainObject> getObjectToCache(List<? extends Id> ids, AccessToken accessToken);
 
     /**
      * Возвращает список клонированных доменных объектов из кеш
@@ -93,7 +94,7 @@ public interface DomainObjectCacheService {
      * @throws DaoException - если key == null или содержит пустой список.
      * null - если не согласованно с базой данных
      */
-    public List<DomainObject> getObjectToCache(Id parentId, String ... key);
+    public List<DomainObject> getObjectToCache(Id parentId, AccessToken accessToken, String ... key);
 
     /**
      * Возвращает список клонированных доменных объектов из кеш в случае, когда список не имеет родительского
@@ -103,7 +104,7 @@ public interface DomainObjectCacheService {
      * @throws DaoException - если key == null или содержит пустой список.
      * null - если не согласованно с базой данных
      */
-    public List<DomainObject> getObjectToCache(String ... key);
+    public List<DomainObject> getObjectToCache(AccessToken accessToken, String ... key);
     
     /**
      * Удаляет доменный объект из транзакционного кеша

@@ -12,6 +12,11 @@ package ru.intertrust.cm.core.dao.access;
 public interface AccessToken {
 
     /**
+     * Тип ограничения прав доступа
+     */
+    public enum AccessLimitationType {LIMITED, UNLIMITED}
+
+    /**
      * Возвращает субъект доступа. Это может быть пользователь ({@link UserSubject})
      * или системный процесс ({@link SystemSubject}).
      * 
@@ -35,4 +40,10 @@ public interface AccessToken {
      * @return true, если маркер доступа является отложенным
      */
     boolean isDeferred();
+
+    /**
+     * Возвращает тип ограничения прав доступа, который представляет данный токен
+     * @return тип ограничения прав доступа, который представляет данный токен
+     */
+    AccessLimitationType getAccessLimitationType();
 }

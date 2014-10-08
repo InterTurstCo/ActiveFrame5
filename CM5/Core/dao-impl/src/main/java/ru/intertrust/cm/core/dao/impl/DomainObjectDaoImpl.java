@@ -191,7 +191,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 domainObjectTypeIdCache.getId(domainObjects[0].getTypeName()), accessToken, initialStatus);
 
         for (DomainObject createdObject : createdObjects) {
-            domainObjectCacheService.putObjectToCache(createdObject);
+            domainObjectCacheService.putObjectToCache(createdObject, accessToken);
             refreshDynamiGroupsAndAclForCreate(createdObject);
             //Добавляем временные права на чтение для новых объектов
             permissionService.grantNewObjectPermissions(createdObject.getId());
@@ -352,7 +352,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         GenericDomainObject[] updatedObjects = update(domainObjects, accessToken, isUpdateStatus, changedFields);
 
         for (GenericDomainObject updatedObject : updatedObjects) {
-            domainObjectCacheService.putObjectToCache(updatedObject);
+            domainObjectCacheService.putObjectToCache(updatedObject, accessToken);
         }
 
         return updatedObjects;
@@ -717,7 +717,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public boolean exists(Id id) throws InvalidIdException {
-        if (domainObjectCacheService.getObjectToCache(id) != null) {
+        if (domainObjectCacheService.getObjectToCache(id, null) != null) {
             return true;
         }
 
@@ -742,8 +742,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.READ);
 
-        DomainObject domainObject = domainObjectCacheService
-                .getObjectToCache(id);
+        DomainObject domainObject = domainObjectCacheService.getObjectToCache(id, accessToken);
         if (domainObject != null) {
             return domainObject;
         }
@@ -776,7 +775,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.WRITE);
 
-        DomainObject domainObject = domainObjectCacheService.getObjectToCache(id);
+        DomainObject domainObject = domainObjectCacheService.getObjectToCache(id, accessToken);
         if (domainObject != null) {
             return domainObject;
         }
@@ -820,8 +819,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         String[] cacheKey = new String[] { domainObjectType,
                 String.valueOf(offset),String.valueOf(limit) };
-        List<DomainObject> result = domainObjectCacheService
-                .getObjectToCache(cacheKey);
+        List<DomainObject> result = domainObjectCacheService.getObjectToCache(accessToken, cacheKey);
         if (result != null) {
             return result;
         }
@@ -837,7 +835,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         result = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(domainObjectType,
                         configurationExplorer, domainObjectTypeIdCache));
-        domainObjectCacheService.putObjectToCache(result, cacheKey);
+        domainObjectCacheService.putObjectToCache(result, accessToken, cacheKey);
 
         eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
 
@@ -882,7 +880,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private List<DomainObject> findDomainObjects(String typeName, List<Id> ids,
                                                  AccessToken accessToken, String domainObjectType) {
         List<DomainObject> cachedDomainObjects = domainObjectCacheService
-                .getObjectToCache(ids);
+                .getObjectToCache(ids, accessToken);
         if (cachedDomainObjects != null
                 && cachedDomainObjects.size() == ids.size()) {
             return cachedDomainObjects;

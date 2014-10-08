@@ -5,6 +5,7 @@ import org.springframework.util.SerializationUtils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
@@ -35,7 +36,9 @@ import java.util.*;
  * задают ссылочную уникальность ключевой фразы.
  */
 @Service
-public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
+public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
+
+    private static final String LIMITATION_TYPE_MAP_KEY = "AccessLimitationTypeCacheMap";
 
     /**
      * позволяет отключить кэш
@@ -70,9 +73,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         private void addChildDoNodeIds(List<Id> ids, String... key) {
             //key - список ключевых слов, см. выше
             String complexKey = generateKey(key);
-            LinkedHashSet idSet = childDomainObjectIdMap.get(complexKey);
+            LinkedHashSet<Id> idSet = childDomainObjectIdMap.get(complexKey);
             if (idSet == null) {
-                idSet = new LinkedHashSet();
+                idSet = new LinkedHashSet<>();
                 childDomainObjectIdMap.put(complexKey, idSet);
             }
             idSet.addAll(ids);
@@ -92,7 +95,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         private List<Id> getChildDoNodeIds(String... key) {
             String complexKey = generateKey(key);
             return childDomainObjectIdMap.containsKey(complexKey)
-                    ? new ArrayList(childDomainObjectIdMap.get(complexKey)) : null;
+                    ? new ArrayList<>(childDomainObjectIdMap.get(complexKey)) : null;
         }
 
         private Set<Id> getParentDoNodeIdSet() {
@@ -129,26 +132,34 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         }
     }
 
-    private DomainObjectNode createDomainObjectNode(Id id) {
+    private DomainObjectNode createDomainObjectNode(Id id, AccessToken.AccessLimitationType limitationType) {
         //Возвращает узел DomainObjectNode, если для заданного Id
         //не существует DomainObjectNode, тогда создает DomainObjectNode
         //и добавляет его в транзакционный кеш
-        DomainObjectNode don = (DomainObjectNode) getTxReg().getResource(id);
+        Map<String, DomainObjectNode> idMap = getAccessLimitationMap().get(limitationType);
+        if (idMap == null) {
+            idMap = new HashMap<>();
+            getAccessLimitationMap().put(limitationType, idMap);
+        }
+
+        String key = DomainObjectNode.generateKey(id.toStringRepresentation());
+        DomainObjectNode don = idMap.get(key);
         if (don == null) {
             don = new DomainObjectNode();
-            getTxReg().putResource(id, don);
+            idMap.put(key, don);
         }
+
         return don;
     }
 
-    private boolean isEmptyDomainObjectNode(Id id) {
-        return getTxReg().getResource(id) == null;
+    private boolean isEmptyDomainObjectNode(Id id, AccessToken.AccessLimitationType limitationType) {
+        return getAccessLimitationMap().get(limitationType).get(DomainObjectNode.generateKey(id.toStringRepresentation())) == null;
     }
 
     private Map<String, Id> getRefIdAndFieldMap(DomainObject dobj) {
         //Возвращает карту зависимостей [ссылочное поле]-[иденификатор доменного объекта],
         //где поле - название ссылочного поля в доменном объекте, см. структуру для DomainObject
-        Map<String, Id> ret = new HashMap();
+        Map<String, Id> ret = new HashMap<>();
         for (String fn : dobj.getFields()) {
             Value v = dobj.getValue(fn);
             if (v != null && v.get() != null && v instanceof ReferenceValue) {
@@ -165,14 +176,14 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      * @return Id кешируемого объекта
      */
     @Override
-    public Id putObjectToCache(DomainObject dobj) {
+    public Id putObjectToCache(DomainObject dobj, AccessToken accessToken) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
 
         if (!isCacheEnabled()) return null;
 
-        DomainObjectNode don = createDomainObjectNode(dobj.getId());
+        DomainObjectNode don = createDomainObjectNode(dobj.getId(), accessToken.getAccessLimitationType());
         don.setDomainObject(dobj);
         Map<String, Id> newIdParentMap = getRefIdAndFieldMap(dobj);
         Set<Id> prevIdParentSet = don.getParentDoNodeIdSet();
@@ -180,13 +191,13 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         for (Map.Entry<String, Id> ent : newIdParentMap.entrySet()) {
             newIdParentSet.add(ent.getValue());
             if (!prevIdParentSet.contains(ent.getValue())) {
-                DomainObjectNode parentDon = createDomainObjectNode(ent.getValue());
+                DomainObjectNode parentDon = createDomainObjectNode(ent.getValue(), accessToken.getAccessLimitationType());
                 parentDon.addChildDoNodeId(dobj.getId(), dobj.getTypeName(), ent.getKey());
             }
         }
         for (Id id : prevIdParentSet) {
-            if (!newIdParentSet.contains(id) && !isEmptyDomainObjectNode(id)) {
-                DomainObjectNode parentDon = createDomainObjectNode(id);
+            if (!newIdParentSet.contains(id) && !isEmptyDomainObjectNode(id, accessToken.getAccessLimitationType())) {
+                DomainObjectNode parentDon = createDomainObjectNode(id, accessToken.getAccessLimitationType());
                 parentDon.delChildDoNodeId(id);
             }
         }
@@ -198,12 +209,12 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
     /**
      * Кеширование списка DomainObject, в транзакционный кеш.
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
-     * @see #putObjectToCache(DomainObject)
+     * @see #putObjectToCache(DomainObject, ru.intertrust.cm.core.dao.access.AccessToken)
      * @param dobjs список кешируемых доменных объектов
      * @return список идентификаторов кешируемых доменных объектов
      */
     @Override
-    public List<Id> putObjectToCache(List<DomainObject> dobjs) {
+    public List<Id> putObjectToCache(List<DomainObject> dobjs, AccessToken accessToken) {
         if (getTxReg().getTransactionKey() == null || dobjs == null) {
             return null;
         }
@@ -212,7 +223,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
 
         List<Id> ids = new ArrayList<>();
         for (DomainObject dobj : dobjs) {
-            ids.add(putObjectToCache(dobj));
+            ids.add(putObjectToCache(dobj, accessToken));
         }
         return ids;
     }
@@ -220,7 +231,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
     /**
      * Кеширование списка DomainObject, в транзакционный кеш,
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
-     * @see #putObjectToCache(DomainObject)
+     * @see #putObjectToCache(DomainObject, ru.intertrust.cm.core.dao.access.AccessToken)
      * @param parentId - идентификатор родительского доменного объекта.
      * @param dobjs список кешируемых доменных объектов
      * @param key ключевая фраза - формирует уникальный список дочерних доменных объектов
@@ -229,7 +240,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      * @throws DaoException - если key == null или содержит пустой список.
      */
     @Override
-    public List<Id> putObjectToCache(Id parentId, List<DomainObject> dobjs, String ... key) {
+    public List<Id> putObjectToCache(Id parentId, List<DomainObject> dobjs, AccessToken accessToken, String ... key) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
@@ -239,8 +250,8 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
         if (key == null || key.length == 0) {
             throw new DaoException("Can't find key.");
         }
-        List<Id> ids = putObjectToCache(dobjs);
-        createDomainObjectNode(parentId).addChildDoNodeIds(ids, key);
+        List<Id> ids = putObjectToCache(dobjs, accessToken);
+        createDomainObjectNode(parentId, accessToken.getAccessLimitationType()).addChildDoNodeIds(ids, key);
         return ids;
     }
 
@@ -248,7 +259,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      * Кеширование списка DomainObject в транзакционный кеш для случая, когда список не имеет родительского доменного
      * объекта.
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
-     * @see #putObjectToCache(DomainObject)
+     * @see #putObjectToCache(DomainObject, ru.intertrust.cm.core.dao.access.AccessToken)
      * @param dobjs список кешируемых доменных объектов
      * @param key ключевая фраза - формирует уникальный список дочерних доменных объектов
      * для указанного родительского доменного объекта.
@@ -256,11 +267,11 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      * @throws DaoException - если key == null или содержит пустой список.
      */
     @Override
-    public List<Id> putObjectToCache(List<DomainObject> dobjs, String ... key) {
+    public List<Id> putObjectToCache(List<DomainObject> dobjs, AccessToken accessToken, String ... key) {
 
         if (!isCacheEnabled()) return null;
 
-        return putObjectToCache(GLOBAL_PSEUDO_ID, dobjs, key);
+        return putObjectToCache(GLOBAL_PSEUDO_ID, dobjs, accessToken, key);
     }
 
     /**
@@ -269,14 +280,15 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      * @return клон доменного объект
      */
     @Override
-    public DomainObject getObjectToCache(Id id) {
+    public DomainObject getObjectToCache(Id id, AccessToken accessToken) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
 
         if (!isCacheEnabled()) return null;
 
-        return isEmptyDomainObjectNode(id) ? null : createDomainObjectNode(id).getDomainObject();
+        return isEmptyDomainObjectNode(id, accessToken.getAccessLimitationType()) ? null :
+                createDomainObjectNode(id, accessToken.getAccessLimitationType()).getDomainObject();
     }
 
     /**
@@ -285,7 +297,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      * @return список доменных объектов, null - если не согласованно с базой данных
      */
     @Override
-    public List<DomainObject> getObjectToCache(List<? extends Id> ids) {
+    public List<DomainObject> getObjectToCache(List<? extends Id> ids, AccessToken accessToken) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
@@ -294,7 +306,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
 
         List<DomainObject> dobjs = new ArrayList<>();
         for (Id id : ids) {
-            DomainObject dobj = getObjectToCache(id);
+            DomainObject dobj = getObjectToCache(id, accessToken);
             if (dobj != null) {
                 dobjs.add(dobj);
             }
@@ -312,7 +324,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      * null - если не согласованно с базой данных
      */
     @Override
-    public List<DomainObject> getObjectToCache(Id parentId, String ... key) {
+    public List<DomainObject> getObjectToCache(Id parentId, AccessToken accessToken, String ... key) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
@@ -323,10 +335,10 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
             throw new DaoException("Can't find key.");
         }
         final String complexKey = DomainObjectNode.generateKey(key);
-        if (isEmptyDomainObjectNode(parentId)) {
+        if (isEmptyDomainObjectNode(parentId, accessToken.getAccessLimitationType())) {
             return null;
         }
-        DomainObjectNode parentDon = createDomainObjectNode(parentId);
+        DomainObjectNode parentDon = createDomainObjectNode(parentId, accessToken.getAccessLimitationType());
         List<Id> ids = parentDon.getChildDoNodeIds(complexKey);
         if (ids == null) {
             return null;
@@ -334,7 +346,8 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
 
         List<DomainObject> ret = new ArrayList<>();
         for (Id id : ids) {
-            DomainObjectNode don = isEmptyDomainObjectNode(id) ? null : createDomainObjectNode(id);
+            DomainObjectNode don = isEmptyDomainObjectNode(id, accessToken.getAccessLimitationType()) ? null :
+                    createDomainObjectNode(id, accessToken.getAccessLimitationType());
             if (don != null && don.getDomainObject() != null) {
                 ret.add(don.getDomainObject());
             }
@@ -351,11 +364,11 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
      * null - если не согласованно с базой данных
      */
     @Override
-    public List<DomainObject> getObjectToCache(String ... key) {
+    public List<DomainObject> getObjectToCache(AccessToken accessToken, String ... key) {
 
         if (!isCacheEnabled()) return null;
 
-        return getObjectToCache(GLOBAL_PSEUDO_ID, key);
+        return getObjectToCache(GLOBAL_PSEUDO_ID, accessToken, key);
     }
 
     /**
@@ -367,21 +380,22 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
 
         if (!isCacheEnabled()) return;
 
-        if (!isEmptyDomainObjectNode(id)) {
-            DomainObject dobj = isEmptyDomainObjectNode(id) ? null : createDomainObjectNode(id).getDomainObject();
-            if (dobj != null) {
-                Map<String, Id> idMap = getRefIdAndFieldMap(dobj);
-                for (Map.Entry<String, Id> ent : idMap.entrySet()) {
-                    DomainObjectNode parentDon = isEmptyDomainObjectNode(ent.getValue())
-                            ? null : createDomainObjectNode(ent.getValue());
-                    if (parentDon != null) {
-                        parentDon.delChildDoNodeId(id);
+        for (AccessToken.AccessLimitationType limitationType : getAccessLimitationMap().keySet()) {
+            if (!isEmptyDomainObjectNode(id, limitationType)) {
+                DomainObject dobj = isEmptyDomainObjectNode(id, limitationType) ? null : createDomainObjectNode(id, limitationType).getDomainObject();
+                if (dobj != null) {
+                    Map<String, Id> idMap = getRefIdAndFieldMap(dobj);
+                    for (Map.Entry<String, Id> ent : idMap.entrySet()) {
+                        DomainObjectNode parentDon = isEmptyDomainObjectNode(ent.getValue(), limitationType)
+                                ? null : createDomainObjectNode(ent.getValue(), limitationType);
+                        if (parentDon != null) {
+                            parentDon.delChildDoNodeId(id);
+                        }
                     }
                 }
+                createDomainObjectNode(id, limitationType).clear();
             }
-            createDomainObjectNode(id).clear();
         }
-
     }
 
     private TransactionSynchronizationRegistry getTxReg() {
@@ -393,6 +407,16 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
             }
         }
         return txReg;
+    }
+
+    private Map<AccessToken.AccessLimitationType, Map<String, DomainObjectNode>> getAccessLimitationMap() {
+        Map<AccessToken.AccessLimitationType, Map<String, DomainObjectNode>> accessTypeMap = (Map) getTxReg().getResource(LIMITATION_TYPE_MAP_KEY);
+        if (accessTypeMap == null) {
+            accessTypeMap = new HashMap<>();
+            getTxReg().putResource(LIMITATION_TYPE_MAP_KEY, accessTypeMap);
+        }
+
+        return accessTypeMap;
     }
 
     private boolean isCacheEnabled() {

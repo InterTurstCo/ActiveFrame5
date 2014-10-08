@@ -12,15 +12,8 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
-import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
-import ru.intertrust.cm.core.config.BasePermit;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.CreateChildConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.PermitGroup;
-import ru.intertrust.cm.core.config.PermitRole;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AccessType;
@@ -349,6 +342,11 @@ public class AccessControlServiceImpl implements AccessControlService {
             return origin == service;   // Сравниваем не по equals, т.к. должен быть именно один и тот же экземпляр
         }
 
+        @Override
+        public AccessLimitationType getAccessLimitationType() {
+            return AccessLimitationType.LIMITED;
+        }
+
         /**
          * Определяет, соответствует ли данный маркер запрошенному доступу к запрошенному объекту.
          * 
@@ -404,6 +402,30 @@ public class AccessControlServiceImpl implements AccessControlService {
                 return this.objectId.equals(objectId) && this.type.equals(type);
             }
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            SimpleAccessToken that = (SimpleAccessToken) o;
+
+            if (deferred != that.deferred) return false;
+            if (objectId != null ? !objectId.equals(that.objectId) : that.objectId != null) return false;
+            if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+            if (type != null ? !type.equals(that.type) : that.type != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = subject != null ? subject.hashCode() : 0;
+            result = 31 * result + (objectId != null ? objectId.hashCode() : 0);
+            result = 31 * result + (type != null ? type.hashCode() : 0);
+            result = 31 * result + (deferred ? 1 : 0);
+            return result;
+        }
     }
 
     
@@ -434,6 +456,26 @@ public class AccessControlServiceImpl implements AccessControlService {
         @Override
         boolean allowsAccess(Id objectId, AccessType type) {
             return true;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            DomainObjectCreateToken that = (DomainObjectCreateToken) o;
+
+            if (objectType != null ? !objectType.equals(that.objectType) : that.objectType != null) return false;
+            if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = subject != null ? subject.hashCode() : 0;
+            result = 31 * result + (objectType != null ? objectType.hashCode() : 0);
+            return result;
         }
     }
 
@@ -470,6 +512,48 @@ public class AccessControlServiceImpl implements AccessControlService {
         boolean allowsAccess(Id objectId, AccessType type) {
             return this.objectIds.contains(objectId) && this.type.equals(type);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            MultiObjectAccessToken that = (MultiObjectAccessToken) o;
+
+            if (deferred != that.deferred) return false;
+
+            if (objectIds != null) {
+                if (that.objectIds == null) {
+                    return false;
+                } else if (objectIds.size() != that.objectIds.size() || !objectIds.containsAll(that.objectIds)) {
+                    return false;
+                }
+            } else if (that.objectIds != null) {
+                return false;
+            }
+
+            if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+            if (type != null ? !type.equals(that.type) : that.type != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = subject != null ? subject.hashCode() : 0;
+
+            if (objectIds != null) {
+                for (Id id : objectIds) {
+                    if (id != null) {
+                        result = result + id.hashCode();
+                    }
+                }
+            }
+
+            result = 31 * result + (type != null ? type.hashCode() : 0);
+            result = 31 * result + (deferred ? 1 : 0);
+            return result;
+        }
     }
 
     /**
@@ -503,6 +587,45 @@ public class AccessControlServiceImpl implements AccessControlService {
         boolean allowsAccess(Id objectId, AccessType type) {
             return this.objectId.equals(objectId) && this.types.contains(type);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            MultiTypeAccessToken that = (MultiTypeAccessToken) o;
+
+            if (objectId != null ? !objectId.equals(that.objectId) : that.objectId != null) return false;
+            if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+
+            if (types != null) {
+                if (that.types == null) {
+                    return false;
+                } else if (types.size() != that.types.size() || !types.containsAll(that.types)) {
+                    return false;
+                }
+            } else if (that.types != null) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = subject != null ? subject.hashCode() : 0;
+            result = 31 * result + (objectId != null ? objectId.hashCode() : 0);
+
+            if (types != null) {
+                for (AccessType accessType : types) {
+                    if (accessType != null) {
+                        result = result + accessType.hashCode();
+                    }
+                }
+            }
+
+            return result;
+        }
     }
 
     /**
@@ -528,8 +651,30 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
 
         @Override
+        public AccessLimitationType getAccessLimitationType() {
+            return AccessLimitationType.UNLIMITED;
+        }
+
+        @Override
         boolean allowsAccess(Id objectId, AccessType type) {
             return true;    // Разрешает любой доступ к любому объекту
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            UniversalAccessToken that = (UniversalAccessToken) o;
+
+            if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return subject != null ? subject.hashCode() : 0;
         }
     }
     
@@ -558,8 +703,30 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
 
         @Override
+        public AccessLimitationType getAccessLimitationType() {
+            return AccessLimitationType.UNLIMITED;
+        }
+
+        @Override
         boolean allowsAccess(Id objectId, AccessType type) {
             return true; // Разрешает любой доступ к любому объекту
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            SuperUserAccessToken that = (SuperUserAccessToken) o;
+
+            if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return subject != null ? subject.hashCode() : 0;
         }
     }
 
