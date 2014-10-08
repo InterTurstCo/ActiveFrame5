@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHa
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -106,6 +107,11 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         ((FormPluginView) getView()).update(formState);
         FormPluginData initialData = getInitialData();
         initialData.getFormDisplayData().setFormState(formState);
+    }
+
+    @Override
+    public void setFormToolbarContext(final ToolbarContext toolbarContext) {
+        setToolbarContext(toolbarContext);
     }
 
     @Override

@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationException;
  *         Time: 13:18
  */
 @ComponentName("save.action")
+@Deprecated
 public class SaveActionHandler extends ActionHandler<SaveActionContext, SaveActionData> {
 
     @Override

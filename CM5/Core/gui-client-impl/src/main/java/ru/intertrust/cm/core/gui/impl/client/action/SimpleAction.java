@@ -29,11 +29,11 @@ public class SimpleAction extends SimpleServerAction {
     @Override
     protected void onSuccess(ActionData result) {
         FormPluginData formPluginData = ((SimpleActionData) result).getPluginData();
-        Plugin plugin = getPlugin();
+        final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         if (plugin.getLocalEventBus() != null) {
-            ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
-            plugin.setToolbarContext(formPluginData.getToolbarContext());
-            // вызываем событие обновления коллекции
+            editor.setFormState(formPluginData.getFormDisplayData().getFormState());
+            editor.setFormToolbarContext(formPluginData.getToolbarContext());
+            plugin.getView().updateActionToolBar();
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         }

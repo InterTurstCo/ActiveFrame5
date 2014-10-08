@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
  *         Time: 22:00
  */
 @ComponentName("save.action")
+@Deprecated
 public class SaveAction extends SimpleServerAction {
 
     @Override
@@ -48,11 +49,11 @@ public class SaveAction extends SimpleServerAction {
     @Override
     protected void onSuccess(ActionData result) {
         FormPluginData formPluginData = ((SaveActionData) result).getFormPluginData();
-        Plugin plugin = getPlugin();
+        final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         if (plugin.getLocalEventBus() != null) {
-            ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
-            plugin.setToolbarContext(formPluginData.getToolbarContext());
-            // вызываем событие обновления коллекции
+            editor.setFormState(formPluginData.getFormDisplayData().getFormState());
+            editor.setFormToolbarContext(formPluginData.getToolbarContext());
+            plugin.getView().updateActionToolBar();
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         }

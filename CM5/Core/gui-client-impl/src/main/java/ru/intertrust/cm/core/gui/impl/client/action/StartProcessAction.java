@@ -40,10 +40,11 @@ public class StartProcessAction extends SimpleServerAction {
     @Override
     protected void onSuccess(ActionData result) {
         FormPluginData formPluginData = ((StartProcessActionData) result).getFormPluginData();
-        Plugin plugin = getPlugin();
+        final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         if (plugin.getLocalEventBus() != null) {
-            ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
-            plugin.setToolbarContext(formPluginData.getToolbarContext());
+            editor.setFormState(formPluginData.getFormDisplayData().getFormState());
+            editor.setFormToolbarContext(formPluginData.getToolbarContext());
+            plugin.getView().updateActionToolBar();
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         }

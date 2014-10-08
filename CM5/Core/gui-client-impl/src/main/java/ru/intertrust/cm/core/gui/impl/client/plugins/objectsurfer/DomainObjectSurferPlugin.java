@@ -35,6 +35,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
@@ -156,6 +157,11 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
     @Override
     public void setFormState(FormState formState) {
         getFormPlugin().setFormState(formState);
+    }
+
+    @Override
+    public void setFormToolbarContext(final ToolbarContext toolbarContext) {
+        getFormPlugin().setToolbarContext(toolbarContext);
     }
 
     @Override

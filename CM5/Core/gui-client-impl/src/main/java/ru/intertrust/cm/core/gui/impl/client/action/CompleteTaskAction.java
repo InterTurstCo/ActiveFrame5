@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -35,9 +36,14 @@ public class CompleteTaskAction extends SimpleServerAction {
     @Override
     protected void onSuccess(ActionData result) {
         FormPluginData formPluginData = ((SaveActionData) result).getFormPluginData();
-        Plugin plugin = getPlugin();
-        ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
-        plugin.setToolbarContext(formPluginData.getToolbarContext());
+        final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
+        if (plugin.getLocalEventBus() != null) {
+            editor.setFormState(formPluginData.getFormDisplayData().getFormState());
+            editor.setFormToolbarContext(formPluginData.getToolbarContext());
+            plugin.getView().updateActionToolBar();
+            plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
+                    formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
+        }
     }
 
     @Override
