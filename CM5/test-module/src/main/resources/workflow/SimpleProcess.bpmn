@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
-  <process id="testSimpleProcess" name="Test Simple Process" isExecutable="true">
+  <process id="SimpleProcess" name="Test Simple Process" isExecutable="true">
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
     <userTask id="usertask1" name="Пользовательская задача 1" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}" activiti:priority="1">
@@ -130,8 +130,8 @@ execution.setVariable("col", col);</script>
     </serviceTask>
     <sequenceFlow id="flow19" sourceRef="send-notification" targetRef="endevent1"></sequenceFlow>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_testSimpleProcess">
-    <bpmndi:BPMNPlane bpmnElement="testSimpleProcess" id="BPMNPlane_testSimpleProcess">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_SimpleProcess">
+    <bpmndi:BPMNPlane bpmnElement="SimpleProcess" id="BPMNPlane_SimpleProcess">
       <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="130.0" y="40.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
