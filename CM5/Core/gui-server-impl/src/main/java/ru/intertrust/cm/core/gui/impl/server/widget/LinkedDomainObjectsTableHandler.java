@@ -4,10 +4,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableColumnConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
@@ -17,17 +36,37 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.util.DomainObjectsSorter;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.CheckBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.DecimalBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedTableTooltipRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedTableTooltipResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
+import ru.intertrust.cm.core.gui.model.form.widget.TextState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
+import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -145,6 +184,11 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         for (Map.Entry<String, FormState> entry : entries) {
             FormState formState = entry.getValue();
             DomainObject savedObject;
+
+            List<String> validationResult = PluginHandlerHelper.doServerSideValidation(formState, applicationContext);
+            if (!validationResult.isEmpty()) {
+                throw new ValidationException("Server-side validation failed", validationResult);
+            }
 
             if (fieldPath.isOneToManyReference()) {
                 final HashMap<FieldPath, Value> rootObjectValues = new HashMap<>();
