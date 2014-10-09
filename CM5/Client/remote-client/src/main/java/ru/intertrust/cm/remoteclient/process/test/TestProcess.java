@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
+import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 /**
@@ -106,6 +107,18 @@ public class TestProcess extends ClientBase {
             actions = personActionService.getActions(attachment.getId());
             assertTrue("Action count to task 1", actions.size() == 1 && ((CompleteTaskActionContext) actions.get(0)).getActivityId().equals("usertask1"));
 
+            //Попытка завершить задачу другим пользователем, у кого нет задачи
+            // Получение всех задач пользователя и их завершение
+            for (ActionContext actionContext : actions) {
+                CompleteTaskActionContext taskActionContext = (CompleteTaskActionContext) actionContext;
+                try{
+                    getProcessService("person1").completeTask(taskActionContext.getTaskId(), null, taskActionContext.getTaskAction());
+                    assertTrue("Complete not person task", false);
+                }catch(Exception ignoreEx){
+                    //Правильная ошибка
+                }
+            }
+            
             // Получение всех задач пользователя и их завершение
             for (ActionContext actionContext : actions) {
                 CompleteTaskActionContext taskActionContext = (CompleteTaskActionContext) actionContext;

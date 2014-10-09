@@ -210,13 +210,11 @@ public class ProcessServiceImpl implements ProcessService {
         try {
             String personLogin = context.getCallerPrincipal().getName();
             Id personId = personService.findPersonByLogin(personLogin).getId();
-            // Костыль, нужно избавлятся от использования идентификатора как int или
-            // long
-        /*
-         * int personIdAsInt =
-         * Integer.parseInt(personId.toStringRepresentation()
-         * .substring(personId.toStringRepresentation().indexOf('|') + 1));
-         */
+            
+            //Проверка на то что задача дейцствительно есть у текущего пользователя
+            if (!hasUserTask(personId, taskDomainObjectId)){
+                throw new ProcessException("Person " + personLogin + " not has task with id=" + taskDomainObjectId.toStringRepresentation());
+            }
 
             /**
              * AccessToken accessToken = accessControlService.createAccessToken(
@@ -249,6 +247,8 @@ public class ProcessServiceImpl implements ProcessService {
             formService.submitTaskFormData(taskId, params);
 
             // taskService.complete(taskId, createHashMap(variables));
+        } catch (ProcessException ex) {
+            throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in completeTask", ex);
             throw new UnexpectedException("ProcessService", "completeTask",
@@ -281,16 +281,8 @@ public class ProcessServiceImpl implements ProcessService {
 
 	@Override
 	public List<DomainObject> getUserTasks(Id personId) {
-        // Костыль, нужно избавлятся от использования идентификатора как int или
-        // long
-        /*
-         * int personIdAsint =
-         * Integer.parseInt(personId.toStringRepresentation()
-         * .substring(personId.toStringRepresentation().indexOf('|') + 1));
-         */
         // поиск задач отправленных пользователю, или любой группе в которую
         // входит пользователь
-
         try {
             Filter filter = new Filter();
             filter.setFilter("byPerson");
@@ -315,14 +307,14 @@ public class ProcessServiceImpl implements ProcessService {
 
             List<DomainObject> result = new ArrayList<DomainObject>();
             for (IdentifiableObject item : collection1) {
-                DomainObject group = domainObjectDao
+                DomainObject task = domainObjectDao
                         .find(item.getId(), accessToken);
-                result.add(group);
+                result.add(task);
             }
             for (IdentifiableObject item : collection2) {
-                DomainObject group = domainObjectDao
+                DomainObject task = domainObjectDao
                         .find(item.getId(), accessToken);
-                result.add(group);
+                result.add(task);
             }
             return result;
         } catch (AccessException ex) {
@@ -336,13 +328,6 @@ public class ProcessServiceImpl implements ProcessService {
 	@Override
 	public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId,
 			Id personId) {
-		 // Костыль, нужно избавлятся от использования идентификатора как int или
-        // long
-        /*
-         * int personIdAsint =
-         * Integer.parseInt(personId.toStringRepresentation()
-         * .substring(personId.toStringRepresentation().indexOf('|') + 1));
-         */
         // поиск задач отправленных пользователю, или любой группе в которую
         // входит пользователь
 
@@ -375,14 +360,14 @@ public class ProcessServiceImpl implements ProcessService {
 
             List<DomainObject> result = new ArrayList<DomainObject>();
             for (IdentifiableObject item : collection1) {
-                DomainObject group = domainObjectDao
+                DomainObject task = domainObjectDao
                         .find(item.getId(), accessToken);
-                result.add(group);
+                result.add(task);
             }
             for (IdentifiableObject item : collection2) {
-                DomainObject group = domainObjectDao
+                DomainObject task = domainObjectDao
                         .find(item.getId(), accessToken);
-                result.add(group);
+                result.add(task);
             }
             return result;
         } catch (AccessException ex) {
@@ -394,4 +379,48 @@ public class ProcessServiceImpl implements ProcessService {
         }
     }
 
+    private boolean hasUserTask(Id personId, Id taskId) {
+        // поиск задач отправленных пользователю, или любой группе в которую
+        // входит пользователь
+
+        Filter filter = new Filter();
+        filter.setFilter("byPerson");
+        Value rv = new ReferenceValue(personId);
+        filter.addCriterion(0, rv);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
+        filter = new Filter();
+        filter.setFilter("byTask");
+        rv = new ReferenceValue(taskId);
+        filter.addCriterion(0, rv);
+        filters.add(filter);
+
+        /*
+         * AccessToken accessToken = accessControlService
+         * .createCollectionAccessToken(personIdAsint);
+         */
+        // TODO пока права не работают работаю от имени процесса
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("ProcessService");
+
+        IdentifiableObjectCollection collection1 = collectionsDao
+                .findCollection("PersonTask", filters, null, 0, 0, accessToken);
+        IdentifiableObjectCollection collection2 = collectionsDao
+                .findCollection("PersonGroupTask", filters, null, 0, 0,
+                        accessToken);
+
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        for (IdentifiableObject item : collection1) {
+            DomainObject task = domainObjectDao
+                    .find(item.getId(), accessToken);
+            result.add(task);
+        }
+        for (IdentifiableObject item : collection2) {
+            DomainObject task = domainObjectDao
+                    .find(item.getId(), accessToken);
+            result.add(task);
+        }
+        return result.size() > 0;
+    }
+	
 }

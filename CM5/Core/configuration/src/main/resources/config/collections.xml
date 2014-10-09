@@ -727,6 +727,13 @@
                 ]]>
             </criteria>
         </filter>
+        <filter name="byTask">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    t.id  = {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection name="NotCompleteTask" idField="id">
@@ -783,6 +790,13 @@
             <criteria placeholder="where-clause">
                 <![CDATA[
                     t.mainattachment  = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byTask">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    t.id  = {0}
                 ]]>
             </criteria>
         </filter>
