@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
@@ -54,7 +55,10 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         state.setSingleChoice(singleChoiceFromConfig);
         ArrayList<Id> ids = context.getAllObjectIds();
-
+        DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
+        PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(domainObjectsTableConfig
+                .getLinkedFormConfig(), domainObject);
+        state.setPopupTitlesHolder(popupTitlesHolder);
         if (context.getDefaultValues() != null) {
             List<Id> defaultIds = HandlerUtils.takeDefaultReferenceValues(context);
             state.setIds(new ArrayList<>(defaultIds));

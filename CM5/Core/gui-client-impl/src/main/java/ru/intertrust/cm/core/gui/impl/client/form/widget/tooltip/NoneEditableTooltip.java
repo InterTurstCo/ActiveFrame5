@@ -19,17 +19,16 @@ public class NoneEditableTooltip extends PopupPanel {
     private boolean displayAsHyperlinks;
 
     public NoneEditableTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
-                               boolean displayAsHyperlinks) {
+                               boolean displayAsHyperlinks, String hyperlinkPopupTitle) {
 
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
-        init(selectionStyleConfig);
+        init(selectionStyleConfig, hyperlinkPopupTitle);
     }
 
-    private void init(SelectionStyleConfig selectionStyleConfig) {
-        hyperlinkNoneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, eventBus, true);
-
+    private void init(SelectionStyleConfig selectionStyleConfig, String hyperlinkPopupTitle) {
+        hyperlinkNoneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, eventBus, true, hyperlinkPopupTitle);
         this.add(hyperlinkNoneEditablePanel);
         this.setStyleName("tooltip-popup");
 

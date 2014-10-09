@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -35,6 +36,7 @@ public class LinkedFormDialogBoxBuilder {
     private String height = "300px";
     private String width = "1000px";
     private DialogBox dialogBox;
+    private PopupTitlesHolder popupTitlesHolder;
 
     public FormPlugin getFormPlugin() {
         return formPlugin;
@@ -79,6 +81,13 @@ public class LinkedFormDialogBoxBuilder {
         return this;
     }
 
+    public LinkedFormDialogBoxBuilder withPopupTitlesHolder(PopupTitlesHolder popupTitlesHolder) {
+        if (popupTitlesHolder != null) {
+            this.popupTitlesHolder = popupTitlesHolder;
+        }
+        return this;
+    }
+
     public LinkedFormDialogBoxBuilder buildDialogBox() {
         final FormPluginConfig linkedFormPluginConfig;
         if (id != null) {
@@ -99,14 +108,21 @@ public class LinkedFormDialogBoxBuilder {
                     formPlugin.setFormState(formState);
 
                 }
-                String title = (GuiUtil.getConfiguredTitle(formPlugin,
-                        linkedFormPluginConfig.getDomainObjectId() == null));
-                dialogBox.getCaption().setText(title);
+               setTitle(id);
             }
         });
 
         formPluginPanel.open(this.formPlugin);
         return this;
+    }
+
+    private void setTitle(Id id){
+        String title = popupTitlesHolder == null ?(GuiUtil.getConfiguredTitle(formPlugin,id == null))
+                : getTitleFromHolder(id);
+        dialogBox.getCaption().setText(title);
+    }
+    private String getTitleFromHolder(Id id){
+        return  id == null ? popupTitlesHolder.getTitleNewObject() : popupTitlesHolder.getTitleExistingObject();
     }
 
     private void refreshEditableState() {

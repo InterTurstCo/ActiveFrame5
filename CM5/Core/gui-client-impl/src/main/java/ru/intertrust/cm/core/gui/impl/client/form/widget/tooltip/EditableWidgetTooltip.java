@@ -21,12 +21,12 @@ public class EditableWidgetTooltip extends PopupPanel {
     private boolean displayAsHyperlinks;
 
     public EditableWidgetTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus
-                                                                 ,boolean displayAsHyperlinks) {
+                                                                 ,boolean displayAsHyperlinks, String hyperlinkPopupTitle) {
 
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
-        init(selectionStyleConfig);
+        init(selectionStyleConfig, hyperlinkPopupTitle);
         eventBus.addHandler(WidgetItemRemoveEvent.TYPE, new WidgetItemRemoveEventHandler() {
             @Override
             public void onWidgetItemRemove(WidgetItemRemoveEvent event) {
@@ -37,8 +37,8 @@ public class EditableWidgetTooltip extends PopupPanel {
         });
     }
 
-    private void init(SelectionStyleConfig selectionStyleConfig) {
-        widgetItemsView = new WidgetItemsView(selectionStyleConfig);
+    private void init(SelectionStyleConfig selectionStyleConfig, String hyperlinkPopupTitle) {
+        widgetItemsView = new WidgetItemsView(selectionStyleConfig, hyperlinkPopupTitle);
         widgetItemsView.setEventBus(eventBus);
         widgetItemsView.setTooltipContent(true);
         this.add(widgetItemsView);

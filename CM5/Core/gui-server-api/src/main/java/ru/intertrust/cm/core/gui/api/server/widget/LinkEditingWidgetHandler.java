@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.gui.api.server.widget;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -14,6 +11,9 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -26,6 +26,9 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
 
     @Autowired
     protected WidgetItemsHandler widgetItemsHandler;
+
+    @Autowired
+    protected TitleBuilder titleBuilder;
 
     @Override
     public Value getValue(WidgetState state) {
@@ -69,4 +72,5 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
     public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
         return false;
     }
+
 }

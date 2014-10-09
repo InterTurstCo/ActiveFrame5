@@ -131,7 +131,8 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         SelectionStyleConfig selectionStyleConfig = suggestBoxState.getSuggestBoxConfig().getSelectionStyleConfig();
-        HyperlinkNoneEditablePanel noneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false);
+        HyperlinkNoneEditablePanel noneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig,
+                localEventBus, false, suggestBoxState.getPopupTitlesHolder().getTitleExistingObject());
         return noneEditablePanel;
     }
 
@@ -679,8 +680,9 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
             return new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
-                    HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getItemId(),
-                            null, localEventBus, false);
+                    String titleExistingObject = currentState.getPopupTitlesHolder().getTitleExistingObject();
+                    HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getItemId(), null,
+                            localEventBus, false, titleExistingObject);
                     clickHandler.onClick();
                 }
             };

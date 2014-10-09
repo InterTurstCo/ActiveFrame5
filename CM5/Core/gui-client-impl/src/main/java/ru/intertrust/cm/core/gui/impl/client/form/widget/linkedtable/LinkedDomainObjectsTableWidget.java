@@ -166,7 +166,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 .setCancelAction(cancelAction)
                 .withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
                 .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
-                .withObjectType(currentState.getObjectTypeName()).buildDialogBox();
+                .withObjectType(currentState.getObjectTypeName())
+                .withPopupTitlesHolder(currentState.getPopupTitlesHolder()).buildDialogBox();
         lfb.display();
 
     }
@@ -471,6 +472,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .withFormState(pooledEditedFormState).
                                 withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
                         .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
+                        .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
                         .buildDialogBox();
 
             } else {
@@ -480,6 +482,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .withId(object.getObjectId())
                         .withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
                         .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
+                        .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
                         .buildDialogBox();
             }
             lfb.display();

@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import java.util.ArrayList;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
+
+import java.util.ArrayList;
 
 /**
  * If widget is capable of setting links between objects, similarly it can set a single reference field, in case the
@@ -14,6 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  */
 public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
     private boolean singleChoice;
+    private PopupTitlesHolder popupTitlesHolder;
 
     public boolean isSingleChoice() {
         return singleChoice;
@@ -21,6 +23,14 @@ public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
 
     public void setSingleChoice(boolean singleChoice) {
         this.singleChoice = singleChoice;
+    }
+
+    public PopupTitlesHolder getPopupTitlesHolder() {
+        return popupTitlesHolder;
+    }
+
+    public void setPopupTitlesHolder(PopupTitlesHolder popupTitlesHolder) {
+        this.popupTitlesHolder = popupTitlesHolder;
     }
 
     public abstract ArrayList<Id> getIds();

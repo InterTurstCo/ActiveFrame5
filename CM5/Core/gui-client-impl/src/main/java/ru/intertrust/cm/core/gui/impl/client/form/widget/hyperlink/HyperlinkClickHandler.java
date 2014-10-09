@@ -21,17 +21,20 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
  *         Time: 13:15
  */
 public class HyperlinkClickHandler implements ClickHandler {
-    private static final String TITLE = "Елемент";
     private Id id;
     private EventBus eventBus;
     private HyperlinkDisplay hyperlinkDisplay;
     private boolean tooltipContent;
-
-    public HyperlinkClickHandler(Id id, HyperlinkDisplay hyperlinkDisplay, EventBus eventBus, boolean tooltipContent) {
+    private String popupTitle;
+    @Deprecated
+    public HyperlinkClickHandler(Id id, HyperlinkDisplay hyperlinkDisplay, EventBus eventBus, boolean tooltipContent,
+                                 String popupTitle) {
         this.id = id;
         this.hyperlinkDisplay = hyperlinkDisplay;
         this.eventBus = eventBus;
         this.tooltipContent = tooltipContent;
+        this.popupTitle = popupTitle;
+
     }
 
     @Override
@@ -41,7 +44,7 @@ public class HyperlinkClickHandler implements ClickHandler {
     }
 
     public void onClick() {
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox();
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(popupTitle);
         final FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectId(id);
         config.getPluginState().setEditable(false);
@@ -65,7 +68,7 @@ public class HyperlinkClickHandler implements ClickHandler {
                 final FormPluginConfig config = new FormPluginConfig();
                 config.setDomainObjectId(id);
                 config.getPluginState().setEditable(true);
-                final FormDialogBox editableFormDialogBox =  new FormDialogBox();
+                final FormDialogBox editableFormDialogBox =  new FormDialogBox(popupTitle);
 
                 final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {

@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
@@ -12,6 +13,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfi
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.TitleBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.DomainObjectsSorter;
@@ -51,6 +53,9 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     @Autowired
     private FilterBuilder filterBuilder;
 
+    @Autowired
+    protected TitleBuilder titleBuilder;
+
     @Override
     public LinkedDomainObjectHyperlinkState getInitialState(WidgetContext context) {
         LinkedDomainObjectHyperlinkConfig widgetConfig = context.getWidgetConfig();
@@ -77,6 +82,9 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
             state.setSelectedIds(selectedIds);
         }
         state.setDisplayingAsHyperlinks(true);
+        DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
+        PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);
+        state.setPopupTitlesHolder(popupTitlesHolder);
         return state;
     }
 

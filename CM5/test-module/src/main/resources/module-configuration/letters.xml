@@ -305,6 +305,26 @@
                 <clear-all-button text="Очистить"/>
                 <add-button image="..." text="Добавить"/>
                 <display-values-as-links value="true"/>
+                <linked-form name="city_form">
+                    <title>
+                        <existing-object>
+                            <pattern value="{id}, {created_date}"/>
+                            <formatting>
+                                <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                    <time-zone id="Europe/Kiev"/>
+                                    <field-paths>
+                                        <field-path value="created_date"/>
+                                    </field-paths>
+                                </date-format>
+                            </formatting>
+                        </existing-object>
+                        <new-object>
+                            <pattern value="new form "/>
+
+                        </new-object>
+                    </title>
+
+                </linked-form>
             </hierarchy-browser>
             <label id="actual_start_period_label">
                 <text>Актуально с:</text>
@@ -402,7 +422,25 @@
             <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
                 <field-path value="department"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="department_default_form"/>
+                <linked-form name="department_default_form">
+                    <title>
+                        <existing-object>
+                            <pattern value="{id}, {created_date}"/>
+                            <formatting>
+                                <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                    <time-zone id="Europe/Kiev"/>
+                                    <field-paths>
+                                        <field-path value="created_date"/>
+                                    </field-paths>
+                                </date-format>
+                            </formatting>
+                        </existing-object>
+                        <new-object>
+                            <pattern value="new form "/>
+
+                        </new-object>
+                    </title>
+                </linked-form>
                 <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
                 <pattern value="{name} {created_date}"/>
                 <!-- в паттерне ссылки задаются относительно field-path -->
@@ -551,7 +589,8 @@
             <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
                 <field-path value="department^organization"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="organization_default_form"/>
+                <linked-form name="organization_default_form">
+                </linked-form>
                 <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
                 <pattern value="{name} {created_date}"/>
                 <!-- в паттерне ссылки задаются относительно field-path -->

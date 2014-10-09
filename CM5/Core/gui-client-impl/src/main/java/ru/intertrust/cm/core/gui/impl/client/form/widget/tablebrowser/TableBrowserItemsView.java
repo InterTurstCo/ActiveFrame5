@@ -31,6 +31,16 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     private Style.Display displayStyle;
     private Button openTooltip;
     private EventBus eventBus;
+    private String hyperlinkPopupTitle;
+
+    public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, String hyperlinkPopupTitle) {
+        this.eventBus = eventBus;
+        this.hyperlinkPopupTitle = hyperlinkPopupTitle;
+        mainBoxPanel = new AbsolutePanel();
+        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
+        displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
+        initWidget(mainBoxPanel);
+    }
 
     public void addFocusedFilter() {
         filter = new TextBox();
@@ -42,14 +52,6 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
 
     public String getFilterValue() {
         return filter.getValue();
-    }
-
-    public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus) {
-        this.eventBus = eventBus;
-        mainBoxPanel = new AbsolutePanel();
-        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
-        displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
-        initWidget(mainBoxPanel);
     }
 
     public EventBus getEventBus() {
@@ -91,7 +93,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
         final Id id = entry.getKey();
-        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, false));
+        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, false, hyperlinkPopupTitle));
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn facebookElementDel");
         delBtn.addClickHandler(new ClickHandler() {

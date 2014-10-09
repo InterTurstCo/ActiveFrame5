@@ -49,8 +49,10 @@ public class WidgetRepresentationUtil {
 
                 } else if(value instanceof BooleanValue){
                     displayValue.append(getBooleanDisplayValue(fieldName, (BooleanValue)value, formattingConfig));
-                }
-                else {
+                } else if(value instanceof ReferenceValue) {
+                    ReferenceValue idValue = (ReferenceValue) value;
+                    displayValue.append(idValue.get().toStringRepresentation());
+                } else {
                     displayValue.append(primitiveValue.toString());
                 }
             }
@@ -145,7 +147,7 @@ public class WidgetRepresentationUtil {
     }
 
     public static String getDisplayValue(String fieldName, IdentifiableObject identifiableObject, FormattingConfig formattingConfig) {
-        Value value = identifiableObject.getValue(fieldName);
+        Value value = "id".equalsIgnoreCase(fieldName) ? new ReferenceValue(identifiableObject.getId()) : identifiableObject.getValue(fieldName);
         return getDisplayValue(fieldName, value, formattingConfig);
 
     }

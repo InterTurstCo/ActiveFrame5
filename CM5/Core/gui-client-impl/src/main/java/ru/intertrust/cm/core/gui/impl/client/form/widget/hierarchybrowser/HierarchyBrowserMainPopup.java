@@ -42,6 +42,7 @@ public class HierarchyBrowserMainPopup {
     private double nodeSectionWidth;
     private String title;
     private boolean shouldDrawTooltipButton;
+    private String hyperlinkPopupTitle;
 
     public HierarchyBrowserMainPopup(EventBus eventBus, HierarchyBrowserWidgetState state) {
         this.eventBus = eventBus;
@@ -50,6 +51,7 @@ public class HierarchyBrowserMainPopup {
         this.displayAsHyperlinks = HierarchyBrowserUtil.isDisplayingHyperlinks(state);
         this.shouldDrawTooltipButton = state.isTooltipAvailable();
         title = state.getRootNodeLinkConfig() == null ? "link" : state.getRootNodeLinkConfig().getTitle();
+        this.hyperlinkPopupTitle = state.getHyperlinkPopupTitle();
         containerMap = new HashMap<String, HierarchyBrowserNodeView>();
         nodeTypes = new ArrayList<String>();
 
@@ -73,7 +75,8 @@ public class HierarchyBrowserMainPopup {
         VerticalPanel linksSection = new VerticalPanel();
         linksSection.setWidth(0.1 * popupWidth + "px");
 
-        popupChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
+        popupChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks,
+                hyperlinkPopupTitle);
         popupChosenContent.setHeight(0.13 * popupHeight + "px");
         popupChosenContent.asWidget().addStyleName("popup-chosen-content");
         ScrollPanel scrollPanel = new ScrollPanel();

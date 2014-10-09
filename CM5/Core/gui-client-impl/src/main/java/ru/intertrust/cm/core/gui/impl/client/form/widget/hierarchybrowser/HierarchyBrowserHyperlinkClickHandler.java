@@ -28,7 +28,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
     private EventBus eventBus;
     private String collectionName;
     private PopupPanel popupPanel;
-    @Deprecated
+
     public HierarchyBrowserHyperlinkClickHandler(String title, Id id, String collectionName, EventBus eventBus,
                                                  PopupPanel popupPanel) {
         this.title = title;
@@ -39,17 +39,10 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
 
     }
 
-    public HierarchyBrowserHyperlinkClickHandler(Id id, EventBus eventBus, String collectionName, PopupPanel popupPanel) {
-        this.id = id;
-        this.eventBus = eventBus;
-        this.collectionName = collectionName;
-        this.popupPanel = popupPanel;
-    }
-
     @Override
     public void onClick(ClickEvent event) {
 
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox();
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
         final FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectId(id);
         config.getPluginState().setEditable(false);
@@ -74,7 +67,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
                 config.setDomainObjectId(id);
                 config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox =
-                        new FormDialogBox();
+                        new FormDialogBox(title);
                 final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override

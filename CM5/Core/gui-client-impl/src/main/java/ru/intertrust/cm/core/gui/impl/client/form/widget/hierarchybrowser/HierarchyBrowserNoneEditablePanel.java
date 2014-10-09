@@ -18,9 +18,11 @@ import java.util.List;
  */
 public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
     private PopupPanel popupPanel;
-
-    public HierarchyBrowserNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus) {
+    private String hyperlinkPopupTitle;
+    public HierarchyBrowserNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
+                                             String hyperlinkPopupTitle) {
         super(selectionStyleConfig, eventBus);
+        this.hyperlinkPopupTitle = hyperlinkPopupTitle;
     }
 
     public void setPopupPanel(PopupPanel popupPanel) {
@@ -37,7 +39,7 @@ public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
         Label label = new Label(itemRepresentation);
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
-        label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler("Collection item", id,
+        label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler(hyperlinkPopupTitle, id,
                 collectionName, eventBus, popupPanel));
         element.getElement().getStyle().setDisplay(displayStyle);
         element.add(label);

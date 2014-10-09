@@ -96,15 +96,15 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
         TooltipWidgetState state = getInitialData();
         LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
         SelectionStyleConfig styleConfig = config.getSelectionStyleConfig();
-
         if (isEditable()) {
-            EditableWidgetTooltip tooltip = new EditableWidgetTooltip(styleConfig, localEventBus, isDisplayingAsHyperlink());
+            EditableWidgetTooltip tooltip = new EditableWidgetTooltip(styleConfig, localEventBus, isDisplayingAsHyperlink(),
+                    state.getPopupTitlesHolder().getTitleExistingObject());
             TooltipSizer.setWidgetBounds(config, tooltip);
             tooltip.displayItems(listValues);
             tooltip.showRelativeTo(impl);
         } else {
             NoneEditableTooltip noneEditableTooltip = new NoneEditableTooltip(styleConfig, localEventBus,
-                    isDisplayingAsHyperlink());
+                    isDisplayingAsHyperlink(), state.getPopupTitlesHolder().getTitleExistingObject());
             TooltipSizer.setWidgetBounds(config, noneEditableTooltip);
             noneEditableTooltip.displayItems(listValues);
             noneEditableTooltip.showRelativeTo(impl);

@@ -66,7 +66,8 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         LinkedDomainObjectHyperlinkState linkedDomainObjectHyperlinkState = (LinkedDomainObjectHyperlinkState) state;
         SelectionStyleConfig selectionStyleConfig = linkedDomainObjectHyperlinkState.getWidgetConfig().getSelectionStyleConfig();
-        return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false);
+        return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false,
+                linkedDomainObjectHyperlinkState.getPopupTitlesHolder().getTitleExistingObject());
     }
 
     @Override
@@ -77,9 +78,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
     @Override
     public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
         final HyperlinkDisplay hyperlinkDisplay = event.getHyperlinkDisplay();
-
         Id id = event.getId();
-
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
         RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, formattingConfig);

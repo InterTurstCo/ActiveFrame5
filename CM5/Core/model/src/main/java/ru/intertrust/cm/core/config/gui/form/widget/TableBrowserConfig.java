@@ -67,6 +67,9 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
     @Element(name = "selection-sort-criteria",required = false)
     private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
 
+    @Element(name = "linked-form",required = false)
+    private LinkedFormConfig linkedFormConfig;
+
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
     }
@@ -203,6 +206,14 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
     }
 
+    public LinkedFormConfig getLinkedFormConfig() {
+        return linkedFormConfig;
+    }
+
+    public void setLinkedFormConfig(LinkedFormConfig linkedFormConfig) {
+        this.linkedFormConfig = linkedFormConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -286,6 +297,9 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
                 : that.selectionSortCriteriaConfig != null) {
             return false;
         }
+        if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -309,6 +323,7 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
         return result;
     }
 

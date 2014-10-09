@@ -18,10 +18,13 @@ import java.util.Set;
  */
 public class HyperlinkNoneEditablePanel extends NoneEditablePanel implements HyperlinkDisplay {
     private boolean tooltipContent;
+    private String hyperlinkPopupTitle;
 
-    public HyperlinkNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean tooltipContent) {
+    public HyperlinkNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
+                                      boolean tooltipContent, String hyperlinkPopupTitle) {
         super(selectionStyleConfig, eventBus);
         this.tooltipContent = tooltipContent;
+        this.hyperlinkPopupTitle = hyperlinkPopupTitle;
     }
 
     public void displayHyperlink(Id id, String itemRepresentation) {
@@ -30,7 +33,7 @@ public class HyperlinkNoneEditablePanel extends NoneEditablePanel implements Hyp
         Label label = new Label(itemRepresentation);
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
-        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, tooltipContent));
+        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, tooltipContent, hyperlinkPopupTitle));
         element.getElement().getStyle().setDisplay(displayStyle);
         element.add(label);
         if (displayStyle.equals(Style.Display.INLINE_BLOCK)) {

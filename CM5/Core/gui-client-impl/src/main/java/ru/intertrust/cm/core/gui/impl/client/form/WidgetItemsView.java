@@ -28,13 +28,15 @@ public class WidgetItemsView extends Composite implements HyperlinkDisplay {
     private Style.Display displayStyle;
     private EventBus eventBus;
     private boolean tooltipContent;
+    private String hyperlinkPopupTitle;
 
-    public WidgetItemsView(SelectionStyleConfig selectionStyleConfig) {
+    public WidgetItemsView(SelectionStyleConfig selectionStyleConfig, String hyperlinkPopupTitle) {
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         container = new AbsolutePanel();
         container.add(mainBoxPanel);
+        this.hyperlinkPopupTitle = hyperlinkPopupTitle;
         initWidget(container);
     }
 
@@ -86,7 +88,7 @@ public class WidgetItemsView extends Composite implements HyperlinkDisplay {
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
         final Id id = entry.getKey();
-        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, tooltipContent));
+        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, tooltipContent, hyperlinkPopupTitle));
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn facebookElementDel");
         delBtn.addClickHandler(new ClickHandler() {

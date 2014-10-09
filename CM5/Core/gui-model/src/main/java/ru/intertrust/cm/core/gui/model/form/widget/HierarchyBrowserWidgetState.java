@@ -180,6 +180,15 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         return result;
     }
 
+    public String getHyperlinkPopupTitle(){
+        return getPopupTitlesHolder() == null ? null : getPopupTitlesHolder().getTitleExistingObject();
+
+    }
+    public String getNewItemPopupTitle(){
+        return getPopupTitlesHolder() == null ? null : getPopupTitlesHolder().getTitleNewObject();
+
+    }
+
     private void handleRemoving(HierarchyBrowserItem item) {
         chosenItems.remove(item);
         selectedIds.remove(item.getId());

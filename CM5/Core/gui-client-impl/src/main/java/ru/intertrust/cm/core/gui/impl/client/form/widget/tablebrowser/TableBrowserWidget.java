@@ -147,7 +147,8 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
     protected Widget asNonEditableWidget(WidgetState state) {
         commonInitialization(state);
         SelectionStyleConfig selectionStyleConfig = currentState.getTableBrowserConfig().getSelectionStyleConfig();
-        return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false);
+        return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false,
+                currentState.getPopupTitlesHolder().getTitleExistingObject());
 
     }
 
@@ -218,7 +219,8 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
     }
 
     private Panel initWidgetView(SelectionStyleConfig selectionStyleConfig) {
-        widgetItemsView = new TableBrowserItemsView(selectionStyleConfig, localEventBus);
+        String hyperlinkPopupTitle = currentState.getPopupTitlesHolder().getTitleExistingObject();
+        widgetItemsView = new TableBrowserItemsView(selectionStyleConfig, localEventBus, hyperlinkPopupTitle);
 
         openDialogButton = new FocusPanel();
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());

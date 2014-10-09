@@ -25,11 +25,12 @@ public class HierarchyBrowserItemsView extends Composite {
     private PopupPanel popupPanel;
     private boolean displayAsHyperlinks;
     private ClickHandler tooltipClickHandler;
-
-    public HierarchyBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlink) {
+    private String hyperlinkPopupTitle;
+    public HierarchyBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
+                                     boolean displayAsHyperlink, String hyperlinkPopupTitle) {
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlink;
-
+        this.hyperlinkPopupTitle = hyperlinkPopupTitle;
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("hierarchyBrowserMainBox");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
@@ -64,7 +65,7 @@ public class HierarchyBrowserItemsView extends Composite {
         label.setStyleName("hierarchyBrowserLabel");
         if (displayAsHyperlinks) {
             label.addStyleName("facebook-clickable-label");
-            label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler("Collection item", item.getId(),
+            label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler(hyperlinkPopupTitle, item.getId(),
                     item.getNodeCollectionName(), eventBus, popupPanel));
         }
         FocusPanel delBtn = new FocusPanel();

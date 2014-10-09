@@ -109,6 +109,8 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
         this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
     }
 
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

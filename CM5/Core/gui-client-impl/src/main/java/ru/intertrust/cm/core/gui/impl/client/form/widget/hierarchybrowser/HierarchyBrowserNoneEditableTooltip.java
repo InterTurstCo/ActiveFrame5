@@ -16,18 +16,20 @@ public class HierarchyBrowserNoneEditableTooltip extends PopupPanel {
     private EventBus eventBus;
     private HierarchyBrowserNoneEditablePanel widgetItemsView;
     private boolean displayAsHyperlinks;
+    private String hyperlinkPopupTitle;
 
     public HierarchyBrowserNoneEditableTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
-                                               boolean displayAsHyperlinks) {
+                                               boolean displayAsHyperlinks, String hyperlinkPopupTitle) {
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
+        this.hyperlinkPopupTitle = hyperlinkPopupTitle;
         init(selectionStyleConfig);
 
     }
 
     private void init(SelectionStyleConfig selectionStyleConfig) {
-        widgetItemsView = new HierarchyBrowserNoneEditablePanel(selectionStyleConfig, eventBus);
+        widgetItemsView = new HierarchyBrowserNoneEditablePanel(selectionStyleConfig, eventBus, hyperlinkPopupTitle);
         widgetItemsView.setPopupPanel(this);
         this.add(widgetItemsView);
         this.setStyleName("tooltip-popup");

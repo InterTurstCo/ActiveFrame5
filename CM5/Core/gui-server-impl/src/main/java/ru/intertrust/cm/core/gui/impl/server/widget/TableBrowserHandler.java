@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
@@ -45,7 +46,9 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         Set<Id> selectedIdsSet = new LinkedHashSet<>(selectedIds);
         state.setSelectedIds(selectedIdsSet);
         LinkedHashMap<Id, String> listValues = null;
-
+        DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
+        PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);
+        state.setPopupTitlesHolder(popupTitlesHolder);
         if (context.getDefaultValues() != null) {
             Value[] defaultValues = context.getDefaultValues();
             ArrayList<Id> defaultValueList = new ArrayList<>();

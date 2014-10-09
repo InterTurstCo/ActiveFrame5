@@ -97,8 +97,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
         collectionNameNodeMap = currentState.getCollectionNameNodeMap();
         final WidgetDisplayConfig displayConfig = getDisplayConfig();
-
-        view.initWidgetContent(config, new ClearButtonClickHandler());
+        view.initWidgetContent(config, new ClearButtonClickHandler(), currentState.getHyperlinkPopupTitle());
 
         view.displayBaseWidget(displayConfig.getWidth(), displayConfig.getHeight(), currentState.getChosenItems(),
                 currentState.isTooltipAvailable());
@@ -195,7 +194,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         currentState = (HierarchyBrowserWidgetState) state;
         HierarchyBrowserConfig hierarchyBrowserConfig = currentState.getHierarchyBrowserConfig();
         SelectionStyleConfig selectionStyleConfig = hierarchyBrowserConfig.getSelectionStyleConfig();
-        return new HierarchyBrowserNoneEditablePanel(selectionStyleConfig, localEventBus);
+        return new HierarchyBrowserNoneEditablePanel(selectionStyleConfig, localEventBus,
+                currentState.getHyperlinkPopupTitle());
     }
 
 
@@ -256,7 +256,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectId(id);
         config.getPluginState().setEditable(false);
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox();
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(currentState.getHyperlinkPopupTitle());
         config.getPluginState().setToggleEdit(true);
         config.getPluginState().setInCentralPanel(true);
         final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
@@ -278,7 +278,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
                 noneEditableFormDialogBox.hide();
                 config.getPluginState().setEditable(true);
-                final FormDialogBox editableFormDialogBox = new FormDialogBox();
+                final FormDialogBox editableFormDialogBox = new FormDialogBox(currentState.getHyperlinkPopupTitle());
                 final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
@@ -387,7 +387,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             config.setUpdaterContext(hierarchyBrowserUpdaterContext);
             config.setDomainObjectUpdatorComponent("hierarchy-browser-do-updater");
         }
-        final FormDialogBox createItemDialogBox = new FormDialogBox();
+        final FormDialogBox createItemDialogBox = new FormDialogBox(currentState.getNewItemPopupTitle());
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus);
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
@@ -516,15 +516,16 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     private void createAndShowTooltip(HierarchyBrowserItemsView itemsView, ArrayList<HierarchyBrowserItem> items) {
         final HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
         SelectionStyleConfig styleConfig = config.getSelectionStyleConfig();
+        String hyperlinkPopupTitle = currentState.getHyperlinkPopupTitle();
         if (itemsView == null) {
             HierarchyBrowserNoneEditableTooltip tooltip = new HierarchyBrowserNoneEditableTooltip(styleConfig,
-                    localEventBus, HierarchyBrowserUtil.isDisplayingHyperlinks(currentState));
+                    localEventBus, HierarchyBrowserUtil.isDisplayingHyperlinks(currentState), hyperlinkPopupTitle);
             TooltipSizer.setWidgetBounds(config, tooltip);
             tooltip.displayItems(items, currentState.isTooltipAvailable());
             tooltip.showRelativeTo(impl);
         } else {
             HierarchyBrowserEditableTooltip tooltip = new HierarchyBrowserEditableTooltip(styleConfig, localEventBus,
-                    HierarchyBrowserUtil.isDisplayingHyperlinks(currentState));
+                    HierarchyBrowserUtil.isDisplayingHyperlinks(currentState), hyperlinkPopupTitle);
             TooltipSizer.setWidgetBounds(config, tooltip);
 
             tooltip.displayItems(items);
