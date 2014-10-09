@@ -15,6 +15,7 @@ public class MailSenderWrapper extends JavaMailSenderImpl {
     public final String ENCRYPTION_TYPE_TLS = "tls";
 
     private String defaultSender;
+    private String defaultSenderName;
     private String encryptionType;
 
     @Value("${mail.server.host}")
@@ -70,5 +71,12 @@ public class MailSenderWrapper extends JavaMailSenderImpl {
             setJavaMailProperties(javaMailProperties);
         }
     }
-    
+
+    @Value("${mail.default.sender.name}")
+    public void setDefaultSenderName(String defaultSenderName) {
+        this.defaultSenderName = defaultSenderName;        
+    }
+    public String getDefaultSenderName() {
+        return defaultSenderName;        
+    }    
 }

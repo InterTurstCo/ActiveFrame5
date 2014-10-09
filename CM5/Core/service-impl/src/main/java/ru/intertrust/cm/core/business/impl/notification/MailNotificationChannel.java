@@ -3,9 +3,11 @@ package ru.intertrust.cm.core.business.impl.notification;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
@@ -65,16 +67,33 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
     }
 
     private MimeMessage createMailMesssage(String notificationType, Id senderId, Id addresseeId,
-            NotificationContext context) throws MessagingException {
+            NotificationContext context) throws MessagingException, UnsupportedEncodingException {
         AccessToken systemAccessToken = accessControlService.createSystemAccessToken(MAIL_NOTIFICATION_CHANNEL);
-        String senderMail = null;
+        InternetAddress sender = new InternetAddress();
         if (senderId != null) {
             GenericDomainObject senderDO = (GenericDomainObject) domainObjectDao.find(senderId, systemAccessToken);
-            senderMail = senderDO.getString(EMAIL_FIELD);
+            sender.setAddress(senderDO.getString(EMAIL_FIELD));
+            String personal = "";
+            if (senderDO.getString("FirstName") != null && !senderDO.getString("FirstName").isEmpty()){
+                personal = senderDO.getString("FirstName");
+            }
+
+            if (senderDO.getString("LastName") != null && !senderDO.getString("LastName").isEmpty()){
+                if (!personal.isEmpty()){
+                    personal += " ";
+                }
+                personal += senderDO.getString("LastName");
+            }
+            
+            sender.setPersonal(personal);            
         }
         
-        if (senderMail == null) {
-            senderMail = mailSenderWrapper.getDefaultSender();
+        //Если у персоны небыл заполнен адрес или персона вообще не была передана то устанавливаем значение по умолчанию   
+        if (sender.getAddress() == null) {
+            sender.setAddress(mailSenderWrapper.getDefaultSender());
+            if (sender.getPersonal() == null){
+                sender.setPersonal(mailSenderWrapper.getDefaultSenderName());
+            }
         }
 
         mailSenderWrapper.getHost();
@@ -90,14 +109,11 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
                         MAIL_NOTIFICATION_CHANNEL, context);
 
         MimeMessage mimeMessage = mailSenderWrapper.createMimeMessage();
-        MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-        message.setTo(addresseMail);
-        message.setFrom(senderMail);
-        message.setSubject(subject);
-        message.setText(body);
-
+        MimeMessageHelper message = null;
+        
         //Проверяем наличие конфигурации вложения
         if (notificationTextFormer.contains(notificationType, ATTACHMENT_MAIL_PART, locale, MAIL_NOTIFICATION_CHANNEL)){
+            message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             //Получаем вложение
             String attachment =
                 notificationTextFormer.format(notificationType, ATTACHMENT_MAIL_PART, addresseeId, locale,
@@ -120,7 +136,15 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
                     }
                 }
             }
+        }else{
+            message = new MimeMessageHelper(mimeMessage, false, "UTF-8");
         }
+        
+        message.setTo(addresseMail);
+        message.setFrom(sender);
+        message.setSubject(subject);
+        message.setText(body);
+        
         return mimeMessage;
     }
     
