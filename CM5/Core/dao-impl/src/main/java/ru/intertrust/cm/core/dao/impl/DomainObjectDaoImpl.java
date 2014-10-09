@@ -445,12 +445,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         List<FieldModification> modifiedFieldNames = new ArrayList<FieldModification>();
 
-        //Для нового объекта все поля попадают в список измененных
+        //Для нового объекта все поля отличные от null попадают в список измененных
         if (domainObject.isNew()) {
             for (String fieldName : domainObject.getFields()) {
-                Value newValue = domainObject.getValue(fieldName);
-                modifiedFieldNames.add(new FieldModificationImpl(fieldName,
-                        null, newValue));
+                Value<?> newValue = domainObject.getValue(fieldName);
+                if (newValue != null){
+                    modifiedFieldNames.add(new FieldModificationImpl(fieldName, null, newValue));
+                }
             }
         } else {
             //для ранее созданного объекта получаем объект не сохраненный из хранилища и вычисляем измененные поля
