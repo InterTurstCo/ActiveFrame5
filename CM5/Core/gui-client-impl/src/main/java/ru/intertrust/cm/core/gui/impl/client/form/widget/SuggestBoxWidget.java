@@ -295,6 +295,8 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
             presenter.container.addClassName("validation-error");
+            presenter.suggestBox.addStyleName("validation-error");
+
         }
     }
 
@@ -304,6 +306,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
             presenter.container.removeClassName("validation-error");
+            presenter.suggestBox.removeStyleName("validation-error");
         }
     }
 
