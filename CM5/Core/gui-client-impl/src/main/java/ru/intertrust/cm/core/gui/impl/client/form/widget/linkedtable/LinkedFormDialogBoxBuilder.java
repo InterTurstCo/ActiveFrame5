@@ -10,15 +10,20 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.util.Map;
 
@@ -156,9 +161,11 @@ public class LinkedFormDialogBoxBuilder {
             saveButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    saveAction.execute(formPlugin);
-                    db.clear();
-                    db.hide();
+                    if (isValid()) {
+                        saveAction.execute(formPlugin);
+                        db.clear();
+                        db.hide();
+                    }
                 }
             });
         }
@@ -217,5 +224,20 @@ public class LinkedFormDialogBoxBuilder {
 
     public void display() {
         dialogBox.center();
+    }
+
+    private boolean isValid() {
+        if (formPlugin != null) {
+            FormPanel panel = (FormPanel) formPlugin.getView().getViewWidget();
+            ValidationResult validationResult = new ValidationResult();
+            for (BaseWidget widget : panel.getWidgets()) {
+                validationResult.append(widget.validate());
+            }
+            if (validationResult.hasErrors()) {
+                ApplicationWindow.errorAlert(BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE);
+                return false;
+            }
+        }
+        return true;
     }
 }
