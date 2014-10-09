@@ -47,23 +47,30 @@ public class NavigationPanelMappingConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         NavigationPanelMappingConfig that = (NavigationPanelMappingConfig) o;
 
-        if (!groupsConfig.equals(that.groupsConfig)) return false;
-        if (!name.equals(that.name)) return false;
-        if (!usersConfig.equals(that.usersConfig)) return false;
+        if (groupsConfig != null ? !groupsConfig.equals(that.groupsConfig) : that.groupsConfig != null) {
+            return false;
+        }
+        if (!name.equals(that.name)) {
+            return false;
+        }
+        if (usersConfig != null ? !usersConfig.equals(that.usersConfig) : that.usersConfig != null) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + usersConfig.hashCode();
-        result = 31 * result + groupsConfig.hashCode();
-        return result;
+        return name.hashCode();
     }
 }
