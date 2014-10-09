@@ -168,7 +168,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
 
             @Override
             public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining hyperlink");
+                GWT.log("something was going wrong while obtaining hyperlink", caught);
             }
         });
 
@@ -282,7 +282,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
     @Override
     public Object getValue() {
         Map<Id, String> currentValue = ((SuggestPresenter) impl).selectedSuggestions;
-        return currentValue.values();
+        return new ArrayList(currentValue.values());
     }
 
     @Override
@@ -819,8 +819,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
 
             @Override
             public void onFailure(Throwable caught) {
-
-                GWT.log("something was going wrong while obtaining suggestions for '" + request.getQuery() + "'");
+                GWT.log("something was going wrong while obtaining suggestions for '" + request.getQuery() + "'", caught);
             }
         });
         GWT.log("suggestion requested " + request.getQuery());

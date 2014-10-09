@@ -570,7 +570,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
 
             @Override
             public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining hyperlink");
+                GWT.log("something was going wrong while obtaining hyperlink", caught);
             }
         });
     }

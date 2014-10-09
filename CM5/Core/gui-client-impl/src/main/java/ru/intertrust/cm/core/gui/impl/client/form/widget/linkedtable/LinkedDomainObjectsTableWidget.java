@@ -215,7 +215,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
             @Override
             public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining hyperlink");
+                GWT.log("something was going wrong while obtaining hyperlink", caught);
             }
         });
     }
@@ -241,7 +241,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
             @Override
             public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining hyperlink");
+                GWT.log("something was going wrong while obtaining hyperlink", caught);
             }
         });
     }
@@ -270,7 +270,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
             @Override
             public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining hyperlink");
+                GWT.log("something was going wrong while obtaining hyperlink", caught);
             }
         });
     }
@@ -292,7 +292,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
             @Override
             public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining hyperlink");
+                GWT.log("something was going wrong while obtaining hyperlink", caught);
                 handlerRegistration.removeHandler();
             }
         });
