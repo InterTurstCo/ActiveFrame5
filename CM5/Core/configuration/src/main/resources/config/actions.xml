@@ -15,7 +15,7 @@
             <act:validator class-name="ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator" widget-id="8a"/>
         </act:validators-->
     </act:action>
-    <act:action id="aDelete" componentName="delete.action" order="300"
+    <act:action name="aDelete" componentName="delete.action" order="300"
                 text="Удалить" imageClass="actionBar-delete" dirtySensitivity="true"
                 permissions="Delete"/>
     <act:action name="aToggleEditOff" componentName="close.in.central.panel.action" order="100"
