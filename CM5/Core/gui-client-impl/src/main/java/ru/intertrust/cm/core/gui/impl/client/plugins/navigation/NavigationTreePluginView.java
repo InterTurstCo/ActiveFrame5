@@ -319,8 +319,9 @@ public class NavigationTreePluginView extends PluginView {
             currentSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
         }
         TreeItem parent = tempItem.getParentItem();
-        tempItem.getTree().setSelectedItem(parent, false);
-
+        if (parent != null) {
+            tempItem.getTree().setSelectedItem(parent, false);
+        }
         currentSelectedItem = tempItem;
         boolean state = tempItem.getState();
         tempItem.setState(!state, false);
