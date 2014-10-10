@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
-import java.util.List;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -14,6 +12,8 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
+
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -36,7 +36,9 @@ public class SaveActionHandler extends ActionHandler<SaveActionContext, SaveActi
             throw new ValidationException("Server-side validation failed", errorMessages);
         }
         final UserInfo userInfo = GuiContext.get().getUserInfo();
-        DomainObject rootDomainObject = guiService.saveForm(context.getFormState(), userInfo);
+        boolean isImmediate = ((ActionConfig)context.getActionConfig()).isImmediate();
+        DomainObject rootDomainObject = guiService.saveForm(context.getFormState(), userInfo,
+                isImmediate ? null : context.getActionConfig().getCustomValidators());
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(rootDomainObject.getId());
         config.setPluginState(context.getPluginState());

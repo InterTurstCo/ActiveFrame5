@@ -10,7 +10,11 @@
                 dirtySensitivity="true" permissions="Create"/>
     <act:action id="aSave" componentName="save.action" order="200" dirtySensitivity="false"
                 text="Сохранить" tooltip="Сохранить изменения" imageClass="actionBar-save"
-                permissions="Write"/>
+                permissions="Write">
+        <!--act:validators>
+            <act:validator class-name="ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator" widget-id="8a"/>
+        </act:validators-->
+    </act:action>
     <act:action id="aDelete" componentName="delete.action" order="300"
                 text="Удалить" imageClass="actionBar-delete" dirtySensitivity="true"
                 permissions="Delete"/>

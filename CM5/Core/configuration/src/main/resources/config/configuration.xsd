@@ -2895,24 +2895,6 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="validatorsType">
-        <xs:sequence>
-            <xs:element type="con:validatorType" name="validator"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="validatorType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="class" use="required"
-                              type="xs:string"/>
-                <xs:attribute name="widget-id" use="required"
-                              type="xs:string"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-
     <xs:complexType name="actionLinkType">
         <xs:attribute name="text" type="xs:string"/>
         <xs:attribute name="action-name" type="xs:string"/>

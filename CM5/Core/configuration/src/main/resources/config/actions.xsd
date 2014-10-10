@@ -78,6 +78,7 @@
                     <xs:element name="before-execution" type="act:beforeExecutionType" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="after-execution" type="act:afterExecutionType" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="action-settings" type="act:actionSettingsType" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="validators" type="act:validatorsType" minOccurs="0" maxOccurs="1"/>
                     <xs:choice minOccurs="0" maxOccurs="unbounded">
                         <xs:element ref="act:abstract-action"/>
                     </xs:choice>
@@ -310,4 +311,15 @@
             <xs:attribute name="id" type="xs:string" use="required" />
         </xs:complexType>
     </xs:element>
+
+    <xs:complexType name="validatorsType">
+        <xs:sequence>
+            <xs:element name="validator" type="act:validatorType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="validatorType">
+        <xs:attribute name="class-name" type="xs:string" use="required" />
+        <xs:attribute name="widget-id" type="xs:string" use="required"/>
+    </xs:complexType>
 </xs:schema>

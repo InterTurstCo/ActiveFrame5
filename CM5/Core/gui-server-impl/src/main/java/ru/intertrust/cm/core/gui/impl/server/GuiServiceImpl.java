@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
@@ -17,11 +18,13 @@ import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.NavigationTreeResolver;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.VersionUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -29,6 +32,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Базовая реализация сервиса GUI
@@ -126,7 +130,12 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    public DomainObject saveForm(final FormState formState, final UserInfo userInfo) {
+    public DomainObject saveForm(final FormState formState, final UserInfo userInfo, List<ValidatorConfig>
+            validatorConfigs) {
+        List<String> errorMessages = PluginHandlerHelper.doCustomServerSideValidation(formState, validatorConfigs);
+        if (!errorMessages.isEmpty()) {
+            throw new ValidationException("Server-side validation failed", errorMessages);
+        }
         final GuiContext guiCtx = GuiContext.get();
         guiCtx.setUserInfo(userInfo);
         FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");

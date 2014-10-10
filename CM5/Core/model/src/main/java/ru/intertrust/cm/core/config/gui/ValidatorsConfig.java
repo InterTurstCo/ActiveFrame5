@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.gui;
 
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
  *         Date: 10.03.14
  *         Time: 13:19
  */
+@Root(name="validators")
 public class ValidatorsConfig implements Dto {
 
     @ElementList(required=true, inline=true)

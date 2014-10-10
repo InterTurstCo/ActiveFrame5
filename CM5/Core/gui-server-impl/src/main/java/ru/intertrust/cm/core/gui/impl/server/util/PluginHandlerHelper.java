@@ -1,14 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -21,12 +15,14 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
+import ru.intertrust.cm.core.gui.impl.server.validation.CustomValidatorFactory;
 import ru.intertrust.cm.core.gui.impl.server.validation.validators.DateRangeValidator;
 import ru.intertrust.cm.core.gui.impl.server.validation.validators.DecimalRangeValidator;
 import ru.intertrust.cm.core.gui.impl.server.validation.validators.IntRangeValidator;
@@ -42,6 +38,12 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.ObjectCloner;
+
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Sergey.Okolot
@@ -225,21 +227,25 @@ public class PluginHandlerHelper {
                 }
             }
         }
-        // Custom Server Validation
-//        if (context.getActionConfig() != null) {
-//            for (ValidatorConfig config : context.getActionConfig().getValidatorConfigs()) {
-//                String widgetId = config.getWidgetId();
-//                ServerValidator customValidator = CustomValidatorFactory.createInstance(config.getClassName(), widgetId);
-//                if (customValidator != null) {
-//                    WidgetState state = formState.getWidgetState(widgetId);
-//                    customValidator.init(context);
-//                    ValidationResult validationResult = customValidator.validate(state);
-//                    if (validationResult.hasErrors()) {
-//                        errorMessages.addAll(getMessages(validationResult, null));
-//                    }
-//                }
-//            }
-//        }
+        return errorMessages;
+    }
+
+    public static List<String> doCustomServerSideValidation(FormState formState, List<ValidatorConfig> validatorConfigs) {
+        List<String> errorMessages = new ArrayList<>();
+        if (validatorConfigs != null) {
+            for (ValidatorConfig config : validatorConfigs) {
+                String widgetId = config.getWidgetId();
+                ServerValidator customValidator = CustomValidatorFactory.createInstance(config.getClassName(), widgetId);
+                if (customValidator != null) {
+                    WidgetState state = formState.getWidgetState(widgetId);
+                    customValidator.init(formState);
+                    ValidationResult validationResult = customValidator.validate(state);
+                    if (validationResult.hasErrors()) {
+                        errorMessages.addAll(getMessages(validationResult, null));
+                    }
+                }
+            }
+        }
         return errorMessages;
     }
 

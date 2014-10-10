@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.gui;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -8,20 +9,15 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 10.03.14
  *         Time: 13:23
  */
+@Root(name="validator")
 public class ValidatorConfig implements Dto {
 
-    @Attribute(name="class", required = true)
+    @Attribute(name="class-name", required = true)
     private String className;
 
     @Attribute(name="widget-id", required = true)
     private String widgetId;
 
-    public ValidatorConfig() {}
-
-    public ValidatorConfig(String className, String widgetId) {
-        this.className = className;
-        this.widgetId = widgetId;
-    }
 
     public String getClassName() {
         return className;

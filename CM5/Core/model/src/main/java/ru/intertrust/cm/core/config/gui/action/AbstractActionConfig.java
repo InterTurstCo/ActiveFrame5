@@ -1,6 +1,11 @@
 package ru.intertrust.cm.core.config.gui.action;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import ru.intertrust.cm.core.config.gui.ValidatorConfig;
+import ru.intertrust.cm.core.config.gui.ValidatorsConfig;
+
+import java.util.List;
 
 /**
  * Marker of action config.
@@ -14,6 +19,9 @@ public class AbstractActionConfig extends BaseAttributeConfig
 
     @Attribute(name = "order", required = false)
     private Integer order;
+
+    @Element(name = "validators", required = false)
+    private ValidatorsConfig validatorsConfig;
 
     public int getOrder() {
         return order == null ? Integer.MAX_VALUE : order;
@@ -31,8 +39,20 @@ public class AbstractActionConfig extends BaseAttributeConfig
         return 0;
     }
 
+    public List<ValidatorConfig> getCustomValidators() {
+        if(validatorsConfig != null) {
+            return validatorsConfig.getValidators();
+        }
+        return null;
+    }
+
+    public ValidatorsConfig getValidatorsConfig() {
+        return validatorsConfig;
+    }
+
     @Override
     public int compareTo(AbstractActionConfig obj) {
         return getOrder() - obj.getOrder();
     }
+
 }

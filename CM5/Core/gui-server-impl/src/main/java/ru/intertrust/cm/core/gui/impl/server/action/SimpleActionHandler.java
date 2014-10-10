@@ -1,13 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -24,6 +21,10 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Sergey.Okolot
@@ -52,6 +53,8 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
             final FormState mainFormState = context.getMainFormState();
             final FormState confirmFormState = context.getConfirmFormState();
             final DomainObject mainDomainObject;
+
+            List<ValidatorConfig> validators = config.isImmediate() ? null : config.getCustomValidators();
             if (confirmFormState != null) {
                 // Если confirmState существует, должен быть и referenceFieldPath
                 final FieldPath path = FieldPath.createPaths(
@@ -63,20 +66,24 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
                 final Map<FieldPath, Value> values = new HashMap<>();
                 final DomainObject confirmDomainObject;
                 if (path.isOneToOneBackReference()) {
-                    mainDomainObject = guiService.saveForm(mainFormState, userInfo);
+                    mainDomainObject = guiService.saveForm(mainFormState, userInfo, validators);
                     values.put(FieldPath.createPaths(path.getLinkToParentName())[0],
                             new ReferenceValue(mainDomainObject.getId()));
                     formSaver.setContext(confirmFormState, values);
                     confirmDomainObject = formSaver.saveForm();
                 } else {
-                    confirmDomainObject = guiService.saveForm(confirmFormState, userInfo);
+                    confirmDomainObject = guiService.saveForm(confirmFormState, userInfo, null);
                     values.put(path, new ReferenceValue(confirmDomainObject.getId()));
+                    PluginHandlerHelper.doCustomServerSideValidation(mainFormState, validators);
+                    if (!errorMessages.isEmpty()) {
+                        throw new ValidationException("Server-side validation failed", errorMessages);
+                    }
                     formSaver.setContext(mainFormState, values);
                     mainDomainObject = formSaver.saveForm();
                 }
                 context.setConfirmDomainObjectId(confirmDomainObject.getId());
             } else {
-                mainDomainObject = guiService.saveForm(mainFormState, userInfo);
+                mainDomainObject = guiService.saveForm(mainFormState, userInfo,  validators);
             }
             context.setContextSaved();
             context.setRootObjectId(mainDomainObject.getId());

@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Данный класс-служба содержит операции, относящиеся к клиентскому приложению. Клиентское приложение может быть
@@ -53,7 +55,7 @@ public interface GuiService {
 
     FormDisplayData getReportForm(String reportName, String formName, UserInfo userInfo);
 
-    DomainObject saveForm(FormState formState, UserInfo userInfo);
+    DomainObject saveForm(FormState formState, UserInfo userInfo, List<ValidatorConfig> validatorConfigs);
 
     String getUserUid();
 
