@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<act:action id="id_value" styleClass="styleClass_value" componentName="action.test"
+<act:action name="id_value" styleClass="styleClass_value" componentName="action.test"
                       xmlns:act="https://cm5.intertrust.ru/config/action">
-    <act:action componentName="action.child.test1" id="act_2">
+    <act:action componentName="action.child.test1" name="act_2">
         <act:before-execution>
             <act:confirmation-message text="confirmation"/>
         </act:before-execution>
         <act:after-execution>
             <act:on-success-message text="on success"/>
         </act:after-execution>
-        <act:action-ref actionId="id2"/>
+        <act:action-ref name-ref="id2"/>
         <act:action-separator/>
     </act:action>
 

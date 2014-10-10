@@ -388,7 +388,7 @@
                         </field-paths>
                     </date-format>
                 </formatting>
-                <act:action-ref actionId="aOpenLink" rendered="not toggle-edit or (toggle-edit and preview)">
+                <act:action-ref name-ref="aOpenLink" rendered="not toggle-edit or (toggle-edit and preview)">
                     <act:action-params>
                         <act:action-param name="base-url" value="https://www.google.com.ua" />
                         <act:action-param name="domain-object-fields" value="id,created_date"/>

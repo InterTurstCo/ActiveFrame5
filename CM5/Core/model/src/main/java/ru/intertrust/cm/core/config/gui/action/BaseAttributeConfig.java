@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.gui.action;
 
 import org.simpleframework.xml.Attribute;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -11,35 +12,14 @@ public class BaseAttributeConfig implements Dto {
     // @defaultUID
     private static final long serialVersionUID = 1L;
 
-    @Attribute(name = "id", required = false)
-    private String id;
-
-    @Attribute(required = false)
-    private String style;
-
     @Attribute(required = false)
     private String styleClass;
 
     @Attribute(required = false)
-    private String addStyleClass;
-
-    @Attribute(required = false)
     private String rendered;
-
-    public String getId() {
-        return id;
-    }
-
-    public String getStyle() {
-        return style;
-    }
 
     public String getStyleClass() {
         return styleClass;
-    }
-
-    public String getAddStyleClass() {
-        return addStyleClass;
     }
 
     public String getRendered() {
@@ -52,7 +32,10 @@ public class BaseAttributeConfig implements Dto {
 
     @Override
     public int hashCode() {
-        return id == null ? System.identityHashCode(this) : id.hashCode();
+        int result = 17;
+        result = result * 17 + (styleClass == null ? 17 : styleClass.hashCode());
+        result = result * 17 + (rendered == null ? 17 : rendered.hashCode());
+        return result;
     }
 
     @Override
@@ -64,6 +47,12 @@ public class BaseAttributeConfig implements Dto {
             return false;
         }
         final BaseAttributeConfig other = (BaseAttributeConfig) obj;
-        return id == null ? false : id.equals(other.id);
+        if (styleClass == null ? other.styleClass != null : !styleClass.equals(other.styleClass)) {
+            return false;
+        }
+        if (rendered == null ? other.rendered != null : !rendered.equals(other.rendered)) {
+            return false;
+        }
+        return true;
     }
 }

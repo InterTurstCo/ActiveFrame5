@@ -10,8 +10,8 @@ import org.simpleframework.xml.Element;
 @Element(name = "action-ref")
 public class ActionRefConfig extends BaseActionConfig {
 
-    @Attribute(name = "actionId")
-    private String actionId;
+    @Attribute(name = "name-ref")
+    private String nameRef;
 
     @Attribute(name = "showText", required = false)
     private boolean showText = true;
@@ -22,8 +22,8 @@ public class ActionRefConfig extends BaseActionConfig {
     @Attribute(name = "merged", required = false)
     private Boolean merged;
 
-    public String getActionId() {
-        return actionId;
+    public String getNameRef() {
+        return nameRef;
     }
 
     public boolean isShowText() {
@@ -41,7 +41,7 @@ public class ActionRefConfig extends BaseActionConfig {
     @Override
     public String toString() {
         return new StringBuilder(ActionRefConfig.class.getSimpleName())
-                .append(": actionId=").append(actionId)
+                .append(": nameRef=").append(nameRef)
                 .toString();
     }
 }

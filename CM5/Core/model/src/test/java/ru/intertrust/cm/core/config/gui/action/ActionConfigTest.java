@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
  *         Created on 14.04.2014 18:20.
  */
 public class ActionConfigTest {
-    private static final String ID = "id_value";
+    private static final String NAME = "id_value";
     private static final String COMPONENT_NAME = "action.test";
     private static final String STYLE_CLASS = "styleClass_value";
 
@@ -23,7 +23,7 @@ public class ActionConfigTest {
         final Serializer serializer = new Persister();
         final ActionConfig config = serializer.read(ActionConfig.class, is);
         assertFalse(config.getChildren().isEmpty());
-        assertEquals(ID, config.getId());
+        assertEquals(NAME, config.getName());
         assertEquals(COMPONENT_NAME, config.getComponentName());
         assertEquals(STYLE_CLASS, config.getStyleClass());
         assertNotNull(config);

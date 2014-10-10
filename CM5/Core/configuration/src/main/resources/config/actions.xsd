@@ -15,23 +15,13 @@
 
     <!-- todo выделить в отдельную схему базовых типов компонентов -->
     <xs:attributeGroup name="baseAttributeGroup">
-        <xs:attribute name="id" type="act:idType"/>
-        <xs:attribute name="style" type="xs:string"/>
         <xs:attribute name="styleClass" type="xs:string"/>
-        <xs:attribute name="addStyleClass" type="xs:string"/>
         <xs:attribute name="rendered" type="xs:string" default="true"/>
     </xs:attributeGroup>
 
     <xs:attributeGroup name="activeAttributeGroup">
         <xs:attribute name="disabled" type="xs:boolean" default="false" />
     </xs:attributeGroup>
-
-    <xs:simpleType name="idType">
-        <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-            <xs:pattern value="[\w_]*"/>
-        </xs:restriction>
-    </xs:simpleType>
 
     <xs:simpleType name="componentNameType">
         <xs:restriction base="xs:string">
@@ -113,7 +103,7 @@
     <xs:complexType name="actionRefType">
         <xs:complexContent>
             <xs:extension base="act:baseActionType">
-                <xs:attribute name="actionId" type="act:idType" use="required"/>
+                <xs:attribute name="name-ref" type="xs:string" use="required"/>
                 <xs:attribute name="showText" type="xs:boolean" default="true"/>
                 <xs:attribute name="showImage" type="xs:boolean" default="true"/>
                 <xs:attribute name="order" type="xs:positiveInteger" />

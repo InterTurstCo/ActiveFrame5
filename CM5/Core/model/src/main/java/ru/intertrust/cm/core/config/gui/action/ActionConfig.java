@@ -131,7 +131,7 @@ public class ActionConfig extends BaseActionConfig implements TopLevelConfig {
 
     @Override
     public String getName() {
-        return name == null ? getId() : name;
+        return name == null || name.isEmpty() ? null : name;
     }
 
     public String getComponentName() {

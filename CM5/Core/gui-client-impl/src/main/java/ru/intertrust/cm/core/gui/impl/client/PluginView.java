@@ -252,14 +252,8 @@ public abstract class PluginView implements IsWidget {
         }
 
         private void updateByConfig(UIObject uiobj, BaseAttributeConfig config) {
-            if (config.getStyle() != null) {
-                // todo will be implemented
-            }
             if (config.getStyleClass() != null) {
                 uiobj.setStyleName(config.getStyleClass());
-            }
-            if (config.getAddStyleClass() != null) {
-                uiobj.setStyleName(config.getAddStyleClass(), true);
             }
         }
     }

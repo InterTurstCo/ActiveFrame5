@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
  */
 public class ToolBarConfigTest {
 
-    private static final String ID = "id_value";
+    private static final String NAME = "id_value";
     private static final String COMPONENT_NAME = "action.tool.bar";
     private static final String STYLE_CLASS = "styleClass_value";
 
@@ -32,7 +32,7 @@ public class ToolBarConfigTest {
         final InputStream is = getClass().getResourceAsStream("tool-bar-junit.xml");
         final Serializer serializer = new Persister();
         final ToolBarConfig tbConfig = serializer.read(ToolBarConfig.class, is);
-        assertEquals(ID, tbConfig.getId());
+        assertEquals(NAME, tbConfig.getName());
         assertEquals(COMPONENT_NAME, tbConfig.getComponentName());
         assertEquals(STYLE_CLASS, tbConfig.getStyleClass());
         assertTrue(tbConfig.isUseDefault());

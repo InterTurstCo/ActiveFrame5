@@ -42,7 +42,7 @@ public class ActionExecutorHandler extends LabelHandler {
         final ActionRefConfig actionRefConfig = actionExecutorConfig.getActionRefConfig();
         if (actionRefConfig != null) {
             final ActionConfig actionConfig =
-                    PluginHandlerHelper.cloneActionConfig(actionService.getActionConfig(actionRefConfig.getActionId()));
+                    PluginHandlerHelper.cloneActionConfig(actionService.getActionConfig(actionRefConfig.getNameRef()));
             PluginHandlerHelper.fillActionConfigFromRefConfig(actionConfig, actionRefConfig);
             final boolean contains = applicationContext.containsBean(actionConfig.getComponentName());
             final ActionContext actionContext;

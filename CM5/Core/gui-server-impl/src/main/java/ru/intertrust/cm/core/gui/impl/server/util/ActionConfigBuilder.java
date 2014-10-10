@@ -30,8 +30,8 @@ import ru.intertrust.cm.core.gui.api.server.action.ActionVisibilityChecker;
 import ru.intertrust.cm.core.gui.api.server.action.ActionVisibilityContext;
 import ru.intertrust.cm.core.gui.api.server.el.DomainObjectPropertyAccessor;
 import ru.intertrust.cm.core.gui.api.server.el.DomainObjectTypeComparator;
-import ru.intertrust.cm.core.gui.impl.server.action.FakeActionHandler;
 import ru.intertrust.cm.core.gui.api.server.el.ReferenceValuePropertyAccessor;
+import ru.intertrust.cm.core.gui.impl.server.action.FakeActionHandler;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 /**
@@ -134,13 +134,13 @@ public class ActionConfigBuilder {
     }
 
     private ActionConfig resolveActionReference(final ActionRefConfig actionRefConfig) {
-        ActionConfig config = referenceMap.get(actionRefConfig.getActionId());
+        ActionConfig config = referenceMap.get(actionRefConfig.getNameRef());
         if (config == null) {
-            config = actionService.getActionConfig(actionRefConfig.getActionId());
+            config = actionService.getActionConfig(actionRefConfig.getNameRef());
             if (config == null) {  // for developers only
                 throw new IllegalArgumentException("Not defines action for action-ref " + actionRefConfig);
             }
-            referenceMap.put(config.getId(), config);
+            referenceMap.put(config.getName(), config);
         }
         final ActionConfig result = PluginHandlerHelper.cloneActionConfig(config);
         PluginHandlerHelper.fillActionConfigFromRefConfig(result, actionRefConfig);
@@ -149,8 +149,11 @@ public class ActionConfigBuilder {
 
     private void fillReferenceMap(final List<AbstractActionConfig> configs) {
         for (AbstractActionConfig config : configs) {
-            if (config.getId() != null && !config.getId().isEmpty() && (config instanceof ActionConfig)) {
-                referenceMap.put(config.getId(), (ActionConfig) config);
+            if (config instanceof ActionConfig) {
+                final ActionConfig actionConfig = (ActionConfig) config;
+                if (actionConfig.getName() != null) {
+                    referenceMap.put(actionConfig.getName(), actionConfig);
+                }
             }
         }
     }
