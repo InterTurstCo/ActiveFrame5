@@ -514,8 +514,12 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
         }
 
         public int getSuggestionsHeight() {
-            int size = suggestions.size();
-            return size * ONE_SUGGESTION_HEIGHT;
+            int pageSize = currentState.getSuggestBoxConfig().getPageSize();
+            int suggestionsSize = suggestions.size();
+            boolean scrollable = suggestionsSize >= pageSize;
+            int size = scrollable ? pageSize : suggestionsSize;
+            int result = scrollable ? size * ONE_SUGGESTION_HEIGHT - 2 * HEIGHT_OFFSET_UP : size * ONE_SUGGESTION_HEIGHT;
+            return result;
         }
 
         public Set<Id> getSelectedKeys() {

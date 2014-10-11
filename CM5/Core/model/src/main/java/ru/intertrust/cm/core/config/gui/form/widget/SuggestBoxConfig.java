@@ -32,7 +32,7 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
     private InputTextFilterConfig inputTextFilterConfig;
 
     @Element(name = "page-size",required = false)
-    private Integer pageSize = 20;
+    private Integer pageSize;
 
     @Element(name = "selection-style",required = false)
     private SelectionStyleConfig selectionStyleConfig;
@@ -107,7 +107,7 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
     }
 
     public Integer getPageSize() {
-        return pageSize;
+        return pageSize == null ? 20 : pageSize;
     }
 
     public void setPageSize(Integer pageSize) {
