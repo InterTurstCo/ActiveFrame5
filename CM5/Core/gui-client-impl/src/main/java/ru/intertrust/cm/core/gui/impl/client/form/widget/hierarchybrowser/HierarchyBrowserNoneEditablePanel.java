@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.NoneEditablePanel;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
@@ -16,17 +18,17 @@ import java.util.List;
  *         Date: 03.01.14
  *         Time: 13:15
  */
-public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
-    private PopupPanel popupPanel;
+public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel implements HierarchyBrowserHyperlinkDisplay{
     private String hyperlinkPopupTitle;
+    private boolean tooltipContent;
     public HierarchyBrowserNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
                                              String hyperlinkPopupTitle) {
         super(selectionStyleConfig, eventBus);
         this.hyperlinkPopupTitle = hyperlinkPopupTitle;
     }
 
-    public void setPopupPanel(PopupPanel popupPanel) {
-        this.popupPanel = popupPanel;
+    public void setTooltipContent(boolean tooltipContent) {
+        this.tooltipContent = tooltipContent;
     }
 
     private void displayHyperlink(HierarchyBrowserItem item) {
@@ -40,7 +42,7 @@ public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
         label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler(hyperlinkPopupTitle, id,
-                collectionName, eventBus, popupPanel));
+                collectionName, eventBus, this, tooltipContent));
         element.getElement().getStyle().setDisplay(displayStyle);
         element.add(label);
         mainBoxPanel.add(element);
@@ -66,4 +68,13 @@ public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel {
         }
     }
 
+    @Override
+    protected ClickHandler getTooltipClickHandler() {
+        return new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                eventBus.fireEvent(new HierarchyBrowserShowTooltipEvent(null));
+            }
+        };
+    }
 }

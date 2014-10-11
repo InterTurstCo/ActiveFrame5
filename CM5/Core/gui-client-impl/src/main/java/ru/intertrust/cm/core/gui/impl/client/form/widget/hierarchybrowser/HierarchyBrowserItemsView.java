@@ -17,15 +17,15 @@ import java.util.List;
  *         Date: 20.12.13
  *         Time: 13:15
  */
-public class HierarchyBrowserItemsView extends Composite {
+public class HierarchyBrowserItemsView extends Composite implements HierarchyBrowserHyperlinkDisplay{
     private AbsolutePanel container;
     private AbsolutePanel mainBoxPanel;
     private EventBus eventBus;
     private Style.Display displayStyle;
-    private PopupPanel popupPanel;
     private boolean displayAsHyperlinks;
     private ClickHandler tooltipClickHandler;
     private String hyperlinkPopupTitle;
+    private boolean tooltipContent;
     public HierarchyBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
                                      boolean displayAsHyperlink, String hyperlinkPopupTitle) {
         this.eventBus = eventBus;
@@ -42,12 +42,12 @@ public class HierarchyBrowserItemsView extends Composite {
         initWidget(container);
     }
 
-    public EventBus getEventBus() {
-        return eventBus;
+    public void setTooltipContent(boolean tooltipContent) {
+        this.tooltipContent = tooltipContent;
     }
 
-    public void setPopupPanel(PopupPanel popupPanel) {
-        this.popupPanel = popupPanel;
+    public EventBus getEventBus() {
+        return eventBus;
     }
 
     private void displayChosenItem(final HierarchyBrowserItem item) {
@@ -66,7 +66,7 @@ public class HierarchyBrowserItemsView extends Composite {
         if (displayAsHyperlinks) {
             label.addStyleName("facebook-clickable-label");
             label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler(hyperlinkPopupTitle, item.getId(),
-                    item.getNodeCollectionName(), eventBus, popupPanel));
+                    item.getNodeCollectionName(), eventBus, this, tooltipContent));
         }
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
@@ -90,7 +90,7 @@ public class HierarchyBrowserItemsView extends Composite {
         for (HierarchyBrowserItem item : chosenItems) {
             displayChosenItem(item);
         }
-        if (shouldDisplayTooltipButton) {
+        if (shouldDisplayTooltipButton && !tooltipContent) {
             createTooltipLabel();
         }
 
@@ -116,6 +116,11 @@ public class HierarchyBrowserItemsView extends Composite {
 
     public boolean isEmpty() {
         return mainBoxPanel.getWidgetCount() == 0;
+    }
+
+    @Override
+    public void displayHyperlinks(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton) {
+        displayChosenItems(items, shouldDrawTooltipButton);
     }
 }
 

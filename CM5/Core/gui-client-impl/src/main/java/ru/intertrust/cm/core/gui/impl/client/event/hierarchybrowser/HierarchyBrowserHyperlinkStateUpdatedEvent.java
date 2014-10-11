@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser;
 
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.user.client.ui.PopupPanel;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.HierarchyBrowserHyperlinkDisplay;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -14,12 +14,15 @@ public class HierarchyBrowserHyperlinkStateUpdatedEvent extends GwtEvent<Hierarc
     public static Type<HierarchyBrowserHyperlinkStateUpdatedEventHandler> TYPE = new Type<HierarchyBrowserHyperlinkStateUpdatedEventHandler>();
     private Id id;
     private String collectionName;
-    private PopupPanel popupPanel;
+    private HierarchyBrowserHyperlinkDisplay hyperlinkDisplay;
+    private boolean tooltipContent;
 
-    public HierarchyBrowserHyperlinkStateUpdatedEvent(Id id, String collectionName, PopupPanel popupPanel) {
+    public HierarchyBrowserHyperlinkStateUpdatedEvent(Id id, String collectionName,
+                                                      HierarchyBrowserHyperlinkDisplay hyperlinkDisplay, boolean tooltipContent) {
         this.id = id;
         this.collectionName = collectionName;
-        this.popupPanel = popupPanel;
+        this.hyperlinkDisplay = hyperlinkDisplay;
+        this.tooltipContent = tooltipContent;
     }
 
     @Override
@@ -40,7 +43,11 @@ public class HierarchyBrowserHyperlinkStateUpdatedEvent extends GwtEvent<Hierarc
         return collectionName;
     }
 
-    public PopupPanel getPopupPanel() {
-        return popupPanel;
+    public HierarchyBrowserHyperlinkDisplay getHyperlinkDisplay() {
+        return hyperlinkDisplay;
+    }
+
+    public boolean isTooltipContent() {
+        return tooltipContent;
     }
 }

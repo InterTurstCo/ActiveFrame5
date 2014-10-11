@@ -107,17 +107,16 @@ public class HierarchyBrowserUtil {
         return result;
     }
 
-    public static void handleUpdateChosenItem(HierarchyBrowserItem updatedItem, List<HierarchyBrowserItem> chosenItems) {
-        HierarchyBrowserItem itemToReplace = findHierarchyBrowserItem(updatedItem.getId(), chosenItems);
-        if (itemToReplace == null) {
-            return;
+    public static boolean handleUpdateChosenItem(HierarchyBrowserItem updatedItem, List<HierarchyBrowserItem> chosenItems) {
+        if(chosenItems == null || chosenItems.isEmpty()){
+            return false;
         }
-        String collectionName = itemToReplace.getNodeCollectionName();
-        updatedItem.setNodeCollectionName(collectionName);
-        updatedItem.setChosen(itemToReplace.isChosen());
-        int index = chosenItems.indexOf(itemToReplace);
-        chosenItems.set(index, updatedItem);
-
+        HierarchyBrowserItem itemToRefresh = findHierarchyBrowserItem(updatedItem.getId(), chosenItems);
+        if (itemToRefresh == null) {
+            return false;
+        }
+        itemToRefresh.setStringRepresentation(updatedItem.getStringRepresentation());
+        return true;
     }
 
     private static HierarchyBrowserItem findHierarchyBrowserItem(Id id, List<HierarchyBrowserItem> chosenItems) {

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
@@ -52,8 +53,11 @@ public class NoneEditablePanel extends AbstractNoneEditablePanel {
         Button openTooltip = new Button("...");
         openTooltip.setStyleName("tooltipButton");
         mainBoxPanel.add(openTooltip);
-        openTooltip.addClickHandler(new TooltipButtonClickHandler(eventBus));
+        openTooltip.addClickHandler(getTooltipClickHandler());
 
     }
 
+    protected ClickHandler getTooltipClickHandler() {
+        return new TooltipButtonClickHandler(eventBus);
+    }
 }

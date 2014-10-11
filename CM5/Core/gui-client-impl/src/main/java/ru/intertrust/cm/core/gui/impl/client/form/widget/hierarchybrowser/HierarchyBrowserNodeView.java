@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,12 @@ public class HierarchyBrowserNodeView implements IsWidget {
         root.addStyleName("hierarchyBrowserNode");
         scroll.addStyleName("oneNodeScroll");
         currentNodePanel.addStyleName("one-node-body");
+        eventBus.addHandler(HierarchyBrowserCheckBoxUpdateEvent.TYPE,new HierarchyBrowserCheckBoxUpdateEventHandler() {
+            @Override
+            public void onHierarchyBrowserCheckBoxUpdate(HierarchyBrowserCheckBoxUpdateEvent event) {
+                changeSelection(event.getItem());
+            }
+        });
 
     }
 
@@ -306,6 +313,18 @@ public class HierarchyBrowserNodeView implements IsWidget {
             }
         });
 
+    }
+    public void refreshNode(HierarchyBrowserItem item){
+        if(HierarchyBrowserUtil.handleUpdateChosenItem(item, items)){
+        redrawNode(items);
+        }
+    }
+    private void changeSelection(HierarchyBrowserItem changedItem){
+        for (HierarchyBrowserItem item : items) {
+            if(changedItem.getId().equals(item.getId())){
+                item.setChosen(changedItem.isChosen());
+            }
+        }
     }
 
 }

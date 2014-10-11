@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -27,15 +26,17 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
     private Id id;
     private EventBus eventBus;
     private String collectionName;
-    private PopupPanel popupPanel;
+    private HierarchyBrowserHyperlinkDisplay hyperlinkDisplay;
+    private boolean tooltipContent;
 
     public HierarchyBrowserHyperlinkClickHandler(String title, Id id, String collectionName, EventBus eventBus,
-                                                 PopupPanel popupPanel) {
+                                                 HierarchyBrowserHyperlinkDisplay hyperlinkDisplay, boolean tooltipContent) {
         this.title = title;
         this.id = id;
         this.collectionName = collectionName;
         this.eventBus = eventBus;
-        this.popupPanel = popupPanel;
+        this.hyperlinkDisplay = hyperlinkDisplay;
+        this.tooltipContent = tooltipContent;
 
     }
 
@@ -81,7 +82,8 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
                             @Override
                             public void onSuccess() {
                                 editableFormDialogBox.hide();
-                                eventBus.fireEvent(new HierarchyBrowserHyperlinkStateUpdatedEvent(id, collectionName, popupPanel));
+                                eventBus.fireEvent(new HierarchyBrowserHyperlinkStateUpdatedEvent(id, collectionName,
+                                        hyperlinkDisplay, tooltipContent));
                             }
                         });
                         action.perform();

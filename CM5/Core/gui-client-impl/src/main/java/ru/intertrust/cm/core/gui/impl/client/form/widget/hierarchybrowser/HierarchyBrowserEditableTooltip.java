@@ -14,14 +14,13 @@ import java.util.ArrayList;
  *         Date: 08.07.2014
  *         Time: 21:02
  */
-public class HierarchyBrowserEditableTooltip extends PopupPanel {
+public class HierarchyBrowserEditableTooltip extends PopupPanel{
     private EventBus eventBus;
     private HierarchyBrowserItemsView widgetItemsView;
     private boolean displayAsHyperlinks;
     private String hyperlinkPopupTitle;
     public HierarchyBrowserEditableTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
                                            boolean displayAsHyperlinks, String hyperlinkPopupTitle) {
-
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
@@ -40,7 +39,7 @@ public class HierarchyBrowserEditableTooltip extends PopupPanel {
     private void init(SelectionStyleConfig selectionStyleConfig) {
         widgetItemsView = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks,
                 hyperlinkPopupTitle);
-        widgetItemsView.setPopupPanel(this);
+        widgetItemsView.setTooltipContent(true);
         this.add(widgetItemsView);
         this.setStyleName("tooltip-popup");
 
@@ -50,4 +49,5 @@ public class HierarchyBrowserEditableTooltip extends PopupPanel {
         widgetItemsView.displayChosenItems(items, false);
 
     }
+
 }

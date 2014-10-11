@@ -56,6 +56,10 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         return isHandlingTemporarySate ? temporaryChosenItems : chosenItems;
     }
 
+    public ArrayList<Id> getTemporarySelectedIds() {
+        return temporarySelectedIds;
+    }
+
     public ArrayList<HierarchyBrowserItem> getChosenItems() {
         return chosenItems;
     }

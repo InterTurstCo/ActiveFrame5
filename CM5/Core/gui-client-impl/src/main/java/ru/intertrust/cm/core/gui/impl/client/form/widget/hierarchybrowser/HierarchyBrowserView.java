@@ -20,7 +20,7 @@ import java.util.List;
  *         Date: 16.12.13
  *         Time: 13:15
  */
-public class HierarchyBrowserView extends Composite {
+public class HierarchyBrowserView extends Composite implements HierarchyBrowserHyperlinkDisplay{
 
     private HierarchyBrowserItemsView widgetChosenContent;
 
@@ -120,4 +120,9 @@ public class HierarchyBrowserView extends Composite {
    public void displayChosenItems(List<HierarchyBrowserItem> chosenItems, boolean shouldDisplayTooltipButton){
        widgetChosenContent.displayChosenItems(chosenItems, shouldDisplayTooltipButton);
    }
+
+    @Override
+    public void displayHyperlinks(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton) {
+        widgetChosenContent.displayHyperlinks(items, shouldDrawTooltipButton);
+    }
 }

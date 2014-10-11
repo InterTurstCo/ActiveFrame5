@@ -21,7 +21,7 @@ import java.util.*;
  *         Date: 26.12.13
  *         Time: 11:15
  */
-public class HierarchyBrowserMainPopup {
+public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDisplay{
 
     public static final int DEFAULT_WIDTH = 1000;
     public static final int DEFAULT_HEIGHT = 400;
@@ -245,6 +245,16 @@ public class HierarchyBrowserMainPopup {
             nodeView.asWidget().getElement().getStyle().setWidth(oneNodeWidthInPercentage, Style.Unit.PX);
         }
     }
+    public void refreshNode(HierarchyBrowserItem item){
+        Set<String> nodeTypes = containerMap.keySet();
+        for (String nodeType : nodeTypes) {
+            containerMap.get(nodeType).refreshNode(item);
+        }
+    }
 
+    @Override
+    public void displayHyperlinks(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton) {
+        popupChosenContent.displayHyperlinks(items, shouldDrawTooltipButton);
+    }
 }
 
