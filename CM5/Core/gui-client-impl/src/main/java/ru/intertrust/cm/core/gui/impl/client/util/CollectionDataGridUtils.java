@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 
 import java.util.*;
 
@@ -89,5 +91,13 @@ public class CollectionDataGridUtils {
         int scrollMinHorizontal = dataGrid.getScrollPanel().getMinimumHorizontalScrollPosition();
         int scrollMaxHorizontal = dataGrid.getScrollPanel().getMaximumHorizontalScrollPosition();
         return  scrollMinHorizontal == scrollMaxHorizontal;
+    }
+
+    public static boolean shouldSetSelection(CollectionPluginData collectionPluginData){
+        TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
+        if(tableBrowserParams == null){
+            return true;
+        }
+        return  tableBrowserParams.isDisplayChosenValues();
     }
 }
