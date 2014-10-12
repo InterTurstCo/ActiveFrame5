@@ -102,9 +102,11 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void updateSizes() {
-        tableWidth = plugin.getOwner().getVisibleWidth();
+        // one pixel inaccuracy causes drawing fake scroll, removing 1px prevents scroll issue
+        tableWidth = plugin.getOwner().getVisibleWidth() - 1;
         CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody);
         columnHeaderController.setDisplayedWidth(tableWidth);
+        columnHeaderController.changeVisibilityOfColumns();
     }
 
     /*This method is invoked when splitter changes position and after initialization of BusinessUniverse

@@ -2,9 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.head
 
 import java.util.List;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.ASCEND_ARROW;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DESCEND_ARROW;
-
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 22.06.2014
@@ -17,17 +14,7 @@ public class NoFilterHeaderWidget extends HeaderWidget {
     }
 
     public void init() {
-        StringBuilder htmlBuilder = new StringBuilder("<div  class=\"header-label\"><p>");
-        htmlBuilder.append(title);
-        htmlBuilder.append("</p><p style=\"display:none\">");
-        htmlBuilder.append(title);
-        htmlBuilder.append(ASCEND_ARROW);
-        htmlBuilder.append("</p><p style=\"display:none\">");
-        htmlBuilder.append(title);
-        htmlBuilder.append(DESCEND_ARROW);
-        htmlBuilder.append("</p></div>");
-        html = htmlBuilder.toString();
-
+        html = getTitleHtml();
     }
 
     @Override

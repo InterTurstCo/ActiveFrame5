@@ -83,10 +83,16 @@ public abstract class FilterHeaderWidget extends HeaderWidget {
     }
 
     protected String getSearchInputStyle() {
-        StringBuilder styleForSearchInputBuilder = new StringBuilder(" style=\"width:");
+        StringBuilder styleForSearchInputBuilder = new StringBuilder("style=\"");
         int searchInputWidth = filterWidth - RESIZE_HANDLE_WIDTH - MOVE_HANDLE_WIDTH - CLEAR_BUTTON_WIDTH;
-        styleForSearchInputBuilder.append(searchInputWidth);
-        styleForSearchInputBuilder.append("px;\"/>");
+        if (searchInputWidth < 10) {
+            styleForSearchInputBuilder.append("display:none;\"");
+        } else {
+            styleForSearchInputBuilder.append("width:");
+            styleForSearchInputBuilder.append(searchInputWidth);
+            styleForSearchInputBuilder.append("px;\"/>");
+
+        }
         return styleForSearchInputBuilder.toString();
     }
 }

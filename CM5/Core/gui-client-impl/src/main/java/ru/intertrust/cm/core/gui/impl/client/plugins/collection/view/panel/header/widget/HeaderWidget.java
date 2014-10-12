@@ -42,12 +42,13 @@ public abstract class HeaderWidget {
     public abstract void setFilterInputWidth(int filterWidth);
 
     protected String getTitleHtml() {
-        StringBuilder titleBuilder = new StringBuilder("<div  class=\"header-label\"><p>");
+        StringBuilder titleBuilder = new StringBuilder("<div  class=\"header-label\">");
+        titleBuilder.append("<p style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">");
         titleBuilder.append(title);
-        titleBuilder.append("</p><p style=\"display:none\">");
+        titleBuilder.append("</p><p style=\"display:none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">");
         titleBuilder.append(title);
         titleBuilder.append(ASCEND_ARROW);
-        titleBuilder.append("</p><p style=\"display:none\">");
+        titleBuilder.append("</p><p style=\"display:none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">");
         titleBuilder.append(title);
         titleBuilder.append(DESCEND_ARROW);
         titleBuilder.append("</p></div>");

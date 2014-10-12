@@ -22,14 +22,14 @@ public class BusinessUniverseConstants {
     public static final String FOOTER_LONG = "footer-long";
 
     public static final int MAX_COLUMN_WIDTH = 9999;
-    public static final int MIN_COLUMN_WIDTH = 230;
+    public static final int MIN_COLUMN_WIDTH = 50;
     public static final int MIN_RESIZE_COLUMN_WIDTH = 28;
     public static final String DATE_TIME_TYPE = "datetime";
     public static final String TIMELESS_DATE_TYPE = "timelessDate";
     public static final String DATE_TIME_WITH_TIME_ZONE_TYPE = "dateTimeWithTimeZone";
     public static final String EMPTY_VALUE = "";
     public static final int CHECK_BOX_MIN_WIDTH = 35;
-    public static final int CHECK_BOX_MAX_WIDTH = 35;
+    public static final int CHECK_BOX_MAX_WIDTH = 28;
     public static final String HEADER_INPUT_ID_PART = "input";
     public static final String HEADER_CLEAR_BUTTON_ID_PART = "clear-button";
     public static final String HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART = "date-picker";
