@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HeaderPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.view.client.CellPreviewEvent;
@@ -27,6 +28,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
         setAutoHeaderRefreshDisabled(false);
         setHeaderBuilder(new HeaderBuilder<CollectionRowItem>(this, false));
         addStyleName("collection-plugin-view collection-plugin-view-container");
+        setEmptyTableMessage();
         this.addCellPreviewHandler(new CollectionCellPreviewHandler());
 
     }
@@ -41,6 +43,12 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
        return  true;
     }
 
+    private void setEmptyTableMessage() {
+        String emptyTableText = "Результаты отсутствуют";
+        HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
+        this.setEmptyTableWidget(emptyTableWidget);
+
+    }
     private class CollectionCellPreviewHandler implements CellPreviewEvent.Handler<CollectionRowItem> {
 
         @Override

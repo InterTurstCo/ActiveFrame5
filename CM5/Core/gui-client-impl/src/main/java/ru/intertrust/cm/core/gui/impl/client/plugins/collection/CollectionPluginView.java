@@ -172,7 +172,7 @@ public class CollectionPluginView extends PluginView {
         createTableColumns();
         applySelectionModel();
         insertRows(items);
-        applyBodyTableStyle();
+
         csvController = new CollectionCsvController(root);
 
     }
@@ -363,6 +363,14 @@ public class CollectionPluginView extends PluginView {
         columnHeaderController.changeFiltersInputsVisibility(false);
         lastScrollPos = 0;
         filtersMap.clear();
+        InitialFiltersConfig initialFiltersConfig = getPluginData().getInitialFiltersConfig();
+        if(initialFiltersConfig != null){
+        List<AbstractFilterConfig> initialFilters = initialFiltersConfig.getAbstractFilterConfigs();
+        if(initialFilters != null){
+            initialFilters.clear();
+        }
+        }
+
     }
 
     private void updateFilterConfig() {
@@ -614,14 +622,6 @@ public class CollectionPluginView extends PluginView {
             selectionModel = new MultiSelectionModel<>();
         }
         tableBody.setSelectionModel(selectionModel);
-    }
-
-    private void applyBodyTableStyle() {
-        String emptyTableText = "Результаты отсутствуют";
-        HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
-        tableBody.setEmptyTableWidget(emptyTableWidget);
-        tableBody.setSelectionModel(selectionModel);
-
     }
 
     public void setEventBus(EventBus eventBus) {
