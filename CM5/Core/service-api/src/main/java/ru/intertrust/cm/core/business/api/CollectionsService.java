@@ -22,7 +22,8 @@ public interface CollectionsService {
      * @param collectionName название коллекции
      * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
      * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
-     * @param limit          максимальное количество возвращаемых доменных объектов
+     * @param limit          максимальное количество возвращаемых доменных объектов. Если указано 0, то не ограничивается количество 
+     * @param offset         смещение. Если равно 0, то смещение не создается.
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
     IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
@@ -67,7 +68,9 @@ public interface CollectionsService {
     /**
      * Возвращает коллекцию по запросу
      * @param query запрос
-     * @param limit максимальное количество возвращаемых доменных объектов
+     * @param limit максимальное количество возвращаемых доменных объектов. Если равно 0, то не ограничивается
+     *            количество.
+     * @param offset смещение. Если равно 0, то смещение не создается.
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
     IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit);
@@ -96,8 +99,9 @@ public interface CollectionsService {
      * в котором указаны их индексы в SQL запросе.
      * @param query SQL запрос
      * @param params параметры запроса
-     * @param offset смещение
-     * @param limit ограничение количества возвращенных доменных объектов
+     * @param limit ограничение количества возвращенных доменных объектов. Если равно 0, то не ограничивается
+     *            количество.
+     * @param offset смещение. Если равно 0, то смещение не создается.
      * @param accessToken маркер доступа
      * @return результат поиска в виде {@link IdentifiableObjectCollection}
      */

@@ -16,10 +16,15 @@ public class OracleCollectionQueryInitializerImpl extends CollectionQueryInitial
 
     @Override
     protected String applyOffsetAndLimit(String query, int offset, int limit) {
-        if (limit == 0) {
+        if (limit != 0 && offset != 0) {
+            return "select * from (" + query + ") where rownum >= " + offset + " and rownum < " + (offset + limit);
+
+        } else if (limit != 0) {
+            return "select * from (" + query + ") where rownum < " + limit;
+        } else if (offset != 0) {
+            return "select * from (" + query + ") where rownum >= " + offset;
+        } else {
             return query;
         }
-
-        return "select * from (" + query + ") where rownum >= " + offset + " and rownum < " + (offset + limit);
     }
 }

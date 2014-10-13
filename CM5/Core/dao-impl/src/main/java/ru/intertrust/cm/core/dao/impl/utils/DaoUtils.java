@@ -159,9 +159,18 @@ public class DaoUtils {
         }
     }
 
+    /**
+     * Добавляет фильтры на количество возвращаемых записей и смещение.
+     * @param query
+     * @param offset смещение. Если равно 0, то не создается фильтр по смещению.
+     * @param limit количество. Если равно 0, то не создается фильтр по количеству.
+     */
     public static void applyOffsetAndLimit(StringBuilder query, int offset, int limit) {
         if (limit != 0) {
-            query.append(" limit ").append(limit).append(" OFFSET ").append(offset);
+            query.append(" limit ").append(limit);
+        }
+        if(offset != 0){
+            query.append(" OFFSET ").append(offset);
         }
     }
 }
