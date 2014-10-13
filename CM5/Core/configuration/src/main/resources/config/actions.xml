@@ -35,10 +35,10 @@
     </act:tool-bar>
 
     <act:tool-bar plugin="form.plugin">
-        <act:action-ref name-ref="aCreate" rendered="not toggle-edit or (toggle-edit and preview)" merged="true"/>
-        <act:action-ref name-ref="aSave" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
-        <act:action-ref name-ref="aDelete" rendered="not toggle-edit or (toggle-edit and preview)" merged="false"/>
-        <act:action-ref name-ref="aToggleEditOff" rendered="toggle-edit and not preview" merged="false"/>
+        <act:action-ref name-ref="aCreate" rendered="(not toggle-edit and not preview)  or (toggle-edit and preview)" merged="true"/>
+        <act:action-ref name-ref="aSave" merged="true" rendered="not preview"/>
+        <act:action-ref name-ref="aDelete" rendered="toggle-edit and preview" merged="false"/>
+        <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview)" merged="false"/>
         <act:action-ref name-ref="aToggleEditOn" merged="true" rendered="toggle-edit and preview"/>
     </act:tool-bar>
 </configuration>
