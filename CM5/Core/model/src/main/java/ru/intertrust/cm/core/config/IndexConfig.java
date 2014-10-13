@@ -1,11 +1,12 @@
 package ru.intertrust.cm.core.config;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.ElementList;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.ElementListUnion;
 
 /**
  * @author vmatsukevich
@@ -31,8 +32,11 @@ public class IndexConfig implements Serializable {
     @Attribute(name = "type", required = false)
     private String type;
 
-    @ElementList(entry="field", inline=true)
-    private List<IndexFieldConfig> indexFieldConfigs = new ArrayList<>();
+    @ElementListUnion({
+            @ElementList(entry = "field", type = IndexFieldConfig.class, inline = true, required = false),
+            @ElementList(entry = "expr", type = IndexExpressionConfig.class, inline = true, required = false)
+    })
+    private List<BaseIndexExpressionConfig> indexExspressionConfigs = new ArrayList<>();
 
     public IndexConfig() {
     }
@@ -41,22 +45,22 @@ public class IndexConfig implements Serializable {
         return type;
     }
 
-    public List<IndexFieldConfig> getIndexFieldConfigs() {
-        return indexFieldConfigs;
+    public List<BaseIndexExpressionConfig> getIndexFieldConfigs() {
+        return indexExspressionConfigs;
     }
 
-    public void setIndexFieldConfigs(List<IndexFieldConfig> indexFieldConfigs) {
-        if(indexFieldConfigs != null) {
-            this.indexFieldConfigs = indexFieldConfigs;
+    public void setIndexFieldConfigs(List<BaseIndexExpressionConfig> indexFieldConfigs) {
+        if (indexFieldConfigs != null) {
+            this.indexExspressionConfigs = indexFieldConfigs;
         } else {
-            this.indexFieldConfigs.clear();
+            this.indexExspressionConfigs.clear();
         }
     }
 
     
     @Override
     public String toString() {
-        return "IndexConfig [type=" + type + ", indexFieldConfigs=" + indexFieldConfigs + "]";
+        return "IndexConfig [type=" + type + ", indexFieldConfigs=" + indexExspressionConfigs + "]";
     }
 
     @Override
@@ -70,15 +74,15 @@ public class IndexConfig implements Serializable {
 
         IndexConfig that = (IndexConfig) o;
 
-        if (that.indexFieldConfigs == null) {
-            return indexFieldConfigs == null;
+        if (that.indexExspressionConfigs == null) {
+            return indexExspressionConfigs == null;
         }
 
-        if (indexFieldConfigs == null) {
+        if (indexExspressionConfigs == null) {
             return false;
         }
 
-        if (!(indexFieldConfigs.size() == that.indexFieldConfigs.size() && indexFieldConfigs.containsAll(that.indexFieldConfigs))) {
+        if (!(indexExspressionConfigs.size() == that.indexExspressionConfigs.size() && indexExspressionConfigs.containsAll(that.indexExspressionConfigs))) {
             return false;
         }
 
@@ -87,6 +91,6 @@ public class IndexConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        return indexFieldConfigs != null ? indexFieldConfigs.hashCode() : 0;
+        return indexExspressionConfigs != null ? indexExspressionConfigs.hashCode() : 0;
     }
 }

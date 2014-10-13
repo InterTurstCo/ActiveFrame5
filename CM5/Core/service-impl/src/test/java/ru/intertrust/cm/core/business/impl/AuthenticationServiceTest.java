@@ -1,18 +1,19 @@
 package ru.intertrust.cm.core.business.impl;
 
+import static org.mockito.Mockito.verify;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import ru.intertrust.cm.core.business.api.AuthenticationService;
-import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.dao.api.AuthenticationDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-
-import static org.mockito.Mockito.verify;
+import ru.intertrust.cm.core.dao.api.MD5Service;
 
 
 /**

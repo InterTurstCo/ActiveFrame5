@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.impl;
+package ru.intertrust.cm.core.dao.impl;
 
 import static org.junit.Assert.assertTrue;
 
@@ -8,8 +8,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import ru.intertrust.cm.core.business.api.MD5Service;
-import ru.intertrust.cm.core.business.impl.MD5ServiceImpl;
+import ru.intertrust.cm.core.dao.api.MD5Service;
+import ru.intertrust.cm.core.dao.impl.MD5ServiceImpl;
 
 /**
  * Тест реализации MD5Service.

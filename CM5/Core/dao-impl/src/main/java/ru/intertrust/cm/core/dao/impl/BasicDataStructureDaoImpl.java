@@ -1,19 +1,32 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import ru.intertrust.cm.core.config.*;
+
+import ru.intertrust.cm.core.config.BaseIndexExpressionConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.IndexConfig;
+import ru.intertrust.cm.core.config.IndexExpressionConfig;
+import ru.intertrust.cm.core.config.IndexFieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import ru.intertrust.cm.core.dao.api.MD5Service;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
@@ -29,9 +42,13 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     @Autowired
     private JdbcOperations jdbcTemplate;
 
+    @Autowired
+    private MD5Service md5Service;
+
+    
     private BasicQueryHelper queryHelper;
 
-    protected abstract BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao);
+    protected abstract BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service);
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createSequence(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
@@ -129,21 +146,35 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         }
         getQueryHelper().skipAutoIndices(domainObjectTypeConfig, indexConfigsToDelete);
 
-        List<String> indexNamesToDelete = new ArrayList(indexConfigsToDelete.size());
+        List<String> indexNamesToDelete = new ArrayList<>(indexConfigsToDelete.size());
+        
+        for (IndexConfig indexConfigToDelete : indexConfigsToDelete) {
+            List<String> indexFields = new ArrayList<>();
+            List<String> indexExpressions = new ArrayList<>();
 
-        Map<String, IndexConfig> existingIndexes = readIndexes(domainObjectTypeConfig);
-        for (Map.Entry<String, IndexConfig> entry : existingIndexes.entrySet()) {
-            if (indexConfigsToDelete.contains(entry.getValue())) {
-                indexNamesToDelete.add(entry.getKey());
+            for (BaseIndexExpressionConfig indexExpression : indexConfigToDelete.getIndexFieldConfigs()) {
+                if (indexExpression instanceof IndexFieldConfig) {
+                    indexFields.add(getSqlName(((IndexFieldConfig) indexExpression).getName()));
+                } else if (indexExpression instanceof IndexExpressionConfig) {
+                    indexExpressions.add(getSqlName(((IndexExpressionConfig) indexExpression).getValue()));
+                }
             }
+            
+            String indexName = getQueryHelper().createExplicitIndexName(domainObjectTypeConfig, indexFields, indexExpressions);
+            indexNamesToDelete.add(indexName);
         }
-
+        
         String deleteIndexesQuery = getQueryHelper().generateDeleteExplicitIndexesQuery(indexNamesToDelete);
         if (deleteIndexesQuery != null) {
             jdbcTemplate.update(deleteIndexesQuery);
         }
     }
 
+    private String createIndexFieldsExpression(List<String> indexFields, List<String> indexExpressions) {
+        StringBuilder result = new StringBuilder();
+        result.append("(").append(BasicQueryHelper.createIndexFieldsPart(indexFields, indexExpressions)).append(")");
+        return result.toString();
+    }
 
     @Override
     public void createForeignKeyAndUniqueConstraints(DomainObjectTypeConfig config,
@@ -195,41 +226,10 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
-            queryHelper = createQueryHelper(domainObjectTypeIdDao);
+            queryHelper = createQueryHelper(domainObjectTypeIdDao, md5Service);
         }
 
         return queryHelper;
-    }
-
-    private Map<String, IndexConfig> readIndexes(DomainObjectTypeConfig domainObjectTypeConfig) {
-        return jdbcTemplate.query(generateSelectTableIndexes(), new ResultSetExtractor<Map<String, IndexConfig>>() {
-
-            private Map<String, IndexConfig> indexes = new HashMap();
-
-            @Override
-            public Map<String, IndexConfig> extractData(ResultSet rs) throws SQLException, DataAccessException {
-                if (rs == null) {
-                    return indexes;
-                }
-
-                while (rs.next()) {
-                    String indexName = rs.getString("index_name");
-                    String columnName = rs.getString("column_name");
-
-                    IndexConfig indexConfig = indexes.get(indexName);
-                    if (indexConfig == null) {
-                        indexConfig = new IndexConfig();
-                        indexes.put(indexName, indexConfig);
-                    }
-
-                    IndexFieldConfig indexFieldConfig = new IndexFieldConfig();
-                    indexFieldConfig.setName(columnName);
-                    indexConfig.getIndexFieldConfigs().add(indexFieldConfig);
-                }
-
-                return indexes;
-            }
-        }, getSqlName(domainObjectTypeConfig));
     }
 
     private int countIndexes(DomainObjectTypeConfig domainObjectTypeConfig, boolean isAl) {
@@ -254,11 +254,8 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
         getQueryHelper().skipAutoIndices(config, indexConfigs);
 
-        int index = countIndexes(config, false);
-
         for (IndexConfig indexConfig : indexConfigs) {
-            jdbcTemplate.update(getQueryHelper().generateComplexIndexQuery(config, indexConfig, index));
-            index++;
+            jdbcTemplate.update(getQueryHelper().generateComplexIndexQuery(config, indexConfig));
         }
     }
 
@@ -278,7 +275,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             if (!(fieldConfig instanceof ReferenceFieldConfig)) {
                 continue;
             }
-            jdbcTemplate.update(getQueryHelper().generateCreateIndexQuery(config, fieldConfig.getName(), index, isAl));
+            jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, fieldConfig.getName(), index, isAl));
             index++;
         }
     }

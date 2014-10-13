@@ -9,7 +9,7 @@ import java.io.Serializable;
  *         Date: 5/16/13
  *         Time: 10:58 AM
  */
-public class IndexFieldConfig implements Serializable {
+public class IndexFieldConfig extends BaseIndexExpressionConfig {
 
     @Attribute(name = "name")
     private String name;
@@ -23,6 +23,12 @@ public class IndexFieldConfig implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+
+    @Override
+    public String getValue() {
+        return name;
     }
     
     @Override
@@ -52,4 +58,5 @@ public class IndexFieldConfig implements Serializable {
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
     }
+   
 }

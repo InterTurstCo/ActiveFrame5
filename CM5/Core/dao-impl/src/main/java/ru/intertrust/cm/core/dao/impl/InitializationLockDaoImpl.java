@@ -1,17 +1,19 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcOperations;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
-import ru.intertrust.cm.core.dao.api.InitializationLockDao;
-import ru.intertrust.cm.core.dao.impl.utils.DateUtils;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcOperations;
+
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.InitializationLockDao;
+import ru.intertrust.cm.core.dao.api.MD5Service;
+import ru.intertrust.cm.core.dao.impl.utils.DateUtils;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.InitializationLockDao}
@@ -56,6 +58,9 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
     @Autowired
     private DataStructureDao dataStructureDao;
 
+    @Autowired
+    private MD5Service md5Service;
+    
     private BasicQueryHelper queryHelper;
 
     public void setJdbcTemplate(JdbcOperations jdbcTemplate) {
@@ -124,7 +129,7 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
 
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
-            queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao);
+            queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
         }
 
         return queryHelper;

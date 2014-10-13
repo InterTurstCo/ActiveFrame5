@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.api;
+package ru.intertrust.cm.core.dao.api;
 
 /**
  * Сервис для кодирования сообщений, используюя MD5 алгоритм хеширования.

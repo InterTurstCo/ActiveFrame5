@@ -9,6 +9,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.MD5Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +40,12 @@ public class PostgreSqlDataStructureDaoImplTest {
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
 
+    private MD5Service md5Service = new MD5ServiceImpl();
+    
     @Before
     public void setUp() throws Exception {
         initDomainObjectConfig();
-        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao);
+        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
     }
 
 
@@ -57,7 +60,7 @@ public class PostgreSqlDataStructureDaoImplTest {
         int index = 0;
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                verify(jdbcTemplate).update(queryHelper.generateCreateIndexQuery(domainObjectTypeConfig,
+                verify(jdbcTemplate).update(queryHelper.generateCreateAutoIndexQuery(domainObjectTypeConfig,
                         (ReferenceFieldConfig) fieldConfig, index));
                 index++;
             }
@@ -106,7 +109,7 @@ public class PostgreSqlDataStructureDaoImplTest {
         int index = 0;
         for (FieldConfig fieldConfig : newColumns) {
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                verify(jdbcTemplate).update(queryHelper.generateCreateIndexQuery(domainObjectTypeConfig,
+                verify(jdbcTemplate).update(queryHelper.generateCreateAutoIndexQuery(domainObjectTypeConfig,
                         (ReferenceFieldConfig) fieldConfig, index));
                 index++;
             }

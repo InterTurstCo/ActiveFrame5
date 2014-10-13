@@ -688,13 +688,21 @@
 
     <xs:complexType name="indexType">
         <xs:sequence maxOccurs="unbounded">
-            <xs:element type="con:fieldType" name="field"
-                        xmlns:con="https://cm5.intertrust.ru/config">
-            </xs:element>
+            <xs:element type="con:fieldType" name="field" minOccurs="0"/>
+            <xs:element type="con:indexExpressionType" name="expr" minOccurs="0"/>        
         </xs:sequence>
         <xs:attribute name="type" use="optional" type="con:indexTypeType"/>
     </xs:complexType>
 
+    <xs:complexType name="indexExpressionType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="value" use="required"
+                              type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
     <xs:complexType name="passwordType">
         <xs:simpleContent>
             <xs:extension base="xs:string">

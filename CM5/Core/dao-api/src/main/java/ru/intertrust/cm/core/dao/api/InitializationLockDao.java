@@ -1,9 +1,5 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-
-import java.util.List;
 
 /**
  * Dao для INITIALIZATION_LOCK

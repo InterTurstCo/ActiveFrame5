@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ru.intertrust.cm.core.config.BaseIndexExpressionConfig;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.IndexFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
@@ -78,8 +78,8 @@ public class DataStructureNamingHelper {
      * @param indexFieldConfig конфигурация индексного поля 
      * @return имя поля, участвующего в индексе, в sql-виде
      */
-    public static String getSqlName(IndexFieldConfig indexFieldConfig) {
-        return convertToSqlFormat(indexFieldConfig.getName());
+    public static String getSqlName(BaseIndexExpressionConfig indexFieldConfig) {
+        return convertToSqlFormat(indexFieldConfig.getValue());
     }
     
     /**

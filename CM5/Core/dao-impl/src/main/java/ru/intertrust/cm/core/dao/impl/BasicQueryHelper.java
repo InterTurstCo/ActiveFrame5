@@ -4,7 +4,6 @@ import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONTENT_COLUMN;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.LOADED_DATE_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
-import static ru.intertrust.cm.core.dao.api.InitializationLockDao.INITIALIZATION_LOCK_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.USER_UID_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.COMPONENT_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.CREATED_DATE_COLUMN;
@@ -17,6 +16,7 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.UPDATED_DATE_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.NAME_COLUMN;
+import static ru.intertrust.cm.core.dao.api.InitializationLockDao.INITIALIZATION_LOCK_TABLE;
 import static ru.intertrust.cm.core.dao.api.InitializationLockDao.SERVER_ID_COLUMN;
 import static ru.intertrust.cm.core.dao.api.InitializationLockDao.START_DATE_COLUMN;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
@@ -26,6 +26,7 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAud
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSequenceName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.unwrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.config.BaseIndexExpressionConfig;
 import ru.intertrust.cm.core.config.BooleanFieldConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeFieldConfig;
@@ -44,6 +46,7 @@ import ru.intertrust.cm.core.config.DecimalFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.IndexConfig;
+import ru.intertrust.cm.core.config.IndexExpressionConfig;
 import ru.intertrust.cm.core.config.IndexFieldConfig;
 import ru.intertrust.cm.core.config.LongFieldConfig;
 import ru.intertrust.cm.core.config.PasswordFieldConfig;
@@ -56,6 +59,7 @@ import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
+import ru.intertrust.cm.core.dao.api.MD5Service;
 
 /**
  * Класс для генерации sql запросов для {@link ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl}
@@ -73,8 +77,11 @@ public abstract class BasicQueryHelper {
 
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
-    protected BasicQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao) {
+    private MD5Service md5Service;
+    
+    protected BasicQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
         this.domainObjectTypeIdDao = domainObjectTypeIdDao;
+        this.md5Service = md5Service;
     }
 
     /**
@@ -436,12 +443,16 @@ public abstract class BasicQueryHelper {
         StringBuilder indexFields = new StringBuilder();
 
         int i = 0;
-        for (IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()) {
-            if (i > 0) {
-                indexFields.append("_");
+        for (BaseIndexExpressionConfig indexExpression : indexConfig.getIndexFieldConfigs()) {
+            
+            if (indexExpression instanceof IndexFieldConfig) {
+                if (i > 0) {
+                    indexFields.append("_");
+                }
+                indexFields.append(((IndexFieldConfig) indexExpression).getName());
+                i++;
             }
-            indexFields.append(indexFieldConfig.getName());
-            i++;
+
         }
         return indexFields.toString();
     }
@@ -459,14 +470,20 @@ public abstract class BasicQueryHelper {
         return query.toString();
     }
     
-    public String generateComplexIndexQuery(DomainObjectTypeConfig config, IndexConfig indexConfig, int index) {
-        List<String> fieldNames = new ArrayList<String>();
-        for(IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()){
-            fieldNames.add(getSqlName(indexFieldConfig));
+    public String generateComplexIndexQuery(DomainObjectTypeConfig config, IndexConfig indexConfig) {
+        List<String> indexFields = new ArrayList<String>();
+        List<String> indexExpressions = new ArrayList<String>();
+
+        for (BaseIndexExpressionConfig indexExpression : indexConfig.getIndexFieldConfigs()) {
+            if (indexExpression instanceof IndexFieldConfig) {
+                indexFields.add(getSqlName(indexExpression));
+            } else if (indexExpression instanceof IndexExpressionConfig) {
+                indexExpressions.add(getSqlName(indexExpression));
+            }
         }
-        
+
         String indexType = getIndexType(indexConfig);
-        return generateIndexQuery(config, indexType, fieldNames, index);
+        return generateIndexQuery(config, indexType, indexFields, indexExpressions);
     }
 
     private String getIndexType(IndexConfig indexConfig) {
@@ -478,17 +495,17 @@ public abstract class BasicQueryHelper {
         return indexType;
     }
 
-    public String generateCreateIndexQuery(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig, int index) {
-        return generateCreateIndexQuery(config, fieldConfig.getName(), index, false);
+    public String generateCreateAutoIndexQuery(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig, int index) {
+        return generateCreateAutoIndexQuery(config, fieldConfig.getName(), index, false);
     }
 
-    protected abstract String generateIndexQuery(DomainObjectTypeConfig config, String indexType, List<String> fieldNames, int index);
+    protected abstract String generateIndexQuery(DomainObjectTypeConfig config, String indexType, List<String> expressionValues, List<String> indexExpressions);
 
-    public String generateCreateIndexQuery(DomainObjectTypeConfig config, String fieldName, int index, boolean isAl) {
+    public String generateCreateAutoIndexQuery(DomainObjectTypeConfig config, String fieldName, int index, boolean isAl) {
         String tableName = getSqlName(config.getName(), isAl);
         String columnName = getSqlName(fieldName);
 
-        String indexName = createExplicitIndexName(config, index, isAl);
+        String indexName = createAutoIndexName(config, index, isAl);
         return "create index " + wrap(indexName) + " on " + wrap(tableName) + " (" + wrap(columnName) + ")";
     }
 
@@ -508,22 +525,60 @@ public abstract class BasicQueryHelper {
         query.append("drop index if exists ").append(wrap(indexName)).append(";\n");
     }
 
-    protected String createExplicitIndexName(DomainObjectTypeConfig config, int index, boolean isAl) {
+    protected String createAutoIndexName(DomainObjectTypeConfig config, int index, boolean isAl) {
         return "i_" + getName(getDOTypeConfigId(config).toString(), isAl) + "_" + index;
     }
 
-    protected String createIndexTableFieldsPart(List<String> fieldNames) {
-        StringBuilder fieldsEnumeration = new StringBuilder();
-        
-        int index = 0; 
-        for (String fieldName : fieldNames) {
-            fieldsEnumeration.append(wrap(fieldName));
-            if (index < fieldNames.size() - 1) {
-                fieldsEnumeration.append(", ");
+    /**
+     * Создает имя явно сконфигурированного индекса. Имя формируется по патерну "i" + код типа ДО + урезанный MD5 хеш
+     * от DDL выражения для индекса.
+     * @param config конфигурация ДО.
+     * @param indexFields порля ДО, образующие индекс.
+     * @param indexExpressions выражения, образующие индекс.
+     * @return
+     */
+    protected String createExplicitIndexName(DomainObjectTypeConfig config, List<String> indexFields, List<String> indexExpressions) {
+        String indexExpression = createIndexFieldsPart(indexFields, indexExpressions);
+        String id_type = getName(getDOTypeConfigId(config).toString(), false);
+        String indexMd5 = md5Service.getMD5(indexExpression);
+        indexMd5 = indexMd5.substring(2, indexMd5.length() - id_type.length());
+        return "i" + id_type + indexMd5;
+    }
+
+    /**
+     * Возвращает часть определения индекса, содержащую список полей (функций над полями), по которым строится индекс.
+     * @param indexFields список полей
+     * @param indexExpressions список выражений (функций над полями) 
+    * @return
+     */
+    public static String createIndexFieldsPart(List<String> indexFields, List<String> indexExpressions) {
+        StringBuilder expression = new StringBuilder();
+
+
+        int index = 0;
+        for (String fieldName : indexFields) {
+            expression.append(wrap(fieldName));
+            if (index < indexFields.size() - 1) {
+                expression.append(", ");
             }
             index++;
         }
-        return fieldsEnumeration.toString();
+            
+        if (indexExpressions.size() > 0) {
+            if (indexFields.size() > 0) {
+                expression.append(", ");
+            }
+            index = 0;
+            for (String indexExpr : indexExpressions) {
+                expression.append(unwrap(indexExpr));
+                if (index < indexExpressions.size() - 1) {
+                    expression.append(", ");
+                }
+                index++;
+            }
+
+        }
+        return expression.toString();
     }
 
     protected void appendParentFKConstraintsQueryPart(StringBuilder query, String tableName,

@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.MD5Service;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
@@ -12,8 +14,8 @@ public class OracleDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     private static final Logger logger = LoggerFactory.getLogger(OracleDataStructureDaoImpl.class);
 
     @Override
-    protected BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao) {
-        return new OracleQueryHelper(domainObjectTypeIdDao);
+    protected BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
+        return new OracleQueryHelper(domainObjectTypeIdDao, md5Service);
     }
 
     @Override

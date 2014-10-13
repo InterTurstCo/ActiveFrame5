@@ -68,8 +68,10 @@ public class DomainObjectLogicalValidator implements ConfigurationValidator {
     private void validateIndices(DomainObjectTypeConfig domainObjectTypeConfig, LogicalErrors logicalErrors) {
         if (domainObjectTypeConfig.getIndicesConfig() != null) {
             for (IndexConfig indexConfig : domainObjectTypeConfig.getIndicesConfig().getIndices()) {
-                for (IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()) {
-                    validateDomainObjectConfigContainsField(domainObjectTypeConfig, indexFieldConfig.getName(), logicalErrors);
+                for (BaseIndexExpressionConfig indexExpression : indexConfig.getIndexFieldConfigs()) {
+                    if (indexExpression instanceof IndexFieldConfig) {
+                        validateDomainObjectConfigContainsField(domainObjectTypeConfig, ((IndexFieldConfig) indexExpression).getName(), logicalErrors);
+                    }
                 }
             }
         }
