@@ -730,16 +730,17 @@ h1 {
     box-shadow: 0 4px 10px 0 #2d5b7d;
     display: block;
     height: 60px;
-    -webkit-transition: opacity 1.5s; /* For Safari 3.1 to 6.0 */
-    transition: opacity 1.5s;
+    -webkit-transition: opacity 1s; /* For Safari 3.1 to 6.0 */
+    transition: opacity 1s;
     opacity: 100;
-    z-index: 99;
+    z-index: 16;
 }
 
 .header-sectionNone {
-    -webkit-transition: opacity 0.8s; /* For Safari 3.1 to 6.0 */
-    transition: opacity 0.8s;
+    -webkit-transition: opacity 1.5s; /* For Safari 3.1 to 6.0 */
+    transition: opacity 1.5s;
     opacity: 0;
+    z-index: 16;
 }
 
 .left-section {
@@ -766,8 +767,8 @@ h1 {
 }
 
 .left-sectionNone {
-    -webkit-transition: opacity 0.5s; /* For Safari 3.1 to 6.0 */
-    transition: opacity 0.5s;
+    -webkit-transition: opacity 1.5s; /* For Safari 3.1 to 6.0 */
+    transition: opacity 1.5s;
     opacity: 0;
     margin-top: 60px;
 }
@@ -822,6 +823,7 @@ h1 {
     -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
     transition: margin 0.5s;
     margin: 11px;
+    z-index: 17;
 }
 
 .central-div-panel-test-active {
