@@ -123,6 +123,8 @@
 
     <bean id="serverComponentService" class="ru.intertrust.cm.core.dao.impl.ServerComponentServiceImpl"/>
 
+    <bean id="md5Service" class="ru.intertrust.cm.core.dao.impl.MD5ServiceImpl"/>
+
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>
@@ -133,6 +135,5 @@
             class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
             init-method="init"/>
     </beans>
-
 
 </beans>

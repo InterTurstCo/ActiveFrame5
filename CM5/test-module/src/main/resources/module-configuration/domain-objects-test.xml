@@ -180,7 +180,7 @@
         </fields>
     </domain-object-type>
     
-    <domain-object-type name="Test_Outgoing_Document" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
+    <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
             <date-time name="Registration_Date"/>
@@ -201,6 +201,7 @@
                 <field name="Registration_Number" />
                 <field name="Name" />
                 <expr value="lower(btrim(Name))"/>
+                <expr value="lower(Name||Description)" />
             </index>
             <index>
                 <expr value="lower(btrim(Name))"/>
