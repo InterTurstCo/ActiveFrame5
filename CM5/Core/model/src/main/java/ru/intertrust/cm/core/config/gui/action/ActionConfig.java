@@ -1,17 +1,17 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import java.util.Collections;
-import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ActionDisplayTypeConverter;
 import ru.intertrust.cm.core.config.converter.ActionTypeConverter;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -208,5 +208,33 @@ public class ActionConfig extends BaseActionConfig implements TopLevelConfig {
 
     public List<AbstractActionConfig> getChildren() {
         return children == null ? Collections.EMPTY_LIST : children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        ActionConfig that = (ActionConfig) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
     }
 }
