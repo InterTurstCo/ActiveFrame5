@@ -15,6 +15,12 @@ public interface ScheduleTaskLoader {
 
     void load();
 
+    /**
+     * Проверка состояния службы на готовность к работе
+     * @return
+     */
+    boolean isLoaded();
+    
     List<SheduleTaskReestrItem> getSheduleTaskReestrItems(boolean singletonOnly);
 
     DomainObject createTaskDomainObject(SheduleTaskReestrItem item);

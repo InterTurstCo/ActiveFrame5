@@ -62,6 +62,9 @@ public class SchedulerBean {
 
     @EJB
     private ScheduleProcessor processor;
+    
+    @EJB
+    private ScheduleTaskLoader scheduleTaskLoader;
 
     @Autowired
     private AccessControlService accessControlService;
@@ -101,7 +104,7 @@ public class SchedulerBean {
     public void backgroundProcessing()
     {
         try {
-            if (configurationLoader.isConfigurationLoaded()) {
+            if (configurationLoader.isConfigurationLoaded() && scheduleTaskLoader.isLoaded()) {
                 AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
                 //При первом запуске сбрасываем статусы у всех задач в ScheduleService.SCHEDULE_STATUS_SLEEP 

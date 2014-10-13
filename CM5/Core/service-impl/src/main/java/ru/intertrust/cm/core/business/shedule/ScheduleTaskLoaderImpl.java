@@ -18,8 +18,8 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -40,15 +40,16 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
+import javax.ejb.Singleton;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 /**
- * Спринг бин загрузчик классов периодических заданий
+ * EJB загрузчик классов периодических заданий
  * @author larin
  * 
  */
-@Stateless
+@Singleton
 @Local(ScheduleTaskLoader.class)
 @Remote(ScheduleTaskLoader.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
@@ -72,6 +73,9 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     @Autowired
     private SpringApplicationContext springApplicationContext;
 
+    //Флаг готовности сервиса к работе
+    private boolean isLoaded = false;
+
     /**
      * Установка spring контекста
      */
@@ -79,6 +83,7 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     public void load() throws BeansException {
         initReestr();
         initStorage();
+        isLoaded = true;
     }
 
     /**
@@ -264,6 +269,11 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
 
     public ScheduleTaskHandle getSheduleTaskHandle(String className) {
         return reestr.get(className).getScheduleTask();
+    }
+
+    @Override
+    public boolean isLoaded() {
+        return isLoaded;
     }
 
 }
