@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
@@ -28,12 +29,13 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
+    @Autowired
+    private DomainObjectCacheService domainObjectCacheService;
+
 
     @Override
     @Cacheable(value="persons", key = "#login")
     public DomainObject findPersonByLogin(String login) {
-
-
         String query = "select p.* from " + wrap(getSqlName(GenericDomainObject.PERSON_DOMAIN_OBJECT)) +
                 " p where p." + wrap("login") + "=:login";
         Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -43,6 +45,8 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
                         domainObjectTypeIdCache));
         if (person == null) {
             throw new IllegalArgumentException("Person not found: " + login);
+        } else {
+            domainObjectCacheService.putObjectToCache(person);
         }
         return person;
     }

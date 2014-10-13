@@ -37,13 +37,22 @@ public interface DomainObjectCacheService {
     public Id putObjectToCache(DomainObject dobj, AccessToken accessToken);
 
     /**
+     * Кеширование DomainObject, в транзакционный кеш без ограничения по правам доступа.
+     * Используется для кэширования DomainObject, доступных всем типам пользователей, например, Status, Person.
+     * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
+     * @param dobj кешируемый объект
+     * @return Id кешируемого объекта
+     */
+    Id putObjectToCache(DomainObject dobj);
+
+    /**
      * Кеширование списка DomainObject, в транзакционный кеш.
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
      * @see #putObjectToCache(DomainObject, ru.intertrust.cm.core.dao.access.AccessToken)
      * @param dobjs список кешируемых доменных объектов
      * @return список идентификаторов кешируемых доменных объектов
      */
-    public List<Id> putObjectToCache(List<DomainObject> dobjs, AccessToken accessToken);
+    public List<Id> putObjectsToCache(List<DomainObject> dobjs, AccessToken accessToken);
     
     /**
      * Кеширование списка DomainObject, в транзакционный кеш,
@@ -56,7 +65,7 @@ public interface DomainObjectCacheService {
      * @return список идентификаторов доменных объектов добавленных в кеш
      * @throws DaoException - если key == null или содержит пустой список.
      */
-    public List<Id> putObjectToCache(Id parentId, List<DomainObject> dobjs, AccessToken accessToken, String ... key);
+    public List<Id> putObjectsToCache(Id parentId, List<DomainObject> dobjs, AccessToken accessToken, String... key);
     
     /**
      * Кеширование списка DomainObject в транзакционный кеш для случая, когда список не имеет родительского доменного
@@ -69,21 +78,21 @@ public interface DomainObjectCacheService {
      * @return список идентификаторов доменных объектов добавленных в кеш
      * @throws DaoException - если key == null или содержит пустой список.
      */
-    public List<Id> putObjectToCache(List<DomainObject> dobjs, AccessToken accessToken, String ... key);
+    public List<Id> putObjectsToCache(List<DomainObject> dobjs, AccessToken accessToken, String... key);
 
     /**
      * Возвращает клон доменного объекта из кеш
      * @param id - Id запрашиваемого доменного объекта
      * @return клон доменного объект
      */
-    public DomainObject getObjectToCache(Id id, AccessToken accessToken);
+    public DomainObject getObjectFromCache(Id id, AccessToken accessToken);
 
     /**
      * Возвращает список клонированных доменных объектов из кеш
      * @param ids - список Id запрашиваемых доменных объектов
      * @return список доменных объектов, null - если не согласованно с базой данных
      */
-    public List<DomainObject> getObjectToCache(List<? extends Id> ids, AccessToken accessToken);
+    public List<DomainObject> getObjectsFromCache(List<? extends Id> ids, AccessToken accessToken);
 
     /**
      * Возвращает список клонированных доменных объектов из кеш
@@ -94,7 +103,7 @@ public interface DomainObjectCacheService {
      * @throws DaoException - если key == null или содержит пустой список.
      * null - если не согласованно с базой данных
      */
-    public List<DomainObject> getObjectToCache(Id parentId, AccessToken accessToken, String ... key);
+    public List<DomainObject> getObjectsFromCache(Id parentId, AccessToken accessToken, String... key);
 
     /**
      * Возвращает список клонированных доменных объектов из кеш в случае, когда список не имеет родительского
@@ -104,12 +113,16 @@ public interface DomainObjectCacheService {
      * @throws DaoException - если key == null или содержит пустой список.
      * null - если не согласованно с базой данных
      */
-    public List<DomainObject> getObjectToCache(AccessToken accessToken, String ... key);
+    public List<DomainObject> getObjectsFromCache(AccessToken accessToken, String... key);
     
     /**
      * Удаляет доменный объект из транзакционного кеша
      * @param id - доменного объекта
      */
     public void removeObjectFromCache(Id id);
-    
+
+    /**
+     * Очищает кэш
+     */
+    void clear();
 }

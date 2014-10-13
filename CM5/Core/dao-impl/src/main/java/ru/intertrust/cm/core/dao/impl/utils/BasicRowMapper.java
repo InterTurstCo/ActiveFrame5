@@ -169,12 +169,7 @@ public class BasicRowMapper extends ValueReader {
         object.setCreatedDate(object.getTimestamp("created_date"));
         object.setModifiedDate(object.getTimestamp("updated_date"));
         object.setStatus(object.getReference("status"));
-
         object.resetDirty();
-
-        if (object.getId() != null) {
-            getDomainObjectCacheService().putObjectToCache(object);
-        }
 
         return object;
     }

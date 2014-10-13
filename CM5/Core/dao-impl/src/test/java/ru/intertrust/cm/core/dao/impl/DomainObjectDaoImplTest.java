@@ -393,7 +393,7 @@ public class DomainObjectDaoImplTest {
         domainObjectDao.setConfigurationExplorer(configurationExplorer);
         domainObjectDaoImpl.setConfigurationExplorer(configurationExplorer);
 
-        when(domainObjectCacheService.getObjectToCache(any(Id.class),
+        when(domainObjectCacheService.getObjectsFromCache(any(Id.class), any(AccessToken.class),
                 any(String.class), any(String.class), any(String.class), any(String.class))).thenReturn(null);
 
         when(domainObjectTypeIdCache.getName(id1)).thenReturn("Person1_Attachment");

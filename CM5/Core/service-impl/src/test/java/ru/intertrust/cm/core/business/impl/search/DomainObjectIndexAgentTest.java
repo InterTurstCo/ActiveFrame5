@@ -88,6 +88,11 @@ public class DomainObjectIndexAgentTest {
         public boolean isDeferred() {
             return false;
         }
+
+        @Override
+        public AccessLimitationType getAccessLimitationType() {
+            return AccessLimitationType.LIMITED;
+        }
     };
 
     @Before

@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
@@ -32,6 +33,9 @@ public class StatusDaoImpl implements StatusDao {
 
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Autowired
+    private DomainObjectCacheService domainObjectCacheService;
 
     public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -68,6 +72,8 @@ public class StatusDaoImpl implements StatusDao {
                         domainObjectTypeIdCache));
         if (statusDO == null) {
             throw new IllegalArgumentException("Status not found: " + statusName);
+        } else {
+            domainObjectCacheService.putObjectToCache(statusDO);
         }
         return statusDO.getId();
     }
@@ -100,6 +106,8 @@ public class StatusDaoImpl implements StatusDao {
         if (statusDO == null) {
             throw new IllegalArgumentException("Status not found: "
                     + statusId);
+        } else {
+            domainObjectCacheService.putObjectToCache(statusDO);
         }
         return statusDO.getString("Name");
     }

@@ -717,7 +717,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public boolean exists(Id id) throws InvalidIdException {
-        if (domainObjectCacheService.getObjectToCache(id, null) != null) {
+        if (domainObjectCacheService.getObjectFromCache(id, null) != null) {
             return true;
         }
 
@@ -742,7 +742,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.READ);
 
-        DomainObject domainObject = domainObjectCacheService.getObjectToCache(id, accessToken);
+        DomainObject domainObject = domainObjectCacheService.getObjectFromCache(id, accessToken);
         if (domainObject != null) {
             return domainObject;
         }
@@ -757,10 +757,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.putAll(getAclParameters(accessToken));
         }
 
-        DomainObject result = jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
-                typeName, configurationExplorer, domainObjectTypeIdCache));
+        DomainObject result = jdbcTemplate.query(query, parameters,
+                new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
 
         if (result != null) {
+            domainObjectCacheService.putObjectToCache(result, accessToken);
             eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
         }
 
@@ -775,11 +776,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.WRITE);
 
-        DomainObject domainObject = domainObjectCacheService.getObjectToCache(id, accessToken);
-        if (domainObject != null) {
-            return domainObject;
-        }
-
         RdbmsId rdbmsId = (RdbmsId) id;
         String typeName = getDOTypeName(rdbmsId.getTypeId());
 
@@ -792,6 +788,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         DomainObject result = jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
                 typeName, configurationExplorer, domainObjectTypeIdCache));
+
+        if (result != null) {
+            domainObjectCacheService.putObjectToCache(result, accessToken);
+        }
 
         eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
 
@@ -819,7 +819,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         String[] cacheKey = new String[] { domainObjectType,
                 String.valueOf(offset),String.valueOf(limit) };
-        List<DomainObject> result = domainObjectCacheService.getObjectToCache(accessToken, cacheKey);
+        List<DomainObject> result = domainObjectCacheService.getObjectsFromCache(accessToken, cacheKey);
         if (result != null) {
             return result;
         }
@@ -835,7 +835,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         result = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(domainObjectType,
                         configurationExplorer, domainObjectTypeIdCache));
-        domainObjectCacheService.putObjectToCache(result, accessToken, cacheKey);
+        domainObjectCacheService.putObjectsToCache(result, accessToken, cacheKey);
 
         eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
 
@@ -880,7 +880,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private List<DomainObject> findDomainObjects(String typeName, List<Id> ids,
                                                  AccessToken accessToken, String domainObjectType) {
         List<DomainObject> cachedDomainObjects = domainObjectCacheService
-                .getObjectToCache(ids, accessToken);
+                .getObjectsFromCache(ids, accessToken);
         if (cachedDomainObjects != null
                 && cachedDomainObjects.size() == ids.size()) {
             return cachedDomainObjects;
@@ -935,6 +935,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .toString(), parameters, new MultipleObjectRowMapper(
                     domainObjectType, configurationExplorer,
                     domainObjectTypeIdCache));
+            domainObjectCacheService.putObjectsToCache(readDomainObjects, accessToken);
         } else {
             readDomainObjects = new ArrayList<>(0);
         }
@@ -960,14 +961,18 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId,
             String linkedType, String linkedField, int offset, int limit,
             AccessToken accessToken) {
-        String[] cacheKey = new String[] { linkedType,linkedField,
-                String.valueOf(offset),String.valueOf(limit) };
-        //CMFIVE-1785: Временное отключение использования кэша
-        /*List<DomainObject> domainObjects = domainObjectCacheService
-                .getObjectToCache(domainObjectId, cacheKey);
-        if (domainObjects != null) {
-            return domainObjects;
-        }*/
+        // Кэш используется только, когда не используется пэйджинг
+        boolean linkedDomainObjectCacheEnabled = limit == 0 && offset == 0;
+
+        if (linkedDomainObjectCacheEnabled) {
+            String[] cacheKey = new String[] {linkedType, linkedField};
+            List<DomainObject> domainObjects =
+                    domainObjectCacheService.getObjectsFromCache(domainObjectId, accessToken, cacheKey);
+
+            if (domainObjects != null) {
+                return domainObjects;
+            }
+        }
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
@@ -981,27 +986,26 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<DomainObject> domainObjects = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(linkedType, configurationExplorer,
                         domainObjectTypeIdCache));
-        //CMFIVE-1785: Временное отключение использования кэша
-        /*domainObjectCacheService.putObjectToCache(domainObjectId,
-                domainObjects, cacheKey);*/
-
-        if (domainObjects == null || domainObjects.isEmpty()) {
-            return domainObjects;
-        }
 
         // Если тип доменного объекта является наследником linkedType, то необходимо извлечь доменный объект этого типа
         for (int i = 0; i < domainObjects.size(); i++) {
             DomainObject domainObject = domainObjects.get(i);
-            if (!linkedType.equals(domainObject.getTypeName())) {
-                domainObjectCacheService.removeObjectFromCache(domainObject.getId());
+            if (linkedType.equals(domainObject.getTypeName())) {
+                domainObjectCacheService.putObjectToCache(domainObject, accessToken);
+            } else {
                 AccessToken accessTokenToFind = null;
                 if (configurationExplorer.isReadPermittedToEverybody(domainObject.getTypeName())){
                     accessTokenToFind = accessControlService.createSystemAccessToken(getClass().getName());
-                }else{
+                } else {
                     accessTokenToFind = accessToken;
                 }
                 domainObjects.set(i, find(domainObject.getId(), accessTokenToFind));
             }
+        }
+
+        if (linkedDomainObjectCacheEnabled) {
+            String[] cacheKey = new String[] {linkedType, linkedField};
+            domainObjectCacheService.putObjectsToCache(domainObjectId, domainObjects, accessToken, cacheKey);
         }
 
         eventLogService.logAccessDomainObjectEventByDo(domainObjects, EventLogService.ACCESS_OBJECT_READ, true);
@@ -1020,14 +1024,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId,
             String linkedType, String linkedField, int offset, int limit,
             AccessToken accessToken) {
-        String[] cacheKey = new String[] { linkedType,linkedField,
-                String.valueOf(offset),String.valueOf(limit) };
-        //CMFIVE-1785: Временное отключение использования кэша
-        /*List<DomainObject> domainObjects = domainObjectCacheService
-                .getObjectToCache(domainObjectId, cacheKey);
-        if (domainObjects != null) {
-            return extractIds(domainObjects);
-        }*/
+        if (offset == 0 && limit == 0) {
+            String[] cacheKey = new String[] { linkedType,linkedField,
+                    String.valueOf(offset),String.valueOf(limit) };
+
+            List<DomainObject> domainObjects =
+                    domainObjectCacheService.getObjectsFromCache(domainObjectId, accessToken, cacheKey);
+
+            if (domainObjects != null) {
+                return extractIds(domainObjects);
+            }
+        }
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
@@ -1771,6 +1778,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (statusDO == null) {
             throw new IllegalArgumentException("Status not found: "
                     + statusName);
+        } else {
+            domainObjectCacheService.putObjectToCache(statusDO);
         }
         return statusDO;
     }

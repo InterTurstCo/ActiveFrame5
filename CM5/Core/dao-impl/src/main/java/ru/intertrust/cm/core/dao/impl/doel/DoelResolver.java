@@ -177,7 +177,7 @@ public class DoelResolver implements DoelEvaluator {
                 if (nextObjects == null) {
                     nextObjects = new ArrayList<>(nextIds.size());
                     for (RdbmsId objId : sourceIds) {
-                        DomainObject obj = domainObjectCacheService.getObjectToCache(objId);
+                        DomainObject obj = domainObjectCacheService.getObjectFromCache(objId, accessToken);
                         if (obj == null) {
                             break useCache;
                         }
@@ -213,7 +213,7 @@ public class DoelResolver implements DoelEvaluator {
                         DoelExpression.ElementType.FIELD == expr.getElements()[step + 1].getElementType();
 
                 for (RdbmsId objId : sourceIds) {
-                    List<DomainObject> children = domainObjectCacheService.getObjectToCache(objId,
+                    List<DomainObject> children = domainObjectCacheService.getObjectsFromCache(objId, accessToken,
                             childrenElem.getChildType(), childrenElem.getParentLink(), "0", "0");
                     if (children == null) {
                         break useCache;
