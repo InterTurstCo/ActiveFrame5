@@ -386,6 +386,7 @@
                 </create>
             </on-delete>
         </form-objects-remover>
+        <form-save-extension before-save-component="a1.before.save.handler" after-save-component="a1.after.save.handler"/>
     </form>
 
     <form name="f1_form" domain-object-type="f1" is-default="true">
