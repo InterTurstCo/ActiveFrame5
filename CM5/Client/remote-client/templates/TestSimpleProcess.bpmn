@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
   <process id="testSimpleProcess" name="Test Simple Process" isExecutable="true">
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
-    <userTask id="usertask1" name="Пользовательская задача 1" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;person5&quot;).getId().toStringRepresentation()}" activiti:priority="1">
+    <userTask id="usertask1" name="Пользовательская задача 1" activiti:assignee="PERSON:person5" activiti:priority="1">
       <documentation>Выполните первую задачу. Тестирую пользовательские задачи.</documentation>
       <extensionElements>
         <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
@@ -121,10 +121,10 @@ execution.setVariable("col", col);</script>
           <activiti:expression>#{MAIN_ATTACHMENT_ID}</activiti:expression>
         </activiti:field>
         <activiti:field name="notificationType">
-          <activiti:string>WORKFLOW_MESSAGE</activiti:string>
+          <activiti:string><![CDATA[WORKFLOW_MESSAGE]]></activiti:string>
         </activiti:field>
         <activiti:field name="notificationPriority">
-          <activiti:string>NORMAL</activiti:string>
+          <activiti:string><![CDATA[NORMAL]]></activiti:string>
         </activiti:field>
       </extensionElements>
     </serviceTask>
@@ -180,7 +180,7 @@ execution.setVariable("col", col);</script>
       <bpmndi:BPMNShape bpmnElement="scripttask4" id="BPMNShape_scripttask4">
         <omgdc:Bounds height="55.0" width="105.0" x="256.0" y="480.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="subprocess1" id="BPMNShape_subprocess1" isExpanded="false">
+      <bpmndi:BPMNShape bpmnElement="subprocess1" id="BPMNShape_subprocess1">
         <omgdc:Bounds height="260.0" width="265.0" x="650.0" y="85.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="startevent2" id="BPMNShape_startevent2">
@@ -192,14 +192,14 @@ execution.setVariable("col", col);</script>
       <bpmndi:BPMNShape bpmnElement="errorendevent1" id="BPMNShape_errorendevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="758.0" y="280.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="boundaryerror1" id="BPMNShape_boundaryerror1">
+        <omgdc:Bounds height="30.0" width="30.0" x="680.0" y="335.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask5" id="BPMNShape_scripttask5">
         <omgdc:Bounds height="55.0" width="105.0" x="438.0" y="388.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask5" id="BPMNShape_usertask5">
         <omgdc:Bounds height="55.0" width="281.0" x="665.0" y="453.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="boundaryerror1" id="BPMNShape_boundaryerror1">
-        <omgdc:Bounds height="30.0" width="30.0" x="680.0" y="335.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
         <omgdc:Bounds height="40.0" width="40.0" x="749.0" y="408.0"></omgdc:Bounds>
@@ -234,6 +234,16 @@ execution.setVariable("col", col);</script>
         <omgdi:waypoint x="147.0" y="507.0"></omgdi:waypoint>
         <omgdi:waypoint x="256.0" y="507.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow-yes" id="BPMNEdge_flow-yes">
+        <omgdi:waypoint x="470.0" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="412.0" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="412.0" y="150.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow-now" id="BPMNEdge_flow-now">
+        <omgdi:waypoint x="510.0" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="562.0" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="562.0" y="150.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
         <omgdi:waypoint x="412.0" y="205.0"></omgdi:waypoint>
         <omgdi:waypoint x="412.0" y="289.0"></omgdi:waypoint>
@@ -251,16 +261,6 @@ execution.setVariable("col", col);</script>
         <omgdi:waypoint x="624.0" y="36.0"></omgdi:waypoint>
         <omgdi:waypoint x="781.0" y="36.0"></omgdi:waypoint>
         <omgdi:waypoint x="782.0" y="85.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow-yes" id="BPMNEdge_flow-yes">
-        <omgdi:waypoint x="470.0" y="65.0"></omgdi:waypoint>
-        <omgdi:waypoint x="412.0" y="65.0"></omgdi:waypoint>
-        <omgdi:waypoint x="412.0" y="150.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow-now" id="BPMNEdge_flow-now">
-        <omgdi:waypoint x="510.0" y="65.0"></omgdi:waypoint>
-        <omgdi:waypoint x="562.0" y="65.0"></omgdi:waypoint>
-        <omgdi:waypoint x="562.0" y="150.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
         <omgdi:waypoint x="308.0" y="480.0"></omgdi:waypoint>

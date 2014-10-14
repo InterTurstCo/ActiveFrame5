@@ -68,11 +68,18 @@ public interface PermissionServiceDao {
     List<DomainObjectPermission> getObjectPermissions(Id domainObjectId);
     
     /**
-     * Получение состава контекстной роли
+     * Получение состава контекстной роли как список пользователей
      * @param contextId
      * @return
      */
     List<Id> getPersons(Id contextId, String roleName);
+
+    /**
+     * Получение состава контекстной роли как список групп
+     * @param contextId
+     * @return
+     */
+    List<Id> getGroups(Id contextId, String roleName);
 
     /**
      * Дать временные права на вновь созданный доменный объект. 

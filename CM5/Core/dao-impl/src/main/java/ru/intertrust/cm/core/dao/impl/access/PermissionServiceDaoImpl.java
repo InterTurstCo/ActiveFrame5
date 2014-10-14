@@ -999,6 +999,30 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return result;
     }
 
+    @Override
+    public List<Id> getGroups(Id contextId, String roleName) {
+
+        //Получаем все коллекторы
+        List<ContextRoleRegisterItem> collectors = collectorsByContextRoleNames.get(roleName);
+
+        List<Id> result = new ArrayList<Id>();
+        //Цикл по коллекторам
+        if (collectors != null) {
+            for (ContextRoleRegisterItem collectorItem : collectors) {
+                //Получаем состав контекстной роли
+                List<Id> groups = collectorItem.getCollector().getMembers(contextId);
+                for (Id group : groups) {
+                    //Формируем результат с уникальными значениями
+                    if (!result.contains(group)) {
+                        result.add(group);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }    
+    
     /**
      * Добавление уникальных записей в результат
      * @param result

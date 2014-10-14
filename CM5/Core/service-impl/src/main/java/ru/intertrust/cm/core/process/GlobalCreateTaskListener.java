@@ -28,18 +28,25 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.tools.SpringClient;
 
 /**
- * Глобальный слушатель создания UserTask. Создает соответствующий доменный объект и выполняет отсылку по электронной
- * почте
+ * Глобальный слушатель создания UserTask. Создает соответствующий доменный
+ * объект и выполняет отсылку по электронной почте
  */
 public class GlobalCreateTaskListener extends SpringClient implements
         TaskListener, ExecutionListener {
+    public static final String PERSON_ASSIGNEE_PREFIX = "PERSON";
+    public static final String GROUP_ASSIGNEE_PREFIX = "GROUP";
+    public static final String DYNAMIC_GROUP_ASSIGNEE_PREFIX = "DYNAMIC_GROUP";
+    public static final String CONTEXT_ROLE_ASSIGNEE_PREFIX = "CONTEXT_ROLE";
 
     @Autowired
     private DomainObjectDao domainObjectDao;
@@ -59,6 +66,15 @@ public class GlobalCreateTaskListener extends SpringClient implements
     @Autowired
     private StatusDao statusDao;
 
+    @Autowired
+    private PersonManagementServiceDao personManagementService;
+    
+    @Autowired
+    private UserGroupGlobalCache userGroupGlobalCache;
+
+    @Autowired
+    private PermissionServiceDao permissionServiceDao;
+
     /**
      * Входная точка слушителя. вызывается при создание пользовательской задачи
      */
@@ -66,7 +82,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
     public void notify(DelegateTask delegateTask) {
         ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
         RepositoryService repositoryService = processEngine.getRepositoryService();
-        
+
         // Создание доменного обьекта Task
         DomainObject taskDomainObject = createDomainObject("Person_Task");
         taskDomainObject.setString("TaskId", delegateTask.getId());
@@ -116,7 +132,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
         // Сохранение доменного объекта
         taskDomainObject = domainObjectDao.save(taskDomainObject, accessToken);
         //Получение адресатов
-        List<DomainObject> assigneeList = getAssigneeList(delegateTask.getAssignee(), accessToken);
+        List<DomainObject> assigneeList = getAssigneeList(idService.createId(mainAttachmentId), delegateTask.getAssignee(), accessToken);
         for (DomainObject assignee : assigneeList) {
             // Создание связанного AssigneePerson или AssigneeGroup
             if (assignee.getTypeName().equals("UserGroup")) {
@@ -146,24 +162,48 @@ public class GlobalCreateTaskListener extends SpringClient implements
      * @param assigneeAsString
      * @return
      */
-    private List<DomainObject> getAssigneeList(String assigneeAsString, AccessToken accessToken){
+    private List<DomainObject> getAssigneeList(Id mainDomainObjectId, String assigneeAsString, AccessToken accessToken) {
 
         List<DomainObject> result = new ArrayList<DomainObject>();
-        
+
         //Разделяем по запятой
         String[] assigneeArray = assigneeAsString.split(",");
-        
-        for (String assigneeExpression : assigneeArray) {
-            // TODO реализовать конструкции PERSON:admin, GROUP:admins, CONTEXT_ROLE:admins, DYNAMIC_GROUP:admins
 
-            Id assigneeId = idService.createId(assigneeExpression);
-            DomainObject assignee = domainObjectDao.find(assigneeId, accessToken);
-            result.add(assignee);
+        for (String assigneeExpression : assigneeArray) {
+            // Отрабатываем конструкции PERSON:admin, GROUP:admins, CONTEXT_ROLE:admins, DYNAMIC_GROUP:admins
+            if (assigneeExpression.startsWith(PERSON_ASSIGNEE_PREFIX)) {
+                //Получаем персону по логину
+                String login = assigneeExpression.split(":")[1].trim();
+                result.add(domainObjectDao.find(userGroupGlobalCache.getUserIdByLogin(login), accessToken));
+            } else if (assigneeExpression.startsWith(GROUP_ASSIGNEE_PREFIX)) {
+                //Получене имени группы
+                String groupName = assigneeExpression.split(":")[1].trim();
+                //Получение объекта группы
+                Id groupId = personManagementService.getGroupId(groupName);
+                result.add(domainObjectDao.find(groupId, accessToken));
+            } else if (assigneeExpression.startsWith(DYNAMIC_GROUP_ASSIGNEE_PREFIX)) {
+                //Получение имени группы
+                String groupName = assigneeExpression.split(":")[1].trim();
+                DomainObject dynGroup = personManagementService.findDynamicGroup(groupName, mainDomainObjectId);
+                result.add(dynGroup);                
+            } else if (assigneeExpression.startsWith(CONTEXT_ROLE_ASSIGNEE_PREFIX)) {
+                //Получение имени контекстной ролиы
+                String roleName = assigneeExpression.split(":")[1].trim();
+                List<Id> groups = permissionServiceDao.getGroups(mainDomainObjectId, roleName);
+                for (Id groupId : groups) {
+                    result.add(domainObjectDao.find(groupId, accessToken));
+                }
+            } else {
+                //По умолчанию ожидаем здесь идентификаторы в формате Id.toStringRepresentation()
+                Id assigneeId = idService.createId(assigneeExpression);
+                DomainObject assignee = domainObjectDao.find(assigneeId, accessToken);
+                result.add(assignee);
+            }
         }
-        
+
         return result;
     }
-    
+
     /**
      * Создание нового доменного обьекта переданного типа
      * 
@@ -180,8 +220,8 @@ public class GlobalCreateTaskListener extends SpringClient implements
     }
 
     /**
-     * Точка входа при выходе из задачи. переопределяется чтобы установить статус у задач, которые были завершены с
-     * помощью event
+     * Точка входа при выходе из задачи. переопределяется чтобы установить
+     * статус у задач, которые были завершены с помощью event
      */
     @Override
     public void notify(DelegateExecution execution) throws Exception {
