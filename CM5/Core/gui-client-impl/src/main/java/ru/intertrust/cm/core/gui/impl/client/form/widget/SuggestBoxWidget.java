@@ -356,8 +356,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
         result.setDropdownPattern(dropDownPatternConfig);
         result.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
         result.setText(requestQuery);
-        final SuggestPresenter presenter = (SuggestPresenter) impl;
-        result.setExcludeIds(new LinkedHashSet<Id>(presenter.getSelectedKeys()));
+        result.setExcludeIds(new LinkedHashSet<Id>(currentState.getSelectedIds()));
         result.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
         result.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
         result.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
@@ -520,10 +519,6 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
             int size = scrollable ? pageSize : suggestionsSize;
             int result = scrollable ? size * ONE_SUGGESTION_HEIGHT - 2 * HEIGHT_OFFSET_UP : size * ONE_SUGGESTION_HEIGHT;
             return result;
-        }
-
-        public Set<Id> getSelectedKeys() {
-            return selectedSuggestions.keySet();
         }
 
         public void initModel(final SuggestBoxState state) {
