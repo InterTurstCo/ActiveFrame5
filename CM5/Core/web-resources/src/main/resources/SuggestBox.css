@@ -214,6 +214,7 @@ td .gwt-SuggestBox {
     font-family: Arial, sans-serif;
     width: 45px;
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
 
 .suggestWrapper{
