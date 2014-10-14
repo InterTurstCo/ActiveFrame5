@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
+import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -48,23 +49,25 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Autowired private ConfigurationSerializer configurationSerializer;
 
     @Autowired private ProcessService processService;
+    @Autowired private ImportDataService importDataService;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void updateConfiguration(String configurationString, String fileName) throws ConfigurationException {
-        UpdateType updateType = resolveUpdateType(configurationString, fileName);
+    public void updateConfiguration(String updateContent, String fileName) throws ConfigurationException {
+        UpdateType updateType = resolveUpdateType(updateContent, fileName);
 
         switch (updateType) {
             case CONFIGURATION: {
-                processConfigurationUpdate(configurationString);
+                processConfigurationUpdate(updateContent);
                 break;
             } case WORKFLOW:{
-                processWorkflowUpdate(configurationString, fileName);
+                processWorkflowUpdate(updateContent, fileName);
                 break;
             } case DATA_IMPORT: {
-                //todo
+                processDataImport(updateContent); // Импорт данных происходит в режиме rewrite.
+                break;
             }
         }
     }
@@ -107,8 +110,12 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         }
     }
 
-    private void processWorkflowUpdate(String configurationString, String fileName) {
-        processService.deployProcess(configurationString.getBytes(), fileName);
+    private void processWorkflowUpdate(String processDataString, String fileName) {
+        processService.deployProcess(processDataString.getBytes(), fileName);
+    }
+
+    private void processDataImport(String importDataString) {
+        importDataService.importData(importDataString.getBytes(), null, true);
     }
 
     private Configuration deserializeConfiguration(String configurationString) {
