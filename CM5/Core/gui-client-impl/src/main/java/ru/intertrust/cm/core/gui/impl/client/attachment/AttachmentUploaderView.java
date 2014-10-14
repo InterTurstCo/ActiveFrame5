@@ -270,7 +270,7 @@ public class AttachmentUploaderView extends Composite {
     }
 
     private void showDialogBox() {
-        final StyledDialogBox dialogBox = new StyledDialogBox("Текущее прикрепление будет перезаписано. \nПродолжить?");
+        final StyledDialogBox dialogBox = new StyledDialogBox("Текущее вложение будет перезаписано. \nПродолжить?");
         dialogBox.addOkButtonClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 dialogBox.hide();
