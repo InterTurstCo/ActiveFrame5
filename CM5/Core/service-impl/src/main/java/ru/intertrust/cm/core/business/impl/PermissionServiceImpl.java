@@ -95,5 +95,10 @@ public class PermissionServiceImpl implements PermissionService {
                     "domainObjectType:" + domainObjectType, ex);
         }
     }
+
+    @Override
+    public void refreshAcls() {
+        permissionServiceDao.refreshAcls();        
+    }
     
 }

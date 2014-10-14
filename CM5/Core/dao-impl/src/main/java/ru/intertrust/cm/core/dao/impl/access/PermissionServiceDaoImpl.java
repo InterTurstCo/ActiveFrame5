@@ -917,6 +917,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         @Override
         public void afterCompletion(int status) {
         }
+        
+        public List<Id> getInvalidContexts(){
+            return contextIds;
+        }
     }
 
     private class AclInfo {
@@ -1023,6 +1027,22 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
             //Добавляем права группе
             insertAclRecord(DomainObjectAccessType.READ, domainObject, currentPersonGroup);
+        }
+    }
+
+    @Override
+    public void refreshAcls() {
+        //Не работаем вне транзакции
+        if (getTxReg().getTransactionKey() == null) {
+            return;
+        }
+        //Получаем все невалидные контексты и вызываем для них перерасчет ACL
+        RecalcAclSynchronization recalcGroupSynchronization =
+                (RecalcAclSynchronization) getTxReg().getResource(RecalcAclSynchronization.class);
+        if (recalcGroupSynchronization != null) {
+            for (Id contextId : recalcGroupSynchronization.getInvalidContexts()) {
+                refreshAclFor(contextId);
+            }
         }
     }
 }

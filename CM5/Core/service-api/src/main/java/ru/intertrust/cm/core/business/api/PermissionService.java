@@ -41,4 +41,9 @@ public interface PermissionService {
      * @return true если разрешено, иначе false
      */
     boolean isReadPermittedToEverybody(String domainObjectType);
+    
+    /**
+     * Производит пересчет всех ACL, которые должны пересчитатся в конце транзакции, не дожидаясь окончания транзакции
+     */
+    void refreshAcls();    
 }

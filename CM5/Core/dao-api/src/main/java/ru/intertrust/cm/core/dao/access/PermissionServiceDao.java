@@ -81,4 +81,9 @@ public interface PermissionServiceDao {
      * @param domainObject
      */
     void grantNewObjectPermissions(Id domainObject);
+
+    /**
+     * Производит пересчет всех ACL, которые должны пересчитатся в конце транзакции, не дожидаясь окончания транзакции
+     */
+    void refreshAcls();
 }
