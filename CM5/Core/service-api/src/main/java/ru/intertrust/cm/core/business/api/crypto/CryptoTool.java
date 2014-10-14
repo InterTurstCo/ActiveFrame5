@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.business.api.crypto;
 import java.io.InputStream;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.VerifyResult;
+import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
 
 /**
  * Сервис для выполнения криптографических операций на платформе CM5.
