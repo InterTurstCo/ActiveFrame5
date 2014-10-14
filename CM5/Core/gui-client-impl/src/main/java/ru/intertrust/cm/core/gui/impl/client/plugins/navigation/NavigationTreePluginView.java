@@ -59,6 +59,7 @@ public class NavigationTreePluginView extends PluginView {
     private HTML pinButton;
     private FocusPanel navigationTreeContainer;
     private Timer mouseHoldTimer;
+    private Integer navigationTreeOpeningTime;
     private boolean iSOpenTheAnimatedTreePanel;
 
     protected NavigationTreePluginView(Plugin plugin) {
@@ -76,6 +77,7 @@ public class NavigationTreePluginView extends PluginView {
     @Override
     public IsWidget getViewWidget() {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
+        navigationTreeOpeningTime = navigationTreePluginData.getSideBarOpenningTime();
         pinButton = new HTML();
         navigationTreesPanel.setStyleName("navigation-dynamic-panel");
         navigationTreeContainer = new FocusPanel();
@@ -162,7 +164,7 @@ public class NavigationTreePluginView extends PluginView {
                 navigationTreesPanel.getElement().getStyle().setDisplay(Style.Display.BLOCK);
             }
         };
-        mouseHoldTimer.schedule(650);
+        mouseHoldTimer.schedule(navigationTreeOpeningTime);
     }
 
     private void hideTreePanel() {
@@ -178,7 +180,7 @@ public class NavigationTreePluginView extends PluginView {
                         navigationTreesPanel.getElement().getStyle().clearDisplay();
                     }
                 };
-                mouseHoldTimer.schedule(650);
+                mouseHoldTimer.schedule(navigationTreeOpeningTime);
             }
         }
     }

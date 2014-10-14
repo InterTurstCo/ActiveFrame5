@@ -17,7 +17,6 @@ import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
@@ -124,6 +123,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 // данному плагину устанавливается глобальная шина событий
                 navigationTreePlugin.setEventBus(glEventBus);
+
+                Integer sideBarOpenningTime = result.getSideBarOpenningTimeConfig();
+                navigationTreePlugin.setSideBarOpenningTime(sideBarOpenningTime);
+
                 centralPluginPanel = new CentralPluginPanel();
                 centralPluginPanel.setStyle("rightSectionWrapper");
                 centralDivPanel.add(centralPluginPanel);

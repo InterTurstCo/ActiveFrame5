@@ -21,7 +21,7 @@ import java.util.List;
 
 @ComponentName("navigation.tree")
 public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler {
-
+    private Integer sideBarOpenningTime;
     protected EventBus eventBus;
 
     // установка шины событий плагину™
@@ -53,6 +53,8 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
         } else if (!historyManager.getSelectedIds().isEmpty()) {
             data.setChildToOpen(null);
         }
+
+        ((NavigationTreePluginData) initialData).setSideBarOpenningTime(sideBarOpenningTime);
         super.setInitialData(initialData);
     }
 
@@ -142,5 +144,13 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
             }
         }
         return null;
+    }
+
+    public Integer getSideBarOpenningTime() {
+        return sideBarOpenningTime;
+    }
+
+    public void setSideBarOpenningTime(Integer sideBarOpenningTime) {
+        this.sideBarOpenningTime = sideBarOpenningTime;
     }
 }

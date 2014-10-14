@@ -68,7 +68,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setProductVersion(productVersion == null || productVersion.getArchive() == null ? "" : guiService.getProductVersion(productVersion.getArchive()));
 
         addSettingsPopupConfig(businessUniverseConfig, initialization);
-
+        addSideBarOpeningTime(businessUniverseConfig, initialization);
         if (businessUniverseConfig != null) {
             initialization.setCollectionCountersUpdatePeriod(
                     businessUniverseConfig.getCollectionCountRefreshConfig() == null
@@ -147,6 +147,18 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         String logoImagePath = logoConfig.getImage();
         businessUniverseInitialization.setLogoImagePath(logoImagePath);
         return;
+    }
+
+    private void addSideBarOpeningTime(BusinessUniverseConfig businessUniverseConfig,
+                                       BusinessUniverseInitialization businessUniverseInitialization){
+
+        if(businessUniverseConfig.getSideBarOpenningTimeConfig() == null){
+            businessUniverseInitialization.setSideBarOpenningTimeConfig(500);
+        }
+        else{
+            businessUniverseInitialization.setSideBarOpenningTimeConfig(Integer.parseInt(businessUniverseConfig.getSideBarOpenningTimeConfig().getDefaultValue()));
+        }
+
     }
 
     private void addSettingsPopupConfig(BusinessUniverseConfig businessUniverseConfig,

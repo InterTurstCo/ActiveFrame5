@@ -483,6 +483,9 @@
 
     <xs:complexType name="businessUniverseType">
         <xs:choice maxOccurs="unbounded">
+            <xs:element name="side-bar-openning-time" type="con:sideBarOpenningTimeType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="login-screen" type="con:logoScreenType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -524,6 +527,11 @@
                       type="xs:boolean"/>
         <xs:attribute name="display-core-version" use="optional"
                       type="xs:boolean"/>
+    </xs:complexType>
+
+    <xs:complexType name="sideBarOpenningTimeType">
+        <xs:attribute name="default-value" use="optional"
+                      type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="themesType">

@@ -14,6 +14,7 @@ public class NavigationTreePluginData extends PluginData {
     private PluginConfig pluginConfig;
     private String childToOpen;
     private String rootLinkSelectedName;
+    private Integer sideBarOpenningTime;
 
     public String getChildToOpen() {
         return childToOpen;
@@ -46,5 +47,13 @@ public class NavigationTreePluginData extends PluginData {
 
     public void setRootLinkConfig(LinkConfig rootLinkConfig) {
         this.rootLinkConfig = rootLinkConfig;
+    }
+
+    public Integer getSideBarOpenningTime() {
+        return sideBarOpenningTime;
+    }
+
+    public void setSideBarOpenningTime(Integer sideBarOpenningTime) {
+        this.sideBarOpenningTime = sideBarOpenningTime;
     }
 }

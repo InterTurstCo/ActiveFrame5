@@ -32,6 +32,7 @@
         </event-logs>
     </global-settings>
     <business-universe>
+        <!--<side-bar-openning-time default-value="3000"/>-->
         <login-screen display-product-version="true" display-core-version="true">
                 <product-title style="text"/>
         </login-screen>

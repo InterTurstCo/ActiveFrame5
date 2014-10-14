@@ -16,6 +16,9 @@ public class BusinessUniverseConfig implements TopLevelConfig {
     @Element(name = "login-screen", required = false)
     private LoginScreenConfig loginScreenConfig;
 
+    @Element(name = "side-bar-openning-time", required = false)
+    private SideBarOpenningTimeConfig sideBarOpenningTimeConfig;
+
     @Element(name = "logo", required = false)
     private LogoConfig logoConfig;
 
@@ -75,52 +78,48 @@ public class BusinessUniverseConfig implements TopLevelConfig {
         this.settingsPopupConfig = settingsPopupConfig;
     }
 
+    public SideBarOpenningTimeConfig getSideBarOpenningTimeConfig() {
+        return sideBarOpenningTimeConfig;
+    }
+
+    public void setSideBarOpenningTimeConfig(SideBarOpenningTimeConfig sideBarOpenningTimeConfig) {
+        this.sideBarOpenningTimeConfig = sideBarOpenningTimeConfig;
+    }
+
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         BusinessUniverseConfig that = (BusinessUniverseConfig) o;
-        if (logoConfig != null ? !logoConfig.equals(that.logoConfig) : that.logoConfig != null) {
+
+        if (collectionCountCacheRefreshConfig != null ? !collectionCountCacheRefreshConfig.equals(that.collectionCountCacheRefreshConfig) : that.collectionCountCacheRefreshConfig != null)
             return false;
-        }
-        if (headerNotificationRefreshConfig == null
-                ? that.headerNotificationRefreshConfig != null
-                : !headerNotificationRefreshConfig.equals(that.getHeaderNotificationRefreshConfig())) {
+        if (collectionCountRefreshConfig != null ? !collectionCountRefreshConfig.equals(that.collectionCountRefreshConfig) : that.collectionCountRefreshConfig != null)
             return false;
-        }
-        if (!collectionCountRefreshConfig.equals(that.collectionCountRefreshConfig)) {
+        if (headerNotificationRefreshConfig != null ? !headerNotificationRefreshConfig.equals(that.headerNotificationRefreshConfig) : that.headerNotificationRefreshConfig != null)
             return false;
-        }
-        if (!collectionCountCacheRefreshConfig.equals(that.collectionCountCacheRefreshConfig)) {
+        if (loginScreenConfig != null ? !loginScreenConfig.equals(that.loginScreenConfig) : that.loginScreenConfig != null)
             return false;
-        }
-        if (settingsPopupConfig != null ? !settingsPopupConfig.equals(that.settingsPopupConfig) :
-                that.settingsPopupConfig != null) {
+        if (logoConfig != null ? !logoConfig.equals(that.logoConfig) : that.logoConfig != null) return false;
+        if (settingsPopupConfig != null ? !settingsPopupConfig.equals(that.settingsPopupConfig) : that.settingsPopupConfig != null)
             return false;
-        }
-        if (loginScreenConfig != null ? !loginScreenConfig.equals(that.loginScreenConfig) : that.loginScreenConfig != null) {
+        if (sideBarOpenningTimeConfig != null ? !sideBarOpenningTimeConfig.equals(that.sideBarOpenningTimeConfig) : that.sideBarOpenningTimeConfig != null)
             return false;
-        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = (logoConfig != null ? logoConfig.hashCode() : 31);
-        result = result * 31 +
-                (headerNotificationRefreshConfig == null ? 31 : headerNotificationRefreshConfig.hashCode());
-        result = 31 * result + collectionCountRefreshConfig.hashCode();
-        result = 31 * result + collectionCountCacheRefreshConfig.hashCode();
-        result = 31 * result + (settingsPopupConfig == null ? 31 : settingsPopupConfig.hashCode());
-
-                result = result * 31 +
-                (loginScreenConfig == null ? 31 : loginScreenConfig.hashCode());
+        int result = loginScreenConfig != null ? loginScreenConfig.hashCode() : 0;
+        result = 31 * result + (sideBarOpenningTimeConfig != null ? sideBarOpenningTimeConfig.hashCode() : 0);
+        result = 31 * result + (logoConfig != null ? logoConfig.hashCode() : 0);
+        result = 31 * result + (headerNotificationRefreshConfig != null ? headerNotificationRefreshConfig.hashCode() : 0);
+        result = 31 * result + (collectionCountRefreshConfig != null ? collectionCountRefreshConfig.hashCode() : 0);
+        result = 31 * result + (collectionCountCacheRefreshConfig != null ? collectionCountCacheRefreshConfig.hashCode() : 0);
+        result = 31 * result + (settingsPopupConfig != null ? settingsPopupConfig.hashCode() : 0);
         return result;
     }
 

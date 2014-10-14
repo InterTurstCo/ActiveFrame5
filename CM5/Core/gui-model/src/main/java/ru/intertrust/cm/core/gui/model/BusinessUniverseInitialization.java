@@ -24,6 +24,7 @@ public class BusinessUniverseInitialization implements Dto {
     private Integer headerNotificationPeriod;
     private String applicationVersion;
     private String productVersion;
+    private Integer SideBarOpenningTimeConfig;
 
     public String getProductVersion() {
         return productVersion;
@@ -144,5 +145,13 @@ public class BusinessUniverseInitialization implements Dto {
 
     public void setHeaderNotificationPeriod(final Integer headerNotificationPeriod) {
         this.headerNotificationPeriod = headerNotificationPeriod;
+    }
+
+    public Integer getSideBarOpenningTimeConfig() {
+        return SideBarOpenningTimeConfig;
+    }
+
+    public void setSideBarOpenningTimeConfig(Integer sideBarOpenningTimeConfig) {
+        SideBarOpenningTimeConfig = sideBarOpenningTimeConfig;
     }
 }
