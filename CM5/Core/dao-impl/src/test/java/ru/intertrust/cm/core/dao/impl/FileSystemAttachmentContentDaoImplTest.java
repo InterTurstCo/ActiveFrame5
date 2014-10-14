@@ -19,13 +19,14 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.dao.api.EventLogService;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 /**
@@ -45,15 +46,20 @@ public class FileSystemAttachmentContentDaoImplTest {
     @Mock
     private ConfigurationExplorerImpl configurationExplorer;
 
+    @Mock
+    private EventLogService eventLogService;
     
+    @Mock
+    private UserTransactionService userTransactionService;
+
     
     @Test
     public void saveContent() throws IOException {
-        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
+/*        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
         ctx.load("classpath:test_beans.xml");
         ctx.refresh();
         FileSystemAttachmentContentDaoImpl contentDao = (FileSystemAttachmentContentDaoImpl) ctx.getBean("attachmentContentDao");
-        contentDao.setAttachmentSaveLocation(TEST_OUT_DIR);
+*/      contentDao.setAttachmentSaveLocation(TEST_OUT_DIR);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
         ByteArrayInputStream bis = new ByteArrayInputStream(expBytes);
@@ -65,7 +71,6 @@ public class FileSystemAttachmentContentDaoImplTest {
     @Test
     public void loadContent() throws IOException {
         when(configurationExplorer.isAttachmentType(anyString())).thenReturn(true);
-
         contentDao.setAttachmentSaveLocation(TEST_OUT_DIR);
         byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
         String path = createAndCopyToFile(new ByteArrayInputStream(expBytes));

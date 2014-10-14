@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
+import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
@@ -40,6 +41,9 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     @Autowired
     private UserTransactionService userTransactionService;
     
+    @Autowired
+    private EventLogService eventLogService;
+    
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -47,7 +51,11 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     public void setAttachmentSaveLocation(String attachmentSaveLocation) {
         this.attachmentSaveLocation = attachmentSaveLocation;
     }
-    
+        
+    public void setEventLogService(EventLogService eventLogService) {
+        this.eventLogService = eventLogService;
+    }
+
     private void init() {
         //Заменяем настройку путей на использование server.properties. значение устанавливает аннотация @Value("#{attachment.storage}")
         /*GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
@@ -85,7 +93,10 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
                 throw new DaoException("The path is empty");
             }
             String relFilePath = ((StringValue) domainObject.getValue(PATH_NAME)).get();
-            return new FileInputStream(toAbsFromRelativePathFile(relFilePath));
+            FileInputStream inputStream = new FileInputStream(toAbsFromRelativePathFile(relFilePath));
+            eventLogService.logDownloadAttachmentEvent(domainObject.getId());
+            return inputStream;
+            
         } catch (FileNotFoundException e) {
             throw new DaoException(e);
         }

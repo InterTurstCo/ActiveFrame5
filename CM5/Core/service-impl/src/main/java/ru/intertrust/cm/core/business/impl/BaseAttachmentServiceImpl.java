@@ -47,8 +47,6 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
-    @Autowired
-    private EventLogService eventLogService;
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -140,7 +138,6 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         try {
             InputStream inputStream = attachmentContentDao.loadContent(attachmentDomainObject);
             RemoteInputStream export = wrapStream(inputStream);
-            eventLogService.logDownloadAttachmentEvent(attachmentDomainObjectId);
             return export;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in loadAttachment", ex);
