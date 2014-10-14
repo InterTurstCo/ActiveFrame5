@@ -1,22 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.form.FormSaveExtensionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
+import ru.intertrust.cm.core.gui.api.server.form.FormAfterSaveInterceptor;
+import ru.intertrust.cm.core.gui.api.server.form.FormBeforeSaveInterceptor;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
@@ -27,12 +20,15 @@ import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import java.util.*;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 21.10.13
  *         Time: 13:03
  */
 public class FormSaver extends FormProcessor {
+    private FormConfig formConfig;
     private FormState formState;
     private Map<FieldPath, Value> forcedRootDomainObjectValues;
     private FormObjects formObjects;
@@ -41,21 +37,35 @@ public class FormSaver extends FormProcessor {
     private HashMap<FieldPath, ObjectWithReferences> toUpdateReferences;
     private HashSet<FieldPath> toUpdate;
     private HashMap<Id, DomainObject> savedObjectsById;
+    private String beforeSaveComponent;
+    private String afterSaveComponent;
 
     public void setContext(FormState formState, Map<FieldPath, Value> forcedRootDomainObjectValues) {
         this.formState = formState;
+        this.formConfig = configurationExplorer.getConfig(FormConfig.class, formState.getName());
         this.formObjects = formState.getObjects();
         this.forcedRootDomainObjectValues = forcedRootDomainObjectValues == null ? new HashMap<FieldPath, Value>(0) : forcedRootDomainObjectValues;
         toCreate = new HashMap<>();
         toUpdateReferences = new HashMap<>();
         toUpdate = new HashSet<>();
         savedObjectsById = new HashMap<>();
+        final FormSaveExtensionConfig extensionConfig = formConfig.getFormSaveExtensionConfig();
+        if (extensionConfig != null) {
+            if (extensionConfig.getBeforeSaveComponent() != null) {
+                this.beforeSaveComponent = extensionConfig.getBeforeSaveComponent();
+            }
+            if (extensionConfig.getAfterSaveComponent() != null) {
+                this.afterSaveComponent = extensionConfig.getAfterSaveComponent();
+            }
+        }
         init();
     }
 
     private void init() {
-        FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formState.getName());
-        WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
+        if (beforeSaveComponent != null) {
+            ((FormBeforeSaveInterceptor) applicationContext.getBean(beforeSaveComponent)).beforeSave(formState);
+        }
+        final WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         widgetConfigs = new ArrayList<>(widgetConfigurationConfig.getWidgetConfigList().size() / 2);
         for (WidgetConfig config : widgetConfigurationConfig.getWidgetConfigList()) {
             if (formState.getWidgetState(config.getId()) != null && !config.isReadOnly()) { // ignore empty - such data shouldn't be saved
@@ -117,7 +127,12 @@ public class FormSaver extends FormProcessor {
         changeMultiBackReferences(multiBackReferenceContexts);
 
         saveNewLinkedObjects();
-        return formObjects.getRootNode().getDomainObject(); // after save its ID may be changed
+
+        DomainObject savedRootObject = formObjects.getRootNode().getDomainObject(); // after save its ID may be changed
+        if (afterSaveComponent != null) {
+            ((FormAfterSaveInterceptor) applicationContext.getBean(afterSaveComponent)).afterSave(savedRootObject);
+        }
+        return savedRootObject;
     }
 
     private void changeMultiBackReferences(ArrayList<WidgetContext> multiBackReferenceContexts) {

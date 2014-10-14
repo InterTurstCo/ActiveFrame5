@@ -1419,6 +1419,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:formObjectsRemoverConfigType" name="form-objects-remover" minOccurs="0" maxOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:formObjectsSaveExtensionConfigType" name="form-save-extension" minOccurs="0" maxOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:widgetGroupsType" name="widget-groups" minOccurs="0" maxOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
@@ -2266,6 +2268,10 @@
             <xs:element name="on-delete" type="con:onDeleteConfigType" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
         <xs:attribute type="xs:string" name="handler"/>
+    </xs:complexType>
+    <xs:complexType name="formObjectsSaveExtensionConfigType">
+        <xs:attribute type="xs:string" name="before-save-component"/>
+        <xs:attribute type="xs:string" name="after-save-component"/>
     </xs:complexType>
     <xs:complexType name="onDeleteConfigType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
