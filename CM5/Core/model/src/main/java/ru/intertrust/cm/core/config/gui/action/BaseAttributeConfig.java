@@ -29,30 +29,4 @@ public class BaseAttributeConfig implements Dto {
     public void setRendered(final String rendered) {
         this.rendered = rendered;
     }
-
-    @Override
-    public int hashCode() {
-        int result = 17;
-        result = result * 17 + (styleClass == null ? 17 : styleClass.hashCode());
-        result = result * 17 + (rendered == null ? 17 : rendered.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        final BaseAttributeConfig other = (BaseAttributeConfig) obj;
-        if (styleClass == null ? other.styleClass != null : !styleClass.equals(other.styleClass)) {
-            return false;
-        }
-        if (rendered == null ? other.rendered != null : !rendered.equals(other.rendered)) {
-            return false;
-        }
-        return true;
-    }
 }

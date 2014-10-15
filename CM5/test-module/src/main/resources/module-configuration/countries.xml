@@ -119,7 +119,7 @@
 
     <form name="country_form" domain-object-type="country" is-default="true" debug="false" min-width="900px">
         <act:tool-bar useDefault="true">
-            <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action"
+            <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action 1"
                                permissions="Delete,Write,Create">
                 <act:action-params>
                     <act:action-param name="param1" value="value1" />
@@ -149,6 +149,34 @@
                 <!--act:validators>
                     <act:validator class-name="ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator" widget-id="8a"/>
                 </act:validators-->
+            </act:simple-action>
+            <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action 2"
+                               permissions="Delete,Write,Create">
+                <act:action-params>
+                    <act:action-param name="param1" value="value1" />
+                    <act:action-param name="param2" value="value2" />
+                    <act:action-param name="param3" value="value3" />
+                    <act:action-param name="param4" value="value4" />
+                </act:action-params>
+                <act:before-execution>
+                    <act:confirmation-message text="Are you sure?"/>
+                    <act:linked-domain-object title="Заголовок доп. формы">
+                        <act:reference field-path="description_form|country" />
+                        <act:perform-validation value="true"/>
+                        <act:form-mapping form="confirm_country">
+                            <act:users>
+                                <act:user uid="admin"/>
+                            </act:users>
+                            <act:groups>
+                                <act:group name="Administrators" priority="1"/>
+                            </act:groups>
+                        </act:form-mapping>
+                    </act:linked-domain-object>
+                    <act:save-context value="true"/>
+                </act:before-execution>
+                <act:after-execution>
+                    <act:on-success-message text="Country '{name}' saved"/>
+                </act:after-execution>
             </act:simple-action>
         </act:tool-bar>
         <markup>
