@@ -126,10 +126,7 @@ public class AttachmentServiceImplTest {
         private AccessControlService accessControlService;
 
         @Mock
-        private CurrentUserAccessor currentUserAccessor;
-
-        @Mock
-        private EventLogService eventLogService;
+        private CurrentUserAccessor currentUserAccessor;        
 
         @Mock
         AccessToken accessToken;
@@ -221,11 +218,6 @@ public class AttachmentServiceImplTest {
             }).when(crudService).find(any(Id.class));
 
             return crudService;
-        }
-
-        @Bean
-        public EventLogService eventLogService() {
-            return eventLogService;
         }
 
         @Bean

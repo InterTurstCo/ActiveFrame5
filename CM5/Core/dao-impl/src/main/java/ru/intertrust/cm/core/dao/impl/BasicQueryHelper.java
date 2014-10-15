@@ -496,17 +496,23 @@ public abstract class BasicQueryHelper {
     }
 
     public String generateCreateAutoIndexQuery(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig, int index) {
-        return generateCreateAutoIndexQuery(config, fieldConfig.getName(), index, false);
+        return generateCreateAutoIndexQuery(config, fieldConfig, index, false);
     }
 
     protected abstract String generateIndexQuery(DomainObjectTypeConfig config, String indexType, List<String> expressionValues, List<String> indexExpressions);
 
-    public String generateCreateAutoIndexQuery(DomainObjectTypeConfig config, String fieldName, int index, boolean isAl) {
+    public String generateCreateAutoIndexQuery(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig, int index, boolean isAl) {
         String tableName = getSqlName(config.getName(), isAl);
-        String columnName = getSqlName(fieldName);
+        StringBuilder columnNames = new StringBuilder();
+        columnNames.append(wrap(getSqlName(fieldConfig.getName())));
+        
+        if (ConfigurationExplorer.REFERENCE_TYPE_ANY.equals(fieldConfig.getType())) {
+            String referenceTypeColumn = fieldConfig.getName() + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+            columnNames.append(", ").append(wrap(getSqlName(referenceTypeColumn)));
+        }
 
         String indexName = createAutoIndexName(config, index, isAl);
-        return "create index " + wrap(indexName) + " on " + wrap(tableName) + " (" + wrap(columnName) + ")";
+        return "create index " + wrap(indexName) + " on " + wrap(tableName) + " (" + columnNames.toString() + ")";
     }
 
     /**

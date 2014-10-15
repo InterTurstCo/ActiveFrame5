@@ -275,7 +275,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             if (!(fieldConfig instanceof ReferenceFieldConfig)) {
                 continue;
             }
-            jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, fieldConfig.getName(), index, isAl));
+            jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, (ReferenceFieldConfig)fieldConfig, index, isAl));
             index++;
         }
     }
