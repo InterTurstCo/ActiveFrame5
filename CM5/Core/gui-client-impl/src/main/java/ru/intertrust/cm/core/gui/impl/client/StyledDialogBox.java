@@ -23,7 +23,7 @@ public class StyledDialogBox extends DialogBox {
         // Enable animation.
         this.setAnimationEnabled(true);
         // Enable glass background.
-        this.addStyleName("dialog-box-body");
+        this.addStyleName("dialogBoxBody");
         this.removeStyleName("gwt-DialogBox");
         // DialogBox is a SimplePanel, so you have to set its widget
         // property to whatever you want its contents to be.

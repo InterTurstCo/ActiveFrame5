@@ -63,6 +63,12 @@ public interface ThemeBundle extends ClientBundle {
     @ClientBundle.Source("images/magnifier.png")
     ImageResource magnifierIm();
 
+    @ClientBundle.Source("images/filterOpenBtn.png")
+    ImageResource filterOpenBtnIm();
+
+    @ClientBundle.Source("images/recalculateColumnsWidthIm.png")
+    ImageResource recalculateColumnsWidthBtnIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

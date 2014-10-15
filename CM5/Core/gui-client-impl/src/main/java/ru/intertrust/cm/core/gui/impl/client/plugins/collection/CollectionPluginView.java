@@ -481,6 +481,7 @@ public class CollectionPluginView extends PluginView {
     private void buildPanel() {
         AbsolutePanel treeLinkWidget = new AbsolutePanel();
         treeLinkWidget.addStyleName("collection-plugin-view-container");
+        filterButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
         treeLinkWidget.add(filterButton);
         final Button columnManagerButton = new Button();
         columnManagerButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().columnSettingsButton());
@@ -491,6 +492,16 @@ public class CollectionPluginView extends PluginView {
             }
         });
         treeLinkWidget.add(columnManagerButton);
+        Button columnWidthRecalculateButton = new Button();
+        columnWidthRecalculateButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss()
+                .recalculateColumnsWidthBtn());
+        columnWidthRecalculateButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                columnHeaderController.narrowTableIfPossible(tableWidth, tableBody);
+            }
+        });
+        treeLinkWidget.add(columnWidthRecalculateButton);
         AbsolutePanel containerForToolbar = new AbsolutePanel();
         containerForToolbar.addStyleName("search-header");
         if (searchArea != null && !searchArea.isEmpty()) {
@@ -498,7 +509,7 @@ public class CollectionPluginView extends PluginView {
             SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
             treeLinkWidget.add(simpleSearchPanel);
         }
-        filterButton.setStyleName("show-filter-button");
+
         root.add(treeLinkWidget);
         if (plugin.isShowBreadcrumbs()) {
             Panel breadCrumbsPanel = createBreadCrumbsPanel();

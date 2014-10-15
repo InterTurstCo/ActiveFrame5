@@ -177,7 +177,7 @@ public class NavigationTreePluginView extends PluginView {
                         Application.getInstance().getEventBus()
                                 .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
                         resizeTreeAnimation.run(DURATION);
-                        navigationTreesPanel.getElement().getStyle().clearDisplay();
+                        //navigationTreesPanel.getElement().getStyle().clearDisplay();
                     }
                 };
                 mouseHoldTimer.schedule(navigationTreeOpeningTime);

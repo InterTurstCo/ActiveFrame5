@@ -39,7 +39,7 @@ public class FormDialogBox extends DialogBox {
         // Enable animation.
         this.setAnimationEnabled(true);
         this.setModal(true);
-        this.addStyleName("dialog-box-body");
+        this.addStyleName("dialogBoxBody");
         this.removeStyleName("gwt-DialogBox");
         VerticalPanel panel = new VerticalPanel();
         panel.addStyleName("form-dialog-box-content");

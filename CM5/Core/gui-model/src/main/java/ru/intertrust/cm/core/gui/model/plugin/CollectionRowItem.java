@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 
-import java.util.*;
+import java.util.HashMap;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -42,23 +43,6 @@ public class  CollectionRowItem implements Dto{
         return row;
     }
 
-   /* @Override
-    public int hashCode() {
-        return getId() == null ? System.identityHashCode(this) : getId().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(obj == this) {
-            return true;
-        }
-        if(obj == null || !(getClass() == obj.getClass())) {
-            return false;
-        }
-        CollectionRowItem other = (CollectionRowItem) obj;
-        return (getId() == null ? other.getId() == null : getId().equals(other.getId()));
-    }*/
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -86,26 +70,5 @@ public class  CollectionRowItem implements Dto{
         result = 31 * result + (row != null ? row.hashCode() : 0);
         return result;
     }
-       public static void main(String[] args) {
 
-           HashMap<String, Value> one = new HashMap<>();
-           one.put("1", new StringValue("1"));
-           HashMap<String, Value> two = new HashMap<>();
-           two.put("1", new StringValue("1"));
-           System.out.println("" + one.equals(two));
-           CollectionRowItem collectionRowItem = new CollectionRowItem();
-           collectionRowItem.setId(new RdbmsId(2, 5L));
-           collectionRowItem.setRow(one);
-           List<CollectionRowItem> list = new ArrayList<>();
-           list.add(collectionRowItem) ;
-           CollectionRowItem collectionRowItem2 = new CollectionRowItem();
-           collectionRowItem2.setId(new RdbmsId(2, 5L));
-           collectionRowItem2.setRow(one);
-
-           Set<CollectionRowItem> set = new LinkedHashSet<>();
-           set.add(collectionRowItem2);
-          set.addAll(list);
-         //  set.add(collectionRowItem);
-           System.out.println("size" + set.size());
-       }
 }

@@ -57,4 +57,10 @@ public interface CommonCssResource extends CssResource {
 
     @ClassName("magnifierButton")
     String magnifierButton();
+
+    @ClassName("filterOpenBtn")
+    String filterOpenBtn();
+
+    @ClassName("recalculateColumnsWidthBtn")
+    String recalculateColumnsWidthBtn();
 }

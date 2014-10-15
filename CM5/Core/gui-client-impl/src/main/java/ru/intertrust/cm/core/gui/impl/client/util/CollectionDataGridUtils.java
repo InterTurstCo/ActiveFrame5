@@ -26,7 +26,7 @@ public class CollectionDataGridUtils {
         for (int index = 0; index < tableBody.getColumnCount(); index++) {
             final CollectionColumn column = (CollectionColumn) tableBody.getColumn(index);
             if (!column.isVisible()) {
-              //nothing anymore:)
+                //nothing anymore:)
             } else if (column.getUserWidth() > 0) {
                 int columnWidth = column.getUserWidth();
                 column.setUserWidth(columnWidth);
@@ -81,23 +81,33 @@ public class CollectionDataGridUtils {
         return calculatedWidth;
     }
 
-    public static boolean isTableVerticalScrollNotVisible(CollectionDataGrid dataGrid){
+    public static boolean isTableVerticalScrollNotVisible(CollectionDataGrid dataGrid) {
         int scrollMinVertical = dataGrid.getScrollPanel().getMinimumVerticalScrollPosition();
         int scrollMaxVertical = dataGrid.getScrollPanel().getMaximumVerticalScrollPosition();
-        return  scrollMinVertical == scrollMaxVertical;
+        return scrollMinVertical == scrollMaxVertical;
     }
 
-    public static boolean isTableHorizontalScrollNotVisible(CollectionDataGrid dataGrid){
+    public static boolean isTableHorizontalScrollNotVisible(CollectionDataGrid dataGrid) {
         int scrollMinHorizontal = dataGrid.getScrollPanel().getMinimumHorizontalScrollPosition();
         int scrollMaxHorizontal = dataGrid.getScrollPanel().getMaximumHorizontalScrollPosition();
-        return  scrollMinHorizontal == scrollMaxHorizontal;
+        return scrollMinHorizontal == scrollMaxHorizontal;
     }
 
-    public static boolean shouldSetSelection(CollectionPluginData collectionPluginData){
+    public static boolean shouldSetSelection(CollectionPluginData collectionPluginData) {
         TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
-        if(tableBrowserParams == null){
+        if (tableBrowserParams == null) {
             return true;
         }
-        return  tableBrowserParams.isDisplayChosenValues();
+        return tableBrowserParams.isDisplayChosenValues();
+    }
+
+    public static boolean narrowTableIfPossible(int tableWidth, CollectionDataGrid dataGrid) {
+        if (isTableHorizontalScrollNotVisible(dataGrid)) {
+            return false;
+        }
+        adjustColumnsWidth(tableWidth, dataGrid);
+        dataGrid.redraw();
+        return true;
+
     }
 }

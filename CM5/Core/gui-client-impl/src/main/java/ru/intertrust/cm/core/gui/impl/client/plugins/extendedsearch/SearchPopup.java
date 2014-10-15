@@ -26,7 +26,7 @@ public class SearchPopup extends PopupPanel {
         // Enable animation.
         this.setAnimationEnabled(true);
         this.setModal(true);
-        this.addStyleName("dialog-box-body");
+        this.addStyleName("dialogBoxBody");
 
         this.removeStyleName("gwt-PopupPanel");
         Label label = new Label("Поиск");

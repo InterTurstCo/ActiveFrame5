@@ -57,7 +57,7 @@
     cursor: pointer;
 }
 
-.dialog-box-body {
+.dialogBoxBody {
     background-color: white;
     border: 3px solid #fff;
     border-radius: 10px;
@@ -105,8 +105,12 @@
     width: 512px;
 }
 
-.dialog-box-body .form-dialog-box-content {
+.dialogBoxBody .form-dialog-box-content {
     height: 250px;
+}
+
+.dialogBoxBody .dialog-box-header {
+    background: none;
 }
 
 .buttons-panel {
