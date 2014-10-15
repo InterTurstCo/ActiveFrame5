@@ -175,3 +175,24 @@
     padding: 3px 2px 0px 1px;
 
 }
+
+@sprite .filterOpenBtn {
+    gwt-image: "filterOpenBtnIm";
+    border: 1px solid #c0c4cf;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: none;
+    cursor: pointer;
+    float: right;
+    margin: 3px 5px 0 5px;
+
+}
+@sprite .recalculateColumnsWidthBtn {
+    gwt-image: "recalculateColumnsWidthBtnIm";
+    border: 1px solid #c0c4cf;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: none;
+    cursor: pointer;
+    float: right;
+    margin: 3px 5px 0 5px;
+
+}

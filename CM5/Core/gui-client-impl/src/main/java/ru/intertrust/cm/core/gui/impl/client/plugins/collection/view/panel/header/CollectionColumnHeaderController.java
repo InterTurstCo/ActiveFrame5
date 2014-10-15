@@ -301,6 +301,13 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
         }
     }
+    public void narrowTableIfPossible(int tableWidth, CollectionDataGrid dataGrid){
+        saveFilterValues();
+        boolean tableRedrawn = CollectionDataGridUtils.narrowTableIfPossible(tableWidth, dataGrid);
+        if(tableRedrawn){
+            updateFilterValues();
+        }
+    }
 
     private class ColumnSelectorPopup extends PopupPanel {
         private ColumnSelectorPopup() {
