@@ -187,29 +187,6 @@ public class CollectionsIT extends IntegrationTestBase {
         assertNotNull(employeesCollection);
         assertTrue(employeesCollection.size() >= 1);
 
-        filter = new Filter();
-        filter.setFilter("notInDepartment");
-        referenceValues = new ArrayList<>();
-        referenceValues.add(new ReferenceValue(new RdbmsId(departmentTypeId, 1)));
-        listValue = new ListValue(referenceValues);
-        filter.addCriterion(0, listValue);
-
-        filterValues = new ArrayList<Filter>();
-        filterValues.add(filter);
-
-        filter = new Filter();
-        filter.setFilter("inDepartment");
-        referenceValues = new ArrayList<>();
-        referenceValues.add(new ReferenceValue(departmentTestObject.getId()));
-        listValue = new ListValue(referenceValues);
-        filter.addCriterion(0, listValue);
-        filterValues.add(filter);
-
-        employeesCollection =
-                collectionService.findCollection("Employees_Test", sortOrder, filterValues, 0, 0);
-
-        assertNotNull(employeesCollection);
-        assertTrue(employeesCollection.size() >= 1);
     }
     
     @Test
@@ -613,5 +590,15 @@ public class CollectionsIT extends IntegrationTestBase {
         
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
+    }
+    
+    @Test
+    public void testFindCollectionByQueryWithLimitAndOffset() {
+        String query = "select * from employee e";
+
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, 2, 2);
+        collection = collectionService.findCollectionByQuery(query, 0, 2);
+        collection = collectionService.findCollectionByQuery(query, 2, 0);
+
     }
 }
