@@ -37,4 +37,6 @@ public interface EventLogService {
     public void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success);
 
     public void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success);
+    
+    boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success);
 }

@@ -760,6 +760,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject result = jdbcTemplate.query(query, parameters,
                 new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
 
+        if (result == null && eventLogService.isAccessDomainObjectEventEnabled(id, EventLogService.ACCESS_OBJECT_READ, false)) {
+            if (exists(id)) {
+                eventLogService.logAccessDomainObjectEvent(id, EventLogService.ACCESS_OBJECT_READ, false);
+            }
+        }
+
         if (result != null) {
             domainObjectCacheService.putObjectToCache(result, accessToken);
             eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
@@ -789,12 +795,16 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject result = jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
                 typeName, configurationExplorer, domainObjectTypeIdCache));
 
-        if (result != null) {
-            domainObjectCacheService.putObjectToCache(result, accessToken);
+        if (result == null && eventLogService.isAccessDomainObjectEventEnabled(id, EventLogService.ACCESS_OBJECT_READ, false)) {
+            if (exists(id)) {
+                eventLogService.logAccessDomainObjectEvent(id, EventLogService.ACCESS_OBJECT_READ, false);
+            }
         }
 
-        eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
-
+        if (result != null) {
+            domainObjectCacheService.putObjectToCache(result, accessToken);
+            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
+        }
         return result;
     }
 

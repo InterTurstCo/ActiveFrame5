@@ -13,7 +13,7 @@
             <login enable="true"/>
             <logout enable="true"/>
             <download-attachment enable="true"/>
-            <domain-object-access enable="false">
+            <domain-object-access enable="true">
                 <!-- настройка для всех типов ДО включающая логгировае на запись-->
                 <log enable="true" accessType="W" accessWasGranted="*">
                     <domain-object-type name="*"/>
@@ -23,6 +23,7 @@
                     <domain-object-type name="city"/>
                     <domain-object-type name="Outgoing_Document"/>
                     <domain-object-type name="Internal_Document"/>
+                    <domain-object-type name="country"/>
                 </log>
                 <!-- отключение логгирования по типам ДО -->
                 <log enable="false" accessType="*" accessWasGranted="*">

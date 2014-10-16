@@ -134,20 +134,24 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
 
-    private boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success) {
+    public boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success) {
         EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
         if (eventLogsConfiguration != null && eventLogsConfiguration.getDomainObjectAccess() != null) {
             if (!eventLogsConfiguration.getDomainObjectAccess().isEnable()) return false;
 
             String typeName = domainObjectTypeIdCache.getName(objectId);
 
-            if (typeName.startsWith("sel_")) return false;
+            if (typeName.startsWith("sel_")) {
+                return false;
+            }
 
             LogDomainObjectAccessConfig accessEventLogsConfiguration = configurationExplorer.getDomainObjectAccessEventLogsConfiguration(typeName);
 
-            if (!accessEventLogsConfiguration.isEnable()) return false;
+            if (!accessEventLogsConfiguration.isEnable()) {
+                return false;
+            }
 
-            if (!"*".equals(accessEventLogsConfiguration.getAccessType()) && !accessType.equals(accessEventLogsConfiguration.getAccessType())){
+            if (!"*".equals(accessEventLogsConfiguration.getAccessType()) && !accessType.equals(accessEventLogsConfiguration.getAccessType())) {
                 return false;
             }
 
