@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+        >
+    <collection name="col_person_group_qualifier" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        QG.id,
+                        QG.name
+                        from Qual_Group_Qualifier QG
+                        join qual_group_qualifier_do QGDO on QGDO.group_qualifier = QG.id
+                        join qual_do_qualifier QDQ on QDQ.id=QGDO.domobject AND QDQ.domobject='cont_contact_person'
+                        where
+                        1=1 ::where-clause
+                ]]>
+        </prototype>
+    </collection>
+</configuration>

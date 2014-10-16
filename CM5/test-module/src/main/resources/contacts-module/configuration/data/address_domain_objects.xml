@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+ <!-- FR01.3.1.1 Страна\Регион\Район -->
+    <domain-object-type name="Addr_Region" initial-status="Active">
+        <fields>
+            <!-- Наименование -->
+            <string name="Name" length="250" not-null="true">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+            <!-- Код -->
+            <string name="Code" length="50"/>
+            <!-- Индекс с -->
+            <long name="From_Index" />
+            <!-- Индекс по -->
+            <long name="To_Index" />
+            <!-- Подчиненность -->
+            <reference name="Subordination" type="Addr_Region"/>
+            <!-- Заголовок -->
+            <string name="Title" length="1024" not-null="true"/>
+            <!-- Тип -->
+            <long name="Region_Type" not-null="true" />
+            <!-- UID -->
+            <string name="UID" length="250" />
+        </fields>
+        <uniqueKey>
+            <field name="UID"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <!-- FR01.3.1.2 Тип Населенного Пункта -->
+    <domain-object-type name="Addr_Settlement_Type" initial-status="Active">
+        <fields>
+            <!-- Заголовок -->
+            <string name="Title" length="50" not-null="true"/>
+            <!-- Описание -->
+            <string name="Description" length="250"/>
+            <!-- UID -->
+            <long name="UID" />
+        </fields>
+        <uniqueKey>
+            <field name="UID"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <!-- FR01.3.1.3 Населенный пункт -->
+    <domain-object-type name="Addr_Settlement" initial-status="Active">
+        <fields>
+            <!-- Наименование -->
+            <string name="Name" length="250" not-null="true">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>    
+            </string>
+            <!-- Тип НП -->
+            <reference name="Settlement_Type" type="Addr_Settlement_Type" not-null="true">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+            <!-- Страна\Регион -->
+            <reference name="Region" type="Addr_Region" not-null="true">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+            <!-- Индекс с -->
+            <long name="From_Index"/>
+            <!-- Индекс по -->
+            <long name="To_Index"/>
+            <!-- UID -->
+            <string name="UID" length="250" />
+        </fields>
+        <uniqueKey>
+            <field name="UID"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <!-- FR01.3.1.4 Тип Улицы-->
+    <domain-object-type name="Addr_Street_Type" initial-status="Active">
+        <fields>
+            <!-- Заголовок -->
+            <string name="Title" length="50" not-null="true"/>
+            <!-- Описание -->
+            <string name="Description" length="250"/>
+            <!-- UID -->
+            <long name="UID" />
+        </fields>
+        <uniqueKey>
+            <field name="UID"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <!-- FR01.3.1.5 Назначение Адреса -->
+    <domain-object-type name="Addr_Addresses_Assigning" initial-status="Active">
+        <fields>
+            <!-- Заголовок -->
+            <string name="Title" length="50" not-null="true"/>
+            <!--  UID -->
+            <long name="UID" not-null="true"/>
+            <!-- Описание -->
+            <string name="Description" length="250"/>
+        </fields>
+        <uniqueKey>
+            <field name="UID"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <!-- FR01.3.1.6 Почтовый Адрес -->
+    <domain-object-type name="Addr_Mailing_Address" initial-status="Active">
+        <fields>
+            <!-- Населенный пункт -->
+            <reference name="Settlement" type="Addr_Settlement" not-null="true"/>
+            <!-- Тип улицы -->
+            <reference name="Street_Type" type="Addr_Street_Type"/>
+            <!-- Улица -->
+            <string name="Street" length="250"/>
+            <!-- Дом -->
+            <string name="House" length="50"/>            
+            <!-- Корпус -->
+            <string name="Housing" length="50"/>
+            <!-- Строение -->
+            <string name="Building" length="50"/>
+            <!-- № Квартиры -->
+            <string name="Room" length="50"/>
+            <!-- Описание -->
+            <string name="Description" length="1024"/>
+            <!-- Индекс -->
+            <string name="Postcode" length="50"/>
+            <!-- Назначение Адреса -->
+            <reference name="Addresses_Assigning" type="Addr_Addresses_Assigning" not-null="true">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+            <!-- UID -->
+            <string name="UID" length="250"/>
+        </fields>
+        <uniqueKey>
+            <field name="UID"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <!-- FR01.3.1.7  Прочий Адрес  -->
+    <domain-object-type name="Addr_Other_Address" initial-status="Active">
+        <fields>
+            <!-- Адрес -->
+            <string name="Value" length="250" not-null="true"/>
+            <!-- Тип -->
+            <long name="Type_Value" not-null="true"/>
+            <!-- Контактное Лицо -->
+            <reference name="Contact_Person" type="Cont_Contact_Person" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <!-- FR01.3.1.8 Адрес Контактного Лица  -->
+    <domain-object-type name="Cont_Address_CPerson" initial-status="Active">
+        <fields>
+            <!-- Адрес -->
+            <reference name="Mailing_Address" type="Addr_Mailing_Address" not-null="true"/>
+            <!-- Контактное Лицо -->
+            <reference name="Contact_Person" type="Cont_Contact_Person" not-null="true">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <!-- FR01.3.1.9 Адрес Организации -->
+    <domain-object-type name="Cont_Address_Org" initial-status="Active">
+        <fields>
+            <!--  Адрес -->
+            <reference name="Mailing_Address" type="Addr_Mailing_Address" not-null="true"/>            
+            <!-- Контактное Лицо -->
+            <reference name="Organization" type="Cont_Organization" not-null="true">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+        </fields>
+    </domain-object-type>
+</configuration>

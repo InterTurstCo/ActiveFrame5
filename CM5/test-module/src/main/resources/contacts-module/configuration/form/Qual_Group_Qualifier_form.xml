@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+        >
+    <form name="qual_group_qualifier_form" domain-object-type="Qual_Group_Qualifier" is-default="true" debug="false"
+          min-width="1200px">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel" width="100px"/>
+                        </td>
+                        <td h-align="left">
+                            <widget id="headerText"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Информация">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="mainNameLabel"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="mainNameText"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="mainOneOfLabel"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="mainOneOfCb"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Объекты классификации">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="classificationObjects"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Классификаторы">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="classificators"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <!-- Заголовок карточки -->
+            <label id="headerLabel">
+                <field-path/>
+                <text>Группа классификаторов:</text>
+            </label>
+            <label id="headerText">
+                <field-path value="name"/>
+            </label>
+
+            <!-- Главная - имя группы -->
+            <label id="mainNameLabel">
+                <field-path/>
+                <text>Имя группы классификаторов:</text>
+            </label>
+            <text-box id="mainNameText">
+                <field-path value="name"/>
+            </text-box>
+
+            <!-- Главная - один из -->
+            <label id="mainOneOfLabel">
+                <field-path/>
+                <text>Один из:</text>
+            </label>
+            <check-box id="mainOneOfCb">
+                <field-path value="One_OfThe_Groups"/>
+            </check-box>
+
+            <!-- Обьекты классификации -->
+            <linked-domain-objects-table id="classificationObjects">
+                <field-path value="Qual_Group_Qualifier_DO^Group_Qualifier"/>
+                <linked-form name="qual_group_qualifier_do_form" inline="true"/>
+                <summary-table>
+                    <summary-table-column header="Объект классификации" widget-id="qualObjectsSuggestBox">
+                        <pattern value="{domobject.name}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
+
+            <!-- Классификаторы -->
+            <linked-domain-objects-table id="classificators">
+                <selection-sort-criteria>
+                    <sort-criterion field="Corder" order="asc"/>
+                </selection-sort-criteria>
+                <field-path value="Qualifier^Group_Qualifier"/>
+                <linked-form name="qualifier_form" inline="true"/>
+                <summary-table>
+                    <summary-table-column header="Наименование" widget-id="mainNameText">
+                        <pattern value="{name}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Порядок" widget-id="mainOrderText">
+                        <pattern value="{Corder}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
+
+        </widget-config>
+    </form>
+</configuration>

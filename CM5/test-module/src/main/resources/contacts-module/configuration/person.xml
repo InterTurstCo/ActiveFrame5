@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">  
+
+	<form name="Authentication_Info_Form" domain-object-type="Authentication_Info" is-default="true" debug="false" min-width="900px">
+		<markup>
+			<header>
+				<table>
+					<tr>                      
+						<td h-align="left">
+							<widget id="1"/>
+						</td>
+					</tr>                   
+				</table>
+			</header>
+			<body display-single-tab="false">
+				<tab name="Пароли">
+					<single-entry-group>
+						<tab-group  >
+							<table>
+								<tr>                           
+									<td h-align="left" width="50%">
+										<widget id="LoginLabel"/>
+									</td>
+									<td h-align="left" width="50%">
+										<widget id="Login"/>
+									</td>
+								</tr>   
+								<tr>                           
+									<td h-align="left">
+										<widget id="PasswordLabel"/>
+									</td>
+									<td width="100%" h-align="left">
+										<widget id="Password"/>
+									</td>
+								</tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="PasswordConfirmationLabel"/>
+                                    </td>
+                                    <td width="100%" h-align="left">
+                                        <widget id="PasswordConfirmation"/>
+                                    </td>
+                                </tr>
+							</table>
+						</tab-group>
+					</single-entry-group>
+				</tab>
+			</body>
+		</markup>
+		<widget-config>
+			<label id="1">
+				<text>Информация по авторизации</text>
+			</label>  
+			<label id="LoginLabel">
+				<text>Логин:</text>
+			</label>  
+			<text-box id="Login">
+				<field-path value="User_UID"/>
+			</text-box>
+			<label id="PasswordLabel">
+				<text>Пароль:</text>
+			</label>  
+			<text-box id="Password">
+				<field-path value="Password"/>
+                <confirmation widget-id="PasswordConfirmation"/>
+			</text-box>
+            <label id="PasswordConfirmationLabel">
+                <text>Подтверждение пароля:</text>
+            </label>
+            <text-box id="PasswordConfirmation">
+                <field-path value="Password"/>
+                <confirmation-for widget-id="Password"/>
+            </text-box>
+		</widget-config>
+	</form> 
+	
+	<form name="tmpPerson_Form" domain-object-type="Person" is-default="true" debug="false" min-width="900px">
+		<markup>
+			<header>
+				<table>
+					<tr>
+						<!-- Person -->
+						<td h-align="left">
+							<widget id="1"/>
+						</td>
+					</tr>
+				</table>
+			</header>
+			<body display-single-tab="false">
+				<tab name="Персона">
+					<single-entry-group>
+						<tab-group>
+							<table>
+								<tr>
+									<!--Login-->
+									<td h-align="left" width="200px">
+										<widget id="LoginLabel"/>
+									</td>
+									<td >
+										<widget id="Login" width="600px"/>
+									</td>
+								</tr>  
+								<tr>
+									<!--EMail-->
+									<td h-align="left" width="200px">
+										<widget id="EMailLabel"/>
+									</td>
+									<td >
+										<widget id="Email" width="600px"/>
+									</td>
+								</tr>                      
+							</table>
+						</tab-group>
+					</single-entry-group>
+				</tab>
+			</body>
+		</markup>
+		
+		<widget-config>	
+			<label id="1">
+				<text>Персона организации</text>
+			</label>           
+			<label id="LoginLabel">
+				<text>Логин:</text>
+			</label>
+			<text-box id="Login">
+				<field-path value="Login"/>
+			</text-box>
+			<label id="EMailLabel">
+				<text>Электронная почта:</text>
+			</label>
+			<text-box id="Email">
+				<field-path value="Email"/>
+			</text-box>
+		</widget-config>
+	</form> 
+	
+	<collection name="Col_person" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        p.id, p.Login
+                    from
+                        Person p
+                         ::from-clause
+                    where
+                    	1=1 ::where-clause   
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from  Person p
+        </counting-prototype>
+        
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    p.Login like {0}
+                ]]>
+            </criteria>
+        </filter>              
+    </collection>
+    <collection-view name="person_view" collection="Col_person" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="Login" name="Login" editable="false" type="string" sortable="true" search-filter="byText"/>           
+        </display>
+    </collection-view>
+    
+    <collection name="Col_authentication" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        a.id, a.user_uid
+                    from
+                        Authentication_Info a
+                         ::from-clause
+                    where
+                    	1=1 ::where-clause   
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from  Authentication_Info a
+        </counting-prototype>
+        
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    a.user_uid like {0}
+                ]]>
+            </criteria>
+        </filter>              
+    </collection>
+    <collection-view name="Authentication_view" collection="Col_Authentication" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="user_uid" name="Идентификатор пользователя" editable="false" type="string" sortable="true" search-filter="byText"/>
+        </display>
+    </collection-view>   	
+   
+</configuration>

@@ -1,0 +1,4 @@
+TYPE_NAME=Qual_DO_Qualifier;KEYS=name
+name;domobject
+"Контактные лица";"cont_contact_person"
+"Организации";"cont_organization"

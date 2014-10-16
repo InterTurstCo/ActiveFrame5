@@ -42,6 +42,44 @@
         <configuration-path>module-configuration/agent_esd.xml</configuration-path>
         <configuration-path>module-configuration/numerator.xml</configuration-path>
 
+        <!-- Из модуля "контакты" -->
+        <configuration-path>contacts-module/configuration/actions.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/person.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/search.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/data/contact_domain_objects.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/data/address_domain_objects.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/data/occasions_domain_objects.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/contacts_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/rank_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/type_attachments_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/attachments_person_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/cont_notes_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/cont_organization_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/type_accessory_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/cont_cperson_org_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/person_qualifiers_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/person_group_qualifiers_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/addr_region_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/addr_settlement_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/contact_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/cont_attachments_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/cont_notes_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/cont_organization_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/cont_cperson_org_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/cont_qualifier_cperson_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/addr_region_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/addr_settlement_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/addr_mailing_address_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/access/dynamic-group.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/access/context-role.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/access/access-matrix.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/data/Qual_Group_Qualifier.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/Qual_Group_Qualifier_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/Qual_DO_Qualifier_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/Qualifier_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/Qual_Group_Qualifier_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/Qual_Group_Qualifier_DO_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/Qualifier_form.xml</configuration-path>
     </configuration-paths>
     <import-files rewrite="true">
         <import-file>importdata/f1.csv</import-file>
@@ -76,6 +114,16 @@
         <import-file rewrite="false">importdata/ss_moduleorg.csv</import-file>
 
         <import-file rewrite="false">importdata/import-super-country.csv</import-file>
+
+        <!-- Из модуля "контакты" -->
+        <import-file>contacts-module/importdata/status.csv</import-file>
+        <import-file>contacts-module/importdata/import-rank.csv</import-file>
+        <import-file>contacts-module/importdata/import-type_attachments.csv</import-file>
+        <import-file>contacts-module/importdata/import-type_accessory.csv</import-file>
+        <import-file>contacts-module/importdata/import-addr-settlement-type.csv</import-file>
+        <import-file>contacts-module/importdata/imp-addr-street-type.csv</import-file>
+        <import-file>contacts-module/importdata/imp-addr-addresses-assigning.csv</import-file>
+        <import-file>contacts-module/importdata/import-classifiers-objects.csv</import-file>
     </import-files>
 
     <import-reports>

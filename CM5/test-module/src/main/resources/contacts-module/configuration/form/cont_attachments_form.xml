@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!--Приложение для Контактного Лица-->
+    <form name="cont_attachments_person_form" domain-object-type="cont_attachments_person" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name=" "> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <!--Описание-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="desc_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="desc_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Тип Вложения-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="type_attachments_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="type_attachments_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Дата-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="date_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="date_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Файл-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="file_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="file_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <field-path/>
+                <text>Приложения</text>
+            </label>
+
+            <label id="desc_label">
+                <field-path/>
+                <text>Описание</text>
+            </label>
+            <text-box id="desc_value">
+                <field-path value="description"/>
+            </text-box>
+
+            <label id="type_attachments_label">
+                <field-path/>
+                <text>Тип Вложения</text>
+            </label>
+            <suggest-box id="type_attachments_value">
+                <field-path value="type_attachments"/>
+                <collection-ref name="cont_type_attachments_collection"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+            <label id="date_label">
+                <field-path/>
+                <text>Дата</text>
+            </label>
+            <label id="date_value">
+                <field-path value="created_date"/>
+            </label>
+
+            <label id="file_label">
+                <text>Файл:</text>
+            </label>
+            <attachment-box id="file_value">
+                <field-path value="attachment_path^cont_attachments" on-root-delete="unlink"/>
+                <attachment-type-ref name="attachment_path"/>
+                <scanner enabled="true"/>
+                <selection-style name="table"/>
+            </attachment-box>
+
+        </widget-config>
+    </form>
+</configuration>

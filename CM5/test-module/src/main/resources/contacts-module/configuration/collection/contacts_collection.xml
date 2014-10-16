@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Коллекция для отображения Контакных лиц -->
+    <collection name="col_contact_person" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                  ccp.id,
+                  ccp.title,
+                  ccp.surname,
+                  ccp.name,
+                  ccp.birth_date,
+                  r.title as rank,
+                  s.name as status
+                FROM
+                  cont_contact_person ccp
+                  LEFT JOIN rank r ON ccp.rank = r.id
+                  LEFT JOIN status s ON ccp.status = s.id
+                  ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from cont_contact_person ccp ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byTitle">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(ccp.title) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="bySurname">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(ccp.surname) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(ccp.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byDate">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                     ccp.birth_date between {0} and {1}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byRank">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(r.title) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byStatus">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(s.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="col_contact_person_view" collection="col_contact_person" is-default="true">
+        <display>
+            <column field="title" name="Заголовок" type="string" sortable="true" resizable="true" search-filter="byTitle"/>
+            <column field="surname" name="Фамилия" type="string" sortable="true" resizable="true" search-filter="bySurname"/>
+            <column field="name" name="Имя" type="string" sortable="true" resizable="true" search-filter="byName"/>
+            <column field="birth_date" name="Дата рождения" type="datetime" date-pattern="dd.MM.yyyy" sortable="true" resizable="true" search-filter="byDate"/>
+            <column field="rank" name="Ранг" type="string" sortable="true" resizable="true" search-filter="byRank"/>
+            <column field="status" name="Состояние" type="string" sortable="true" resizable="true" search-filter="byStatus"/>
+        </display>
+    </collection-view>
+</configuration>

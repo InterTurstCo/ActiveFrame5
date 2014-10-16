@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <form name="cont_organization_form" domain-object-type="cont_organization" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Информация"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <!--Название-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="name_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="name_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Полное Название-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="fullname_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="fullname_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Ранг-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="rank_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="rank_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Вышестоящая организация-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="parent_org_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="parent_org_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Контактные Лица"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="contact_names_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Классификации"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="classifiers_label"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Почт. Адреса"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="post_addresses_label"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <field-path/>
+                <text>Организация</text>
+            </label>
+
+            <label id="name_label">
+                <field-path/>
+                <text>Название</text>
+            </label>
+            <text-box id="name_value">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="fullname_label">
+                <field-path/>
+                <text>Полное Название</text>
+            </label>
+            <text-box id="fullname_value">
+                <field-path value="fullname"/>
+            </text-box>
+
+            <label id="rank_label">
+                <field-path/>
+                <text>Ранг</text>
+            </label>
+
+            <suggest-box id="rank_value">
+                <field-path value="rank"/>
+                <collection-ref name="rank_collection"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+            <label id="parent_org_label">
+                <field-path/>
+                <text>Вышестоящая организация</text>
+            </label>
+
+            <suggest-box id="parent_org_value">
+                <field-path value="parent"/>
+                <collection-ref name="cont_organization_collection"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+            <linked-domain-objects-table id="contact_names_value" modal-width="500px" modal-height="300px"
+                                         max-tooltip-width="300px">
+                <field-path value="cont_cperson_org^organization"/>
+                <linked-form name="cont_org_person_form" inline="true"/>
+
+                <summary-table>
+                    <!--<summary-table-column header="Организация" widget-id="organization_value">-->
+                        <!--<pattern value="{organization.name}"/>-->
+                    <!--</summary-table-column>-->
+                    <summary-table-column header="Контактное Лицо" widget-id="contact_person_value">
+                    <pattern value="{contact_person.title}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Должность" widget-id="position_value">
+                        <pattern value="{position}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Должность (дат. падеж)" widget-id="position1_value">
+                        <pattern value="{position1}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Описание" widget-id="desc_value">
+                        <pattern value="{description}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Тип принадлежности" widget-id="type_accessory_value">
+                        <pattern value="{type_accessory.title}"/>
+                    </summary-table-column>
+                </summary-table>
+                <selection-sort-criteria>
+                    <sort-criterion field="contact_person.name" order="asc"/>
+                </selection-sort-criteria>
+                <single-choice value="false"/>
+
+            </linked-domain-objects-table>
+
+            <label id="classifiers_label">
+                <field-path/>
+                <text>Тестовая форма</text>
+            </label>
+
+            <label id="post_addresses_label">
+                <field-path/>
+                <text>Тестовая форма</text>
+            </label>
+
+        </widget-config>
+    </form>
+</configuration>

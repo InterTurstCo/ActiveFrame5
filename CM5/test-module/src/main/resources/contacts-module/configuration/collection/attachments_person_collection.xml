@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Коллекция для Приложений Rjynfryjuj kbwf-->
+    <collection name="cont_attachments_person_collection" idField="id">
+        <prototype>
+            <![CDATA[
+               SELECT
+                  atp.id,
+                  att.description,
+                  t.title
+               FROM
+                  cont_attachments_person atp
+                  LEFT JOIN cont_attachments att on att.id = atp.id
+                  LEFT JOIN cont_type_attachments t on t.id = att.type_attachments
+                  ::from-clause
+               where
+                  1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from cont_attachments_person atp ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byTypeAtt">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(t.title) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byDesc">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(att.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="cont_attachments_person_collection_view" collection="cont_attachments_person_collection" is-default="true">
+        <display>
+            <column field="description" name="Описание" type="string" sortable="true" resizable="true" search-filter="byDesc"/>
+            <column field="title" name="Тип приложения" type="string" sortable="true" resizable="true" search-filter="byTypeAtt"/>
+        </display>
+    </collection-view>
+</configuration>

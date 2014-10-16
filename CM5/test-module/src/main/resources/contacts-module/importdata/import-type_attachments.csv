@@ -1,0 +1,6 @@
+TYPE_NAME=cont_type_attachments;KEYS=title
+title;uid
+"Визитка";"100"
+"Проспект";"101"
+"Документ";"102"
+"Прочее";"103"

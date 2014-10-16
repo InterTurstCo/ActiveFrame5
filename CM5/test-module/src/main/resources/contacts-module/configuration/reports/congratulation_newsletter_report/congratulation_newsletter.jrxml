@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 5.6.1.final using JasperReports Library version 5.6.1  -->
+<!-- 2014-10-16T12:36:28 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="congratulation_newsletter" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="baab047f-edfe-4807-a1b0-987895779efb">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Data Adapter 1"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT
+                  ccp.title,
+                  ccp.surname,
+                  ccp.name,
+                  ccp.birth_date
+FROM
+                  cont_contact_person ccp]]>
+	</queryString>
+	<field name="title" class="java.lang.String"/>
+	<field name="surname" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="birth_date" class="java.sql.Timestamp"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="35" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="-3" y="0" width="100" height="30" uuid="9f39d0c5-235b-403d-9922-76fd7da04215"/>
+				<text><![CDATA[title]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="157" y="0" width="100" height="30" uuid="a78cc905-9301-4bbd-9c19-2058697f26d3"/>
+				<text><![CDATA[surname]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="313" y="0" width="100" height="30" uuid="021227f5-22a5-458e-a6ea-46f3a92c8418"/>
+				<text><![CDATA[name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="446" y="0" width="100" height="30" uuid="b58cae9f-5e4c-4c16-9d47-f72b7f3f1793"/>
+				<text><![CDATA[birth_date]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="-3" y="28" width="100" height="30" uuid="2cd0dbb0-6d95-4be7-aa56-7ca980e64116"/>
+				<textFieldExpression><![CDATA[$F{title}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="157" y="44" width="100" height="30" uuid="39595273-dffb-49e5-86a1-5320543f6995"/>
+				<textFieldExpression><![CDATA[$F{surname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="313" y="58" width="100" height="30" uuid="0aaf85bc-0906-4515-8760-d697cdc1bbe8"/>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="446" y="63" width="100" height="30" uuid="e777ab6a-dca5-4518-8544-bca3a51c21c8"/>
+				<textFieldExpression><![CDATA[$F{birth_date}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

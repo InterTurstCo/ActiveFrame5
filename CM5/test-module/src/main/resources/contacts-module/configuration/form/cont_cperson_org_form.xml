@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!--Форма Контактного Лица Организации для вкладки Организации карточки Контакного Лица-->
+    <form name="cont_cperson_org_form" domain-object-type="cont_cperson_org" is-default="false">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name=" "> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+
+                                <!--Организация-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="organization_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="organization_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--&lt;!&ndash;Контактное лицо&ndash;&gt;-->
+                                <!--<tr>-->
+                                    <!--<td width="15%" h-align="left">-->
+                                        <!--<widget id="contact_person_label"/>-->
+                                    <!--</td>-->
+                                    <!--<td width="150px" h-align="left">-->
+                                        <!--<widget id="contact_person_value"/>-->
+                                    <!--</td>-->
+                                <!--</tr>-->
+
+                                <!--Должность-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="position_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="position_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Должность в д.п.-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="position1_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="position1_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Описание-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="desc_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="desc_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Тип принадлежности-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="type_accessory_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="type_accessory_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <field-path/>
+                <text>Контактное Лицо Организации</text>
+            </label>
+
+            <label id="desc_label">
+                <field-path/>
+                <text>Описание</text>
+            </label>
+            <text-box id="desc_value">
+                <field-path value="description"/>
+            </text-box>
+
+            <label id="position_label">
+                <field-path/>
+                <text>Должность</text>
+            </label>
+            <text-box id="position_value">
+                <field-path value="position"/>
+            </text-box>
+
+            <label id="position1_label">
+                <field-path/>
+                <text>Должность (дат. падеж)</text>
+            </label>
+            <text-box id="position1_value">
+                <field-path value="position1"/>
+            </text-box>
+
+            <label id="type_accessory_label">
+                <field-path/>
+                <text>Тип принадлежности</text>
+            </label>
+            <suggest-box id="type_accessory_value">
+                <field-path value="type_accessory"/>
+                <collection-ref name="type_accessory_collection"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+            <label id="organization_label">
+                <field-path/>
+                <text>Организация</text>
+            </label>
+            <suggest-box id="organization_value">
+                <field-path value="organization"/>
+                <collection-ref name="cont_organization_collection"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byName"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+            <label id="contact_person_label">
+                <field-path/>
+                <text>Контактное Лицо</text>
+            </label>
+            <suggest-box id="contact_person_value">
+                <field-path value="contact_person"/>
+                <collection-ref name="col_contact_person"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byTitle"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+        </widget-config>
+    </form>
+
+    <!--Форма Контактного Лица Организации для вкладки Контактные Лица карточки Организации-->
+    <form name="cont_org_person_form" domain-object-type="cont_cperson_org" is-default="false">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name=" "> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+
+                                <!--Организация-->
+                                <!--<tr>-->
+                                    <!--<td width="15%" h-align="left">-->
+                                        <!--<widget id="organization_label"/>-->
+                                    <!--</td>-->
+                                    <!--<td width="150px" h-align="left">-->
+                                        <!--<widget id="organization_value"/>-->
+                                    <!--</td>-->
+                                <!--</tr>-->
+
+                                <!--Контактное лицо-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="contact_person_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="contact_person_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Должность-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="position_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="position_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Должность в д.п.-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="position1_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="position1_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Описание-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="desc_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="desc_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Тип принадлежности-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="type_accessory_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="type_accessory_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <field-path/>
+                <text>Контактное Лицо Организации</text>
+            </label>
+
+            <label id="desc_label">
+                <field-path/>
+                <text>Описание</text>
+            </label>
+            <text-box id="desc_value">
+                <field-path value="description"/>
+            </text-box>
+
+            <label id="position_label">
+                <field-path/>
+                <text>Должность</text>
+            </label>
+            <text-box id="position_value">
+                <field-path value="position"/>
+            </text-box>
+
+            <label id="position1_label">
+                <field-path/>
+                <text>Должность (дат. падеж)</text>
+            </label>
+            <text-box id="position1_value">
+                <field-path value="position1"/>
+            </text-box>
+
+            <label id="type_accessory_label">
+                <field-path/>
+                <text>Тип принадлежности</text>
+            </label>
+            <suggest-box id="type_accessory_value">
+                <field-path value="type_accessory"/>
+                <collection-ref name="type_accessory_collection"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+            <label id="organization_label">
+                <field-path/>
+                <text>Организация</text>
+            </label>
+            <suggest-box id="organization_value">
+                <field-path value="organization"/>
+                <collection-ref name="cont_organization_collection"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byName"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+            <label id="contact_person_label">
+                <field-path/>
+                <text>Контактное Лицо</text>
+            </label>
+            <suggest-box id="contact_person_value">
+                <field-path value="contact_person"/>
+                <collection-ref name="col_contact_person"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byTitle"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+        </widget-config>
+    </form>
+</configuration>

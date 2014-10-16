@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+				xmlns:act="https://cm5.intertrust.ru/config/action">
+    <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию",
+         то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
+    <navigation name="contacts-panel" is-default="true">
+        <link name="contact_persons" display-text="Контакты" image="images/inbox.png" child-to-open="link_contact_person">
+            <child-links>
+                <link name="link_contact_person" display-text="Контактные лица">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="cont_contact_person">
+                            <collection-viewer>
+                                <collection-ref name="col_contact_person"/>
+                                <default-sort-criteria column-field="title"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="link_cont_organization" display-text="Организации">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="cont_organization">
+                            <collection-viewer>
+                                <collection-ref name="cont_organization_collection"/>
+                                <default-sort-criteria column-field="name"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
+
+        <link name="classifiers" display-text="Классификаторы" image="images/helpers.png" child-to-open="link_classifiers">
+            <child-links>
+                <link name="link_classifiers" display-text="Группы Классификации">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Qual_Group_Qualifier">
+                            <collection-viewer>
+                                <act:tool-bar useDefault="false"/>
+                                <collection-ref name="col_qual_group_qualifier"/>
+                                <default-sort-criteria column-field="name"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
+
+        <link name="addresess" display-text="Адреса" image="images/helpers.png" child-to-open="link_region">
+            <child-links>
+                <!-- [UI01.3.2.1] Работать со списком Стран\Регионов -->
+                <link name="link_region" display-text="Страны\Регионы">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Addr_Region">
+                            <collection-viewer>
+                                <collection-ref name="col_addr_region"/>
+                                <default-sort-criteria column-field="title"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <!-- [UI01.3.2.3] Работать со списком Населенный пункт -->
+                <link name="link_settlement" display-text="Населенный пункт">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Addr_Settlement">
+                            <collection-viewer>
+                                <collection-ref name="col_addr_settlement"/>
+                                <default-sort-criteria column-field="Name"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+
+                <!-- Для отладки -->
+                <link name="Report_upload" display-text="Загрузка шаблонов отчетов">
+                    <plugin>
+                        <custom name="report.upload.plugin"/>
+                    </plugin>
+                </link>
+                <link name="Configuration_upload" display-text="Загрузка конфигурации">
+                    <plugin>
+                        <custom name="configuration.deployer.plugin"/>
+                    </plugin>
+                </link>
+
+            </child-links>
+        </link>
+
+        <!--Тестовые пункты меню - за ненадобностью нужно убрать-->
+        <link name="staff" display-text="Безопасность" image="images/helpers.png" child-to-open="link_person">
+            <child-links>
+                <link name="link_person" display-text="Пользователи">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Person">
+                            <collection-viewer>
+                                <collection-ref name="Col_person"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="link_authentication"  display-text="Данные аутентификации">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Authentication_Info">
+                            <collection-viewer>
+                                <act:tool-bar useDefault="false">
+                                    <act:action-ref name-ref="aRefresh"/>
+                                    <act:action-separator order="50"/>
+                                    <act:action-ref name-ref="aDelete"/>
+                                </act:tool-bar>
+                                <collection-ref name="Col_authentication"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
+    </navigation>
+
+    <navigation-panel-mappings name="contacts-panel-mapping">
+        <navigation-panel-mapping name="contacts-panel">
+            <groups>
+                <group-name value="Administrators" priority="100"/>
+            </groups>
+        </navigation-panel-mapping>
+    </navigation-panel-mappings>
+</configuration>

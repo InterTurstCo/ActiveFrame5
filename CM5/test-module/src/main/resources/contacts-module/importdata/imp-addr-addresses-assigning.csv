@@ -1,0 +1,6 @@
+TYPE_NAME=Addr_Addresses_Assigning;KEYS=Title
+Title;Uid
+"Официальное обращение";1
+"Личное обращение";2
+"Для Спам";3
+"Прочее";4

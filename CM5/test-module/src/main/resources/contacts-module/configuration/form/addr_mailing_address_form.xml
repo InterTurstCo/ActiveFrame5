@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+<!-- [UI01.3.2.5] Работать с карточкой Почтового Адреса -->
+    <form name="addr_mailing_address_form" domain-object-type="Addr_Mailing_Address" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td><widget id="header"/></td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Основная информация" >
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <!-- [UI1.3.2.5.a1] Населенный пункт -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbSettlement"/>
+                                    </td>
+                                    <td>
+                                        <widget id="cbSettlement"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.5.a2] Тип улицы -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbStreet_Type"/>
+                                    </td>
+                                    <td>
+                                        <widget id="cbStreet_Type"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.5.a3] Улица -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbStreet"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbStreet"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.5.a4] Дом -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbHouse"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbHouse"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.5.a5] Корпус  -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbHousing"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbHousing"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.5.a6] Строение -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbBuilding"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbBuilding"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.5.a7] № Квартиры -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbRoom"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbRoom"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.5.a8] Описание -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbDescription"/>
+                                    </td>
+                                    <td>
+                                        <widget id="taDescription"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.5.a9] Индекс -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbPostcode"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbPostcode"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.5.a10] Назначение Адреса -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbAddresses_Assigning"/>
+                                    </td>
+                                    <td>
+                                        <widget id="cbAddresses_Assigning"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="КЛ">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="ldotCont_Contact_Person"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Организации">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="lbDummyOrganization"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Почтовый Адрес</text>
+            </label>
+            <label id="lbSettlement">
+                <text>Населенный пункт</text>
+            </label>
+            <combo-box id="cbSettlement" read-only="true">
+                <field-path value="Settlement"/>
+                <pattern value="{Name}"/>
+            </combo-box>
+            <label id="lbStreet_Type">
+                <text>Тип улицы</text>
+            </label>
+            <combo-box id="cbStreet_Type">
+                <field-path value="Street_Type"/>
+                <pattern value="{Title}"/>
+            </combo-box>
+            <label id="lbStreet">
+                <text>Улица</text>
+            </label>
+            <text-box id="tbStreet">
+                <field-path value="Street"/>
+            </text-box>
+            <label id="lbHouse">
+                <text>Дом</text>
+            </label>
+            <text-box id="tbHouse">
+                <field-path value="House"/>
+            </text-box>
+            <label id="lbHousing">
+                <text>Корпус</text>
+            </label>
+            <text-box id="tbHousing">
+                <field-path value="Housing"/>
+            </text-box>
+            <label id="lbBuilding">
+                <text>Строение</text>
+            </label>
+            <text-box id="tbBuilding">
+                <field-path value="Building"/>
+            </text-box>
+            <label id="lbRoom">
+                <text>№ Квартиры</text>
+            </label>
+            <text-box id="tbRoom">
+                <field-path value="Room"/>
+            </text-box>
+            <label id="lbDescription">
+                <text>Описание</text>
+            </label>
+            <text-area id="taDescription">
+                <field-path value="Description"/>
+            </text-area>
+            <label id="lbPostcode">
+                <text>Индекс</text>
+            </label>
+            <text-box id="tbPostcode">
+                <field-path value="Postcode"/>
+            </text-box>
+            <label id="lbAddresses_Assigning">
+                <text>Назначение Адреса</text>
+                <force-required-asterisk value="true"/>
+                <relates-to widget-id="cbAddresses_Assigning"/>
+            </label>
+            <combo-box id="cbAddresses_Assigning">
+                <field-path value="Addresses_Assigning"/>
+                <pattern value="{Title}"/>
+            </combo-box>
+            <label id="lbDummyOrganization">
+                <text>Организации</text>
+            </label>
+            <linked-domain-objects-table id="ldotCont_Contact_Person">
+                <field-path value="Cont_Address_CPerson^Mailing_Address" />
+                <linked-form name="add_contact_person_mailing_address_form" inline="true"/>
+                <summary-table>
+                    <summary-table-column header="Заголовок" widget-id="sbContact_Person">
+                        <pattern value="{title}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
+        </widget-config>
+    </form>
+
+    <form name="add_contact_person_mailing_address_form" domain-object-type="Cont_Address_CPerson" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td><widget id="header"/></td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Адрес Контактного Лица">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="lbContact_Person"/>
+                                    </td>
+                                    <td>
+                                        <widget id="sbContact_Person"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Адрес</text>
+            </label>
+            <label id="lbContact_Person">
+                <text>Контактное Лицо</text>
+                <force-required-asterisk value="true"/>
+                <relates-to widget-id="sbContact_Person"/>
+            </label>
+            <suggest-box id="sbContact_Person">
+                <field-path value="Contact_Person"/>
+                <collection-ref name="col_contact_person"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byTitle"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+        </widget-config>
+    </form>
+</configuration>

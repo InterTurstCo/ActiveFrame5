@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+        >
+
+    <!-- Тип событие (родительский)-->
+    <domain-object-type name="Occa_Occasion" initial-status="Active">
+        <fields>
+            <!-- Тип события 1- “фиксированный по дате”, 2- “вычисляемый по дню в неделе”, 3- “переходящий” -->
+            <long name="Occasion_Type">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                    <int-range start="1" end="3"/>
+                </constraints>
+
+            </long>
+
+            <!-- Название события -->
+            <string name="Name" length="150">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+
+            <!-- Дополнительные заметки-->
+            <string name="Note" length="500"/>
+
+            <!-- Ежегодное. По умолчанию false-->
+            <boolean name="Annual"/>
+
+
+        </fields>
+    </domain-object-type>
+
+    <!-- Фиксированное событие -->
+    <domain-object-type name="Occa_Occasion_Fixed" initial-status="Active" extends="Occa_Occasion">
+        <fields>
+            <!-- Дата события -->
+            <date-time name="Date_Occasion">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </date-time>
+        </fields>
+    </domain-object-type>
+
+    <!-- Вычисляемое событие -->
+    <domain-object-type name="Occa_Occasion_Calculated" initial-status="Active" extends="Occa_Occasion">
+        <fields>
+            <!-- День недели 1- “Пн”, 2- “Вт”, 3- “Ср”, 4- “Чт”, 5- “Пн”, 6- “Сб”, 7- “Вс”-->
+            <long name="Day_Week">
+                <constraints>
+                    <int-range start="1" end="7"/>
+                </constraints>
+            </long>
+
+            <!-- Месяц -->
+            <long name="Month">
+                <constraints>
+                    <int-range start="1" end="12"/>
+                </constraints>
+            </long>
+
+            <!-- № недели -->
+            <long name="Number_Week">
+                <constraints>
+                    <int-range start="1" end="4"/>
+                </constraints>
+            </long>
+        </fields>
+    </domain-object-type>
+
+    <!-- Переходящее событие -->
+    <domain-object-type name="Occa_Occasion_Floated" initial-status="Active" extends="Occa_Occasion">
+        <fields>
+            <reference name="Calendar" type="Occa_Calendar_Occasion">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+
+    <!-- Тип событие для КЛ -->
+    <domain-object-type name="Occa_Occasion_CPerson" initial-status="Active">
+        <fields>
+
+            <!-- Ссылка на событие -->
+            <reference name="Occasion" type="Occa_Occasion">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+
+            <!-- Контактное лицо к торому привязано событие -->
+            <reference name="Contact_Person" type="cont_contact_person">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+
+            <!-- Уведомить за -->
+            <long name="NotifyFor"/>
+
+            <!-- Дополнительные заметки-->
+            <string name="Note" length="500"/>
+
+            <!-- Тип единиц уведомления 1 - день, 2 - неделя, 3 - месяц -->
+            <long name="NotifyForType">
+                <constraints>
+                    <int-range start="1" end="3"/>
+                </constraints>
+            </long>
+        </fields>
+    </domain-object-type>
+
+    <!-- Тип событие для классификатора -->
+    <domain-object-type name="Occa_Occasion_Qualifier" initial-status="Active">
+        <fields>
+            <!-- Ссылка на событие -->
+            <reference name="Occasion" type="Occa_Occasion">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+
+            <!-- Ссылка на классификатор -->
+            <reference name="Qualifier" type="Qualifier">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+
+    <!-- Тип событие для организации -->
+    <domain-object-type name="Occa_Occasion_Org" initial-status="Active">
+        <fields>
+            <!-- Ссылка на событие -->
+            <reference name="Occasion" type="Occa_Occasion">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+
+            <!-- Ссылка на организацию -->
+            <reference name="cont_organization" type="Organization">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <!-- Календарь События для переходящих событий типа Пасха и т.д. -->
+    <domain-object-type name="Occa_Calendar_Occasion" initial-status="Active">
+        <fields>
+            <!-- Ссылка на событие -->
+            <reference name="Occasion" type="Occa_Occasion">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+
+            <!-- Дата события -->
+            <date-time name="Date_Occasion">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </date-time>
+
+            <!-- Дополнительные заметки-->
+            <string name="Note" length="500"/>
+
+        </fields>
+    </domain-object-type>
+</configuration>

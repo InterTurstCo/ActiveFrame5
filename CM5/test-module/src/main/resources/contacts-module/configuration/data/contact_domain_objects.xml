@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!--ДО Контактное Лицо (КЛ)-->
+    <domain-object-type name="cont_contact_person" initial-status="Черновик">
+        <fields>
+            <!-- Заголовок. Формируется автоматически конкатенацией ФИО. Можно изменить. -->
+            <string name="title" length="250"/>
+
+            <!-- Фамилия -->
+            <string name="surname" length="60">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!-- Имя -->
+            <string name="name" length="60">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!-- Отчество -->
+            <string name="patronymic" length="60"/>
+
+            <!-- Дата рождения -->
+            <date-time name="birth_date"/>
+
+            <!--Ранг-->
+            <reference name="rank" type="rank"/>
+
+        </fields>
+
+        <!-- TODO: Возможно необходимо будет добавить в будущем -->
+        <!--<attachment-types>-->
+        <!--<attachment-type name="foto"/>-->
+        <!--</attachment-types>-->
+    </domain-object-type>
+
+    <!--ДО Ранг-->
+    <domain-object-type name="rank" initial-status="Active">
+        <fields>
+            <!--Заголовок-->
+            <string name="title" length="250">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!--Порядковый №-->
+            <long name="index_number">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </long>
+
+            <!--Дата-->
+            <date-time name="date_notes"/>
+        </fields>
+    </domain-object-type>
+
+    <!--ДО Заметки-->
+    <domain-object-type name="cont_notes" initial-status="Active">
+        <fields>
+            <!--Заголовок-->
+            <string name="title" length="250">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!--Описание-->
+            <string name="description" length="1024"/>
+
+            <!-- Контактное лицо -->
+            <reference name="notes_person" type="cont_contact_person">
+                <!--<constraints>-->
+                    <!--<simple-constraint value="not-empty"/>-->
+                <!--</constraints>-->
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <!--ДО Тип Вложения-->
+    <domain-object-type name="cont_type_attachments" initial-status="Active">
+        <fields>
+            <!--Заголовок. Значения: “Визитка”, “Проспект”, “Документ”, “Прочее”-->
+            <string name="title" length="60">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!-- UID. Уникальный идентификатор Типа Вложения. Формируется автоматически-->
+            <string name="uid" length="50">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+        </fields>
+    </domain-object-type>
+
+    <!--ДО Приложение-->
+    <domain-object-type name="cont_attachments" initial-status="Active">
+        <fields>
+            <!--Описание-->
+            <string name="description" length="1024">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!--Тип Вложения-->
+            <reference name="type_attachments" type="cont_type_attachments">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+        </fields>
+        <attachment-types>
+            <attachment-type name="attachment_path"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <!--ДО Приложение для Контактного Лица -->
+    <domain-object-type name="cont_attachments_person" extends="cont_attachments">
+        <fields>
+            <!-- Контактное лицо -->
+            <reference name="contact_person" type="cont_contact_person">
+                <!--<constraints>-->
+                    <!--<simple-constraint value="not-empty"/>-->
+                <!--</constraints>-->
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <!--ДО Приложение для Организации -->
+    <domain-object-type name="cont_attachments_org" extends="cont_attachments">
+        <fields>
+            <!--Организация-->
+            <reference name="organization" type="cont_organization">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <!--ДО Организация-->
+    <domain-object-type name="cont_organization" initial-status="Active">
+        <fields>
+            <!-- Название. Значения: “Создан на основании”, “Создан взамен”, “Ссылается на”, “Является частью” -->
+            <string name="name" length="60">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!-- Полное Название. Если не заполнено, заполняется из поля «Название» -->
+            <string name="fullname" length="200"/>
+
+            <!--Ранг-->
+            <reference name="rank" type="rank"/>
+
+            <!--Вышестоящая Организация-->
+            <reference name="parent" type="cont_organization"/>
+        </fields>
+    </domain-object-type>
+
+    <!--ДО Контактное Лицо Организации-->
+    <domain-object-type name="cont_cperson_org" initial-status="Active">
+        <fields>
+            <!--Описание-->
+            <string name="description" length="1024"/>
+
+            <!--Должность-->
+            <string name="position" length="120"/>
+
+            <!--Должность (дат. падеж)-->
+            <string name="position1" length="120"/>
+
+            <!--Тип принадлежности-->
+            <reference name="type_accessory" type="cont_type_accessory"/>
+
+            <!--Контактное лицо-->
+            <reference name="contact_person" type="cont_contact_person">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+
+            <!--Организация-->
+            <reference name="organization" type="cont_organization">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <!--ДО Тип Принадлежности-->
+    <domain-object-type name="cont_type_accessory" initial-status="Active">
+        <fields>
+            <!-- Заголовок. Значения: “Сотрудник”, “Компаньон”, “Представитель”, “Прочее” -->
+            <string name="title" length="60">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!-- UID. Уникальный идентификатор Типа Принадлежности. Формируется автоматически -->
+            <string name="uid" length="50">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+        </fields>
+    </domain-object-type>
+
+    <!-- ДО Классификатор контактного лица -->
+    <domain-object-type name="Cont_Qualifier_CPerson" initial-status="Active">
+        <fields>
+            <reference name="contact_person" type="cont_contact_person"/>
+
+            <reference name="classifier" type="Qualifier"/>
+
+        </fields>
+        <!-- Чтобы не привязать к одному и тому же КЛ классификатор дважды-->
+        <uniqueKey>
+            <field name="contact_person"></field>
+            <field name="classifier"></field>
+        </uniqueKey>
+    </domain-object-type>
+
+    <!-- ДО Классификатор организаций -->
+    <domain-object-type name="Cont_Qualifier_Org" initial-status="Active">
+        <fields>
+            <reference name="organization" type="cont_organization">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+            <reference name="classifier" type="Qualifier">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+        </fields>
+    </domain-object-type>
+</configuration>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!--Приложение для Контактного Лица-->
+    <form name="cont_notes_form" domain-object-type="cont_notes" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name=" "> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <!--Заголовок-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="title_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="title_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Описание-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="desc_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="desc_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Дата-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="date_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="date_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <field-path/>
+                <text>Заметки</text>
+            </label>
+
+            <label id="title_label">
+                <field-path/>
+                <text>Заголовок</text>
+            </label>
+            <text-box id="title_value">
+                <field-path value="title"/>
+            </text-box>
+
+            <label id="desc_label">
+                <field-path/>
+                <text>Описание</text>
+            </label>
+            <text-box id="desc_value">
+                <field-path value="description"/>
+            </text-box>
+
+            <label id="date_label">
+                <field-path/>
+                <text>Дата</text>
+            </label>
+            <label id="date_value">
+                <field-path value="created_date"/>
+            </label>
+
+        </widget-config>
+    </form>
+</configuration>

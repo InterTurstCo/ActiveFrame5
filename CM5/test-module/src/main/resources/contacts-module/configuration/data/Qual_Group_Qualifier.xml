@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- ДО группа классификатора -->
+    <domain-object-type name="Qual_Group_Qualifier" initial-status="Active">
+        <fields>
+            <!-- Название группы спецификаторов -->
+            <string name="Name" length="150">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!-- Признак Один Из. Значит можно выбирать только один из группы. Радиокнопка-->
+            <boolean name="One_OfThe_Groups"/>
+
+            <!-- Ссылка на родителя, для построения иерархии классификаторов-->
+            <reference name="Parent_Id" type="Qual_Group_Qualifier"/>
+        </fields>
+    </domain-object-type>
+
+    <!-- ДО классификатор -->
+    <domain-object-type name="Qualifier" initial-status="Active">
+        <fields>
+            <!-- Название cпецификаторов -->
+            <string name="Name" length="150">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!-- Ссылка на группу классификаторов-->
+            <reference name="Group_Qualifier" type="Qual_Group_Qualifier"/>
+
+            <!-- Порядок в группе (для сортировки и контроля вывода в отчетах по рангу спецификатора) -->
+            <long name="Corder"/>
+
+        </fields>
+    </domain-object-type>
+
+    <!-- ДО Объекты Классификации Справочник-->
+    <domain-object-type name="Qual_DO_Qualifier" initial-status="Active">
+        <fields>
+            <!-- Название обьекта -->
+            <string name="Name" length="150">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+
+            <!-- Название типа обьекта -->
+            <string name="domobject" length="150">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+        </fields>
+    </domain-object-type>
+
+    <!-- ДО Группа Классификаций для ДО-->
+    <domain-object-type name="Qual_Group_Qualifier_DO" initial-status="Active">
+        <fields>
+            <reference name="Group_Qualifier" type="Qual_Group_Qualifier">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+
+            <reference name="domobject" type="Qual_DO_Qualifier">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </reference>
+
+        </fields>
+        <uniqueKey>
+            <field name="Group_Qualifier"></field>
+            <field name="domobject"></field>
+        </uniqueKey>
+    </domain-object-type>
+
+</configuration>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="qualifier_form" domain-object-type="Qualifier" is-default="true" debug="false"
+          min-width="1200px">
+        <act:tool-bar useDefault="false">
+            <act:simple-action name="deactivation" componentName="simple.action" action-handler="cancel.classifier.action"
+                        text="Аннулировать" imageClass="actionBar-delete"
+                        dirtySensitivity="false" order="300" merged="true"
+                    visibility-checker="classifier.deactivate.visibility.checker">
+
+                <act:before-execution>
+                    <act:confirmation-message text="Классификатор будет аннулирован! Продолжить?"/>
+                </act:before-execution>
+
+                <act:after-execution>
+                    <act:on-success-message text="Классификатор аннулирован!"/>
+                </act:after-execution>
+            </act:simple-action>
+
+            <act:simple-action name="activation" componentName="simple.action" action-handler="activate.classifier.action"
+                        text="Активировать" imageClass="actionBar-edit"
+                        dirtySensitivity="false" order="400" merged="true"
+                        visibility-checker="classifier.activate.visibility.checker">
+
+                <act:before-execution>
+                    <act:confirmation-message text="Классификатор будет активирован! Продолжить?"/>
+                </act:before-execution>
+
+                <act:after-execution>
+                    <act:on-success-message text="Классификатор активирован!"/>
+                </act:after-execution>
+            </act:simple-action>
+
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel" width="100px"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Информация">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="mainNameLabel"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="mainNameText"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="mainOrderLabel"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="mainOrderText"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <field-path/>
+                <text>Классификатор</text>
+            </label>
+
+            <!-- Главная - имя классификатора -->
+            <label id="mainNameLabel">
+                <field-path/>
+                <text>Наименование классификатора:</text>
+            </label>
+            <text-box id="mainNameText">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="mainOrderLabel">
+                <field-path/>
+                <text>Порядок:</text>
+            </label>
+            <integer-box id="mainOrderText">
+                <field-path value="Corder"/>
+            </integer-box>
+
+        </widget-config>
+    </form>
+</configuration>

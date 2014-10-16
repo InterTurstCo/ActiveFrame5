@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+        >
+    <collection name="col_person_qualifiers" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        Q.id,
+                        QG.name||'.'||Q.name as name
+                        from qualifier Q
+                        join Qual_Group_Qualifier QG on QG.id=Q.group_qualifier
+                        join qual_group_qualifier_do QGDO on QGDO.group_qualifier = QG.id
+                        join qual_do_qualifier QDQ on QDQ.id=QGDO.domobject AND QDQ.domobject='cont_contact_person'
+                        join status st on Q.status=st.id and st.name='Active'
+
+                        where
+                        1=1 ::where-clause
+                ]]>
+        </prototype>
+
+        <filter name="byParentGroup">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    QG.id = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+</configuration>

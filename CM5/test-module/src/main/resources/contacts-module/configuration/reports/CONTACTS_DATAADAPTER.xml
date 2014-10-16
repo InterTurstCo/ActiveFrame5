@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jdbcDataAdapter class="net.sf.jasperreports.data.jdbc.JdbcDataAdapterImpl"><name>New Data Adapter 1</name><driver>ru.intertrust.cm.core.jdbc.JdbcDriver</driver><username>admin</username><password>17e9821b-37b2-492d-89c2-a42fa8c478b7</password><savePassword>true</savePassword><url>jdbc:sochi:remoting://localhost:4447/contacts/admin-1.0-SNAPSHOT</url><database></database><serverAddress></serverAddress></jdbcDataAdapter>

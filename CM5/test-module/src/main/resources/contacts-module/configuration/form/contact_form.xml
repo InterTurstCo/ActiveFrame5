@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <form name="contact_person_form" domain-object-type="cont_contact_person" is-default="true">
+        <act:tool-bar useDefault="true" rendered="true">
+            <act:simple-action name="actualize" componentName="simple.action" action-handler="activate.contact.name.action"
+                               text="Актуализировать" permissions="Delete,Write,Create" imageClass="actionBar-sign" merged="false"
+                               visibility-checker="activate.contact.name.visibility.checker" order="300">
+                <act:before-execution>
+                    <act:confirmation-message text="Запись будет актуализирована! Продолжить?"/>
+                </act:before-execution>
+
+                <act:after-execution>
+                    <act:on-success-message text="Запись актуализирована!"/>
+                </act:after-execution>
+            </act:simple-action>
+
+            <act:simple-action name="annulate" componentName="simple.action" action-handler="deactivate.contact.name.action"
+                               text="Аннулировать" permissions="Delete,Write,Create" imageClass="actionBar-sign" merged="false"
+                               visibility-checker="deactivate.contact.name.visibility.checker" order="500">
+                <act:before-execution>
+                    <act:confirmation-message text="Запись будет аннулирована! Продолжить?"/>
+                </act:before-execution>
+
+                <act:after-execution>
+                    <act:on-success-message text="Запись аннулирована!"/>
+                </act:after-execution>
+            </act:simple-action>
+        </act:tool-bar>
+
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Информация"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <!--TODO Временно недоступно-->
+                                <!--<tr>-->
+                                    <!--<td width="100%" h-align="left">-->
+                                        <!--<widget id="foto_label"/>-->
+                                    <!--</td>-->
+                                    <!--<td width="100%" h-align="left">-->
+                                        <!--<widget id="foto_value"/>-->
+                                    <!--</td>-->
+                                <!--</tr>-->
+
+                                <!--Фамилия-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="surname_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="surname_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Имя-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="name_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="name_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Отчество-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="patronymic_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="patronymic_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Дата рождения-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="birth_date_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="birth_date_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Полных лет-->
+                                <!--Недоступно. Вычисляется как текущая дата минус дата рождения.-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="age_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="age_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Ранг-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="rank_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="rank_value"/>
+                                    </td>
+                                </tr>
+
+                                <!--Состояние-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="state_label"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="state_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Приложения"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="attachments_label"/>
+                                    </td>
+                                    <td width="85%" h-align="left">
+                                        <widget id="attachments_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Заметки"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="notes_label"/>
+                                    </td>
+                                    <td width="85%" h-align="left">
+                                        <widget id="notes_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Организации"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="organizations_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Классификации"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td width="100%" h-align="left">
+                                        <widget id="classifiers_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Почт. Адреса"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td width="100%" h-align="left">
+                                        <widget id="addresses_label"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Прочие Адреса"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td width="100%" h-align="left">
+                                        <widget id="other_addresses_label"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <field-path/>
+                <text>Контактное лицо</text>
+            </label>
+
+            <label id="surname_label">
+                <field-path/>
+                <text>Фамилия</text>
+            </label>
+
+            <text-box id="surname_value">
+                <field-path value="surname"/>
+            </text-box>
+
+            <label id="name_label">
+                <field-path/>
+                <text>Имя</text>
+            </label>
+
+            <text-box id="name_value">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="patronymic_label">
+                <field-path/>
+                <text>Отчество</text>
+            </label>
+
+            <text-box id="patronymic_value">
+                <field-path value="patronymic"/>
+            </text-box>
+
+            <label id="birth_date_label">
+                <field-path/>
+                <text>Дата рождения</text>
+            </label>
+
+            <date-box id="birth_date_value">
+                <field-path value="birth_date" />
+                <pattern>dd.MM.yyyy</pattern>
+                <display-time-box>false</display-time-box>
+                <display-time-zone-choice>false</display-time-zone-choice>
+            </date-box>
+
+            <label id="age_label">
+                <field-path/>
+                <text>Полных лет</text>
+            </label>
+
+            <label id="age_value">
+                <field-path value="birth_date"/>
+                <renderer component-name="age.renderer"/>
+            </label>
+
+            <label id="rank_label">
+                <field-path/>
+                <text>Ранг</text>
+            </label>
+
+            <suggest-box id="rank_value">
+                <field-path value="rank"/>
+                <collection-ref name="rank_collection"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+            <label id="state_label">
+                <field-path/>
+                <text>Состояние</text>
+            </label>
+
+            <label id="state_value">
+                <field-path value="status.name"/>
+            </label>
+
+            <label id="attachments_label">
+                <field-path/>
+                <text>Приложения:</text>
+            </label>
+
+            <hierarchy-browser id="attachments_value">
+                <field-path value="cont_attachments_person^contact_person" on-root-delete="unlink"/>
+                <node-collection-def collection="cont_attachments_person_collection" domain-object-type="cont_attachments_person" title="Создать Приложение">
+                    <root-node-link title="Приложения -> "/>
+                    <input-text-filter name="byDesc"/>
+                    <fill-parent-on-add field-to-fill="contact_person"/>
+                    <selection-pattern value="{description}, {title}"/>
+                    <default-sort-criteria column-field="description" order="asc"/>
+                </node-collection-def>
+                <page-size>20</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="Добавить"/>
+                <display-values-as-links value="true"/>
+            </hierarchy-browser>
+
+            <label id="notes_label">
+                <field-path/>
+                <text>Заметки:</text>
+            </label>
+
+            <hierarchy-browser id="notes_value">
+                <field-path value="cont_notes^notes_person" on-root-delete="unlink"/>
+                <node-collection-def collection="cont_notes_collection" domain-object-type="cont_notes" title="Создать Заметку">
+                    <root-node-link title="Заметки -> "/>
+                    <input-text-filter name="byTitle"/>
+                    <fill-parent-on-add field-to-fill="notes_person"/>
+                    <selection-pattern value="{title}"/>
+                    <default-sort-criteria column-field="title" order="asc"/>
+                </node-collection-def>
+                <page-size>20</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="Добавить"/>
+                <display-values-as-links value="true"/>
+            </hierarchy-browser>
+
+            <linked-domain-objects-table id="organizations_value" modal-width="500px" modal-height="300px"
+                                         max-tooltip-width="300px">
+                <field-path value="cont_cperson_org^contact_person"/>
+                <linked-form name="cont_cperson_org_form" inline="true"/>
+
+                <summary-table>
+                    <summary-table-column header="Организация" widget-id="organization_value">
+                        <pattern value="{organization.name}"/>
+                    </summary-table-column>
+                    <!--<summary-table-column header="Контактное Лицо" widget-id="contact_person_value">-->
+                        <!--<pattern value="{contact_person.title}"/>-->
+                    <!--</summary-table-column>-->
+                    <summary-table-column header="Должность" widget-id="position_value">
+                        <pattern value="{position}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Должность (дат. падеж)" widget-id="position1_value">
+                        <pattern value="{position1}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Описание" widget-id="desc_value">
+                        <pattern value="{description}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Тип принадлежности" widget-id="type_accessory_value">
+                        <pattern value="{type_accessory.title}"/>
+                    </summary-table-column>
+                </summary-table>
+                <selection-sort-criteria>
+                    <sort-criterion field="organization.name" order="asc"/>
+                </selection-sort-criteria>
+                <single-choice value="false"/>
+
+            </linked-domain-objects-table>
+
+            <!--
+            <linked-domain-objects-table id="classifiers_value" modal-width="500px" modal-height="300px"
+                                         max-tooltip-width="300px">
+                <field-path value="Cont_Qualifier_CPerson^contact_person"/>
+                <linked-form name="cont_qualifier_cperson_form" inline="true"/>
+
+                <summary-table>
+                    <summary-table-column header="Классификатор" widget-id="availableQualifiersSuggestBox">
+                        <pattern value="{classifier.name}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Группа Классификатора" widget-id="1">
+                        <pattern value="{classifier.group_qualifier.name}"/>
+                    </summary-table-column>
+                </summary-table>
+                <selection-sort-criteria>
+                    <sort-criterion field="classifier.group_qualifier" order="asc"/>
+                </selection-sort-criteria>
+                <single-choice value="false"/>
+
+            </linked-domain-objects-table> -->
+
+            <hierarchy-browser id="classifiers_value">
+                <field-path value="Cont_Qualifier_CPerson^contact_person" on-root-delete="unlink"/>
+                <node-collection-def collection="col_person_group_qualifier" domain-object-type="Qual_Group_Qualifier" title="Группы">
+                    <selection-pattern value="{name}"/>
+                    <default-sort-criteria column-field="name" order="asc"/>
+                    <node-collection-def collection="col_person_qualifiers" domain-object-type="Qualifier" title="Классификаторы">
+                        <root-node-link title="Группы классификаторов -> "/>
+                        <selection-pattern value="{name}"/>
+
+                    </node-collection-def>
+                </node-collection-def>
+                <page-size>20</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="Добавить"/>
+                <display-values-as-links value="true"/>
+            </hierarchy-browser>
+
+
+            <label id="classifier_label">
+                <field-path/>
+                <text>Тестовая форма</text>
+            </label>
+
+            <label id="addresses_label">
+                <field-path/>
+                <text>Тестовая форма</text>
+            </label>
+
+            <label id="other_addresses_label">
+                <field-path/>
+                <text>Тестовая форма</text>
+            </label>
+
+        </widget-config>
+    </form>
+</configuration>

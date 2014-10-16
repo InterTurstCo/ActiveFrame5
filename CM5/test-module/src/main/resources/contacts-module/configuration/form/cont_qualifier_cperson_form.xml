@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+        >
+    <form name="cont_qualifier_cperson_form" domain-object-type="Cont_Qualifier_CPerson" is-default="true" debug="false"
+          min-width="1200px">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel" width="200px"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="availableClassifiersLabel"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="availableQualifiersSuggestBox"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <field-path/>
+                <text>Привязка классификатора к контактному лицу</text>
+            </label>
+            <label id="availableClassifiersLabel">
+                <field-path/>
+                <text>Доступные классификаторы</text>
+            </label>
+            <suggest-box id="availableQualifiersSuggestBox">
+                <field-path value="classifier"/>
+                <collection-ref name="col_person_qualifiers"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+        </widget-config>
+    </form>
+</configuration>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+<!-- [UI01.3.2.2] Работать с карточкой Страны\Региона  -->
+    <form name="addr_region_form" domain-object-type="Addr_Region" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td><widget id="header"/></td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Основная информация" >
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <!-- [UI1.3.2.2.a1] Наименование -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbName"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbName"/>
+                                    </td>
+                                </tr>
+                                <!-- [UI1.3.2.2.a2] Код -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbCode"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbCode"/>
+                                    </td>
+                                </tr>
+                                <!-- [FR1.3.2.2.a3] Индекс с -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbFromIndex"/>
+                                    </td>
+                                    <td>
+                                        <widget id="ibFromIndex"/>
+                                    </td>
+                                </tr>
+                                <!-- [FR1.3.2.2.a4] Индекс по -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbToIndex"/>
+                                    </td>
+                                    <td>
+                                        <widget id="ibToIndex"/>
+                                    </td>
+                                </tr>
+                                <!-- [FR1.3.2.2.a5] Подчиненность -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbSubordination"/>
+                                    </td>
+                                    <td>
+                                        <widget id="cbSubordination"/>
+                                    </td>
+                                </tr>
+                                <!-- [FR1.3.2.2.a6] Заголовок -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbTitle"/>
+                                    </td>
+                                    <td>
+                                        <widget id="taTitle"/>
+                                    </td>
+                                </tr>
+                                <!-- [FR1.3.2.2.a7] Тип -->
+                                <tr>
+                                    <td>
+                                        <widget id="lbRegionType"/>
+                                    </td>
+                                    <td>
+                                        <widget id="ebRegionType"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Населенные пункты">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <!-- [FR1.3.2.2.a8] Населенные пункты -->
+                                <tr>
+                                    <td>
+                                        <widget id="ldotSettlement"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Страна\регион</text>
+            </label>
+            <label id="lbName">
+                <text>Наименование</text>
+                <force-required-asterisk value="true"/>
+                <relates-to widget-id="tbName"/>
+            </label>
+            <text-box id="tbName">
+                <field-path value="Name"/>
+            </text-box>
+            <label id="lbCode">
+                <text>Код</text>
+            </label>
+            <text-box id="tbCode">
+                <field-path value="Code"/>
+            </text-box>
+            <label id="lbFromIndex">
+                <text>Индекс с</text>
+            </label>
+            <integer-box id="ibFromIndex">
+                <field-path value="From_Index"/>
+            </integer-box>
+            <label id="lbToIndex">
+                <text>Индекс по</text>
+            </label>
+            <integer-box id="ibToIndex">
+                <field-path value="To_Index"/>
+            </integer-box>
+            <label id="lbSubordination">
+                <text>Подчиненность</text>
+            </label>
+            <combo-box id="cbSubordination">
+                <field-path value="Subordination"/>
+                <pattern value="{Title}"></pattern>
+            </combo-box>
+            <label id="lbTitle">
+                <text>Заголовок</text>
+            </label>
+            <text-area id="taTitle" >
+                <field-path value="Title"/>
+            </text-area>
+            <label id="lbRegionType">
+                <text>Тип</text>
+            </label>
+            <enumeration-box id="ebRegionType">
+                <field-path value="Region_Type"/>
+                <mapping>
+                    <map value="1" display-text="Страна"/>
+                    <map value="2" display-text="Регион"/>
+                    <map value="3" display-text="Район"/>
+                </mapping>
+            </enumeration-box>
+            <linked-domain-objects-table id="ldotSettlement">
+                <field-path value="Addr_Settlement^Region" />
+                <linked-form name="addr_settlement_form" inline="true"/>
+                <summary-table>
+                    <summary-table-column header="Наименование" widget-id="tbName">
+                        <pattern value="{Name}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
+        </widget-config>
+    </form>
+</configuration>

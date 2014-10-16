@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+        >
+    <collection name="col_qual_do_qualifier" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        QDQ.id,
+                        QDQ.name,
+                        QDQ.domobject
+
+                        from Qual_DO_Qualifier QDQ
+
+                        where
+                        1=1 ::where-clause
+                ]]>
+        </prototype>
+    </collection>
+</configuration>

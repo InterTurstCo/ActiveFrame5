@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Коллекция для отображения Контактных Лиц Организации -->
+    <collection name="cont_cperson_org_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                  cp.description,
+                  cp.position,
+                  cp.position1,
+                  ta.title as type_accessory,
+                  ccp.title as contact_person,
+                  org.name as organization
+                FROM
+                  cont_cperson_org cp
+                  LEFT JOIN cont_type_accessory ta on ta.id = cp.type_accessory
+                  LEFT JOIN cont_contact_person ccp on ccp.id = cp.contact_person
+                  LEFT JOIN cont_organization org on org.id = cp.organization
+                  ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from cont_cperson_org cp ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byDesc">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(cp.description) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byPosition">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(cp.position) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byPosition1">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(cp.position1) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byTypeAccessory">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(ta.title) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byContactPerson">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(ccp.title) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byOrg">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(org.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="cont_cperson_org_view" collection="cont_cperson_org_collection" is-default="true">
+        <display>
+            <column field="organization" name="Организация" type="string" sortable="true" resizable="true" search-filter="byOrg"/>
+            <column field="contact_person" name="Контактное Лицо" type="string" sortable="true" resizable="true" search-filter="byContactPerson"/>
+            <column field="position" name="Должность" type="string" sortable="true" resizable="true" search-filter="byPosition"/>
+            <column field="position1" name="Должность (дат. падеж)" type="string" sortable="true" resizable="true" search-filter="byPosition1"/>
+            <column field="description" name="Описание" type="string" sortable="true" resizable="true" search-filter="byDesc"/>
+            <column field="type_accessory" name="Тип принадлежности" type="string" sortable="true" resizable="true" search-filter="byTypeAccessory"/>
+        </display>
+    </collection-view>
+</configuration>
