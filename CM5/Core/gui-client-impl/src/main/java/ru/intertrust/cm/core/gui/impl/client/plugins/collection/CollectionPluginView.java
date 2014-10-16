@@ -31,7 +31,6 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
-import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
@@ -42,11 +41,10 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.heade
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
-import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnOrderActionContext;
-import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnWidthActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
@@ -93,12 +91,9 @@ public class CollectionPluginView extends PluginView {
         DataGrid.Resources resources = GlobalThemesManager.getDataGridResources();
         tableBody = new CollectionDataGrid(15, resources, eventBus);
         tableWidth = plugin.getOwner().getVisibleWidth();
-        final CollectionColumnWidthChangedHandler changedWidthHandler = new CollectionColumnWidthChangedHandler();
-        eventBus.addHandler(ComponentWidthChangedEvent.TYPE, changedWidthHandler);
-        final CollectionColumnOrderChangedHandler orderChangedHandler = new CollectionColumnOrderChangedHandler();
         columnHeaderController =
                 new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth, eventBus);
-        eventBus.addHandler(ComponentOrderChangedEvent.TYPE, orderChangedHandler);
+
     }
 
     private void updateSizes() {
@@ -275,7 +270,7 @@ public class CollectionPluginView extends PluginView {
                 collectionViewerConfig.getDefaultSortCriteriaConfig().setOrder(
                         ascending ? CommonSortCriterionConfig.ASCENDING : CommonSortCriterionConfig.DESCENDING);
                 final CollectionSortOrderActionContext context = new CollectionSortOrderActionContext();
-                context.setActionConfig(createActionConfig());
+                context.setActionConfig(UserSettingsUtil.createActionConfig());
                 context.setLink(Application.getInstance().getHistoryManager().getLink());
                 context.setCollectionViewName(getCollectionIdentifier());
                 context.setCollectionViewerConfig(collectionViewerConfig);
@@ -849,55 +844,6 @@ public class CollectionPluginView extends PluginView {
 
     private String getCollectionIdentifier() {
         return getPluginData().getCollectionViewConfigName();
-    }
-
-    private class CollectionColumnWidthChangedHandler implements ComponentWidthChangedHandler {
-        @Override
-        public void handleEvent(ComponentWidthChangedEvent event) {
-            if (event.getComponent() instanceof CollectionColumn) {
-                updateWidthSettings(((CollectionColumn) event.getComponent()).getFieldName(), event.getWidth());
-            }
-        }
-    }
-
-    private class CollectionColumnOrderChangedHandler implements ComponentOrderChangedHandler {
-
-        @Override
-        public void handleEvent(ComponentOrderChangedEvent event) {
-            if (event.getComponent() instanceof CollectionColumn) {
-                final CollectionColumnOrderActionContext context = new CollectionColumnOrderActionContext();
-                context.setLink(Application.getInstance().getHistoryManager().getLink());
-                context.setCollectionViewName(getCollectionIdentifier());
-                context.setActionConfig(createActionConfig());
-                for (int index = 0; index < tableBody.getColumnCount(); index++) {
-                    final CollectionColumn column = (CollectionColumn) tableBody.getColumn(index);
-                    context.addOrder(column.fieldName);
-                }
-                final Action action = ComponentRegistry.instance.get(CollectionColumnOrderActionContext.COMPONENT_NAME);
-                action.setInitialContext(context);
-                action.perform();
-            }
-        }
-    }
-
-    private void updateWidthSettings(final String field, final int width) {
-        final CollectionColumnWidthActionContext context = new CollectionColumnWidthActionContext();
-        context.setActionConfig(createActionConfig());
-        context.setLink(Application.getInstance().getHistoryManager().getLink());
-        context.setCollectionViewName(getCollectionIdentifier());
-        context.setField(field);
-        context.setWidth(width + "px");
-        CollectionColumnWidthAction action =
-                ComponentRegistry.instance.get(CollectionColumnWidthActionContext.COMPONENT_NAME);
-        action.setInitialContext(context);
-        action.perform();
-    }
-
-    private ActionConfig createActionConfig() {
-        final ActionConfig config = new ActionConfig();
-        config.setDirtySensitivity(false);
-        config.setImmediate(true);
-        return config;
     }
 
     public void setBreadcrumbWidgets(List<IsWidget> breadcrumbWidgets) {

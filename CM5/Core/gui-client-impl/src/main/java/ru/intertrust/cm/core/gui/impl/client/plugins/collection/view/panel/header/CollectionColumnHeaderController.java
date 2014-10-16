@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
 import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
@@ -19,9 +20,14 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGr
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
+import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnHiddenActionContext;
+import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnOrderActionContext;
+import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnWidthActionContext;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FILTER_CONTAINER_MARGIN;
@@ -208,6 +214,8 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
         dataGrid.redraw();
         updateFilterValues();
+
+        updateWidthSettings();
     }
 
     private void changeRelativeRightColumnWidth(int index, int delta) {
@@ -300,13 +308,28 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             updateFilterValues();
 
         }
+        updateOrderSettings();
     }
-    public void narrowTableIfPossible(int tableWidth, CollectionDataGrid dataGrid){
+
+    public void narrowTableIfPossible(int tableWidth, CollectionDataGrid dataGrid) {
         saveFilterValues();
         boolean tableRedrawn = CollectionDataGridUtils.narrowTableIfPossible(tableWidth, dataGrid);
-        if(tableRedrawn){
+        if (tableRedrawn) {
+            changeFilterInputWidth();
             updateFilterValues();
+
         }
+
+        updateWidthSettings();
+    }
+    private Map<String, String> createFieldWidthMap(){
+        Map<String, String> result = new HashMap<String, String>(dataGrid.getColumnCount());
+        for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
+            CollectionColumn column = columnHeaderBlock.getColumn();
+            result.put(column.getFieldName(), dataGrid.getColumnWidth(column));
+
+        }
+        return result;
     }
 
     private class ColumnSelectorPopup extends PopupPanel {
@@ -372,4 +395,31 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         }
     }
 
+    private void updateWidthSettings() {
+        final CollectionColumnWidthActionContext context = new CollectionColumnWidthActionContext();
+        context.setActionConfig(UserSettingsUtil.createActionConfig());
+        context.setLink(Application.getInstance().getHistoryManager().getLink());
+        context.setCollectionViewName(collectionViewName);
+        Map<String, String> fieldWidthMap = createFieldWidthMap();
+        context.setFieldWidthMap(fieldWidthMap);
+        CollectionColumnWidthAction action =
+                ComponentRegistry.instance.get(CollectionColumnWidthActionContext.COMPONENT_NAME);
+        action.setInitialContext(context);
+        action.perform();
+    }
+
+    private void updateOrderSettings() {
+        final CollectionColumnOrderActionContext context = new CollectionColumnOrderActionContext();
+        context.setLink(Application.getInstance().getHistoryManager().getLink());
+        context.setCollectionViewName(collectionViewName);
+        context.setActionConfig(UserSettingsUtil.createActionConfig());
+        for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
+            context.addOrder(columnHeaderBlock.getColumn().getFieldName());
+        }
+        final Action action = ComponentRegistry.instance.get(CollectionColumnOrderActionContext.COMPONENT_NAME);
+        action.setInitialContext(context);
+        action.perform();
+
+    }
 }
+
