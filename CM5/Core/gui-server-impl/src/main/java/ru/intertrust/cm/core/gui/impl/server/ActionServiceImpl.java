@@ -33,6 +33,7 @@ import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionContextConfig;
+import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
@@ -58,13 +59,13 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
 
     @EJB
     private ProcessService processService;
-    
+
     @EJB
     private PermissionService permissionService;
-    
+
     @Autowired
     private UserGroupGlobalCache userGroupGlobalCache;
-    
+
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
@@ -150,14 +151,14 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
      * @return
      */
     private boolean hasActionPermission(Id domainObjectId, String action){
-        boolean result = false; 
+        boolean result = false;
         DomainObjectPermission permission = permissionService.getObjectPermission(domainObjectId);
         if (permission != null && permission.getActions() != null){
             result = permission.getActions().contains(action);
         }
         return result;
     }
-    
+
     private boolean hasActionInAccessMatrix(DomainObject domainObject, String action){
         AccessMatrixStatusConfig matrix = configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObject.getTypeName(), getStatusName(domainObject.getStatus()));
         boolean result = false;
@@ -172,7 +173,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
         }
         return result;
     }
-    
+
     private String getStatusName(Id statusId) {
         String query = "select t.name from " + GenericDomainObject.STATUS_DO + " t where t.id = {0}";
         List<Value> params = new ArrayList<Value>();
@@ -184,7 +185,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
             result = collection.get(0).getString("name");
         }
         return result;
-        
+
     }
 
     private List<Id> getStatusNames(List<String> statuses) {
@@ -246,7 +247,10 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
 
     @Override
     public ActionConfig getActionConfig(final String name) {
-        final ActionConfig result = configurationExplorer.getConfig(ActionConfig.class, name);
+        ActionConfig result = configurationExplorer.getConfig(ActionConfig.class, name);
+        if (result == null) {
+            result = configurationExplorer.getConfig(SimpleActionConfig.class, name);
+        }
         return result;
     }
 }

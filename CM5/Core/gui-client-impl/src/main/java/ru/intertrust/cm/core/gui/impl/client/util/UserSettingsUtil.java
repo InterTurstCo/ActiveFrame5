@@ -1,10 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
-import com.google.gwt.json.client.JSONParser;
-import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.impl.client.history.UserSettingsObject;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.ColumnSettingsObject;
-import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 
 /**
  * Created by
@@ -14,27 +10,11 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
  */
 
 public class UserSettingsUtil {
-    public static ColumnSettingsObject getColumnSettingsObject(final UserSettingsObject userSettingsObject, final String key) {
-        ColumnSettingsObject result = userSettingsObject.getAttr(key).cast();
-        if (result == null) {
-            result = ColumnSettingsObject.createObject();
-            userSettingsObject.setAttr(key, result);
-        }
-        return result;
+    public static ActionConfig createActionConfig() {
+        final ActionConfig config = new ActionConfig();
+        config.setDirtySensitivity(false);
+        config.setImmediate(true);
+        return config;
     }
-
-    // FIXME merge
-//    public static UserSettingsObject getUserSettingsObjectForColumns(String collectionIdentifier) {
-//        final String columnSettingsAsString = Application.getInstance().getHistoryManager()
-//                .getValue(collectionIdentifier, UserSettingsHelper.COLUMN_SETTINGS_KEY);
-//        UserSettingsObject result = UserSettingsObject.createObject().cast();
-//        if (columnSettingsAsString != null && !columnSettingsAsString.isEmpty()) {
-//            try {
-//                result = JSONParser.parseStrict(columnSettingsAsString).isObject().getJavaScriptObject().cast();
-//            } catch (Exception ignored) {
-//            }
-//        }
-//        return result;
-//    }
 
 }

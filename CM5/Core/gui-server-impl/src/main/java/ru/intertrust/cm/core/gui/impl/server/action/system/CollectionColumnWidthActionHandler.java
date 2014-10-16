@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.action.system;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -16,6 +15,8 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnWidthActionContext;
 import ru.intertrust.cm.core.util.ObjectCloner;
+
+import java.util.Map;
 
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DO_COLLECTION_VIEW_FIELD_KEY;
 
@@ -49,7 +50,11 @@ public class CollectionColumnWidthActionHandler extends ActionHandler<Collection
             final ObjectCloner cloner = new ObjectCloner();
             collectionViewConfig = cloner.cloneObject(collectionViewConfig, CollectionViewConfig.class);
         }
-        collectionViewConfig.getCollectionDisplayConfig().updateColumnWidth(context.getField(), context.getWidth());
+        Map<String, String> fieldWidthMap = context.getFieldWidthMap();
+        for (Map.Entry<String, String> entry : fieldWidthMap.entrySet()) {
+            collectionViewConfig.getCollectionDisplayConfig().updateColumnWidth(entry.getKey(), entry.getValue());
+        }
+
         final String configAsStr = PluginHandlerHelper.serializeToXml(collectionViewConfig);
         object.setString(DO_COLLECTION_VIEW_FIELD_KEY, configAsStr);
         crudService.save(object);
