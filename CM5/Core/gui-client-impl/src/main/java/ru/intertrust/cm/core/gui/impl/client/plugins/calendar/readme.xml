@@ -1,0 +1,23 @@
+<calendar showWeekend="true" startMode="week/month" showDetailPanel="true">
+
+    <tool-bar>
+        <action-ref name-ref="aRefresh"/>
+        <action-separator/>
+        <action name="aWeek" rendered="mode=='month'"..../>
+        <action name="aMonth" rendered="mode=='week'"..../>
+        <action name="aPreviousWeek" rendered="mode=='week'" ...../>
+        <action name="aNextWeek" rendered="mode=='week'" ...../>
+        <action name="aToday" ...../>
+    </tool-bar>
+
+    <selected-date value="14/01/15" pattern="YY/mm/dd"/> <!-- default now -->
+    <collection name="collection_name"/>
+    <custom-renderer name="custom.renderer"/> <!-- default show as link -->
+    <field-paths>
+        <fieldPath name="title"/>
+        <fieldPath name="status"/>
+    </field-paths>
+    <pattern value="Aaaaaa...... {title}"/>
+    <image url="bbb" rendered="status=='Active"/>
+    <image url="aaa" rendered="status=='Error'"/>
+</calendar>

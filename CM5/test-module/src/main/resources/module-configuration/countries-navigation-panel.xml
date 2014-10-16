@@ -3,6 +3,21 @@
                xmlns:act="https://cm5.intertrust.ru/config/action">
     <navigation name="panel"
                 is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
+
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar">
+            <child-links>
+
+                <link name="Calendar" display-text="calendar">
+                    <plugin>
+                        <custom name="calendar.plugin">
+
+                        </custom>
+
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
+
         <!-- Пример на основе "Руководства разработчика"-->
         <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
             <child-links>
@@ -147,20 +162,6 @@
                     <decorations>
                         <collection-counter/>
                     </decorations>
-                </link>
-            </child-links>
-        </link>
-
-        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar">
-            <child-links>
-
-                <link name="Calendar" display-text="calendar">
-                    <plugin>
-                        <custom name="calendar.plugin">
-
-                        </custom>
-
-                    </plugin>
                 </link>
             </child-links>
         </link>

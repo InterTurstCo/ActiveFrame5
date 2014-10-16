@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
@@ -13,8 +13,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.CalendarSelectDayEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CalendarSelectDayEventHandler;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarPluginData;
 
 import java.util.Date;
 
@@ -23,15 +23,15 @@ import java.util.Date;
  */
 public class CalendarPluginView extends PluginView {
 
+    private CalendarViewModel<CalendarData> viewModel;
+    private MonthScrollPanel monthScrollPanel;
+
+
+
     public static final int CALENDAR_ROW_COUNT = 20;
-    public static final int SCROLL_PANEL_CENTRE = 1800;
     public static final int DAY_BLOCK_HEIGHT = 90;
-    private FlowPanel container;
-    private FlowPanel acrionBar = new FlowPanel();
+    private Container container;
     private ScrollPanel scrollPanel = new ScrollPanel();
-    private AbsolutePanel rootMonthPanel = new AbsolutePanel();
-    MonthScrollLine monthScrollLine;
-    private FlowPanel currentMonth = new FlowPanel();
     private AbsolutePanel calendarContainer = new AbsolutePanel();
     private EventBus eventBus;
     private CalendarDayView lastSelectedDay;
@@ -48,53 +48,41 @@ public class CalendarPluginView extends PluginView {
     protected CalendarPluginView(Plugin plugin) {
         super(plugin);
         eventBus = new SimpleEventBus();
+        final CalendarPluginData initialData = plugin.getInitialData();
+        viewModel = new CalendarViewModel<>(new DataProviderImpl());
+        final Date selectedDate = initialData.getSelectedDate();
+        CalendarUtil.resetTime(selectedDate);
+        viewModel.getSelectionModel().setSelected(selectedDate, true);
     }
 
     @Override
     public IsWidget getViewWidget() {
-        container = new FlowPanel();
+        container = new Container();
 
-        monthScrollLine = new MonthScrollLine(rootMonthPanel);
+        final SimplePanel cursor = new SimplePanel();
+        cursor.setStyleName("current-month-block");
+        cursor.getElement().getStyle().setWidth(MonthScrollPanel.MONTH_ITEM_WIDTH, Style.Unit.PX);
+        container.add(cursor);
 
-        buildCalendar();
-        setComponentStyle();
+        monthScrollPanel = new MonthScrollPanel(viewModel.getSelectionModel().getSelectedObject());
+        container.add(monthScrollPanel);
+
+        scrollPanel.addStyleName("calendar-scroll-panel");
+        calendarContainer.addStyleName("calendar-container");
+        scrollPanel.add(calendarContainer);
+        container.add(scrollPanel);
+
         createCalendarList();
         setEventHandler();
         Application.getInstance().hideLoadingIndicator();
         return container;
     }
 
-    private void setComponentStyle() {
-        acrionBar.addStyleName("action-bar");
-        scrollPanel.addStyleName("calendar-scroll-panel");
-        calendarContainer.addStyleName("calendar-container");
-        Timer timer = new Timer() {
-            @Override
-            public void run() {
-                scrollPanel.setVerticalScrollPosition(SCROLL_PANEL_CENTRE);
-
-            }
-        };
-        timer.schedule(500);
-    }
-
-    private void buildCalendar() {
-        container.add(acrionBar);
-        container.add(scrollPanel);
-        container.add(monthScrollLine);
-        container.add(currentMonth);
-        scrollPanel.add(calendarContainer);
-        currentMonth.addStyleName("current-month-block");
-
-    }
-
     private void createCalendarList() {
         for (int row = 0; row < CALENDAR_ROW_COUNT; row++) {
             createNextDayCalendarList();
             createPrivDayCalendarList();
-
         }
-
     }
 
     private void createPrivDayCalendarList() {
@@ -154,46 +142,81 @@ public class CalendarPluginView extends PluginView {
     }
 
     private void setEventHandler() {
-        eventBus.addHandler(CalendarSelectDayEvent.TYPE, new CalendarSelectDayEventHandler() {
-            @Override
-            public void selectDay(CalendarSelectDayEvent event) {
-                if (lastSelectedDay != null) {
-                    lastSelectedDay.resetSelectionStyle();
-                }
-                lastSelectedDay = event.getCalendarDayView();
+//        eventBus.addHandler(CalendarSelectDayEvent.TYPE, new CalendarSelectDayEventHandler() {
+//            @Override
+//            public void selectDay(CalendarSelectDayEvent event) {
+//                if (lastSelectedDay != null) {
+//                    lastSelectedDay.resetSelectionStyle();
+//                }
+//                lastSelectedDay = event.getCalendarDayView();
+//
+//            }
+//        });
+//
+//        scrollPanel.addScrollHandler(new ScrollHandler() {
+//            @Override
+//            public void onScroll(ScrollEvent event) {
+//                if (scrollPanel.getVerticalScrollPosition() + 500 >= scrollPanel.getMaximumVerticalScrollPosition()) {
+//
+//                    for (int i = 0; i < 4; i++) {
+//                        createNextDayCalendarList();
+//                        deleteCalendarRowBeforeToday();
+//                    }
+//                    if (scrollPanel.getVerticalScrollPosition() >= scrollPanel.getMaximumVerticalScrollPosition()) {
+//                        scrollPanel.setVerticalScrollPosition(scrollPanel.getMaximumVerticalScrollPosition() - 100);
+//                    }
+//                }
+//
+//                if (scrollPanel.getVerticalScrollPosition() <= scrollPanel.getMinimumVerticalScrollPosition() + 500) {
+//
+//                    for (int i = 0; i < 4; i++) {
+//                        createPrivDayCalendarList();
+//                        deleteCalendarRowAfterToday();
+//
+//                    }
+//                    if (scrollPanel.getVerticalScrollPosition() <= scrollPanel.getMinimumVerticalScrollPosition()) {
+//                        scrollPanel.setVerticalScrollPosition(100);
+//                    }
+//                }
+//
+//            }
+//        });
 
+    }
+
+    private static class Container extends FlowPanel implements RequiresResize {
+
+        private HandlerRegistration resizeHandler;
+
+        @Override
+        protected void onLoad() {
+            super.onLoad();
+            resizeHandler = Window.addResizeHandler(new ResizeHandler() {
+                @Override
+                public void onResize(ResizeEvent event) {
+                    Container.this.onResize();
+                }
+            });
+        }
+
+        @Override
+        protected void onDetach() {
+            if (resizeHandler != null) {
+                resizeHandler.removeHandler();
+                resizeHandler = null;
             }
-        });
+            super.onDetach();
+        }
 
-        scrollPanel.addScrollHandler(new ScrollHandler() {
-            @Override
-            public void onScroll(ScrollEvent event) {
-                if (scrollPanel.getVerticalScrollPosition() + 500 >= scrollPanel.getMaximumVerticalScrollPosition()) {
-
-                    for (int i = 0; i < 4; i++) {
-                        createNextDayCalendarList();
-                        deleteCalendarRowBeforeToday();
-                    }
-                    if (scrollPanel.getVerticalScrollPosition() >= scrollPanel.getMaximumVerticalScrollPosition()) {
-                        scrollPanel.setVerticalScrollPosition(scrollPanel.getMaximumVerticalScrollPosition() - 100);
-                    }
+        @Override
+        public void onResize() {
+            for (Widget widget : getChildren()) {
+                if (widget instanceof RequiresResize) {
+                    final RequiresResize requiresResize = (RequiresResize) widget;
+                    requiresResize.onResize();
                 }
-
-                if (scrollPanel.getVerticalScrollPosition() <= scrollPanel.getMinimumVerticalScrollPosition() + 500) {
-
-                    for (int i = 0; i < 4; i++) {
-                        createPrivDayCalendarList();
-                        deleteCalendarRowAfterToday();
-
-                    }
-                    if (scrollPanel.getVerticalScrollPosition() <= scrollPanel.getMinimumVerticalScrollPosition()) {
-                        scrollPanel.setVerticalScrollPosition(100);
-                    }
-                }
-
             }
-        });
-
+        }
     }
 
     class MonthScrollLine implements IsWidget     {
