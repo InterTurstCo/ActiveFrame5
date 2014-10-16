@@ -98,12 +98,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(domainObjectsTableConfig
                 .getLinkedFormConfig(), domainObject);
         state.setPopupTitlesHolder(popupTitlesHolder);
-        if (context.getDefaultValues() != null) {
-            List<Id> defaultIds = HandlerUtils.takeDefaultReferenceValues(context);
-            state.setIds(new ArrayList<>(defaultIds));
-        } else {
-            state.setIds(ids);
-        }
+        state.setIds(ids);
 
         String linkedFormName = domainObjectsTableConfig.getLinkedFormConfig().getName();
         if (linkedFormName != null && !linkedFormName.isEmpty()) {

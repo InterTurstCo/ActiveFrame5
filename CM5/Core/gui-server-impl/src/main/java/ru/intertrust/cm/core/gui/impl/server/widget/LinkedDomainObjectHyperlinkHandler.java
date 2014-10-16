@@ -74,13 +74,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
             state.setListValues(listValues);
         }
         state.setWidgetConfig(widgetConfig);
-
-        if (context.getDefaultValues() != null) {
-            List<Id> defaultIds = HandlerUtils.takeDefaultReferenceValues(context);
-            state.setSelectedIds(new ArrayList<>(defaultIds));
-        } else {
-            state.setSelectedIds(selectedIds);
-        }
+        state.setSelectedIds(selectedIds);
         state.setDisplayingAsHyperlinks(true);
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);

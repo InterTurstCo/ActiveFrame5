@@ -1,7 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
+import java.util.*;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -13,10 +18,7 @@ import ru.intertrust.cm.core.gui.api.server.form.FormBeforeSaveInterceptor;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
-import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
+import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
@@ -124,7 +126,7 @@ public class FormSaver extends FormProcessor {
 
         saveRootWithDirectlyLinkedObjects();
 
-        changeMultiBackReferences(multiBackReferenceContexts);
+        changeMultiBackReferences(multiBackReferenceContexts, rootDomainObject.isNew());
 
         saveNewLinkedObjects();
 
@@ -135,11 +137,13 @@ public class FormSaver extends FormProcessor {
         return savedRootObject;
     }
 
-    private void changeMultiBackReferences(ArrayList<WidgetContext> multiBackReferenceContexts) {
+    private void changeMultiBackReferences(ArrayList<WidgetContext> multiBackReferenceContexts, boolean aNew) {
         for (WidgetContext context : multiBackReferenceContexts) {
             // todo get rid of deleteEntriesOnLinkDrop - substitute with field-path config on-delete
             // what about single choice in widgets???
             final WidgetConfig widgetConfig = context.getWidgetConfig();
+            //clear form objects from default values
+            ObjectsNode node = context.getFormObjects().getNode(context.getFirstFieldPath());
             LinkEditingWidgetState widgetState = (LinkEditingWidgetState) formState.getWidgetState(widgetConfig.getId());
             final WidgetHandler handler = getWidgetHandler(widgetConfig);
             boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop(widgetConfig);
@@ -147,10 +151,32 @@ public class FormSaver extends FormProcessor {
             for (FieldPath fieldPath : context.getFieldPaths()) {
                 final String linkerBeanName = fieldPath.isOneToManyReference() ? "oneToManyLinker" : "manyToManyLinker";
                 ObjectsLinker linker = (ObjectsLinker) applicationContext.getBean(linkerBeanName);
-                linker.setContext(formState, context, fieldPath, fieldPathsIds.get(fieldPath), deleteEntriesOnLinkDrop, savedObjectsById);
+                ArrayList<Id> currentIds = fieldPathsIds.get(fieldPath);
+
+                MultiObjectNode multiObjectsNode = (MultiObjectNode) formState.getObjects().getNode(fieldPath);
+                if (aNew) {
+                    findDefaultObjectsIdsAndCleanNode(context, fieldPath, multiObjectsNode);
+                }
+                //currentIds = (ArrayList<Id>) CollectionUtils.subtract(currentIds, defaultObjectsIds);
+                linker.setContext(formState, context, fieldPath, currentIds, deleteEntriesOnLinkDrop, savedObjectsById);
                 linker.updateLinkedObjects();
             }
         }
+    }
+
+    private List<Id> findDefaultObjectsIdsAndCleanNode(WidgetContext context, FieldPath fieldPath, MultiObjectNode multiObjectNode) {
+        String fieldPathToChildren = fieldPath.getLinkToChildrenName();
+        List<Id> defaultObjectIds = new ArrayList<>();
+        ArrayList<DomainObject> domainObjects = multiObjectNode.getDomainObjects();
+        Iterator<DomainObject> iterator = domainObjects.iterator();
+        while (iterator.hasNext()) {
+            DomainObject next = iterator.next();
+            ReferenceValue value = next.getValue(fieldPathToChildren);
+            Id defaultObjectId = value.get();
+            defaultObjectIds.add(defaultObjectId);
+            iterator.remove();
+        }
+        return defaultObjectIds;
     }
 
     private void saveNewLinkedObjects() { // todo: handle on link as well

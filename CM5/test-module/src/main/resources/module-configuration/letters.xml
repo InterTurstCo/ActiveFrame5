@@ -634,7 +634,7 @@
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
-                <add-button image="..." text="Add" />
+                <add-button image="..." text="Add"/>
                 <!--default-sort-criteria column-field="created_date" order="desc" /-->
                 <display-values-as-links value="true"/>
             </table-browser>
@@ -662,6 +662,11 @@
             <field-path value="subject">
                 <default-value>
                     <field value="Тема по умолчанию (из form-mapping)"/>
+                </default-value>
+            </field-path>
+            <field-path value="actual_end_period">
+                <default-value>
+                    <field set-current-moment="true"/>
                 </default-value>
             </field-path>
             <field-path value="letter_creator^letter.employee">

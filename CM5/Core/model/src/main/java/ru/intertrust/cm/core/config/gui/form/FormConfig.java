@@ -42,8 +42,8 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Attribute(name = "report-template", required = false)
     private String reportTemplate;
 
-    @Attribute(name = "initial-value-setter", required = false)
-    private String initialValueSetter;
+    @Attribute(name = "default-value-setter", required = false)
+    private String defaultValueSetter;
 
     @Element(name = "tool-bar", required = false)
     private ToolBarConfig toolbarConfig;
@@ -152,12 +152,12 @@ public class FormConfig implements Dto, TopLevelConfig {
         return widgetGroupsConfig;
     }
 
-    public String getInitialValueSetter() {
-        return initialValueSetter;
+    public String getDefaultValueSetter() {
+        return defaultValueSetter;
     }
 
-    public void setInitialValueSetter(String initialValueSetter) {
-        this.initialValueSetter = initialValueSetter;
+    public void setDefaultValueSetter(String defaultValueSetter) {
+        this.defaultValueSetter = defaultValueSetter;
     }
 
     @Override
@@ -190,7 +190,7 @@ public class FormConfig implements Dto, TopLevelConfig {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        if (initialValueSetter != null ? !initialValueSetter.equals(that.initialValueSetter) : that.initialValueSetter != null) {
+        if (defaultValueSetter != null ? !defaultValueSetter.equals(that.defaultValueSetter) : that.defaultValueSetter != null) {
             return false;
         }
         if (widgetConfigurationConfig != null ? !widgetConfigurationConfig.equals(that.
