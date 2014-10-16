@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldValueConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.UniqueKeyValueConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.LiteralFieldValueParser;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
 
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,13 @@ public class FieldValueConfigToValueResolver {
         return literalFieldValueParser.textToValue(fieldValueConfig, fieldConfig);
     }
 
+    public DomainObject resolveWithinLinkedDomainObject(FieldConfig fieldConfig, FieldPath fieldPath) {
+        Value resolve = resolve(fieldConfig);
+        DomainObject domainObject = crudService.createDomainObject(fieldPath.getReferenceType());
+        domainObject.setValue(fieldPath.getReferenceName(), resolve);
+        return domainObject;
+    }
+
     private DomainObject findDomainObjectByUniqueKey(UniqueKeyValueConfig uniqueKeyValueConfig) {
         final List<FieldValueConfig> fieldValueConfigs = uniqueKeyValueConfig.getFieldValueConfigs();
         final String type = uniqueKeyValueConfig.getType();
@@ -87,4 +95,6 @@ public class FieldValueConfigToValueResolver {
         }
         return crudService.findByUniqueKey(type, uniqueKeyValuesByName);
     }
+
+
 }

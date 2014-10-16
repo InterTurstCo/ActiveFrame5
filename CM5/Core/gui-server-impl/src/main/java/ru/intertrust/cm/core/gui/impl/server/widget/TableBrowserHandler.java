@@ -49,20 +49,6 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);
         state.setPopupTitlesHolder(popupTitlesHolder);
-        if (context.getDefaultValues() != null) {
-            Value[] defaultValues = context.getDefaultValues();
-            ArrayList<Id> defaultValueList = new ArrayList<>();
-            for (Value defaultValue : defaultValues) {
-                if (defaultValue instanceof ReferenceValue) {
-                    defaultValueList.add(((ReferenceValue) defaultValue).get());
-                }
-            }
-            if (!defaultValueList.isEmpty()) {
-                selectedIds = defaultValueList;
-            }
-        }
-
-
         if (!selectedIds.isEmpty()) {
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
             Filter includeIds = FilterBuilderUtil.prepareFilter(selectedIdsSet, FilterBuilderUtil.INCLUDED_IDS_FILTER);

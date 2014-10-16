@@ -19,15 +19,7 @@ import java.math.BigDecimal;
 public class DecimalBoxHandler extends ValueEditingWidgetHandler {
     @Override
     public DecimalBoxState getInitialState(WidgetContext context) {
-        DecimalBoxState decimalBoxState;
-        BigDecimal decimalValue;
-        if (context.getDefaultValue() == null) {
-            decimalValue = context.getFieldPlainValue();
-        } else {
-            decimalValue = ((DecimalValue) context.getDefaultValue()).get();
-        }
-        decimalBoxState = new DecimalBoxState(decimalValue);
-        return decimalBoxState;
+        return new DecimalBoxState(context.<BigDecimal>getFieldPlainValue());
     }
 
     @Override

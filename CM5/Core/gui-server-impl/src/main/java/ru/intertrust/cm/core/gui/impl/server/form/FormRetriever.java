@@ -18,7 +18,7 @@ import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.impl.server.form.defaults.FormDefaultValueSetter;
+import ru.intertrust.cm.core.gui.api.server.widget.FormDefaultValueSetter;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -151,7 +151,7 @@ public class FormRetriever extends FormProcessor {
                 FieldPath[] paths = FieldPath.createPaths(fieldPathValue);
                 FormDefaultValueSetter formDefaultValueSetter;
                 formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig);
-                applyDefaultValuesToWidgetContext(widgetContext, formDefaultValueSetter, paths, formObjects);
+                applyDefaultValuesToFormObjects(formObjects, paths, formDefaultValueSetter);
             }
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
             // TODO: [report-plugin] validation...
@@ -171,7 +171,7 @@ public class FormRetriever extends FormProcessor {
 
     private FormDefaultValueSetter obtainFormDefaultValueSetter(FormConfig formConfig) {
         FormDefaultValueSetter formDefaultValueSetter;
-        String initialValueSetter = formConfig.getInitialValueSetter();
+        String initialValueSetter = formConfig.getDefaultValueSetter();
         if (initialValueSetter != null && !initialValueSetter.isEmpty()) {
             formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean(initialValueSetter);
         } else {
@@ -200,14 +200,12 @@ public class FormRetriever extends FormProcessor {
         formViewerMappingConfig = findFormViewerMappingConfig(root, formViewerConfig);
 
         FormDefaultValueSetter formDefaultValueSetter = null;
-        String initialValueSetter = formConfig.getInitialValueSetter();
+        String initialValueSetter = formConfig.getDefaultValueSetter();
 
-        if (root.getId() == null) {
-            if (initialValueSetter != null && !initialValueSetter.isEmpty()) {
-                formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean(initialValueSetter);
-            } else {
-                formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean("formDefaultValueSetter", formConfig, formViewerMappingConfig);
-            }
+        if (initialValueSetter != null && !initialValueSetter.isEmpty()) {
+            formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean(initialValueSetter);
+        } else {
+            formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean("formDefaultValueSetter", formConfig, formViewerMappingConfig);
         }
 
         List<WidgetConfig> widgetConfigs = findWidgetConfigs(formConfig);
@@ -256,13 +254,11 @@ public class FormRetriever extends FormProcessor {
                     currentRootNode = linkedNode;
                 }
             }
+            //apply default values
+            applyDefaultValuesToFormObjects(formObjects, fieldPaths, formDefaultValueSetter);
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
 
-            //apply default values
-            if (root.getId() == null) {
-                applyDefaultValuesToWidgetContext(widgetContext, formDefaultValueSetter, fieldPaths, formObjects);
-            }
 
             widgetContext.setFormType(formConfig.getType());
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
@@ -283,24 +279,41 @@ public class FormRetriever extends FormProcessor {
         return result;
     }
 
-    private void applyDefaultValuesToWidgetContext(WidgetContext widgetContext, FormDefaultValueSetter formDefaultValueSetter, FieldPath[] fieldPaths, FormObjects formObjects) {
+    private void applyDefaultValuesToFormObjects(FormObjects formObjects, FieldPath[] fieldPaths, FormDefaultValueSetter formDefaultValueSetter) {
         if (formDefaultValueSetter != null) {
-            List<Value> defaultValuesList = new ArrayList<>();
             for (FieldPath fieldPath : fieldPaths) {
                 if (fieldPath.isField() || fieldPath.isOneToOneReference()) {
                     Value defaultValue = formDefaultValueSetter.getDefaultValue(formObjects, fieldPath);
                     if (defaultValue != null) {
-                        widgetContext.setDefaultValue(defaultValue);
+                        if (formObjects.getFieldValue(fieldPath) == null) {
+                            formObjects.setFieldValue(fieldPath, defaultValue);
+                        }
                     }
                 } else if (fieldPath.isManyToManyReference() || fieldPath.isOneToManyReference()) {
                     Value[] defaultValues = formDefaultValueSetter.getDefaultValues(formObjects, fieldPath);
-                    defaultValuesList.addAll(Arrays.asList(defaultValues));
+                    if (defaultValues == null || defaultValues.length == 0) {
+                        return;
+                    }
 
+                    ObjectsNode node = formObjects.getNode(fieldPath);
+                    MultiObjectNode multiObjectNode = (MultiObjectNode) node;
+
+                    if (multiObjectNode.getDomainObjects().isEmpty()) {
+                        createIntermediateObjectsForDefaultValues(formObjects, fieldPath, defaultValues, multiObjectNode);
+                        formObjects.setNode(fieldPath, multiObjectNode);
+                    }
                 }
             }
-            if (!defaultValuesList.isEmpty()) {
-                widgetContext.setDefaultValues(defaultValuesList.toArray(new Value[defaultValuesList.size()]));
-            }
+        }
+    }
+
+    private void createIntermediateObjectsForDefaultValues(FormObjects formObjects, FieldPath fieldPath, Value[] defaultValues, MultiObjectNode multiObjectNode) {
+        for (Value defaultValue : defaultValues) {
+            DomainObject linkedObjectDefault = crudService.createDomainObject(fieldPath.getReferenceType());
+            DomainObject defaultReferencedObject = crudService.find(((ReferenceValue) defaultValue).get());
+            linkedObjectDefault.setValue(fieldPath.getLinkToParentName(), new ReferenceValue(formObjects.getRootDomainObject().getId()));
+            linkedObjectDefault.setValue(fieldPath.getReferenceName(), new ReferenceValue(defaultReferencedObject.getId()));
+            multiObjectNode.add(linkedObjectDefault);
         }
     }
 

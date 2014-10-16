@@ -49,18 +49,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
         boolean hasSelectionFilters = false;
         boolean noLimit = true;
-        if (context.getDefaultValues() != null) {
-            Value[] defaultValues = context.getDefaultValues();
-            ArrayList<Id> defaultValueList = new ArrayList<>();
-            for (Value defaultValue : defaultValues) {
-                if (defaultValue instanceof ReferenceValue) {
-                    defaultValueList.add(((ReferenceValue) defaultValue).get());
-                }
-            }
-            if (!defaultValueList.isEmpty()) {
-                selectedIds = defaultValueList;
-            }
-        }
         if (!selectedIds.isEmpty()) {
             Set<String> collectionNames = collectionNameNodeMap.keySet();
             for (String collectionName : collectionNames) {

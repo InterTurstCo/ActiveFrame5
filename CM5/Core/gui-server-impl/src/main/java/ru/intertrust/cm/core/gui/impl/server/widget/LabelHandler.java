@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -55,14 +54,11 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         String textFromConfig = labelConfig.getText();
         if (textFromConfig != null) {
             state.setLabel(textFromConfig);
-        } else if (context.getDefaultValue() != null) {
-            state.setLabel(context.getDefaultValue().get().toString());
-
-        } else if (fieldPaths.length > 0 && fieldPaths[0] != null) {
+        }
+        if (fieldPaths.length > 0 && fieldPaths[0] != null) {
             RendererConfig renderer = labelConfig.getRenderer();
             String rendererName = renderer == null ? null : renderer.getValue();
-
-            if (rendererName != null) {
+            if (rendererName != null){
                 LabelRenderer customLabelRenderer = (LabelRenderer) applicationContext.getBean(rendererName);
                 String composedText = customLabelRenderer.composeString(fieldPaths, context);
                 state.setLabel(composedText);
@@ -88,7 +84,7 @@ public class LabelHandler extends ValueEditingWidgetHandler {
     }
 
     private String format(PatternConfig configPattern, FieldPath[] fieldPaths, WidgetContext context,
-                          FormattingConfig formattingConfig) {
+                          FormattingConfig formattingConfig ) {
         String displayPattern = (configPattern == null || configPattern.getValue() == null)
                 ? buildDefaultPattern(fieldPaths) : configPattern.getValue();
         Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
@@ -108,7 +104,6 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         }
         return pattern.toString();
     }
-
     private boolean isAsteriskRequired(WidgetContext context, LabelConfig labelConfig) {
         return isForceRequiredAsterisk(labelConfig) || isRelatedFieldRequired(context, labelConfig);
 
@@ -116,7 +111,7 @@ public class LabelHandler extends ValueEditingWidgetHandler {
 
     private boolean isForceRequiredAsterisk(LabelConfig labelConfig) {
         ForceRequiredAsteriskConfig forceRequiredAsteriskConfig = labelConfig.getForceRequiredAsterisk();
-        if (forceRequiredAsteriskConfig == null) {
+        if(forceRequiredAsteriskConfig == null){
             return false;
         }
         return forceRequiredAsteriskConfig.isForceRequiredAsterisk();

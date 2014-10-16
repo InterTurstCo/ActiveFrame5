@@ -50,12 +50,6 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);
         state.setPopupTitlesHolder(popupTitlesHolder);
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
-        if (context.getDefaultValues() != null) {
-            List<Id> defaultIds = HandlerUtils.takeDefaultReferenceValues(context);
-            if (!defaultIds.isEmpty()) {
-                selectedIds = new ArrayList<>(defaultIds);
-            }
-        }
         if (!selectedIds.isEmpty()) {
             SelectionSortCriteriaConfig sortCriteriaConfig = widgetConfig.getSelectionSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(sortCriteriaConfig);

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.server.form.defaults;
+package ru.intertrust.cm.core.gui.api.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;

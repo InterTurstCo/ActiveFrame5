@@ -17,13 +17,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 public class IntegerBoxHandler extends ValueEditingWidgetHandler {
     @Override
     public IntegerBoxState getInitialState(WidgetContext context) {
-        IntegerBoxState integerBoxState;
-        if (context.getDefaultValue() == null) {
-            integerBoxState = new IntegerBoxState(context.<Long>getFieldPlainValue());
-        } else {
-            integerBoxState = new IntegerBoxState(((LongValue) context.getDefaultValue()).get());
-        }
-        return integerBoxState;
+        return new IntegerBoxState(context.<Long>getFieldPlainValue());
     }
 
     @Override
