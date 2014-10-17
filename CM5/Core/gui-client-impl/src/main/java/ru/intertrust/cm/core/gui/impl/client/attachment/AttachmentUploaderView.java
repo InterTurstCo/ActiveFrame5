@@ -26,6 +26,7 @@ import java.util.List;
  *         Date: 21.10.13
  *         Time: 13:15
  */
+@Deprecated
 public class AttachmentUploaderView extends Composite {
 
     private AbsolutePanel mainBoxPanel;
