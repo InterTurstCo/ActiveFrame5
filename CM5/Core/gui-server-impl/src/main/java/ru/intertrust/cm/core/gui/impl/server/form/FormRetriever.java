@@ -255,7 +255,9 @@ public class FormRetriever extends FormProcessor {
                 }
             }
             //apply default values
-            applyDefaultValuesToFormObjects(formObjects, fieldPaths, formDefaultValueSetter);
+            if (root.isNew()) {
+                applyDefaultValuesToFormObjects(formObjects, fieldPaths, formDefaultValueSetter);
+            }
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
 
@@ -271,6 +273,7 @@ public class FormRetriever extends FormProcessor {
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
         }
+
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
         final FormDisplayData result = new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
