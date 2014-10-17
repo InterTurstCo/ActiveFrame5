@@ -11,7 +11,7 @@ import java.io.Serializable;
  */
 public class UniqueKeyFieldConfig implements Serializable {
 
-    @Attribute(name = "name")
+    @Attribute(name = "name", required = true)
     private String name;
 
     public UniqueKeyFieldConfig() {

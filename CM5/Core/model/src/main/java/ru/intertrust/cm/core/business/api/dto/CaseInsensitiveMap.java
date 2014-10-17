@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -16,6 +17,13 @@ public class CaseInsensitiveMap<T> implements Dto {
     public CaseInsensitiveMap() {
     }
 
+    public CaseInsensitiveMap(Map<String, T> map) {
+        for (String key : map.keySet()) {
+            this.put(key, map.get(key));
+        }
+    }
+
+    
     public T put(String key, T value) {
         return map.put(getLowerCaseKey(key), value);
     }

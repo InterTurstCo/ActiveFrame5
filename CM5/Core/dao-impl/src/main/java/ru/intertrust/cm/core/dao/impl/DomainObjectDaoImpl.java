@@ -2108,20 +2108,24 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public Id findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
-
+        CaseInsensitiveMap<Value> uniqueKeyValues = new CaseInsensitiveMap<>(uniqueKeyValuesByName);
+        
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
-        if (domainObjectTypeConfig == null) throw new IllegalArgumentException("Unknown domain object type:" + domainObjectType);
+        if (domainObjectTypeConfig == null) {
+            throw new IllegalArgumentException("Unknown domain object type:" + domainObjectType);
+        }
 
         List<UniqueKeyConfig> uniqueKeyConfigs = domainObjectTypeConfig.getUniqueKeyConfigs();
-        UniqueKeyConfig uniqueKeyConfig = findUniqueKeyConfig(domainObjectType, uniqueKeyConfigs, uniqueKeyValuesByName);
+        UniqueKeyConfig uniqueKeyConfig = findUniqueKeyConfig(domainObjectType, uniqueKeyConfigs, uniqueKeyValues);
 
         String query = generateFindByUniqueKeyQuery(domainObjectType, uniqueKeyConfig);
 
         List<Value> params = new ArrayList<>();
         for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
-            String name = uniqueKeyFieldConfig.getName();
-            Value value = uniqueKeyValuesByName.get(name);
-            if (value instanceof ReferenceValue){
+            String name = uniqueKeyFieldConfig.getName().toLowerCase();
+
+            Value value = uniqueKeyValues.get(name);
+            if (value instanceof ReferenceValue) {
                 RdbmsId id = (RdbmsId) ((ReferenceValue) value).get();
                 params.add(new LongValue(id.getId()));
                 params.add(new LongValue(id.getTypeId()));
@@ -2138,13 +2142,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return identifiableObjectCollection.get(0).getId();
     }
 
-    private UniqueKeyConfig findUniqueKeyConfig(String domainObjectType, List<UniqueKeyConfig> uniqueKeyConfigs, Map<String, Value> uniqueKeyValuesByName) {
+    private UniqueKeyConfig findUniqueKeyConfig(String domainObjectType, List<UniqueKeyConfig> uniqueKeyConfigs, CaseInsensitiveMap<Value> uniqueKeyValuesByName) {
         Set<String> uniqueKeyNamesParams = uniqueKeyValuesByName.keySet();
         for (UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigs) {
 
             Set<String> uniqueKeyFieldNames = new HashSet<>();
             for (UniqueKeyFieldConfig keyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
-                uniqueKeyFieldNames.add(keyFieldConfig.getName());
+                String fieldName = keyFieldConfig.getName().toLowerCase();
+                uniqueKeyFieldNames.add(fieldName);
             }
 
             if (uniqueKeyNamesParams.equals(uniqueKeyFieldNames)) {

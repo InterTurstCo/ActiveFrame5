@@ -160,7 +160,7 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     private DomainObject createPersonDomainObject() {
         DomainObject personDomainObject = crudService.createDomainObject("Person");
-        personDomainObject.setString("Login", "login " + new Date());
+        personDomainObject.setString("Login", "login " + System.currentTimeMillis());
         return personDomainObject;
     }
 
@@ -195,7 +195,7 @@ public class CrudServiceIT extends IntegrationTestBase {
         Id organizationId = employeeTestUniqueKey.getReference("referenceField");
 
         Map<String, Value> paramsSimpleKey = new HashMap<>();
-        paramsSimpleKey.put("newField", new StringValue("key2"));
+        paramsSimpleKey.put("newField", new StringValue(employeeTestUniqueKey.getString("key2")));
 
         DomainObject do1 = crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsSimpleKey);
         assertEquals(employeeTestUniqueKey.getId(), do1.getId());
@@ -245,7 +245,29 @@ public class CrudServiceIT extends IntegrationTestBase {
         crudService.delete(employeeTestUniqueKey.getId());
         crudService.delete(organizationId);
 
+        DomainObject country = createCountryDomainObject();
+        String countryName = country.getString("Name");
+        
+        DomainObject savedCountry = crudService.save(country);
 
+        Map<String, Value> uniqueKeyValues = new HashMap<>();
+        uniqueKeyValues.put("name", new StringValue(countryName));
+        DomainObject countryObject = crudService.findByUniqueKey("country_test", uniqueKeyValues);
+        assertNotNull(countryObject);
+        assertNotNull(countryObject.getId());
+        
+        Map<String, Value> uniqueKeyValues = new HashMap<>();
+        uniqueKeyValues.put("nAme", new StringValue(countryName));
+        DomainObject countryObject = crudService.findByUniqueKey("country_test", uniqueKeyValues);
+        assertNotNull(countryObject);
+        assertNotNull(countryObject.getId());
+        
+    }
+
+    private DomainObject createCountryDomainObject() {
+        DomainObject organizationDomainObject = crudService.createDomainObject("country_test");
+        organizationDomainObject.setString("Name", "Country" + System.currentTimeMillis());
+        return organizationDomainObject;
     }
 
     private DomainObject createEmployeeTestUniqueKey() throws ParseException {
@@ -257,10 +279,10 @@ public class CrudServiceIT extends IntegrationTestBase {
         employee.setString("Name", "name4" + System.currentTimeMillis());
         employee.setString("Position", "admin4");
         employee.setString("Login", "login4" + System.currentTimeMillis());
-        employee.setString("Email", "e-mail4");
-        employee.setString("Phone", "+1132514");
+        employee.setString("Email", "e-mail4" + System.currentTimeMillis());
+        employee.setString("Phone", "+222" + System.currentTimeMillis());
 
-        employee.setString("newField", "key2");
+        employee.setString("newField", "key2" + System.currentTimeMillis());
 
         employee.setBoolean("booleanField", true);
         employee.setString("stringField", "str");
