@@ -690,7 +690,7 @@
         </create>
     </access-matrix>
 
-    <access-matrix type="report_template">
+    <access-matrix type="report_template" read-everybody="true">
         <create>
             <permit-group name="AllPersons" />
         </create>
