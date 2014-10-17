@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -20,9 +19,11 @@ public class SimpleAction extends SimpleServerAction {
 
     @Override
     protected ActionContext appendCurrentContext(ActionContext initialContext) {
+        final SimpleActionContext context = (SimpleActionContext) initialContext;
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
-        initialContext.setRootObjectId(editor.getRootDomainObject().getId());
-        ((SimpleActionContext) initialContext).setMainFormState(editor.getFormState());
+        context.setRootObjectId(editor.getRootDomainObject().getId());
+        context.setMainFormState(editor.getFormState());
+        context.setPluginState(editor.getFormPluginState());
         return initialContext;
     }
 
