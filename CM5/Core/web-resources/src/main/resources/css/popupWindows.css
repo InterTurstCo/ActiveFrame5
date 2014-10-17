@@ -232,9 +232,15 @@
 }
 
 .tooltip-popupHidden {
-    -webkit-transition: opacity 0.5s; /* For Safari 3.1 to 6.0 */
-    transition: opacity 0.5s;
+    border: 7px solid rgba(153, 153, 153, 0.3);
+    border-radius: 3px;
+    box-shadow: 2px 2px 5px rgba(128, 128, 128, .7);
+    overflow: auto !important;
+    -webkit-transition: opacity 0.7s; /* For Safari 3.1 to 6.0 */
+    transition: opacity 0.7s;
     opacity: 0;
+    padding: 10px;
+    z-index: 102;
 }
 
 .tooltip-popup .popupContent {
