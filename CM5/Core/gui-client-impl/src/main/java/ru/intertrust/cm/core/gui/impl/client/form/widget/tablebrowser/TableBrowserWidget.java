@@ -275,6 +275,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
         dialogBox = new DialogBox();
         dialogBox.removeStyleName("gwt-DialogBox");
         dialogBox.addStyleName("table-browser-dialog popup-z-index");
+        dialogBox.getElement().getStyle().setZIndex(100);
         //initCollectionConfig();
         initCollectionPluginPanel();
         Button okButton = new Button("OK");
