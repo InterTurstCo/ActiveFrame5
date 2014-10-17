@@ -99,6 +99,7 @@ public class CrudServiceIT extends IntegrationTestBase {
         DomainObject organization1 = createOrganizationDomainObject();
 
         DomainObject savedPerson1 = crudService.save(person1);
+
         DomainObject savedOrganization1 = crudService.save(organization1);
 
         Id[] objects = new Id[] {savedPerson1.getId(), savedOrganization1.getId() };
@@ -247,6 +248,12 @@ public class CrudServiceIT extends IntegrationTestBase {
 
         DomainObject country = createCountryDomainObject();
         String countryName = country.getString("Name");
+    }
+
+    @Test
+    public void testFindByUniqueKeyCaseInsensitive() throws Exception{
+        DomainObject country = createCountryDomainObject();
+        String countryName = country.getString("Name");
         
         DomainObject savedCountry = crudService.save(country);
 
@@ -256,14 +263,14 @@ public class CrudServiceIT extends IntegrationTestBase {
         assertNotNull(countryObject);
         assertNotNull(countryObject.getId());
         
-        Map<String, Value> uniqueKeyValues = new HashMap<>();
+        uniqueKeyValues = new HashMap<>();
         uniqueKeyValues.put("nAme", new StringValue(countryName));
-        DomainObject countryObject = crudService.findByUniqueKey("country_test", uniqueKeyValues);
+        countryObject = crudService.findByUniqueKey("country_test", uniqueKeyValues);
         assertNotNull(countryObject);
         assertNotNull(countryObject.getId());
-        
+    
     }
-
+    
     private DomainObject createCountryDomainObject() {
         DomainObject organizationDomainObject = crudService.createDomainObject("country_test");
         organizationDomainObject.setString("Name", "Country" + System.currentTimeMillis());
