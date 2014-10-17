@@ -107,7 +107,7 @@ public class ImportData {
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(loadFileAsByteArray);
             reader = new InputStreamReader(input, encoding != null ? encoding : DEFAULT_ENCODING);
-            
+
             Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
             int lineNum = 0;
 
@@ -146,6 +146,11 @@ public class ImportData {
                         }
                         fields = fieldList.toArray(new String[fieldList.size()]);
                     }
+                    //Строим таблицу соответствия имени поля и его индекса, для оптимизации
+                    fieldIndex = new Hashtable<String, Integer>();
+                    for (int i = 0; i < fields.length; i++) {
+                        fieldIndex.put(fields[i], i);
+                    }                    
                 } else {
                     //Импорт одной строки
                     importLine(csvRecordToArray(record), rewrite);
@@ -163,14 +168,14 @@ public class ImportData {
         }
     }
 
-    private String[] csvRecordToArray(CSVRecord record){
+    private String[] csvRecordToArray(CSVRecord record) {
         String[] result = new String[record.size()];
         for (int i = 0; i < record.size(); i++) {
             result[i] = record.get(i);
         }
         return result;
     }
-    
+
     /**
      * Импорт одной строки
      * @param line
@@ -214,9 +219,6 @@ public class ImportData {
             for (int i = 0; i < fields.length; i++) {
                 String fieldName = fields[i];
 
-                //Запоминаем старое значение
-                Value oldValue = domainObject.getValue(fieldName);
-                Value newValue = null;
 
                 //Обрабатываем ключевое поле вложения
                 if (ATTACHMENT_FIELD_NAME.equals(fieldName)) {
@@ -224,62 +226,9 @@ public class ImportData {
                         attachments = fieldValues[i];
                     }
                 } else {
-
-                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
-                    if (fieldConfig != null) {
-                        if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
-                            if (fieldValues[i].length() != 0) {
-                                newValue = new BooleanValue(Boolean.valueOf(fieldValues[i]));
-                            }
-                        } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
-                            if (fieldValues[i].length() != 0) {
-                                newValue = new DateTimeValue(timeFofmat.parse(fieldValues[i]));
-                            }
-                        } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
-                            if (fieldValues[i].length() != 0) {
-                                Date date = timeFofmat.parse(fieldValues[i]);
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTime(date);
-                                DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(TimeZone.getDefault().getID(),
-                                        calendar.get(Calendar.YEAR),
-                                        calendar.get(Calendar.MONTH),
-                                        calendar.get(Calendar.DAY_OF_MONTH),
-                                        calendar.get(Calendar.HOUR_OF_DAY),
-                                        calendar.get(Calendar.MINUTE),
-                                        calendar.get(Calendar.SECOND), 0
-                                        );
-                                newValue = new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
-                            }
-                        } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
-                            if (fieldValues[i].length() != 0) {
-                                newValue = new DecimalValue(new BigDecimal(fieldValues[i]));
-                            }
-                        } else if (fieldConfig.getFieldType() == FieldType.LONG) {
-                            if (fieldValues[i].length() != 0) {
-                                newValue = new LongValue(Long.parseLong(fieldValues[i]));
-                            }
-                        } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
-                            //Здесь будут выражения в формате type.field="Значение поля" или field="Значение поля" или запрос
-                            newValue = new ReferenceValue(getReference(fieldName, fieldValues[i]));
-                        } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
-                            if (fieldValues[i].length() != 0) {
-                                newValue = new DateTimeValue(dateFofmat.parse(fieldValues[i]));
-                            }
-                        } else {
-                            //В остальных случаях считаем строкой
-                            if (fieldValues[i].length() == 0) {
-                                newValue = null;
-                            } else if (isEmptySimvol(fieldValues[i])) {
-                                //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
-                                newValue = new StringValue("");
-                            } else {
-                                newValue = new StringValue(fieldValues[i]);
-                            }
-                        }
-                    } else {
-                        throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
-                    }
-
+                    //Запоминаем старое значение
+                    Value oldValue = domainObject.getValue(fieldName);
+                    Value newValue = getFieldValue(fieldName, fieldValues[i]);
                     //Сравниваем изменения. Если значение поменялось, тогда пишем в доменный объект
                     if ((oldValue != null && !oldValue.equals(newValue)) || (oldValue == null && newValue != null)) {
                         domainObject.setValue(fieldName, newValue);
@@ -308,6 +257,66 @@ public class ImportData {
         }
     }
 
+    private Value getFieldValue(String fieldName, String fieldValue) throws ParseException{
+        Value newValue = null;
+        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
+        if (fieldConfig != null) {
+            if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
+                if (fieldValue.length() != 0) {
+                    newValue = new BooleanValue(Boolean.valueOf(fieldValue));
+                }
+            } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
+                if (fieldValue.length() != 0) {
+                    newValue = new DateTimeValue(timeFofmat.parse(fieldValue));
+                }
+            } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
+                if (fieldValue.length() != 0) {
+                    Date date = timeFofmat.parse(fieldValue);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date);
+                    DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(TimeZone.getDefault().getID(),
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH),
+                            calendar.get(Calendar.HOUR_OF_DAY),
+                            calendar.get(Calendar.MINUTE),
+                            calendar.get(Calendar.SECOND), 0
+                            );
+                    newValue = new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
+                }
+            } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
+                if (fieldValue.length() != 0) {
+                    newValue = new DecimalValue(new BigDecimal(fieldValue));
+                }
+            } else if (fieldConfig.getFieldType() == FieldType.LONG) {
+                if (fieldValue.length() != 0) {
+                    newValue = new LongValue(Long.parseLong(fieldValue));
+                }
+            } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
+                //Здесь будут выражения в формате type.field="Значение поля" или field="Значение поля" или запрос
+                newValue = new ReferenceValue(getReference(fieldName, fieldValue));
+            } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
+                if (fieldValue.length() != 0) {
+                    newValue = new DateTimeValue(dateFofmat.parse(fieldValue));
+                }
+            } else {
+                //В остальных случаях считаем строкой
+                if (fieldValue.length() == 0) {
+                    newValue = null;
+                } else if (isEmptySimvol(fieldValue)) {
+                    //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
+                    newValue = new StringValue("");
+                } else {
+                    newValue = new StringValue(fieldValue);
+                }
+            }
+        } else {
+            throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
+        }
+        
+        return newValue;
+    }
+    
     private boolean isEmptySimvol(String testString) {
         //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
         return (emptyStringSymbol == null && testString.equals("_")) || (emptyStringSymbol != null && testString.equals(emptyStringSymbol));
@@ -436,7 +445,7 @@ public class ImportData {
         Id result = null;
         if (referenceValueAsString != null && referenceValueAsString.length() > 0) {
             if (referenceValueAsString.toLowerCase().startsWith("select")) {
-                result = getReferenceFromSelect(referenceValueAsString);
+                result = getReferenceFromSelect(referenceValueAsString, new ArrayList<Value>());
             } else {
                 result = getReferenceFromExpression(fieldName, referenceValueAsString);
             }
@@ -453,7 +462,6 @@ public class ImportData {
     private Id getReferenceFromExpression(String refFieldName, String referenceValueAsString) {
         try {
             String type = null;
-            String value = null;
             String fieldName = null;
             FieldConfig fieldConfig = null;
             FieldConfig refFieldConfig = configurationExplorer.getFieldConfig(typeName, refFieldName);
@@ -473,14 +481,15 @@ public class ImportData {
 
             fieldName = field[0];
 
+            List<Value> values = new ArrayList<Value>();
             if (fieldConfig.getFieldType() == FieldType.LONG) {
-                value = getNormalizationField(field[1]);
+                values.add(new LongValue(Long.parseLong(getNormalizationField(field[1]))));
             } else {
-                value = "'" + getNormalizationField(field[1]) + "'";
+                values.add(new StringValue(getNormalizationField(field[1])));
             }
 
-            String query = getQuery(type, new String[] { fieldName }, new String[] { value });
-            return getReferenceFromSelect(query);
+            String query = getQuery(type, new String[] { fieldName }, values );
+            return getReferenceFromSelect(query, values);
         } catch (Exception ex) {
             throw new FatalException("Error get reference from expression. FieldName=" + refFieldName + "; Value=" + referenceValueAsString, ex);
         }
@@ -507,20 +516,20 @@ public class ImportData {
      * @param query
      * @return
      */
-    private Id getReferenceFromSelect(String query) {
+    private Id getReferenceFromSelect(String query, List<Value> params) {
         AccessToken accessToken = null;
         if (login == null) {
             accessToken = accessService.createSystemAccessToken(this.getClass().getName());
         } else {
             accessToken = accessService.createCollectionAccessToken(login);
         }
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
         Id result = null;
         if (collection.size() > 0) {
             result = collection.get(0).getId();
         }
-        
-        if (result == null){
+
+        if (result == null) {
             throw new FatalException("Not find value by query: " + query);
         }
         return result;
@@ -530,12 +539,10 @@ public class ImportData {
      * Поиск доменного объекта
      * @param fieldValues
      * @return
+     * @throws ParseException 
      */
-    private DomainObject findDomainObject(String[] fieldValues) {
-        String[] values = new String[keys.length];
-        for (int i = 0; i < keys.length; i++) {
-            values[i] = getFieldQueryFragment(fieldValues, keys[i]);
-        }
+    private DomainObject findDomainObject(String[] fieldValues) throws ParseException {
+        List<Value> values = getPlatformFieldValues(fieldValues);
 
         String query = getQuery(typeName, keys, values);
         AccessToken accessToken = null;
@@ -544,7 +551,9 @@ public class ImportData {
         } else {
             accessToken = accessService.createCollectionAccessToken(login);
         }
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+        System.out.println(query + " " + values);
+        
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, values, 0, 0, accessToken);
         DomainObject result = null;
         if (collection.size() > 0) {
             result = domainObjectDao.find(collection.get(0).getId(), accessToken);
@@ -555,11 +564,11 @@ public class ImportData {
     /**
      * Формирование запроса с учетом иерархии типов
      * @param typeName
-     * @param confitionFields
+     * @param conditionFields
      * @param conditionValues
      * @return
      */
-    private String getQuery(String typeName, String[] confitionFields, String[] conditionValues) {
+    private String getQuery(String typeName, String[] conditionFields, List<Value> conditionValues) {
         //Получение конфигурации типа
         DomainObjectTypeConfig config = configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeName);
         String result = null;
@@ -567,17 +576,20 @@ public class ImportData {
         result = "select t0.id ";
         String from = null;
         String where = null;
+        int paramIndex = 0;
+        List<Value> workConditionsValues = new ArrayList<Value>();
         //Формируем запрос
         do {
             //Заполняем where
             for (FieldConfig fieldConfig : config.getFieldConfigs()) {
-                for (int i = 0; i < confitionFields.length; i++) {
-                    if (confitionFields[i].equalsIgnoreCase(fieldConfig.getName())) {
+                for (int i = 0; i < conditionFields.length; i++) {
+                    if (conditionFields[i].equalsIgnoreCase(fieldConfig.getName())) {
                         String conditionValue = null;
-                        if (conditionValues[i] == null) {
+                        if (conditionValues.get(i) == null) {
                             conditionValue = " is null";
                         } else {
-                            conditionValue = " = " + conditionValues[i];
+                            conditionValue = " = {" + paramIndex++ + "}";
+                            workConditionsValues.add(conditionValues.get(i));
                         }
 
                         if (where == null) {
@@ -607,6 +619,13 @@ public class ImportData {
         } while (config != null);
         result += from;
         result += where;
+        
+        //Подменяем conditionValues на workConditionsValues
+        conditionValues.clear();
+        for (int i = 0; i < workConditionsValues.size(); i++) {
+            conditionValues.add(workConditionsValues.get(i));
+        }
+        
         return result;
     }
 
@@ -615,47 +634,24 @@ public class ImportData {
      * @param fieldValues
      * @param fieldName
      * @return
+     * @throws ParseException 
      */
-    private String getFieldQueryFragment(String[] fieldValues, String fieldName) {
-        //Строим таблицу соответствия имени поля и его индекса, для оптимизации
-        if (fieldIndex == null) {
-            fieldIndex = new Hashtable<String, Integer>();
-            for (int i = 0; i < fields.length; i++) {
-                fieldIndex.put(fields[i], i);
-            }
-        }
+    private List<Value> getPlatformFieldValues(String[] fieldValues) throws ParseException {
+        List<Value> result = new ArrayList<Value>();
+                
+        for (int i = 0; i < keys.length; i++) {
+            String fieldName = keys[i];
 
-        //Получение значения поля
-        String result = null;
-        String valueAsString = fieldValues[fieldIndex.get(fieldName)];
+            //Получение значения поля
+            String fieldValue = fieldValues[fieldIndex.get(fieldName)];
 
-        if (valueAsString.length() > 0) {
-            //Получение конфигурации поля
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
-            //Пока поддерживаем только строки и Long Вряд ли что то другое будет ключем
-            if (fieldConfig.getFieldType() == FieldType.LONG) {
-                result = valueAsString;
-            } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
-                Id referenceValue = getReference(fieldName, valueAsString);
-                if (referenceValue != null) {
-                    result = String.valueOf(((RdbmsId) referenceValue).getId());
-                }
-            } else if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
-                boolean boolValue = Boolean.parseBoolean(valueAsString);
-                if (boolValue){
-                    result = "1";
-                }else{
-                    result = "0";
-                }
+            if (fieldValue.length() > 0) {
+                result.add(getFieldValue(fieldName, fieldValue));
             } else {
-                if (isEmptySimvol(valueAsString)) {
-                    result = "''";
-                } else {
-                    valueAsString = valueAsString.replace("'", "''");
-                    result = "'" + valueAsString + "'";
-                }
+                result.add(null);
             }
         }
+
         return result;
     }
 

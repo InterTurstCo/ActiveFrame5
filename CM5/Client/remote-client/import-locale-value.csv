@@ -1,5 +1,5 @@
 TYPE_NAME=profile_value_locale;KEYS=profile,key;
 profile;key;value;readonly
-select id from system_profile where name='test1';key1Loc;"name=""RU""";false
-select id from system_profile where name='test2';key2Loc;"name=""EN""";false
-select id from system_profile where name='test3';key3Loc;"name=""FR""";false
+name="test1";key1Loc;"name=""RU""";false
+name="test2";key2Loc;"name=""EN""";false
+name="test3";key3Loc;"name=""FR""";false
