@@ -65,7 +65,7 @@
     color: #000;
     clip: inherit !important;
     position: relative;
-    z-index: 100;
+    z-index: 25;
 }
 
 .search-popup-body {
