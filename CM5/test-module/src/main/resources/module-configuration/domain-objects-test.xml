@@ -179,6 +179,19 @@
             <string name="description" length="128" />
         </fields>
     </domain-object-type>
+
+    <domain-object-type name="test_type_7" initial-status="Active">
+        <fields>
+            <string name="description" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_8" initial-status="Active">
+        <fields>
+            <string name="description" length="128" />
+            <reference name="test_type_7" type="test_type_7" not-null="true"/>
+        </fields>
+    </domain-object-type>
     
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>

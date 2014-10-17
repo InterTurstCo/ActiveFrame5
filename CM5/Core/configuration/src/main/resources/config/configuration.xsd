@@ -1001,11 +1001,25 @@
             <xs:element name="status" type="con:accessMatrixSectionType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="matrix-reference-mapping" type="con:matrixReferenceMapping" maxOccurs="1" minOccurs="0"/>
+                        
         </xs:sequence>
         <xs:attribute name="type" type="xs:string" use="required"/>
         <xs:attribute name="read-everybody" type="xs:boolean" use="optional"/>
         <xs:attribute name="matrix-reference-field" type="xs:string" use="optional"/>
     </xs:complexType>
+
+    <xs:complexType name="matrixReferenceMapping">
+        <xs:sequence>
+            <xs:element name="permition" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                    <xs:attribute name="map-from" use="required" type="con:matrixReferencePermissionMapEnum" />
+                    <xs:attribute name="map-to" use="required" type="con:matrixReferencePermissionMapEnum" />
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
 
     <xs:complexType name="accessMatrixSectionType">
         <xs:sequence>
@@ -3045,4 +3059,11 @@
         </xs:choice>
     </xs:complexType>
 
+    <xs:simpleType name="matrixReferencePermissionMapEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="read" />
+            <xs:enumeration value="write" />
+            <xs:enumeration value="delete" />
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

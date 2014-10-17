@@ -31,6 +31,9 @@ public class AccessMatrixConfig implements TopLevelConfig {
 
     @Element(name = "create", required = false)
     private AccessMatrixCreateConfig accessMatrixCreateConfig;
+
+    @Element(name = "matrix-reference-mapping", required = false)
+    private MatrixReferenceMappingConfig matrixReferenceMappingConfig;
     
     public String getType() {
         return type;
@@ -113,4 +116,14 @@ public class AccessMatrixConfig implements TopLevelConfig {
     public void setMatrixReference(String matrixReference) {
         this.matrixReference = matrixReference;
     }
+
+    public MatrixReferenceMappingConfig getMatrixReferenceMappingConfig() {
+        return matrixReferenceMappingConfig;
+    }
+
+    public void setMatrixReferenceMappingConfig(MatrixReferenceMappingConfig matrixReferenceMappingConfig) {
+        this.matrixReferenceMappingConfig = matrixReferenceMappingConfig;
+    }
+    
+    
 }

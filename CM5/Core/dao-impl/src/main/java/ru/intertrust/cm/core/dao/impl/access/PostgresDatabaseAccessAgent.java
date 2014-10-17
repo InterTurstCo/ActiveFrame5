@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.AccessTimeout;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.MatrixReferenceMappingConfig;
+import ru.intertrust.cm.core.config.MatrixReferenceMappingPermissionConfig;
+import ru.intertrust.cm.core.config.MatrixReferencePermissionEmum;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
@@ -74,17 +79,30 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         List<AccessType> checkAccessType = getMatrixReferencePermission(domainObjetcTypeIdCache.getName(id.getTypeId()), type);
         
         List<String> opCode = new ArrayList<String>();
+        boolean opRead = false;
         for (AccessType accessType : checkAccessType) {
-            opCode.add(makeAccessTypeCode(accessType));
+            //Особым образом обрабатываем RESD, так как права на чтение хранятся в другой таблице
+            if (accessType.equals(DomainObjectAccessType.READ)){
+                opRead = true;
+            }else{
+                opCode.add(makeAccessTypeCode(accessType));
+            }
         }
         
-        String query = getQueryForCheckDomainObjectAccess(id);
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("user_id", userId);
-        parameters.put("object_id", id.getId());
-        parameters.put("operation", opCode);
-        Integer result = jdbcTemplate.queryForObject(query, parameters, Integer.class);
-        return result > 0;
+        boolean result = false;
+        if (opRead){
+            result = checkDomainObjectReadAccess(userId, objectId); 
+        }else{
+        
+            String query = getQueryForCheckDomainObjectAccess(id);
+            Map<String, Object> parameters = new HashMap<String, Object>();
+            parameters.put("user_id", userId);
+            parameters.put("object_id", id.getId());
+            parameters.put("operation", opCode);
+            Integer count = jdbcTemplate.queryForObject(query, parameters, Integer.class);
+            result = count > 0;
+        }
+        return result;
     }
 
     @Override
@@ -106,20 +124,56 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      */
     private List<AccessType> getMatrixReferencePermission(String typeName, AccessType accessType){
         List<AccessType> result = new ArrayList<AccessType>();
-        result.add(accessType);
         //Проверяем нет ли заимствования прав и в случае наличия подменяем тип доступа согласно мапингу
         String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeName);
         //В случае наличия заимствования проверку права на delete заменяем на write, проверку на create заменяем на write
         //TODO необходимо вынести конфигурацию мапинга прав в xml
         if (martixRef != null){
-            if (accessType.equals(DomainObjectAccessType.DELETE)){
-                result.add(DomainObjectAccessType.WRITE);
+            //Получаем маппинг прав
+            AccessMatrixConfig martix = configurationExplorer.getAccessMatrixByObjectType(typeName);
+            if (martix.getMatrixReferenceMappingConfig() != null && 
+                    martix.getMatrixReferenceMappingConfig().getPermission() != null && 
+                    martix.getMatrixReferenceMappingConfig().getPermission().size() > 0){
+                //Берем мапинг из матрицы
+                MatrixReferenceMappingConfig mapping = martix.getMatrixReferenceMappingConfig(); 
+                for (MatrixReferenceMappingPermissionConfig mappingPermissions : mapping.getPermission()) {
+                    if (isMappingToAccessType(mappingPermissions, accessType)){
+                        AccessType mappedAccessType = getAccessTypeFromMapping(mappingPermissions);
+                        result.add(mappedAccessType);
+                    }                    
+                }
+            }else{
+                //Маппинг по умолчанию read-> read, write->write+delete, delete->delete
+                result.add(accessType);
+                if (accessType.equals(DomainObjectAccessType.DELETE)){
+                    result.add(DomainObjectAccessType.WRITE);
+                }
             }
+        }else{
+            result.add(accessType);
         }
         return result;
     }
     
     
+    private AccessType getAccessTypeFromMapping(MatrixReferenceMappingPermissionConfig mappingPermissions) {
+        AccessType result = null;
+        if (mappingPermissions.getMapFrom().equals(MatrixReferencePermissionEmum.read)){
+            result = DomainObjectAccessType.READ;
+        }else if(mappingPermissions.getMapFrom().equals(MatrixReferencePermissionEmum.write)){
+            result = DomainObjectAccessType.WRITE;
+        }else if(mappingPermissions.getMapFrom().equals(MatrixReferencePermissionEmum.delete)){
+            result = DomainObjectAccessType.DELETE;
+        }
+        return result;
+    }
+
+    private boolean isMappingToAccessType(MatrixReferenceMappingPermissionConfig mappingPermissions, AccessType accessType) {
+        return accessType.equals(DomainObjectAccessType.READ) && mappingPermissions.getMapTo().equals(MatrixReferencePermissionEmum.read)
+                || accessType.equals(DomainObjectAccessType.WRITE) && mappingPermissions.getMapTo().equals(MatrixReferencePermissionEmum.write)
+                || accessType.equals(DomainObjectAccessType.DELETE) && mappingPermissions.getMapTo().equals(MatrixReferencePermissionEmum.delete);
+    }
+
     private String getQueryForCheckDomainObjectAccess(RdbmsId id) {
         String domainObjectAclTable = getAclTableName(id);
         String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(

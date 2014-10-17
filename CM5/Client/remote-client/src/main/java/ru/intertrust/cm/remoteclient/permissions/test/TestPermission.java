@@ -294,6 +294,19 @@ public class TestPermission extends ClientBase {
             country1.setString("name", "Name-" + System.nanoTime());
             notAdminCrudservice.save(country1);
             
+            //Проверка мапинга прав
+            DomainObject testType7 = getCrudService().createDomainObject("test_type_7");
+            testType7.setString("description", "Description " + System.nanoTime());
+            testType7 = getCrudService().save(testType7);            
+
+            DomainObject testType8 = getCrudService().createDomainObject("test_type_8");
+            testType8.setString("description", "Description " + System.nanoTime());
+            testType8.setReference("test_type_7", testType7);
+            testType8 = getCrudService().save(testType8);            
+            
+            //Проверка косвенных прав на удаление при мапинге прав
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person6", "admin");
+            notAdminCrudservice.delete(testType8.getId());
             
             log("Test complete");
         } finally {
