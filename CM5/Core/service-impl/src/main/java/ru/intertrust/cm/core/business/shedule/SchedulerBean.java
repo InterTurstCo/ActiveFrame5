@@ -282,7 +282,7 @@ public class SchedulerBean {
         int month = calendar.get(Calendar.MONTH);
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
         //Проверка каждого элемента. Если хоть один элемент не проходит проверку результат false
