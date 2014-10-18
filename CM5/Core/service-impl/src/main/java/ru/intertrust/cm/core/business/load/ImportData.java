@@ -551,7 +551,6 @@ public class ImportData {
         } else {
             accessToken = accessService.createCollectionAccessToken(login);
         }
-        System.out.println(query + " " + values);
         
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, values, 0, 0, accessToken);
         DomainObject result = null;
