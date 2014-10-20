@@ -38,6 +38,8 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.impl.BaseAttachmentServiceImpl;
@@ -297,7 +299,13 @@ public class ImportData {
                 newValue = new ReferenceValue(getReference(fieldName, fieldValue));
             } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
                 if (fieldValue.length() != 0) {
-                    newValue = new DateTimeValue(dateFofmat.parse(fieldValue));
+                    TimelessDate date = new TimelessDate();
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(dateFofmat.parse(fieldValue));
+                    date.setYear(calendar.get(Calendar.YEAR));
+                    date.setMonth(calendar.get(Calendar.MONTH));
+                    date.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
+                    newValue = new TimelessDateValue(date);
                 }
             } else {
                 //В остальных случаях считаем строкой

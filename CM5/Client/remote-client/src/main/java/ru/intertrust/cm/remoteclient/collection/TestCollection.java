@@ -151,7 +151,8 @@ public class TestCollection extends ClientBase {
             executeQuery(query, 2, params);*/
             
             
-            
+            query = "select id, dateon, dateoff, dateall from tst_employee";
+            executeQuery(query, 4);
             
 
         } finally {
