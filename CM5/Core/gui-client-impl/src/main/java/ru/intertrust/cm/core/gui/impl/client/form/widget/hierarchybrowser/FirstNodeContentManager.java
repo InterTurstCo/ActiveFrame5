@@ -23,8 +23,9 @@ import java.util.Map;
  */
 public class FirstNodeContentManager extends NodeContentManager {
     public FirstNodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,
-                                   ArrayList<Id> chosenIds, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
-        super(config, mainPopup, chosenIds, null,collectionNameNodeMap);
+                                   ArrayList<Id> chosenIds,  Id rootId,
+                                   Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
+        super(config, mainPopup, chosenIds, rootId, null,collectionNameNodeMap);
     }
 
     private NodeContentRequest prepareRequestDataForFirstNodeOpening() {
@@ -42,11 +43,11 @@ public class FirstNodeContentManager extends NodeContentManager {
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
-                Map<String, String> domainObjectTypesAndTitles = nodeContent.getDomainObjectTypesAndTitles();
+                List<NodeCollectionDefConfig> nodeCollectionDefConfigs = nodeContent.getNodeCollectionDefConfigs();
                 Id parentId = nodeContent.getParentId();
                 String parentCollectionName = nodeContent.getParentCollectionName();
                 boolean selective = nodeContent.isSelective();
-                mainPopup.drawNewNode(parentId, parentCollectionName,items, selective, domainObjectTypesAndTitles);
+                mainPopup.drawNewNode(parentId, parentCollectionName,items, selective, nodeCollectionDefConfigs);
 
             }
 

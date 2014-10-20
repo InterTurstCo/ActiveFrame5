@@ -2,10 +2,12 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -23,6 +25,8 @@ public class NodeContentRequest implements Dto {
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
     private boolean openChildren = true;
     private FormattingConfig formattingConfig;
+    private Id rootId;
+    private Map<String, PopupTitlesHolder> titlesHolderMap;
     public int getNumberOfItemsToDisplay() {
         return numberOfItemsToDisplay;
     }
@@ -93,5 +97,21 @@ public class NodeContentRequest implements Dto {
 
     public void setFormattingConfig(FormattingConfig formattingConfig) {
         this.formattingConfig = formattingConfig;
+    }
+
+    public Id getRootId() {
+        return rootId;
+    }
+
+    public void setRootId(Id rootId) {
+        this.rootId = rootId;
+    }
+
+    public Map<String, PopupTitlesHolder> getTitlesHolderMap() {
+        return titlesHolderMap;
+    }
+
+    public void setTitlesHolderMap(Map<String, PopupTitlesHolder> titlesHolderMap) {
+        this.titlesHolderMap = titlesHolderMap;
     }
 }

@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItemBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -42,7 +43,9 @@ public abstract class EditableHierarchyBrowserHyperlinkContentManager extends Hi
                 RepresentationResponse response = (RepresentationResponse) result;
                 Id id = response.getId();
                 String representation = response.getRepresentation();
-                HierarchyBrowserItem updatedItem = new HierarchyBrowserItem(id, representation);
+                HierarchyBrowserItem updatedItem = new HierarchyBrowserItemBuilder()
+                        .setId(id).setStringRepresentation(representation)
+                        .createHierarchyBrowserItem();
                 handleHyperlinkUpdate(updatedItem);
 
             }
@@ -54,4 +57,5 @@ public abstract class EditableHierarchyBrowserHyperlinkContentManager extends Hi
         });
     }
     protected abstract void handleHyperlinkUpdate(HierarchyBrowserItem updatedItem);
+
 }

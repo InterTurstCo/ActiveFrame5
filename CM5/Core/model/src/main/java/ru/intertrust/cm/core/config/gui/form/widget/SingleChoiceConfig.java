@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
@@ -11,15 +12,26 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root(name = "single-choice")
 public class SingleChoiceConfig implements Dto {
-    @Attribute(name = "value")
-    private boolean singleChoice;
+    @Attribute(name = "value", required = false)
+    private Boolean singleChoice;
 
-    public boolean isSingleChoice() {
+    @Element(name = "parent-object-field", required = false)
+    private ParentObjectFieldConfig parentObjectFieldConfig;
+
+    public Boolean isSingleChoice() {
         return singleChoice;
     }
 
-    public void setSingleChoice(boolean singleChoice) {
+    public void setSingleChoice(Boolean singleChoice) {
         this.singleChoice = singleChoice;
+    }
+
+    public ParentObjectFieldConfig getParentObjectFieldConfig() {
+        return parentObjectFieldConfig;
+    }
+
+    public void setParentObjectFieldConfig(ParentObjectFieldConfig parentObjectFieldConfig) {
+        this.parentObjectFieldConfig = parentObjectFieldConfig;
     }
 
     @Override
@@ -33,7 +45,11 @@ public class SingleChoiceConfig implements Dto {
 
         SingleChoiceConfig that = (SingleChoiceConfig) o;
 
-        if (singleChoice != that.singleChoice) {
+        if (singleChoice != null ? !singleChoice.equals(that.singleChoice): that.singleChoice != null) {
+            return false;
+        }
+        if (parentObjectFieldConfig != null ? !parentObjectFieldConfig.equals(that.parentObjectFieldConfig)
+                : that.parentObjectFieldConfig != null) {
             return false;
         }
 
@@ -42,7 +58,9 @@ public class SingleChoiceConfig implements Dto {
 
     @Override
     public int hashCode() {
-        return (singleChoice ? 1 : 0);
+        int result = singleChoice != null ? singleChoice.hashCode() : 0;
+        result = 31 * result + (parentObjectFieldConfig != null ? parentObjectFieldConfig.hashCode() : 0);
+        return result;
     }
 }
 

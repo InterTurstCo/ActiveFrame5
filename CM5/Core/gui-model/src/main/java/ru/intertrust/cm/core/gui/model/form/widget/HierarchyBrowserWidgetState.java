@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RootNodeLinkConfig;
@@ -28,6 +29,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     private ArrayList<Id> temporarySelectedIds;
     private ArrayList<HierarchyBrowserItem> temporaryTooltipChosenItems;
     private Map<String, Integer> temporaryCountOfType;
+    private Id rootId;
 
     public HierarchyBrowserConfig getHierarchyBrowserConfig() {
         return hierarchyBrowserConfig;
@@ -56,6 +58,14 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         return isHandlingTemporarySate ? temporaryChosenItems : chosenItems;
     }
 
+    public Id getRootId() {
+        return rootId;
+    }
+
+    public void setRootId(Id rootId) {
+        this.rootId = rootId;
+    }
+
     public ArrayList<Id> getTemporarySelectedIds() {
         return temporarySelectedIds;
     }
@@ -73,7 +83,6 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     }
 
     public ArrayList<HierarchyBrowserItem> getTooltipChosenItems() {
-
         return isHandlingTemporarySate ? temporaryTooltipChosenItems : tooltipChosenItems;
     }
 
@@ -101,7 +110,6 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     public void resetChanges() {
         setHandlingTemporarySate(false);
     }
-
 
     public void initTemporaryState() {
         setHandlingTemporarySate(true);
@@ -184,13 +192,9 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         return result;
     }
 
-    public String getHyperlinkPopupTitle(){
-        return getPopupTitlesHolder() == null ? null : getPopupTitlesHolder().getTitleExistingObject();
-
-    }
-    public String getNewItemPopupTitle(){
-        return getPopupTitlesHolder() == null ? null : getPopupTitlesHolder().getTitleNewObject();
-
+    public String getHyperlinkPopupTitle(String collectionName){
+        PopupTitlesHolder popupTitlesHolder = collectionNameNodeMap.get(collectionName).getPopupTitlesHolder();
+        return popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
     }
 
     private void handleRemoving(HierarchyBrowserItem item) {
@@ -198,6 +202,34 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         selectedIds.remove(item.getId());
         decrementCountOfType(item.getNodeCollectionName());
     }
+
+    public void handleCommonSingleChoice(HierarchyBrowserItem item){
+        temporarySelectedIds.clear();
+        temporaryChosenItems.clear();
+        if(item.isChosen()){
+            temporarySelectedIds.add(item.getId());
+            temporaryChosenItems.add(item);
+
+        }
+    }
+
+    public void handleNodeSingleChoice(HierarchyBrowserItem item, HierarchyBrowserItem previous){
+        if(previous != null){
+            previous.setChosen(false);
+            temporarySelectedIds.remove(previous.getId());
+            temporaryChosenItems.remove(previous);
+        }
+        if(item.isChosen()){
+            temporarySelectedIds.add(item.getId());
+            temporaryChosenItems.add(item);
+
+        }else{
+            temporarySelectedIds.remove(item.getId());
+            temporaryChosenItems.remove(item);
+
+        }
+    }
+
 
     private void handleAddingToTempSate(HierarchyBrowserItem item) {
         temporaryChosenItems.add(item);

@@ -7,6 +7,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.*;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -15,6 +16,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,26 +33,23 @@ public class HierarchyBrowserNodeView implements IsWidget {
     private int factor;
     private ScrollPanel scroll = new ScrollPanel();
     private TextBox textBox;
-
+    private Map<String, HierarchyBrowserItem> previousChosenItems;
     private boolean selective;
     private HorizontalPanel styledActivePanel = new HorizontalPanel();
+    private boolean displayAsHyperlinks;
 
-    public HierarchyBrowserNodeView(EventBus eventBus, int nodeHeight,
-                                    boolean selective) {
+    public HierarchyBrowserNodeView(EventBus eventBus, int nodeHeight, boolean selective, boolean displayAsHyperlinks) {
+
         this.eventBus = eventBus;
         this.selective = selective;
+        this.displayAsHyperlinks = displayAsHyperlinks;
         scroll.setHeight(nodeHeight + "px");
         scroll.setAlwaysShowScrollBars(false);
         scroll.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
         root.addStyleName("hierarchyBrowserNode");
         scroll.addStyleName("oneNodeScroll");
         currentNodePanel.addStyleName("one-node-body");
-        eventBus.addHandler(HierarchyBrowserCheckBoxUpdateEvent.TYPE,new HierarchyBrowserCheckBoxUpdateEventHandler() {
-            @Override
-            public void onHierarchyBrowserCheckBoxUpdate(HierarchyBrowserCheckBoxUpdateEvent event) {
-                changeSelection(event.getItem());
-            }
-        });
+        previousChosenItems = new HashMap<String, HierarchyBrowserItem>();
 
     }
 
@@ -74,24 +73,24 @@ public class HierarchyBrowserNodeView implements IsWidget {
 
     }
 
-
     @Override
     public Widget asWidget() {
         return root;
     }
 
     public void drawNode(Id parentId, String parentCollectionName, final List<HierarchyBrowserItem> items,
-                         Map<String, String> domainObjectTypesAndTitles) {
+                         List<NodeCollectionDefConfig> nodeConfigs) {
         this.items = items;
         currentNodePanel.clear();
-        drawNodeHeader(parentId, parentCollectionName,domainObjectTypesAndTitles);
+        drawNodeHeader(parentId, parentCollectionName, nodeConfigs);
         scroll.add(currentNodePanel);
         root.add(scroll);
         for (HierarchyBrowserItem item : items) {
             drawNodeChild(item);
         }
-       addScrollHandler(parentId,parentCollectionName);
+        addScrollHandler(parentId, parentCollectionName);
     }
+
     private void addScrollHandler(final Id parentId, final String parentCollectionName) {
         scroll.addScrollHandler(new ScrollHandler() {
             @Override
@@ -99,7 +98,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
 
                 if (scroll.getVerticalScrollPosition() == scroll.getMaximumVerticalScrollPosition()) {
                     factor++;
-                    eventBus.fireEvent(new HierarchyBrowserScrollEvent(parentId,parentCollectionName,
+                    eventBus.fireEvent(new HierarchyBrowserScrollEvent(parentId, parentCollectionName,
                             factor, textBox.getText()));
                 }
             }
@@ -110,57 +109,28 @@ public class HierarchyBrowserNodeView implements IsWidget {
         final HorizontalPanel currentItemPanel = new HorizontalPanel();
         HorizontalPanel panelLeft = new HorizontalPanel();
         if (selective) {
-            final CheckBox checkBox = new CheckBox();
-            if (item.isChosen()) {
-                checkBox.setValue(true);
-            }
-            checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                @Override
-                public void onValueChange(ValueChangeEvent<Boolean> event) {
-                    boolean chosen = event.getValue();
-                    item.setChosen(chosen);
-                    eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item));
-                }
-            });
-            eventBus.addHandler(HierarchyBrowserCheckBoxUpdateEvent.TYPE,new HierarchyBrowserCheckBoxUpdateEventHandler() {
-                @Override
-                public void onHierarchyBrowserCheckBoxUpdate(HierarchyBrowserCheckBoxUpdateEvent event) {
-
-                    if(item.getId().equals(event.getItem().getId())){
-                     boolean value = event.getItem().isChosen();
-                     checkBox.setValue(value);
-                    }
-                }
-            });
+            CheckBox checkBox = createCheckBox(item);
             panelLeft.add(checkBox);
             panelLeft.setCellVerticalAlignment(checkBox, HasVerticalAlignment.ALIGN_MIDDLE);
         }
 
-        Label anchor = new Label(item.getStringRepresentation());
-        anchor.addStyleName("node-item-link");
-        anchor.removeStyleName("gwt-Hyperlink ");
-        anchor.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                eventBus.fireEvent(new HierarchyBrowserItemClickEvent(item.getId(), item.getNodeCollectionName()));
-
-            }
-        });
+        Label label = createLabel(item);
         FocusPanel focusPanel = new FocusPanel();
-        if(item.isMayHaveChildren()){
-        Label arrow = new Label("►");
-        arrow.addStyleName("hBArrowRight");
-        focusPanel.add(arrow);
-        focusPanel.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                eventBus.fireEvent(new HierarchyBrowserNodeClickEvent(item.getNodeCollectionName(), item.getId()));
-                styledActivePanel.removeStyleName("node-item-row-active");
-                currentItemPanel.addStyleName("node-item-row-active");
-                styledActivePanel = currentItemPanel;
-            }
-        });   }
-        panelLeft.add(anchor);
+        if (item.isMayHaveChildren()) {
+            Label arrow = new Label("►");
+            arrow.addStyleName("hBArrowRight");
+            focusPanel.add(arrow);
+            focusPanel.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    eventBus.fireEvent(new HierarchyBrowserNodeClickEvent(item.getNodeCollectionName(), item.getId()));
+                    styledActivePanel.removeStyleName("node-item-row-active");
+                    currentItemPanel.addStyleName("node-item-row-active");
+                    styledActivePanel = currentItemPanel;
+                }
+            });
+        }
+        panelLeft.add(label);
         currentItemPanel.add(panelLeft);
         currentItemPanel.add(focusPanel);
         currentItemPanel.addStyleName("node-item-row");
@@ -181,47 +151,93 @@ public class HierarchyBrowserNodeView implements IsWidget {
         currentNodePanel.add(currentItemPanel);
     }
 
-    private void drawNodeHeader(Id parentId, String parentCollectionName, Map<String, String> domainObjectTypesAndTitles) {
+    private Label createLabel(final HierarchyBrowserItem item) {
+        Label label = new Label(item.getStringRepresentation());
+        boolean isHyperlink = item.isDisplayAsHyperlinks() == null ? displayAsHyperlinks : item.isDisplayAsHyperlinks();
+        if (isHyperlink) {
+            label.setStyleName("clickableNodeItem");
+            label.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    eventBus.fireEvent(new HierarchyBrowserItemClickEvent(item.getId(), item.getNodeCollectionName()));
 
-        AbsolutePanel searchBar = createSearchBar(parentId,parentCollectionName);
+                }
+            });
+        } else {
+            label.setStyleName("notClickableNodeItem");
+        }
+        return label;
+    }
+
+    private CheckBox createCheckBox(final HierarchyBrowserItem item) {
+        final CheckBox checkBox = new CheckBox();
+        if (item.isChosen()) {
+            checkBox.setValue(true);
+            previousChosenItems.put(item.getNodeCollectionName(), item);
+        }
+        checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                boolean chosen = event.getValue();
+                item.setChosen(chosen);
+                String collectionName = item.getNodeCollectionName();
+                eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item, previousChosenItems.get(collectionName)));
+                if (chosen) {
+                    previousChosenItems.put(collectionName, item);
+                } else {
+                    previousChosenItems.remove(collectionName);
+                }
+
+            }
+        });
+        //TODO find more verbose way
+        eventBus.addHandler(HierarchyBrowserCheckBoxUpdateEvent.TYPE, new HierarchyBrowserCheckBoxUpdateEventHandler() {
+            @Override
+            public void onHierarchyBrowserCheckBoxUpdate(HierarchyBrowserCheckBoxUpdateEvent event) {
+                 HierarchyBrowserItem changedItem = event.getItem();
+                if (changedItem != null && item.getId().equals(changedItem.getId())) {
+                    boolean value = event.getItem().isChosen();
+                    checkBox.setValue(value);
+                }
+            }
+        });
+        return checkBox;
+    }
+
+    private void drawNodeHeader(Id parentId, String parentCollectionName, List<NodeCollectionDefConfig> nodeConfigs) {
+
+        AbsolutePanel searchBar = createSearchBar(parentId, parentCollectionName);
         HorizontalPanel buttonsPanel = new HorizontalPanel();
         buttonsPanel.getElement().getStyle().setMarginLeft(5, Style.Unit.PX);
 
-        for (Map.Entry<String, String> entry : domainObjectTypesAndTitles.entrySet()) {
-        FocusPanel addItemPanel = createAddItemButton(parentId, parentCollectionName,entry);
-        buttonsPanel.add(addItemPanel);
+        for (NodeCollectionDefConfig config : nodeConfigs) {
+            if (config.isDisplayingCreateButton()) {
+                Widget addItem = createAddItemButton(parentId, parentCollectionName, config);
+                buttonsPanel.add(addItem);
+            }
         }
-        FocusPanel refreshButton = createRefreshButton(parentId,parentCollectionName);
+        FocusPanel refreshButton = createRefreshButton(parentId, parentCollectionName);
         buttonsPanel.add(refreshButton);
         root.add(searchBar);
         root.add(buttonsPanel);
     }
 
-    private FocusPanel createAddItemButton(final Id parentId, final String parentCollectionName,
-                                           final Map.Entry<String, String> entry) {
-        final FocusPanel addItemPanel = new FocusPanel();
-        addItemPanel.addStyleName("light-button button-extra-style");
-        AbsolutePanel buttonPanel = new AbsolutePanel();
-        Image plus = new Image("images/green-plus.png");
-
-        Label text = new Label(entry.getValue());
-        text.addStyleName("hierarchyBrowserLabel");
-        buttonPanel.add(plus);
-        buttonPanel.add(text);
-        addItemPanel.add(buttonPanel);
-        addItemPanel.addClickHandler(new ClickHandler() {
+    private Widget createAddItemButton(final Id parentId, final String parentCollectionName,
+                                       final NodeCollectionDefConfig nodeConfig) {
+        ConfiguredButton button = new ConfiguredButton(nodeConfig.getCreateNewButtonConfig());
+        button.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                eventBus.fireEvent(new HierarchyBrowserAddItemClickEvent(parentId, parentCollectionName, entry));
+                eventBus.fireEvent(new HierarchyBrowserAddItemClickEvent(parentId, parentCollectionName, nodeConfig));
 
             }
         });
-        return addItemPanel;
+        return button;
     }
 
     private FocusPanel createRefreshButton(final Id parentId, final String parentCollectionName) {
         FocusPanel refreshButton = new FocusPanel();
-        refreshButton.setStyleName("button-refresh");
+        refreshButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().refreshBtn());
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -247,8 +263,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         return result;
     }
 
-    private Panel initMagnifier(final Id parentId, final String parentCollectionName){
-
+    private Panel initMagnifier(final Id parentId, final String parentCollectionName) {
         Panel magnifier = new AbsolutePanel();
         magnifier.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().magnifierButton());
         FocusPanel result = new FocusPanel();
@@ -268,7 +283,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         return result;
     }
 
-    private Panel initResetButton(final Id parentId, final String parentCollectionName){
+    private Panel initResetButton(final Id parentId, final String parentCollectionName) {
         final Panel result = new AbsolutePanel();
         result.addStyleName("reset-button");
         result.getElement().getStyle().setDisplay(Style.Display.NONE);
@@ -286,7 +301,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         return result;
     }
 
-    private void initFilterInput(final Panel resetButton, final Id parentId, final String parentCollectionName){
+    private void initFilterInput(final Panel resetButton, final Id parentId, final String parentCollectionName) {
         textBox.getElement().setAttribute("placeholder", "Поиск");
         textBox.setStyleName("input-text");
         textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
@@ -314,17 +329,21 @@ public class HierarchyBrowserNodeView implements IsWidget {
         });
 
     }
-    public void refreshNode(HierarchyBrowserItem item){
-        if(HierarchyBrowserUtil.handleUpdateChosenItem(item, items)){
-        redrawNode(items);
+
+    public void refreshNode(HierarchyBrowserItem item) {
+        if (HierarchyBrowserUtil.handleUpdateChosenItem(item, items)) {
+            redrawNode(items);
         }
     }
-    private void changeSelection(HierarchyBrowserItem changedItem){
+/*
+
+    private void changeSelection(HierarchyBrowserItem changedItem) {
         for (HierarchyBrowserItem item : items) {
-            if(changedItem.getId().equals(item.getId())){
+            if (changedItem.getId().equals(item.getId())) {
                 item.setChosen(changedItem.isChosen());
             }
         }
     }
+*/
 
 }

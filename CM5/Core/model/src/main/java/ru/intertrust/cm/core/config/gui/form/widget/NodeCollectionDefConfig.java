@@ -5,7 +5,10 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.hierarchybrowser.CreateNewButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
@@ -24,15 +27,15 @@ public class NodeCollectionDefConfig implements Dto {
 
     @Attribute(name = "parent-filter", required = false)
     private String parentFilter;
-
+    @Deprecated
     @Attribute(name = "title", required = false)
     private String title;
 
     @Attribute(name = "selective", required = false)
     private boolean selective = true;
 
-    @Attribute(name = "domain-object-type", required = false)
-    private String domainObjectType;
+    @Attribute(name = "display-create-button", required = false)
+    private boolean displayCreateButton = true;
 
     @Element(name = "selection-pattern", required = false)
     private SelectionPatternConfig selectionPatternConfig;
@@ -58,7 +61,21 @@ public class NodeCollectionDefConfig implements Dto {
     @Element(name = "selection-sort-criteria",required = false)
     private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
 
+    @Element(name = "create-new-button", required = false)
+    private CreateNewButtonConfig createNewButtonConfig;
+
+    @Element(name = "single-choice", required = false)
+    private SingleChoiceConfig singleChoiceConfig;
+
+    @Element(name = "display-values-as-links", required = false)
+    private DisplayValuesAsLinksConfig displayValuesAsLinksConfig;
+
+    @Element(name = "linked-form-mapping", required = false)
+    private LinkedFormMappingConfig linkedFormMappingConfig;
+
     private int elementsCount;
+
+    private PopupTitlesHolder popupTitlesHolder;
 
     public SelectionPatternConfig getSelectionPatternConfig() {
         return selectionPatternConfig;
@@ -108,14 +125,6 @@ public class NodeCollectionDefConfig implements Dto {
         this.parentFilter = parentFilter;
     }
 
-    public String getDomainObjectType() {
-        return domainObjectType;
-    }
-
-    public void setDomainObjectType(String domainObjectType) {
-        this.domainObjectType = domainObjectType;
-    }
-
     public FillParentOnAddConfig getFillParentOnAddConfig() {
         return fillParentOnAddConfig;
     }
@@ -131,11 +140,12 @@ public class NodeCollectionDefConfig implements Dto {
     public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
         this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
     }
-
+    @Deprecated
     public String getTitle() {
         return title;
     }
 
+    @Deprecated
     public void setTitle(String title) {
         this.title = title;
     }
@@ -164,12 +174,65 @@ public class NodeCollectionDefConfig implements Dto {
         this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
     }
 
+    public boolean isDisplayingCreateButton() {
+        return displayCreateButton;
+    }
+
+    public void setDisplayCreateButton(boolean displayCreateButton) {
+        this.displayCreateButton = displayCreateButton;
+    }
+
+    public CreateNewButtonConfig getCreateNewButtonConfig() {
+        return createNewButtonConfig;
+    }
+
+    public void setCreateNewButtonConfig(CreateNewButtonConfig createNewButtonConfig) {
+        this.createNewButtonConfig = createNewButtonConfig;
+    }
+
+    public SingleChoiceConfig getSingleChoiceConfig() {
+        return singleChoiceConfig;
+    }
+
+    public void setSingleChoiceConfig(SingleChoiceConfig singleChoiceConfig) {
+        this.singleChoiceConfig = singleChoiceConfig;
+    }
+
+    public DisplayValuesAsLinksConfig getDisplayValuesAsLinksConfig() {
+        return displayValuesAsLinksConfig;
+    }
+
+    public void setDisplayValuesAsLinksConfig(DisplayValuesAsLinksConfig displayValuesAsLinksConfig) {
+        this.displayValuesAsLinksConfig = displayValuesAsLinksConfig;
+    }
+
+    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
+        return linkedFormMappingConfig;
+    }
+
+    public void setLinkedFormMappingConfig(LinkedFormMappingConfig linkedFormMappingConfig) {
+        this.linkedFormMappingConfig = linkedFormMappingConfig;
+    }
+
     public int getElementsCount() {
         return elementsCount;
     }
 
     public void setElementsCount(int elementsCount) {
         this.elementsCount = elementsCount;
+    }
+
+    public PopupTitlesHolder getPopupTitlesHolder() {
+        return popupTitlesHolder;
+    }
+
+    public void setPopupTitlesHolder(PopupTitlesHolder popupTitlesHolder) {
+        this.popupTitlesHolder = popupTitlesHolder;
+    }
+    //TODO remove
+    // created during waiting new config
+    public String getDomainObjectType(){
+        return linkedFormMappingConfig.getLinkedFormConfigs().get(0).getDomainObjectType();
     }
 
     @Override
@@ -207,12 +270,11 @@ public class NodeCollectionDefConfig implements Dto {
         if (collection != null ? !collection.equals(that.collection) : that.collection != null) {
             return false;
         }
+
         if (selective != that.selective) {
             return false;
         }
-        if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
-            return false;
-        }
+
         if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig) :
                 that.defaultSortCriteriaConfig != null) {
             return false;
@@ -232,6 +294,25 @@ public class NodeCollectionDefConfig implements Dto {
                 that.selectionSortCriteriaConfig != null) {
             return false;
         }
+        if (displayCreateButton != that.displayCreateButton) {
+            return false;
+        }
+        if (createNewButtonConfig != null ? !createNewButtonConfig.equals(that.createNewButtonConfig) :
+                that.createNewButtonConfig != null) {
+            return false;
+        }
+        if (singleChoiceConfig != null ? !singleChoiceConfig.equals(that.singleChoiceConfig) :
+                that.singleChoiceConfig != null) {
+            return false;
+        }
+        if (displayValuesAsLinksConfig != null ? !displayValuesAsLinksConfig.equals(that.displayValuesAsLinksConfig) :
+                that.displayValuesAsLinksConfig != null) {
+            return false;
+        }
+        if (linkedFormMappingConfig != null ? !linkedFormMappingConfig.equals(that.linkedFormMappingConfig)
+                : that.linkedFormMappingConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -244,12 +325,16 @@ public class NodeCollectionDefConfig implements Dto {
         result = 31 * result + (parentFilter != null ? parentFilter.hashCode() : 0);
         result = 31 * result + (collection != null ? collection.hashCode() : 0);
         result = 31 * result + (selective ? 1 : 0);
-        result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (rootNodeLinkConfig != null ? rootNodeLinkConfig.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (createNewButtonConfig != null ? createNewButtonConfig.hashCode() : 0);
+        result = 31 * result + (singleChoiceConfig != null ? singleChoiceConfig.hashCode() : 0);
+        result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
+        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
+        result = 31 * result + (displayCreateButton ? 1 : 0);
         return result;
     }
 }

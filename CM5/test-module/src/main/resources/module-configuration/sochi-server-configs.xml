@@ -507,13 +507,15 @@
                 <field-path value="HierParent.Owner"/>
 
 
-                <node-collection-def collection="SO_StructureUnit_Collection" domain-object-type="SO_StructureUnit">
+                <node-collection-def collection="SO_StructureUnit_Collection" >
 
                     <input-text-filter name="byName"/>
 
                     <selection-pattern value="{shortname}"/>
                     <default-sort-criteria column-field="shortname" order="asc"/>
-
+                    <linked-form-mapping>
+                        <linked-form name="SO_StructureUnit_form"  domain-object-type="SO_StructureUnit"/>
+                    </linked-form-mapping>
                 </node-collection-def>
 
 
@@ -628,13 +630,15 @@
                 <field-path value="Organization"/>
 
 
-                <node-collection-def collection="SO_OrgSystem_Collection" domain-object-type="SO_OrgSystem">
+                <node-collection-def collection="SO_OrgSystem_Collection" >
 
                     <input-text-filter name="byName"/>
 
                     <selection-pattern value="{shortname}"/>
                     <default-sort-criteria column-field="shortname" order="asc"/>
-
+                    <linked-form-mapping>
+                        <linked-form name="SO_StructureUnit_form"  domain-object-type="SO_OrgSystem"/>
+                    </linked-form-mapping>
                 </node-collection-def>
 
 

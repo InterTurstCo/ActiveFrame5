@@ -7,7 +7,9 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -26,9 +28,9 @@ public class ScrollNodeContentManager extends RedrawNodeContentManager {
     private int offset;
     public ScrollNodeContentManager(HierarchyBrowserConfig config,
                                     HierarchyBrowserMainPopup mainPopup, ArrayList<Id> chosenIds,
-                                    String collectionName, Id parentId, String inputText,
+                                    String collectionName, Id rootId, Id parentId, String inputText,
                                     int offset, Map<String, NodeCollectionDefConfig> collectionNameNodeMap){
-        super(config, mainPopup, chosenIds, collectionName, parentId, inputText, collectionNameNodeMap);
+        super(config, mainPopup, chosenIds, collectionName, rootId, parentId, inputText, collectionNameNodeMap);
         this.offset = offset;
 
     }
@@ -42,8 +44,8 @@ public class ScrollNodeContentManager extends RedrawNodeContentManager {
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
-                Map<String, String> domainObjectTypesAndTitles = nodeContent.getDomainObjectTypesAndTitles();
-                mainPopup.redrawNodeWithMoreItems(domainObjectTypesAndTitles.keySet(), items);
+                List<NodeCollectionDefConfig> nodeConfigs = nodeContent.getNodeCollectionDefConfigs();
+                mainPopup.redrawNodeWithMoreItems(nodeConfigs, items);
 
             }
 

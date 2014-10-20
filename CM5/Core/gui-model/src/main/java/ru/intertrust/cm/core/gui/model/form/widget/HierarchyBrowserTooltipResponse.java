@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 
 import java.util.ArrayList;
 
@@ -14,20 +13,12 @@ import java.util.ArrayList;
 public class HierarchyBrowserTooltipResponse implements Dto {
     private ArrayList<HierarchyBrowserItem> items;
     private ArrayList<Id> selectedIds;
-    private SelectionFiltersConfig selectionFiltersConfig;
     public HierarchyBrowserTooltipResponse() {
     }
 
     public HierarchyBrowserTooltipResponse(ArrayList<HierarchyBrowserItem> items, ArrayList<Id> selectedIds) {
         this.items = items;
         this.selectedIds = selectedIds;
-    }
-
-    public HierarchyBrowserTooltipResponse(ArrayList<HierarchyBrowserItem> items, ArrayList<Id> selectedIds,
-                                           SelectionFiltersConfig selectionFiltersConfig) {
-        this.items = items;
-        this.selectedIds = selectedIds;
-        this.selectionFiltersConfig = selectionFiltersConfig;
     }
 
     public ArrayList<Id> getSelectedIds() {
@@ -38,7 +29,4 @@ public class HierarchyBrowserTooltipResponse implements Dto {
         return items;
     }
 
-    public SelectionFiltersConfig getSelectionFiltersConfig() {
-        return selectionFiltersConfig;
-    }
 }

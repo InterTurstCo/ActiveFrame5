@@ -53,7 +53,7 @@ public abstract class WidgetHandler implements ComponentHandler {
         }
     }
 
-    protected boolean isSingleChoice(WidgetContext context, boolean singleChoiceFromConfig) {
+    protected boolean isSingleChoice(WidgetContext context, Boolean singleChoiceFromConfig) {
        FieldPath[] fieldPaths = context.getFieldPaths();
        Boolean singleChoiceAnalyzed = null;
        for (FieldPath fieldPath : fieldPaths) {
@@ -64,7 +64,7 @@ public abstract class WidgetHandler implements ComponentHandler {
            }
             singleChoiceAnalyzed = fieldPath.isOneToOneDirectReference() || fieldPath.isField();
        }
-       return singleChoiceAnalyzed || singleChoiceFromConfig;
+       return singleChoiceAnalyzed || (singleChoiceFromConfig != null && singleChoiceFromConfig);
     }
 
     protected boolean isNullable(WidgetContext widgetContext) {

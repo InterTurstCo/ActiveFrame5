@@ -24,13 +24,12 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
     private Style.Display displayStyle;
     private boolean displayAsHyperlinks;
     private ClickHandler tooltipClickHandler;
-    private String hyperlinkPopupTitle;
+
     private boolean tooltipContent;
     public HierarchyBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
-                                     boolean displayAsHyperlink, String hyperlinkPopupTitle) {
+                                     boolean displayAsHyperlink) {
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlink;
-        this.hyperlinkPopupTitle = hyperlinkPopupTitle;
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("hierarchyBrowserMainBox");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
@@ -62,22 +61,26 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
         element.getElement().getStyle().setDisplay(displayStyle);
         element.setStyleName("hierarchyBrowserElement");
         Label label = new Label(item.getStringRepresentation());
+
+        boolean isHyperlink = item.isDisplayAsHyperlinks() == null ? displayAsHyperlinks : item.isDisplayAsHyperlinks();
         label.setStyleName("hierarchyBrowserLabel");
-        if (displayAsHyperlinks) {
+        if (isHyperlink) {
+
             label.addStyleName("facebook-clickable-label");
-            label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler(hyperlinkPopupTitle, item.getId(),
+            label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler(item.getPopupTitle(), item.getId(),
                     item.getNodeCollectionName(), eventBus, this, tooltipContent));
+        }else{
+            label.addStyleName("clearHyperlinkAttributes");
+
         }
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
         delBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-
                 element.removeFromParent();
                 item.setChosen(false);
-
-                eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item));
+                eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item, null));
             }
         });
         element.add(label);

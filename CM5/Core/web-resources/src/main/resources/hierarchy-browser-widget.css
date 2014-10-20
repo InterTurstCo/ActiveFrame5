@@ -171,7 +171,7 @@ table.hierarh-browser-inline td {
 .node-link {
     margin-left: 7px;
     margin-top: 2px;
-    color: #fff !important;
+    color: white !important;
     border-bottom: 1px dotted #fff;
 }
 
@@ -191,6 +191,7 @@ table.hierarh-browser-inline td {
 }
 
 .button-extra-style {
+    cursor: pointer;
     padding: 0 5px;
 }
 
@@ -372,4 +373,20 @@ table.hierarh-browser-inline td {
 .hierarchyBrowserLabel {
 
     padding: 5px !important;
+}
+.clickableNodeItem {
+    font-weight: bold;
+    text-decoration: underline;
+    padding: 8px;
+}
+
+.notClickableNodeItem {
+    cursor: default;
+    font-weight: bold;
+    padding: 8px;
+}
+.clearHyperlinkAttributes{
+    text-decoration: none !important;
+    cursor: default !important;
+
 }

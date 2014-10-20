@@ -2,8 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser;
 
 import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.business.api.dto.Id;
-
-import java.util.Map;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -14,11 +13,11 @@ public class HierarchyBrowserAddItemClickEvent extends GwtEvent<HierarchyBrowser
 
     public static Type<HierarchyBrowserAddItemClickEventHandler> TYPE = new Type<HierarchyBrowserAddItemClickEventHandler>();
     private Id parentId;
-    private Map.Entry<String, String> entry;
+    private NodeCollectionDefConfig nodeConfig;
     private String parentCollectionName;
-    public HierarchyBrowserAddItemClickEvent(Id parentId, String parentCollectionName, Map.Entry<String, String> entry) {
+    public HierarchyBrowserAddItemClickEvent(Id parentId, String parentCollectionName, NodeCollectionDefConfig nodeConfig) {
         this.parentId = parentId;
-        this.entry = entry;
+        this.nodeConfig = nodeConfig;
         this.parentCollectionName = parentCollectionName;
 
     }
@@ -37,8 +36,8 @@ public class HierarchyBrowserAddItemClickEvent extends GwtEvent<HierarchyBrowser
         return parentId;
     }
 
-    public Map.Entry<String, String> getEntry() {
-        return entry;
+    public NodeCollectionDefConfig getNodeConfig() {
+        return nodeConfig;
     }
 
     public String getParentCollectionName() {

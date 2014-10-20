@@ -18,6 +18,7 @@ public class HierarchyBrowserTooltipRequest implements Dto {
     }
 
     public HierarchyBrowserTooltipRequest(HierarchyBrowserConfig hierarchyBrowserConfig, ArrayList<Id> selectedIds) {
+
         this.hierarchyBrowserConfig = hierarchyBrowserConfig;
         this.selectedIds = selectedIds;
     }
@@ -29,4 +30,5 @@ public class HierarchyBrowserTooltipRequest implements Dto {
     public ArrayList<Id> getSelectedIds() {
         return selectedIds;
     }
+
 }

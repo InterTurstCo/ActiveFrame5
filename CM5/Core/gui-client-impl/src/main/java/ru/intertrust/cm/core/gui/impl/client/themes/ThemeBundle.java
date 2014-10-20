@@ -69,6 +69,12 @@ public interface ThemeBundle extends ClientBundle {
     @ClientBundle.Source("images/recalculateColumnsWidthIm.png")
     ImageResource recalculateColumnsWidthBtnIm();
 
+    @ClientBundle.Source("images/addButton.png")
+    ImageResource addDoBtnIm();
+
+    @ClientBundle.Source("images/refreshBtn.gif")
+    ImageResource refreshBtnIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

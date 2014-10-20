@@ -19,6 +19,9 @@ public class LinkedFormConfig implements Dto{
     @Attribute(name = "inline", required = false)
     private boolean inline;
 
+    @Attribute(name = "domain-object-type", required = false)
+    private String domainObjectType;
+
     @Element(name = "title", required = false)
     private TitleConfig titleConfig;
 
@@ -46,6 +49,14 @@ public class LinkedFormConfig implements Dto{
         this.titleConfig = titleConfig;
     }
 
+    public String getDomainObjectType() {
+        return domainObjectType;
+    }
+
+    public void setDomainObjectType(String domainObjectType) {
+        this.domainObjectType = domainObjectType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -66,6 +77,9 @@ public class LinkedFormConfig implements Dto{
         if (titleConfig != null ? !titleConfig.equals(that.titleConfig) : that.titleConfig!= null) {
             return false;
         }
+        if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType!= null) {
+            return false;
+        }
 
         return true;
     }
@@ -75,6 +89,7 @@ public class LinkedFormConfig implements Dto{
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (inline ? 1 : 0);
         result = 31 * result + (titleConfig != null ? titleConfig.hashCode() : 0);
+        result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
         return result;
     }
 }

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class NodeContentResponse implements Dto {
     private List<HierarchyBrowserItem> nodeContent;
     private String parentCollectionName;
     private Map<String, String> domainObjectTypesAndTitles;
+    private List<NodeCollectionDefConfig> nodeCollectionDefConfigs;
     private Id parentId;
 
     private boolean selective = true;
@@ -51,11 +53,19 @@ public class NodeContentResponse implements Dto {
         this.parentCollectionName = parentCollectionName;
     }
 
-    public Map<String, String> getDomainObjectTypesAndTitles() {
+   /* public Map<String, String> getDomainObjectTypesAndTitles() {
         return domainObjectTypesAndTitles;
-    }
+    }*/
 
     public void setDomainObjectTypesAndTitles(Map<String, String> domainObjectTypesAndTitles) {
         this.domainObjectTypesAndTitles = domainObjectTypesAndTitles;
+    }
+
+    public List<NodeCollectionDefConfig> getNodeCollectionDefConfigs() {
+        return nodeCollectionDefConfigs;
+    }
+
+    public void setNodeCollectionDefConfigs(List<NodeCollectionDefConfig> nodeCollectionDefConfigs) {
+        this.nodeCollectionDefConfigs = nodeCollectionDefConfigs;
     }
 }

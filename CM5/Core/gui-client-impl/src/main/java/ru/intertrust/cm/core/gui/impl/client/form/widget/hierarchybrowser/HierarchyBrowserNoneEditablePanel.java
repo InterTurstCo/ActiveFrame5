@@ -19,12 +19,28 @@ import java.util.List;
  *         Time: 13:15
  */
 public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel implements HierarchyBrowserHyperlinkDisplay{
-    private String hyperlinkPopupTitle;
+
     private boolean tooltipContent;
-    public HierarchyBrowserNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
-                                             String hyperlinkPopupTitle) {
+    private boolean displayAsHyperlinks;
+    public HierarchyBrowserNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlinks) {
         super(selectionStyleConfig, eventBus);
-        this.hyperlinkPopupTitle = hyperlinkPopupTitle;
+        this.displayAsHyperlinks = displayAsHyperlinks;
+
+    }
+    public void displayItems(List<HierarchyBrowserItem> items, boolean drawTooltipButton){
+        mainBoxPanel.clear();
+        for (HierarchyBrowserItem item : items) {
+            boolean isHyperlink = item.isDisplayAsHyperlinks() == null ? displayAsHyperlinks : item.isDisplayAsHyperlinks();
+            if(isHyperlink){
+                displayHyperlink(item);
+            }else {
+                displayItem(item.getStringRepresentation());
+            }
+        }
+        if(drawTooltipButton){
+            addTooltipButton();
+        }
+
     }
 
     public void setTooltipContent(boolean tooltipContent) {
@@ -41,7 +57,7 @@ public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel impleme
         Label label = new Label(itemRepresentation);
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
-        label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler(hyperlinkPopupTitle, id,
+        label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler(item.getPopupTitle(), id,
                 collectionName, eventBus, this, tooltipContent));
         element.getElement().getStyle().setDisplay(displayStyle);
         element.add(label);
@@ -59,13 +75,8 @@ public class HierarchyBrowserNoneEditablePanel extends NoneEditablePanel impleme
     }
 
     public void displayHyperlinks(List<HierarchyBrowserItem> items, boolean drawTooltipButton) {
-        mainBoxPanel.clear();
-        for (HierarchyBrowserItem item : items) {
-            displayHyperlink(item);
-        }
-        if(drawTooltipButton){
-            addTooltipButton();
-        }
+       displayItems(items, drawTooltipButton);
+
     }
 
     @Override

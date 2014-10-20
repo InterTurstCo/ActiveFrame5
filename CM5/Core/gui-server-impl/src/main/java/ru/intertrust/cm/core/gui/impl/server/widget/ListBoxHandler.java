@@ -33,7 +33,7 @@ public class ListBoxHandler extends ListWidgetHandler {
         final FieldPath[] fieldPaths = context.getFieldPaths();
         String[] linkTypes = getLinkedObjectTypes(context, fieldPaths);
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
-        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+        Boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
         List<DomainObject> domainObjectsToDisplay = new ArrayList<>();
         HashMap<Id, Integer> idFieldPathIndexMapping = new HashMap<>();

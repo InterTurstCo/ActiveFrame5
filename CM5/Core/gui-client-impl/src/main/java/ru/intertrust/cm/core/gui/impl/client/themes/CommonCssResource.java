@@ -63,4 +63,10 @@ public interface CommonCssResource extends CssResource {
 
     @ClassName("recalculateColumnsWidthBtn")
     String recalculateColumnsWidthBtn();
+
+    @ClassName("refreshBtn")
+    String refreshBtn();
+
+    @ClassName("addDoBtn")
+    String addDoBtn();
 }

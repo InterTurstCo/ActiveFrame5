@@ -38,9 +38,6 @@ public class HierarchyBrowserConfig extends WidgetConfig {
     @Element(name = "formatting", required = false)
     private FormattingConfig formattingConfig;
 
-    @Element(name = "linked-form",required = false)
-    private LinkedFormConfig linkedFormConfig;
-
     public NodeCollectionDefConfig getNodeCollectionDefConfig() {
         return nodeCollectionDefConfig;
     }
@@ -113,14 +110,6 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         this.formattingConfig = formattingConfig;
     }
 
-    public LinkedFormConfig getLinkedFormConfig() {
-        return linkedFormConfig;
-    }
-
-    public void setLinkedFormConfig(LinkedFormConfig linkedFormConfig) {
-        this.linkedFormConfig = linkedFormConfig;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -172,9 +161,6 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
             return false;
         }
-        if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
-            return false;
-        }
 
         return true;
     }
@@ -191,7 +177,6 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
         result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
-        result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
         return result;
     }
 

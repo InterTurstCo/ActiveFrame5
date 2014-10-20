@@ -513,7 +513,7 @@
                 <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
                 <!-- Уже выбранные элементы показываются помеченными галочками -->
                 <!-- collection - название коллекции для отображения списка значений узла -->
-                <node-collection-def collection="col_service_consumer_act" domain-object-type="service_consumer"
+                <node-collection-def collection="col_service_consumer_act"
                     title="Создать потребителя">
                     <root-node-link title="Потребители" />
                     <!-- название фильтра по тексту, введённому пользователем -->
@@ -521,6 +521,9 @@
                     <fill-parent-on-add field-to-fill="service_consumer" />
                     <selection-pattern value="{name}" />
                     <default-sort-criteria column-field="name" order="asc" />
+                    <linked-form-mapping>
+                        <linked-form name="service_consumer_form"  domain-object-type="service_consumer"/>
+                    </linked-form-mapping>
                 </node-collection-def>
 
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->
@@ -777,13 +780,16 @@
                 <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
                 <!-- Уже выбранные элементы показываются помеченными галочками -->
                 <!-- collection - название коллекции для отображения списка значений узла -->
-                <node-collection-def collection="col_address_act" domain-object-type="address"  title = "Создать адрес"> 
+                <node-collection-def collection="col_address_act"   title = "Создать адрес">
                     <root-node-link title = "Адреса"/> 
                     <!-- название фильтра по тексту, введённому пользователем -->
                     <input-text-filter name="byText"/>
                     <fill-parent-on-add field-to-fill="contact_name"/>
                     <selection-pattern value="{content}"/>
-                    <default-sort-criteria column-field="content" order="asc"/>                    
+                    <default-sort-criteria column-field="content" order="asc"/>
+                    <linked-form-mapping>
+                        <linked-form name="address_form"  domain-object-type="address"/>
+                    </linked-form-mapping>
                 </node-collection-def>
 
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->

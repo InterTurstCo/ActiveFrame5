@@ -10,11 +10,12 @@ import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
  */
 public class HierarchyBrowserCheckBoxUpdateEvent extends GwtEvent<HierarchyBrowserCheckBoxUpdateEventHandler> {
 
-    public static Type<HierarchyBrowserCheckBoxUpdateEventHandler> TYPE =   new Type<HierarchyBrowserCheckBoxUpdateEventHandler>();
+    public static Type<HierarchyBrowserCheckBoxUpdateEventHandler> TYPE = new Type<HierarchyBrowserCheckBoxUpdateEventHandler>();
     private HierarchyBrowserItem item;
-
-    public HierarchyBrowserCheckBoxUpdateEvent(HierarchyBrowserItem item) {
+    private HierarchyBrowserItem previousChosenItem;
+    public HierarchyBrowserCheckBoxUpdateEvent(HierarchyBrowserItem item, HierarchyBrowserItem previousSelectedItem) {
         this.item = item;
+        this.previousChosenItem = previousSelectedItem;
     }
 
     @Override
@@ -31,4 +32,7 @@ public class HierarchyBrowserCheckBoxUpdateEvent extends GwtEvent<HierarchyBrows
         return item;
     }
 
+    public HierarchyBrowserItem getPreviousChosenItem() {
+        return previousChosenItem;
+    }
 }

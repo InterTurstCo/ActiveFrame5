@@ -73,6 +73,11 @@ public class LiteralFieldValueParserImpl implements LiteralFieldValueParser {
 
     public Value textToValue(String valueText, String fieldTypeStr) {
         FieldType fieldType = FieldType.forTypeName(fieldTypeStr);
+        return textToValue(valueText, fieldType);
+    }
+
+    @Override
+    public Value textToValue(String valueText, FieldType fieldType) {
         return textToValue(valueText, fieldType, null, false);
     }
 

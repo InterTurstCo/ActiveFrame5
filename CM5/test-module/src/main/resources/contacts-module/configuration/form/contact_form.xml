@@ -307,12 +307,15 @@
 
             <hierarchy-browser id="attachments_value">
                 <field-path value="cont_attachments_person^contact_person" on-root-delete="unlink"/>
-                <node-collection-def collection="cont_attachments_person_collection" domain-object-type="cont_attachments_person" title="Создать Приложение">
+                <node-collection-def collection="cont_attachments_person_collection"  title="Создать Приложение">
                     <root-node-link title="Приложения -> "/>
                     <input-text-filter name="byDesc"/>
                     <fill-parent-on-add field-to-fill="contact_person"/>
                     <selection-pattern value="{description}, {title}"/>
                     <default-sort-criteria column-field="description" order="asc"/>
+                    <linked-form-mapping>
+                        <linked-form name="cont_attachments_person_form"  domain-object-type="cont_attachments_person"/>
+                    </linked-form-mapping>
                 </node-collection-def>
                 <page-size>20</page-size>
                 <selection-style name="inline"/>
@@ -329,12 +332,15 @@
 
             <hierarchy-browser id="notes_value">
                 <field-path value="cont_notes^notes_person" on-root-delete="unlink"/>
-                <node-collection-def collection="cont_notes_collection" domain-object-type="cont_notes" title="Создать Заметку">
+                <node-collection-def collection="cont_notes_collection"  title="Создать Заметку">
                     <root-node-link title="Заметки -> "/>
                     <input-text-filter name="byTitle"/>
                     <fill-parent-on-add field-to-fill="notes_person"/>
                     <selection-pattern value="{title}"/>
                     <default-sort-criteria column-field="title" order="asc"/>
+                    <linked-form-mapping>
+                        <linked-form name="cont_notes_form"  domain-object-type="cont_notes"/>
+                    </linked-form-mapping>
                 </node-collection-def>
                 <page-size>20</page-size>
                 <selection-style name="inline"/>
@@ -399,13 +405,18 @@
 
             <hierarchy-browser id="classifiers_value">
                 <field-path value="Cont_Qualifier_CPerson^contact_person" on-root-delete="unlink"/>
-                <node-collection-def collection="col_person_group_qualifier" domain-object-type="Qual_Group_Qualifier" title="Группы">
+                <node-collection-def collection="col_person_group_qualifier"  title="Группы">
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
-                    <node-collection-def collection="col_person_qualifiers" domain-object-type="Qualifier" title="Классификаторы">
+                    <linked-form-mapping>
+                        <linked-form name="Qual_Group_Qualifier_form"  domain-object-type="Qual_Group_Qualifier"/>
+                    </linked-form-mapping>
+                    <node-collection-def collection="col_person_qualifiers" title="Классификаторы">
                         <root-node-link title="Группы классификаторов -> "/>
                         <selection-pattern value="{name}"/>
-
+                        <linked-form-mapping>
+                            <linked-form name="Qualifier_form"  domain-object-type="Qualifier"/>
+                        </linked-form-mapping>
                     </node-collection-def>
                 </node-collection-def>
                 <page-size>20</page-size>

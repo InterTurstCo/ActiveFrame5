@@ -7,7 +7,9 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -23,9 +25,9 @@ public class NewNodeContentManager extends NodeContentManager {
         private String collectionName;
 
         public NewNodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,
-                                     ArrayList<Id> chosenIds, String collectionName, Id parentId,
+                                     ArrayList<Id> chosenIds, String collectionName, Id rootId, Id parentId,
                                      Map<String, NodeCollectionDefConfig> collectionNameNodeMap){
-            super(config, mainPopup, chosenIds, parentId, collectionNameNodeMap);
+            super(config, mainPopup, chosenIds, rootId, parentId, collectionNameNodeMap);
             this.collectionName = collectionName;
 
         }
@@ -45,11 +47,11 @@ public class NewNodeContentManager extends NodeContentManager {
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
-                Map<String, String> domainObjectTypesAndTitles = nodeContent.getDomainObjectTypesAndTitles();
+                List<NodeCollectionDefConfig> nodeConfigs = nodeContent.getNodeCollectionDefConfigs();
                 Id parentId = nodeContent.getParentId();
                 String parentCollectionName = nodeContent.getParentCollectionName();
                 boolean selective = nodeContent.isSelective();
-                mainPopup.drawNewNode(parentId, parentCollectionName,items, selective, domainObjectTypesAndTitles);
+                mainPopup.drawNewNode(parentId, parentCollectionName,items, selective, nodeConfigs);
 
             }
 

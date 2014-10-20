@@ -20,5 +20,8 @@ public class WidgetUtil {
     public static boolean isDisplayingAsHyperlinks(DisplayValuesAsLinksConfig displayValuesAsLinksConfig) {
         return displayValuesAsLinksConfig != null && displayValuesAsLinksConfig.isValue();
     }
+    public static Boolean isDisplayingHyperlinks(DisplayValuesAsLinksConfig displayValuesAsLinksConfig) {
+        return displayValuesAsLinksConfig == null ? null : displayValuesAsLinksConfig.isValue();
+    }
 
 }

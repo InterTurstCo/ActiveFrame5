@@ -46,9 +46,9 @@ public class HierarchyBrowserView extends Composite implements HierarchyBrowserH
         return widgetContainer;
     }
 
-    public void initWidgetContent(HierarchyBrowserConfig config, ClickHandler clearHandler, String hyperlinkPopupTitle) {
+    public void initWidgetContent(HierarchyBrowserConfig config, ClickHandler clearHandler) {
         openPopupButton = new FocusPanel();
-        widgetChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks, hyperlinkPopupTitle);
+        widgetChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarchyBrowserBorder");
         widgetContainer.add(widgetChosenContent);
         initAddButton(config.getAddButtonConfig());

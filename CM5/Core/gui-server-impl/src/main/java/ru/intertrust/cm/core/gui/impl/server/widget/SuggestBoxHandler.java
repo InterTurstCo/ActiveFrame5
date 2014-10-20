@@ -73,9 +73,9 @@ public class SuggestBoxHandler extends ListWidgetHandler {
                     formattingConfig, collection);
         }
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
-        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+        Boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean isReportForm = FormConfig.TYPE_REPORT.equals(context.getFormType());
-        boolean singleChoice = isReportForm ? singleChoiceFromConfig : isSingleChoice(context, singleChoiceFromConfig);
+        boolean singleChoice = isReportForm ? (singleChoiceFromConfig != null && singleChoiceFromConfig) : isSingleChoice(context, singleChoiceFromConfig);
         state.setSelectedIds(new LinkedHashSet<>(selectedIds));
         state.setSingleChoice(singleChoice);
         state.setListValues(objects);

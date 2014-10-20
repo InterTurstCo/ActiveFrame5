@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
@@ -42,7 +43,6 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDispl
     private double nodeSectionWidth;
     private String title;
     private boolean shouldDrawTooltipButton;
-    private String hyperlinkPopupTitle;
 
     public HierarchyBrowserMainPopup(EventBus eventBus, HierarchyBrowserWidgetState state) {
         this.eventBus = eventBus;
@@ -51,7 +51,6 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDispl
         this.displayAsHyperlinks = HierarchyBrowserUtil.isDisplayingHyperlinks(state);
         this.shouldDrawTooltipButton = state.isTooltipAvailable();
         title = state.getRootNodeLinkConfig() == null ? "link" : state.getRootNodeLinkConfig().getTitle();
-        this.hyperlinkPopupTitle = state.getHyperlinkPopupTitle();
         containerMap = new HashMap<String, HierarchyBrowserNodeView>();
         nodeTypes = new ArrayList<String>();
 
@@ -75,8 +74,7 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDispl
         VerticalPanel linksSection = new VerticalPanel();
         linksSection.setWidth(0.1 * popupWidth + "px");
 
-        popupChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks,
-                hyperlinkPopupTitle);
+        popupChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         popupChosenContent.setHeight(0.13 * popupHeight + "px");
         popupChosenContent.asWidget().addStyleName("popup-chosen-content");
         ScrollPanel scrollPanel = new ScrollPanel();
@@ -103,8 +101,8 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDispl
         HorizontalPanel nodePanel = new HorizontalPanel();
         nodePanel.addStyleName("selected-node-link");
         linkLabel = new HyperLinkWithHistorySupport();
-        linkLabel.removeStyleName("gwt-Hyperlink ");
-        linkLabel.addStyleName("node-link");
+
+        linkLabel.setStyleName("node-link");
 
         linkLabel.setText(title);
         linkLabel.getElement().getStyle().setColor("white");
@@ -158,18 +156,18 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDispl
 
         return buttonsPanel;
     }
-    private String buildNodeType(Set<String> nodeTypes){
+    private String buildNodeType(List<NodeCollectionDefConfig> nodeConfigs){
         StringBuilder sb = new StringBuilder();
-        for (String nodeType : nodeTypes) {
-            sb.append(nodeType);
+        for (NodeCollectionDefConfig config : nodeConfigs) {
+            sb.append(config.getDomainObjectType());
             sb.append(";") ;
         }
         return sb.toString();
     }
 
     public void drawNewNode(Id parentId, String parentCollectionName, List<HierarchyBrowserItem> items,boolean selective,
-                            Map<String, String> domainObjectTypesAndTitles) {
-        String nodeType = buildNodeType(domainObjectTypesAndTitles.keySet());
+                            List<NodeCollectionDefConfig> nodeConfigs) {
+        String nodeType = buildNodeType(nodeConfigs);
         if (containerMap.containsKey(nodeType)) {
             nodesSection.remove(containerMap.get(nodeType));
         }
@@ -187,23 +185,23 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDispl
             }
         }
         HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus,  (int) (0.6 * popupHeight),
-               selective);
+               selective, displayAsHyperlinks);
         nodesSection.add(nodeView);
-        nodeView.drawNode(parentId, parentCollectionName, items, domainObjectTypesAndTitles);
+        nodeView.drawNode(parentId, parentCollectionName, items, nodeConfigs);
         containerMap.put(nodeType, nodeView);
         adjustNodeWidth();
 
     }
 
-    public void redrawNodeWithMoreItems(Set<String> domainObjectTypes, List<HierarchyBrowserItem> items) {
-        String nodeType = buildNodeType(domainObjectTypes);
+    public void redrawNodeWithMoreItems(List<NodeCollectionDefConfig> nodeConfigs, List<HierarchyBrowserItem> items) {
+        String nodeType = buildNodeType(nodeConfigs);
         HierarchyBrowserNodeView nodeView = containerMap.get(nodeType);
         nodeView.drawMoreItems(items);
 
     }
 
-    public void redrawNode(Set<String> domainObjectTypes, List<HierarchyBrowserItem> items) {
-        String nodeType = buildNodeType(domainObjectTypes);
+    public void redrawNode(List<NodeCollectionDefConfig> nodeConfigs, List<HierarchyBrowserItem> items) {
+        String nodeType = buildNodeType(nodeConfigs);
         int index = nodeTypes.indexOf(nodeType);
         List<String> children = nodeTypes.subList(index + 1, nodeTypes.size());
         for (String childType : children) {
