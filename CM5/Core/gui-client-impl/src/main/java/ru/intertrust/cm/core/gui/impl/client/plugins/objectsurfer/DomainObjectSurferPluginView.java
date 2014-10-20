@@ -165,7 +165,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             formPluginPanel.setVisibleWidth(surferWidth);
             formPluginPanel.setVisibleHeight(surferHeight / 2);
             formPluginPanel.open(domainObjectSurferPlugin.getFormPlugin());
-            formPluginPanel.asWidget().addStyleName("form-container");
+            formPluginPanel.asWidget().addStyleName("formContainer");
 
             northRootWidget.add(collectionViewerPluginPanel);
             sourthRootWidget.add(formPluginPanel);

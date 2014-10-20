@@ -1,5 +1,75 @@
 .form-dialog-box-content .gwt-TabLayoutPanel {
-    margin-bottom: 0px;
+    margin-bottom: 0;
+}
+
+.formContainer,
+.frm-pnl-top {
+    background: #c2e7f0; /* Old browsers */
+    background: -moz-linear-gradient(top, #c2e7f0 0%, #bfdfea 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #c2e7f0), color-stop(100%, #bfdfea)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #c2e7f0 0%, #bfdfea 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #c2e7f0 0%, #bfdfea 100%); /* Opera11.10+ */
+    background: -ms-linear-gradient(top, #c2e7f0 0%, #bfdfea 100%); /* IE10+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c2e7f0', endColorstr='#bfdfea', GradientType=0); /* IE6-9 */
+    background: linear-gradient(top, #c2e7f0 0%, #bfdfea 100%); /* W3C */
+    overflow: auto;
+    padding: 0 10px 10px;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.gwt-TabPanel {
+    border-radius: 5px 5px 5px 5px;
+    bottom: 10px;
+    overflow: hidden;
+}
+
+.gwt-TabPanelBottom {
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.formContainer {
+    top: 0;
+}
+
+.form-footer-long {
+    background: url(images/form/form-footer-bg_long.jpg) repeat-y scroll 0 0;
+    border-radius: 5px;
+    position: absolute;
+    /*height: 100%;*/
+    top: 150px;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 0;
+}
+
+.form-footer-short {
+    background: url(images/form/form-footer-bg_short.jpg) repeat-y scroll 0 0;
+    border-radius: 5px;
+    position: absolute;
+    /*height: 100%;*/
+    top: 150px;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 0;
+}
+
+.form-footer-blank {
+    background: #ffffff;
+    border-radius: 5px;
+    position: absolute;
+    /*height: 100%;*/
+    top: 150px;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 0;
 }
 
 .gwt-TabLayoutPanelTabs {
@@ -8,7 +78,9 @@
 }
 
 .gwt-TabLayoutPanel-wrapper {
+    border-radius: 5px;
     height: 100%;
+    overflow: hidden;
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
@@ -201,6 +273,7 @@
 
 /* Action Bar */
 .action-bar-tr {
+    height: 40px;
 }
 
 .action-bar {
