@@ -61,7 +61,7 @@ public class NavigationTreePluginView extends PluginView {
     private Timer mouseHoldTimer;
     private Integer navigationTreeOpeningTime;
     private boolean iSOpenTheAnimatedTreePanel;
-
+    private boolean openPanelMarker = false;
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
     }
@@ -136,6 +136,7 @@ public class NavigationTreePluginView extends PluginView {
                 if(mouseHoldTimer != null){
                     mouseHoldTimer.cancel();
                 }
+                openPanelMarker = false;
                 hideTreePanel();
                 iSOpenTheAnimatedTreePanel = false;
             }
@@ -393,27 +394,16 @@ public class NavigationTreePluginView extends PluginView {
                 rootCounterDecorators.add(counterRootNodeDecorator);
             }
             sideBarView.getMenuItems().add(my);
-            Element element = my.getElement().getFirstChild().cast();
 
-            Event.setEventListener(element, new EventListener() {
+            navigationTreeContainer.addDomHandler(new MouseMoveHandler() {
                 @Override
-                public void onBrowserEvent(Event event) {
-                    switch (event.getTypeInt()) {
-                        case Event.ONMOUSEOVER:
-                            if(!pinButtonClick){
-                                openTheAnimatedTreePanel();
-                            }
-                            break;
-                        case Event.ONMOUSEOUT:
-                            mouseHoldTimer.cancel();
-                            if (!iSOpenTheAnimatedTreePanel == true & !pinButtonClick) {
-                                hideTreePanel();
-                            }
-                            break;
+                public void onMouseMove(MouseMoveEvent mouseMoveEvent) {
+                    if((!openPanelMarker & mouseMoveEvent.getClientX() < 110) && !pinButtonClick){
+                        openPanelMarker = true;
+                        openTheAnimatedTreePanel();
                     }
                 }
-            });
-            Event.sinkEvents(element, Event.ONMOUSEOVER | Event.ONMOUSEOUT);
+            }, MouseMoveEvent.getType());
 
             if (selectedRootLinkName == null) {
                 if (result == null) {
