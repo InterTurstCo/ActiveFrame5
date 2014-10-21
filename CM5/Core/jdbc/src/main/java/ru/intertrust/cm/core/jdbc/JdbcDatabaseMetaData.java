@@ -213,7 +213,7 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public String getSystemFunctions() throws SQLException {
-        throw new UnsupportedOperationException();
+        return null;
 
     }
 
@@ -698,7 +698,7 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public int getDefaultTransactionIsolation() throws SQLException {
-        throw new UnsupportedOperationException();
+        return 0;
 
     }
 
