@@ -104,6 +104,7 @@
         <xs:complexContent>
             <xs:extension base="act:baseActionType">
                 <xs:attribute name="name-ref" type="xs:string" use="required"/>
+                <xs:attribute name="text" type="xs:string" use="optional"/>
                 <xs:attribute name="showText" type="xs:boolean" default="true"/>
                 <xs:attribute name="showImage" type="xs:boolean" default="true"/>
                 <xs:attribute name="order" type="xs:positiveInteger" />

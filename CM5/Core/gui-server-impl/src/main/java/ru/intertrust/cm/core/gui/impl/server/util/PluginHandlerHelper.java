@@ -70,6 +70,9 @@ public class PluginHandlerHelper {
     }
 
     public static void fillActionConfigFromRefConfig(final ActionConfig target, final ActionRefConfig source) {
+        if (source.getText() != null) {
+            target.setText(source.getText());
+        }
         if (!source.isShowText()) {
             target.setText(null);
         }

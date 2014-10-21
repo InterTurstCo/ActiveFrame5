@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
  */
 @ComponentName("create.new.object.action")
 public class CreateNewObjectHandler extends ActionHandler {
-    private static final String TOGGLE_EDIT_KEY = "toggleEdit";
 
     @Override
     public ActionData executeAction(ActionContext context) {

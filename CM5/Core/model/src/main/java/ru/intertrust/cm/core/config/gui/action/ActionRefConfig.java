@@ -13,6 +13,9 @@ public class ActionRefConfig extends BaseActionConfig {
     @Attribute(name = "name-ref")
     private String nameRef;
 
+    @Attribute(name = "text", required = false)
+    private String text;
+
     @Attribute(name = "showText", required = false)
     private boolean showText = true;
 
@@ -24,6 +27,10 @@ public class ActionRefConfig extends BaseActionConfig {
 
     public String getNameRef() {
         return nameRef;
+    }
+
+    public String getText() {
+        return text;
     }
 
     public boolean isShowText() {

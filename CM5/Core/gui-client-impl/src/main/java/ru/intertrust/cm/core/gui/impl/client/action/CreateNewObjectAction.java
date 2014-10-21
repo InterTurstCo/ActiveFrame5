@@ -1,5 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -14,25 +21,43 @@ import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
  */
 @ComponentName("create.new.object.action")
 public class CreateNewObjectAction extends Action {
+    private static final String OBJECT_TYPE_PROP = "create.object.type";
+    private static final String OBJECT_FORM_PROP = "create.object.form";
 
     @Override
     protected void execute() {
+        final ActionConfig actionConfig = getInitialContext().getActionConfig();
         IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
-        String domainObjectTypeToCreate = editor.getRootDomainObject().getTypeName();
-        FormPluginConfig config = new FormPluginConfig(domainObjectTypeToCreate);
-        config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
+        final String domainObjectTypeToCreate;
+        if (actionConfig.getProperty(OBJECT_TYPE_PROP) == null) {
+            domainObjectTypeToCreate = editor.getRootDomainObject().getTypeName();
+        } else {
+            domainObjectTypeToCreate = actionConfig.getProperty(OBJECT_TYPE_PROP);
+        }
+        final FormPluginConfig formPluginConfig = new FormPluginConfig(domainObjectTypeToCreate);
+        formPluginConfig.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
         final FormPluginState state = editor.getFormPluginState();
-        config.setPluginState(state);
-        config.setFormViewerConfig(editor.getFormViewerConfig());
+        formPluginConfig.setPluginState(state);
+        if (actionConfig.getProperty(OBJECT_TYPE_PROP) == null) {
+            final FormViewerConfig viewerConfig = new FormViewerConfig();
+            final FormMappingConfig formMappingConfig = new FormMappingConfig();
+            formMappingConfig.setDomainObjectType(domainObjectTypeToCreate);
+            formMappingConfig.setForm(actionConfig.getProperty(OBJECT_FORM_PROP));
+            final List<FormMappingConfig> formMappingConfigList = new ArrayList<>();
+            viewerConfig.setFormMappingConfigList(formMappingConfigList);
+            formPluginConfig.setFormViewerConfig(viewerConfig);
+        } else {
+            formPluginConfig.setFormViewerConfig(editor.getFormViewerConfig());
+        }
         if (state.isToggleEdit()) {
             state.setEditable(true);
             final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
-            formPlugin.setConfig(config);
+            formPlugin.setConfig(formPluginConfig);
             formPlugin.setDisplayActionToolBar(true);
             formPlugin.setLocalEventBus(plugin.getLocalEventBus());
             getPlugin().getOwner().openChild(formPlugin);
         } else {
-            editor.replaceForm(config);
+            editor.replaceForm(formPluginConfig);
         }
     }
 
