@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.confirm;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -47,7 +48,15 @@ public class ConfirmDialog extends DialogBox {
             }
         });
         buttonsPanel.add(okButton);
-        Button cancelButton = new Button("Отмена");
+        final Button cancelButton = new Button("Отмена");
+//        cancelButton.setFocus(true);
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                cancelButton.setFocus(true);
+            }
+        });
+
         cancelButton.setStyleName("light-button");
         cancelButton.addClickHandler(new ClickHandler() {
             @Override
