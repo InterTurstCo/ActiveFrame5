@@ -455,8 +455,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
         } else {
             //для ранее созданного объекта получаем объект не сохраненный из хранилища и вычисляем измененные поля
-            AccessToken accessToken = accessControlService
-                    .createSystemAccessToken("DomainObjectDaoImpl");
+            AccessToken accessToken = createSystemAccessToken();
             DomainObject originalDomainObject = find(domainObject.getId(),
                     accessToken);
 
@@ -505,8 +504,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .getConfig(DomainObjectTypeConfig.class, getDOTypeName(firstRdbmsId.getTypeId()));
 
         // Получаем удаляемый доменный объект для нужд точек расширения
-        AccessToken systemAccessToken = accessControlService
-                .createSystemAccessToken("DomainObjectDaoImpl");
+        AccessToken systemAccessToken = createSystemAccessToken();
 
         DomainObject[] deletedObjects = new DomainObject[ids.length];
         List<String> parentTypes = null;
@@ -717,7 +715,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public boolean exists(Id id) throws InvalidIdException {
-        if (domainObjectCacheService.getObjectFromCache(id, null) != null) {
+        AccessToken systemAccessToken = createSystemAccessToken();
+
+        if (domainObjectCacheService.getObjectFromCache(id, systemAccessToken) != null) {
             return true;
         }
 
@@ -842,11 +842,39 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         result = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(domainObjectType,
                         configurationExplorer, domainObjectTypeIdCache));
+
+        // перечитывает объекты, дочерние к переданному типу domainObjectType
+        updateChildObjects(domainObjectType, result);
+        
         domainObjectCacheService.putObjectsToCache(result, accessToken, cacheKey);
 
         eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
 
         return result;
+    }
+
+    private void updateChildObjects(String domainObjectType, List<DomainObject> result) {
+        Collection<DomainObjectTypeConfig> childTypeConfigs = configurationExplorer.findChildDomainObjectTypes(domainObjectType, true);
+        List<Integer> childTypeIds = new ArrayList<>();
+        for (DomainObjectTypeConfig childConfig : childTypeConfigs) {
+
+            childTypeIds.add(domainObjectTypeIdCache.getId(childConfig.getName()));
+        }
+        AccessToken systemAccessToken = createSystemAccessToken();
+
+        int index = 0;
+        for (DomainObject object : result) {
+            int objectTypeId = ((RdbmsId) object.getId()).getTypeId();
+            if (childTypeIds.contains(objectTypeId)) {
+                DomainObject updatedObject = find(object.getId(), systemAccessToken);
+                result.set(index, updatedObject);
+            }
+            index++;
+        }
+    }
+
+    private AccessToken createSystemAccessToken() {
+        return accessControlService.createSystemAccessToken("DomainObjectDaoImpl");
     }
 
     @Override
@@ -1596,8 +1624,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (domainObject.isNew()) return true;
 
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("DomainObjectDaoImpl");
+        AccessToken accessToken = createSystemAccessToken();
         DomainObject originalDomainObject = find(domainObject.getId(), accessToken);
         if (originalDomainObject == null) return true;
 

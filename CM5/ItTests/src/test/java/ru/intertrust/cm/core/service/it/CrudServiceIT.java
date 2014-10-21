@@ -8,7 +8,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
@@ -23,7 +28,21 @@ import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
@@ -38,6 +57,7 @@ public class CrudServiceIT extends IntegrationTestBase {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    private ConfigurationExplorer configurationExplorer;
     @EJB
     private CrudService.Remote crudService;
 
@@ -58,6 +78,7 @@ public class CrudServiceIT extends IntegrationTestBase {
     private void initializeSpringBeans() {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
         domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
+        configurationExplorer = applicationContext.getBean(ConfigurationExplorer.class);
     }
 
     @Test
@@ -120,6 +141,20 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     }
 
+    @Test
+    public void testFindAll() {
+        List<DomainObject> allPersons = crudService.findAll("Person");
+        int empoyeeTypeId = domainObjectTypeIdCache.getId("Employee");
+        
+        for(DomainObject person : allPersons){
+            int personTypeId = ((RdbmsId)person.getId()).getTypeId();
+            if (empoyeeTypeId == personTypeId) {
+                assertTrue(person.getFields().contains("Department"));
+                assertTrue(person.getFields().contains("Position"));
+            }
+        }
+    }
+    
     private List<Id> getIdList(List<DomainObject> domainObjects) {
         List<Id> foundIds = new ArrayList<Id>();
         for (DomainObject domainObject : domainObjects) {
