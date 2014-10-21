@@ -67,6 +67,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         this.attachments = attachments;
     }
 
+    public List<AttachmentItem> getAttachments() {
+        return attachments;
+    }
+
     public void setPresenterFactory(AttachmentElementPresenterFactory presenterFactory) {
         this.presenterFactory = presenterFactory;
     }
