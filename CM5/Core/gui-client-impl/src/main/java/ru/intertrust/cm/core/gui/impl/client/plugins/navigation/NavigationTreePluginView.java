@@ -115,21 +115,21 @@ public class NavigationTreePluginView extends PluginView {
             }
         });
 
-        Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
-            public void onPreviewNativeEvent(final Event.NativePreviewEvent event) {
-                final int eventType = event.getTypeInt();
-                switch (eventType) {
-                    case Event.ONMOUSEOUT:
-                        if (!pinButtonClick && event.getNativeEvent().getRelatedEventTarget() == null) {
-                            hideTreePanel();
-                            event.getNativeEvent().stopPropagation();
-                            event.getNativeEvent().preventDefault();
-                        }
-                        break;
-                    default:
-                }
-            }
-        });
+//        Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
+//            public void onPreviewNativeEvent(final Event.NativePreviewEvent event) {
+//                final int eventType = event.getTypeInt();
+//                switch (eventType) {
+//                    case Event.ONMOUSEOUT:
+//                        if (!pinButtonClick && event.getNativeEvent().getRelatedEventTarget() == null) {
+//                            hideTreePanel();
+//                            event.getNativeEvent().stopPropagation();
+//                            event.getNativeEvent().preventDefault();
+//                        }
+//                        break;
+//                    default:
+//                }
+//            }
+//        });
         navigationTreeContainer.addMouseOutHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {

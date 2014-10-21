@@ -16,8 +16,8 @@ public class BusinessUniverseConfig implements TopLevelConfig {
     @Element(name = "login-screen", required = false)
     private LoginScreenConfig loginScreenConfig;
 
-    @Element(name = "side-bar-openning-time", required = false)
-    private SideBarOpenningTimeConfig sideBarOpenningTimeConfig;
+    @Element(name = "side-bar-opening-time", required = false)
+    private SideBarOpeningTimeConfig sideBarOpenningTimeConfig;
 
     @Element(name = "logo", required = false)
     private LogoConfig logoConfig;
@@ -78,11 +78,11 @@ public class BusinessUniverseConfig implements TopLevelConfig {
         this.settingsPopupConfig = settingsPopupConfig;
     }
 
-    public SideBarOpenningTimeConfig getSideBarOpenningTimeConfig() {
+    public SideBarOpeningTimeConfig getSideBarOpenningTimeConfig() {
         return sideBarOpenningTimeConfig;
     }
 
-    public void setSideBarOpenningTimeConfig(SideBarOpenningTimeConfig sideBarOpenningTimeConfig) {
+    public void setSideBarOpenningTimeConfig(SideBarOpeningTimeConfig sideBarOpenningTimeConfig) {
         this.sideBarOpenningTimeConfig = sideBarOpenningTimeConfig;
     }
 

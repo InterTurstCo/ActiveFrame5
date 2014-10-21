@@ -483,7 +483,7 @@
 
     <xs:complexType name="businessUniverseType">
         <xs:choice maxOccurs="unbounded">
-            <xs:element name="side-bar-openning-time" type="con:sideBarOpenningTimeType"
+            <xs:element name="side-bar-opening-time" type="con:sideBarOpeningTimeType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="login-screen" type="con:logoScreenType"
@@ -529,7 +529,7 @@
                       type="xs:boolean"/>
     </xs:complexType>
 
-    <xs:complexType name="sideBarOpenningTimeType">
+    <xs:complexType name="sideBarOpeningTimeType">
         <xs:attribute name="default-value" use="optional"
                       type="xs:string"/>
     </xs:complexType>

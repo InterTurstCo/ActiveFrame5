@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 /**
  * Created by tbilyi on 26.09.2014.
  */
-public class SideBarOpenningTimeConfig implements Dto{
+public class SideBarOpeningTimeConfig implements Dto{
 
     @Attribute(name = "default-value", required = false)
     String defaultValue;
@@ -24,7 +24,7 @@ public class SideBarOpenningTimeConfig implements Dto{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        SideBarOpenningTimeConfig that = (SideBarOpenningTimeConfig) o;
+        SideBarOpeningTimeConfig that = (SideBarOpeningTimeConfig) o;
 
         if (defaultValue != null ? !defaultValue.equals(that.defaultValue) : that.defaultValue != null) return false;
 
