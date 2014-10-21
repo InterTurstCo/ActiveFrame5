@@ -866,6 +866,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         for (DomainObject object : result) {
             int objectTypeId = ((RdbmsId) object.getId()).getTypeId();
             if (childTypeIds.contains(objectTypeId)) {
+                // объект перечитывается под системным тоукеном, т.к. проверка прав уже выполнялась при получении списка
+                // объектов.
                 DomainObject updatedObject = find(object.getId(), systemAccessToken);
                 result.set(index, updatedObject);
             }
