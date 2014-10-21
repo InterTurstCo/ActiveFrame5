@@ -20,6 +20,8 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.gui.api.server.ActionService;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestPermission extends ClientBase {
@@ -71,12 +73,29 @@ public class TestPermission extends ClientBase {
             //Проверка прав
             EtalonPermissions etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
+            etalon.addPermission(getPersonId("admin"), Permission.Read);
+            etalon.addPermission(getPersonId("admin"), Permission.Write);
             etalon.addPermission(getPersonId("admin"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "StartProcessAction");
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "ChangeStatusAction");
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "start-internal-document-process");            
             checkPermissions(internalDocument.getId(), etalon, "Status Draft");
+
+            etalon = new EtalonPermissions();
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
+            etalon.addPermission(getPersonId("admin"), Permission.Read);
+            etalon.addPermission(getPersonId("admin"), Permission.Write);
+            etalon.addPermission(getPersonId("admin"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Status Draft");
             }
@@ -91,6 +110,12 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Status Negotiation");
+            
+            etalon = new EtalonPermissions();
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Status Negotiation");
             }            
@@ -103,6 +128,13 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Add new Negotiator");
+
+            etalon = new EtalonPermissions();
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Add new Negotiator");
             }            
@@ -112,11 +144,24 @@ public class TestPermission extends ClientBase {
             internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Status Registration");
+
+            etalon = new EtalonPermissions();
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Status Registration");
             }            
@@ -171,7 +216,11 @@ public class TestPermission extends ClientBase {
             letter = getCrudService().save(letter);
 
             etalon = new EtalonPermissions();
+            etalon.addPermission(getPersonId("admin"), Permission.Read);
+            etalon.addPermission(getPersonId("admin"), Permission.Write);
             etalon.addPermission(getPersonId("admin"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
             etalon.addPermission(getEmployeeId("Сотрудник 2"), Permission.Read);
             etalon.addActionPermission(getEmployeeId("Сотрудник 1"), "action1");
@@ -192,7 +241,11 @@ public class TestPermission extends ClientBase {
             testResolution = getCrudService().save(testResolution);
 
             etalon = new EtalonPermissions();
+            etalon.addPermission(getEmployeeId("Сотрудник 2"), Permission.Read );
+            etalon.addPermission(getEmployeeId("Сотрудник 2"), Permission.Write );
             etalon.addPermission(getEmployeeId("Сотрудник 2"), Permission.Delete );
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
             checkPermissions(testOutgoingDocument.getId(), etalon, "test_outgoing_document");
             checkPermissions(testResolution.getId(), etalon, "test_resolution");
@@ -216,8 +269,9 @@ public class TestPermission extends ClientBase {
 
             etalon = new EtalonPermissions();
             for (Id personId : allPersons) {
+                etalon.addPermission(personId, Permission.Read);
+                etalon.addPermission(personId, Permission.Write);
                 etalon.addPermission(personId, Permission.Delete);
-                etalon.addActionPermission(personId, "action1");
             }            
             checkPermissions(testEmployee.getId(), etalon, "test_employee");
             
@@ -295,15 +349,29 @@ public class TestPermission extends ClientBase {
             notAdminCrudservice.save(country1);
             
             //Проверка мапинга прав
-            DomainObject testType7 = getCrudService().createDomainObject("test_type_7");
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person6", "admin");
+            DomainObject testType7 = notAdminCrudservice.createDomainObject("test_type_7");
             testType7.setString("description", "Description " + System.nanoTime());
-            testType7 = getCrudService().save(testType7);            
+            testType7 = notAdminCrudservice.save(testType7);            
 
-            DomainObject testType8 = getCrudService().createDomainObject("test_type_8");
+            DomainObject testType8 = notAdminCrudservice.createDomainObject("test_type_8");
             testType8.setString("description", "Description " + System.nanoTime());
             testType8.setReference("test_type_7", testType7);
-            testType8 = getCrudService().save(testType8);            
+            testType8 = notAdminCrudservice.save(testType8);  
             
+            //маппинг create-child
+            DomainObject testType9 = notAdminCrudservice.createDomainObject("test_type_9");
+            testType9.setString("description", "Description " + System.nanoTime());
+            testType9.setReference("test_type_8", testType8);
+            testType9 = notAdminCrudservice.save(testType9);  
+            
+            //Проверка прав на действия
+            ActionService notAdminActionService = (ActionService)getService("ActionServiceImpl", ActionService.Remote.class, "person6", "admin");
+            List<ActionContext> actions = notAdminActionService.getActions(testType8.getId());
+            assertTrue("Action count", actions.size()  == 1);
+            
+            //Удаляем test9 чтоб не мешал удалить  test8
+            getCrudService().delete(testType9.getId());
             //Проверка косвенных прав на удаление при мапинге прав
             notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person6", "admin");
             notAdminCrudservice.delete(testType8.getId());
@@ -385,11 +453,17 @@ public class TestPermission extends ClientBase {
     }
 
     private class EtalonPermissions {
-        private Map<Id, Permission> personPermission = new HashMap<Id, Permission>();
+        private Map<Id, List<Permission>> personPermission = new HashMap<Id, List<Permission>>();
         private Map<Id, List<String>> personActionPermission = new HashMap<Id, List<String>>();
+        private Map<Id, List<String>> createChildPermission = new HashMap<Id, List<String>>();
 
         public void addPermission(Id personId, Permission permission) {
-            personPermission.put(personId, permission);
+            List<Permission> permissions = personPermission.get(personId);
+            if (permissions == null) {
+                permissions = new ArrayList<Permission>();
+                personPermission.put(personId, permissions);
+            }
+            permissions.add(permission);
         }
 
         public void addActionPermission(Id personId, String action) {
@@ -401,6 +475,16 @@ public class TestPermission extends ClientBase {
             actions.add(action);
         }
 
+        public void addCreateChild(Id personId, String childType) {
+            List<String> childTypes = createChildPermission.get(personId);
+            if (childTypes == null) {
+                childTypes = new ArrayList<String>();
+                createChildPermission.put(personId, childTypes);
+            }
+            childTypes.add(childType);
+        }
+
+        
         public boolean compare(List<DomainObjectPermission> serverPermission, String massage) throws Exception {
             boolean result = true;
 
@@ -410,19 +494,31 @@ public class TestPermission extends ClientBase {
             }
 
             for (DomainObjectPermission domainObjectPermission : serverPermission) {
-                if (!domainObjectPermission.getPermission().equals(
-                        personPermission.get(domainObjectPermission.getPersonId()))) {
-                    log("ACL NOT equals: person id = " + domainObjectPermission.getPersonId() + " need "
-                            + personPermission.get(domainObjectPermission.getPersonId()) + " base "
-                            + domainObjectPermission.getPermission());
-                    result = false;
+                //Проверка прав на CRUD
+                List<Permission> etalonPermissions = personPermission.get(domainObjectPermission.getPersonId());
+                for (Permission permission : domainObjectPermission.getPermission()) {
+                    if (etalonPermissions == null || !etalonPermissions.contains(permission)) {
+                        log("Permissions NOT equals: person id = " + domainObjectPermission.getPersonId() + " contain "
+                                + permission + " but etalon not contain it");
+                        result = false;
+                    }
                 }
-
+                if (etalonPermissions != null) {
+                    for (Permission permission : etalonPermissions) {
+                        if (!domainObjectPermission.getPermission().contains(permission)) {
+                            log("Permission NOT equals: person id = " + domainObjectPermission.getPersonId() + " contain "
+                                    + permission + " but in base not contain it");
+                            result = false;
+                        }
+                    }
+                }
+                
+                //Проверка права на действия
                 List<String> etalonActions = personActionPermission.get(domainObjectPermission.getPersonId());
 
                 for (String action : domainObjectPermission.getActions()) {
                     if (etalonActions == null || !etalonActions.contains(action)) {
-                        log("ACL NOT equals: person id = " + domainObjectPermission.getPersonId() + " contain "
+                        log("Actions NOT equals: person id = " + domainObjectPermission.getPersonId() + " contain "
                                 + action + " but etalon not contain it");
                         result = false;
                     }
@@ -431,13 +527,34 @@ public class TestPermission extends ClientBase {
                 if (etalonActions != null) {
                     for (String action : etalonActions) {
                         if (!domainObjectPermission.getActions().contains(action)) {
-                            log("ACL NOT equals: person id = " + domainObjectPermission.getPersonId() + " contain "
+                            log("Actions NOT equals: person id = " + domainObjectPermission.getPersonId() + " contain "
                                     + action + " but in base not contain it");
                             result = false;
                         }
                     }
                 }
 
+                //Проверка права на создание связанных
+                List<String> etalonCreateChilds = createChildPermission.get(domainObjectPermission.getPersonId());
+
+                for (String childType : domainObjectPermission.getCreateChildTypes()) {
+                    if (etalonCreateChilds == null || !etalonCreateChilds.contains(childType)) {
+                        log("Create child type NOT equals: person id = " + domainObjectPermission.getPersonId() + " contain "
+                                + childType + " but etalon not contain it");
+                        result = false;
+                    }
+                }
+
+                if (etalonCreateChilds != null) {
+                    for (String childType : etalonCreateChilds) {
+                        if (!domainObjectPermission.getCreateChildTypes().contains(childType)) {
+                            log("Create child type NOT equals: person id = " + domainObjectPermission.getPersonId() + " contain "
+                                    + childType + " but in base not contain it");
+                            result = false;
+                        }
+                    }
+                }
+                
             }
 
             if (result) {

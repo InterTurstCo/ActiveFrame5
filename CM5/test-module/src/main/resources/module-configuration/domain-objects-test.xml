@@ -189,7 +189,14 @@
     <domain-object-type name="test_type_8" initial-status="Active">
         <fields>
             <string name="description" length="128" />
-            <reference name="test_type_7" type="test_type_7" not-null="true"/>
+            <reference name="test_type_7" type="test_type_7" not-null="true" immutable="true"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_9" initial-status="Active">
+        <fields>
+            <string name="description" length="128" />
+            <reference name="test_type_8" type="test_type_8" not-null="true" immutable="true"/>
         </fields>
     </domain-object-type>
     

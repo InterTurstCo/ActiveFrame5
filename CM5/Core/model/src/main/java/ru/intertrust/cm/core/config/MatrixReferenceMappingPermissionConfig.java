@@ -6,26 +6,32 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 
 public class MatrixReferenceMappingPermissionConfig implements Dto{
     private static final long serialVersionUID = 5569745532423272117L;
+    
+    public static final String READ = "read";
+    public static final String WRITE = "write";
+    public static final String DELETE = "delete";
+    public static final String CREATE_CHILD = "create-child";
+    public static final String EXECUTE = "execute";
 
     @Attribute(name="map-from", required=true)
-    private MatrixReferencePermissionEmum mapFrom;
+    private String mapFrom;
     
     @Attribute(name="map-to", required=true)
-    private MatrixReferencePermissionEmum mapTo;
+    private String mapTo;
 
-    public MatrixReferencePermissionEmum getMapFrom() {
+    public String getMapFrom() {
         return mapFrom;
     }
 
-    public void setMapFrom(MatrixReferencePermissionEmum mapFrom) {
+    public void setMapFrom(String mapFrom) {
         this.mapFrom = mapFrom;
     }
 
-    public MatrixReferencePermissionEmum getMapTo() {
+    public String getMapTo() {
         return mapTo;
     }
 
-    public void setMapTo(MatrixReferencePermissionEmum mapTo) {
+    public void setMapTo(String mapTo) {
         this.mapTo = mapTo;
     }
     

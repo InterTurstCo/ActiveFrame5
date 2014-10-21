@@ -28,6 +28,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
 import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
 import ru.intertrust.cm.core.config.BasePermit;
@@ -39,6 +40,7 @@ import ru.intertrust.cm.core.config.DeleteConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.ExecuteActionConfig;
+import ru.intertrust.cm.core.config.MatrixReferenceMappingPermissionConfig;
 import ru.intertrust.cm.core.config.PermitGroup;
 import ru.intertrust.cm.core.config.PermitRole;
 import ru.intertrust.cm.core.config.ReadConfig;
@@ -741,6 +743,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         if (matrixRefType != null) {
             permissionType = getMatrixRefType(objectType, matrixRefType, rdbmsObjectId);
         }
+        
+        final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectType(objectType);
 
         String domainObjectBaseTable =
                 DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, objectType));
@@ -811,27 +815,127 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                         personPermissions.put(personId, personPermission);
                     }
 
-                    if (operation.equals("R") && personPermission.getPermission().equals(Permission.None)) {
-                        personPermission.setPermission(Permission.Read);
-                    } else if (operation.equals("W")
-                            &&
-                            (personPermission.getPermission().equals(Permission.None) || personPermission
-                                    .getPermission().equals(Permission.Read))) {
-                        personPermission.setPermission(Permission.Write);
-                    } else if (operation.equals("D")
-                            &&
-                            (personPermission.getPermission().equals(Permission.None)
-                                    || personPermission.getPermission().equals(Permission.Read) || personPermission
-                                    .getPermission().equals(Permission.Write))) {
-                        personPermission.setPermission(Permission.Delete);
+                    if (operation.equals("R")) {
+                        if (accessMatrix.getMatrixReference() != null){
+                            setMappedPermission(personPermission, Permission.Read);
+                        }else{
+                            personPermission.getPermission().add(Permission.Read);
+                        }
+                    } else if (operation.equals("W")) {
+                        if (accessMatrix.getMatrixReference() != null){
+                            setMappedPermission(personPermission, Permission.Write);
+                        }else{
+                            personPermission.getPermission().add(Permission.Write);
+                        }
+                    } else if (operation.equals("D")) {
+                        if (accessMatrix.getMatrixReference() != null){
+                            setMappedPermission(personPermission, Permission.Delete);
+                        }else{
+                            personPermission.getPermission().add(Permission.Delete);
+                        }
                     } else if (operation.startsWith("E_")) {
                         String action = operation.substring(2);
-                        personPermission.getActions().add(action);
+                        if (accessMatrix.getMatrixReference() != null){
+                            setMappedActions(personPermission, action);
+                        }else{
+                            personPermission.getActions().add(action);
+                        }
+                    } else if (operation.startsWith("C_")) {
+                        String childType = operation.substring(2);
+                        if (accessMatrix.getMatrixReference() != null){
+                            setMappedCreateTypes(personPermission, childType);
+                        }else{
+                            personPermission.getCreateChildTypes().add(childType);
+                        }
                     }
                 }
                 List<DomainObjectPermission> result = new ArrayList<DomainObjectPermission>();
 
                 result.addAll(personPermissions.values());
+                return result;
+            }
+
+            private void setMappedActions(DomainObjectPermission personPermission, String action) {
+                if (accessMatrix.getMatrixReferenceMappingConfig() != null){
+                    if (accessMatrix.getMatrixReferenceMappingConfig().getPermission() != null){
+                        for (MatrixReferenceMappingPermissionConfig matrixMapping : accessMatrix.getMatrixReferenceMappingConfig().getPermission()) {
+                            if (matrixMapping.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.EXECUTE + ":" + action)){
+                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getActions().addAll(getActionsFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(matrixMapping.getMapTo()));
+                            }
+                        }
+                    }
+                }
+            }
+
+            private void setMappedCreateTypes(DomainObjectPermission personPermission, String childType) {
+                if (accessMatrix.getMatrixReferenceMappingConfig() != null){
+                    if (accessMatrix.getMatrixReferenceMappingConfig().getPermission() != null){
+                        for (MatrixReferenceMappingPermissionConfig matrixMapping : accessMatrix.getMatrixReferenceMappingConfig().getPermission()) {
+                            if (matrixMapping.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.CREATE_CHILD + ":" + childType)){
+                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getActions().addAll(getActionsFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(matrixMapping.getMapTo()));
+                            }
+                        }
+                    }
+                }
+            }
+            
+            private void setMappedPermission(DomainObjectPermission personPermission, Permission permission) {
+                if (accessMatrix.getMatrixReferenceMappingConfig() != null){
+                    if (accessMatrix.getMatrixReferenceMappingConfig().getPermission() != null){
+                        for (MatrixReferenceMappingPermissionConfig matrixMapping : accessMatrix.getMatrixReferenceMappingConfig().getPermission()) {
+                            if (permission.equals(Permission.Read) && matrixMapping.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.READ)){
+                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getActions().addAll(getActionsFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(matrixMapping.getMapTo()));
+                            }else if (permission.equals(Permission.Write) && matrixMapping.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.WRITE)){
+                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getActions().addAll(getActionsFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(matrixMapping.getMapTo()));
+                            }else if (permission.equals(Permission.Delete) && matrixMapping.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.DELETE)){
+                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getActions().addAll(getActionsFromMatrixRef(matrixMapping.getMapTo()));
+                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(matrixMapping.getMapTo()));
+                            }
+                        }
+                    }
+                }else{
+                    //Используем дефалтовый мапинг
+                    personPermission.getPermission().add(permission);
+                    if (permission.equals(Permission.Write)){
+                        personPermission.getPermission().add(Permission.Delete);
+                    }
+                }
+            }
+
+            private List<Permission> getPermissionFromMatrixRef(String mapTo) {
+                List<Permission> result = new ArrayList<Permission>();
+                if (mapTo.equals(MatrixReferenceMappingPermissionConfig.READ)){
+                    result.add(Permission.Read);
+                }else if (mapTo.equals(MatrixReferenceMappingPermissionConfig.WRITE)){
+                    result.add(Permission.Write);
+                }else if (mapTo.equals(MatrixReferenceMappingPermissionConfig.DELETE)){
+                    result.add(Permission.Delete);
+                }
+                return result;
+            }
+
+            private List<String> getActionsFromMatrixRef(String mapTo) {
+                List<String> result = new ArrayList<String>();
+                if (mapTo.startsWith(MatrixReferenceMappingPermissionConfig.EXECUTE)){
+                    result.add(mapTo.split(":")[1]);
+                }
+                return result;
+            }
+
+            private List<String> getCreateChildFromMatrixRef(String mapTo) {
+                List<String> result = new ArrayList<String>();
+                if (mapTo.startsWith(MatrixReferenceMappingPermissionConfig.CREATE_CHILD)){
+                    result.add(mapTo.split(":")[1]);
+                }
                 return result;
             }
         });

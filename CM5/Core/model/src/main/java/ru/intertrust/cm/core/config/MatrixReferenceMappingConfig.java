@@ -13,7 +13,7 @@ public class MatrixReferenceMappingConfig implements Dto {
 
     private static final long serialVersionUID = -3680371232259434729L;
     
-    @ElementList(inline = true, entry = "permition", required = false)
+    @ElementList(inline = true, entry = "permission", required = false)
     private List<MatrixReferenceMappingPermissionConfig> permission = new ArrayList<>();
 
     public List<MatrixReferenceMappingPermissionConfig> getPermission() {

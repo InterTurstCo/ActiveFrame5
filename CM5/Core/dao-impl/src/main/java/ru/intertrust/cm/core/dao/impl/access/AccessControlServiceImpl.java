@@ -130,7 +130,7 @@ public class AccessControlServiceImpl implements AccessControlService {
                 if (log) {
                     eventLogService.logAccessDomainObjectEvent(objectId, EventLogService.ACCESS_OBJECT_WRITE, false);
                 }
-                throw new AccessException();
+                throw new AccessException("Person " + login + " not has " + type + " permissioms to domain object " + objectId);
             }
         }
 
@@ -255,7 +255,11 @@ public class AccessControlServiceImpl implements AccessControlService {
         } else {
             ids = databaseAgent.checkMultiDomainObjectAccess(personIdInt, objectIds, type);
             if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
-                throw new AccessException();
+                String childType = "";
+                if (type instanceof CreateChildAccessType){
+                    childType = ((CreateChildAccessType)type).getChildType();
+                }
+                throw new AccessException("Person " + login + " not has permission to create domain object of type " + childType);
             }
             token = new MultiObjectAccessToken(new UserSubject(personIdInt), ids, type, deferred);   
         }

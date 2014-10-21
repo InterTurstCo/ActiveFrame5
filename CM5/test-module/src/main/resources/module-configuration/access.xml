@@ -181,22 +181,38 @@
     <access-matrix type="test_type_5" read-everybody="true" />
 
     <access-matrix type="test_type_7">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
         <status name="*">
             <read>
                 <permit-group name="AllPersons" />
             </read>
+            <create-child type="test_type_8">
+                <permit-group name="AllPersons" />
+            </create-child>
+            <execute-action name="test-action-for-test-7">
+                <permit-group name="AllPersons" />
+            </execute-action>
         </status>
     </access-matrix>
 
     <access-matrix type="test_type_8" matrix-reference-field="test_type_7">
         <matrix-reference-mapping>
-            <permition map-from="read" map-to="write" />
-            <permition map-from="read" map-to="delete" />
-            <permition map-from="write" map-to="write" />
-            <permition map-from="write" map-to="delete" />
-            <permition map-from="delete" map-to="delete" />
+            <permission map-from="read" map-to="write" />
+            <permission map-from="read" map-to="delete" />
+            <permission map-from="write" map-to="write" />
+            <permission map-from="write" map-to="delete" />
+            <permission map-from="delete" map-to="delete" />
+            <permission map-from="execute:test-action-for-test-7" map-to="execute:test-action-for-test-8" />
+            <permission map-from="read" map-to="create-child:test_type_9" />
         </matrix-reference-mapping>
     </access-matrix>
     
+    <access-matrix type="test_type_9" matrix-reference-field="test_type_8">
+        <matrix-reference-mapping>
+            <permission map-from="read" map-to="read" />
+        </matrix-reference-mapping>
+    </access-matrix>
     
 </configuration>

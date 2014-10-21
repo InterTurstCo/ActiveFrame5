@@ -1011,7 +1011,7 @@
 
     <xs:complexType name="matrixReferenceMapping">
         <xs:sequence>
-            <xs:element name="permition" maxOccurs="unbounded" minOccurs="0">
+            <xs:element name="permission" maxOccurs="unbounded" minOccurs="0">
                 <xs:complexType>
                     <xs:attribute name="map-from" use="required" type="con:matrixReferencePermissionMapEnum" />
                     <xs:attribute name="map-to" use="required" type="con:matrixReferencePermissionMapEnum" />
@@ -3078,9 +3078,8 @@
 
     <xs:simpleType name="matrixReferencePermissionMapEnum">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="read" />
-            <xs:enumeration value="write" />
-            <xs:enumeration value="delete" />
+            <xs:whiteSpace value="collapse" />
+            <xs:pattern value="read|write|delete|create-child:.*|execute:.*"/>
         </xs:restriction>
     </xs:simpleType>
 

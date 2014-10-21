@@ -4,11 +4,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.AccessTimeout;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +21,14 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.MatrixReferenceMappingConfig;
 import ru.intertrust.cm.core.config.MatrixReferenceMappingPermissionConfig;
-import ru.intertrust.cm.core.config.MatrixReferencePermissionEmum;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionContextConfig;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
@@ -93,14 +98,15 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         if (opRead){
             result = checkDomainObjectReadAccess(userId, objectId); 
         }else{
-        
-            String query = getQueryForCheckDomainObjectAccess(id);
-            Map<String, Object> parameters = new HashMap<String, Object>();
-            parameters.put("user_id", userId);
-            parameters.put("object_id", id.getId());
-            parameters.put("operation", opCode);
-            Integer count = jdbcTemplate.queryForObject(query, parameters, Integer.class);
-            result = count > 0;
+            if (opCode.size() > 0) {
+                String query = getQueryForCheckDomainObjectAccess(id);
+                Map<String, Object> parameters = new HashMap<String, Object>();
+                parameters.put("user_id", userId);
+                parameters.put("object_id", id.getId());
+                parameters.put("operation", opCode);
+                Integer count = jdbcTemplate.queryForObject(query, parameters, Integer.class);
+                result = count > 0;
+            }
         }
         return result;
     }
@@ -126,24 +132,22 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         List<AccessType> result = new ArrayList<AccessType>();
         //Проверяем нет ли заимствования прав и в случае наличия подменяем тип доступа согласно мапингу
         String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeName);
-        //В случае наличия заимствования проверку права на delete заменяем на write, проверку на create заменяем на write
-        //TODO необходимо вынести конфигурацию мапинга прав в xml
         if (martixRef != null){
             //Получаем маппинг прав
             AccessMatrixConfig martix = configurationExplorer.getAccessMatrixByObjectType(typeName);
-            if (martix.getMatrixReferenceMappingConfig() != null && 
-                    martix.getMatrixReferenceMappingConfig().getPermission() != null && 
-                    martix.getMatrixReferenceMappingConfig().getPermission().size() > 0){
+            if (martix.getMatrixReferenceMappingConfig() != null){
                 //Берем мапинг из матрицы
-                MatrixReferenceMappingConfig mapping = martix.getMatrixReferenceMappingConfig(); 
-                for (MatrixReferenceMappingPermissionConfig mappingPermissions : mapping.getPermission()) {
-                    if (isMappingToAccessType(mappingPermissions, accessType)){
-                        AccessType mappedAccessType = getAccessTypeFromMapping(mappingPermissions);
-                        result.add(mappedAccessType);
-                    }                    
+                MatrixReferenceMappingConfig mapping = martix.getMatrixReferenceMappingConfig();
+                if (mapping != null){
+                    for (MatrixReferenceMappingPermissionConfig mappingPermissions : mapping.getPermission()) {
+                        if (isMappingToAccessType(mappingPermissions, accessType)){
+                            List<AccessType> mappedAccessType = getAccessTypeFromMapping(martixRef, mappingPermissions);
+                            result.addAll(mappedAccessType);
+                        }                    
+                    }
                 }
             }else{
-                //Маппинг по умолчанию read-> read, write->write+delete, delete->delete
+                //Маппинг по умолчанию read->read, write->write+delete, delete->delete
                 result.add(accessType);
                 if (accessType.equals(DomainObjectAccessType.DELETE)){
                     result.add(DomainObjectAccessType.WRITE);
@@ -156,24 +160,103 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
     
     
-    private AccessType getAccessTypeFromMapping(MatrixReferenceMappingPermissionConfig mappingPermissions) {
-        AccessType result = null;
-        if (mappingPermissions.getMapFrom().equals(MatrixReferencePermissionEmum.read)){
-            result = DomainObjectAccessType.READ;
-        }else if(mappingPermissions.getMapFrom().equals(MatrixReferencePermissionEmum.write)){
-            result = DomainObjectAccessType.WRITE;
-        }else if(mappingPermissions.getMapFrom().equals(MatrixReferencePermissionEmum.delete)){
-            result = DomainObjectAccessType.DELETE;
+    private List<AccessType> getAccessTypeFromMapping(String typeName, MatrixReferenceMappingPermissionConfig mappingPermissions) {
+        List<AccessType> result = new ArrayList<AccessType>();;
+        if (mappingPermissions.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.READ)){
+            result.add(DomainObjectAccessType.READ);
+        }else if(mappingPermissions.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.WRITE)){
+            result.add(DomainObjectAccessType.WRITE);
+        }else if(mappingPermissions.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.DELETE)){
+            result.add(DomainObjectAccessType.DELETE);
+        }else if(mappingPermissions.getMapFrom().startsWith(MatrixReferenceMappingPermissionConfig.CREATE_CHILD)){
+            String type = mappingPermissions.getMapFrom().split(":")[1];
+            if (type.equals("*")){
+                //Получение всех имутабл полей
+                List<String> immutableRefTypes = getImmutableRefTypes(typeName);
+                for (String immutableRefType : immutableRefTypes) {
+                    result.add(new CreateChildAccessType(immutableRefType));
+                }
+            }else{
+                result.add(new CreateChildAccessType(type));
+            }
+        }else if(mappingPermissions.getMapFrom().startsWith(MatrixReferenceMappingPermissionConfig.EXECUTE)){
+            String action = mappingPermissions.getMapFrom().split(":")[1];
+            if (action.equals("*")){
+                //Получение всех действий для типа
+                List<String> actions = getActionsForType(typeName);
+                for (String parentTypeAction : actions) {
+                    result.add(new ExecuteActionAccessType(parentTypeAction));
+                }
+            }else{
+                result.add(new ExecuteActionAccessType(action));
+            }
+        }
+        return result;
+    }
+
+    private List<String> getActionsForType(String typeName) {
+        List<String> result = new ArrayList<String>();
+        Collection<ActionContextConfig> actionContexts = configurationExplorer.getConfigs(ActionContextConfig.class);
+        if (actionContexts != null) {
+            for (ActionContextConfig actionContext : actionContexts) {
+                if (actionContext.getDomainObjectContext() != null) {
+                    for (DomainObjectContextConfig domainObjectContextConfig : actionContext.getDomainObjectContext()) {
+                        if (actionContext.getDomainObjectContext() != null) {
+                            for (String domainObjectType : domainObjectContextConfig.getDomainObjectType()) {
+                                if (typeName.equals(domainObjectType) && actionContext.getAction() != null){
+                                    for (ActionContextActionConfig actionContextActionConfig : actionContext.getAction()) {
+                                        result.add(actionContextActionConfig.getName());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         return result;
     }
 
     private boolean isMappingToAccessType(MatrixReferenceMappingPermissionConfig mappingPermissions, AccessType accessType) {
-        return accessType.equals(DomainObjectAccessType.READ) && mappingPermissions.getMapTo().equals(MatrixReferencePermissionEmum.read)
-                || accessType.equals(DomainObjectAccessType.WRITE) && mappingPermissions.getMapTo().equals(MatrixReferencePermissionEmum.write)
-                || accessType.equals(DomainObjectAccessType.DELETE) && mappingPermissions.getMapTo().equals(MatrixReferencePermissionEmum.delete);
+        boolean result = false;
+        if (accessType.equals(DomainObjectAccessType.READ)){
+            result = mappingPermissions.getMapTo().equals(MatrixReferenceMappingPermissionConfig.READ);
+        }else if(accessType.equals(DomainObjectAccessType.WRITE)){
+            result = mappingPermissions.getMapTo().equals(MatrixReferenceMappingPermissionConfig.WRITE);
+        }else if(accessType.equals(DomainObjectAccessType.DELETE)){
+            result = mappingPermissions.getMapTo().equals(MatrixReferenceMappingPermissionConfig.DELETE);
+        }else if(accessType instanceof CreateChildAccessType){
+            if (mappingPermissions.getMapTo().startsWith(MatrixReferenceMappingPermissionConfig.CREATE_CHILD)){
+                String type = mappingPermissions.getMapTo().split(":")[1];
+                result = ((CreateChildAccessType)accessType).getChildType().equalsIgnoreCase(type) || type.equals("*");
+            }
+        }else if(accessType instanceof ExecuteActionAccessType){
+            if (mappingPermissions.getMapTo().startsWith(MatrixReferenceMappingPermissionConfig.EXECUTE)){
+                String action = mappingPermissions.getMapTo().split(":")[1];
+                result = ((ExecuteActionAccessType)accessType).getActionName().equalsIgnoreCase(action) || action.equals("*");
+            }            
+        }
+         
+        return result;
     }
 
+    public List<String> getImmutableRefTypes(String domainObjectType) {
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+
+        List<String> immutableRefTypes = new ArrayList<String>();
+
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+
+                if (((ReferenceFieldConfig) fieldConfig).isImmutable()) {
+                    immutableRefTypes.add(((ReferenceFieldConfig) fieldConfig).getType());
+                }
+            }
+        }
+        return immutableRefTypes;
+    }    
+    
     private String getQueryForCheckDomainObjectAccess(RdbmsId id) {
         String domainObjectAclTable = getAclTableName(id);
         String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(

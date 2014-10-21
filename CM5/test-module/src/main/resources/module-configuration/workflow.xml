@@ -574,6 +574,49 @@
         </act:domain-object-context>
         <act:action name="start-test_process_attachment-process"/>
     </act:action-context>
+    
+    <act:action name="test-action-for-test-7" componentName="start.process.action"
+                text="Запустить тестовый процесс" image="sign.png" merged="true">
+        <act:before-execution>
+            <act:confirmation-message text="Запустить процесс?"/>
+        </act:before-execution>
+        <act:after-execution>
+            <act:on-success-message text="Процесс запущен"/>
+        </act:after-execution>
+        <act:action-settings>
+            <act:start-process-action-settings process-name="testSimpleProcess"/>
+        </act:action-settings>
+    </act:action>
+
+    <act:action-context name="test-action-for-test-7-context">
+        <act:domain-object-context>
+            <act:type>test_type_7</act:type>
+            <act:status>Active</act:status>
+        </act:domain-object-context>
+        <act:action name="test-action-for-test-7"/>
+    </act:action-context>
+
+    <act:action name="test-action-for-test-8" componentName="start.process.action"
+                text="Запустить тестовый процесс" image="sign.png" merged="true">
+        <act:before-execution>
+            <act:confirmation-message text="Запустить процесс?"/>
+        </act:before-execution>
+        <act:after-execution>
+            <act:on-success-message text="Процесс запущен"/>
+        </act:after-execution>
+        <act:action-settings>
+            <act:start-process-action-settings process-name="testSimpleProcess"/>
+        </act:action-settings>
+    </act:action>
+
+    <act:action-context name="test-action-for-test-8-context">
+        <act:domain-object-context>
+            <act:type>test_type_8</act:type>
+            <act:status>Active</act:status>
+        </act:domain-object-context>
+        <act:action name="test-action-for-test-8"/>
+    </act:action-context>
+
 
     <context-role name="test_process_attachment_author">
         <context>

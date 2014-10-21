@@ -152,7 +152,8 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
      */
     private boolean hasActionPermission(Id domainObjectId, String action){
         boolean result = false;
-        DomainObjectPermission permission = permissionService.getObjectPermission(domainObjectId);
+        
+        DomainObjectPermission permission = permissionService.getObjectPermission(domainObjectId, currentUserAccessor.getCurrentUserId());
         if (permission != null && permission.getActions() != null){
             result = permission.getActions().contains(action);
         }

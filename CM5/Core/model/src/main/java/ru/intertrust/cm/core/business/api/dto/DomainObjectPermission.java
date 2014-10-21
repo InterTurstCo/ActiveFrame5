@@ -4,25 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DomainObjectPermission implements Dto{
-    
+    private static final long serialVersionUID = -1517544973574728720L;
+
     public enum Permission{
-        None,
         Read,
         Write,
         Delete
     }
     
-    private Permission permission = Permission.None;
+    private List<Permission> permissions = new ArrayList<DomainObjectPermission.Permission>();
     private List<String> actions = new ArrayList<String>();
+    private List<String> createChildTypes = new ArrayList<String>();
     private Id personId;
     
 
-    public Permission getPermission() {
-        return permission;
+    public  List<Permission> getPermission() {
+        return permissions;
     }
 
-    public void setPermission(Permission permission) {
-        this.permission = permission;
+    public void setPermission( List<Permission> permission) {
+        this.permissions = permission;
     }
 
     public List<String> getActions() {
@@ -39,5 +40,13 @@ public class DomainObjectPermission implements Dto{
 
     public void setPersonId(Id personId) {
         this.personId = personId;
+    }
+
+    public List<String> getCreateChildTypes() {
+        return createChildTypes;
+    }
+
+    public void setCreateChildTypes(List<String> createChildTypes) {
+        this.createChildTypes = createChildTypes;
     }
 }
