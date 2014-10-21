@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;

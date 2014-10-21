@@ -17,7 +17,11 @@
     </act:action>
     <act:action name="aDelete" componentName="delete.action" order="300"
                 text="Удалить" imageClass="actionBar-delete" dirtySensitivity="true"
-                permissions="Delete"/>
+                permissions="Delete">
+        <act:before-execution>
+            <act:confirmation-message text="Вы действительно хотите удалить выбранный объект ?"/>
+        </act:before-execution>
+    </act:action>
     <act:action name="aToggleEditOff" componentName="close.in.central.panel.action" order="100"
                 text="Закрыть" imageClass="actionBar-close"/>
     <act:action name="aToggleEditOn" componentName="toggle.edit.on.action" order="150" dirtySensitivity="false"
