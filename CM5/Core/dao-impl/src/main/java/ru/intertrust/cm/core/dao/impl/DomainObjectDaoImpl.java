@@ -503,8 +503,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class, getDOTypeName(firstRdbmsId.getTypeId()));
 
-        // Получаем удаляемый доменный объект для нужд точек расширения
-        AccessToken systemAccessToken = createSystemAccessToken();
+        // Получаем удаляемый доменный объект для вызова точек расширения и пересчета динамических групп. Чтение объекта
+        // идет от имени системы, т.к. прав на чтение может не быть у пользователя.
+       AccessToken systemAccessToken = createSystemAccessToken();
 
         DomainObject[] deletedObjects = new DomainObject[ids.length];
         List<String> parentTypes = null;
