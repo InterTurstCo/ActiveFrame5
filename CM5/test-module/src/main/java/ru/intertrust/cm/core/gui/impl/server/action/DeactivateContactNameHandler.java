@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
@@ -35,5 +36,10 @@ public class DeactivateContactNameHandler extends ActionHandler<SimpleActionCont
             }
         }
         return actionData;
+    }
+
+    @Override
+    public SimpleActionContext getActionContext(ActionConfig actionConfig) {
+        return new SimpleActionContext(actionConfig);
     }
 }
