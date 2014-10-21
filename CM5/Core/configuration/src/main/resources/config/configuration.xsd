@@ -2420,6 +2420,10 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:acceptedTypesType" name="accepted-types"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:imagesOnlyType" name="images-only"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:choiceStyleType" name="choice-style"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required"/>
             </xs:extension>
@@ -2434,6 +2438,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+
     <xs:complexType name="acceptedTypeType">
         <xs:attribute name="extensions" use="required" type="xs:string"/>
         <xs:attribute name="mime-type" use="required" type="xs:string"/>
@@ -2447,6 +2452,7 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
     <xs:complexType name="attachmentTypeRefType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -2455,6 +2461,35 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
+    <xs:complexType name="imagesOnlyType">
+        <xs:sequence>
+            <xs:element name="read-only-preview" type="con:previewType" minOccurs="0"/>
+            <xs:element name="small-preview" type="con:previewType" minOccurs="0"/>
+            <xs:element name="large-preview" type="con:previewType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="previewType">
+        <xs:attribute name="display" type="xs:boolean" default="true" use="optional"/>
+        <xs:attribute name="width" type="xs:string" use="optional"/>
+        <xs:attribute name="height" type="xs:string" use="optional"/>
+        <xs:attribute name="preserve-proportion" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="choiceStyleType">
+        <xs:attribute name="name">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="inline"/>
+                    <xs:enumeration value="popup"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+
+
     <xs:complexType name="widgetType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
