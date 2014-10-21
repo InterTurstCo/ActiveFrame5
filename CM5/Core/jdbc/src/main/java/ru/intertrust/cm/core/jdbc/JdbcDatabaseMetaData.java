@@ -104,7 +104,7 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public String getDatabaseProductVersion() throws SQLException {
-        throw new UnsupportedOperationException();
+        return "unknown";
     }
 
     @Override
@@ -1011,8 +1011,11 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public boolean supportsResultSetType(int type) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        if (type == ResultSet.TYPE_FORWARD_ONLY){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     @Override
@@ -1096,8 +1099,7 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public boolean supportsSavepoints() throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return false;
     }
 
     @Override
