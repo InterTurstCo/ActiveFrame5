@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
@@ -12,7 +14,7 @@ import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
  * Created by Konstantin Gordeev on 14.10.2014.
  */
 @ComponentName("activate.contact.name.action")
-public class ActivateContactNameHandler extends SimpleActionHandler {
+public class ActivateContactNameHandler extends ActionHandler<SimpleActionContext, SimpleActionData> {
 
     private static final String STATUS_ACTIVATED = "Актуальный";
 
