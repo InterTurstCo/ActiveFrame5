@@ -181,4 +181,9 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         }
         return result;
     }
+
+    public void clearItems(){
+        mainBoxPanel.clear();
+        mainBoxPanel.add(filter);
+    }
 }

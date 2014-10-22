@@ -229,7 +229,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
             @Override
             public void onClick(ClickEvent event) {
                 currentState.clearState();
-
+                widgetItemsView.clearItems();
             }
         });
         root.add(widgetItemsView);
