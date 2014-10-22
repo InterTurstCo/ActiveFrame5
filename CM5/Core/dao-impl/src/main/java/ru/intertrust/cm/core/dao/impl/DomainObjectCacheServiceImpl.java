@@ -70,13 +70,27 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
                     : (DomainObject) SerializationUtils.deserialize(SerializationUtils.serialize(domainObject));
         }
 
+        private void setChildDoNodeIds(List<Id> ids, String... key) {
+            //key - список ключевых слов, см. выше
+            String complexKey = generateKey(key);
+            LinkedHashSet<Id> idSet = childDomainObjectIdMap.get(complexKey);
+
+            if (idSet == null) {
+                idSet = new LinkedHashSet<>();
+                childDomainObjectIdMap.put(complexKey, idSet);
+            } else {
+                idSet.clear();
+            }
+
+            idSet.addAll(ids);
+        }
+
         private void addChildDoNodeIds(List<Id> ids, String... key) {
             //key - список ключевых слов, см. выше
             String complexKey = generateKey(key);
             LinkedHashSet<Id> idSet = childDomainObjectIdMap.get(complexKey);
             if (idSet == null) {
-                idSet = new LinkedHashSet<>();
-                childDomainObjectIdMap.put(complexKey, idSet);
+                return;
             }
             idSet.addAll(ids);
         }
@@ -214,7 +228,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             throw new DaoException("Can't find key.");
         }
         List<Id> ids = putObjectsToCache(dobjs, accessToken);
-        getOrCreateDomainObjectNode(parentId, accessToken.getAccessLimitationType()).addChildDoNodeIds(ids, key);
+        getOrCreateDomainObjectNode(parentId, accessToken.getAccessLimitationType()).setChildDoNodeIds(ids, key);
         return ids;
     }
 
