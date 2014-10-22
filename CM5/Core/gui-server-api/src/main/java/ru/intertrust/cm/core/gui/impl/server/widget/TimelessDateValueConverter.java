@@ -4,7 +4,6 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
-import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
@@ -29,8 +28,9 @@ public class TimelessDateValueConverter implements DateValueConverter<TimelessDa
             final Calendar calendar =
                     GuiServerHelper.timelessDateToCalendar(value.get(), GuiServerHelper.GMT_TIME_ZONE);
 
-            final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
-            dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+//            final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
+//            dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+            dateFormat.setTimeZone(GuiServerHelper.GMT_TIME_ZONE);
             final String dateTime = dateFormat.format(calendar.getTime());
             result.setDateTime(dateTime);
         }
@@ -41,9 +41,10 @@ public class TimelessDateValueConverter implements DateValueConverter<TimelessDa
     public TimelessDateValue contextToValue(DateTimeContext dateTimeContext) {
         if (dateTimeContext.getDateTime() != null) {
             final TimelessDate result = new TimelessDate();
-            final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
             final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
-            dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+//            final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
+//            dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+            dateFormat.setTimeZone(GuiServerHelper.GMT_TIME_ZONE);
             try {
                 final Date date = dateFormat.parse(dateTimeContext.getDateTime());
                 final Calendar calendar = Calendar.getInstance(GuiServerHelper.GMT_TIME_ZONE);
