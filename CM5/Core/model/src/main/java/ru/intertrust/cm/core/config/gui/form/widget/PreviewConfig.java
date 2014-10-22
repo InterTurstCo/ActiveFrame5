@@ -20,7 +20,7 @@ public class PreviewConfig implements Dto {
     private String height;
 
     @Attribute(name="preserve-proportion", required = false)
-    private boolean preserverProportion;
+    private boolean preserveProportion;
 
     public boolean isDisplay() {
         return display;
@@ -34,8 +34,8 @@ public class PreviewConfig implements Dto {
         return height;
     }
 
-    public boolean isPreserverProportion() {
-        return preserverProportion;
+    public boolean isPreserveProportion() {
+        return preserveProportion;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class PreviewConfig implements Dto {
         if (display != that.display) {
             return false;
         }
-        if (preserverProportion != that.preserverProportion) {
+        if (preserveProportion != that.preserveProportion) {
             return false;
         }
         if (height != null ? !height.equals(that.height) : that.height != null) {
@@ -67,7 +67,7 @@ public class PreviewConfig implements Dto {
         int result = (display ? 1 : 0);
         result = 31 * result + (width != null ? width.hashCode() : 0);
         result = 31 * result + (height != null ? height.hashCode() : 0);
-        result = 31 * result + (preserverProportion ? 1 : 0);
+        result = 31 * result + (preserveProportion ? 1 : 0);
         return result;
     }
 }

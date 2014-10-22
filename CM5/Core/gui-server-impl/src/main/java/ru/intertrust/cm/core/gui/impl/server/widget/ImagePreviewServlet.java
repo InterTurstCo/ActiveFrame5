@@ -71,13 +71,14 @@ public class ImagePreviewServlet {
         }
     }
 
-    private static void copyStream(InputStream input, OutputStream output) {
+    private static void copyStream(InputStream in, OutputStream out) {
         byte[] buffer = new byte[1024];
         int bytesRead;
         try {
-            while ((bytesRead = input.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
             }
+            out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
