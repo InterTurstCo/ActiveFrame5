@@ -108,6 +108,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
     @Override
     public void displayAttachmentItems(List<AttachmentElementPresenter> presenters) {
+        cleanUp();
         for (AttachmentElementPresenter presenter : presenters) {
             displayAttachmentItem(presenter);
         }
@@ -296,7 +297,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             for (String filePath : filePaths.split(",")) {
                 AttachmentItem item = handleFileNameFromServer(filePath);
                 eventBus.fireEvent(new UploadCompletedEvent());
-                displayAttachmentItem(presenterFactory.createEditableTextPresenter(item));
+                displayAttachmentItem(presenterFactory.createEditablePresenter(item));
                 cancelTimer();
             }
         }

@@ -30,7 +30,7 @@ public class AttachmentBoxConfig extends WidgetConfig {
     private AcceptedTypesConfig acceptedTypesConfig;
 
     @Element(name = "images-only", required = false)
-    private ImagesOnlyConfig imagesOnlyConfig;
+    private ImagesOnlyConfig imagesConfig;
 
     @Element(name = "choice-style", required = false)
     private ChoiceStyleConfig choiceStyleConfig;
@@ -88,8 +88,8 @@ public class AttachmentBoxConfig extends WidgetConfig {
         this.acceptedTypesConfig = acceptedTypesConfig;
     }
 
-    public ImagesOnlyConfig getImagesOnlyConfig() {
-        return imagesOnlyConfig;
+    public ImagesOnlyConfig getImagesConfig() {
+        return imagesConfig;
     }
 
     public ChoiceStyleConfig getChoiceStyleConfig() {
@@ -115,7 +115,7 @@ public class AttachmentBoxConfig extends WidgetConfig {
         if (acceptedTypesConfig != null ? !acceptedTypesConfig.equals(that.acceptedTypesConfig) : that.
                 acceptedTypesConfig != null)
             return false;
-        if (imagesOnlyConfig != null ? !imagesOnlyConfig.equals(that.imagesOnlyConfig) : that.imagesOnlyConfig != null)
+        if (imagesConfig != null ? !imagesConfig.equals(that.imagesConfig) : that.imagesConfig != null)
             return false;
         if (choiceStyleConfig != null ? !choiceStyleConfig.equals(that.choiceStyleConfig) : that.choiceStyleConfig != null)
             return false;
@@ -131,7 +131,7 @@ public class AttachmentBoxConfig extends WidgetConfig {
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (actionLinkConfig != null ? actionLinkConfig.hashCode() : 0);
         result = 31 * result + (acceptedTypesConfig != null ? acceptedTypesConfig.hashCode() : 0);
-        result = 31 * result + (imagesOnlyConfig != null ? imagesOnlyConfig.hashCode() : 0);
+        result = 31 * result + (imagesConfig != null ? imagesConfig.hashCode() : 0);
         result = 31 * result + (choiceStyleConfig != null ? choiceStyleConfig.hashCode() : 0);
         return result;
     }

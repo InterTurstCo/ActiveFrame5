@@ -30,7 +30,8 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         AttachmentBoxState state = (AttachmentBoxState) currentState;
-        presenterFactory = new AttachmentElementPresenterFactory(state.getAttachments(), state.getActionLinkConfig(), eventBus);
+        presenterFactory = new AttachmentElementPresenterFactory(state.getAttachments(), state.getActionLinkConfig(),
+                state.getImagesConfig(), eventBus);
         if (isEditable()) {
             setCurrentStateForEditableWidget(state);
         } else {
@@ -45,13 +46,13 @@ public class AttachmentBoxWidget extends BaseWidget {
         view.setAttachments(attachments);
         view.setPresenterFactory(presenterFactory);
         view.setSingleChoice(singleChoice);
-        view.displayAttachmentItems(presenterFactory.createEditableTextPresenters(attachments));
+        view.displayAttachmentItems(presenterFactory.createEditablePresenters(attachments));
     }
 
     private void setCurrentStateForNoneEditableWidget(AttachmentBoxState state) {
         List<AttachmentItem> attachments = state.getAttachments();
         AttachmentNonEditablePanel noneEditablePanel = (AttachmentNonEditablePanel) impl;
-        noneEditablePanel.displayAttachmentItems(presenterFactory.createNonEditableTextPresenters(attachments));
+        noneEditablePanel.displayAttachmentItems(presenterFactory.createNonEditablePresenters(attachments));
     }
 
     @Override
