@@ -13,24 +13,24 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 public class ImagesOnlyConfig implements Dto {
 
     @Element(name="read-only-preview", required = false)
-    private PreviewConfig readOnlyPreview;
+    private PreviewConfig readOnlyPreviewConfig;
 
     @Element(name="small-preview", required = false)
-    private PreviewConfig smallPreview;
+    private PreviewConfig smallPreviewConfig;
 
     @Element(name="large-preview", required = false)
-    private PreviewConfig largePreview;
+    private PreviewConfig largePreviewConfig;
 
-    public PreviewConfig getReadOnlyPreview() {
-        return readOnlyPreview;
+    public PreviewConfig getReadOnlyPreviewConfig() {
+        return readOnlyPreviewConfig;
     }
 
-    public PreviewConfig getSmallPreview() {
-        return smallPreview;
+    public PreviewConfig getSmallPreviewConfig() {
+        return smallPreviewConfig;
     }
 
-    public PreviewConfig getLargePreview() {
-        return largePreview;
+    public PreviewConfig getLargePreviewConfig() {
+        return largePreviewConfig;
     }
 
     @Override
@@ -42,13 +42,16 @@ public class ImagesOnlyConfig implements Dto {
             return false;
         }
         ImagesOnlyConfig that = (ImagesOnlyConfig) o;
-        if (largePreview != null ? !largePreview.equals(that.largePreview) : that.largePreview != null) {
+        if (largePreviewConfig != null ? !largePreviewConfig.equals(that.largePreviewConfig) :
+                that.largePreviewConfig != null) {
             return false;
         }
-        if (readOnlyPreview != null ? !readOnlyPreview.equals(that.readOnlyPreview) : that.readOnlyPreview != null) {
+        if (readOnlyPreviewConfig != null ? !readOnlyPreviewConfig.equals(that.readOnlyPreviewConfig) :
+                that.readOnlyPreviewConfig != null) {
             return false;
         }
-        if (smallPreview != null ? !smallPreview.equals(that.smallPreview) : that.smallPreview != null) {
+        if (smallPreviewConfig != null ? !smallPreviewConfig.equals(that.smallPreviewConfig) :
+                that.smallPreviewConfig != null) {
             return false;
         }
         return true;
@@ -56,9 +59,9 @@ public class ImagesOnlyConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = readOnlyPreview != null ? readOnlyPreview.hashCode() : 0;
-        result = 31 * result + (smallPreview != null ? smallPreview.hashCode() : 0);
-        result = 31 * result + (largePreview != null ? largePreview.hashCode() : 0);
+        int result = readOnlyPreviewConfig != null ? readOnlyPreviewConfig.hashCode() : 0;
+        result = 31 * result + (smallPreviewConfig != null ? smallPreviewConfig.hashCode() : 0);
+        result = 31 * result + (largePreviewConfig != null ? largePreviewConfig.hashCode() : 0);
         return result;
     }
 }
