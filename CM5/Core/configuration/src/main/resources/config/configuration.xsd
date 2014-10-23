@@ -2078,6 +2078,16 @@
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="image"/>
                 <xs:attribute type="xs:string" name="text"/>
+                <xs:attribute type="xs:boolean" name="display" use="optional" default="true"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="deleteButtonType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <!--xs:attribute type="xs:string" name="image"/-->
+                <!--xs:attribute type="xs:string" name="text"/-->
+                <xs:attribute type="xs:boolean" name="display" use="optional" default="true"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -2423,6 +2433,8 @@
                     <xs:element type="con:imagesOnlyType" name="images-only"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:choiceStyleType" name="choice-style"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:deleteButtonType" name="delete-button"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required"/>

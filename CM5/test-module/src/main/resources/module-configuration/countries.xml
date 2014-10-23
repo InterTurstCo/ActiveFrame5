@@ -642,6 +642,7 @@
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
                 <choice-style name="popup"/>
+                <delete-button display="true"/>
                 <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
             </attachment-box>
 

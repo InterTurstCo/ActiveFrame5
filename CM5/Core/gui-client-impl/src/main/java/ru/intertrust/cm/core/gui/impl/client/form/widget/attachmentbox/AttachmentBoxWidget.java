@@ -31,7 +31,7 @@ public class AttachmentBoxWidget extends BaseWidget {
     public void setCurrentState(WidgetState currentState) {
         AttachmentBoxState state = (AttachmentBoxState) currentState;
         presenterFactory = new AttachmentElementPresenterFactory(state.getAttachments(), state.getActionLinkConfig(),
-                state.getImagesConfig(), eventBus);
+                state.getImagesConfig(), state.getDeleteButtonConfig(), eventBus);
         if (isEditable()) {
             setCurrentStateForEditableWidget(state);
         } else {
