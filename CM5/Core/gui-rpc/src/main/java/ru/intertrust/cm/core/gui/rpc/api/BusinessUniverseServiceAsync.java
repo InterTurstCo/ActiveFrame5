@@ -46,12 +46,10 @@ public interface BusinessUniverseServiceAsync {
         }
 
         public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async) {
-            Application.getInstance().showLoadingIndicator();
             getInstance().executeCommand(command, new AsyncCallback<T>() {
 
                 @Override
                 public void onFailure(Throwable caught) {
-                    Application.getInstance().hideLoadingIndicator();
                     final String initialToken = History.getToken();
                     if (caught.getMessage() != null && caught.getMessage().contains("LoginPage")) {
                         String queryString = Window.Location.getQueryString() == null ? "" : Window.Location.getQueryString();
@@ -68,7 +66,6 @@ public interface BusinessUniverseServiceAsync {
 
                 @Override
                 public void onSuccess(T result) {
-                    Application.getInstance().hideLoadingIndicator();
                     async.onSuccess(result);
                 }
             });
