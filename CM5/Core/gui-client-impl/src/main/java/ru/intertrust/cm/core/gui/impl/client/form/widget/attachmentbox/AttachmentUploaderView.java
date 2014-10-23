@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.FormPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
@@ -54,11 +55,13 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private boolean dontShowNewRow;
     private AttachmentElementPresenterFactory presenterFactory;
     private EventBus eventBus;
+    private AddButtonConfig addButtonConfig;
 
     public AttachmentUploaderView(SelectionStyleConfig selectionStyleConfig, AcceptedTypesConfig acceptedTypesConfig,
-                                   EventBus eventBus) {
+                                  AddButtonConfig addButtonConfig, EventBus eventBus) {
         this.acceptedTypesConfig = acceptedTypesConfig;
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
+        this.addButtonConfig = addButtonConfig;
         this.eventBus = eventBus;
         init();
     }
@@ -88,17 +91,24 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
-        initSubmitForm();
-        initFileUpload();
-        initUploadButton();
-        root.add(addFile);
-        submitForm.add(fileUpload);
-        root.add(submitForm);
-        submitForm.addStyleName("attachment-plugin-form-panel");
         root.add(mainBoxPanel);
+        if (displayAddButton()) {
+            initSubmitForm();
+            initFileUpload();
+            initUploadButton();
+            root.add(addFile);
+            submitForm.add(fileUpload);
+            root.add(submitForm);
+            submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
+            submitForm.addSubmitHandler(new FormSubmitHandler());
+        }
         initWidget(root);
-        submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
-        submitForm.addSubmitHandler(new FormSubmitHandler());
+
+    }
+
+    private boolean displayAddButton() {
+        //TODO: take into account 1) access 2) ref type (1:1, 1:n, n:m)
+        return addButtonConfig == null || addButtonConfig.isDisplay();
     }
 
     @Override
@@ -168,7 +178,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         // set form to use the POST method, and multipart MIME encoding.
         submitForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         submitForm.setMethod(FormPanel.METHOD_POST);
-
+        submitForm.addStyleName("attachment-plugin-form-panel");
     }
 
     public void reinitSubmitForm() {

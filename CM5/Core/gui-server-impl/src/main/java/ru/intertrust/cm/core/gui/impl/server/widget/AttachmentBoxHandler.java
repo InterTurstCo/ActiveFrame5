@@ -76,6 +76,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         state.setSingleChoice(singleChoice);
         state.setImagesConfig(widgetConfig.getImagesConfig());
         state.setDeleteButtonConfig(widgetConfig.getDeleteButtonConfig());
+        state.setAddButtonConfig(widgetConfig.getAddButtonConfig());
         return state;
     }
 

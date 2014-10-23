@@ -2434,6 +2434,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:choiceStyleType" name="choice-style"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:addButtonType" name="add-button"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:deleteButtonType" name="delete-button"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>

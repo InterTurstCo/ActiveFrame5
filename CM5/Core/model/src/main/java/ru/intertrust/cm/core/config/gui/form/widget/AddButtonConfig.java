@@ -14,11 +14,14 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "add-button")
 public class AddButtonConfig implements Dto{
 
-    @Attribute(name = "image")
+    @Attribute(name = "image", required = false)
     String image;
 
-    @Attribute(name = "text")
+    @Attribute(name = "text", required = false)
     String text;
+
+    @Attribute(name = "display", required = false)
+    boolean display = true;
 
     public String getImage() {
         return image;
@@ -36,16 +39,20 @@ public class AddButtonConfig implements Dto{
         this.text = text;
     }
 
+    public boolean isDisplay() {
+        return display;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ClearAllButtonConfig that = (ClearAllButtonConfig) o;
+        AddButtonConfig that = (AddButtonConfig) o;
 
         if (image != null ? !image.equals(that.image) : that.image != null) return false;
         if (text != null ? !text.equals(that.text) : that.text != null) return false;
-
+        if (display != that.isDisplay()) return false;
         return true;
     }
 
@@ -53,6 +60,7 @@ public class AddButtonConfig implements Dto{
     public int hashCode() {
         int result = image != null ? image.hashCode() : 0;
         result = 31 * result + (text != null ? text.hashCode() : 0);
+        result = 31 * result + (display ? 1 : 0);
         return result;
     }
 }

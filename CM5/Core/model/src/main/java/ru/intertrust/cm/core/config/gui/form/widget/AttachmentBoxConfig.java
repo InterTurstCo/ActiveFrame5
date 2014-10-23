@@ -35,6 +35,9 @@ public class AttachmentBoxConfig extends WidgetConfig {
     @Element(name = "delete-button", required = false)
     private DeleteButtonConfig deleteButtonConfig;
 
+    @Element(name = "add-button", required = false)
+    private AddButtonConfig addButtonConfig;
+
     @Element(name = "choice-style", required = false)
     private ChoiceStyleConfig choiceStyleConfig;
 
@@ -99,6 +102,10 @@ public class AttachmentBoxConfig extends WidgetConfig {
         return deleteButtonConfig;
     }
 
+    public AddButtonConfig getAddButtonConfig() {
+        return addButtonConfig;
+    }
+
     public ChoiceStyleConfig getChoiceStyleConfig() {
         return choiceStyleConfig;
     }
@@ -126,6 +133,8 @@ public class AttachmentBoxConfig extends WidgetConfig {
             return false;
         if (deleteButtonConfig != null ? !deleteButtonConfig.equals(that.deleteButtonConfig) : that.deleteButtonConfig != null)
             return false;
+        if (addButtonConfig != null ? !addButtonConfig.equals(that.addButtonConfig) : that.addButtonConfig != null)
+            return false;
         if (choiceStyleConfig != null ? !choiceStyleConfig.equals(that.choiceStyleConfig) : that.choiceStyleConfig != null)
             return false;
         return true;
@@ -142,6 +151,7 @@ public class AttachmentBoxConfig extends WidgetConfig {
         result = 31 * result + (acceptedTypesConfig != null ? acceptedTypesConfig.hashCode() : 0);
         result = 31 * result + (imagesConfig != null ? imagesConfig.hashCode() : 0);
         result = 31 * result + (deleteButtonConfig != null ? deleteButtonConfig.hashCode() : 0);
+        result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         result = 31 * result + (choiceStyleConfig != null ? choiceStyleConfig.hashCode() : 0);
         return result;
     }

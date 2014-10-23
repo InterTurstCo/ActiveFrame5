@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox;
 
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
@@ -82,8 +83,9 @@ public class AttachmentBoxWidget extends BaseWidget {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
         AcceptedTypesConfig acceptedTypesConfig = attachmentBoxState.getAcceptedTypesConfig();
+        AddButtonConfig addButtonConfig = attachmentBoxState.getAddButtonConfig();
         AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView(selectionStyleConfig,
-                acceptedTypesConfig, eventBus);
+                acceptedTypesConfig, addButtonConfig, eventBus);
 
         return attachmentUploaderView;
     }
