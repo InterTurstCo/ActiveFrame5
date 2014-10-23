@@ -2474,7 +2474,7 @@
         <xs:attribute name="display" type="xs:boolean" default="true" use="optional"/>
         <xs:attribute name="width" type="xs:string" use="optional"/>
         <xs:attribute name="height" type="xs:string" use="optional"/>
-        <xs:attribute name="preserve-proportion" type="xs:boolean" use="optional"/>
+        <xs:attribute name="preserve-proportion" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
 
     <xs:complexType name="choiceStyleType">
