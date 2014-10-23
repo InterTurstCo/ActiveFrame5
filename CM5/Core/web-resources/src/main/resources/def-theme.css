@@ -1149,7 +1149,12 @@ h1 {
 
 .image-preview {
     border: 1px solid lightgray;
-    margin: 8px;
+    margin: 6px;
+    padding: 6px;
+}
+
+.facebook-element .image-preview .gwt-Image {
+    margin-left: 0px;
 }
 
 .facebook-element .facebook-btn:hover {
