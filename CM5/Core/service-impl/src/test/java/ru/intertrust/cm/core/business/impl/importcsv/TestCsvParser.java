@@ -25,7 +25,7 @@ public class TestCsvParser {
         etalon.add("field 3");
         etalon.add("По русски");
         etalon.add("c пробелами");
-        etalon.add("Несколько строк" + System.getProperty("line.separator") + "вторая строка");
+        etalon.add("Несколько строк" + System.lineSeparator() + "вторая строка");
         etalon.add("содержащий точку ; с запятой");
         etalon.add("содержит, запятую");
         etalon.add("содержит \" кавычки");
@@ -54,7 +54,7 @@ public class TestCsvParser {
     @Test
     public void testApacheCsv() throws Exception {
         Reader in = new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("test.csv"), "ANSI-1251");
-        Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(in);
+        Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').withRecordSeparator("\n").parse(in);
         int j = 0;
         for (CSVRecord record : records) {
             for (int i = 0; i < record.size(); i++) {
