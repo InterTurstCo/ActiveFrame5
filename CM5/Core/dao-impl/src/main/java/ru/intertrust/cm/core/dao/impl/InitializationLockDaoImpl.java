@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
@@ -60,6 +61,9 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
 
     @Autowired
     private MD5Service md5Service;
+    
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
     
     private BasicQueryHelper queryHelper;
 
@@ -129,7 +133,7 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
 
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
-            queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
+            queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, configurationExplorer, md5Service);
         }
 
         return queryHelper;

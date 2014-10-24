@@ -35,6 +35,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.BaseIndexExpressionConfig;
@@ -79,9 +80,12 @@ public abstract class BasicQueryHelper {
 
     private MD5Service md5Service;
     
-    protected BasicQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
+    private ConfigurationExplorer configurationExplorer;
+
+    protected BasicQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, ConfigurationExplorer configurationExplorer, MD5Service md5Service) {
         this.domainObjectTypeIdDao = domainObjectTypeIdDao;
         this.md5Service = md5Service;
+        this.configurationExplorer = configurationExplorer;
     }
 
     /**
@@ -210,8 +214,8 @@ public abstract class BasicQueryHelper {
      */
     public String generateCreateTableQuery(DomainObjectTypeConfig config) {
         String tableName = getSqlName(config);
-        StringBuilder query = new StringBuilder("create table ").append(wrap(tableName)).append(" ( ");
-
+        StringBuilder query = new StringBuilder("create table ").append(wrap(tableName)).append(" ( ");        
+        
         appendSystemColumnsQueryPart(config, query);
 
         if (config.getFieldConfigs().size() > 0) {
@@ -639,22 +643,41 @@ public abstract class BasicQueryHelper {
     private void appendSystemColumnsQueryPart(DomainObjectTypeConfig config, StringBuilder query) {
         query.append(wrap(ID_COLUMN)).append(" ").append(getIdType()).append(" not null, ");
         query.append(wrap(TYPE_COLUMN)).append(" integer");
+        
+        boolean isParent = isParentObject(config);
 
-        if (config.getExtendsAttribute() == null) {
+        if (isParent) {
             query.append(", ").append(wrap(CREATED_DATE_COLUMN)).append(" timestamp not null, ");
             query.append(wrap(UPDATED_DATE_COLUMN)).append(" timestamp not null, ");
-            
+
             query.append(wrap(DomainObjectDao.CREATED_BY)).append(" ").append(getIdType()).append(", ");
             query.append(wrap(DomainObjectDao.CREATED_BY_TYPE_COLUMN)).append(" integer, ");
 
             query.append(wrap(DomainObjectDao.UPDATED_BY)).append(" ").append(getIdType()).append(", ");
-            query.append(wrap(DomainObjectDao.UPDATED_BY_TYPE_COLUMN)).append(" integer, ");            
-            
+            query.append(wrap(DomainObjectDao.UPDATED_BY_TYPE_COLUMN)).append(" integer, ");
+
             query.append(wrap(GenericDomainObject.STATUS_FIELD_NAME)).append(" ").append(getIdType()).append(", ");
             query.append(wrap(DomainObjectDao.STATUS_TYPE_COLUMN)).append(" integer, ");
-            
+
             query.append(wrap(DomainObjectDao.ACCESS_OBJECT_ID)).append(" ").append(getIdType());
         }
+    }
+
+    private boolean isParentObject(DomainObjectTypeConfig config) {
+        boolean isParent = false;
+        if (configurationExplorer.isAuditLogType(config.getName())) {
+            String parentDomainObjectName = config.getName().replace("_al", "");
+            DomainObjectTypeConfig parentObjectConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentDomainObjectName);
+            if (parentObjectConfig != null && parentObjectConfig.getExtendsAttribute() != null) {
+                isParent = false;
+            } else {
+                isParent = true;
+            }
+
+        } else {
+            isParent = config.getExtendsAttribute() == null;
+        }
+        return isParent;
     }
 
     private void appendColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,

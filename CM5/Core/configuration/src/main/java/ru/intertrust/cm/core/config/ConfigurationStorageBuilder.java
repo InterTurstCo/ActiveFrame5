@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.DomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
@@ -266,6 +267,15 @@ public class ConfigurationStorageBuilder {
         }
     }
 
+    public void updateAuditLogConfigs(DomainObjectTypeConfig oldConfig, DomainObjectTypeConfig newConfig) {
+        DomainObjectTypeConfig oldAuditLogConfig = createAuditLogConfig(oldConfig);
+        removeTopLevelConfigFromMap(oldAuditLogConfig);
+        removeDomainObjectFieldConfigsFromMap(oldAuditLogConfig);
+        configurationStorage.auditLogTypes.remove(oldAuditLogConfig.getName());
+        
+        fillAuditLogConfigMap(newConfig);
+    }
+    
     /**
      * Получение всех дочерних типов с учетом иерархии наследования
      * @param typeName
@@ -369,9 +379,15 @@ public class ConfigurationStorageBuilder {
 
         Collection<DomainObjectTypeConfig> domainObjectTypeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
+
             fillDomainObjectFieldConfig(domainObjectTypeConfig);
             fillConfigurationMapsOfAttachmentDomainObjectType(domainObjectTypeConfig);
             fillConfigurationMapOfChildDomainObjectType(domainObjectTypeConfig);
+            fillAuditLogConfigMap(domainObjectTypeConfig);
+            
+            if (domainObjectTypeConfig.getExtendsAttribute() == null) {
+                
+            }
         }
 
         //Заполнение таблицы read-evrybody. Вынесено сюда, потому что не для всех типов существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
@@ -421,6 +437,60 @@ public class ConfigurationStorageBuilder {
         fillSystemFields(domainObjectTypeConfig);
     }
 
+    private void fillAuditLogConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
+        if (domainObjectTypeConfig == null) {
+            return;
+        }
+
+        DomainObjectTypeConfig auditLogDomainObjectConfig = createAuditLogConfig(domainObjectTypeConfig);
+        
+        fillTopLevelConfigMap(auditLogDomainObjectConfig);
+        fillFieldsConfigMap(auditLogDomainObjectConfig);
+        configurationStorage.auditLogTypes.put(auditLogDomainObjectConfig.getName(), auditLogDomainObjectConfig.getName());
+
+    }
+
+    private DomainObjectTypeConfig createAuditLogConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+        DomainObjectTypeConfig auditLogDomainObjectConfig = new DomainObjectTypeConfig();
+        
+        auditLogDomainObjectConfig.setTemplate(false);
+        String auditLogTableName = getALTableName(domainObjectTypeConfig.getName());
+        auditLogDomainObjectConfig.setName(auditLogTableName);
+        
+        if (domainObjectTypeConfig.getExtendsAttribute() == null) {
+            FieldConfig operationField = new LongFieldConfig();
+            operationField.setName(Configuration.OPERATION_COLUMN);
+            auditLogDomainObjectConfig.getFieldConfigs().add(operationField);
+
+            ReferenceFieldConfig domainObjectRefenceField = new ReferenceFieldConfig();
+            domainObjectRefenceField.setName(Configuration.DOMAIN_OBJECT_ID_COLUMN);
+            domainObjectRefenceField.setType(ConfigurationExplorer.REFERENCE_TYPE_ANY);
+            auditLogDomainObjectConfig.getFieldConfigs().add(domainObjectRefenceField);
+
+            StringFieldConfig componentField = new StringFieldConfig();
+            componentField.setName(Configuration.COMPONENT_COLUMN);
+            componentField.setLength(512);
+            auditLogDomainObjectConfig.getFieldConfigs().add(componentField);
+
+            StringFieldConfig ipAddressField = new StringFieldConfig();
+            ipAddressField.setName(Configuration.IP_ADDRESS_COLUMN);
+            ipAddressField.setLength(16);
+            auditLogDomainObjectConfig.getFieldConfigs().add(ipAddressField);
+
+            StringFieldConfig infoField = new StringFieldConfig();
+            infoField.setName(Configuration.INFO_COLUMN);
+            infoField.setLength(512);
+            auditLogDomainObjectConfig.getFieldConfigs().add(infoField);
+        }
+        
+        auditLogDomainObjectConfig.getFieldConfigs().addAll(domainObjectTypeConfig.getFieldConfigs());
+        return auditLogDomainObjectConfig;
+    }
+
+    public static String getALTableName(String name) {
+        return name + "_al";
+    }
+    
     private void fillConfigurationMapsOfAttachmentDomainObjectType(DomainObjectTypeConfig domainObjectTypeConfig) {
         if (domainObjectTypeConfig == null || domainObjectTypeConfig.getAttachmentTypesConfig() == null) {
             return;
@@ -612,4 +682,5 @@ public class ConfigurationStorageBuilder {
             return cloneDomainObjectTypeConfig;
         }
     }
+
 }

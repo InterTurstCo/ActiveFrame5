@@ -151,6 +151,13 @@ public interface ConfigurationExplorer {
      */
     boolean isAttachmentType(String domainObjectType);
 
+    /**
+     * Проверка того, что тип доменного обхекта аудит лог.
+     * @param domainObjectType тип доменного обхекта
+     * @return true если тип доменного обхекта аудит лог
+     */
+    boolean isAuditLogType(String domainObjectType);
+    
     public String[] getAllAttachmentTypes();
 
     boolean isReadPermittedToEverybody(String domainObjectType);

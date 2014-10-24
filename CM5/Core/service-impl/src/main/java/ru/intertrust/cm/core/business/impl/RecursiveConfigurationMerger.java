@@ -58,32 +58,35 @@ class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader 
             return;
         }
 
-        List<ReferenceFieldConfig> newReferenceFieldConfigs = new ArrayList<>();
-        List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
+        if (!configurationExplorer.isAuditLogType(config.getName())) {
+            List<ReferenceFieldConfig> newReferenceFieldConfigs = new ArrayList<>();
+            List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
 
-        for (FieldConfig fieldConfig : config.getFieldConfigs()) {
-            if (!(fieldConfig instanceof ReferenceFieldConfig)) {
-                continue;
+            for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+                if (!(fieldConfig instanceof ReferenceFieldConfig)) {
+                    continue;
+                }
+
+                FieldConfig oldFieldConfig = oldConfigExplorer.getFieldConfig(config.getName(),
+                        fieldConfig.getName(), false);
+
+                if (oldFieldConfig == null) {
+                    newReferenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                }
             }
 
-            FieldConfig oldFieldConfig = oldConfigExplorer.getFieldConfig(config.getName(),
-                    fieldConfig.getName(), false);
+            for (UniqueKeyConfig uniqueKeyConfig : config.getUniqueKeyConfigs()) {
+                if (!oldConfig.getUniqueKeyConfigs().contains(uniqueKeyConfig)) {
+                    newUniqueKeyConfigs.add(uniqueKeyConfig);
+                }
+            }
 
-            if (oldFieldConfig == null) {
-                newReferenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+            if (!newReferenceFieldConfigs.isEmpty() || !newUniqueKeyConfigs.isEmpty()) {
+                dataStructureDao.createForeignKeyAndUniqueConstraints(config,
+                        newReferenceFieldConfigs, newUniqueKeyConfigs);
             }
         }
 
-        for (UniqueKeyConfig uniqueKeyConfig : config.getUniqueKeyConfigs()) {
-            if (!oldConfig.getUniqueKeyConfigs().contains(uniqueKeyConfig)) {
-                newUniqueKeyConfigs.add(uniqueKeyConfig);
-            }
-        }
-
-        if (!newReferenceFieldConfigs.isEmpty() || !newUniqueKeyConfigs.isEmpty()) {
-            dataStructureDao.createForeignKeyAndUniqueConstraints(config,
-                    newReferenceFieldConfigs, newUniqueKeyConfigs);
-        }
     }
 
     protected void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
@@ -17,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeFieldConfig;
 import ru.intertrust.cm.core.config.DecimalFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -38,6 +40,9 @@ public class PostgreSqlQueryHelperTest {
     @Mock
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
+    @Mock
+    private ConfigurationExplorer configurationExplorer;
+    
     private DomainObjectTypeConfig domainObjectTypeConfig;
     private ReferenceFieldConfig referenceFieldConfig;
     private PostgreSqlQueryHelper queryHelper;
@@ -45,8 +50,9 @@ public class PostgreSqlQueryHelperTest {
 
     @Before
     public void setUp() throws Exception {
-        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
+        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, configurationExplorer, md5Service);
         initDomainObjectConfig();
+        when(configurationExplorer.isAuditLogType(anyString())).thenReturn(false);
     }
 
     @Test

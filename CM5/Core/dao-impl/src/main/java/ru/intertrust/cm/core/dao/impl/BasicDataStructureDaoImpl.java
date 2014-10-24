@@ -48,7 +48,8 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     
     private BasicQueryHelper queryHelper;
 
-    protected abstract BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service);
+    protected abstract BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, ConfigurationExplorer configurationExplorer,
+            MD5Service md5Service);
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createSequence(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
@@ -59,7 +60,8 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             return; // Для таблиц дочерхних доменных объектов индекс не создается - используется индекс родителя
         }
 
-        String createSequenceQuery = getQueryHelper().generateSequenceQuery(config);
+        String createSequenceQuery = getQueryHelper().generateSequenceQuery(config);;
+        
         jdbcTemplate.update(createSequenceQuery);
     }
 
@@ -84,8 +86,8 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         }
 
         Integer id = domainObjectTypeIdDao.insert(config);
-        config.setId(id);
-
+        config.setId(id);       
+        
         jdbcTemplate.update(getQueryHelper().generateCreateTableQuery(config));
 
         createAutoIndices(config);
@@ -226,7 +228,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
-            queryHelper = createQueryHelper(domainObjectTypeIdDao, md5Service);
+            queryHelper = createQueryHelper(domainObjectTypeIdDao, configurationExplorer, md5Service);
         }
 
         return queryHelper;

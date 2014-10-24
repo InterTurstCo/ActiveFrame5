@@ -51,7 +51,9 @@ abstract class AbstractRecursiveConfigurationLoader {
     }
 
     protected void createAclTablesFor(DomainObjectTypeConfig domainObjectTypeConfig) {
-        dataStructureDao.createAclTables(domainObjectTypeConfig);
+        if (!domainObjectTypeConfig.isTemplate() && !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
+            dataStructureDao.createAclTables(domainObjectTypeConfig);
+        }
     }
 
     protected abstract void doProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig);
@@ -59,6 +61,9 @@ abstract class AbstractRecursiveConfigurationLoader {
     protected abstract void postProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig);
 
     protected void createAllConstraints(DomainObjectTypeConfig config) {
+        if (configurationExplorer.isAuditLogType(config.getName())) {
+            return;
+        }      
         List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
         for (FieldConfig fieldConfig : config.getFieldConfigs()) {
             if (fieldConfig instanceof ReferenceFieldConfig) {
@@ -87,6 +92,9 @@ abstract class AbstractRecursiveConfigurationLoader {
      * @param config
      */
     private void createSystemFieldsForeignKey(DomainObjectTypeConfig config) {
+        if (configurationExplorer.isAuditLogType(config.getName())) {
+            return;
+        }
         List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
         List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
 
@@ -115,9 +123,7 @@ abstract class AbstractRecursiveConfigurationLoader {
     private void createDbStructures(DomainObjectTypeConfig domainObjectTypeConfig) {
         if (!domainObjectTypeConfig.isTemplate()) {
             dataStructureDao.createTable(domainObjectTypeConfig);
-            dataStructureDao.createAuditLogTable(domainObjectTypeConfig);
             dataStructureDao.createSequence(domainObjectTypeConfig);
-            dataStructureDao.createAuditSequence(domainObjectTypeConfig);
         }
     }
 

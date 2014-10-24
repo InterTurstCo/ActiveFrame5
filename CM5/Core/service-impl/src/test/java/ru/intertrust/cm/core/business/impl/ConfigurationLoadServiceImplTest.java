@@ -123,8 +123,8 @@ public class ConfigurationLoadServiceImplTest {
         configurationService.loadConfiguration();
 
         verify(dataStructureDao).createServiceTables();
-        verify(dataStructureDao, times(2)).createTable(any(DomainObjectTypeConfig.class));
-        verify(dataStructureDao, times(2)).createSequence(any(DomainObjectTypeConfig.class));
+        verify(dataStructureDao, times(4)).createTable(any(DomainObjectTypeConfig.class));
+        verify(dataStructureDao, times(4)).createSequence(any(DomainObjectTypeConfig.class));
         verify(configurationDao).save(ConfigurationSerializer.serializeConfiguration(configuration));
     }
 

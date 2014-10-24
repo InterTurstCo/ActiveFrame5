@@ -14,6 +14,8 @@ import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
@@ -59,6 +61,7 @@ import ru.intertrust.cm.core.model.ObjectNotFoundException;
  */
 public class DomainObjectDaoImpl implements DomainObjectDao {
 
+    private static final Logger logger = LoggerFactory.getLogger(DomainObjectDaoImpl.class);
     @Autowired
     private NamedParameterJdbcOperations jdbcTemplate;
 
@@ -258,7 +261,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public DomainObject save(DomainObject domainObject, AccessToken accessToken)
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
-
+        String domainObjectType = domainObject.getTypeName();
+        
         DomainObject[] result = saveMany(new DomainObject[]{domainObject}, accessToken);
         return result[0];
     }
@@ -268,6 +272,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
 
+        if (domainObjects[0] != null && configurationExplorer.isAuditLogType(domainObjects[0].getTypeName())) {
+            throw new FatalException("It is not allowed to save Audit Log using CRUD service, table: " + domainObjects[0].getTypeName());
+        }
         DomainObject result[] = null;
 
         //Получение измененных полей
@@ -486,17 +493,27 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Override
     public void delete(Id id, AccessToken accessToken) throws InvalidIdException,
             ObjectNotFoundException {
+        String domainObjectType = domainObjectTypeIdCache.getName(id);
+        if (configurationExplorer.isAuditLogType(domainObjectType)) {
+            throw new FatalException("It is not allowed to delete Audit Log using CRUD service, table: " + domainObjectType);
+        }
         deleteMany(new Id[]{id}, accessToken);
     }
 
     private int deleteMany(Id[] ids, AccessToken accessToken) throws InvalidIdException,
             ObjectNotFoundException {
 
+        if (ids[0] != null) {
+            String domainObjectType = domainObjectTypeIdCache.getName(ids[0]);
+            if (configurationExplorer.isAuditLogType(domainObjectType)) {
+                throw new FatalException("It is not allowed to delete Audit Log using CRUD service, table: " + domainObjectType);
+            }
+        }
+        
         for (Id id : ids) {
             validateIdType(id);
             accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.DELETE);
         }
-
 
 
         RdbmsId firstRdbmsId = (RdbmsId) ids[0];
@@ -1440,11 +1457,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(wrap(ID_COLUMN)).append(", ");
         query.append(wrap(TYPE_COLUMN));
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(", ").append(wrap(OPERATION_COLUMN)).append(", ");
+            query.append(", ");
+            query.append(wrap(CREATED_DATE_COLUMN)).append(", ");            
             query.append(wrap(UPDATED_DATE_COLUMN)).append(", ");
+
+            query.append(wrap(CREATED_BY)).append(", ");
+            query.append(wrap(CREATED_BY_TYPE_COLUMN)).append(", ");
+
             query.append(wrap(UPDATED_BY)).append(", ");
             query.append(wrap(UPDATED_BY_TYPE_COLUMN)).append(", ");
 
+            query.append(wrap(STATUS_FIELD_NAME)).append(", ");
+            query.append(wrap(STATUS_TYPE_COLUMN)).append(", ");
+            query.append(wrap(ACCESS_OBJECT_ID)).append(", ");
+            
+
+            query.append(wrap(OPERATION_COLUMN)).append(", ");
             query.append(wrap(COMPONENT_COLUMN)).append(", ");
             query.append(wrap(DOMAIN_OBJECT_ID_COLUMN)).append(", ");
             query.append(wrap(INFO_COLUMN)).append(", ");
@@ -1457,7 +1485,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         query.append(") values (:").append(ID_COLUMN).append(", :").append(TYPE_COLUMN);
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(", :operation, :updated_date, :updated_by, :updated_by_type, :component, :domain_object_id, :info, :ip_address");
+            query.append(", :created_date, :updated_date, :created_by, :created_by_type, :updated_by, :updated_by_type, " +
+            		" :status, :status_type, :access_object_id, :operation, :component, :domain_object_id, :info, :ip_address");
         }
 
         if (commaSeparatedParameters.length() > 0) {
@@ -1873,7 +1902,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         operation);
 
                 if (id == null) {
-                    id = (Long) idGenerator.generatetLogId(domainObjectTypeIdCache.getId(domainObjectTypeConfig.getName()));
+                    String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(domainObjectTypeConfig.getName());
+                    id = (Long) idGenerator.generateId(domainObjectTypeIdCache.getId(auditLogTableName));
                 }
 
                 String query = generateCreateAuditLogQuery(domainObjectTypeConfig);
@@ -1885,6 +1915,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 if (!isDerived(domainObjectTypeConfig)) {
                     parameters.put(DomainObjectDao.OPERATION_COLUMN,
                             operation.getOperation());
+
+                    parameters.put(DomainObjectDao.CREATED_DATE_COLUMN,
+                            getGMTDate(domainObject.getCreatedDate()));
+
                     parameters.put(DomainObjectDao.UPDATED_DATE_COLUMN,
                             getGMTDate(domainObject.getModifiedDate()));
 
@@ -1893,8 +1927,25 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     Long currentUserId = currentUser != null ? ((RdbmsId) currentUser).getId() : null;
                     Integer currentUserType = currentUser != null ? ((RdbmsId) currentUser).getTypeId() : null;
 
+                    long createdById =  domainObject.getCreatedBy() != null ? ((RdbmsId)domainObject.getCreatedBy()).getId() : null;
+                    long createdByType =  domainObject.getCreatedBy() != null ? ((RdbmsId)domainObject.getCreatedBy()).getTypeId() : null;
+                    
+                    parameters.put(DomainObjectDao.CREATED_BY, createdById);
+                    parameters.put(DomainObjectDao.CREATED_BY_TYPE_COLUMN, createdByType);
+
                     parameters.put(DomainObjectDao.UPDATED_BY, currentUserId);
                     parameters.put(DomainObjectDao.UPDATED_BY_TYPE_COLUMN, currentUserType);
+
+                    Long statusId = domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getId() : null;
+                    Integer statusTypeId =
+                            domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getTypeId() : null;
+
+                    parameters.put(GenericDomainObject.STATUS_FIELD_NAME, statusId);
+                    parameters.put(DomainObjectDao.STATUS_TYPE_COLUMN, statusTypeId);
+
+                    Long accessObjectId = domainObject.getValue(DomainObjectDao.ACCESS_OBJECT_ID) != null ? 
+                            (Long) domainObject.getValue(DomainObjectDao.ACCESS_OBJECT_ID).get() : null;
+                    parameters.put(DomainObjectDao.ACCESS_OBJECT_ID, accessObjectId);
 
                    // TODO Получение имени компонента из AcceeToken
                     parameters.put(DomainObjectDao.COMPONENT_COLUMN, "");
@@ -1903,6 +1954,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     parameters.put(DomainObjectDao.INFO_COLUMN, "");
                     // TODO Получение ip адреса
                     parameters.put(DomainObjectDao.IP_ADDRESS_COLUMN, "");
+
                 }
 
                 List<FieldConfig> feldConfigs = domainObjectTypeConfig

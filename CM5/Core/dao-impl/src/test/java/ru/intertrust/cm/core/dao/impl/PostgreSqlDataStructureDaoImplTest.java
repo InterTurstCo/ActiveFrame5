@@ -38,6 +38,9 @@ public class PostgreSqlDataStructureDaoImplTest {
     @Mock
     private DomainObjectTypeIdCacheImpl domainObjectTypeIdCache;
 
+    @Mock
+    private ConfigurationExplorer configurationExplorer;
+
     private DomainObjectTypeConfig domainObjectTypeConfig;
 
     private MD5Service md5Service = new MD5ServiceImpl();
@@ -45,7 +48,8 @@ public class PostgreSqlDataStructureDaoImplTest {
     @Before
     public void setUp() throws Exception {
         initDomainObjectConfig();
-        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
+        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, configurationExplorer, md5Service);
+        when(configurationExplorer.isAuditLogType(anyString())).thenReturn(false);
     }
 
 
@@ -54,7 +58,7 @@ public class PostgreSqlDataStructureDaoImplTest {
         when(domainObjectTypeIdDao.insert(domainObjectTypeConfig)).thenReturn(Integer.valueOf(7)); // ID
         // конфигурации доменного объекта
         dataStructureDao.createTable(domainObjectTypeConfig);
-
+       
         verify(jdbcTemplate).update(queryHelper.generateCreateTableQuery(domainObjectTypeConfig));
 
         int index = 0;

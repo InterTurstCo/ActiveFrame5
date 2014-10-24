@@ -45,9 +45,7 @@ class RecursiveConfigurationLoader extends AbstractRecursiveConfigurationLoader 
 
     private void createAclTables(Collection<DomainObjectTypeConfig> configList) {
         for (DomainObjectTypeConfig config : configList) {
-            if (!config.isTemplate()) {
-                createAclTablesFor(config);
-            }
+            createAclTablesFor(config);
         }
     }
 }

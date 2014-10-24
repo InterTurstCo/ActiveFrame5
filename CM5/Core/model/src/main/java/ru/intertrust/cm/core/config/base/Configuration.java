@@ -17,6 +17,13 @@ import java.util.List;
 @Root
 @Convert(ConfigurationConverter.class)
 public class Configuration implements Serializable {
+    
+    public static String OPERATION_COLUMN = "operation";
+    public static String COMPONENT_COLUMN = "component";  
+    public static String DOMAIN_OBJECT_ID_COLUMN = "domain_object_id";
+    public static String IP_ADDRESS_COLUMN = "ip_address";
+    public static String INFO_COLUMN = "info";
+
     @ElementList(type=TopLevelConfig.class, inline=true)
     private List<TopLevelConfig> configurationList = new ArrayList<>();
 

@@ -426,6 +426,19 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isAuditLogType(String domainObjectType) {
+        readLock.lock();
+        try {
+            return configStorage.auditLogTypes.containsKey(domainObjectType);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     @Override
     public String[] getAllAttachmentTypes() {
         readLock.lock();
