@@ -4,7 +4,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import ru.intertrust.cm.core.config.gui.form.widget.PreviewConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
@@ -33,9 +32,9 @@ class ImagePresenter implements AttachmentElementPresenter {
         Panel element = new AbsolutePanel();
 
         element.addStyleName("facebook-element");
-        //element.addStyleName("image-preview");
-        Panel panel = new SimplePanel();
-        panel.addStyleName("image-preview");
+        element.addStyleName("image-preview");
+//        Panel panel = new SimplePanel();
+//        panel.addStyleName("image-preview");
         Image image = new ScalableImage(previewConfig);
         StringBuilder url = new StringBuilder(com.google.gwt.core.client.GWT.getHostPageBaseURL())
                 .append("image-preview?");
@@ -50,10 +49,13 @@ class ImagePresenter implements AttachmentElementPresenter {
             image.addClickHandler(clickHandler);
         }
 
-        panel.add(image);
-        panel.setWidth(previewConfig.getWidth() != null ? previewConfig.getWidth() : DEFAULT_WIDTH + "px");
-        panel.setHeight(previewConfig.getHeight() != null ? previewConfig.getHeight() : DEFAULT_HEIGHT + "px");
-         element.add(panel);
+//        panel.add(image);
+//        panel.setWidth(previewConfig.getWidth() != null ? previewConfig.getWidth() : DEFAULT_WIDTH + "px");
+//        panel.setHeight(previewConfig.getHeight() != null ? previewConfig.getHeight() : DEFAULT_HEIGHT + "px");
+//        element.add(panel);
+//        element.setWidth(previewConfig.getWidth() != null ? previewConfig.getWidth() : DEFAULT_WIDTH + "px");
+//        element.setHeight(previewConfig.getHeight() != null ? previewConfig.getHeight() : DEFAULT_HEIGHT + "px");
+        element.add(image);
         return element;
     }
 
@@ -69,7 +71,7 @@ class ImagePresenter implements AttachmentElementPresenter {
 
         protected void onAttach(){
           //  Window.alert(getWidth() + " : " + getHeight());
-            setupSizes(this, previewConfig);
+          //  setupSizes(this, previewConfig);
             super.onAttach();
         }
 

@@ -1147,19 +1147,44 @@ h1 {
 
 }
 
-.image-preview {
-    border: 1px solid lightgray;
-    margin: 6px;
-    padding: 6px;
-}
-
-.facebook-element .image-preview .gwt-Image {
-    margin-left: 0px;
-}
-
 .facebook-element .facebook-btn:hover {
     background-position: -16px 0;
 }
+
+/* ------------>>>  Attachment-box Widget <<<------------ */
+.image-preview {
+    border: 1px solid;
+    border-color: #e5e5e5 #dbdbdb #d2d2d2;
+    border-radius: 3px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    cursor: pointer;
+    height: 100px;
+    margin: 0 10px 10px 0;
+    width: 100px;
+}
+
+.image-preview:hover {
+    border-color: #D0D0D0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.35);
+    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.3);
+    -moz-box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+
+.image-preview img {
+    height: 100%;
+    margin: 0 !important;
+    width: auto;
+}
+
+.image-preview .facebook-btn {
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border-radius: 50%;
+}
+/* ------------>>>  end Attachment-box Widget <<<------------ */
 
 /**
  *  Extended Search Panel
