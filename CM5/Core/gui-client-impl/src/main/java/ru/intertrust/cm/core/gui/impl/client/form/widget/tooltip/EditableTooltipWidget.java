@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
 import ru.intertrust.cm.core.gui.model.form.widget.TooltipWidgetState;
 

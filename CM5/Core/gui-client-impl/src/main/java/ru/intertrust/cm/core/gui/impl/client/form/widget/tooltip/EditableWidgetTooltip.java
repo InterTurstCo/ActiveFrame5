@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEventHandler;
@@ -19,13 +20,15 @@ public class EditableWidgetTooltip extends PopupPanel {
     private EventBus eventBus;
     private WidgetItemsView widgetItemsView;
     private boolean displayAsHyperlinks;
+    private HasLinkedFormMappings widget;
 
     public EditableWidgetTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus
-                                                                 ,boolean displayAsHyperlinks, String hyperlinkPopupTitle) {
+            , boolean displayAsHyperlinks, String hyperlinkPopupTitle, HasLinkedFormMappings widget) {
 
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
+        this.widget = widget;
         init(selectionStyleConfig, hyperlinkPopupTitle);
         eventBus.addHandler(WidgetItemRemoveEvent.TYPE, new WidgetItemRemoveEventHandler() {
             @Override
@@ -38,7 +41,7 @@ public class EditableWidgetTooltip extends PopupPanel {
     }
 
     private void init(SelectionStyleConfig selectionStyleConfig, String hyperlinkPopupTitle) {
-        widgetItemsView = new WidgetItemsView(selectionStyleConfig, hyperlinkPopupTitle);
+        widgetItemsView = new WidgetItemsView(selectionStyleConfig, hyperlinkPopupTitle, widget);
         widgetItemsView.setEventBus(eventBus);
         widgetItemsView.setTooltipContent(true);
         this.add(widgetItemsView);

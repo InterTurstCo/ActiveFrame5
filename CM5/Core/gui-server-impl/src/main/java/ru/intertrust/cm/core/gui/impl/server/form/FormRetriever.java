@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,8 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
@@ -333,6 +334,12 @@ public class FormRetriever extends FormProcessor {
 
     private FormConfig loadFormConfig(DomainObject root, FormViewerConfig formViewerConfig) {
         FormConfig formConfig = null;
+
+        formConfig = findLinkedForm(formViewerConfig, root.getTypeName());
+        if (formConfig != null) {
+            return formConfig;
+        }
+
         if (formViewerConfig != null && formViewerConfig.getFormMappingComponent() != null) {
             FormMappingHandler formMappingHandler = (FormMappingHandler) applicationContext.getBean(formViewerConfig.getFormMappingComponent());
             if (formMappingHandler != null) {
@@ -350,6 +357,24 @@ public class FormRetriever extends FormProcessor {
             formConfig = formResolver.findEditingFormConfig(root, getUserUid());
         }
         return formConfig;
+    }
+
+    private FormConfig findLinkedForm(FormViewerConfig formViewerConfig, final String domainObjectType) {
+        if (formViewerConfig != null && formViewerConfig instanceof LinkedFormViewerConfig) {
+            LinkedFormViewerConfig linkedFormMappingConfig = (LinkedFormViewerConfig) formViewerConfig;
+            List<LinkedFormConfig> linkedFormConfigs = linkedFormMappingConfig.getLinkedFormConfigs();
+            LinkedFormConfig result = (LinkedFormConfig) CollectionUtils.find(linkedFormConfigs, new Predicate() {
+                @Override
+                public boolean evaluate(Object input) {
+                    LinkedFormConfig formConfig = (LinkedFormConfig) input;
+                    return domainObjectType.equals(formConfig.getDomainObjectType());
+                }
+            });
+            if (result != null) {
+                return configurationExplorer.getConfig(FormConfig.class, result.getName());
+            }
+        }
+        return null;
     }
 
     private List<WidgetConfig> findWidgetConfigs(FormConfig formConfig) {

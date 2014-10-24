@@ -5,8 +5,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
@@ -29,10 +29,14 @@ import java.util.List;
  *         Time: 10:25
  */
 @ComponentName("linked-domain-object-hyperlink")
-public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler {
+public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler, HasLinkedFormMappings {
 
     private String selectionPattern;
     private FormattingConfig formattingConfig;
+    private LinkedDomainObjectHyperlinkConfig linkedDomainObjectHyperlinkConfig;
+
+    public LinkedDomainObjectHyperlinkWidget() {
+    }
 
     @Override
     public Component createNew() {
@@ -41,6 +45,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
 
     public void setCurrentState(WidgetState currentState) {
         LinkedDomainObjectHyperlinkState state = (LinkedDomainObjectHyperlinkState) currentState;
+        linkedDomainObjectHyperlinkConfig = ((LinkedDomainObjectHyperlinkState) currentState).getWidgetConfig();
         initialData = currentState;
         selectionPattern = state.getWidgetConfig().getPatternConfig().getValue();
         formattingConfig = state.getWidgetConfig().getFormattingConfig();
@@ -67,7 +72,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         LinkedDomainObjectHyperlinkState linkedDomainObjectHyperlinkState = (LinkedDomainObjectHyperlinkState) state;
         SelectionStyleConfig selectionStyleConfig = linkedDomainObjectHyperlinkState.getWidgetConfig().getSelectionStyleConfig();
         return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false,
-                linkedDomainObjectHyperlinkState.getPopupTitlesHolder().getTitleExistingObject());
+                linkedDomainObjectHyperlinkState.getPopupTitlesHolder().getTitleExistingObject(), this);
     }
 
     @Override
@@ -113,5 +118,9 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         return "linked-domain-object-hyperlink";
     }
 
+    @Override
+    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
+        return linkedDomainObjectHyperlinkConfig.getLinkedFormMappingConfig();
+    }
 }
 

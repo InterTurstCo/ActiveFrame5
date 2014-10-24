@@ -527,7 +527,7 @@
                 <selection-sort-criteria>
                     <sort-criterion field="name" order="asc"/>
                 </selection-sort-criteria>
-                <linked-form name="city_form">
+              <linked-form name="city_form">
               <title>
                   <existing-object>
                       <pattern value="{id}, {created_date}"/>

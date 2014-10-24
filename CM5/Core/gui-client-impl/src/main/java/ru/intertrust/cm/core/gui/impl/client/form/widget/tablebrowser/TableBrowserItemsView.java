@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
@@ -32,10 +33,12 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     private Button openTooltip;
     private EventBus eventBus;
     private String hyperlinkPopupTitle;
+    private HasLinkedFormMappings widget;
 
-    public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, String hyperlinkPopupTitle) {
+    public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, String hyperlinkPopupTitle, HasLinkedFormMappings widget) {
         this.eventBus = eventBus;
         this.hyperlinkPopupTitle = hyperlinkPopupTitle;
+        this.widget = widget;
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
@@ -93,7 +96,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
         final Id id = entry.getKey();
-        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, false, hyperlinkPopupTitle));
+        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, false, hyperlinkPopupTitle, widget));
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn facebookElementDel");
         delBtn.addClickHandler(new ClickHandler() {

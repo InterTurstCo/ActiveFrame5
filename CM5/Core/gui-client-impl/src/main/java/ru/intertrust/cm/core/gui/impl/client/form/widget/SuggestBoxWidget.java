@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.ComponentHelper;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
@@ -57,9 +58,6 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
     private int lastScrollPos;
     private SuggestBoxState currentState;
 
-    public SuggestBoxWidget() {
-
-    }
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -132,7 +130,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
         localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         SelectionStyleConfig selectionStyleConfig = suggestBoxState.getSuggestBoxConfig().getSelectionStyleConfig();
         HyperlinkNoneEditablePanel noneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig,
-                localEventBus, false, suggestBoxState.getPopupTitlesHolder().getTitleExistingObject());
+                localEventBus, false, suggestBoxState.getPopupTitlesHolder().getTitleExistingObject(), this);
         return noneEditablePanel;
     }
 
@@ -371,19 +369,24 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
     @Override
     public void onWidgetItemRemove(WidgetItemRemoveEvent event) {
         currentState.getSelectedIds().remove(event.getId());
-        if(event.isTooltipContent()){
-        currentState.getTooltipValues().remove(event.getId());
+        if (event.isTooltipContent()) {
+            currentState.getTooltipValues().remove(event.getId());
         } else {
             currentState.getListValues().remove(event.getId());
 
         }
         SuggestPresenter presenter = (SuggestPresenter) impl;
         Widget tooltipButton = presenter.getTooltipButton();
-        if(tooltipButton != null && !shouldDrawTooltipButton()){
+        if (tooltipButton != null && !shouldDrawTooltipButton()) {
             tooltipButton.removeFromParent();
             presenter.changeSuggestInputWidth();
         }
 
+    }
+
+    @Override
+    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
+        return currentState.getWidgetConfig().getLinkedFormMappingConfig();
     }
 
     private class SuggestPresenter extends CellPanel {
@@ -470,12 +473,12 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
             suggestBox.setFocus(true);
         }
 
-         protected void drawItemFromTooltipContent() {
-                Map.Entry<Id, String> entry = pollItemFromTooltipContent();
-                stateListValues.put(entry.getKey(), entry.getValue());
-                SuggestPresenter presenter = (SuggestPresenter) impl;
-                presenter.insert(entry.getKey(), entry.getValue());
-                presenter.changeSuggestInputWidth();
+        protected void drawItemFromTooltipContent() {
+            Map.Entry<Id, String> entry = pollItemFromTooltipContent();
+            stateListValues.put(entry.getKey(), entry.getValue());
+            SuggestPresenter presenter = (SuggestPresenter) impl;
+            presenter.insert(entry.getKey(), entry.getValue());
+            presenter.changeSuggestInputWidth();
 
         }
 
@@ -684,8 +687,8 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
                 public void onBrowserEvent(Event event) {
                     String titleExistingObject = currentState.getPopupTitlesHolder().getTitleExistingObject();
                     HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getItemId(), null,
-                            localEventBus, false, titleExistingObject);
-                    clickHandler.onClick();
+                            localEventBus, false, titleExistingObject, SuggestBoxWidget.this);
+                    clickHandler.processClick();
                 }
             };
         }

@@ -8,11 +8,9 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -71,6 +69,10 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
 
     private String collectionName;
     private CollectionViewerConfig initialCollectionViewerConfig;
+
+    public TableBrowserWidget() {
+        super();
+    }
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -148,7 +150,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
         commonInitialization(state);
         SelectionStyleConfig selectionStyleConfig = currentState.getTableBrowserConfig().getSelectionStyleConfig();
         return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false,
-                currentState.getPopupTitlesHolder().getTitleExistingObject());
+                currentState.getPopupTitlesHolder().getTitleExistingObject(), this);
 
     }
 
@@ -220,7 +222,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
 
     private Panel initWidgetView(SelectionStyleConfig selectionStyleConfig) {
         String hyperlinkPopupTitle = currentState.getPopupTitlesHolder().getTitleExistingObject();
-        widgetItemsView = new TableBrowserItemsView(selectionStyleConfig, localEventBus, hyperlinkPopupTitle);
+        widgetItemsView = new TableBrowserItemsView(selectionStyleConfig, localEventBus, hyperlinkPopupTitle, this);
 
         openDialogButton = new FocusPanel();
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());
@@ -394,6 +396,12 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
 
 
     }
+
+    @Override
+    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
+        return currentState.getWidgetConfig().getLinkedFormMappingConfig();
+    }
+
 
     private class FetchFilteredRowsClickHandler implements ClickHandler {
         @Override

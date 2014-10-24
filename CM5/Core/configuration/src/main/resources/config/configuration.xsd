@@ -1953,6 +1953,8 @@
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:linkedFormType" name="linked-form"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:linkedFormMappingType" name="linked-form-mapping"
+                                minOccurs="0" maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -2136,6 +2138,8 @@
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:linkedFormType" name="linked-form"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:linkedFormMappingType" name="linked-form-mapping"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" maxOccurs="1"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -2150,6 +2154,8 @@
                 <xs:choice minOccurs="1" maxOccurs="unbounded">
                     <xs:element type="con:fieldPathType" name="field-path"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:linkedFormMappingType" name="linked-form-mapping"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" maxOccurs="1"/>
                     <xs:element type="con:linkedFormType" name="linked-form"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:patternType" name="pattern"
@@ -3084,11 +3090,9 @@
     </xs:simpleType>
 
     <xs:complexType name="linkedFormMappingType">
-
             <xs:sequence minOccurs="0" maxOccurs="unbounded">
                  <xs:element type="con:linkedFormType" name="linked-form"  minOccurs="0" maxOccurs="unbounded"
                     xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:sequence>
-
     </xs:complexType>
 </xs:schema>

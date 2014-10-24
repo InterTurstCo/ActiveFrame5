@@ -196,6 +196,45 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="LinkDomainHyperlink">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="l_hyperlink"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="TableBrowserDemo">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="l_tablebrowser"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="SuggestBoxDemo">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="l_suggestbox"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -236,6 +275,74 @@
                 <field-path/>
                 <text>Приоритет:</text>
             </label>
+
+            <suggest-box id="l_suggestbox">
+                <field-path
+                        value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                <collection-ref name="Organizations"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byName"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
+                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <default-sort-criteria column-field="name" order="desc"/>
+                <display-values-as-links value="true"/>
+                <linked-form-mapping>
+                    <linked-form name="organization_linked_form" domain-object-type="Organization"/>
+                    <linked-form name="department_linked_form" domain-object-type="Department"/>
+                    <linked-form name="employee_linked_form" domain-object-type="Employee"/>
+                </linked-form-mapping>
+            </suggest-box>
+
+            <table-browser id="l_tablebrowser">
+                <field-path
+                        value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                <collection-ref name="Organizations"/>
+                <collection-view-ref name="organizations_default_view"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byName"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
+                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
+                <page-size>30</page-size>
+                <display-chosen-values value="false"/>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="..."/>
+                <default-sort-criteria column-field="name" order="desc"/>
+                <display-values-as-links value="true"/>
+                <linked-form-mapping>
+                    <linked-form name="organization_linked_form" domain-object-type="Organization"/>
+                    <linked-form name="department_linked_form" domain-object-type="Department"/>
+                    <linked-form name="employee_linked_form" domain-object-type="Employee"/>
+                </linked-form-mapping>
+            </table-browser>
+
+            <linked-domain-object-hyperlink id="l_hyperlink">
+                <field-path
+                        value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                <linked-form name="organization_default_form"/>
+                <linked-form-mapping>
+                    <linked-form name="organization_linked_form" domain-object-type="Organization"/>
+                    <linked-form name="department_linked_form" domain-object-type="Department"/>
+                    <linked-form name="employee_linked_form" domain-object-type="Employee"/>
+                </linked-form-mapping>
+                <pattern value="{name}"/>
+            </linked-domain-object-hyperlink>
+
             <enumeration-box id="letter_priority">
                 <field-path value="priority"/>
                 <mapping>
