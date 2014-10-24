@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.api.client;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
@@ -22,14 +21,6 @@ public class Application {
     private static Application ourInstance = null;
 
     private PopupPanel glassPopupPanel;
-    private Timer timer = new Timer() {
-        @Override
-        public void run() {
-            glassPopupPanel.show();
-
-        }
-    };
-
 
     /*
      * Глобальная шина событий приложения
@@ -131,11 +122,10 @@ public class Application {
     }
 
     public void showLoadingIndicator() {
-        timer.schedule(1000);
+        glassPopupPanel.show();
     }
 
     public void hideLoadingIndicator() {
-        timer.cancel();
         glassPopupPanel.hide();
 
     }
