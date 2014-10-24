@@ -79,7 +79,7 @@ public class ConfigurationExplorerImplTest {
         assertNotNull(collectionConfig);
     }
 
-//    @Test
+    @Test
     public void testGetDomainObjectConfigs() throws Exception {
         ConfigurationSerializer configurationSerializer =
                 createConfigurationSerializer(DOMAIN_OBJECTS_TEST_SERIALIZER_CONFIG_PATH);
@@ -90,17 +90,29 @@ public class ConfigurationExplorerImplTest {
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
 
         assertNotNull(domainObjectTypeConfigs);
-        assertEquals(7, domainObjectTypeConfigs.size());
+        assertEquals(14, domainObjectTypeConfigs.size());
 
         List<String> domainObjectNames = new ArrayList<>();
-        domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Assignment",
-                "EmployeeNew", "Incoming_Document", "Incoming_Document2"));
+        List<String> tables = Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Assignment",
+                "EmployeeNew", "Incoming_Document", "Incoming_Document2");
+
+        List<String> auditLogTables = createAuditLogTables(tables);
+        domainObjectNames.addAll(tables);
+        domainObjectNames.addAll(auditLogTables);        
 
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
             String name = domainObjectTypeConfig.getName();
             assertTrue(domainObjectNames.contains(name));
             domainObjectNames.remove(name);
         }
+    }
+
+    private List<String> createAuditLogTables(List<String> tables) {
+        List<String> auditLogTables = new ArrayList<>();
+        for (String table : tables) {
+            auditLogTables.add(table + "_al");
+        }
+        return auditLogTables;
     }
 
     @Test
