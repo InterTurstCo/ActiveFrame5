@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -13,7 +13,9 @@ import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequ
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserCloseDialogEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserHyperlinkStateUpdatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 /**
@@ -21,32 +23,33 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
  *         Date: 03.01.14
  *         Time: 13:15
  */
+@Deprecated
+/*
+* HierarchyBrowserWidget handles clicks instead
+ */
 public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
-    private String title;
-    private Id id;
-    private EventBus eventBus;
-    private String collectionName;
-    private HierarchyBrowserHyperlinkDisplay hyperlinkDisplay;
-    private boolean tooltipContent;
 
-    public HierarchyBrowserHyperlinkClickHandler(String title, Id id, String collectionName, EventBus eventBus,
-                                                 HierarchyBrowserHyperlinkDisplay hyperlinkDisplay, boolean tooltipContent) {
-        this.title = title;
-        this.id = id;
-        this.collectionName = collectionName;
+    private EventBus eventBus;
+    private HierarchyBrowserItem item;
+    private HierarchyBrowserDisplay hyperlinkDisplay;
+    private boolean tooltipContent;
+    private NodeCollectionDefConfig nodeConfig;
+
+    public HierarchyBrowserHyperlinkClickHandler(HierarchyBrowserItem item, EventBus eventBus, NodeCollectionDefConfig nodeConfig,
+                                                 HierarchyBrowserDisplay hyperlinkDisplay, boolean tooltipContent) {
+        this.item = item;
         this.eventBus = eventBus;
         this.hyperlinkDisplay = hyperlinkDisplay;
         this.tooltipContent = tooltipContent;
+        this.nodeConfig = nodeConfig;
 
     }
 
     @Override
     public void onClick(ClickEvent event) {
 
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
-        final FormPluginConfig config = new FormPluginConfig();
-        config.setDomainObjectId(id);
-        config.getPluginState().setEditable(false);
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(item.getPopupTitle());
+        final FormPluginConfig config = GuiUtil.createFormPluginConfig(item.getId(), nodeConfig, item.getDomainObjectType(), false);
         final FormPlugin plugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
@@ -64,26 +67,26 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
             public void onClick(ClickEvent event) {
                 noneEditableFormDialogBox.hide();
 
-                final FormPluginConfig config = new FormPluginConfig();
-                config.setDomainObjectId(id);
+
                 config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox =
-                        new FormDialogBox(title);
+                        new FormDialogBox(item.getPopupTitle());
                 final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         final SaveAction action = ComponentRegistry.instance.get("save.action");
                         SaveActionContext saveActionContext = new SaveActionContext();
-                        saveActionContext.setRootObjectId(id);
+                        saveActionContext.setRootObjectId(item.getId());
                         action.setInitialContext(saveActionContext);
                         action.setPlugin(formPluginEditable);
                         action.addActionSuccessListener(new ActionSuccessListener() {
                             @Override
                             public void onSuccess() {
                                 editableFormDialogBox.hide();
-                                eventBus.fireEvent(new HierarchyBrowserHyperlinkStateUpdatedEvent(id, collectionName,
-                                        hyperlinkDisplay, tooltipContent));
+                                eventBus.fireEvent(new HierarchyBrowserHyperlinkStateUpdatedEvent(item.getId(),
+                                        item.getNodeCollectionName(), hyperlinkDisplay, tooltipContent));
+
                             }
                         });
                         action.perform();

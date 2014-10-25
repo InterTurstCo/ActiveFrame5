@@ -11,15 +11,18 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.FormDefaultValueSetter;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.api.server.widget.FormDefaultValueSetter;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -367,7 +370,7 @@ public class FormRetriever extends FormProcessor {
                 @Override
                 public boolean evaluate(Object input) {
                     LinkedFormConfig formConfig = (LinkedFormConfig) input;
-                    return domainObjectType.equals(formConfig.getDomainObjectType());
+                    return domainObjectType.equalsIgnoreCase(formConfig.getDomainObjectType());
                 }
             });
             if (result != null) {

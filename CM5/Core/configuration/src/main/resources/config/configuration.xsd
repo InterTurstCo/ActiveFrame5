@@ -2391,6 +2391,8 @@
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:linkedFormMappingType" name="linked-form-mapping"
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:createdObjectsType" name="created-objects"  minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
         <xs:attribute type="xs:string" name="collection" use="required"/>
         <xs:attribute type="xs:string" name="parent-filter" use="optional"/>
@@ -3095,4 +3097,17 @@
                     xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="createdObjectsType">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element type="con:createdObjectType" name="created-object"  minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="createdObjectType">
+        <xs:attribute type="xs:string" name="domain-object-type" use="required"/>
+        <xs:attribute type="xs:string" name="text" use="required"/>
+    </xs:complexType>
+
 </xs:schema>

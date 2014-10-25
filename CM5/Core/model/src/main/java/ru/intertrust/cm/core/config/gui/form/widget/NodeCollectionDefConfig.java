@@ -8,12 +8,14 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.hierarchybrowser.CreateNewButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -73,9 +75,12 @@ public class NodeCollectionDefConfig implements Dto {
     @Element(name = "linked-form-mapping", required = false)
     private LinkedFormMappingConfig linkedFormMappingConfig;
 
+    @Element(name = "created-objects", required = false)
+    private CreatedObjectsConfig createdObjectsConfig;
+
     private int elementsCount;
 
-    private PopupTitlesHolder popupTitlesHolder;
+    private Map<String, PopupTitlesHolder> doTypeTitlesMap;
 
     public SelectionPatternConfig getSelectionPatternConfig() {
         return selectionPatternConfig;
@@ -222,17 +227,20 @@ public class NodeCollectionDefConfig implements Dto {
         this.elementsCount = elementsCount;
     }
 
-    public PopupTitlesHolder getPopupTitlesHolder() {
-        return popupTitlesHolder;
+    public CreatedObjectsConfig getCreatedObjectsConfig() {
+        return createdObjectsConfig;
     }
 
-    public void setPopupTitlesHolder(PopupTitlesHolder popupTitlesHolder) {
-        this.popupTitlesHolder = popupTitlesHolder;
+    public void setCreatedObjectsConfig(CreatedObjectsConfig createdObjectsConfig) {
+        this.createdObjectsConfig = createdObjectsConfig;
     }
-    //TODO remove
-    // created during waiting new config
-    public String getDomainObjectType(){
-        return linkedFormMappingConfig.getLinkedFormConfigs().get(0).getDomainObjectType();
+
+    public Map<String, PopupTitlesHolder> getDoTypeTitlesMap() {
+        return doTypeTitlesMap;
+    }
+
+    public void setDoTypeTitlesMap(Map<String, PopupTitlesHolder> doTypeTitlesMap) {
+        this.doTypeTitlesMap = doTypeTitlesMap;
     }
 
     @Override
@@ -313,6 +321,10 @@ public class NodeCollectionDefConfig implements Dto {
                 : that.linkedFormMappingConfig != null) {
             return false;
         }
+        if (createdObjectsConfig != null ? !createdObjectsConfig.equals(that.createdObjectsConfig) :
+                that.createdObjectsConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -334,6 +346,7 @@ public class NodeCollectionDefConfig implements Dto {
         result = 31 * result + (singleChoiceConfig != null ? singleChoiceConfig.hashCode() : 0);
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
+        result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 0);
         result = 31 * result + (displayCreateButton ? 1 : 0);
         return result;
     }

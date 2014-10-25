@@ -11,6 +11,8 @@ public class HierarchyBrowserItemBuilder {
     private Boolean singleChoice;
     private Boolean displayAsHyperlinks;
     private String popupTitle;
+    private String domainObjectType;
+    private boolean selective;
 
     public HierarchyBrowserItemBuilder() {
     }
@@ -55,8 +57,18 @@ public class HierarchyBrowserItemBuilder {
         return this;
     }
 
+    public HierarchyBrowserItemBuilder setDomainObjectType(String domainObjectType) {
+        this.domainObjectType = domainObjectType;
+        return this;
+    }
+
+    public HierarchyBrowserItemBuilder setSelective(boolean selective) {
+        this.selective = selective;
+        return this;
+    }
+
     public HierarchyBrowserItem createHierarchyBrowserItem() {
-        return new HierarchyBrowserItem(stringRepresentation, id, nodeCollectionName, chosen, mayHaveChildren,
-                singleChoice, displayAsHyperlinks, popupTitle);
+        return new HierarchyBrowserItem(stringRepresentation, id, nodeCollectionName, domainObjectType, chosen, mayHaveChildren,
+                singleChoice, displayAsHyperlinks, popupTitle, selective);
     }
 }

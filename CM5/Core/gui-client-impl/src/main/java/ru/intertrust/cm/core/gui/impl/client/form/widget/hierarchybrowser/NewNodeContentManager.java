@@ -50,8 +50,7 @@ public class NewNodeContentManager extends NodeContentManager {
                 List<NodeCollectionDefConfig> nodeConfigs = nodeContent.getNodeCollectionDefConfigs();
                 Id parentId = nodeContent.getParentId();
                 String parentCollectionName = nodeContent.getParentCollectionName();
-                boolean selective = nodeContent.isSelective();
-                mainPopup.drawNewNode(parentId, parentCollectionName,items, selective, nodeConfigs);
+                mainPopup.drawNewNode(parentId, parentCollectionName,items, nodeConfigs);
 
             }
 

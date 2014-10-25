@@ -10,6 +10,7 @@ import java.util.Map;
  *         Date: 03.05.14
  *         Time: 13:15
  */
+//TODO rename class
 public class PatternIterator {
     String lastElement;
     String fieldPath;

@@ -377,7 +377,11 @@
                     <single-choice>
                         <parent-object-field name="subject" value="Info"/>
                     </single-choice>
+                    <created-objects>
+                        <created-object text = "Орг" domain-object-type="Organization"/>
+                    </created-objects>
                     <linked-form-mapping>
+
                     <linked-form name="organization_form"  domain-object-type="organization"/>
 
                     </linked-form-mapping>
@@ -417,27 +421,32 @@
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
-                        <node-collection-def collection="employees" parent-filter="byDepartment"
-                                              title="Сотрудника">
+                        <node-collection-def collection="employees" parent-filter="byDepartment" selective="false">
+
                             <!-- название фильтра по тексту, введённому пользователем -->
                             <fill-parent-on-add field-to-fill="department"/>
                             <input-text-filter name="byName"/>
                             <!-- паттерн отображения уже выбранных значений -->
                             <selection-pattern value="{name} {position}"/>
-                           <linked-form-mapping>
-                            <linked-form name="employee_form"  domain-object-type="employee"/>
+                            <linked-form-mapping>
+                                <linked-form name="employee_form"  domain-object-type="employee"/>
                            </linked-form-mapping>
                         </node-collection-def>
                     </node-collection-def>
-                    <node-collection-def collection="employeesWithoutDepartment" parent-filter="byOrganization"
+                    <node-collection-def collection="employeesWithOrganization" parent-filter="byOrganization"
                                           title="Сотрудника">
-                        <create-new-button text="Employee" />
+                        <create-new-button text="Создать" />
                         <fill-parent-on-add field-to-fill="organization"/>
                         <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name} {position}"/>
+                        <created-objects>
+                            <created-object text = "Сотрудник" domain-object-type="employee"/>
+                            <created-object text = "Разработчик" domain-object-type="Developer"/>
+                        </created-objects>
                         <linked-form-mapping>
                             <linked-form name="employee_form"  domain-object-type="employee"/>
+                            <linked-form name="developer_form2"  domain-object-type="developer"/>
                         </linked-form-mapping>
                     </node-collection-def>
                 </node-collection-def>
@@ -776,7 +785,7 @@
                 </formatting>
             </label>
             <label id="titleNew">
-                <text>Coздание города</text>
+                <text>Coздание Организации</text>
             </label>
         </widget-config>
     </form>
@@ -867,7 +876,7 @@
             </criteria>
         </filter>
     </collection>
-    <collection name="employeesWithoutDepartment" idField="id">
+    <collection name="employeesWithOrganization" idField="id">
         <prototype>
             <![CDATA[
                     select
@@ -920,5 +929,255 @@
             select count(*) from letter l
         </counting-prototype>
     </collection>
+
+    <form name="developer_form1" domain-object-type="Developer" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="Name-Label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="Name"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="Department-Label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="Department"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="positionLabel"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="position"/>
+                                    </td>
+
+                                    <td h-align="left">
+                                        <widget id="hyperlink"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="language"/>
+                                    </td>
+
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="Name-Label">
+                <field-path/>
+                <relates-to widget-id="Name"/>
+                <text>Название:</text>
+            </label>
+            <text-box id="Name">
+                <field-path value="Name"/>
+            </text-box>
+
+            <label id="Department-Label">
+                <relates-to widget-id="Department"/>
+                <text>Департамент:</text>
+            </label>
+            <combo-box id="Department">
+                <field-path value="Department"/>
+                <pattern value="{Name}"/>
+            </combo-box>
+
+            <label id="positionLabel">
+                <relates-to widget-id="position"/>
+                <text>Должность:</text>
+            </label>
+            <text-box id="position">
+                <field-path value="Position"/>
+            </text-box>
+            <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
+                <field-path value="department"/>
+                <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
+                <linked-form name="department_default_form">
+                    <title>
+                        <existing-object>
+                            <pattern value="{id}, {created_date}"/>
+                            <formatting>
+                                <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                    <time-zone id="Europe/Kiev"/>
+                                    <field-paths>
+                                        <field-path value="created_date"/>
+                                    </field-paths>
+                                </date-format>
+                            </formatting>
+                        </existing-object>
+                        <new-object>
+                            <pattern value="new form "/>
+
+                        </new-object>
+                    </title>
+                </linked-form>
+                <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
+                <pattern value="{name} {created_date}"/>
+                <!-- в паттерне ссылки задаются относительно field-path -->
+                <formatting>
+
+                    <date-format pattern="dd-mm-yyyy HH:mm:ss" style="short">
+                        <time-zone id="Europe/Kiev"/>
+                        <field-paths>
+                            <field-path value="created_date"/>
+                        </field-paths>
+                    </date-format>
+                </formatting>
+            </linked-domain-object-hyperlink>
+
+            <enumeration-box>
+                <field-path value="language"/>
+                <mapping>
+                    <map value="Java" display-text="Java"/>
+                    <map value="C++" display-text="C++"/>
+                    <map value=".Net" display-text=".Net"/>
+                </mapping>
+            </enumeration-box>
+        </widget-config>
+    </form>
+    <form name="developer_form2" domain-object-type="Developer" is-default="false">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="Name-Label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="Name"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="Department-Label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="Department"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="positionLabel"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="position"/>
+                                    </td>
+
+                                    <td h-align="left">
+                                        <widget id="hyperlink"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="lang"/>
+                                    </td>
+
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="Name-Label">
+                <field-path/>
+                <relates-to widget-id="Name"/>
+                <text>Название:</text>
+            </label>
+            <text-box id="Name">
+                <field-path value="Name"/>
+            </text-box>
+
+            <label id="Department-Label">
+                <relates-to widget-id="Department"/>
+                <text>Департамент:</text>
+            </label>
+            <combo-box id="Department">
+                <field-path value="Department"/>
+                <pattern value="{Name}"/>
+            </combo-box>
+
+            <label id="positionLabel">
+                <relates-to widget-id="position"/>
+                <text>Должность:</text>
+            </label>
+            <text-box id="position">
+                <field-path value="Position"/>
+            </text-box>
+            <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
+                <field-path value="department"/>
+                <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
+                <linked-form name="department_default_form">
+                    <title>
+                        <existing-object>
+                            <pattern value="{id}, {created_date}"/>
+                            <formatting>
+                                <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                    <time-zone id="Europe/Kiev"/>
+                                    <field-paths>
+                                        <field-path value="created_date"/>
+                                    </field-paths>
+                                </date-format>
+                            </formatting>
+                        </existing-object>
+                        <new-object>
+                            <pattern value="new form "/>
+
+                        </new-object>
+                    </title>
+                </linked-form>
+                <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
+                <pattern value="{name} {created_date}"/>
+                <!-- в паттерне ссылки задаются относительно field-path -->
+                <formatting>
+
+                    <date-format pattern="dd-mm-yyyy HH:mm:ss" style="short">
+                        <time-zone id="Europe/Kiev"/>
+                        <field-paths>
+                            <field-path value="created_date"/>
+                        </field-paths>
+                    </date-format>
+                </formatting>
+            </linked-domain-object-hyperlink>
+
+            <enumeration-box id="lang">
+                <field-path value="language"/>
+                <mapping>
+                    <map value="Java" display-text="Java"/>
+                    <map value="C++" display-text="C++"/>
+                    <map value=".Net" display-text=".Net"/>
+                </mapping>
+            </enumeration-box>
+        </widget-config>
+    </form>
+    <form-mappings name="developer_mappings">
+        <form-mapping domain-object-type="Developer" form="developer_form1"/>
+        <form-mapping domain-object-type="Developer" form="developer_form2"/>
+
+    </form-mappings>
 
 </configuration>

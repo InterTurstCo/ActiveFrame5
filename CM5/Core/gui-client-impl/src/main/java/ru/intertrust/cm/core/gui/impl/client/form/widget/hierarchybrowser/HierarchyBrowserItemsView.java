@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserCheckBoxUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserItemClickEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
@@ -17,7 +18,7 @@ import java.util.List;
  *         Date: 20.12.13
  *         Time: 13:15
  */
-public class HierarchyBrowserItemsView extends Composite implements HierarchyBrowserHyperlinkDisplay{
+public class HierarchyBrowserItemsView extends Composite implements HierarchyBrowserDisplay {
     private AbsolutePanel container;
     private AbsolutePanel mainBoxPanel;
     private EventBus eventBus;
@@ -67,8 +68,14 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
         if (isHyperlink) {
 
             label.addStyleName("facebook-clickable-label");
-            label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler(item.getPopupTitle(), item.getId(),
-                    item.getNodeCollectionName(), eventBus, this, tooltipContent));
+            label.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    eventBus.fireEvent(new HierarchyBrowserItemClickEvent(item, HierarchyBrowserItemsView.this, tooltipContent));
+
+                }
+            });
+
         }else{
             label.addStyleName("clearHyperlinkAttributes");
 
@@ -122,7 +129,7 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
     }
 
     @Override
-    public void displayHyperlinks(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton) {
+    public void display(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton) {
         displayChosenItems(items, shouldDrawTooltipButton);
     }
 }

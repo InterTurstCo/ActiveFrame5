@@ -9,6 +9,6 @@ import java.util.List;
  *         Date: 10.10.2014
  *         Time: 7:33
  */
-public interface HierarchyBrowserHyperlinkDisplay {
-    void displayHyperlinks(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton);
+public interface HierarchyBrowserDisplay {
+    void display(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton);
 }

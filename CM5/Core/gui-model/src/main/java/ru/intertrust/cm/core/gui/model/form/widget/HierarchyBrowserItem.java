@@ -18,8 +18,25 @@ public class HierarchyBrowserItem implements Dto {
     private Boolean singleChoice;
     private Boolean displayAsHyperlinks;
     private String popupTitle;
+    private String domainObjectType;
+    private boolean selective;
 
     public HierarchyBrowserItem() {
+    }
+
+    public HierarchyBrowserItem(String stringRepresentation, Id id, String nodeCollectionName, String domainObjectType,
+                                boolean chosen, boolean mayHaveChildren, Boolean singleChoice,
+                                Boolean displayAsHyperlinks, String popupTitle, boolean selective) {
+        this.stringRepresentation = stringRepresentation;
+        this.id = id;
+        this.nodeCollectionName = nodeCollectionName;
+        this.domainObjectType = domainObjectType;
+        this.chosen = chosen;
+        this.mayHaveChildren = mayHaveChildren;
+        this.singleChoice = singleChoice;
+        this.displayAsHyperlinks = displayAsHyperlinks;
+        this.popupTitle = popupTitle;
+        this.selective = selective;
     }
 
     public Id getId() {
@@ -29,19 +46,6 @@ public class HierarchyBrowserItem implements Dto {
     public void setId(Id id) {
         this.id = id;
 
-    }
-
-    public HierarchyBrowserItem(String stringRepresentation, Id id, String nodeCollectionName,
-                                boolean chosen, boolean mayHaveChildren, Boolean singleChoice,
-                                Boolean displayAsHyperlinks, String popupTitle) {
-        this.stringRepresentation = stringRepresentation;
-        this.id = id;
-        this.nodeCollectionName = nodeCollectionName;
-        this.chosen = chosen;
-        this.mayHaveChildren = mayHaveChildren;
-        this.singleChoice = singleChoice;
-        this.displayAsHyperlinks = displayAsHyperlinks;
-        this.popupTitle = popupTitle;
     }
 
     public boolean isMayHaveChildren() {
@@ -100,6 +104,18 @@ public class HierarchyBrowserItem implements Dto {
         this.popupTitle = popupTitle;
     }
 
+    public String getDomainObjectType() {
+        return domainObjectType;
+    }
+
+    public boolean isSelective() {
+        return selective;
+    }
+
+    public void setSelective(boolean selective) {
+        this.selective = selective;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -111,28 +127,7 @@ public class HierarchyBrowserItem implements Dto {
 
         HierarchyBrowserItem that = (HierarchyBrowserItem) o;
 
-        if (popupTitle != null ? !popupTitle.equals(that.popupTitle) : that.popupTitle != null) {
-            return false;
-        }
-        if (mayHaveChildren != that.mayHaveChildren) {
-            return false;
-        }
-        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) {
-            return false;
-        }
         if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-        if (nodeCollectionName != null ? !nodeCollectionName.equals(that.nodeCollectionName)
-                : that.nodeCollectionName != null) {
-            return false;
-        }
-        if (displayAsHyperlinks != null ? !displayAsHyperlinks.equals(that.displayAsHyperlinks)
-                : that.displayAsHyperlinks != null) {
-            return false;
-        }
-        if (stringRepresentation != null ? !stringRepresentation.equals(that.stringRepresentation)
-                : that.stringRepresentation != null) {
             return false;
         }
 
@@ -141,15 +136,8 @@ public class HierarchyBrowserItem implements Dto {
 
     @Override
     public int hashCode() {
-        int result = stringRepresentation != null ? stringRepresentation.hashCode() : 0;
-        result = 31 * result + (id != null ? id.hashCode() : 0);
-        result = 31 * result + (nodeCollectionName != null ? nodeCollectionName.hashCode() : 0);
-        result = 31 * result + (chosen ? 1 : 0);
-        result = 31 * result + (mayHaveChildren ? 1 : 0);
-        result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
-        result = 31 * result + (displayAsHyperlinks != null ? displayAsHyperlinks.hashCode() : 0);
-        result = 31 * result + (popupTitle != null ? popupTitle.hashCode() : 0);
-        return result;
+        return 31 + (id != null ? id.hashCode() : 0);
+
     }
 
     public HierarchyBrowserItem getCopy() {
@@ -162,6 +150,8 @@ public class HierarchyBrowserItem implements Dto {
                 .setPopupTitle(popupTitle)
                 .setSingleChoice(singleChoice)
                 .setDisplayAsHyperlinks(displayAsHyperlinks)
+                .setDomainObjectType(domainObjectType)
+                .setSelective(selective)
                 .createHierarchyBrowserItem();
         return result;
 

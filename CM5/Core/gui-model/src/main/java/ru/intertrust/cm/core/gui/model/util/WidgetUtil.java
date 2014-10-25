@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.model.util;
 import ru.intertrust.cm.core.config.gui.form.widget.DisplayValuesAsLinksConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 
+import java.util.Collection;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 18.09.2014
@@ -20,8 +22,13 @@ public class WidgetUtil {
     public static boolean isDisplayingAsHyperlinks(DisplayValuesAsLinksConfig displayValuesAsLinksConfig) {
         return displayValuesAsLinksConfig != null && displayValuesAsLinksConfig.isValue();
     }
+
     public static Boolean isDisplayingHyperlinks(DisplayValuesAsLinksConfig displayValuesAsLinksConfig) {
         return displayValuesAsLinksConfig == null ? null : displayValuesAsLinksConfig.isValue();
+    }
+
+    public static boolean isNotEmpty(Collection coll) {
+        return coll != null && !coll.isEmpty();
     }
 
 }

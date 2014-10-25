@@ -4,11 +4,16 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.title.AbstractTitleRepresentationConfig;
 import ru.intertrust.cm.core.config.gui.form.title.TitleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 /**
@@ -34,11 +39,11 @@ public class GuiUtil {
         return false;
     }
 
-    public static String getConfiguredTitle(FormPlugin formPlugin, boolean isNewObjectForm){
+    public static String getConfiguredTitle(FormPlugin formPlugin, boolean isNewObjectForm) {
         FormPluginData formPluginData = formPlugin.getInitialData();
         FormDisplayData displayData = formPluginData.getFormDisplayData();
         TitleConfig titleConfig = displayData.getMarkup().getTitle();
-        if(titleConfig == null){
+        if (titleConfig == null) {
             return BusinessUniverseConstants.EMPTY_VALUE;
         }
         AbstractTitleRepresentationConfig config = isNewObjectForm ? titleConfig.getNewObjectConfig()
@@ -47,4 +52,23 @@ public class GuiUtil {
         return labelState.getLabel();
 
     }
+
+    public static FormPluginConfig createFormPluginConfig(Id id, NodeCollectionDefConfig nodeConfig, final
+    String domainObjectType, boolean editable) {
+        FormPluginConfig result = new FormPluginConfig();
+        result.setDomainObjectId(id);
+        if(id == null){
+        result.setDomainObjectTypeToCreate(domainObjectType);
+        }
+        result.getPluginState().setEditable(editable);
+        LinkedFormMappingConfig mappingConfig = nodeConfig.getLinkedFormMappingConfig();
+        if (mappingConfig != null) {
+            LinkedFormViewerConfig formViewerConfig = new LinkedFormViewerConfig();
+            formViewerConfig.setLinkedFormConfig(mappingConfig.getLinkedFormConfigs());
+            result.setFormViewerConfig(formViewerConfig);
+
+        }
+        return result;
+    }
+
 }

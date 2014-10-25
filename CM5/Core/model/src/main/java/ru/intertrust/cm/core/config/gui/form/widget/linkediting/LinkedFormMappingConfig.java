@@ -36,8 +36,10 @@ public class LinkedFormMappingConfig implements Dto {
 
         LinkedFormMappingConfig that = (LinkedFormMappingConfig) o;
 
-        if (linkedFormConfigs != null ? !linkedFormConfigs.equals(that.linkedFormConfigs) : that.linkedFormConfigs != null)
+        if (linkedFormConfigs != null ? !linkedFormConfigs.equals(that.linkedFormConfigs)
+                : that.linkedFormConfigs != null) {
             return false;
+        }
 
         return true;
     }

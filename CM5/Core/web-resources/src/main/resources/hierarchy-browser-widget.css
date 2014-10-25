@@ -374,13 +374,14 @@ table.hierarh-browser-inline td {
 
     padding: 5px !important;
 }
-.clickableNodeItem {
+.clickableHierarchyLabel {
+    cursor: pointer;
     font-weight: bold;
     text-decoration: underline;
     padding: 8px;
 }
 
-.notClickableNodeItem {
+.notClickableHierarchyLabel {
     cursor: default;
     font-weight: bold;
     padding: 8px;

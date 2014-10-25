@@ -15,10 +15,13 @@ public class HierarchyBrowserAddItemClickEvent extends GwtEvent<HierarchyBrowser
     private Id parentId;
     private NodeCollectionDefConfig nodeConfig;
     private String parentCollectionName;
-    public HierarchyBrowserAddItemClickEvent(Id parentId, String parentCollectionName, NodeCollectionDefConfig nodeConfig) {
+    private String domainObjectType;
+    public HierarchyBrowserAddItemClickEvent(Id parentId, String parentCollectionName, String domainObjectType,
+                                             NodeCollectionDefConfig nodeConfig) {
         this.parentId = parentId;
         this.nodeConfig = nodeConfig;
         this.parentCollectionName = parentCollectionName;
+        this.domainObjectType = domainObjectType;
 
     }
 
@@ -42,5 +45,9 @@ public class HierarchyBrowserAddItemClickEvent extends GwtEvent<HierarchyBrowser
 
     public String getParentCollectionName() {
         return parentCollectionName;
+    }
+
+    public String getDomainObjectType() {
+        return domainObjectType;
     }
 }

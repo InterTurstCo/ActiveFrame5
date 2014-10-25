@@ -34,14 +34,13 @@ public class HierarchyBrowserNodeView implements IsWidget {
     private ScrollPanel scroll = new ScrollPanel();
     private TextBox textBox;
     private Map<String, HierarchyBrowserItem> previousChosenItems;
-    private boolean selective;
+
     private HorizontalPanel styledActivePanel = new HorizontalPanel();
     private boolean displayAsHyperlinks;
 
-    public HierarchyBrowserNodeView(EventBus eventBus, int nodeHeight, boolean selective, boolean displayAsHyperlinks) {
+    public HierarchyBrowserNodeView(EventBus eventBus, int nodeHeight, boolean displayAsHyperlinks) {
 
         this.eventBus = eventBus;
-        this.selective = selective;
         this.displayAsHyperlinks = displayAsHyperlinks;
         scroll.setHeight(nodeHeight + "px");
         scroll.setAlwaysShowScrollBars(false);
@@ -108,7 +107,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
     public void drawNodeChild(final HierarchyBrowserItem item) {
         final HorizontalPanel currentItemPanel = new HorizontalPanel();
         HorizontalPanel panelLeft = new HorizontalPanel();
-        if (selective) {
+        if (item.isSelective()) {
             CheckBox checkBox = createCheckBox(item);
             panelLeft.add(checkBox);
             panelLeft.setCellVerticalAlignment(checkBox, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -155,16 +154,16 @@ public class HierarchyBrowserNodeView implements IsWidget {
         Label label = new Label(item.getStringRepresentation());
         boolean isHyperlink = item.isDisplayAsHyperlinks() == null ? displayAsHyperlinks : item.isDisplayAsHyperlinks();
         if (isHyperlink) {
-            label.setStyleName("clickableNodeItem");
+            label.setStyleName("clickableHierarchyLabel");
             label.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    eventBus.fireEvent(new HierarchyBrowserItemClickEvent(item.getId(), item.getNodeCollectionName()));
+                    eventBus.fireEvent(new HierarchyBrowserItemClickEvent(item, null, false));
 
                 }
             });
         } else {
-            label.setStyleName("notClickableNodeItem");
+            label.setStyleName("notClickableHierarchyLabel");
         }
         return label;
     }
@@ -212,7 +211,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
 
         for (NodeCollectionDefConfig config : nodeConfigs) {
             if (config.isDisplayingCreateButton()) {
-                Widget addItem = createAddItemButton(parentId, parentCollectionName, config);
+                Widget addItem = createAddItemButton(parentId, parentCollectionName, config, buttonsPanel);
                 buttonsPanel.add(addItem);
             }
         }
@@ -223,15 +222,10 @@ public class HierarchyBrowserNodeView implements IsWidget {
     }
 
     private Widget createAddItemButton(final Id parentId, final String parentCollectionName,
-                                       final NodeCollectionDefConfig nodeConfig) {
+                                       final NodeCollectionDefConfig nodeConfig, UIObject uiObject) {
         ConfiguredButton button = new ConfiguredButton(nodeConfig.getCreateNewButtonConfig());
-        button.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                eventBus.fireEvent(new HierarchyBrowserAddItemClickEvent(parentId, parentCollectionName, nodeConfig));
-
-            }
-        });
+        button.addClickHandler(new HierarchyBrowserAddClickHandler(parentId, parentCollectionName, nodeConfig,
+                eventBus, uiObject));
         return button;
     }
 
@@ -335,15 +329,6 @@ public class HierarchyBrowserNodeView implements IsWidget {
             redrawNode(items);
         }
     }
-/*
 
-    private void changeSelection(HierarchyBrowserItem changedItem) {
-        for (HierarchyBrowserItem item : items) {
-            if (changedItem.getId().equals(item.getId())) {
-                item.setChosen(changedItem.isChosen());
-            }
-        }
-    }
-*/
 
 }

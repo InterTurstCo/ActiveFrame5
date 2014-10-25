@@ -22,7 +22,7 @@ import java.util.*;
  *         Date: 26.12.13
  *         Time: 11:15
  */
-public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDisplay{
+public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
 
     public static final int DEFAULT_WIDTH = 1000;
     public static final int DEFAULT_HEIGHT = 400;
@@ -159,13 +159,13 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDispl
     private String buildNodeType(List<NodeCollectionDefConfig> nodeConfigs){
         StringBuilder sb = new StringBuilder();
         for (NodeCollectionDefConfig config : nodeConfigs) {
-            sb.append(config.getDomainObjectType());
+            sb.append(config.getCollection());
             sb.append(";") ;
         }
         return sb.toString();
     }
 
-    public void drawNewNode(Id parentId, String parentCollectionName, List<HierarchyBrowserItem> items,boolean selective,
+    public void drawNewNode(Id parentId, String parentCollectionName, List<HierarchyBrowserItem> items,
                             List<NodeCollectionDefConfig> nodeConfigs) {
         String nodeType = buildNodeType(nodeConfigs);
         if (containerMap.containsKey(nodeType)) {
@@ -185,7 +185,7 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDispl
             }
         }
         HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus,  (int) (0.6 * popupHeight),
-               selective, displayAsHyperlinks);
+               displayAsHyperlinks);
         nodesSection.add(nodeView);
         nodeView.drawNode(parentId, parentCollectionName, items, nodeConfigs);
         containerMap.put(nodeType, nodeView);
@@ -251,8 +251,8 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserHyperlinkDispl
     }
 
     @Override
-    public void displayHyperlinks(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton) {
-        popupChosenContent.displayHyperlinks(items, shouldDrawTooltipButton);
+    public void display(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton) {
+        popupChosenContent.display(items, shouldDrawTooltipButton);
     }
 }
 

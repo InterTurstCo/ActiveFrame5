@@ -16,17 +16,6 @@ import java.util.*;
  *         Time: 0:15
  */
 public class HierarchyBrowserUtil {
-    public static NodeCollectionDefConfig getRequiredNodeConfig(String collectionName, String domainObjectType,
-                                                                Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
-        NodeCollectionDefConfig rootNodeCollectionDefConfig = collectionNameNodeMap.get(collectionName);
-        List<NodeCollectionDefConfig> nodeCollectionDefConfigs = rootNodeCollectionDefConfig.getNodeCollectionDefConfigs();
-        for (NodeCollectionDefConfig nodeCollectionDefConfig : nodeCollectionDefConfigs) {
-            if (domainObjectType.equalsIgnoreCase(nodeCollectionDefConfig.getDomainObjectType())) {
-                return nodeCollectionDefConfig;
-            }
-        }
-        return rootNodeCollectionDefConfig;
-    }
 
     public static int getSizeFromString(String size, int defaultSize) {
         if (size == null) {

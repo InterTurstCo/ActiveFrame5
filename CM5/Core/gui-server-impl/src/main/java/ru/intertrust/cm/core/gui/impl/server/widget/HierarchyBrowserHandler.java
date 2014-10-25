@@ -9,10 +9,13 @@ import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.LiteralFieldValueParser;
+import ru.intertrust.cm.core.gui.api.server.widget.FieldExtractor;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -49,6 +52,9 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     private LiteralFieldValueParser literalFieldValueParser;
+
+    @Autowired
+    private FieldExtractor fieldExtractor;
 
     @Override
     public HierarchyBrowserWidgetState getInitialState(WidgetContext context) {
@@ -97,9 +103,8 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     }
 
     private void generateChosenItems(String collectionName, Map<String, NodeCollectionDefConfig> collectionNameNodeMap,
-                                                   FormattingConfig formattingConfig, List<Id> selectedIds,
-                                                   List<HierarchyBrowserItem> items, boolean tooltipContent) {
-
+                                     FormattingConfig formattingConfig, List<Id> selectedIds,
+                                     List<HierarchyBrowserItem> items, boolean tooltipContent) {
         List<Filter> filters = new ArrayList<Filter>();
         filters = addIncludeIdsFilter(selectedIds, filters);
         NodeCollectionDefConfig nodeConfig = collectionNameNodeMap.get(collectionName);
@@ -109,79 +114,128 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(nodeConfig.getSelectionSortCriteriaConfig());
 
         IdentifiableObjectCollection collection = null;
-        if(limit == -1 && !tooltipContent) {
+        if (limit == -1 && !tooltipContent) {
             collection = collectionsService.findCollection(collectionName, sortOrder, filters);
 
-        } else if(limit != -1) {
+        } else if (limit != -1) {
             collection = tooltipContent
                     ? collectionsService.findCollection(collectionName, sortOrder, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
                     : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
-            if(!tooltipContent){
-            int collectionCount = collectionsService.findCollection(collectionName, sortOrder, filters).size();
-            nodeConfig.setElementsCount(collectionCount);
+            if (!tooltipContent) {
+                int collectionCount = collectionsService.findCollection(collectionName, sortOrder, filters).size();
+                nodeConfig.setElementsCount(collectionCount);
             }
         }
-        if(collection == null){
+        if (collection == null) {
             return;
         }
         SelectionPatternConfig selectionPatternConfig = nodeConfig.getSelectionPatternConfig();
         Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
-        PopupTitlesHolder popupTitlesHolder = nodeConfig.getPopupTitlesHolder();
 
         for (IdentifiableObject identifiableObject : collection) {
             String representation = formatHandler.format(identifiableObject, matcher, formattingConfig);
-            HierarchyBrowserItem item = new HierarchyBrowserItemBuilder()
-                    .setId(identifiableObject.getId())
-                    .setStringRepresentation(representation)
-                    .setPopupTitle(popupTitlesHolder.getTitleExistingObject())
-                    .setDisplayAsHyperlinks(WidgetUtil.isDisplayingHyperlinks(nodeConfig.getDisplayValuesAsLinksConfig()))
-                    .createHierarchyBrowserItem();
+            HierarchyBrowserItem item = createItem(identifiableObject, nodeConfig, representation, true, false);
             items.add(item);
         }
 
     }
 
-    private Boolean isSingleChoice(DomainObject root, SingleChoiceConfig singleChoiceConfig){
-        if(singleChoiceConfig == null){
+    private HierarchyBrowserItem createItem(IdentifiableObject identifiableObject, NodeCollectionDefConfig nodeConfig,
+                                            String representation, boolean chosen, Boolean singleChoice) {
+        Id id = identifiableObject.getId();
+        String domainObjectType = crudService.getDomainObjectType(id);
+        PopupTitlesHolder popupTitlesHolder = nodeConfig.getDoTypeTitlesMap().get(domainObjectType);
+        String popupTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
+        List<NodeCollectionDefConfig> children = nodeConfig.getNodeCollectionDefConfigs();
+        boolean mayHaveChildren = !children.isEmpty();
+        Boolean displayAsHyperlinks = WidgetUtil.isDisplayingHyperlinks(nodeConfig.getDisplayValuesAsLinksConfig());
+        HierarchyBrowserItem item = new HierarchyBrowserItemBuilder()
+                .setId(identifiableObject.getId())
+                .setDomainObjectType(domainObjectType)
+                .setStringRepresentation(representation)
+                .setPopupTitle(popupTitle)
+                .setChosen(chosen)
+                .setSingleChoice(singleChoice)
+                .setNodeCollectionName(nodeConfig.getCollection())
+                .setMayHaveChildren(mayHaveChildren)
+                .setDisplayAsHyperlinks(displayAsHyperlinks)
+                .setSelective(nodeConfig.isSelective())
+                .createHierarchyBrowserItem();
+        return item;
+    }
+
+    private Boolean isSingleChoice(DomainObject root, SingleChoiceConfig singleChoiceConfig) {
+        if (singleChoiceConfig == null) {
             return null;
         }
-        if(singleChoiceConfig.isSingleChoice() == null){
+        if (singleChoiceConfig.isSingleChoice() == null) {
             return compareField(root, singleChoiceConfig.getParentObjectFieldConfig());
         }
 
-        return  singleChoiceConfig.isSingleChoice();
+        return singleChoiceConfig.isSingleChoice();
 
     }
 
-    private boolean compareField(DomainObject root, ParentObjectFieldConfig parentObjectFieldConfig){
-        if(root == null || parentObjectFieldConfig == null){
+    private boolean compareField(DomainObject root, ParentObjectFieldConfig parentObjectFieldConfig) {
+        if (root == null || parentObjectFieldConfig == null) {
             return false;
         }
-        Value realValue = root.getValue(parentObjectFieldConfig.getName()); //TODO add complex filed pa support
-        if(realValue == null){
-           return false;
+        Value realValue = fieldExtractor.extractField(root, parentObjectFieldConfig.getName());
+        if (realValue == null) {
+            return false;
         }
         Value parsedValue = literalFieldValueParser.textToValue(parentObjectFieldConfig.getValue(), realValue.getFieldType());
         return realValue.equals(parsedValue);
     }
 
-    private void fillNodeConfigs(DomainObject root, Map<String, NodeCollectionDefConfig> collectionNameNodeMap){
+    private void fillNodeConfigs(DomainObject root, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
         for (Map.Entry<String, NodeCollectionDefConfig> entry : collectionNameNodeMap.entrySet()) {
             NodeCollectionDefConfig nodeCollectionDefConfig = entry.getValue();
             LinkedFormMappingConfig mappingConfig = nodeCollectionDefConfig.getLinkedFormMappingConfig();
-            if(mappingConfig != null) {
-            LinkedFormConfig formConfig = nodeCollectionDefConfig.getLinkedFormMappingConfig().getLinkedFormConfigs().get(0);
-            PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(formConfig, root);
-            nodeCollectionDefConfig.setPopupTitlesHolder(popupTitlesHolder);
-            }
+            Map<String, PopupTitlesHolder> doTypeTitlesMap = createTitlesMap(root, mappingConfig);
+            nodeCollectionDefConfig.setDoTypeTitlesMap(doTypeTitlesMap);
             FillParentOnAddConfig fillParentOnAddConfig = nodeCollectionDefConfig.getFillParentOnAddConfig();
-            String domainObjectType = nodeCollectionDefConfig.getDomainObjectType();
-            boolean displayingCreateButton = fillParentOnAddConfig == null
-                    ? accessVerificationService.isCreatePermitted(domainObjectType)
-                    : accessVerificationService.isCreateChildPermitted(domainObjectType, root.getId());
-            nodeCollectionDefConfig.setDisplayCreateButton(displayingCreateButton);
+            CreatedObjectsConfig createdObjectsConfig = nodeCollectionDefConfig.getCreatedObjectsConfig();
+            Map<String, String> accessedTypesMap = createAccessedTypesMap(root, createdObjectsConfig, fillParentOnAddConfig);
+            boolean displayingCreateButton = nodeCollectionDefConfig.isDisplayingCreateButton();
+            nodeCollectionDefConfig.setDisplayCreateButton(displayingCreateButton && !accessedTypesMap.isEmpty());
         }
 
+    }
+
+    private Map<String, PopupTitlesHolder> createTitlesMap(DomainObject root, LinkedFormMappingConfig mappingConfig) {
+        Map<String, PopupTitlesHolder> result = new HashMap<>();
+        if (mappingConfig != null) {
+            List<LinkedFormConfig> linkedFormConfigs = mappingConfig.getLinkedFormConfigs();
+            if (WidgetUtil.isNotEmpty(linkedFormConfigs)) {
+                for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
+                    PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(linkedFormConfig, root);
+                    result.put(linkedFormConfig.getDomainObjectType(), popupTitlesHolder);
+                }
+            }
+        }
+        return result;
+    }
+
+    private Map<String, String> createAccessedTypesMap(DomainObject root, CreatedObjectsConfig createdObjectsConfig,
+                                                       FillParentOnAddConfig fillParentOnAddConfig) {
+        Map<String, String> result = new HashMap<>();
+        if (createdObjectsConfig != null) {
+            List<CreatedObjectConfig> createdObjectConfigs = createdObjectsConfig.getCreateObjectConfigs();
+            if (WidgetUtil.isNotEmpty(createdObjectConfigs)) {
+                for (CreatedObjectConfig createdObjectConfig : createdObjectConfigs) {
+                    String domainObjectType = createdObjectConfig.getDomainObjectType();
+                    boolean displayingCreateButton = fillParentOnAddConfig == null
+                            ? accessVerificationService.isCreatePermitted(domainObjectType)
+                            : accessVerificationService.isCreateChildPermitted(domainObjectType, root.getId());
+                    if (displayingCreateButton) {
+                        result.put(domainObjectType, createdObjectConfig.getText());
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     private void correctChosenItems(List<Id> selectedIds, List<HierarchyBrowserItem> chosenItems) {
@@ -189,9 +243,9 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         for (Id selectedId : selectedIds) {
             if (!chosenItemsIds.contains(selectedId)) {
                 HierarchyBrowserItem item = new HierarchyBrowserItemBuilder()
-                .setStringRepresentation(WidgetConstants.REPRESENTATION_STUB)
-                .setNodeCollectionName(WidgetConstants.UNDEFINED_COLLECTION_NAME)
-                .setId(selectedId)
+                        .setStringRepresentation(WidgetConstants.REPRESENTATION_STUB)
+                        .setNodeCollectionName(WidgetConstants.UNDEFINED_COLLECTION_NAME)
+                        .setId(selectedId)
                         .createHierarchyBrowserItem();
                 chosenItems.add(item);
             }
@@ -218,54 +272,35 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         int numberOfItems = nodeContentRequest.getNumberOfItemsToDisplay();
         int offset = nodeContentRequest.getOffset();
         ArrayList<Id> chosenIds = nodeContentRequest.getChosenIds();
-        Map<String, String> domainObjectTypesAndTitles = new HashMap<>();
         Id rootId = nodeContentRequest.getRootId();
         DomainObject root = rootId == null ? null : crudService.find(rootId);
-        for (NodeCollectionDefConfig nodeCollectionDefConfig : nodeCollectionDefConfigs) {
+        for (NodeCollectionDefConfig nodeConfig : nodeCollectionDefConfigs) {
 
-            String collectionName = nodeCollectionDefConfig.getCollection();
-            Matcher selectionMatcher = FormatHandler.pattern.matcher(nodeCollectionDefConfig.getSelectionPatternConfig()
+            String collectionName = nodeConfig.getCollection();
+            Matcher selectionMatcher = FormatHandler.pattern.matcher(nodeConfig.getSelectionPatternConfig()
                     .getValue());
             List<Filter> filters = new ArrayList<Filter>();
             if (parentId != null) {
-                filters = addParentFilter(parentId, nodeCollectionDefConfig.getParentFilter(), filters);
+                filters = addParentFilter(parentId, nodeConfig.getParentFilter(), filters);
             }
             String inputText = nodeContentRequest.getInputText();
             if (inputText != null && !inputText.equalsIgnoreCase("")) {
-                String inputTextFilterName = nodeCollectionDefConfig.getInputTextFilterConfig().getName();
+                String inputTextFilterName = nodeConfig.getInputTextFilterConfig().getName();
                 filters = addInputTextFilter(inputTextFilterName, inputText, filters);
             }
-            DefaultSortCriteriaConfig sortCriteriaConfig = nodeCollectionDefConfig.getDefaultSortCriteriaConfig();
+            DefaultSortCriteriaConfig sortCriteriaConfig = nodeConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
-            SelectionFiltersConfig selectionFiltersConfig = nodeCollectionDefConfig.getSelectionFiltersConfig();
+            SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
             filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
             IdentifiableObjectCollection collection = collectionsService.
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
-            List<NodeCollectionDefConfig> children = nodeCollectionDefConfig.getNodeCollectionDefConfigs();
-            boolean mayHaveChildren = !children.isEmpty();
             FormattingConfig formattingConfig = nodeContentRequest.getFormattingConfig();
-            PopupTitlesHolder titlesHolder = nodeCollectionDefConfig.getPopupTitlesHolder();
-            Boolean singleChoice = isSingleChoice(root, nodeCollectionDefConfig.getSingleChoiceConfig());
+            Boolean singleChoice = isSingleChoice(root, nodeConfig.getSingleChoiceConfig());
             for (IdentifiableObject identifiableObject : collection) {
+                boolean chosen = chosenIds.contains(identifiableObject.getId());
                 String representation = formatHandler.format(identifiableObject, selectionMatcher, formattingConfig);
-                Id id = identifiableObject.getId();
-                String titleExistingObject = titlesHolder == null ? null : titlesHolder.getTitleExistingObject();
-                Boolean displayAsHyperlinks = WidgetUtil.isDisplayingHyperlinks(nodeCollectionDefConfig
-                        .getDisplayValuesAsLinksConfig());
-                HierarchyBrowserItem item = new HierarchyBrowserItemBuilder()
-                        .setId(id)
-                        .setStringRepresentation(representation)
-                        .setPopupTitle(titleExistingObject)
-                        .setDisplayAsHyperlinks(displayAsHyperlinks)
-                        .setSingleChoice(singleChoice)
-                        .setNodeCollectionName(collectionName)
-                        .setMayHaveChildren(mayHaveChildren)
-                        .createHierarchyBrowserItem();
-
-                if (chosenIds.contains(id)) {
-                    item.setChosen(true);
-                }
-                item.setMayHaveChildren(mayHaveChildren);
+                HierarchyBrowserItem item = createItem(identifiableObject, nodeConfig, representation,
+                        chosen, singleChoice);
                 items.add(item);
             }
 
@@ -273,9 +308,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         NodeContentResponse nodeContent = new NodeContentResponse();
         nodeContent.setNodeCollectionDefConfigs(nodeCollectionDefConfigs);
         nodeContent.setNodeContent(items);
-        nodeContent.setDomainObjectTypesAndTitles(domainObjectTypesAndTitles);
         nodeContent.setParentCollectionName(rootNodeCollectionDefConfig.getCollection());
-        nodeContent.setSelective(nodeContentRequest.isSelective());
         nodeContent.setParentId(parentId);
         return nodeContent;
     }
@@ -287,8 +320,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     }
 
     private List<Filter> addIncludeIdsFilter(List<Id> includedIds, List<Filter> filters) {
-        Set<Id> idsIncluded = new HashSet<Id>(includedIds);
-        Filter idsIncludedFilter = FilterBuilderUtil.prepareFilter(idsIncluded, FilterBuilderUtil.INCLUDED_IDS_FILTER);
+        Filter idsIncludedFilter = FilterBuilderUtil.prepareFilter(new HashSet<Id>(includedIds), FilterBuilderUtil.INCLUDED_IDS_FILTER);
         filters.add(idsIncludedFilter);
         return filters;
     }
@@ -326,7 +358,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         }
     }
 
-    public HierarchyBrowserTooltipResponse fetchWidgetItems(Dto inputParams){
+    public HierarchyBrowserTooltipResponse fetchWidgetItems(Dto inputParams) {
         HierarchyBrowserTooltipRequest request = (HierarchyBrowserTooltipRequest) inputParams;
         HierarchyBrowserConfig config = request.getHierarchyBrowserConfig();
         Map<String, NodeCollectionDefConfig> collectionNameNodeMap = new HashMap<>();

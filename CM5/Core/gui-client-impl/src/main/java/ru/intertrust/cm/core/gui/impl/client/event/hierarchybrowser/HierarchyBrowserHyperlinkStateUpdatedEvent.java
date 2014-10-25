@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser;
 
 import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.HierarchyBrowserHyperlinkDisplay;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.HierarchyBrowserDisplay;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -14,11 +14,11 @@ public class HierarchyBrowserHyperlinkStateUpdatedEvent extends GwtEvent<Hierarc
     public static Type<HierarchyBrowserHyperlinkStateUpdatedEventHandler> TYPE = new Type<HierarchyBrowserHyperlinkStateUpdatedEventHandler>();
     private Id id;
     private String collectionName;
-    private HierarchyBrowserHyperlinkDisplay hyperlinkDisplay;
+    private HierarchyBrowserDisplay hyperlinkDisplay;
     private boolean tooltipContent;
 
     public HierarchyBrowserHyperlinkStateUpdatedEvent(Id id, String collectionName,
-                                                      HierarchyBrowserHyperlinkDisplay hyperlinkDisplay, boolean tooltipContent) {
+                                                      HierarchyBrowserDisplay hyperlinkDisplay, boolean tooltipContent) {
         this.id = id;
         this.collectionName = collectionName;
         this.hyperlinkDisplay = hyperlinkDisplay;
@@ -43,7 +43,7 @@ public class HierarchyBrowserHyperlinkStateUpdatedEvent extends GwtEvent<Hierarc
         return collectionName;
     }
 
-    public HierarchyBrowserHyperlinkDisplay getHyperlinkDisplay() {
+    public HierarchyBrowserDisplay getHyperlinkDisplay() {
         return hyperlinkDisplay;
     }
 
