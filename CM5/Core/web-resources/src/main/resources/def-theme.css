@@ -1177,6 +1177,15 @@ h1 {
     width: auto;
 }
 
+.imageLargePreview {
+    z-index: 12;
+}
+
+.imageLargePreview img {
+    height: 400px;
+    width: 400px;
+}
+
 .image-preview .facebook-btn {
     position: absolute;
     right: 2px;

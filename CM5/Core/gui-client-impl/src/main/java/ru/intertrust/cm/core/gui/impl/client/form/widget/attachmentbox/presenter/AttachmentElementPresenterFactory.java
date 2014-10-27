@@ -100,15 +100,25 @@ public class AttachmentElementPresenterFactory {
 
     private AttachmentElementPresenter createNonEditableImagePresenter(final AttachmentItem item) {
        return new ImagePresenter(item, imageConfig.getReadOnlyPreviewConfig(),
-               new DownloadAttachmentHandler(item)); //TODO: open large preview handler
+               getOnClickHandler(item));
     }
 
     private AttachmentElementPresenter createEditableImagePresenter(final AttachmentItem item) {
         AttachmentElementPresenter presenter = new ImagePresenter(item, imageConfig.getSmallPreviewConfig(),
-                new DownloadAttachmentHandler(item)); //TODO: open large preview handler
+                getOnClickHandler(item));
         presenter = new DeleteButtonPresenter(presenter, deleteButtonConfig, new DeleteAttachmentClickHandler(item));
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
         return presenter;
+    }
+
+    private ClickHandler getOnClickHandler(AttachmentItem item) {
+        if (imageConfig == null) {
+            return new DownloadAttachmentHandler(item);
+        }
+        if (imageConfig.getLargePreviewConfig() == null || !imageConfig.getLargePreviewConfig().isDisplay()) {
+            return new DownloadAttachmentHandler(item);
+        }
+        return new ImagePresenter.OpenLargePreviewHandler(item, imageConfig.getLargePreviewConfig());
     }
 
     private class DeleteAttachmentClickHandler implements ClickHandler {
@@ -124,4 +134,5 @@ public class AttachmentElementPresenterFactory {
             attachments.remove(item);
         }
     }
+
 }
