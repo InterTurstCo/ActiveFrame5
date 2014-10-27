@@ -13,7 +13,7 @@
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c2e7f0', endColorstr='#bfdfea', GradientType=0); /* IE6-9 */
     background: linear-gradient(top, #c2e7f0 0%, #bfdfea 100%); /* W3C */
     overflow: auto;
-    padding: 0 10px 10px;
+    padding: 0 10px 0;
     position: absolute;
     top: 40px;
     right: 0;
