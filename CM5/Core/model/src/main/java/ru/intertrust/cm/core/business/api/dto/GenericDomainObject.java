@@ -33,9 +33,15 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
      */
     public GenericDomainObject() {
         super();
-
     }
 
+    /**
+     * Создаёт доменный объект определенного типа
+     */
+    public GenericDomainObject(String typeName) {
+        super();
+        this.typeName = typeName;
+    }
     /**
      * Создаёт копию доменного объекта
      *

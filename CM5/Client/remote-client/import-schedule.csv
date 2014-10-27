@@ -48,3 +48,8 @@ NotificationScheduleTask2;ru.intertrust.cm.core.business.impl.notification.Notif
   </notificationTaskConfig>
  </parameters>
 </scheduleTaskConfig>";false
+TestReceiveEmail;ru.intertrust.cm.core.business.impl.email.EmailReceiverScheduleTaskHandle;1;*;*;*;*;*;*/1;5;4;"<scheduleTaskConfig>
+ <parameters class=""ru.intertrust.cm.core.business.api.email.EmailReceiverConfig"">
+  <email-receiver-config host=""vm-mail-01"" port=""110"" login=""temp@btlab.ru"" password=""3hMnK6SeSv""/>
+ </parameters>
+</scheduleTaskConfig>";true

@@ -26,6 +26,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
 
         <spring.version>3.2.3.RELEASE</spring.version>
+        <spring.integration.mail.version>3.0.5.RELEASE</spring.integration.mail.version>
         <gwt.version>2.6.1</gwt.version>
         <slf4j.version>1.7.2</slf4j.version>
         <solr.version>4.5.1</solr.version>
@@ -139,6 +140,18 @@
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.springframework.integration</groupId>
+                <artifactId>spring-integration-mail</artifactId>
+                <version>${spring.integration.mail.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context-support</artifactId>
+                    </exclusion>
+                </exclusions>                
             </dependency>
 
             <!-- AspectJ -->

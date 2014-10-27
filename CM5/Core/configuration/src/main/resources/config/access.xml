@@ -732,6 +732,10 @@
         </create>
     </access-matrix>
 
+    <access-matrix type="email_messages" read-everybody="true"/>
+    
+    <access-matrix type="email_messages_attachments" read-everybody="true"/>
+
 </configuration>
 
 

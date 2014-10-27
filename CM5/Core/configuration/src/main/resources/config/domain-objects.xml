@@ -559,4 +559,20 @@
 
     </domain-object-type>
 
+    <domain-object-type name="email_message" initial-status="Active">
+        <fields>
+            <string name="message_id" length="256" not-null="true"/>
+            <string name="from" length="256" not-null="true"/>
+            <string name="to" length="256" not-null="true"/>
+            <string name="subject" length="512" not-null="true"/>
+            <text name="body" not-null="true"/>
+        </fields>
+        <uniqueKey>
+            <field name="message_id"/>
+        </uniqueKey>
+        <attachment-types>
+            <attachment-type name="email_message_attachment" />
+        </attachment-types>
+    </domain-object-type>
+
 </configuration>

@@ -197,4 +197,5 @@
     
     <bean id="fontLoader" class="ru.intertrust.cm.core.report.FontLoader"/>
     
+    <bean id="mailReceiver" class="ru.intertrust.cm.core.business.impl.email.EmailReceiverImpl"/>
 </beans>
