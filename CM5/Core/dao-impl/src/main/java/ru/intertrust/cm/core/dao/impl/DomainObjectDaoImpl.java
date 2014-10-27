@@ -154,6 +154,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public DomainObject setStatus(Id objectId, Id status, AccessToken accessToken) {
+        checkIfAuditLog(new Id[] {objectId });
+        
+        String domainObjectType = domainObjectTypeIdCache.getName(objectId);
+        if (configurationExplorer.isAuditLogType(domainObjectType)) {
+            throw new FatalException("It is not allowed to change Audit Log using CRUD service, table: " + domainObjectType);
+        }
+
         accessControlService.verifySystemAccessToken(accessToken);
         DomainObject domainObject = find(objectId, accessToken);
         ((GenericDomainObject) domainObject).setStatus(status);
@@ -187,7 +194,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private DomainObject[] createMany(DomainObject[] domainObjects, AccessToken accessToken) {
-
+        checkIfAuditLog(domainObjects);
+        
         String initialStatus = getInitialStatus(domainObjects[0]);
 
         DomainObject createdObjects[] = create(domainObjects,
@@ -272,9 +280,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
 
-        if (domainObjects[0] != null && configurationExplorer.isAuditLogType(domainObjects[0].getTypeName())) {
-            throw new FatalException("It is not allowed to save Audit Log using CRUD service, table: " + domainObjects[0].getTypeName());
-        }
+        checkIfAuditLog(domainObjects);
         DomainObject result[] = null;
 
         //Получение измененных полей
@@ -328,6 +334,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         return result;
+    }
+
+    /**
+     * Проверяет, являются ли переданные объекты аудит логом. Так как передается массив однотипных объектов,
+     * то проверяется тип первого объекта. Если передан аудит лог объект - выбрасывается исключение.
+     * @param ids
+     */
+    private void checkIfAuditLog(DomainObject[] domainObjects) {
+        if (domainObjects[0] != null && configurationExplorer.isAuditLogType(domainObjects[0].getTypeName())) {
+            throw new FatalException("It is not allowed to modify Audit Log using CRUD service, table: " + domainObjects[0].getTypeName());
+        }
     }
 
     @Override
@@ -503,12 +520,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private int deleteMany(Id[] ids, AccessToken accessToken) throws InvalidIdException,
             ObjectNotFoundException {
 
-        if (ids[0] != null) {
-            String domainObjectType = domainObjectTypeIdCache.getName(ids[0]);
-            if (configurationExplorer.isAuditLogType(domainObjectType)) {
-                throw new FatalException("It is not allowed to delete Audit Log using CRUD service, table: " + domainObjectType);
-            }
-        }
+        checkIfAuditLog(ids);
         
         for (Id id : ids) {
             validateIdType(id);
@@ -575,6 +587,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         return deleted;
+    }
+
+    /**
+     * Проверяет, являются ли переданные объекты аудит логом. Так как передается массив однотипных объектов,
+     * топроверяется тип первого объекта. Если передан аудит лог объект - выбрасывается исключение.
+     * @param ids
+     */
+    private void checkIfAuditLog(Id[] ids) {
+        if (ids[0] != null) {
+            String domainObjectType = domainObjectTypeIdCache.getName(ids[0]);
+            if (configurationExplorer.isAuditLogType(domainObjectType)) {
+                throw new FatalException("It is not allowed to modify Audit Log using CRUD service, table: " + domainObjectType);
+            }
+        }
     }
 
     /**
