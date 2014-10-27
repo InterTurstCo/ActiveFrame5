@@ -25,7 +25,8 @@ import java.util.List;
  *         Date: 24.10.13
  *         Time: 13:15
  */
-@ComponentName("attachment-box")
+@Deprecated
+@ComponentName("attachment-box-old")
 public class AttachmentBoxWidget extends BaseWidget {
     protected static final BusinessUniverseServiceAsync SERVICE = BusinessUniverseServiceAsync.Impl.getInstance();
     private Timer elapsedTimer;

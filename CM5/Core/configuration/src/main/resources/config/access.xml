@@ -736,6 +736,12 @@
     
     <access-matrix type="email_messages_attachments" read-everybody="true"/>
 
+    <access-matrix type="country_attachment">
+        <create>
+            <permit-group name="test-group-1" />
+        </create>
+    </access-matrix>
+
 </configuration>
 
 

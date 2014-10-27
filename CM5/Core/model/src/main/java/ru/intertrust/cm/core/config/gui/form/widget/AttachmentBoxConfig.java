@@ -29,6 +29,18 @@ public class AttachmentBoxConfig extends WidgetConfig {
     @Element(name = "accepted-types", required = false)
     private AcceptedTypesConfig acceptedTypesConfig;
 
+    @Element(name = "images-only", required = false)
+    private ImagesOnlyConfig imagesConfig;
+
+    @Element(name = "delete-button", required = false)
+    private DeleteButtonConfig deleteButtonConfig;
+
+    @Element(name = "add-button", required = false)
+    private AddButtonConfig addButtonConfig;
+
+    @Element(name = "choice-style", required = false)
+    private ChoiceStyleConfig choiceStyleConfig;
+
     public AttachmentBoxConfig() {
         singleChoice = new SingleChoiceConfig();
         singleChoice.setSingleChoice(false);
@@ -82,6 +94,22 @@ public class AttachmentBoxConfig extends WidgetConfig {
         this.acceptedTypesConfig = acceptedTypesConfig;
     }
 
+    public ImagesOnlyConfig getImagesConfig() {
+        return imagesConfig;
+    }
+
+    public DeleteButtonConfig getDeleteButtonConfig() {
+        return deleteButtonConfig;
+    }
+
+    public AddButtonConfig getAddButtonConfig() {
+        return addButtonConfig;
+    }
+
+    public ChoiceStyleConfig getChoiceStyleConfig() {
+        return choiceStyleConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -90,7 +118,8 @@ public class AttachmentBoxConfig extends WidgetConfig {
 
         AttachmentBoxConfig that = (AttachmentBoxConfig) o;
 
-        if (actionLinkConfig != null ? !actionLinkConfig.equals(that.actionLinkConfig) : that.actionLinkConfig != null) return false;
+        if (actionLinkConfig != null ? !actionLinkConfig.equals(that.actionLinkConfig) : that.actionLinkConfig != null)
+            return false;
         if (attachmentType != null ? !attachmentType.equals(that.attachmentType) : that.attachmentType != null)
             return false;
         if (scanner != null ? !scanner.equals(that.scanner) : that.scanner != null) return false;
@@ -98,9 +127,16 @@ public class AttachmentBoxConfig extends WidgetConfig {
             return false;
         if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) return false;
         if (acceptedTypesConfig != null ? !acceptedTypesConfig.equals(that.acceptedTypesConfig) : that.
-                acceptedTypesConfig != null) {
+                acceptedTypesConfig != null)
             return false;
-        }
+        if (imagesConfig != null ? !imagesConfig.equals(that.imagesConfig) : that.imagesConfig != null)
+            return false;
+        if (deleteButtonConfig != null ? !deleteButtonConfig.equals(that.deleteButtonConfig) : that.deleteButtonConfig != null)
+            return false;
+        if (addButtonConfig != null ? !addButtonConfig.equals(that.addButtonConfig) : that.addButtonConfig != null)
+            return false;
+        if (choiceStyleConfig != null ? !choiceStyleConfig.equals(that.choiceStyleConfig) : that.choiceStyleConfig != null)
+            return false;
         return true;
     }
 
@@ -113,6 +149,10 @@ public class AttachmentBoxConfig extends WidgetConfig {
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (actionLinkConfig != null ? actionLinkConfig.hashCode() : 0);
         result = 31 * result + (acceptedTypesConfig != null ? acceptedTypesConfig.hashCode() : 0);
+        result = 31 * result + (imagesConfig != null ? imagesConfig.hashCode() : 0);
+        result = 31 * result + (deleteButtonConfig != null ? deleteButtonConfig.hashCode() : 0);
+        result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
+        result = 31 * result + (choiceStyleConfig != null ? choiceStyleConfig.hashCode() : 0);
         return result;
     }
 

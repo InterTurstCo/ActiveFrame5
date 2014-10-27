@@ -15,6 +15,9 @@ public class ButtonConfig implements Dto {
     @Attribute(name = "text", required = false)
     private String text;
 
+    @Attribute(name = "display", required = false)
+    private boolean display = true;
+
     public String getImage() {
         return image;
     }
@@ -29,6 +32,10 @@ public class ButtonConfig implements Dto {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public boolean isDisplay() {
+        return display;
     }
 
     @Override
@@ -48,7 +55,9 @@ public class ButtonConfig implements Dto {
         if (text != null ? !text.equals(that.text) : that.text != null) {
             return false;
         }
-
+        if (display != that.display) {
+            return false;
+        }
         return true;
     }
 
@@ -56,6 +65,7 @@ public class ButtonConfig implements Dto {
     public int hashCode() {
         int result = image != null ? image.hashCode() : 0;
         result = 31 * result + (text != null ? text.hashCode() : 0);
+        result = 31 * result + (display ? 1 : 0);
         return result;
     }
 }

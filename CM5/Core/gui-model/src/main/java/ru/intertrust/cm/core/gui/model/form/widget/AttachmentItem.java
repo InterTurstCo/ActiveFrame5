@@ -56,6 +56,10 @@ public class AttachmentItem implements Dto {
         this.contentLength = contentLength;
     }
 
+    public String getTitle() {
+        return contentLength == null ? name : name + " (" + contentLength + ")";
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

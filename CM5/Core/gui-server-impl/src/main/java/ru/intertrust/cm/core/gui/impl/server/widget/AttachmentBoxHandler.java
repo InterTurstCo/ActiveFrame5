@@ -5,9 +5,11 @@ import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AttachmentBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
@@ -45,6 +47,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     private AttachmentService attachmentService;
     @Autowired
     private PropertyResolver propertyResolver;
+    @Autowired
+    private AccessVerificationService accessVerificationService;
 
     @Override
     public AttachmentBoxState getInitialState(WidgetContext context) {
@@ -74,6 +78,10 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         Boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
         state.setSingleChoice(singleChoice);
+        state.setImagesConfig(widgetConfig.getImagesConfig());
+        state.setDeleteButtonConfig(widgetConfig.getDeleteButtonConfig());
+        state.setDisplayAddButton(isAddPermitted(widgetConfig.getAddButtonConfig(), widgetConfig.getAttachmentType()
+                .getName()));
         return state;
     }
 
@@ -125,5 +133,10 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     @Override
     public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
         return true;
+    }
+
+    private boolean isAddPermitted(AddButtonConfig addButtonConfig, String attachmentTypeName) {
+        return (addButtonConfig == null || addButtonConfig.isDisplay()) &&
+            accessVerificationService.isCreatePermitted(attachmentTypeName);
     }
 }

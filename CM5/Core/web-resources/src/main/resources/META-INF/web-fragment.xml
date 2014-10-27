@@ -20,6 +20,7 @@
         <url-pattern>/attachment-download/*</url-pattern>
         <url-pattern>/generate-report/*</url-pattern>
         <url-pattern>/json-export-to-csv/*</url-pattern>
+        <url-pattern>/image-preview</url-pattern>
     </servlet-mapping>
 
     <security-constraint>

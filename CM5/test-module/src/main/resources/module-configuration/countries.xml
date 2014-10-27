@@ -636,11 +636,18 @@
              </list-box>-->
             <attachment-box id="15">
                 <field-path value="country_attachment^country"/>
+                <images-only>
+                    <read-only-preview  preserve-proportion="true"/>
+                    <small-preview display="true" preserve-proportion="true"/>
+                    <large-preview display="true" preserve-proportion="true"/>
+                </images-only>
                 <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
                 <attachment-type-ref name="country_attachment"/>
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
+                <choice-style name="popup"/>
+                <delete-button display="true"/>
                 <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
             </attachment-box>
 

@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
  *         Date: 03.05.14
  *         Time: 13:15
  */
+@Deprecated
 public class AttachmentNoneEditablePanel extends AbstractNoneEditablePanel {
     public AttachmentNoneEditablePanel(SelectionStyleConfig selectionStyleConfig) {
         super(selectionStyleConfig);
