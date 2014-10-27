@@ -89,7 +89,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         if (from instanceof Table) {
             Table table = (Table) from;
             //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
-            if (!configurationExplorer.isReadPermittedToEverybody(table.getName())) {
+            if (!configurationExplorer.isReadPermittedToEverybody(DaoUtils.unwrap(table.getName()))) {
                 SubSelect replace = createAclSubQuery(table.getName());
                 if (table.getAlias() == null) {
                     replace.setAlias(new Alias(table.getName()));

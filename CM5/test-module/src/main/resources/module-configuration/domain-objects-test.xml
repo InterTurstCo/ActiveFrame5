@@ -339,5 +339,33 @@
                 ]]>
             </criteria>
         </filter>
-    </collection>  
+    </collection>
+    
+    <domain-object-type name="nunid2punid_map">
+        <fields>
+            <string name="nunid" length="32" />
+            <string name="punid" length="32" />
+        </fields>
+        <uniqueKey>
+            <field name="nunid" />
+        </uniqueKey>
+        <uniqueKey>
+            <field name="punid"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <access-matrix type="nunid2punid_map" read-everybody="true">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+        </status>
+    </access-matrix>
+      
 </configuration>

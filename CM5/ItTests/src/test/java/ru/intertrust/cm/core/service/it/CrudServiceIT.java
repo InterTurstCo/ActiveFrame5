@@ -303,7 +303,25 @@ public class CrudServiceIT extends IntegrationTestBase {
         countryObject = crudService.findByUniqueKey("country_test", uniqueKeyValues);
         assertNotNull(countryObject);
         assertNotNull(countryObject.getId());
-    
+
+    }
+
+    @Test
+    public void testFindByUniqueKeyByNonSuperUser() throws Exception {
+        DomainObject testObject = crudService.createDomainObject("nunid2punid_map");
+        String value = "value";
+        testObject.setString("nunid", value);
+        DomainObject savedTestObject = crudService.save(testObject);
+
+        LoginContext lc = login("person2", "admin");
+        lc.login();
+        Map<String, Value> uniqueKeyValues = new HashMap<>();
+        uniqueKeyValues.put("nunid", new StringValue(value));
+        DomainObject result = crudService.findByUniqueKey("nunid2punid_map", uniqueKeyValues);
+        assertNotNull(result);
+        assertNotNull(result.getId());
+
+        lc.logout();
     }
     
     private DomainObject createCountryDomainObject() {
