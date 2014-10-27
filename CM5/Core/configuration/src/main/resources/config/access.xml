@@ -732,6 +732,12 @@
         </create>
     </access-matrix>
 
+    <access-matrix type="country_attachment">
+        <create>
+            <permit-group name="test-group-1" />
+        </create>
+    </access-matrix>
+
 </configuration>
 
 
