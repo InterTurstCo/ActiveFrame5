@@ -808,7 +808,7 @@ h1 {
     bottom: 0;
     -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
     transition: margin 0.5s;
-    margin: 70px 11px 11px 130px;
+    margin: 70px 11px 0px 130px;
 }
 
 .central-div-panel-test-full {
