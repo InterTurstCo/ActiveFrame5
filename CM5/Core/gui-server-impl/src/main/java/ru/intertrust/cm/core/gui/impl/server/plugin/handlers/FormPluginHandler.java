@@ -1,13 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
@@ -21,6 +19,10 @@ import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Возможные состояния формы
@@ -39,12 +41,18 @@ public class FormPluginHandler extends ActivePluginHandler {
     private GuiService guiService;
     @Autowired
     private ActionConfigBuilder actionConfigBuilder;
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
 
 
     public FormPluginData initialize(Dto initialData) {
         final FormPluginConfig formPluginConfig = (FormPluginConfig) initialData;
         GuiContext.get().setFormPluginState(formPluginConfig.getPluginState());
         FormDisplayData form = getFormDisplayData(formPluginConfig);
+        final String rootDomainObjectType = form.getFormState().getRootDomainObjectType();
+        if (configurationExplorer.isAuditLogType(rootDomainObjectType)) {
+            formPluginConfig.getPluginState().setEditable(false);
+        }
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
         pluginData.setPluginState(formPluginConfig.getPluginState());
@@ -54,19 +62,16 @@ public class FormPluginHandler extends ActivePluginHandler {
     }
 
     private FormDisplayData getFormDisplayData(FormPluginConfig config) {
-        String domainObjectToCreate = config.getDomainObjectTypeToCreate();
+        final String domainObjectToCreate = config.getDomainObjectTypeToCreate();
         final UserInfo userInfo = GuiContext.get().getUserInfo();
-        String domainObjectUpdaterName = config.getDomainObjectUpdatorComponent();
-        if (domainObjectUpdaterName == null) {
-            return domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate, userInfo, config.getFormViewerConfig())
-                    : guiService.getForm(config.getDomainObjectId(), userInfo, config.getFormViewerConfig());
+        final String domainObjectUpdaterName = config.getDomainObjectUpdatorComponent();
+        final Dto updaterContext = config.getUpdaterContext();
+        final FormViewerConfig formViewerConfig = config.getFormViewerConfig();
+        if (domainObjectToCreate != null) {
+            return guiService.getForm(domainObjectToCreate, domainObjectUpdaterName, updaterContext, userInfo, formViewerConfig);
         } else {
-            Dto updaterContext = config.getUpdaterContext();
-            return domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate,
-                    domainObjectUpdaterName, updaterContext, userInfo, config.getFormViewerConfig())
-                    : guiService.getForm(config.getDomainObjectId(), domainObjectUpdaterName, updaterContext, userInfo, config.getFormViewerConfig());
+            return guiService.getForm(config.getDomainObjectId(), domainObjectUpdaterName, updaterContext, userInfo, formViewerConfig);
         }
-
     }
 
     private ToolbarContext getActionContexts(final FormPluginConfig config, final FormDisplayData form) {

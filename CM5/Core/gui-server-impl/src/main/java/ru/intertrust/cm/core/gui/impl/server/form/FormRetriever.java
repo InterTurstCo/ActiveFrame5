@@ -46,25 +46,20 @@ public class FormRetriever extends FormProcessor {
 
 
     public FormDisplayData getForm(String domainObjectType, FormViewerConfig formViewerConfig) {
-        DomainObject root = crudService.createDomainObject(domainObjectType);
-        // todo: separate empty form?
-        return buildDomainObjectForm(root, formViewerConfig);
+        return getForm(domainObjectType, null, null, formViewerConfig);
     }
 
     public FormDisplayData getForm(String domainObjectType, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.createDomainObject(domainObjectType);
-        DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
-        domainObjectUpdater.updateDomainObject(root, updaterContext);
-        // todo: separate empty form?
+        if (updaterComponentName != null) {
+            DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
+            domainObjectUpdater.updateDomainObject(root, updaterContext);
+        }
         return buildDomainObjectForm(root, formViewerConfig);
     }
 
     public FormDisplayData getForm(Id domainObjectId, FormViewerConfig formViewerConfig) {
-        DomainObject root = crudService.find(domainObjectId);
-        if (root == null) {
-            throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
-        }
-        return buildDomainObjectForm(root, formViewerConfig);
+        return getForm(domainObjectId, null, null, formViewerConfig);
     }
 
     public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
@@ -72,8 +67,10 @@ public class FormRetriever extends FormProcessor {
         if (root == null) {
             throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
         }
-        DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
-        domainObjectUpdater.updateDomainObject(root, updaterContext);
+        if (updaterComponentName != null) {
+            DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
+            domainObjectUpdater.updateDomainObject(root, updaterContext);
+        }
         return buildDomainObjectForm(root, formViewerConfig);
     }
 
@@ -239,6 +236,7 @@ public class FormRetriever extends FormProcessor {
                 continue;
             }
             // field path config can point to multiple paths
+            boolean readOnly = config.isReadOnly();
             FieldPath[] fieldPaths = FieldPath.createPaths(fieldPathConfig.getValue());
             for (FieldPath fieldPath : fieldPaths) {
                 ObjectsNode currentRootNode = ROOT_NODE;
@@ -254,6 +252,9 @@ public class FormRetriever extends FormProcessor {
                     // it's a reference. linked objects can exist only for Single-Object Nodes. class-cast exception will
                     // raise if that's not true
                     ObjectsNode linkedNode = findLinkedNode((SingleObjectNode) currentRootNode, childPath);
+                    if (configurationExplorer.isAuditLogType(linkedNode.getType())) {
+                        readOnly = true;
+                    }
                     formObjects.setNode(childPath, linkedNode);
                     currentRootNode = linkedNode;
                 }
@@ -272,7 +273,6 @@ public class FormRetriever extends FormProcessor {
             List<Constraint> constraints = buildConstraints(widgetContext);
             initialState.setConstraints(constraints);
             initialState.setWidgetProperties(buildWidgetProps(widgetContext, constraints));
-            boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
