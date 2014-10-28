@@ -424,9 +424,7 @@
                     <selection-sort-criteria>
                         <sort-criterion field="name" order="asc"/>
                     </selection-sort-criteria>
-                    <single-choice>
-                        <parent-object-field name="subject" value="Info"/>
-                    </single-choice>
+
                     <created-objects>
                         <created-object text = "Орг" domain-object-type="Organization"/>
                     </created-objects>
@@ -438,7 +436,9 @@
                     <!--<selection-filters row-limit="1"></selection-filters>-->
                     <node-collection-def collection="departments" parent-filter="byOrganization"
                                          title="Департамент" display-create-button="true">
-                        <!-- название фильтра по тексту, введённому пользователем -->
+                        <single-choice>
+                            <parent-object-field name="name" value="Организация 1"/>
+                        </single-choice>
                         <fill-parent-on-add field-to-fill="organization"/>
                         <linked-form-mapping>
                         <linked-form name="department_form"  domain-object-type="department">
@@ -463,9 +463,7 @@
                         </linked-form>
                         </linked-form-mapping>
                         <create-new-button text="Department" image="images/icons/arrow-down.png"/>
-                        <single-choice value="true">
-                            <parent-object-field name="ss" value="ss"/>
-                        </single-choice>
+
                         <display-values-as-links value="false"/>
                         <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->

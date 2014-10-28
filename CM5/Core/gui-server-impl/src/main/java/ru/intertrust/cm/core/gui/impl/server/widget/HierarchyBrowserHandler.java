@@ -91,8 +91,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         state.setHierarchyBrowserConfig(widgetConfig);
         state.setChosenItems(chosenItems);
         state.setRootNodeLinkConfig(nodeConfig.getRootNodeLinkConfig());
-        Id rootId = root == null ? null : root.getId();
-        state.setRootId(rootId);
+
         return state;
     }
 
@@ -231,8 +230,8 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         int numberOfItems = nodeContentRequest.getNumberOfItemsToDisplay();
         int offset = nodeContentRequest.getOffset();
         ArrayList<Id> chosenIds = nodeContentRequest.getChosenIds();
-        Id rootId = nodeContentRequest.getRootId();
-        DomainObject root = rootId == null ? null : crudService.find(rootId);
+
+        DomainObject parent = parentId == null ? null : crudService.find(parentId);
         for (NodeCollectionDefConfig nodeConfig : nodeCollectionDefConfigs) {
 
             String collectionName = nodeConfig.getCollection();
@@ -254,7 +253,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             IdentifiableObjectCollection collection = collectionsService.
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
             FormattingConfig formattingConfig = nodeContentRequest.getFormattingConfig();
-            Boolean singleChoice = isSingleChoice(root, nodeConfig.getSingleChoiceConfig());
+            Boolean singleChoice = isSingleChoice(parent, nodeConfig.getSingleChoiceConfig());
             for (IdentifiableObject identifiableObject : collection) {
                 boolean chosen = chosenIds.contains(identifiableObject.getId());
                 String representation = formatHandler.format(identifiableObject, selectionMatcher, formattingConfig);

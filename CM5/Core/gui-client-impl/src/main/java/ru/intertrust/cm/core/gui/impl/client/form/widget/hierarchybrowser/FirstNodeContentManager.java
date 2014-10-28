@@ -23,9 +23,9 @@ import java.util.Map;
  */
 public class FirstNodeContentManager extends NodeContentManager {
     public FirstNodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,
-                                   ArrayList<Id> chosenIds,  Id rootId,
+                                   ArrayList<Id> chosenIds,
                                    Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
-        super(config, mainPopup, chosenIds, rootId, null,collectionNameNodeMap);
+        super(config, mainPopup, chosenIds, null,collectionNameNodeMap);
     }
 
     private NodeContentRequest prepareRequestDataForFirstNodeOpening() {

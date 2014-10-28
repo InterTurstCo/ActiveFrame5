@@ -121,6 +121,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
             Label arrow = new Label("►");
             arrow.addStyleName("hBArrowRight");
             focusPanel.add(arrow);
+            currentItemPanel.addStyleName("node-item-row");
             focusPanel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -130,17 +131,18 @@ public class HierarchyBrowserNodeView implements IsWidget {
                     styledActivePanel = currentItemPanel;
                 }
             });
+
         }
         panelLeft.add(label);
         currentItemPanel.add(panelLeft);
         currentItemPanel.add(focusPanel);
-        currentItemPanel.addStyleName("node-item-row");
+
         final String id = item.getId().toStringRepresentation();
         currentItemPanel.getElement().setId(id);
         currentItemPanel.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                if (GuiUtil.isChildClicked(event, id)) {
+                if (GuiUtil.isChildClicked(event, id) || !item.isMayHaveChildren()) {
                     return;
                 }
                 eventBus.fireEvent(new HierarchyBrowserNodeClickEvent(item.getNodeCollectionName(), item.getId()));

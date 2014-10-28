@@ -29,7 +29,6 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     private ArrayList<Id> temporarySelectedIds;
     private ArrayList<HierarchyBrowserItem> temporaryTooltipChosenItems;
     private Map<String, Integer> temporaryCountOfType;
-    private Id rootId;
 
     public HierarchyBrowserConfig getHierarchyBrowserConfig() {
         return hierarchyBrowserConfig;
@@ -56,14 +55,6 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     }
     public ArrayList<HierarchyBrowserItem> getCurrentItems(){
         return isHandlingTemporarySate ? temporaryChosenItems : chosenItems;
-    }
-
-    public Id getRootId() {
-        return rootId;
-    }
-
-    public void setRootId(Id rootId) {
-        this.rootId = rootId;
     }
 
     public ArrayList<Id> getTemporarySelectedIds() {
@@ -133,7 +124,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     }
 
     public void handleRemovingItem(HierarchyBrowserItem item) {
-        boolean isTooltipContent = getTooltipChosenItems().contains(item);
+        boolean isTooltipContent = getTooltipChosenItems() != null && getTooltipChosenItems().contains(item);
         if (isTooltipContent) {
             handleRemovingItemFromTooltipContent(item);
         } else {

@@ -19,9 +19,9 @@ public abstract class RedrawNodeContentManager extends NodeContentManager {
     protected String inputText;
 
     public RedrawNodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,
-                                    ArrayList<Id> chosenIds, String collectionName, Id rootId, Id parentId,
+                                    ArrayList<Id> chosenIds, String collectionName, Id parentId,
                                     String inputText, Map<String, NodeCollectionDefConfig> collectionNameNodeMap){
-        super(config, mainPopup, chosenIds, rootId, parentId, collectionNameNodeMap);
+        super(config, mainPopup, chosenIds, parentId, collectionNameNodeMap);
         this.collectionName = collectionName;
         this.inputText = inputText;
         this.parentId = parentId;

@@ -19,14 +19,13 @@ public abstract class NodeContentManager {
     protected Map<String, NodeCollectionDefConfig> collectionNameNodeMap;
     protected HierarchyBrowserMainPopup mainPopup;
     protected Id parentId;
-    protected Id rootId;
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
-    public NodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,ArrayList<Id> chosenIds,
-                               Id rootId, Id parentId, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
+
+    public NodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup, ArrayList<Id> chosenIds,
+                              Id parentId, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
         this.config = config;
         this.mainPopup = mainPopup;
         this.chosenIds = chosenIds;
-        this.rootId = rootId;
         this.parentId = parentId;
         this.collectionNameNodeMap = collectionNameNodeMap;
     }
@@ -38,8 +37,8 @@ public abstract class NodeContentManager {
         nodeContentRequest.setParentId(parentId);
         nodeContentRequest.setNodeCollectionDefConfig(nodeConfig);
         nodeContentRequest.setFormattingConfig(config.getFormattingConfig());
-        nodeContentRequest.setRootId(rootId);
         return nodeContentRequest;
     }
+
     public abstract void fetchNodeContent();
 }

@@ -28,9 +28,9 @@ public class ScrollNodeContentManager extends RedrawNodeContentManager {
     private int offset;
     public ScrollNodeContentManager(HierarchyBrowserConfig config,
                                     HierarchyBrowserMainPopup mainPopup, ArrayList<Id> chosenIds,
-                                    String collectionName, Id rootId, Id parentId, String inputText,
+                                    String collectionName, Id parentId, String inputText,
                                     int offset, Map<String, NodeCollectionDefConfig> collectionNameNodeMap){
-        super(config, mainPopup, chosenIds, collectionName, rootId, parentId, inputText, collectionNameNodeMap);
+        super(config, mainPopup, chosenIds, collectionName, parentId, inputText, collectionNameNodeMap);
         this.offset = offset;
 
     }

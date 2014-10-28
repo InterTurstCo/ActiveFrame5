@@ -25,9 +25,9 @@ public class NewNodeContentManager extends NodeContentManager {
         private String collectionName;
 
         public NewNodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,
-                                     ArrayList<Id> chosenIds, String collectionName, Id rootId, Id parentId,
+                                     ArrayList<Id> chosenIds, String collectionName, Id parentId,
                                      Map<String, NodeCollectionDefConfig> collectionNameNodeMap){
-            super(config, mainPopup, chosenIds, rootId, parentId, collectionNameNodeMap);
+            super(config, mainPopup, chosenIds,parentId, collectionNameNodeMap);
             this.collectionName = collectionName;
 
         }

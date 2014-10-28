@@ -118,7 +118,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                     }
                 });
                 final NodeContentManager nodeContentManager = new FirstNodeContentManager(config,
-                        mainPopup, currentState.getIds(), currentState.getRootId(), currentState.getCollectionNameNodeMap());
+                        mainPopup, currentState.getIds(), currentState.getCollectionNameNodeMap());
                 mainPopup.addLinkClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -226,10 +226,11 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     }
 
     private boolean handleAsSingleChoice(HierarchyBrowserCheckBoxUpdateEvent event) {
-        HierarchyBrowserItem item = event.getItem();
-        if (item == null) {
-            return true;
+        HierarchyBrowserItem previous = event.getPreviousChosenItem();
+        if (previous == null) {
+            return false;
         }
+        HierarchyBrowserItem item = event.getItem();
         if (item.isSingleChoice() == null || !item.isSingleChoice()) {
             if (currentState.isSingleChoice()) {
                 currentState.handleCommonSingleChoice(item);
@@ -237,7 +238,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             }
             return false;
         }
-        HierarchyBrowserItem previous = event.getPreviousChosenItem();
+
         currentState.handleNodeSingleChoice(item, previous);
         localEventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(previous, null));
         refreshView();
@@ -279,7 +280,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final String domainObjectType = item.getDomainObjectType();
         final FormPluginConfig config = GuiUtil.createFormPluginConfig(id, nodeCollectionDefConfig, domainObjectType, false);
 
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(currentState.getHyperlinkPopupTitle(collectionName, domainObjectType));
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(currentState.getHyperlinkPopupTitle(collectionName,
+                domainObjectType));
 
         final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
@@ -348,7 +350,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         Id parentId = event.getParentId();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
         NodeContentManager nodeContentManager = new NewNodeContentManager(config, mainPopup, chosenIds,
-                collectionName, currentState.getRootId(), parentId, currentState.getCollectionNameNodeMap());
+                collectionName, parentId, currentState.getCollectionNameNodeMap());
         nodeContentManager.fetchNodeContent();
     }
 
@@ -359,7 +361,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         Id parentId = event.getParentId();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
         NodeContentManager nodeContentManager = new RefreshNodeContentManager(config, mainPopup, chosenIds,
-                parentCollectionName, currentState.getRootId(), parentId, "", currentState.getCollectionNameNodeMap());
+                parentCollectionName, parentId, "", currentState.getCollectionNameNodeMap());
         nodeContentManager.fetchNodeContent();
     }
 
@@ -371,7 +373,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String inputText = event.getInputText();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
         NodeContentManager nodeContentManager = new RefreshNodeContentManager(config, mainPopup, chosenIds,
-                parentCollectionName, currentState.getRootId(), parentId, inputText, currentState.getCollectionNameNodeMap());
+                parentCollectionName, parentId, inputText, currentState.getCollectionNameNodeMap());
         nodeContentManager.fetchNodeContent();
     }
 
@@ -385,7 +387,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String inputText = event.getInputText();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
         NodeContentManager nodeContentManager = new ScrollNodeContentManager(config, mainPopup,
-                chosenIds, parentCollectionName, currentState.getRootId(), parentId, inputText, offset,
+                chosenIds, parentCollectionName, parentId, inputText, offset,
                 currentState.getCollectionNameNodeMap());
         nodeContentManager.fetchNodeContent();
     }

@@ -25,7 +25,6 @@ public class NodeContentRequest implements Dto {
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
     private boolean openChildren = true;
     private FormattingConfig formattingConfig;
-    private Id rootId;
     private Map<String, PopupTitlesHolder> titlesHolderMap;
     public int getNumberOfItemsToDisplay() {
         return numberOfItemsToDisplay;
@@ -97,14 +96,6 @@ public class NodeContentRequest implements Dto {
 
     public void setFormattingConfig(FormattingConfig formattingConfig) {
         this.formattingConfig = formattingConfig;
-    }
-
-    public Id getRootId() {
-        return rootId;
-    }
-
-    public void setRootId(Id rootId) {
-        this.rootId = rootId;
     }
 
     public Map<String, PopupTitlesHolder> getTitlesHolderMap() {
