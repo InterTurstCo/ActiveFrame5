@@ -28,7 +28,7 @@ public class StyledDialogBox extends DialogBox {
         // DialogBox is a SimplePanel, so you have to set its widget
         // property to whatever you want its contents to be.
         okButton= new Button("ОК");
-        okButton.addStyleName("dark-button");
+        okButton.addStyleName("darkButton");
         okButton.removeStyleName("gwt-Button");
 
         Label label = new Label(text);
@@ -47,7 +47,7 @@ public class StyledDialogBox extends DialogBox {
         buttonsPanel.add(okButton);
         if(!hideCancelButton){
         cancelButton = new Button("Нет");
-        cancelButton.addStyleName("light-button");
+        cancelButton.addStyleName("lightButton");
         cancelButton.removeStyleName("gwt-Button");
         buttonsPanel.add(cancelButton);
         }

@@ -39,7 +39,7 @@
     text-align: right;
 }
 
-.infoDialogWindow .buttonsPanel .dark-button {
+.infoDialogWindow .buttonsPanel .darkButton {
     background: #4eef74; /* Old browsers */
     background: -moz-linear-gradient(top,  #4eef74 0%, #2fd656 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4eef74), color-stop(100%,#2fd656)); /* Chrome,Safari4+ */
@@ -95,7 +95,7 @@
     text-align: right;
 }
 
-.errorDialogWindow .buttonsPanel .dark-button {
+.errorDialogWindow .buttonsPanel .darkButton {
     background: #f23030; /* Old browsers */
     background: -moz-linear-gradient(top,  #f23030 0%, #e81919 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f23030), color-stop(100%,#e81919)); /* Chrome,Safari4+ */
@@ -151,7 +151,7 @@
     text-align: right;
 }
 
-.confirmDialogWindow .buttonsPanel .dark-button {
+.confirmDialogWindow .buttonsPanel .darkButton {
     background: #d6d6d6; /* Old browsers */
     background: -moz-linear-gradient(top,  #d6d6d6 0%, #c5c5c5 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d6d6d6), color-stop(100%,#c5c5c5)); /* Chrome,Safari4+ */
@@ -165,7 +165,7 @@
     padding: 6px 35px;
 }
 
-.confirmDialogWindow .buttonsPanel .light-button {
+.confirmDialogWindow .buttonsPanel .lightButton {
     background: #d6d6d6; /* Old browsers */
     background: -moz-linear-gradient(top,  #d6d6d6 0%, #c5c5c5 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d6d6d6), color-stop(100%,#c5c5c5)); /* Chrome,Safari4+ */

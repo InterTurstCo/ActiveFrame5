@@ -302,10 +302,10 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         initCollectionPluginPanel();
         Button okButton = new Button("OK");
         okButton.removeStyleName("gwt-Button");
-        okButton.addStyleName("dark-button buttons-fixed");
+        okButton.addStyleName("darkButton buttons-fixed");
         Button cancelButton = new Button("Отмена");
         cancelButton.removeStyleName("gwt-Button");
-        cancelButton.addStyleName("light-button buttons-fixed position-margin-left");
+        cancelButton.addStyleName("lightButton buttons-fixed position-margin-left");
         if (currentState.isSingleChoice()) {
             addClickHandlersForSingleChoice(okButton, cancelButton, dialogBox);
         } else {

@@ -40,7 +40,7 @@ public class ConfirmDialog extends DialogBox {
         AbsolutePanel buttonsPanel = new AbsolutePanel();
         buttonsPanel.setStyleName("buttonsPanel");
         Button okButton = new Button("ОК");
-        okButton.setStyleName("dark-button");
+        okButton.setStyleName("darkButton");
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -57,7 +57,7 @@ public class ConfirmDialog extends DialogBox {
             }
         });
 
-        cancelButton.setStyleName("light-button");
+        cancelButton.setStyleName("lightButton");
         cancelButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

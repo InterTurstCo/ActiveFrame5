@@ -416,13 +416,13 @@ div, input, textarea, select {
 /* ------------>>> end timePicker block <<<------------ */
 
 /* ------------>>> datePicker confirm button <<<------------ */
-.compositeDatetimePicker .dark-button {
+.compositeDatetimePicker .darkButton {
     position: absolute;
     bottom: -5px;
     right: -5px;
 }
 
-.compositeDateTimeContainerShown .dark-button {
+.compositeDateTimeContainerShown .darkButton {
     display: block;
     margin: 15px 0 10px 85%;
     position: initial;

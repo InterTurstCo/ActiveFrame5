@@ -155,7 +155,7 @@ public class LinkedFormDialogBoxBuilder {
 
         // create buttons
         Button saveButton = new Button("Сохранить");
-        saveButton.setStyleName("lnfm-save-button dark-button");
+        saveButton.setStyleName("lnfm-save-button darkButton");
         decorateButton(saveButton);
         if (saveAction != null) {
             saveButton.addClickHandler(new ClickHandler() {
@@ -170,7 +170,7 @@ public class LinkedFormDialogBoxBuilder {
             });
         }
         Button cancelButton = new Button("Отменить");
-        cancelButton.setStyleName("lnfm-cancel-button light-button");
+        cancelButton.setStyleName("lnfm-cancel-button lightBbutton");
         decorateButton(cancelButton);
         if (cancelAction != null) {
             cancelButton.addClickHandler(new ClickHandler() {

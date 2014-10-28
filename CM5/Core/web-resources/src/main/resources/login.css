@@ -125,7 +125,7 @@ body {
 .auth_button_title {
 }
 
-.auth_wrapper .dark-button {
+.auth_wrapper .darkButton {
     float: right;
     margin: 10px 0;
     padding: 6px 57px;

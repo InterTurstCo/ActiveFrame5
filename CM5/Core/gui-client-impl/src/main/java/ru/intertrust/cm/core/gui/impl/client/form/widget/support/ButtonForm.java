@@ -47,7 +47,7 @@ public class ButtonForm extends Composite{
     }
 
     private void createStyle(){
-        focusPanel.setStyleName("table-browser-button dark-button");
+        focusPanel.setStyleName("table-browser-button darkButton");
         buttonPanel.setStyleName("common-buttons-panel");
     }
 

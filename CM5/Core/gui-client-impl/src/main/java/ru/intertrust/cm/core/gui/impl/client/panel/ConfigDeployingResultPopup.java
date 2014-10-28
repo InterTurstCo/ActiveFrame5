@@ -37,7 +37,7 @@ public class ConfigDeployingResultPopup extends PopupPanel {
         container.add(header);
         container.add(body);
         Button submit = new Button("OK");
-        submit.setStyleName("dark-button");
+        submit.setStyleName("darkButton");
         submit.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

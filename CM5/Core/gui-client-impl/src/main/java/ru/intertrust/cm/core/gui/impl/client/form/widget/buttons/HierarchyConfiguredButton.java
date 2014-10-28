@@ -26,6 +26,6 @@ public class HierarchyConfiguredButton extends ConfiguredButton {
 
     @Override
     protected String getContainerStyle() {
-        return "light-button button-extra-style";
+        return "lightButton button-extra-style";
     }
 }

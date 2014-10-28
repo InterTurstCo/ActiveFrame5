@@ -147,10 +147,10 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         buttonsPanel.setStyleName("bottom-popup-buttons-panel");
         okButton = new Button("Готово");
         okButton.removeStyleName("gwt-Button");
-        okButton.addStyleName("light-button");
+        okButton.addStyleName("lightButton");
         cancelButton = new Button("Отмена");
         cancelButton.removeStyleName("gwt-Button");
-        cancelButton.addStyleName("light-button");
+        cancelButton.addStyleName("lightButton");
         buttonsPanel.add(okButton);
         buttonsPanel.add(cancelButton);
 

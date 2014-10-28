@@ -27,7 +27,7 @@ public class CollectionDatePicker extends OneDatePicker {
         final Panel container = new AbsolutePanel();
         container.add(dateTimePicker);
         Button submit = new Button(BusinessUniverseConstants.DATETIME_PICKER_BUTTON);
-        submit.setStyleName("dark-button");
+        submit.setStyleName("darkButton");
         submit.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

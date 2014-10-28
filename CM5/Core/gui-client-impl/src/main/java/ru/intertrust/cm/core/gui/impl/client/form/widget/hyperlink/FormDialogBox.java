@@ -59,7 +59,7 @@ public class FormDialogBox extends DialogBox {
 
     public void initButton(String text, ClickHandler clickHandler) {
         Button button = new Button(text);
-        button.addStyleName("dark-button");
+        button.addStyleName("darkBbutton");
         button.removeStyleName("gwt-Button");
         button.addClickHandler(clickHandler);
         buttonsPanel.add(button);

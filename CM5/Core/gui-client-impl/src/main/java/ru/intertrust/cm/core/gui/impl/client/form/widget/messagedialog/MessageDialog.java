@@ -32,7 +32,7 @@ public abstract class MessageDialog extends DialogBox {
         this.setStyleName(getDialogStyleName());
 
         Button okButton = new Button("ОК");
-        okButton.setStyleName("dark-button");
+        okButton.setStyleName("darkButton");
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

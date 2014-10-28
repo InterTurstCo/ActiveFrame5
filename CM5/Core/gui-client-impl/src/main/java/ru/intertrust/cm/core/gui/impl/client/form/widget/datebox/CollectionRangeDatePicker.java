@@ -44,7 +44,7 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
             }
         });
         this.addCloseHandler(new HideDateTimePickerCloseHandler(container));
-        submit.setStyleName("dark-button");
+        submit.setStyleName("darkButton");
         container.add(submit);
         return container;
     }

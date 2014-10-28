@@ -344,7 +344,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             Panel body = new AbsolutePanel();
             initCheckBoxItems(body);
             Button submit = new Button("Ok");
-            submit.setStyleName("dark-button");
+            submit.setStyleName("darkButton");
             submit.addClickHandler(new ChangeVisibilityClickHandler());
             body.add(submit);
             Panel container = new AbsolutePanel();

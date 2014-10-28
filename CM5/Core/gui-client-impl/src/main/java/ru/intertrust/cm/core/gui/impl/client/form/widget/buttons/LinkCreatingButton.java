@@ -25,6 +25,6 @@ public class LinkCreatingButton extends ConfiguredButton {
 
     @Override
     protected String getContainerStyle() {
-        return "dark-button";
+        return "darkButton";
     }
 }

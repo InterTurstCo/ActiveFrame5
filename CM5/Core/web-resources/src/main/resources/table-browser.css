@@ -5,7 +5,7 @@
     position: absolute !important;
 }
 
-.table-browser-dialog-box-button-panel .dark-button {
+.table-browser-dialog-box-button-panel .darkButton {
 }
 
 .buttons-fixed {
@@ -36,7 +36,7 @@
     border: none;
 }
 
-.table-browser-button.dark-button {
+.table-browser-button.darkButton {
 }
 
 .table-browser-dialog-box-content {

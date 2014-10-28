@@ -71,7 +71,7 @@ public class ThemePopup extends PopupPanel {
         buttonPanel.setStyleName("button-panel");
         buttonPanel.getElement().getStyle().clearPosition();
         Button select = new Button("Изменить");
-        select.setStyleName("light-button");
+        select.setStyleName("lightButton");
         select.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -88,7 +88,7 @@ public class ThemePopup extends PopupPanel {
         });
         buttonPanel.add(select);
         Button cancel = new Button("Отменить");
-        cancel.setStyleName("dark-button");
+        cancel.setStyleName("darkButton");
         cancel.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
