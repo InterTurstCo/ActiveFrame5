@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
@@ -70,9 +69,6 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
 
     @Element(name = "linked-form",required = false)
     private LinkedFormConfig linkedFormConfig;
-
-    @Element(name = "linked-form-mapping",required = false)
-    private LinkedFormMappingConfig linkedFormMappingConfig;
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
@@ -218,14 +214,6 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         this.linkedFormConfig = linkedFormConfig;
     }
 
-    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
-        return linkedFormMappingConfig;
-    }
-
-    public void setLinkedFormMappingConfig(LinkedFormMappingConfig linkedFormMappingConfig) {
-        this.linkedFormMappingConfig = linkedFormMappingConfig;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -312,9 +300,7 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
             return false;
         }
-        if (linkedFormMappingConfig != null ? !linkedFormMappingConfig.equals(that.linkedFormMappingConfig) : that.linkedFormMappingConfig != null) {
-            return false;
-        }
+
         return true;
     }
 
@@ -339,7 +325,6 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
-        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
         return result;
     }
 

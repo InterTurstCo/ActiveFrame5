@@ -6,7 +6,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -24,7 +23,6 @@ public class FormDialogBox extends DialogBox {
     private PluginPanel formPluginPanel;
     private AbsolutePanel buttonsPanel;
     private String headerTitle;
-    private LinkedFormConfig linkedFormConfig;
 
     public FormDialogBox(String headerTitle) {
         this.headerTitle = headerTitle;
@@ -76,7 +74,7 @@ public class FormDialogBox extends DialogBox {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
                 String resultTitle = headerTitle == null
-                        ? GuiUtil.getConfiguredTitle(formPlugin, config.getDomainObjectId() == null):headerTitle;
+                        ? GuiUtil.getConfiguredTitle(formPlugin, config.getDomainObjectId() == null) : headerTitle;
                 FormDialogBox.this.getCaption().setText(resultTitle);
                 setTitle(resultTitle);
                 showDialogBox();

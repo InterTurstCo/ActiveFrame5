@@ -4,12 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
+import ru.intertrust.cm.core.config.gui.form.widget.FillParentOnAddConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
@@ -21,17 +26,12 @@ import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 
 /**
@@ -56,9 +56,14 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     @Autowired
     protected TitleBuilder titleBuilder;
 
+    @Autowired
+    protected AccessVerificationService accessVerificationService;
+
     @Override
     public LinkedDomainObjectHyperlinkState getInitialState(WidgetContext context) {
-        LinkedDomainObjectHyperlinkConfig widgetConfig = context.getWidgetConfig();
+        ObjectCloner cloner = new ObjectCloner();
+        LinkedDomainObjectHyperlinkConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(),
+                LinkedDomainObjectHyperlinkConfig.class);
         LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         if (!selectedIds.isEmpty()) {
@@ -77,6 +82,8 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         state.setSelectedIds(selectedIds);
         state.setDisplayingAsHyperlinks(true);
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
+        fillTypeTitleMap(domainObject, widgetConfig.getLinkedFormMappingConfig(), state);
+        abandonAccessed(domainObject, widgetConfig.getCreatedObjectsConfig(), null);
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);
         state.setPopupTitlesHolder(popupTitlesHolder);
         return state;
@@ -161,6 +168,36 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         response.setListValues(listValues);
 
         return response;
+    }
+    //TODO don't duplicate code, try to make LinkedDomainObjectHyperlink LinkEditing
+    protected void fillTypeTitleMap(DomainObject root, LinkedFormMappingConfig mappingConfig, LinkCreatorWidgetState state){
+        Map<String, PopupTitlesHolder> typeTitleMap = titleBuilder.buildTypeTitleMap(mappingConfig, root);
+        state.setTypeTitleMap(typeTitleMap);
+    }
+
+    public boolean abandonAccessed(DomainObject root, CreatedObjectsConfig createdObjectsConfig,
+                                   FillParentOnAddConfig fillParentOnAddConfig) {
+        if (createdObjectsConfig != null) {
+            List<CreatedObjectConfig> createdObjectConfigs = createdObjectsConfig.getCreateObjectConfigs();
+            if (WidgetUtil.isNotEmpty(createdObjectConfigs)) {
+                Iterator<CreatedObjectConfig> iterator = createdObjectConfigs.iterator();
+                while (iterator.hasNext()) {
+                    CreatedObjectConfig createdObjectConfig = iterator.next();
+                    String domainObjectType = createdObjectConfig.getDomainObjectType();
+                    boolean displayingCreateButton = fillParentOnAddConfig == null
+                            ? accessVerificationService.isCreatePermitted(domainObjectType)
+                            : accessVerificationService.isCreateChildPermitted(domainObjectType, root.getId());
+                    if (!displayingCreateButton) {
+                        iterator.remove();
+                    }
+                }
+                if(!createdObjectConfigs.isEmpty()){
+                    return  true;
+                }
+            }
+        }
+        return false;
+
     }
 
 }

@@ -5,12 +5,16 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.title.AbstractTitleRepresentationConfig;
 import ru.intertrust.cm.core.config.gui.form.title.TitleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
+import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -53,12 +57,13 @@ public class GuiUtil {
 
     }
 
-    public static FormPluginConfig createFormPluginConfig(Id id, NodeCollectionDefConfig nodeConfig, final
-    String domainObjectType, boolean editable) {
+    public static FormPluginConfig createFormPluginConfig(Id id, NodeCollectionDefConfig nodeConfig,
+                                                          String domainObjectType, boolean editable) {
+
         FormPluginConfig result = new FormPluginConfig();
         result.setDomainObjectId(id);
-        if(id == null){
-        result.setDomainObjectTypeToCreate(domainObjectType);
+        if (id == null) {
+            result.setDomainObjectTypeToCreate(domainObjectType);
         }
         result.getPluginState().setEditable(editable);
         LinkedFormMappingConfig mappingConfig = nodeConfig.getLinkedFormMappingConfig();
@@ -69,6 +74,30 @@ public class GuiUtil {
 
         }
         return result;
+    }
+
+    public static FormPluginConfig createFormPluginConfig(LinkedFormMappingConfig mappingConfig, String domainObjectType) {
+        FormPluginConfig result = new FormPluginConfig();
+        result.setDomainObjectTypeToCreate(domainObjectType);
+        result.getPluginState().setEditable(true);
+        if (mappingConfig != null) {
+            LinkedFormViewerConfig formViewerConfig = new LinkedFormViewerConfig();
+            formViewerConfig.setLinkedFormConfig(mappingConfig.getLinkedFormConfigs());
+            result.setFormViewerConfig(formViewerConfig);
+
+        }
+        return result;
+    }
+
+    public static SaveAction createSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
+        SaveActionContext saveActionContext = new SaveActionContext();
+        saveActionContext.setRootObjectId(rootObjectId);
+        final ActionConfig actionConfig = new ActionConfig("save.action");
+        saveActionContext.setActionConfig(actionConfig);
+        final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());
+        action.setInitialContext(saveActionContext);
+        action.setPlugin(formPlugin);
+        return action;
     }
 
 }

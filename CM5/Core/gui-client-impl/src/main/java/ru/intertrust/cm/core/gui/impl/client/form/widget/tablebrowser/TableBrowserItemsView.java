@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
@@ -32,12 +33,14 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     private Style.Display displayStyle;
     private Button openTooltip;
     private EventBus eventBus;
-    private String hyperlinkPopupTitle;
+    private Map<String, PopupTitlesHolder> typeTitleMap;
     private HasLinkedFormMappings widget;
 
-    public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, String hyperlinkPopupTitle, HasLinkedFormMappings widget) {
+    public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
+                                 Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
+
         this.eventBus = eventBus;
-        this.hyperlinkPopupTitle = hyperlinkPopupTitle;
+        this.typeTitleMap = typeTitleMap;
         this.widget = widget;
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
@@ -96,7 +99,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
         final Id id = entry.getKey();
-        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, false, hyperlinkPopupTitle, widget));
+        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, false, typeTitleMap, widget));
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn facebookElementDel");
         delBtn.addClickHandler(new ClickHandler() {

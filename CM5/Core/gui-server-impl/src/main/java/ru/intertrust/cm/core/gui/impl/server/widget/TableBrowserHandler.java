@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.util.*;
 
@@ -40,13 +41,17 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
     @Override
     public TableBrowserState getInitialState(WidgetContext context) {
         TableBrowserState state = new TableBrowserState();
-        TableBrowserConfig widgetConfig = context.getWidgetConfig();
+        ObjectCloner cloner = new ObjectCloner();
+        TableBrowserConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(), TableBrowserConfig.class);
+
         state.setTableBrowserConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         Set<Id> selectedIdsSet = new LinkedHashSet<>(selectedIds);
         state.setSelectedIds(selectedIdsSet);
         LinkedHashMap<Id, String> listValues = null;
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
+        fillTypeTitleMap(domainObject, widgetConfig.getLinkedFormMappingConfig(), state);
+        abandonAccessed(domainObject, widgetConfig.getCreatedObjectsConfig(), null);
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);
         state.setPopupTitlesHolder(popupTitlesHolder);
         if (!selectedIds.isEmpty()) {

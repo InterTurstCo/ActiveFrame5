@@ -31,7 +31,6 @@ import java.util.LinkedHashMap;
  */
 public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEventHandler,HasLinkedFormMappings {
     protected EventBus localEventBus = new SimpleEventBus();
-
     protected void fetchWidgetItems() {
         final TooltipWidgetState state = getInitialData();
         LinkedHashMap<Id, String> previousTooltipValues = state.getTooltipValues();
@@ -100,13 +99,13 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
         SelectionStyleConfig styleConfig = config.getSelectionStyleConfig();
         if (isEditable()) {
             EditableWidgetTooltip tooltip = new EditableWidgetTooltip(styleConfig, localEventBus, isDisplayingAsHyperlink(),
-                    state.getPopupTitlesHolder().getTitleExistingObject(), this);
+                    state.getTypeTitleMap(), this);
             TooltipSizer.setWidgetBounds(config, tooltip);
             tooltip.displayItems(listValues);
             tooltip.showRelativeTo(impl);
         } else {
             NoneEditableTooltip noneEditableTooltip = new NoneEditableTooltip(styleConfig, localEventBus,
-                    isDisplayingAsHyperlink(), state.getPopupTitlesHolder().getTitleExistingObject(), this);
+                    isDisplayingAsHyperlink(), state.getTypeTitleMap(), this);
             TooltipSizer.setWidgetBounds(config, noneEditableTooltip);
             noneEditableTooltip.displayItems(listValues);
             noneEditableTooltip.showRelativeTo(impl);

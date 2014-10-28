@@ -3,13 +3,11 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
@@ -48,9 +46,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     private CrudService crudService;
 
     @Autowired
-    private AccessVerificationService accessVerificationService;
-
-    @Autowired
     private LiteralFieldValueParser literalFieldValueParser;
 
     @Autowired
@@ -58,9 +53,8 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     @Override
     public HierarchyBrowserWidgetState getInitialState(WidgetContext context) {
-        HierarchyBrowserConfig widgetConfig = context.getWidgetConfig();
-        final ObjectCloner cloner = new ObjectCloner();
-        widgetConfig = cloner.cloneObject(widgetConfig, HierarchyBrowserConfig.class);
+        ObjectCloner cloner = new ObjectCloner();
+        HierarchyBrowserConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(), HierarchyBrowserConfig.class);
         NodeCollectionDefConfig nodeConfig = widgetConfig.getNodeCollectionDefConfig();
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         Map<String, NodeCollectionDefConfig> collectionNameNodeMap = new HashMap<>();
@@ -192,50 +186,15 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         for (Map.Entry<String, NodeCollectionDefConfig> entry : collectionNameNodeMap.entrySet()) {
             NodeCollectionDefConfig nodeCollectionDefConfig = entry.getValue();
             LinkedFormMappingConfig mappingConfig = nodeCollectionDefConfig.getLinkedFormMappingConfig();
-            Map<String, PopupTitlesHolder> doTypeTitlesMap = createTitlesMap(root, mappingConfig);
+            Map<String, PopupTitlesHolder> doTypeTitlesMap = titleBuilder.buildTypeTitleMap(mappingConfig, root);
             nodeCollectionDefConfig.setDoTypeTitlesMap(doTypeTitlesMap);
             FillParentOnAddConfig fillParentOnAddConfig = nodeCollectionDefConfig.getFillParentOnAddConfig();
             CreatedObjectsConfig createdObjectsConfig = nodeCollectionDefConfig.getCreatedObjectsConfig();
-            Map<String, String> accessedTypesMap = createAccessedTypesMap(root, createdObjectsConfig, fillParentOnAddConfig);
+            boolean hasCreateAccess = abandonAccessed(root, createdObjectsConfig, fillParentOnAddConfig);
             boolean displayingCreateButton = nodeCollectionDefConfig.isDisplayingCreateButton();
-            nodeCollectionDefConfig.setDisplayCreateButton(displayingCreateButton && !accessedTypesMap.isEmpty());
+            nodeCollectionDefConfig.setDisplayCreateButton(displayingCreateButton && hasCreateAccess);
         }
 
-    }
-
-    private Map<String, PopupTitlesHolder> createTitlesMap(DomainObject root, LinkedFormMappingConfig mappingConfig) {
-        Map<String, PopupTitlesHolder> result = new HashMap<>();
-        if (mappingConfig != null) {
-            List<LinkedFormConfig> linkedFormConfigs = mappingConfig.getLinkedFormConfigs();
-            if (WidgetUtil.isNotEmpty(linkedFormConfigs)) {
-                for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
-                    PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(linkedFormConfig, root);
-                    result.put(linkedFormConfig.getDomainObjectType(), popupTitlesHolder);
-                }
-            }
-        }
-        return result;
-    }
-
-    private Map<String, String> createAccessedTypesMap(DomainObject root, CreatedObjectsConfig createdObjectsConfig,
-                                                       FillParentOnAddConfig fillParentOnAddConfig) {
-        Map<String, String> result = new HashMap<>();
-        if (createdObjectsConfig != null) {
-            List<CreatedObjectConfig> createdObjectConfigs = createdObjectsConfig.getCreateObjectConfigs();
-            if (WidgetUtil.isNotEmpty(createdObjectConfigs)) {
-                for (CreatedObjectConfig createdObjectConfig : createdObjectConfigs) {
-                    String domainObjectType = createdObjectConfig.getDomainObjectType();
-                    boolean displayingCreateButton = fillParentOnAddConfig == null
-                            ? accessVerificationService.isCreatePermitted(domainObjectType)
-                            : accessVerificationService.isCreateChildPermitted(domainObjectType, root.getId());
-                    if (displayingCreateButton) {
-                        result.put(domainObjectType, createdObjectConfig.getText());
-                    }
-                }
-            }
-        }
-
-        return result;
     }
 
     private void correctChosenItems(List<Id> selectedIds, List<HierarchyBrowserItem> chosenItems) {

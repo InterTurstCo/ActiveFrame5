@@ -12,11 +12,9 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
-import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
@@ -30,7 +28,6 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -309,7 +306,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {
-                        final SaveAction action = getSaveAction(editableFormPlugin, id);
+                        final SaveAction action = GuiUtil.createSaveAction(editableFormPlugin, id);
                         action.addActionSuccessListener(new ActionSuccessListener() {
                             @Override
                             public void onSuccess() {
@@ -416,7 +413,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                final SaveAction action = getSaveAction(createFormPlugin, parentId);
+                final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, parentId);
                 action.addActionSuccessListener(new ActionSuccessListener() {
                     @Override
                     public void onSuccess() {
@@ -560,17 +557,6 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         }
     }
 
-    private SaveAction getSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
-        SaveActionContext saveActionContext = new SaveActionContext();
-        saveActionContext.setRootObjectId(rootObjectId);
-        final ActionConfig actionConfig = new ActionConfig("save.action");
-        saveActionContext.setActionConfig(actionConfig);
-
-        final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());
-        action.setInitialContext(saveActionContext);
-        action.setPlugin(formPlugin);
-        return action;
-    }
 
     private class ClearButtonClickHandler implements ClickHandler {
 

@@ -8,7 +8,10 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
@@ -21,11 +24,12 @@ import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.LinkCreatorWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.EditableTooltipWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -46,7 +50,7 @@ import java.util.*;
  *         Time: 11:15
  */
 @ComponentName("table-browser")
-public class TableBrowserWidget extends EditableTooltipWidget implements WidgetItemRemoveEventHandler,
+public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemRemoveEventHandler,
         HyperlinkStateChangedEventHandler, HierarchicalCollectionEventHandler {
     public static final int DEFAULT_DIALOG_WIDTH = 500;
     public static final int DEFAULT_DIALOG_HEIGHT = 300;
@@ -150,7 +154,7 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
         commonInitialization(state);
         SelectionStyleConfig selectionStyleConfig = currentState.getTableBrowserConfig().getSelectionStyleConfig();
         return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false,
-                currentState.getPopupTitlesHolder().getTitleExistingObject(), this);
+                currentState.getTypeTitleMap(), this);
 
     }
 
@@ -221,8 +225,9 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
     }
 
     private Panel initWidgetView(SelectionStyleConfig selectionStyleConfig) {
-        String hyperlinkPopupTitle = currentState.getPopupTitlesHolder().getTitleExistingObject();
-        widgetItemsView = new TableBrowserItemsView(selectionStyleConfig, localEventBus, hyperlinkPopupTitle, this);
+
+        widgetItemsView = new TableBrowserItemsView(selectionStyleConfig, localEventBus, currentState.getTypeTitleMap(),
+                this);
 
         openDialogButton = new FocusPanel();
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());
@@ -235,10 +240,25 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
             }
         });
         root.add(widgetItemsView);
+        addCreateButton();
         root.add(openDialogButton);
+
         root.add(clearButton);
 
         return root;
+    }
+
+    private void addCreateButton(){
+        ConfiguredButton createButton = getCreateButton(currentState);
+        if(createButton != null){
+            root.add(createButton);
+            createButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    getClickAction().perform();
+                }
+            });
+        }
     }
 
     private void initAddButton() {
@@ -400,6 +420,18 @@ public class TableBrowserWidget extends EditableTooltipWidget implements WidgetI
     @Override
     public LinkedFormMappingConfig getLinkedFormMappingConfig() {
         return currentState.getWidgetConfig().getLinkedFormMappingConfig();
+    }
+
+    @Override
+    protected void handleNewCreatedItem(Id id, String representation) {
+        if(currentState.isSingleChoice()){
+            currentState.clearState();
+        }
+        currentState.getSelectedIds().add(id);
+        LinkedHashMap<Id, String> listValues = currentState.getListValues();
+        listValues.put(id, representation);
+        handleItems(listValues);
+
     }
 
 

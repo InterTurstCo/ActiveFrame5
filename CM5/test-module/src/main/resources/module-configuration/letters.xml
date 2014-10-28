@@ -283,7 +283,7 @@
 
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name}"/>
-
+                <drop-down-pattern value="{name}"/>
                 <!-- название фильтра по тексту, введённому пользователем -->
                 <input-text-filter name="byName"/>
 
@@ -298,8 +298,32 @@
                 <linked-form-mapping>
                     <linked-form name="organization_linked_form" domain-object-type="Organization"/>
                     <linked-form name="department_linked_form" domain-object-type="Department"/>
-                    <linked-form name="employee_linked_form" domain-object-type="Employee"/>
+                    <linked-form name="employee_linked_form" domain-object-type="Employee">
+                        <title>
+                            <existing-object>
+                                <pattern value="{id}, {created_date}"/>
+                                <formatting>
+                                    <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                        <time-zone id="Europe/Kiev"/>
+                                        <field-paths>
+                                            <field-path value="created_date"/>
+                                        </field-paths>
+                                    </date-format>
+                                </formatting>
+                            </existing-object>
+                            <new-object>
+                                <pattern value="new form "/>
+                            </new-object>
+                        </title>
+                    </linked-form>
+                    <linked-form name="developer_form2" domain-object-type="Developer"/>
                 </linked-form-mapping>
+                <create-new-button text="Создать"/>
+                <created-objects>
+                    <created-object domain-object-type="Organization" text="Организация"/>
+                    <created-object domain-object-type="Employee" text="Сотрудник"/>
+                    <created-object domain-object-type="Developer" text="Разработчки"/>
+                </created-objects>
             </suggest-box>
 
             <table-browser id="l_tablebrowser">
@@ -321,14 +345,39 @@
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
-                <add-button image="..." text="..."/>
+                <add-button image="..." text="Выбрать"/>
                 <default-sort-criteria column-field="name" order="desc"/>
                 <display-values-as-links value="true"/>
                 <linked-form-mapping>
                     <linked-form name="organization_linked_form" domain-object-type="Organization"/>
                     <linked-form name="department_linked_form" domain-object-type="Department"/>
                     <linked-form name="employee_linked_form" domain-object-type="Employee"/>
+                    <linked-form name="developer_form2" domain-object-type="Developer">
+                        <title>
+                            <existing-object>
+                                <pattern value="{id}, {created_date}"/>
+                                <formatting>
+                                    <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                        <time-zone id="Europe/Kiev"/>
+                                        <field-paths>
+                                            <field-path value="created_date"/>
+                                        </field-paths>
+                                    </date-format>
+                                </formatting>
+                            </existing-object>
+                            <new-object>
+                                <pattern value="new form "/>
+
+                            </new-object>
+                        </title>
+                    </linked-form>
                 </linked-form-mapping>
+                <create-new-button text="Создать"/>
+                <created-objects>
+                    <created-object domain-object-type="Organization" text="Организация"/>
+                    <created-object domain-object-type="Employee" text="Сотрудник"/>
+                    <created-object domain-object-type="Developer" text="Разработчки"/>
+                </created-objects>
             </table-browser>
 
             <linked-domain-object-hyperlink id="l_hyperlink">
@@ -339,6 +388,7 @@
                     <linked-form name="organization_linked_form" domain-object-type="Organization"/>
                     <linked-form name="department_linked_form" domain-object-type="Department"/>
                     <linked-form name="employee_linked_form" domain-object-type="Employee"/>
+                    <linked-form name="developer_form2" domain-object-type="Developer"/>
                 </linked-form-mapping>
                 <pattern value="{name}"/>
             </linked-domain-object-hyperlink>
@@ -768,6 +818,7 @@
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
                 <add-button image="..." text="Add"/>
+
                 <!--default-sort-criteria column-field="created_date" order="desc" /-->
                 <display-values-as-links value="true"/>
             </table-browser>

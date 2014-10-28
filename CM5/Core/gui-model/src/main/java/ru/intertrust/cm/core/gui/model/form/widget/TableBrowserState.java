@@ -57,7 +57,9 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
         selectedIds.clear();
         temporarySelectedIds.clear();
         getListValues().clear();
+
     }
+
     public void addToTemporaryState(Id id){
         temporarySelectedIds.add(id);
     }

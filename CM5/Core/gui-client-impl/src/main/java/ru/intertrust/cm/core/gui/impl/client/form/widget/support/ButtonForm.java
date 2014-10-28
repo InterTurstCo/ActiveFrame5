@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.support;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -38,11 +37,11 @@ public class ButtonForm extends Composite{
     private void buildButton(){
         if (image != null && !image.equals("...") && image.length() !=0){
             addImage(image);
-            if (text != null && !text.equals("...") && text.length() !=0){
+            if (text != null  && text.length() !=0){
                 setTitleAtttibute(text);
             }
 
-        } else if (text != null && !text.equals("...") && text.length() !=0){
+        } else if (text != null && text.length() !=0){
            addText(text);
         }
     }

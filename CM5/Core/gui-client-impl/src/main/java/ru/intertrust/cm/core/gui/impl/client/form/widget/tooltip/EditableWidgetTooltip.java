@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
@@ -10,6 +11,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetItemsView;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -22,14 +24,14 @@ public class EditableWidgetTooltip extends PopupPanel {
     private boolean displayAsHyperlinks;
     private HasLinkedFormMappings widget;
 
-    public EditableWidgetTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus
-            , boolean displayAsHyperlinks, String hyperlinkPopupTitle, HasLinkedFormMappings widget) {
+    public EditableWidgetTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
+            boolean displayAsHyperlinks, Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
 
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
         this.widget = widget;
-        init(selectionStyleConfig, hyperlinkPopupTitle);
+        init(selectionStyleConfig, typeTitleMap);
         eventBus.addHandler(WidgetItemRemoveEvent.TYPE, new WidgetItemRemoveEventHandler() {
             @Override
             public void onWidgetItemRemove(WidgetItemRemoveEvent event) {
@@ -40,8 +42,8 @@ public class EditableWidgetTooltip extends PopupPanel {
         });
     }
 
-    private void init(SelectionStyleConfig selectionStyleConfig, String hyperlinkPopupTitle) {
-        widgetItemsView = new WidgetItemsView(selectionStyleConfig, hyperlinkPopupTitle, widget);
+    private void init(SelectionStyleConfig selectionStyleConfig, Map<String, PopupTitlesHolder> typeTitleMap) {
+        widgetItemsView = new WidgetItemsView(selectionStyleConfig, typeTitleMap, widget);
         widgetItemsView.setEventBus(eventBus);
         widgetItemsView.setTooltipContent(true);
         this.add(widgetItemsView);

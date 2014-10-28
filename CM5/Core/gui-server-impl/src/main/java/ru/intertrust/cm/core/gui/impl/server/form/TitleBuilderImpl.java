@@ -8,10 +8,15 @@ import ru.intertrust.cm.core.config.gui.form.title.NewObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.title.TitleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.TitleBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 /**
@@ -32,6 +37,19 @@ public class TitleBuilderImpl implements TitleBuilder {
         }
         return result;
 
+    }
+    public Map<String, PopupTitlesHolder> buildTypeTitleMap(LinkedFormMappingConfig mappingConfig, DomainObject root) {
+        Map<String, PopupTitlesHolder> result = new HashMap<>();
+        if (mappingConfig != null) {
+            List<LinkedFormConfig> linkedFormConfigs = mappingConfig.getLinkedFormConfigs();
+            if (WidgetUtil.isNotEmpty(linkedFormConfigs)) {
+                for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
+                    PopupTitlesHolder popupTitlesHolder = buildPopupTitles(linkedFormConfig, root);
+                    result.put(linkedFormConfig.getDomainObjectType(), popupTitlesHolder);
+                }
+            }
+        }
+        return result;
     }
 
     private void fillTitles(LinkedFormConfig config, DomainObject root, PopupTitlesHolder result) {

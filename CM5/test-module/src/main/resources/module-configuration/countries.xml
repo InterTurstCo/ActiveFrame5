@@ -677,6 +677,11 @@
                     <sort-criterion field="name" order="asc"/>
                 </selection-sort-criteria>
                 <display-values-as-links value="true"/>
+
+                <create-new-button text="Создать"/>
+                <created-objects>
+                  <created-object domain-object-type="city" text="Город"/>
+               </created-objects>
                 <linked-form name="city_form">
                     <title>
                         <existing-object>

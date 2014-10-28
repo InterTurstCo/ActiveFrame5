@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
+package ru.intertrust.cm.core.gui.impl.client.form.widget.buttons;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
  *         Date: 19.10.2014
  *         Time: 10:56
  */
-public class ConfiguredButton extends Composite implements HasClickHandlers {
+public abstract class ConfiguredButton extends Composite implements HasClickHandlers {
     private Panel root;
     public ConfiguredButton(ButtonConfig buttonConfig) {
         root = new AbsolutePanel();
@@ -38,16 +38,17 @@ public class ConfiguredButton extends Composite implements HasClickHandlers {
     }
 
     private void buildFromConfig(ButtonConfig buttonConfig) {
-        root.addStyleName("light-button button-extra-style");
+        root.addStyleName(getContainerStyle());
         String imagePath = buttonConfig.getImage();
         if (imagePath != null) {
             Image image = new Image(GlobalThemesManager.getResourceFolder() + imagePath);
+            image.setStyleName(getImageStyle());
             root.add(image);
         }
         String text = buttonConfig.getText();
         if (text != null) {
             Label label = new Label(text);
-            label.addStyleName("hierarchyBrowserLabel");
+            label.setStyleName(getTitleStyle());
             root.add(label);
 
         }
@@ -58,4 +59,8 @@ public class ConfiguredButton extends Composite implements HasClickHandlers {
     public HandlerRegistration addClickHandler(ClickHandler handler) {
         return root.addDomHandler(handler, ClickEvent.getType());
     }
+    protected abstract String getTitleStyle();
+    protected abstract String getImageStyle();
+    protected abstract String getContainerStyle();
+
 }

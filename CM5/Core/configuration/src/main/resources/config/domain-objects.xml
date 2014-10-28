@@ -551,14 +551,6 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="Developer" extends="Employee" audit-log="true" initial-status="Active">
-        <fields>
-            <string name="Language" length="128" />
-            <boolean name="ui_developer"/>
-        </fields>
-
-    </domain-object-type>
-
     <domain-object-type name="email_message" initial-status="Active">
         <fields>
             <string name="message_id" length="256" not-null="true"/>

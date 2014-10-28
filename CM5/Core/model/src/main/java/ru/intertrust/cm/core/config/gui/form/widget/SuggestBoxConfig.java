@@ -5,7 +5,6 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Transient;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
@@ -69,9 +68,6 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
 
     @Element(name = "linked-form", required = false)
     private LinkedFormConfig linkedFormConfig;
-
-    @Element(name = "linked-form-mapping",required = false)
-    private LinkedFormMappingConfig linkedFormMappingConfig;
 
     @Override
     public String getComponentName() {
@@ -206,14 +202,6 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         this.linkedFormConfig = linkedFormConfig;
     }
 
-    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
-        return linkedFormMappingConfig;
-    }
-
-    public void setLinkedFormMappingConfig(LinkedFormMappingConfig linkedFormMappingConfig) {
-        this.linkedFormMappingConfig = linkedFormMappingConfig;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -278,7 +266,8 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
             return false;
         }
 
-        if (displayValuesAsLinksConfig != null ? !displayValuesAsLinksConfig.equals(that.displayValuesAsLinksConfig) : that.displayValuesAsLinksConfig != null) {
+        if (displayValuesAsLinksConfig != null ? !displayValuesAsLinksConfig.equals(that.displayValuesAsLinksConfig) :
+                that.displayValuesAsLinksConfig != null) {
             return false;
         }
         if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
@@ -295,9 +284,7 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
             return false;
         }
-        if (linkedFormMappingConfig != null ? !linkedFormMappingConfig.equals(that.linkedFormMappingConfig) : that.linkedFormMappingConfig != null) {
-            return false;
-        }
+
         return true;
     }
 
@@ -320,7 +307,6 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
-        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
         return result;
     }
 }

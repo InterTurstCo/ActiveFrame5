@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -43,10 +44,13 @@ public class SuggestBoxHandler extends ListWidgetHandler {
     @Override
     public SuggestBoxState getInitialState(WidgetContext context) {
         SuggestBoxState state = new SuggestBoxState();
-        SuggestBoxConfig widgetConfig = context.getWidgetConfig();
+        ObjectCloner cloner = new ObjectCloner();
+        SuggestBoxConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(), SuggestBoxConfig.class);
         state.setSuggestBoxConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
+        fillTypeTitleMap(domainObject, widgetConfig.getLinkedFormMappingConfig(), state);
+        abandonAccessed(domainObject, widgetConfig.getCreatedObjectsConfig(), null);
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);
         state.setPopupTitlesHolder(popupTitlesHolder);
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();

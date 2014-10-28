@@ -3,12 +3,14 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
+
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -20,8 +22,8 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
     private HasLinkedFormMappings widget;
 
     public HyperlinkClickHandler(Id id, HyperlinkDisplay hyperlinkDisplay, EventBus eventBus, boolean tooltipContent,
-                                 String popupTitle, HasLinkedFormMappings widget) {
-        super(id, eventBus, tooltipContent, popupTitle);
+                                 Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
+        super(id, eventBus, tooltipContent, typeTitleMap);
         this.hyperlinkDisplay = hyperlinkDisplay;
         this.widget = widget;
     }
@@ -33,7 +35,7 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
     }
 
     public void processClick() {
-        createNonEditableFormDialogBox(widget);
+        init(widget);
     }
 
     protected void noEditableOnCancelClick(FormPlugin formPlugin, FormDialogBox dialogBox) {

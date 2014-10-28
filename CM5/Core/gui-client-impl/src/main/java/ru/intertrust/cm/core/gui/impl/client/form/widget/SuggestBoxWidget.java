@@ -24,13 +24,14 @@ import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHan
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.LinkCreatorWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.EditableTooltipWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipButtonClickHandler;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -44,7 +45,8 @@ import java.util.*;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EMPTY_VALUE;
 
 @ComponentName("suggest-box")
-public class SuggestBoxWidget extends EditableTooltipWidget implements HyperlinkStateChangedEventHandler, WidgetItemRemoveEventHandler {
+public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStateChangedEventHandler,
+        WidgetItemRemoveEventHandler {
     private static final String ALL_SUGGESTIONS = "*";
     private static final int HEIGHT_OFFSET_DOWN = 20;
     private static final int HEIGHT_OFFSET_UP = 20;
@@ -76,7 +78,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
                 public void run() {
                     if (impl.getOffsetWidth() > 0) {
                         initState(currentState, suggestBox);
-                        if (impl.getOffsetWidth() > 100) {
+                        if (impl.getOffsetWidth() > 200) {
                             impl.setWidth(impl.getElement().getOffsetWidth() + "px");
                         }
                         this.cancel();
@@ -85,6 +87,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
             };
             timer.scheduleRepeating(100);
         }
+
     }
 
     @Override
@@ -130,7 +133,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
         localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         SelectionStyleConfig selectionStyleConfig = suggestBoxState.getSuggestBoxConfig().getSelectionStyleConfig();
         HyperlinkNoneEditablePanel noneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig,
-                localEventBus, false, suggestBoxState.getPopupTitlesHolder().getTitleExistingObject(), this);
+                localEventBus, false, suggestBoxState.getTypeTitleMap(), this);
         return noneEditablePanel;
     }
 
@@ -194,7 +197,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         localEventBus.addHandler(WidgetItemRemoveEvent.TYPE, this);
-        final SuggestPresenter presenter = new SuggestPresenter();
+        final SuggestPresenter presenter = new SuggestPresenter((LinkCreatorWidgetState) state);
         MultiWordSuggestOracle oracle = new Cm5MultiWordSuggestOracle();
         SuggestBoxDisplay display = new SuggestBoxDisplay();
         TextBox suggestTextBox = new TextBox();
@@ -209,30 +212,9 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
                 final MultiWordIdentifiableSuggestion selectedItem =
                         (MultiWordIdentifiableSuggestion) event.getSelectedItem();
                 Id id = selectedItem.getId();
-                if (shouldDrawTooltipButton(1)) {
-                    insertInTooltipContent(selectedItem.getId(), selectedItem.getReplacementString());
-                } else {
-                    if (currentState.isSingleChoice()) {
-                        currentState.getSelectedIds().clear();
-                        presenter.clearAllItems();
-                        stateListValues.clear();
-                    }
-                    final String replacementString = selectedItem.getReplacementString();
+                String representation = selectedItem.getReplacementString();
+                insertItem(id, representation);
 
-                    presenter.insert(id, replacementString);
-                    stateListValues.put(id, replacementString);
-                    if (impl.getElement().getStyle().getWidth().equalsIgnoreCase(EMPTY_VALUE)) {
-                        impl.setWidth(impl.getElement().getOffsetWidth() + "px");
-                    }
-
-
-                }
-                currentState.getSelectedIds().add(id);
-                suggestBox.refreshSuggestionList();
-                presenter.changeSuggestInputWidth();
-                suggestBox.setText(EMPTY_VALUE);
-                suggestBox.setFocus(true);
-                clearErrors();
             }
         });
         Event.sinkEvents(suggestBox.getElement(), Event.ONBLUR);
@@ -275,6 +257,28 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
 
         display.setPositionRelativeTo(presenter);
         return presenter;
+    }
+
+    private void insertItem(Id id, String representation){
+        SuggestPresenter presenter = (SuggestPresenter) impl;
+        if (shouldDrawTooltipButton(1)) {
+            insertInTooltipContent(id, representation);
+        } else {
+            final String replacementString = representation;
+            presenter.insert(id, replacementString);
+            stateListValues.put(id, replacementString);
+            if (impl.getElement().getStyle().getWidth().equalsIgnoreCase(EMPTY_VALUE)) {
+                impl.setWidth(impl.getElement().getOffsetWidth() + "px");
+            }
+
+
+        }
+        currentState.getSelectedIds().add(id);
+        suggestBox.refreshSuggestionList();
+        presenter.changeSuggestInputWidth();
+        suggestBox.setText(EMPTY_VALUE);
+        suggestBox.setFocus(true);
+        clearErrors();
     }
 
     @Override
@@ -336,7 +340,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
             LinkedHashMap<Id, String> listValues = state.getListValues();
             HyperlinkNoneEditablePanel noneEditablePanel = (HyperlinkNoneEditablePanel) impl;
 
-            if (isDisplayingAsHyperlink()) {
+            if (state.isDisplayingAsHyperlinks()) {
                 noneEditablePanel.displayHyperlinks(listValues, shouldDrawTooltipButton());
             } else {
                 noneEditablePanel.displayItems(listValues.values(), shouldDrawTooltipButton());
@@ -389,17 +393,22 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
         return currentState.getWidgetConfig().getLinkedFormMappingConfig();
     }
 
+    @Override
+    protected void handleNewCreatedItem(Id id, String representation) {
+        insertItem(id, representation);
+    }
+
     private class SuggestPresenter extends CellPanel {
 
         private final Map<Id, String> selectedSuggestions;
-        private boolean singleChoice;
+
         private Element container;
         private Element arrowBtn;
         private Element clearAllButton;
         private SuggestBox suggestBox;
         private boolean lastElementWasHighlighted;
 
-        private SuggestPresenter() {
+        private SuggestPresenter(LinkCreatorWidgetState state) {
             Element row = DOM.createTR();
             this.selectedSuggestions = new HashMap<>();
             setStyleName("suggest-container-block");
@@ -417,6 +426,7 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
             });
 
             DOM.appendChild(row, arrowBtn);
+            addCreateButton(state, row);
             clearAllButton = DOM.createTD();
             clearAllButton.setClassName("suggest-container-clear-btn");
             DOM.appendChild(row, clearAllButton);
@@ -431,6 +441,23 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
             });
             DOM.sinkEvents(container, Event.ONCLICK | Event.ONFOCUS);
 
+        }
+        private void addCreateButton(LinkCreatorWidgetState state, Element row){
+            final ConfiguredButton button = getCreateButton(state);
+            if(button != null){
+                Element createButtonContainer = DOM.createTD();
+                Element createButtonElement = button.getElement();
+                DOM.appendChild(createButtonContainer, createButtonElement);
+                DOM.appendChild(row, createButtonContainer);
+                DOM.sinkEvents(createButtonElement, Event.ONCLICK);
+                DOM.setEventListener(createButtonElement, new EventListener() {
+                    @Override
+                    public void onBrowserEvent(Event event) {
+                        getClickAction().perform();
+                    }
+                });
+
+            }
         }
 
         private void handleBackspaceDown() {
@@ -534,7 +561,6 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
 
         public void initView(final SuggestBoxState state, final SuggestBox suggestBox) {
 
-            this.singleChoice = state.isSingleChoice();
             clear();
             this.suggestBox = suggestBox;
             container.setClassName("suggest-container-input");
@@ -655,11 +681,10 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
             if (isDisplayingAsHyperlink()) {
                 itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
             }
-            if (singleChoice) {
-                selectedSuggestions.clear();
-                stateListValues.clear();
-
+            if (currentState.isSingleChoice()) {
+                currentState.getSelectedIds().clear();
                 clearAllItems();
+                stateListValues.clear();
             }
             selectedSuggestions.put(itemId, itemName);
             int index = shouldDrawTooltipButton() ? container.getChildCount() - 2 : container.getChildCount() - 1;
@@ -685,9 +710,9 @@ public class SuggestBoxWidget extends EditableTooltipWidget implements Hyperlink
             return new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
-                    String titleExistingObject = currentState.getPopupTitlesHolder().getTitleExistingObject();
+
                     HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getItemId(), null,
-                            localEventBus, false, titleExistingObject, SuggestBoxWidget.this);
+                            localEventBus, false, currentState.getTypeTitleMap(), SuggestBoxWidget.this);
                     clickHandler.processClick();
                 }
             };

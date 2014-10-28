@@ -9,6 +9,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.*;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.HierarchyConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
@@ -223,7 +225,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
 
     private Widget createAddItemButton(final Id parentId, final String parentCollectionName,
                                        final NodeCollectionDefConfig nodeConfig, UIObject uiObject) {
-        ConfiguredButton button = new ConfiguredButton(nodeConfig.getCreateNewButtonConfig());
+        ConfiguredButton button = new HierarchyConfiguredButton(nodeConfig.getCreateNewButtonConfig());
         button.addClickHandler(new HierarchyBrowserAddClickHandler(parentId, parentCollectionName, nodeConfig,
                 eventBus, uiObject));
         return button;

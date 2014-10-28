@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
@@ -18,9 +17,6 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
 
     @Element(name = "linked-form")
     private LinkedFormConfig linkedFormConfig;
-
-    @Element(name = "linked-form-mapping",required = false)
-    private LinkedFormMappingConfig linkedFormMappingConfig;
 
     @Element(name = "pattern")
     private PatternConfig patternConfig;
@@ -39,11 +35,6 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
 
     @Element(name = "selection-sort-criteria", required = false)
     private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
-
-    @Override
-    public boolean isReadOnly() {
-        return true;
-    }
 
     public LinkedFormConfig getLinkedFormConfig() {
         return linkedFormConfig;
@@ -75,6 +66,11 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
         SelectionPatternConfig selectionPatternConfig = new SelectionPatternConfig();
         selectionPatternConfig.setValue(patternConfig.getValue());
         return selectionPatternConfig;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
     }
 
     public void setFormattingConfig(FormattingConfig formattingConfig) {
@@ -113,14 +109,6 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
         this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
     }
 
-    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
-        return linkedFormMappingConfig;
-    }
-
-    public void setLinkedFormMappingConfig(LinkedFormMappingConfig linkedFormMappingConfig) {
-        this.linkedFormMappingConfig = linkedFormMappingConfig;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -135,8 +123,6 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
             return false;
         if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null)
             return false;
-        if (linkedFormMappingConfig != null ? !linkedFormMappingConfig.equals(that.linkedFormMappingConfig) : that.linkedFormMappingConfig != null)
-            return false;
         if (patternConfig != null ? !patternConfig.equals(that.patternConfig) : that.patternConfig != null)
             return false;
         if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) : that.selectionFiltersConfig != null)
@@ -144,8 +130,6 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
         if (selectionSortCriteriaConfig != null ? !selectionSortCriteriaConfig.equals(that.selectionSortCriteriaConfig) : that.selectionSortCriteriaConfig != null)
             return false;
         if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) : that.selectionStyleConfig != null)
-            return false;
-        if (linkedFormMappingConfig != null ? !linkedFormMappingConfig.equals(that.linkedFormMappingConfig) : that.linkedFormMappingConfig != null)
             return false;
 
         return true;
@@ -155,14 +139,12 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
-        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
         result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
-        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
         return result;
     }
 

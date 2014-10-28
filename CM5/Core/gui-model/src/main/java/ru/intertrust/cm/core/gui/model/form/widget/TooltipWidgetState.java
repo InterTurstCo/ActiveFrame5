@@ -10,10 +10,10 @@ import java.util.Set;
  *         Date: 06.07.2014
  *         Time: 21:43
  */
-public abstract class TooltipWidgetState<T> extends ListWidgetState {
+public abstract class TooltipWidgetState<T> extends LinkCreatorWidgetState<T> {
     protected boolean displayingAsHyperlinks;
     protected LinkedHashMap<Id, String> tooltipValues;
-    public abstract T getWidgetConfig();
+
 
     public boolean isDisplayingAsHyperlinks() {
         return displayingAsHyperlinks;

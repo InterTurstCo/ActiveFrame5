@@ -2,18 +2,28 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FillParentOnAddConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkCreatorWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -29,6 +39,9 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
 
     @Autowired
     protected TitleBuilder titleBuilder;
+
+    @Autowired
+    protected AccessVerificationService accessVerificationService;
 
     @Override
     public Value getValue(WidgetState state) {
@@ -72,5 +85,36 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
     public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
         return false;
     }
+
+    protected void fillTypeTitleMap(DomainObject root, LinkedFormMappingConfig mappingConfig, LinkCreatorWidgetState state){
+        Map<String, PopupTitlesHolder> typeTitleMap = titleBuilder.buildTypeTitleMap(mappingConfig, root);
+        state.setTypeTitleMap(typeTitleMap);
+    }
+
+    public boolean abandonAccessed(DomainObject root, CreatedObjectsConfig createdObjectsConfig,
+                                   FillParentOnAddConfig fillParentOnAddConfig) {
+        if (createdObjectsConfig != null) {
+            List<CreatedObjectConfig> createdObjectConfigs = createdObjectsConfig.getCreateObjectConfigs();
+            if (WidgetUtil.isNotEmpty(createdObjectConfigs)) {
+                Iterator<CreatedObjectConfig> iterator = createdObjectConfigs.iterator();
+                while (iterator.hasNext()) {
+                    CreatedObjectConfig createdObjectConfig = iterator.next();
+                    String domainObjectType = createdObjectConfig.getDomainObjectType();
+                    boolean displayingCreateButton = fillParentOnAddConfig == null
+                            ? accessVerificationService.isCreatePermitted(domainObjectType)
+                            : accessVerificationService.isCreateChildPermitted(domainObjectType, root.getId());
+                    if (!displayingCreateButton) {
+                        iterator.remove();
+                    }
+                }
+                if(!createdObjectConfigs.isEmpty()){
+                    return  true;
+                }
+            }
+        }
+        return false;
+
+    }
+
 
 }

@@ -5,7 +5,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
@@ -72,7 +75,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         LinkedDomainObjectHyperlinkState linkedDomainObjectHyperlinkState = (LinkedDomainObjectHyperlinkState) state;
         SelectionStyleConfig selectionStyleConfig = linkedDomainObjectHyperlinkState.getWidgetConfig().getSelectionStyleConfig();
         return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false,
-                linkedDomainObjectHyperlinkState.getPopupTitlesHolder().getTitleExistingObject(), this);
+                linkedDomainObjectHyperlinkState.getTypeTitleMap(), this);
     }
 
     @Override

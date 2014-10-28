@@ -3,11 +3,13 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -20,18 +22,18 @@ public class NoneEditableTooltip extends PopupPanel {
     private boolean displayAsHyperlinks;
     private HasLinkedFormMappings widget;
 
-    public NoneEditableTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
-                               boolean displayAsHyperlinks, String hyperlinkPopupTitle, HasLinkedFormMappings widget) {
+    public NoneEditableTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlinks,
+                               Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
 
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
         this.widget = widget;
-        init(selectionStyleConfig, hyperlinkPopupTitle);
+        init(selectionStyleConfig, typeTitleMap);
     }
 
-    private void init(SelectionStyleConfig selectionStyleConfig, String hyperlinkPopupTitle) {
-        hyperlinkNoneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, eventBus, true, hyperlinkPopupTitle, widget);
+    private void init(SelectionStyleConfig selectionStyleConfig, Map<String, PopupTitlesHolder> typeTitleMap) {
+        hyperlinkNoneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, eventBus, true, typeTitleMap, widget);
         this.add(hyperlinkNoneEditablePanel);
         this.setStyleName("tooltip-popup");
 
