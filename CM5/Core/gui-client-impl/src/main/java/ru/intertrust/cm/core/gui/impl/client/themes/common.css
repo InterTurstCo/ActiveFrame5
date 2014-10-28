@@ -16,10 +16,32 @@
     margin: 3px 5px 0 5px;
 }
 
+@sprite .filterOpenBtn {
+    gwt-image: "filterOpenBtnIm";
+    background-position: 50% 50%;
+    border: 1px solid #c0c4cf;
+    border-radius: 3px;
+    box-shadow: none;
+    cursor: pointer;
+    float: right;
+    margin: 3px 5px 0 5px;
+}
+
+@sprite .recalculateColumnsWidthBtn {
+    gwt-image: "recalculateColumnsWidthBtnIm";
+    background-position: 50% 50%;
+    border: 1px solid #c0c4cf;
+    border-radius: 3px;
+    box-shadow: none;
+    cursor: pointer;
+    float: right;
+    margin: 3px 5px 0 5px;
+}
+
 @sprite .confirmDialogIm {
     overflow: auto;
     gwt-image: "confirmDialogIm";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 0;
     height: 58px;
     line-height: 20px;
@@ -31,7 +53,7 @@
 @sprite .infoDialogIm {
     overflow: auto;
     gwt-image: "infoDialogIm";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 0;
     height: 58px;
     line-height: 20px;
@@ -43,7 +65,7 @@
 @sprite .errorDialogIm {
     overflow: auto;
     gwt-image: "errorDialogIm";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 0;
     height: 58px;
     line-height: 20px;
@@ -52,45 +74,50 @@
     width: 247px;
 
 }
-@sprite .formFullSizeOn{
+
+@sprite .formFullSizeOn {
     gwt-image: "formFullSizeOnActionIm";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 0;
     float: left;
     height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
 }
-@sprite .formFullSizeOff{
+
+@sprite .formFullSizeOff {
     gwt-image: "formFullSizeOffActionIm";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 0;
     float: left;
     height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
 }
-@sprite .favoritePanelOn{
+
+@sprite .favoritePanelOn {
     gwt-image: "favoritePanelOnActionIm";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 0;
     float: left;
     height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
 }
-@sprite .favoritePanelOff{
+
+@sprite .favoritePanelOff {
     gwt-image: "favoritePanelOffActionIm";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 0;
     float: left;
     height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
 }
-@sprite .configurationUploader{
+
+@sprite .configurationUploader {
     gwt-image: "configurationUploaderIcon";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: 0 0;
     float: left;
     height: 25px;
@@ -155,7 +182,7 @@
     background: #f5f5f5 url(resources/defaulttheme/images/icons/icon-delete.png) no-repeat 50% 7%;
 }
 
-.editButton{
+.editButton {
     background: #f5f5f5 url(resources/defaulttheme/images/icons/icon-edit.png) no-repeat 50% 7%;
 }
 
@@ -176,30 +203,9 @@
 
 }
 
-@sprite .filterOpenBtn {
-    gwt-image: "filterOpenBtnIm";
-    border: 1px solid #c0c4cf;
-    border-radius: 3px 3px 3px 3px;
-    box-shadow: none;
-    cursor: pointer;
-    float: right;
-    margin: 3px 5px 0 5px;
-
-}
-@sprite .recalculateColumnsWidthBtn {
-    gwt-image: "recalculateColumnsWidthBtnIm";
-    background-position: 50% 50%;
-    border: 1px solid #c0c4cf;
-    border-radius: 3px 3px 3px 3px;
-    box-shadow: none;
-    cursor: pointer;
-    float: right;
-    margin: 3px 5px 0 5px;
-}
-
 @sprite .refreshBtn {
     gwt-image: "refreshBtnIm";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: center center;
     background-color: white;
     margin: 7px;
@@ -209,11 +215,11 @@
     box-shadow: 1px 1px 2px 1px #999;
     width: 5px;
     height: 100%;
-
 }
+
 @sprite .addDoBtn {
     gwt-image: "addDoBtnIm";
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-position: center center;
     background-color: white;
     margin: 7px;
@@ -225,11 +231,11 @@
     height: 100%;
 
 }
-.refreshBtn:hover{
+
+.refreshBtn:hover {
     cursor: pointer;
 }
 
-.addDoBtn:hover{
+.addDoBtn:hover {
     cursor: pointer;
 }
-

@@ -477,8 +477,10 @@ public class CollectionPluginView extends PluginView {
         AbsolutePanel treeLinkWidget = new AbsolutePanel();
         treeLinkWidget.addStyleName("collection-plugin-view-container");
         filterButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
+        filterButton.getElement().setAttribute("title", "Отобразить/Скрыть фильтры");
         treeLinkWidget.add(filterButton);
         final Button columnManagerButton = new Button();
+        columnManagerButton.getElement().setAttribute("title", "Отображение видимых колонок");
         columnManagerButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().columnSettingsButton());
         columnManagerButton.addClickHandler(new ClickHandler() {
             @Override
@@ -488,6 +490,7 @@ public class CollectionPluginView extends PluginView {
         });
         treeLinkWidget.add(columnManagerButton);
         Button columnWidthRecalculateButton = new Button();
+        columnWidthRecalculateButton.getElement().setAttribute("title", "Отобразить все колонки на экране");
         columnWidthRecalculateButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss()
                 .recalculateColumnsWidthBtn());
         columnWidthRecalculateButton.addClickHandler(new ClickHandler() {
