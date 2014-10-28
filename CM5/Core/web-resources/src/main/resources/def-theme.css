@@ -1152,7 +1152,7 @@ h1 {
 }
 
 /* ------------>>>  Attachment-box Widget <<<------------ */
-.image-preview {
+.imagePreview {
     border: 1px solid;
     border-color: #e5e5e5 #dbdbdb #d2d2d2;
     border-radius: 3px;
@@ -1164,20 +1164,43 @@ h1 {
     width: 100px;
 }
 
-.image-preview:hover {
+.imagePreview:hover {
     border-color: #D0D0D0;
     box-shadow: 0 1px 3px rgba(0,0,0,.35);
     -webkit-box-shadow: 0 1px 3px rgba(0,0,0,.3);
     -moz-box-shadow: 0 1px 3px rgba(0,0,0,.3);
 }
 
-.image-preview img {
+.imagePreview:active {
+    border-color: #a2a2a2;
+}
+
+.imagePreview:active .imageShadow {
+    box-shadow: inset 0 0 10px rgba(45, 45, 45, 0.7);
+    -moz-box-shadow: inset 0 0 10px rgba(45, 45, 45, 0.7);
+    -webkit-box-shadow: inset 0 0 10px rgba(45, 45, 45, 0.7);
+    height: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 2;
+}
+
+.imagePreview:active img {
+    position: absolute;
+    z-index: 1;
+}
+
+.imagePreview img {
     height: 100%;
     margin: 0 !important;
     width: auto;
+    z-index: 1;
 }
 
-.image-preview .facebook-btn {
+.imagePreview .facebook-btn {
     position: absolute;
     right: 2px;
     top: 2px;
@@ -1190,8 +1213,8 @@ h1 {
 }
 
 .imageLargePreview img {
-    height: 400px;
-    width: 400px;
+    height: 100%;
+    width: auto;
 }
 
 /* ------------>>>  end Attachment-box Widget <<<------------ */

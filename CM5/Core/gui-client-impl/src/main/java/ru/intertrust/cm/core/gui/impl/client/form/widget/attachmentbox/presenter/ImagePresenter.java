@@ -31,8 +31,10 @@ class ImagePresenter implements AttachmentElementPresenter {
     @Override
     public Panel presentElement() {
         final Panel element = new AbsolutePanel();
+//        final Panel imageShadow = new AbsolutePanel();
         element.addStyleName("facebook-element");
-        element.addStyleName("image-preview");
+        element.addStyleName("imagePreview");
+//        imageShadow.setStyleName("imageShadow");
 
         if (previewConfig.getWidth() != null) {
             element.setWidth(previewConfig.getWidth());
@@ -47,6 +49,7 @@ class ImagePresenter implements AttachmentElementPresenter {
             image.addClickHandler(clickHandler);
         }
         element.add(image);
+//        element.add(imageShadow);
         return element;
     }
 
@@ -74,7 +77,7 @@ class ImagePresenter implements AttachmentElementPresenter {
         @Override
         public void onClick(ClickEvent event) {
             final DialogBox largePreviewDialog = new DialogBox(true, true);
-            largePreviewDialog.addStyleName("imageLargePreview");
+            largePreviewDialog.setStyleName("popupWindow imageLargePreview");
 
             if (config.getWidth() != null) {
                 largePreviewDialog.setWidth(config.getWidth());
