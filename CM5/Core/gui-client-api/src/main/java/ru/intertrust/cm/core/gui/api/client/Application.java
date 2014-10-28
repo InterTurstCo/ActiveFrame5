@@ -133,8 +133,14 @@ public class Application {
     }
 
     public void showLoadingIndicator() {
-        glassPopupPanel.show();
-        glassPopupPanel.center();
+        showLoadingIndicator(true);
+    }
+
+    public void showLoadingIndicator(boolean lockScreenImmediately) {
+        if (lockScreenImmediately) {
+            glassPopupPanel.show();
+            glassPopupPanel.center();
+        }
         timer.schedule(1000);
     }
 

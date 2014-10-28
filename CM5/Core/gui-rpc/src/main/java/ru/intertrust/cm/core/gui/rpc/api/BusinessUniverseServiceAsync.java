@@ -46,12 +46,20 @@ public interface BusinessUniverseServiceAsync {
         }
 
         public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async) {
-            executeCommand(command, async, false);
+            executeCommand(command, async, false, false);
         }
 
-        public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async, final boolean indicate) {
+        /**
+         * Выполняет команду
+         * @param command команда
+         * @param async обратный вызов по результату запроса
+         * @param indicate показывать индикатор выполения серверного запроса
+         * @param lockScreenImmediately немедленно блокировать экран. Игнорируется, если индикатор выполнения не показывается (indicate == false)
+         * @param <T> возвращаемый тип
+         */
+        public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async, final boolean indicate, boolean lockScreenImmediately) {
             if (indicate) {
-                Application.getInstance().showLoadingIndicator();
+                Application.getInstance().showLoadingIndicator(lockScreenImmediately);
             }
             getInstance().executeCommand(command, new AsyncCallback<T>() {
 

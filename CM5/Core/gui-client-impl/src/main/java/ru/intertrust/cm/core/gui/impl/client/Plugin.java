@@ -45,6 +45,7 @@ public abstract class Plugin extends BaseComponent {
     private PluginView view;
     private List<HandlerRegistration> handlerRegistrations = new ArrayList<HandlerRegistration>();
     private List<PluginViewCreatedEventListener> viewCreatedEventListeners = new ArrayList<PluginViewCreatedEventListener>(1);
+    private boolean lockScreenImmediately = true;
 
     static Logger logger = Logger.getLogger("plugin logger");
     private NavigationConfig navigationConfig;
@@ -106,11 +107,15 @@ public abstract class Plugin extends BaseComponent {
         };
         fillHistoryData();
         final Command command = new Command("initialize", this.getName(), getConfig());
-        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true, lockScreenImmediately);
     }
 
     protected GwtEvent.Type[] getEventTypesToHandle() {
         return null;
+    }
+
+    void setLockScreenImmediately(boolean lockScreenImmediately) {
+        this.lockScreenImmediately = lockScreenImmediately;
     }
 
     private void registerEventsHandling(GwtEvent.Type[] events) {

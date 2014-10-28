@@ -8,7 +8,6 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 
-
 import java.util.ArrayList;
 
 /**
@@ -69,8 +68,21 @@ public class PluginPanel implements IsWidget {
      * @param plugin плагин, который нужно открыть в панели
      */
     public void open(Plugin plugin) {
+        open(plugin, true);
+    }
+
+    /**
+     * <p>
+     * Открывает плагин, замещая предыдущий, если он был открыт. Операция необратима, восстановить предыдущий плагин или
+     * любого его открытия невозможно.
+     * </p>
+     *
+     * @param plugin плагин, который нужно открыть в панели
+     */
+    public void open(Plugin plugin, boolean lockScreenImmediately) {
         this.openingChild = false;
         plugin.setOwner(this);
+        plugin.setLockScreenImmediately(lockScreenImmediately);
         plugin.setUp();
     }
 

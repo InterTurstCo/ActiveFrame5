@@ -60,7 +60,7 @@ public abstract class SimpleServerAction extends Action {
             if (abstractActionConfig instanceof ActionConfig) {
                 command.setDirtySensitivity(((ActionConfig) abstractActionConfig).isDirtySensitivity());
             }
-            BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true);
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true, true);
         } catch (GuiException e) {
             ApplicationWindow.errorAlert(e.getMessage());
         }

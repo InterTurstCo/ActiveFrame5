@@ -29,7 +29,7 @@ public abstract class AbstractUserSettingAction extends Action {
             }
         };
         Command command = new Command("executeAction", this.getName(), getInitialContext());
-        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, false);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, false, false);
     }
 
     @Override
