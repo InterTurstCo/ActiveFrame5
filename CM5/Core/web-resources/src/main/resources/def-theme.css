@@ -2347,6 +2347,18 @@ a:active .icon.back {
     background: gray;
 }
 
+.transparentGlass {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.0;
+    z-index: 999;
+    display: block;
+    background: transparent;
+}
+
 .loading {
     width: 16px;
     height: 16px;

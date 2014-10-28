@@ -64,6 +64,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setApplicationVersion(version);
 
         GlobalSettingsConfig globalSettingsConfig = configurationService.getGlobalSettings();
+        final ProductTitle productTitle = globalSettingsConfig.getProductTitle();
+        initialization.setPageNamePrefix(productTitle == null ? null : productTitle.getTitle() == null ? null : productTitle.getTitle() + ": ");
         final ProductVersion productVersion = globalSettingsConfig.getProductVersion();
         initialization.setProductVersion(productVersion == null || productVersion.getArchive() == null ? "" : guiService.getProductVersion(productVersion.getArchive()));
 
@@ -90,7 +92,6 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         businessUniverseInitialization.setFirstName(person.getString("FirstName"));
         businessUniverseInitialization.setLastName(person.getString("LastName"));
         businessUniverseInitialization.seteMail(person.getString("EMail"));
-        businessUniverseInitialization.setPageNamePrefix(System.getProperty("pageNamePrefix"));
         businessUniverseInitialization.setTimeZoneIds(getTimeZoneIds());
         return businessUniverseInitialization;
     }

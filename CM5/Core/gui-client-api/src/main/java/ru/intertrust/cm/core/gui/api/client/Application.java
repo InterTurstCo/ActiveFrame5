@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.api.client;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
@@ -21,6 +22,16 @@ public class Application {
     private static Application ourInstance = null;
 
     private PopupPanel glassPopupPanel;
+    private PopupPanel glassWithImagePopupPanel;
+
+    private Timer timer = new Timer() {
+        @Override
+        public void run() {
+            glassWithImagePopupPanel.center();
+            glassWithImagePopupPanel.show();
+            glassPopupPanel.hide();
+        }
+    };
 
     /*
      * Глобальная шина событий приложения
@@ -48,8 +59,8 @@ public class Application {
         eventBus = GWT.create(SimpleEventBus.class);
         compactModeState = new CompactModeState();
         historyManager = GWT.create(HistoryManager.class);
-        glassPopupPanel = new PopupPanel();
-        createGlassPopup();
+        glassPopupPanel = createGlassPopup();
+        glassWithImagePopupPanel = createGlassPopupWithImage();
     }
 
     /*
@@ -86,7 +97,7 @@ public class Application {
     }
 
     public String getPageName(final String name) {
-        return new StringBuilder(pageNamePrefix == null ? "cmj: " : pageNamePrefix).append(name).toString();
+        return pageNamePrefix == null ? name : pageNamePrefix + name;
     }
 
     public void setPageNamePrefix(String pageNamePrefix) {
@@ -123,21 +134,33 @@ public class Application {
 
     public void showLoadingIndicator() {
         glassPopupPanel.show();
+        glassPopupPanel.center();
+        timer.schedule(1000);
     }
 
     public void hideLoadingIndicator() {
+        timer.cancel();
+        glassWithImagePopupPanel.hide();
         glassPopupPanel.hide();
-
     }
 
-    private void createGlassPopup() {
-        glassPopupPanel.setGlassEnabled(true);
-        glassPopupPanel.setGlassStyleName("glass");
-        glassPopupPanel.setStyleName("PopupPanelPreloader");
+    private PopupPanel createGlassPopup() {
+        final PopupPanel glassPopup = new PopupPanel();
+        glassPopup.setModal(true);
+        glassPopup.setGlassEnabled(true);
+        glassPopup.setGlassStyleName("transparentGlass");
+        glassPopup.setStyleName("PopupPanelPreloader");
+        return glassPopup;
+    }
+
+    private PopupPanel createGlassPopupWithImage() {
+        final PopupPanel glassPopup = createGlassPopup();
+        glassPopup.setStyleName("PopupPanelPreloader");
+        glassPopup.setGlassStyleName("glass");
         Image image = new Image();
         image.setUrl("progressbar.gif");
         image.addStyleName("loading");
-        glassPopupPanel.add(image);
-        glassPopupPanel.center();
+        glassPopup.add(image);
+        return glassPopup;
     }
 }
