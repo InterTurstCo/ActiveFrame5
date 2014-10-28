@@ -51,10 +51,7 @@ public class LoadedConfigurationConverter extends ConfigurationConverter {
             try {
                 deserializedObject = (TopLevelConfig) serializer.read(nodeClass, nexNode);
             } catch(Exception e) {
-                InputNode nameNode = nexNode.getAttribute("name");
-                String errorMessage = "Failed to serialize configuration item: type='" + nexNode.getName() + "'" +
-                        (nameNode != null && nameNode.getValue() != null ? ", name='" + nameNode.getValue() + "'" : "");
-
+                String errorMessage = buildErrorMessage(nexNode, e);
                 if (DomainObjectTypeConfig.class.equals(nodeClass)) {
                     creationErrorList.add(errorMessage);
                 } else {

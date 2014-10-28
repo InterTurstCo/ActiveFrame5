@@ -58,6 +58,13 @@ public abstract class ListConverter<T>  implements org.simpleframework.xml.conve
         }
     }
 
+    protected String buildErrorMessage(InputNode nexNode, Exception e) throws Exception {
+        InputNode nameNode = nexNode.getAttribute("name");
+        return "Failed to serialize configuration item: type='" + nexNode.getName() + "'" +
+                (nameNode != null && nameNode.getValue() != null ? ", name='" + nameNode.getValue() + "'" : "") +
+                ". Error: " + e.getMessage();
+    }
+
     public abstract T create();
 
     public abstract List getList(T configuration);

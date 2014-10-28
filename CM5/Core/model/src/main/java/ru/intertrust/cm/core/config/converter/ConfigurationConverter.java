@@ -43,10 +43,7 @@ public class ConfigurationConverter extends ListConverter<Configuration> {
             try {
                 deserializedObject = (TopLevelConfig) serializer.read(nodeClass, nexNode);
             } catch(Exception e) {
-                InputNode nameNode = nexNode.getAttribute("name");
-                String errorMessage = "Failed to serialize configuration item: type='" + nexNode.getName() + "'" +
-                        (nameNode != null && nameNode.getValue() != null ? ", name='" + nameNode.getValue() + "'" : "");
-                creationErrorList.add(errorMessage);
+                creationErrorList.add(buildErrorMessage(nexNode, e));
             }
 
             if (deserializedObject != null) {
