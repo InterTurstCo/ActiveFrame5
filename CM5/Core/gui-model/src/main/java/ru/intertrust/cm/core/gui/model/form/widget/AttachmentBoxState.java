@@ -22,7 +22,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
     private AcceptedTypesConfig acceptedTypesConfig;
     private ImagesOnlyConfig imagesConfig;
     private DeleteButtonConfig deleteButtonConfig;
-    private boolean displayAddButton;
+    private boolean displayAddButton = true;
 
     public SelectionStyleConfig getSelectionStyleConfig() {
         return selectionStyleConfig;
