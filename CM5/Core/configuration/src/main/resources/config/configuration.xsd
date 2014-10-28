@@ -697,7 +697,7 @@
     <xs:complexType name="indexType">
         <xs:sequence maxOccurs="unbounded">
             <xs:element type="con:fieldType" name="field" minOccurs="0"/>
-            <xs:element type="con:indexExpressionType" name="expr" minOccurs="0"/>        
+            <xs:element type="con:indexExpressionType" name="expr" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute name="type" use="optional" type="con:indexTypeType"/>
     </xs:complexType>
@@ -710,7 +710,7 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-    
+
     <xs:complexType name="passwordType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -1002,7 +1002,7 @@
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="matrix-reference-mapping" type="con:matrixReferenceMapping" maxOccurs="1" minOccurs="0"/>
-                        
+
         </xs:sequence>
         <xs:attribute name="type" type="xs:string" use="required"/>
         <xs:attribute name="read-everybody" type="xs:boolean" use="optional"/>
@@ -1019,7 +1019,7 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
-    
+
 
     <xs:complexType name="accessMatrixSectionType">
         <xs:sequence>
@@ -1996,7 +1996,7 @@
         <xs:attribute name="value" use="optional" type="xs:string"/>
         <xs:attribute name="null-value" use="optional" type="xs:boolean"/>
     </xs:complexType>
-    
+
     <xs:complexType name="enumMapProviderType">
         <xs:attribute name="component" use="required" type="xs:string"/>
     </xs:complexType>
@@ -3165,6 +3165,51 @@
     <xs:complexType name="createdObjectType">
         <xs:attribute type="xs:string" name="domain-object-type" use="required"/>
         <xs:attribute type="xs:string" name="text" use="required"/>
+    </xs:complexType>
+
+    <xs:element name="calendar" type="con:calendarType" substitutionGroup="con:pluginConfig"/>
+    <xs:complexType name="calendarType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractPluginConfigType">
+                <xs:sequence>
+                    <xs:element ref="act:tool-bar" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="calendar-view" minOccurs="1" maxOccurs="1">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="collection-ref" type="con:collectionRefType" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="date-field-path" type="con:fieldPathType" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="date-field-filter" minOccurs="1" maxOccurs="1">
+                                    <xs:complexType>
+                                        <xs:attribute name="name" use="required" type="xs:string"/>
+                                    </xs:complexType>
+                                </xs:element>
+                                <xs:element name="pattern" type="con:patternType" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="sort-criteria" type="con:sortCriteriaType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="renderer" type="con:uiRendererType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="image-field" minOccurs="0" maxOccurs="1">
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element name="image-mappings" type="con:imageMappingsType" minOccurs="1" maxOccurs="1"/>
+                                        </xs:sequence>
+                                        <xs:attribute name="name" type="xs:string" use="required"/>
+                                    </xs:complexType>
+                                </xs:element>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute name="show-weekend" type="xs:boolean" default="true" use="optional"/>
+                <xs:attribute name="show-detail-panel" type="xs:boolean" default="true" use="optional"/>
+                <xs:attribute name="start-mode" default="month" use="optional">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="month"/>
+                            <xs:enumeration value="week"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
 </xs:schema>

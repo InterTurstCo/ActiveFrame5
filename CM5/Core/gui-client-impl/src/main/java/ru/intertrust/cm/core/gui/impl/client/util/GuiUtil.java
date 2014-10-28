@@ -25,7 +25,13 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
  *         Date: 27.09.2014
  *         Time: 10:41
  */
-public class GuiUtil {
+public final class GuiUtil {
+
+    public static final String[] MONTHS = {"январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август",
+            "сентябрь", "октябрь", "ноябрь", "декабрь"};
+
+    private GuiUtil(){}
+
     public static boolean isChildClicked(ClickEvent event, String id) {
         NodeList<Element> checkBoxes = Document.get().getElementById(id).getElementsByTagName("input");
         Element target = Element.as(event.getNativeEvent().getEventTarget());
