@@ -391,7 +391,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             }
             tooltipModel.addDataDisplay(table);
             this.add(table);
-            this.setStyleName("tooltip-popup");
+            this.setStyleName("tooltipPopup");
 
         }
 

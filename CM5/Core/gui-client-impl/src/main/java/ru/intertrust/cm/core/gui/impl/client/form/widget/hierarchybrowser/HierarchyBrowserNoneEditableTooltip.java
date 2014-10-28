@@ -30,7 +30,7 @@ public class HierarchyBrowserNoneEditableTooltip extends PopupPanel {
         widgetItemsView = new HierarchyBrowserNoneEditablePanel(selectionStyleConfig, eventBus, displayAsHyperlinks);
         widgetItemsView.setTooltipContent(true);
         this.add(widgetItemsView);
-        this.setStyleName("tooltip-popup");
+        this.setStyleName("tooltipPopup");
 
     }
 

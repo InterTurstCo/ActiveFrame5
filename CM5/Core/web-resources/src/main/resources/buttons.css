@@ -1,5 +1,5 @@
 /* ------------>>> dark button <<<------------ */
-.dark-button {
+.darkButton {
     background: #0874b6; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzM0ODliZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMwMTZjYWQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
@@ -20,7 +20,7 @@
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
-.dark-button:hover {
+.darkButton:hover {
     -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
     box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
     color: #ffffff;
@@ -28,7 +28,7 @@
     text-shadow: none;
 }
 
-.dark-button:active {
+.darkButton:active {
     -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
     box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
     background: #0874b6;
@@ -38,17 +38,17 @@
     color: rgba(255, 255, 255, 0.8) /*#eeeeee*/;
 }
 
-a.dark-button:hover {
+a.darkButton:hover {
     text-decoration: none;
 }
 
-a.dark-button:active {
+a.darkButton:active {
     text-decoration: none;
 }
-
+/* ------------>>> end dark button <<<------------ */
 
 /* ------------>>> light button <<<------------ */
-.light-button {
+.lightButton {
     background: #ffffff; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlYWVlZjEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
@@ -69,7 +69,7 @@ a.dark-button:active {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
-.light-button:hover {
+.lightButton:hover {
     -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
     box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
     color: #0874b6;
@@ -77,7 +77,7 @@ a.dark-button:active {
     text-shadow: none;
 }
 
-.light-button:active {
+.lightButton:active {
     -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
     box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
     background: #e6e9ec;
@@ -87,16 +87,17 @@ a.dark-button:active {
     color: rgba(0, 108, 173, 0.8) /*#016cad*/;
 }
 
-a.light-button:hover {
+a.lightButton:hover {
     text-decoration: none;
 }
 
-a.light-button:active {
+a.lightButton:active {
     text-decoration: none;
 }
+/* ------------>>> end light button <<<------------ */
 
 /* ------------>>> disabled button <<<------------ */
-.disabled-button {
+.disabledButton {
     background: #ffffff; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
     background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlYWVlZjEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
@@ -115,6 +116,7 @@ a.light-button:active {
     margin: 5px;
     padding: 6px 9px;
 }
+/* ------------>>> end disabled button <<<------------ */
 
 /* ------------>>> tooltip button <<<------------ */
 .tooltipButton {

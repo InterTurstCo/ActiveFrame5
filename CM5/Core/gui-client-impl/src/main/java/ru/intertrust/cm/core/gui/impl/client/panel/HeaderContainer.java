@@ -108,7 +108,7 @@ public class HeaderContainer extends SimplePanel {
         }
         popupPanel.add(contentInfo);
 
-        popupPanel.getElement().setClassName("applicationVersionWindows popupWindow");
+        popupPanel.getElement().setClassName("applicationVersionWindows");
 
 //        popupPanel.getElement().getStyle().setRight(72, Style.Unit.PX);
 //        popupPanel.getElement().getStyle().setTop(55, Style.Unit.PX);

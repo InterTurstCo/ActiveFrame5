@@ -18,11 +18,11 @@ public class SimpleTextTooltip extends PopupPanel {
         Label textLabel = new Label(text);
         textLabel.setStyleName("tooltipText");
         this.add(textLabel);
-        this.setStyleName("tooltip-popup");
+        this.setStyleName("tooltipPopup");
         final com.google.gwt.user.client.Timer styleTimer = new com.google.gwt.user.client.Timer() {
             @Override
             public void run() {
-                SimpleTextTooltip.this.getElement().replaceClassName("tooltip-popup", "tooltip-popupHidden");
+                SimpleTextTooltip.this.getElement().replaceClassName("tooltipPopup", "tooltipPopupHidden");
                 this.cancel();
             }
         };
