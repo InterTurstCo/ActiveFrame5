@@ -88,7 +88,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         VerticalPanel hp = new VerticalPanel();
         Button addButton = createAddButton();
         addButton.removeStyleName("gwt-Button");
-        addButton.addStyleName("light-button ldotCreate");
+        addButton.addStyleName("lightButton ldotCreate");
         hp.add(addButton);
         localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this);
         return hp;
