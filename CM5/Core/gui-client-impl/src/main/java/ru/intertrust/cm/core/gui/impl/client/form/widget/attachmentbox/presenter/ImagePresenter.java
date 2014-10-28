@@ -44,7 +44,7 @@ class ImagePresenter implements AttachmentElementPresenter {
         }
 
         final Image image = new Image(createPreviewUrl(item));
-        image.addLoadHandler(new ScalePreviewHandler(previewConfig, image));
+        image.addLoadHandler(new ScalePreviewHandler(previewConfig, image, true));
         if (clickHandler != null) {
             element.addDomHandler(clickHandler, ClickEvent.getType());
         }
@@ -92,7 +92,7 @@ class ImagePresenter implements AttachmentElementPresenter {
             if (config.getHeight() != null) {
                 image.setHeight(config.getHeight());
             }
-            image.addLoadHandler(new ScalePreviewHandler(config, image));
+            image.addLoadHandler(new ScalePreviewHandler(config, image, false));
             largePreviewDialog.setWidget(image);
             largePreviewDialog.center();
         }
@@ -102,10 +102,12 @@ class ImagePresenter implements AttachmentElementPresenter {
 
         final private PreviewConfig previewConfig;
         final private Image image;
+        final private boolean center;
 
-        public ScalePreviewHandler(PreviewConfig previewConfig, Image image) {
+        public ScalePreviewHandler(PreviewConfig previewConfig, Image image, boolean center) {
             this.previewConfig = previewConfig;
             this.image = image;
+            this.center = center;
         }
 
         @Override
@@ -122,6 +124,12 @@ class ImagePresenter implements AttachmentElementPresenter {
             } else {
                 int maxWidth = image.getParent().getOffsetWidth();
                 int maxHeight = image.getParent().getOffsetHeight();
+
+                // workaround for the situation when the attachment-box widget is being updated while it's out of vision,
+                // f.e. when we switch to another tab and save the form. Let's just skip scaling for now.
+                if (maxWidth == 0 || maxHeight == 0) {
+                    return; // TODO: Need to find better solution.
+                }
 
                 image.setWidth("auto");
                 image.setHeight("auto");
@@ -142,7 +150,16 @@ class ImagePresenter implements AttachmentElementPresenter {
                     width = origWidth * height / origHeight;
                 }
                 image.setPixelSize(width, height);
+                if (center) {
+                    if (width < maxWidth) {
+                        image.getElement().getStyle().setProperty("paddingLeft", (maxWidth-width)/2 + "px");
+                    }
+                    if (height < maxHeight) {
+                        image.getElement().getStyle().setProperty("paddingTop", (maxHeight-height)/2 + "px");
+                    }
+                }
             }
+
         }
     }
 }
