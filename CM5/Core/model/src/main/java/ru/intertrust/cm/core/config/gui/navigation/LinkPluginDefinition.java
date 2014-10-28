@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementUnion;
 import org.simpleframework.xml.Root;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -16,6 +18,7 @@ public class LinkPluginDefinition implements Dto {
     @ElementUnion({
             @Element(name = "custom", type = CustomPluginConfig.class),
             @Element(name = "domain-object-surfer", type = DomainObjectSurferConfig.class),
+            @Element(name = "calendar", type = CalendarConfig.class),
             @Element(name = "report-plugin", type = ReportPluginConfig.class)})
     private PluginConfig pluginConfig;
 

@@ -1,12 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
-import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
-import ru.intertrust.cm.core.gui.model.DateTimeContext;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,12 +7,20 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
+import ru.intertrust.cm.core.gui.model.DateTimeContext;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 19.05.14
  *         Time: 17:15
  */
 public class TimelessDateValueConverter implements DateValueConverter<TimelessDateValue> {
+
     @Override
     public DateTimeContext valueToContext(TimelessDateValue value, String timeZoneIdP, DateFormat dateFormat) {
         final DateTimeContext result = new DateTimeContext();
@@ -58,5 +59,16 @@ public class TimelessDateValueConverter implements DateValueConverter<TimelessDa
             }
         }
         return new TimelessDateValue();
+    }
+
+    @Override
+    public Date valueToDate(TimelessDateValue value, String timeZoneId) {
+        if (value != null && value.get() != null) {
+            final Calendar calendar =
+                    GuiServerHelper.timelessDateToCalendar(value.get(), GuiServerHelper.GMT_TIME_ZONE);
+            return calendar.getTime();
+        } else {
+            return null;
+        }
     }
 }

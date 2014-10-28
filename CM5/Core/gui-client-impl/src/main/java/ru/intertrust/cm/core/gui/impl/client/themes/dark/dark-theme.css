@@ -101,13 +101,11 @@
 .calendar-scroll-panel {
     position: absolute !important;
     top: 65px;
-    right: -16px;
+    right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(248, 249, 255);
-
-    /*   overflow-y: hidden !important;*/
-
+    border: solid 1px #ddd;
+    background: rgba(248, 249, 255, 1.0);
 }
 
 .calendar-container {

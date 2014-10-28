@@ -1108,6 +1108,14 @@
                 ]]>
             </criteria>
         </filter>
+
+        <filter name="byCreate">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    co.created_date  between {0} {1}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
     <collection-view name="countries_default_view" collection="Countries" is-default="true">
         <display>

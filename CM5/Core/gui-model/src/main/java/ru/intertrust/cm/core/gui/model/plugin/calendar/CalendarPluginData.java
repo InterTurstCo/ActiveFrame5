@@ -4,20 +4,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 
 /**
  * Created by lvov on 03.04.14.
  */
 public class CalendarPluginData extends ActivePluginData {
-    public static final String COMPONENT_NAME = "calendar.plugin";
 
     private Date fromDate;
     private Date toDate;
     private Date selectedDate;
 
-    private Map<Date, List<? extends Dto>> values;
+    private Map<Date, List<CalendarItemData>> values;
 
     public Date getFromDate() {
         return fromDate;
@@ -43,11 +41,11 @@ public class CalendarPluginData extends ActivePluginData {
         this.selectedDate = selectedDate;
     }
 
-    public Map<Date, List<? extends Dto>> getValues() {
+    public Map<Date, List<CalendarItemData>> getValues() {
         return values;
     }
 
-    public void setValues(Map<Date, List<? extends Dto>> values) {
+    public void setValues(Map<Date, List<CalendarItemData>> values) {
         this.values = values;
     }
 }

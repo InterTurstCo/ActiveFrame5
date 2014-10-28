@@ -101,13 +101,11 @@
 .calendar-scroll-panel {
     position: absolute !important;
     top: 65px;
-    right: -16px;
+    right: 0px;
     bottom: 0;
     left: 0;
-    background: rgba(248, 249, 255);
-
-    /*   overflow-y: hidden !important;*/
-
+    border: solid 1px #ddd;
+    background: rgba(248, 249, 255, 1.0);
 }
 
 .calendar-container {
@@ -124,22 +122,29 @@
     overflow: visible !important;
 }
 
-.calendar-work-day-block {
-    background: rgb(248, 249, 255);
+.calendar-day-block {
     border-left: 1px solid #ddd;
     border-top: 1px solid #ddd;
-    height: 90px;
-    z-index: 5;
+}
 
+.calendar-work-day-block {
+    background: rgb(248, 249, 255);
+    float: left;
 }
 
 .calendar-holiday-block {
-    height: 45px;
-    border-left: 1px solid #ddd;
-    border-top: 1px solid #ddd;
-    z-index: 5;
     background: rgb(248, 249, 255);
+    float: none;
+}
 
+.calendar-work-after-today {
+    background-color: #ffffff;
+    float: left;
+}
+
+.calendar-weekend-after-today {
+    background-color: #ffffff;
+    float: left;
 }
 
 .calendar-holiday-block:focus {
@@ -171,8 +176,6 @@
 }
 
 .calendar-block-date {
-    position: absolute;
-    right: 0;
     float: right;
     color: #aaa;
     margin: 0.3em 0.5em;
@@ -224,7 +227,7 @@
 }
 
 .first {
-    position: absolute;
+    position: relative;
     height: 22px;
     width: 69px;
     color: white;
