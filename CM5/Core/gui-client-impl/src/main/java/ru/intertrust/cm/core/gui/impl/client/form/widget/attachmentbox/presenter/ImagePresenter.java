@@ -78,14 +78,6 @@ class ImagePresenter implements AttachmentElementPresenter {
         public void onClick(ClickEvent event) {
             final DialogBox largePreviewDialog = new DialogBox(true, true);
             largePreviewDialog.setStyleName("popupWindow imageLargePreview");
-
-            if (config.getWidth() != null) {
-                largePreviewDialog.setWidth(config.getWidth());
-            }
-            if (config.getHeight() != null) {
-                largePreviewDialog.setHeight(config.getHeight());
-            }
-
             Image image = new Image(createPreviewUrl(item));
 
             image.addClickHandler(new ClickHandler() {
@@ -94,8 +86,13 @@ class ImagePresenter implements AttachmentElementPresenter {
                     largePreviewDialog.hide();
                 }
             });
-
-            //image.addLoadHandler(new ScalePreviewHandler(config, image)); //FIXME: temporarily commented out
+            if (config.getWidth() != null) {
+                image.setWidth(config.getWidth());
+            }
+            if (config.getHeight() != null) {
+                image.setHeight(config.getHeight());
+            }
+            image.addLoadHandler(new ScalePreviewHandler(config, image));
             largePreviewDialog.setWidget(image);
             largePreviewDialog.center();
         }
@@ -131,10 +128,12 @@ class ImagePresenter implements AttachmentElementPresenter {
                 int origWidth = image.getWidth();
                 int origHeight = image.getHeight();
 
-                int width = maxWidth;
-                int height = origHeight * width;
-                height = height / origWidth;
-
+                int width = origWidth;
+                int height = origHeight;
+                if (origWidth > maxWidth) {
+                    width = maxWidth;
+                    height = origHeight * width / origWidth;
+                }
                 if (height > maxHeight) {
                     origWidth = width;
                     origHeight = height;
