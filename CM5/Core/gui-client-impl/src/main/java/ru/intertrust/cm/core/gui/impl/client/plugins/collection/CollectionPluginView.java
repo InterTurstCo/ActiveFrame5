@@ -694,13 +694,11 @@ public class CollectionPluginView extends PluginView {
 
         clearScrollHandler();
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
-        Application.getInstance().showLoadingIndicator();
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
                 GWT.log("something was going wrong while obtaining generateTableRowsForPluginInitialization for ''");
                 caught.printStackTrace();
-                Application.getInstance().hideLoadingIndicator();
             }
 
             @Override
@@ -708,7 +706,6 @@ public class CollectionPluginView extends PluginView {
                 CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
                 handleCollectionRowsResponse(collectionRowItems, false);
-                Application.getInstance().hideLoadingIndicator();
                 if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {
                     return;
                 }

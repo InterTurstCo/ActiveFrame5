@@ -3,12 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -65,7 +60,7 @@ public abstract class SimpleServerAction extends Action {
             if (abstractActionConfig instanceof ActionConfig) {
                 command.setDirtySensitivity(((ActionConfig) abstractActionConfig).isDirtySensitivity());
             }
-            BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true);
         } catch (GuiException e) {
             ApplicationWindow.errorAlert(e.getMessage());
         }

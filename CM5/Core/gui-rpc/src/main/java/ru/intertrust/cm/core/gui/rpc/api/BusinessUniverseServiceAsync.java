@@ -46,7 +46,13 @@ public interface BusinessUniverseServiceAsync {
         }
 
         public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async) {
-            Application.getInstance().showLoadingIndicator();
+            executeCommand(command, async, false);
+        }
+
+        public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async, final boolean indicate) {
+            if (indicate) {
+                Application.getInstance().showLoadingIndicator();
+            }
             getInstance().executeCommand(command, new AsyncCallback<T>() {
 
                 @Override
