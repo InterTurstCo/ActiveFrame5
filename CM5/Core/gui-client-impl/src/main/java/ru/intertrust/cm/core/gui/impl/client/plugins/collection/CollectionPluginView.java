@@ -852,5 +852,9 @@ public class CollectionPluginView extends PluginView {
     private CollectionPluginData getPluginData(){
         return plugin.getInitialData();
     }
+
+    public CollectionDataGrid getTableBody() {
+        return tableBody;
+    }
 }
 
