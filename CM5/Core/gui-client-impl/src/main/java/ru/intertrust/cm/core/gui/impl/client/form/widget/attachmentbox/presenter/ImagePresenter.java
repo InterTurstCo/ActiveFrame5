@@ -46,7 +46,7 @@ class ImagePresenter implements AttachmentElementPresenter {
         final Image image = new Image(createPreviewUrl(item));
         image.addLoadHandler(new ScalePreviewHandler(previewConfig, image));
         if (clickHandler != null) {
-            image.addClickHandler(clickHandler);
+            element.addDomHandler(clickHandler, ClickEvent.getType());
         }
         element.add(image);
 //        element.add(imageShadow);
