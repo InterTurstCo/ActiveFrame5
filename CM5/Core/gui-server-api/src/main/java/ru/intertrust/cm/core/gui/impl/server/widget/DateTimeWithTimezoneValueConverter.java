@@ -83,4 +83,30 @@ public class DateTimeWithTimezoneValueConverter extends AbstractDateValueConvert
             return null;
         }
     }
+
+    @Override
+    public DateTimeWithTimeZoneValue dateToValue(final Date date, final String timeZoneRaw) {
+        final DateTimeWithTimeZoneValue result = new DateTimeWithTimeZoneValue();
+        if (date != null) {
+            final String timeZoneId = getTimeZoneId(timeZoneRaw == null ? ModelUtil.DEFAULT_TIME_ZONE_ID : timeZoneRaw);
+            final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
+            calendar.setTime(date);
+            final DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone();
+            dateTimeWithTimeZone.setYear(calendar.get(Calendar.YEAR));
+            dateTimeWithTimeZone.setMonth(calendar.get(Calendar.MONTH));
+            dateTimeWithTimeZone.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
+            dateTimeWithTimeZone.setHours(calendar.get(Calendar.HOUR_OF_DAY));
+            dateTimeWithTimeZone.setMinutes(calendar.get(Calendar.MINUTE));
+            dateTimeWithTimeZone.setSeconds(calendar.get(Calendar.SECOND));
+            dateTimeWithTimeZone.setMilliseconds(calendar.get(Calendar.MILLISECOND));
+            if (timeZoneId.startsWith("GMT")) {
+                TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
+                dateTimeWithTimeZone.setTimeZoneContext(new UTCOffsetTimeZoneContext(timeZone.getRawOffset()));
+            } else {
+                dateTimeWithTimeZone.setTimeZoneContext(new OlsonTimeZoneContext(timeZoneId));
+            }
+            result.setValue(dateTimeWithTimeZone);
+        }
+        return result;
+    }
 }

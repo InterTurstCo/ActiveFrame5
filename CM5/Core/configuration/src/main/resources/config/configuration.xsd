@@ -3180,7 +3180,8 @@
                                 <xs:element name="date-field-path" type="con:fieldPathType" minOccurs="1" maxOccurs="1"/>
                                 <xs:element name="date-field-filter" minOccurs="1" maxOccurs="1">
                                     <xs:complexType>
-                                        <xs:attribute name="name" use="required" type="xs:string"/>
+                                        <xs:attribute name="name" type="xs:string" use="required"/>
+                                        <xs:attribute name="type" type="con:columnFieldTypeEnum" use="required"/>
                                     </xs:complexType>
                                 </xs:element>
                                 <xs:element name="pattern" type="con:patternType" minOccurs="1" maxOccurs="1"/>

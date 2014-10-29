@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
@@ -70,5 +69,20 @@ public class TimelessDateValueConverter implements DateValueConverter<TimelessDa
         } else {
             return null;
         }
+    }
+
+    @Override
+    public TimelessDateValue dateToValue(Date date, String timeZoneId) {
+        final TimelessDateValue result = new TimelessDateValue();
+        if (date != null) {
+            final TimelessDate timelessDate = new TimelessDate();
+            final Calendar calendar = Calendar.getInstance(GuiServerHelper.GMT_TIME_ZONE);
+            calendar.setTime(date);
+            timelessDate.setYear(calendar.get(Calendar.YEAR));
+            timelessDate.setMonth(calendar.get(Calendar.MONTH));
+            timelessDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
+            result.setValue(timelessDate);
+        }
+        return result;
     }
 }

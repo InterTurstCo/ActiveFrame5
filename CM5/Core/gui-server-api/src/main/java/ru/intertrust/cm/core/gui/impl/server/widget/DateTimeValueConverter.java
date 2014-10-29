@@ -61,5 +61,14 @@ public class DateTimeValueConverter extends AbstractDateValueConverter<DateTimeV
             return null;
         }
     }
+
+    @Override
+    public DateTimeValue dateToValue(Date date, String timeZoneId) {
+        final DateTimeValue result = new DateTimeValue();
+        if (date != null) {
+            result.setValue(date);
+        }
+        return result;
+    }
 }
 

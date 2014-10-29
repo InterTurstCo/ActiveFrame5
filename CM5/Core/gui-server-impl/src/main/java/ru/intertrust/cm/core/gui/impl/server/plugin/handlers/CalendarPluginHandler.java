@@ -8,27 +8,34 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
+import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarViewConfig;
+import ru.intertrust.cm.core.config.gui.navigation.calendar.ImageFieldConfig;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.CalendarItemRenderer;
+import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.impl.server.action.calendar.CalendarHandlerStatusData;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeValueConverter;
+import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeWithTimezoneValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.TimelessDateValueConverter;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -37,6 +44,7 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsRequest;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsResponse;
+import ru.intertrust.cm.core.gui.model.util.GuiDateUtil;
 
 /**
  * Created by lvov on 03.04.14.
@@ -48,21 +56,26 @@ public class CalendarPluginHandler extends ActivePluginHandler {
     @Autowired private ActionConfigBuilder actionConfigBuilder;
     @Autowired private ApplicationContext applicationContext;
     @Autowired private CollectionsService collectionsService;
+    @Autowired private FormatHandler formatHandler;
 
     private DateValueConverter dateValueConverter;
 
     @Override
     public CalendarPluginData initialize(Dto param) {
         final CalendarConfig pluginConfig = (CalendarConfig) param;
-        final Map<Date, List<CalendarItemData>> values = getValues(pluginConfig);
-
         final CalendarPluginData result = new CalendarPluginData();
         final Calendar calendar = GregorianCalendar.getInstance();
         result.setSelectedDate(calendar.getTime());
         calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) + 1);
-        result.setToDate(calendar.getTime());
+        final Date toDate = calendar.getTime();
+        GuiDateUtil.setStartOfDay(toDate);
+        result.setToDate(toDate);
         calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) - 2);
-        result.setFromDate(calendar.getTime());
+        final Date fromDate = calendar.getTime();
+        GuiDateUtil.setStartOfDay(fromDate);
+        result.setFromDate(fromDate);
+        final Map<Date, List<CalendarItemData>> values =
+                getValues(pluginConfig.getCalendarViewConfig(), fromDate, toDate);
         result.setValues(values);
         result.setToolbarContext(getToolbarContext(pluginConfig));
         return result;
@@ -71,39 +84,64 @@ public class CalendarPluginHandler extends ActivePluginHandler {
     public CalendarRowsResponse requestRows(Dto dto) {
         System.out.println("----------------------> CalendarHandler#requestRows");
         final CalendarRowsRequest request = (CalendarRowsRequest) dto;
-        final Map<Date, List<CalendarItemData>> values = getValues(request.getCalendarConfig());
+        final Map<Date, List<CalendarItemData>> values = getValues(
+                request.getCalendarConfig().getCalendarViewConfig(), request.getFromDate(), request.getToDate());
         return new CalendarRowsResponse(values);
     }
 
-    private Map<Date, List<CalendarItemData>> getValues(final CalendarConfig pluginConfig) {
-        final String collectionName = pluginConfig.getCalendarViewConfig().getCollectionRefConfig().getName();
-        final List<Filter> filters = new ArrayList<>();
-        final SortOrder sortOrder = null;
-        final Map<Date, List<CalendarItemData>> values = new HashMap<>();
+    private Map<Date, List<CalendarItemData>> getValues(final CalendarViewConfig viewConfig,
+                                                        final Date from, final Date to) {
+        final String collectionName = viewConfig.getCollectionRefConfig().getName();
+        final List<Filter> filters = getRangeFilters(viewConfig, from, to);
+        final SortOrder sortOrder = new SortOrder();
+        if (viewConfig.getSortCriteriaConfig() != null) {
+            for (SortCriterionConfig criterionConfig : viewConfig.getSortCriteriaConfig().getSortCriterionConfigs()) {
+                sortOrder.add(new SortCriterion(criterionConfig.getField(), criterionConfig.getOrder()));
+            }
+        }
         final IdentifiableObjectCollection identifiableObjects =
                 collectionsService.findCollection(collectionName, sortOrder, filters);
+        final Map<Date, List<CalendarItemData>> values = new HashMap<>();
         for (Iterator<IdentifiableObject> it = identifiableObjects.iterator(); it.hasNext();) {
             final IdentifiableObject identifiableObject = it.next();
             final Value dateValue =
-                    identifiableObject.getValue(pluginConfig.getCalendarViewConfig().getDateFieldPath().getValue());
-            final DateValueConverter converter = getDateValueConverter(dateValue);
+                    identifiableObject.getValue(viewConfig.getDateFieldPath().getValue());
+            final DateValueConverter converter = getDateValueConverter(dateValue.getFieldType());
             final Date date = converter.valueToDate(dateValue, GuiContext.get().getUserInfo().getTimeZoneId());
+            if (date == null) {
+                continue;
+            }
+            GuiDateUtil.setStartOfDay(date);
             List<CalendarItemData> valueList = values.get(date);
             if (valueList == null) {
                 valueList = new ArrayList<>();
                 values.put(date, valueList);
             }
-            boolean hasRenderer = pluginConfig.getCalendarViewConfig().getRendererConfig() != null
-                    && pluginConfig.getCalendarViewConfig().getRendererConfig().getValue() != null;
+            boolean hasRenderer = viewConfig.getRendererConfig() != null
+                    && viewConfig.getRendererConfig().getValue() != null;
             if (hasRenderer) {
                 final CalendarItemRenderer renderer = (CalendarItemRenderer) applicationContext.getBean(
-                        pluginConfig.getCalendarViewConfig().getRendererConfig().getValue());
-                valueList.add(renderer.renderItem(identifiableObject, pluginConfig.getCalendarViewConfig()));
+                        viewConfig.getRendererConfig().getValue());
+                valueList.add(renderer.renderItem(identifiableObject, viewConfig));
             } else {
-                final String pattern = pluginConfig.getCalendarViewConfig().getPattern().getValue();
-
-                // FIXME
-                final CalendarItemData itemData = new CalendarItemData(pattern);
+                final String valuePattern = viewConfig.getPattern().getValue();
+                Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
+                Matcher matcher = pattern.matcher(valuePattern);
+                final String itemPresentation = formatHandler.format(identifiableObject, matcher, null);
+                final CalendarItemData itemData = new CalendarItemData(itemPresentation);
+                final ImageFieldConfig imageFieldConfig = viewConfig.getImageFieldConfig();
+                if (imageFieldConfig != null) {
+                    final Value value = identifiableObject.getValue(imageFieldConfig.getName());
+                    final String imageKey = value == null || value.get() == null
+                            ? ""
+                            : value.get().toString();
+                    final String image = imageFieldConfig.getImageMappingsConfig().getImage(imageKey);
+                    if (image != null) {
+                        itemData.setImage(image)
+                                .setImageWidth(imageFieldConfig.getImageMappingsConfig().getImageWidth())
+                                .setImageHeight(imageFieldConfig.getImageMappingsConfig().getImageHeight());
+                    }
+                }
                 valueList.add(itemData);
             }
         }
@@ -134,16 +172,28 @@ public class CalendarPluginHandler extends ActivePluginHandler {
         return result;
     }
 
-    private DateValueConverter getDateValueConverter(Value dateValue) {
+    private DateValueConverter getDateValueConverter(FieldType fieldType) {
         if (dateValueConverter == null) {
-            if (dateValue instanceof TimelessDateValue) {
+            if (FieldType.TIMELESSDATE == fieldType) {
                 dateValueConverter = new TimelessDateValueConverter();
-            } else if (dateValue instanceof DateTimeWithTimeZoneValue) {
-                dateValueConverter = new DateTimeValueConverter();
+            } else if (FieldType.DATETIMEWITHTIMEZONE == fieldType) {
+                dateValueConverter = new DateTimeWithTimezoneValueConverter();
             } else {
                 dateValueConverter = new DateTimeValueConverter();
             }
         }
         return dateValueConverter;
+    }
+
+    private List<Filter> getRangeFilters(final CalendarViewConfig viewConfig, final Date from, final Date to) {
+        final List<Filter> result = new ArrayList<>();
+        final FieldType fieldType = FieldType.forTypeName(viewConfig.getDateFieldFilterConfig().getType());
+        final DateValueConverter converter = getDateValueConverter(fieldType);
+        final String timeZoneRaw = GuiContext.get().getUserInfo().getTimeZoneId();
+        final Filter rangeFilter = new Filter();
+        rangeFilter.addCriterion(0, converter.dateToValue(from, timeZoneRaw));
+        rangeFilter.addCriterion(1, converter.dateToValue(to, timeZoneRaw));
+        result.add(rangeFilter);
+        return result;
     }
 }

@@ -3,11 +3,15 @@ package ru.intertrust.cm.core.config.gui.collection.view;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.core.Commit;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -21,8 +25,17 @@ public class ImageMappingsConfig implements Dto {
     @Attribute(name = "imageHeight", required = true)
     private String imageHeight;
     @ElementList(entry="mapping", type=MappingConfig.class, inline=true)
-    List<MappingConfig> mappingConfigs = new ArrayList<MappingConfig>();
+    private List<MappingConfig> mappingConfigs = new ArrayList<MappingConfig>();
 
+    private Map<String, String> imageMap;
+
+    @Commit
+    public void commit() {
+        imageMap = new HashMap<>();
+        for (MappingConfig mappingConfig : mappingConfigs) {
+            imageMap.put(mappingConfig.getValue(), mappingConfig.getImage());
+        }
+    }
 
     public String getImageWidth() {
         return imageWidth == null ? ModelConstants.COLLECTION_IMAGE_WIDTH : imageWidth;
@@ -46,6 +59,10 @@ public class ImageMappingsConfig implements Dto {
 
     public void setMappingConfigs(List<MappingConfig> mappingConfigs) {
         this.mappingConfigs = mappingConfigs;
+    }
+
+    public String getImage(final String value) {
+        return imageMap.get(value);
     }
 
     @Override

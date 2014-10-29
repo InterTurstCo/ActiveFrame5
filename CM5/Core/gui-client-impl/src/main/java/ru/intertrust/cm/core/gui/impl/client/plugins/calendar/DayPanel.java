@@ -99,7 +99,7 @@ public class DayPanel extends FlowPanel implements RequiresResize {
             final Label label = new Label(date.getDate() + " " + GuiUtil.MONTHS[date.getMonth()]);
             label.setStyleName("calendar-block-date");
             add(label);
-//            add(getTasksPanel());
+            add(getTasksPanel());
         }
 
         private void addStyle() {

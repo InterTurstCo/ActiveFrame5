@@ -13,7 +13,14 @@ public class DateFieldFilterConfig implements Dto {
     @Attribute(name = "name")
     private String name;
 
+    @Attribute(name = "type")
+    private String type;
+
     public String getName() {
         return name;
+    }
+
+    public String getType() {
+        return type;
     }
 }

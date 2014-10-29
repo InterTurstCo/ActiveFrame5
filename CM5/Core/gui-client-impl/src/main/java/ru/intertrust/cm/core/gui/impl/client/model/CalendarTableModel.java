@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.plugins.calendar.CalendarPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsRequest;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsResponse;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -35,7 +36,13 @@ public class CalendarTableModel {
 
     public CalendarTableModel(final CalendarPlugin owner) {
         this.owner = owner;
-        selectedDate = new Date();
+        final CalendarPluginData initialData = owner.getInitialData();
+        valuesFrom = initialData.getFromDate();
+        valuesTo = initialData.getToDate();
+        values = initialData.getValues();
+        selectedDate = initialData.getSelectedDate();
+        CalendarUtil.resetTime(valuesFrom);
+        CalendarUtil.resetTime(valuesTo);
         CalendarUtil.resetTime(selectedDate);
     }
 

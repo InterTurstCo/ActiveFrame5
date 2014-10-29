@@ -8,11 +8,11 @@
             <child-links>
                 <link name="Calendar1" display-text="Календар 1">
                     <plugin>
-                        <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                        <calendar  show-detail-panel="true" show-weekend="true" start-mode="week">
                             <calendar-view>
                                 <collection-ref name="Countries"/>
-                                <date-field-path value="created_date"/>
-                                <date-field-filter name="byCreate"/>
+                                <date-field-path value="independence_day"/>
+                                <date-field-filter name="byIndependenceDay" type="datetime"/>
                                 <pattern value="{population} {name}"/>
                                 <sort-criteria>
                                     <sort-criterion field="population" order="asc"/>

@@ -174,7 +174,7 @@ public class MonthPanel extends FlowPanel implements RequiresResize, CalendarScr
             final Label label = new Label(date.getDate() + "");
             label.setStyleName("calendar-block-date");
             add(label);
-//            add(getTasksPanel());
+            add(getTasksPanel());
         }
 
         private void addStyle() {
