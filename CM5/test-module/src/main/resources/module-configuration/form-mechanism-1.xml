@@ -47,7 +47,7 @@
 
     <domain-object-type name="e1">
         <fields>
-            <reference name="a1" type="a1"/>
+            <reference name="a1" type="a1" not-null="true"/>
             <string name="name1" length="128" not-null="true"/>
             <string name="name2" length="128"/>
             <string name="string_field" length="128"/>

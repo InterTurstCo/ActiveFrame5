@@ -12,4 +12,5 @@ public interface CanBeValidated {
     Collection<Validator> getValidators();
     void showErrors(ValidationResult errors);
     void clearErrors();
+    boolean isEditable();
 }

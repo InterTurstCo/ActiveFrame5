@@ -14,6 +14,9 @@ public abstract class AbstractValidator implements Validator {
     @Override
     public ValidationResult validate(CanBeValidated canBeValidated, Object info) {
         ValidationResult validationResult = new ValidationResult();
+        if (!canBeValidated.isEditable()) {
+            return validationResult;
+        }
         if (canBeValidated != null && canBeValidated.getValue() != null) {
             doValidation(canBeValidated, validationResult);
         }

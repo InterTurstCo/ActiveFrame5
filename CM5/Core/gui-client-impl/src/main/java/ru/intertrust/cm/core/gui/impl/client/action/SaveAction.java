@@ -77,7 +77,9 @@ public class SaveAction extends SimpleServerAction {
             FormPanel panel = (FormPanel) view.getViewWidget();
             ValidationResult validationResult = new ValidationResult();
             for (BaseWidget widget : panel.getWidgets()) {
-                validationResult.append(widget.validate());
+                if (widget.isEditable()) {
+                    validationResult.append(widget.validate());
+                }
             }
             if (validationResult.hasErrors()) {
                 ApplicationWindow.errorAlert(BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE);

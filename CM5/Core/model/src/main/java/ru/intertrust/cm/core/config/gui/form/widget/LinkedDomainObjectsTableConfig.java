@@ -4,6 +4,8 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 
@@ -24,6 +26,12 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
 
     @Element(name = "linked-form")
     private LinkedFormConfig linkedFormConfig;
+
+    @Element(name = "linked-form-mapping",required = false)
+    private LinkedFormMappingConfig linkedFormMappingConfig;
+
+    @Element(name = "created-objects",required = false)
+    private CreatedObjectsConfig createdObjectsConfig;
 
     @Element(name = "pattern", required = false)
     private PatternConfig patternConfig;
@@ -122,6 +130,22 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
         this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
     }
 
+    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
+        return linkedFormMappingConfig;
+    }
+
+    public void setLinkedFormMappingConfig(LinkedFormMappingConfig linkedFormMappingConfig) {
+        this.linkedFormMappingConfig = linkedFormMappingConfig;
+    }
+
+    public CreatedObjectsConfig getCreatedObjectsConfig() {
+        return createdObjectsConfig;
+    }
+
+    public void setCreatedObjectsConfig(CreatedObjectsConfig createdObjectsConfig) {
+        this.createdObjectsConfig = createdObjectsConfig;
+    }
+
     @Override
     public String getComponentName() {
         return "linked-domain-objects-table";  //To change body of implemented methods use File | Settings | File Templates.
@@ -129,51 +153,34 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
         LinkedDomainObjectsTableConfig that = (LinkedDomainObjectsTableConfig) o;
 
-        if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
+        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.collectionRefConfig) : that.collectionRefConfig != null)
             return false;
-        }
-        if (modalHeight != null ? !modalHeight.equals(that.modalHeight) : that.modalHeight != null) {
+        if (createdObjectsConfig != null ? !createdObjectsConfig.equals(that.createdObjectsConfig) : that.createdObjectsConfig != null)
             return false;
-        }
-        if (modalWidth != null ? !modalWidth.equals(that.modalWidth) : that.modalWidth != null) {
+        if (deleteLinkedObjects != null ? !deleteLinkedObjects.equals(that.deleteLinkedObjects) : that.deleteLinkedObjects != null)
             return false;
-        }
-        if (patternConfig != null ? !patternConfig.equals(that.patternConfig) : that.patternConfig != null) {
+        if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null)
             return false;
-        }
-        if (singleChoiceConfig != null ? !singleChoiceConfig.equals(that.singleChoiceConfig) : that.
-                singleChoiceConfig != null)  {
+        if (linkedFormMappingConfig != null ? !linkedFormMappingConfig.equals(that.linkedFormMappingConfig) : that.linkedFormMappingConfig != null)
             return false;
-        }
-        if (summaryTableConfig != null ? !summaryTableConfig.equals(that.summaryTableConfig) : that.
-                summaryTableConfig != null)  {
+        if (modalHeight != null ? !modalHeight.equals(that.modalHeight) : that.modalHeight != null) return false;
+        if (modalWidth != null ? !modalWidth.equals(that.modalWidth) : that.modalWidth != null) return false;
+        if (patternConfig != null ? !patternConfig.equals(that.patternConfig) : that.patternConfig != null)
             return false;
-        }
-        if (deleteLinkedObjects != null ? !deleteLinkedObjects.equals(that.deleteLinkedObjects) : that.deleteLinkedObjects != null) {
+        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) : that.selectionFiltersConfig != null)
             return false;
-        }
-        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) :
-                that.selectionFiltersConfig != null) {
+        if (selectionSortCriteriaConfig != null ? !selectionSortCriteriaConfig.equals(that.selectionSortCriteriaConfig) : that.selectionSortCriteriaConfig != null)
             return false;
-        }
-        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.collectionRefConfig) :
-                that.collectionRefConfig != null) {
+        if (singleChoiceConfig != null ? !singleChoiceConfig.equals(that.singleChoiceConfig) : that.singleChoiceConfig != null)
             return false;
-        }
-        if (selectionSortCriteriaConfig != null ? !selectionSortCriteriaConfig.equals(that.selectionSortCriteriaConfig) :
-                that.selectionSortCriteriaConfig != null) {
+        if (summaryTableConfig != null ? !summaryTableConfig.equals(that.summaryTableConfig) : that.summaryTableConfig != null)
             return false;
-        }
 
         return true;
     }
@@ -185,6 +192,8 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
         result = 31 * result + (modalHeight != null ? modalHeight.hashCode() : 0);
         result = 31 * result + (deleteLinkedObjects != null ? deleteLinkedObjects.hashCode() : 0);
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
+        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
+        result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 0);
         result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
         result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
         result = 31 * result + (singleChoiceConfig != null ? singleChoiceConfig.hashCode() : 0);

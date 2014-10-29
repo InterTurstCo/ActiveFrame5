@@ -9,6 +9,8 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -42,6 +44,7 @@ public class LinkedFormDialogBoxBuilder {
     private String width = "1000px";
     private DialogBox dialogBox;
     private PopupTitlesHolder popupTitlesHolder;
+    private LinkedFormMappingConfig linkedFormMappingConfig;
 
     public FormPlugin getFormPlugin() {
         return formPlugin;
@@ -96,9 +99,9 @@ public class LinkedFormDialogBoxBuilder {
     public LinkedFormDialogBoxBuilder buildDialogBox() {
         final FormPluginConfig linkedFormPluginConfig;
         if (id != null) {
-            linkedFormPluginConfig = createLinkedFormPluginConfig(id);
+            linkedFormPluginConfig = createLinkedFormPluginConfig(id, linkedFormMappingConfig);
         } else if (this.objectTypeName != null) {
-            linkedFormPluginConfig = createLinkedFormPluginConfig(this.objectTypeName);
+            linkedFormPluginConfig = createLinkedFormPluginConfig(this.objectTypeName, linkedFormMappingConfig);
         } else {
             throw new IllegalArgumentException("Id or objectTypeName should be set");
         }
@@ -113,7 +116,7 @@ public class LinkedFormDialogBoxBuilder {
                     formPlugin.setFormState(formState);
 
                 }
-               setTitle(id);
+                setTitle(id);
             }
         });
 
@@ -121,13 +124,14 @@ public class LinkedFormDialogBoxBuilder {
         return this;
     }
 
-    private void setTitle(Id id){
-        String title = popupTitlesHolder == null ?(GuiUtil.getConfiguredTitle(formPlugin,id == null))
+    private void setTitle(Id id) {
+        String title = popupTitlesHolder == null ? (GuiUtil.getConfiguredTitle(formPlugin, id == null))
                 : getTitleFromHolder(id);
         dialogBox.getCaption().setText(title);
     }
-    private String getTitleFromHolder(Id id){
-        return  id == null ? popupTitlesHolder.getTitleNewObject() : popupTitlesHolder.getTitleExistingObject();
+
+    private String getTitleFromHolder(Id id) {
+        return id == null ? popupTitlesHolder.getTitleNewObject() : popupTitlesHolder.getTitleExistingObject();
     }
 
     private void refreshEditableState() {
@@ -201,17 +205,26 @@ public class LinkedFormDialogBoxBuilder {
 
     }
 
-
-    private FormPluginConfig createLinkedFormPluginConfig(Id domainObjectId) {
+    private FormPluginConfig createLinkedFormPluginConfig(Id domainObjectId, LinkedFormMappingConfig linkedFormMappingConfig) {
         FormPluginConfig config;
         config = new FormPluginConfig(domainObjectId);
+        addLinkedFormViewer(linkedFormMappingConfig, config);
         addPluginStateToConfig(config);
         return config;
     }
 
-    private FormPluginConfig createLinkedFormPluginConfig(String objectTypeName) {
+    private void addLinkedFormViewer(LinkedFormMappingConfig linkedFormMappingConfig, FormPluginConfig config) {
+        if (linkedFormMappingConfig != null) {
+            LinkedFormViewerConfig linkedFormViewerConfig = new LinkedFormViewerConfig();
+            linkedFormViewerConfig.setLinkedFormConfig(linkedFormMappingConfig.getLinkedFormConfigs());
+            config.setFormViewerConfig(linkedFormViewerConfig);
+        }
+    }
+
+    private FormPluginConfig createLinkedFormPluginConfig(String objectTypeName, LinkedFormMappingConfig linkedFormMappingConfig) {
         FormPluginConfig config;
         config = new FormPluginConfig(objectTypeName);
+        addLinkedFormViewer(linkedFormMappingConfig, config);
         addPluginStateToConfig(config);
         return config;
     }
@@ -239,5 +252,10 @@ public class LinkedFormDialogBoxBuilder {
             }
         }
         return true;
+    }
+
+    public LinkedFormDialogBoxBuilder withLinkedFormMapping(LinkedFormMappingConfig linkedFormMappingConfig) {
+        this.linkedFormMappingConfig = linkedFormMappingConfig;
+        return this;
     }
 }
