@@ -89,7 +89,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         Integer limit = WidgetUtil.getLimit(selectionFiltersConfig);
         SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(widgetConfig.getSelectionSortCriteriaConfig());
         IdentifiableObjectCollection collection = null;
-        if (limit == - 1) {
+        if (limit == -1) {
             collection = collectionsService.findCollection(collectionName, sortOrder, filters);
 
         } else {
@@ -137,36 +137,45 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         FieldPath fieldPath = new FieldPath(linkedDomainObjectsTableConfig.getFieldPathConfig().getValue());
         ArrayList<DomainObject> newObjects = new ArrayList<>(entries.size());
         for (Map.Entry<String, FormState> entry : entries) {
+
             FormState formState = entry.getValue();
-            DomainObject savedObject;
+            DomainObject savedObject = null;
 
             List<String> validationResult = PluginHandlerHelper.doServerSideValidation(formState, applicationContext);
             if (!validationResult.isEmpty()) {
                 throw new ValidationException("Server-side validation failed", validationResult);
             }
-
-            if (fieldPath.isOneToManyReference()) {
-                final HashMap<FieldPath, Value> rootObjectValues = new HashMap<>();
-                rootObjectValues.put(new FieldPath(fieldPath.getLinkToParentName()), new ReferenceValue(rootDomainObject.getId()));
-                FormSaver formSaver = getFormSaver(formState, rootObjectValues);
-                savedObject = formSaver.saveForm();
-            } else if (fieldPath.isManyToManyReference()) {
-                FormSaver formSaver = getFormSaver(formState, null);
-                savedObject = formSaver.saveForm();
-                String referenceType = fieldPath.getReferenceType();
-                DomainObject referencedObject = crudService.createDomainObject(referenceType);
-                referencedObject.setReference(fieldPath.getLinkToChildrenName(), savedObject);
-                referencedObject.setReference(fieldPath.getLinkToParentName(), rootDomainObject);
-                crudService.save(referencedObject);
-            } else { // one-to-one reference
-                // todo: not-null constraint will fail!
-                FormSaver formSaver = getFormSaver(formState, null);
-                savedObject = formSaver.saveForm();
-                rootDomainObject.setReference(fieldPath.getFieldName(), savedObject);
-                crudService.save(rootDomainObject);
+            FieldPath[] paths = FieldPath.createPaths(fieldPath.getPath());
+            for (FieldPath path : paths) {
+                String rootDomainObjectType = formState.getRootDomainObjectType();
+                if (path.isOneToManyReference()) {
+                    if(path.getLinkedObjectType().equalsIgnoreCase(rootDomainObjectType)) {
+                        final HashMap<FieldPath, Value> rootObjectValues = new HashMap<>();
+                        rootObjectValues.put(new FieldPath(path.getLinkToParentName()), new ReferenceValue(rootDomainObject.getId()));
+                        FormSaver formSaver = getFormSaver(formState, rootObjectValues);
+                        savedObject = formSaver.saveForm();
+                    }
+                } else if (path.isManyToManyReference()) {
+                    if(path.getLinkToChildrenName().equalsIgnoreCase(rootDomainObjectType)) {
+                        FormSaver formSaver = getFormSaver(formState, null);
+                        savedObject = formSaver.saveForm();
+                        String referenceType = path.getReferenceType();
+                        DomainObject referencedObject = crudService.createDomainObject(referenceType);
+                        referencedObject.setReference(path.getLinkToChildrenName(), savedObject);
+                        referencedObject.setReference(path.getLinkToParentName(), rootDomainObject);
+                        crudService.save(referencedObject);
+                    }
+                } else { // one-to-one reference
+                    // todo: not-null constraint will fail!
+                    FormSaver formSaver = getFormSaver(formState, null);
+                    savedObject = formSaver.saveForm();
+                    rootDomainObject.setReference(path.getFieldName(), savedObject);
+                    crudService.save(rootDomainObject);
+                }
+                if(savedObject != null) {
+                    newObjects.add(savedObject);
+                }
             }
-
-            newObjects.add(savedObject);
         }
         return newObjects;
     }

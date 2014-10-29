@@ -8,16 +8,15 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.IWidgetStateFilter;
@@ -27,6 +26,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.linkedtable.LinkedTableRowDel
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
+import ru.intertrust.cm.core.gui.impl.client.panel.SettingsPopup;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -49,6 +49,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     private Button tooltipButton;
     private LinkedDomainObjectsTableTooltip tooltip;
     private EventBus localEventBus = new SimpleEventBus();
+    private Button addButton;
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -74,6 +75,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
         model.addDataDisplay(table);
         drawTooltipButtonIfRequired();
+        if(addButton != null) {
+            addHandlersToAddButton(addButton);
+        }
     }
 
     @Override
@@ -86,7 +90,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         VerticalPanel hp = new VerticalPanel();
-        Button addButton = createAddButton();
+        addButton = createAddButton();
         addButton.removeStyleName("gwt-Button");
         addButton.addStyleName("lightButton ldotCreate");
         hp.add(addButton);
@@ -107,35 +111,87 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
     private Button createAddButton() {
         Button button = new Button(""); // была прописана клавиша - Добавить
-        button.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                if (currentState.isSingleChoice() && model.getList().size() >= 1) {
-                    final StyledDialogBox rewriteAlertDialog =
-                            new StyledDialogBox("Текущий обьект будет перезаписан\n Продолжить?");
-                    rewriteAlertDialog.addOkButtonClickHandler(new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            rewriteAlertDialog.hide();
-                            showNewForm();
-                        }
-                    });
-                    rewriteAlertDialog.addCancelButtonClickHandler(new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            rewriteAlertDialog.hide();
-                        }
-                    });
-                    rewriteAlertDialog.center();
-                } else {
-                    showNewForm();
-                }
-            }
-        });
         return button;
     }
 
-    private void showNewForm() {
+    private void addHandlersToAddButton(Button button) {
+        final CreatedObjectsConfig createdObjectsConfig = currentState.getLinkedDomainObjectsTableConfig().getCreatedObjectsConfig();
+        if (createdObjectsConfig != null && !createdObjectsConfig.getCreateObjectConfigs().isEmpty()) {
+          button.addClickHandler(new ClickHandler() {
+              @Override
+              public void onClick(ClickEvent event) {
+                    SelectDomainObjectTypePopup selectDomainObjectTypePopup = new SelectDomainObjectTypePopup(createdObjectsConfig);
+                    selectDomainObjectTypePopup.show();
+              }
+          });
+        }
+        else {
+            button.addClickHandler(new OpenFormClickHandler(currentState.getObjectTypeName(), null));
+        }
+    }
+
+    class OpenFormClickHandler implements ClickHandler {
+        private String domainObjectType;
+        private PopupPanel sourcePopup;
+
+        OpenFormClickHandler(String domainObjectType, PopupPanel sourcePopup) {
+            this.domainObjectType = domainObjectType;
+            this.sourcePopup = sourcePopup;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+            if (currentState.isSingleChoice() && model.getList().size() >= 1) {
+                final StyledDialogBox rewriteAlertDialog =
+                        new StyledDialogBox("Текущий обьект будет перезаписан\n Продолжить?");
+                rewriteAlertDialog.addOkButtonClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        rewriteAlertDialog.hide();
+                        showNewForm(domainObjectType);
+                    }
+                });
+                rewriteAlertDialog.addCancelButtonClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        rewriteAlertDialog.hide();
+                    }
+                });
+                rewriteAlertDialog.center();
+            } else {
+                showNewForm(domainObjectType);
+            }
+           if(sourcePopup != null) {
+               sourcePopup.hide();
+           }
+        }
+    }
+
+    class SelectDomainObjectTypePopup extends PopupPanel {
+        SelectDomainObjectTypePopup(CreatedObjectsConfig createdObjectsConfig) {
+            super(true, false);
+            this.setPopupPosition(addButton.getAbsoluteLeft() - 48 ,addButton.getAbsoluteTop() +  40);
+            AbsolutePanel header = new AbsolutePanel();
+            header.setStyleName("srch-corner");
+            final VerticalPanel body = new VerticalPanel();
+            AbsolutePanel container = new AbsolutePanel();
+            container.setStyleName("settings-popup");
+            container.getElement().getStyle().clearOverflow();
+
+            for (CreatedObjectConfig createdObjectConfig : createdObjectsConfig.getCreateObjectConfigs()) {
+                final AbsolutePanel menuItemContainer = new AbsolutePanel();
+                menuItemContainer.setStyleName("settings-item");
+                menuItemContainer.add(new Label(createdObjectConfig.getText()));
+                menuItemContainer.addDomHandler(new OpenFormClickHandler(createdObjectConfig.getDomainObjectType(), this), ClickEvent.getType());
+                body.add(menuItemContainer);
+            }
+            container.add(header);
+            container.add(body);
+            this.add(container);
+        }
+    }
+
+    private void showNewForm(String domainObjectType) {
         LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
         DialogBoxAction saveAction = new DialogBoxAction() {
             @Override
@@ -166,8 +222,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 .setCancelAction(cancelAction)
                 .withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
                 .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
-                .withObjectType(currentState.getObjectTypeName())
+                .withObjectType(domainObjectType)
+                .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                 .withPopupTitlesHolder(currentState.getPopupTitlesHolder()).buildDialogBox();
+
         lfb.display();
 
     }
@@ -458,6 +516,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             String pooledFormStateKey = object.getParameter(STATE_KEY);
             FormState pooledEditedFormState = null;
             Id id = object.getObjectId();
+
             if (id != null) {
                 pooledEditedFormState = currentState.getFromEditedStates(id.toStringRepresentation());
             } else if (pooledFormStateKey != null) {
@@ -468,11 +527,12 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 lfb = new LinkedFormDialogBoxBuilder()
                         .setSaveAction(saveAction)
                         .setCancelAction(cancelAction)
-                        .withObjectType(currentState.getObjectTypeName())
+                        .withObjectType(pooledEditedFormState.getRootDomainObjectType())
                         .withFormState(pooledEditedFormState).
                                 withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
                         .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
                         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
+                        .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                         .buildDialogBox();
 
             } else {
@@ -483,6 +543,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
                         .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
                         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
+                        .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                         .buildDialogBox();
             }
             lfb.display();

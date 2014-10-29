@@ -235,6 +235,19 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="LinkedObjectsTableDemo">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="l_linkedtable"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -275,6 +288,38 @@
                 <field-path/>
                 <text>Приоритет:</text>
             </label>
+            <linked-domain-objects-table id="l_linkedtable">
+                <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                <linked-form name="organization_form" inline="true"/>
+                <linked-form-mapping>
+                    <linked-form name="organization_form" domain-object-type="Organization"/>
+                    <linked-form name="department_form" domain-object-type="Department"/>
+                    <linked-form name="employee_form" domain-object-type="Employee"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="Организация" domain-object-type="Organization"/>
+                    <created-object text="Отдел" domain-object-type="Department"/>
+                    <created-object text="Сотрудник" domain-object-type="Employee"/>
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Название" widget-id="Name">
+                        <pattern value="{name}"/> <!-- пути задаются относительно базового field-path (correspondent) -->
+                        <!--<formatting>
+                            <number-format pattern="###.####">
+                                <field-paths> &lt;!&ndash; описание путей к полям, к которым применяется форматирование &ndash;&gt;
+                                    <field-path value="age"/>
+                                    <field-path value="age"/>
+                                </field-paths>
+                            </number-format>
+                            <date-format pattern="dd-mm-yyyy" style="short">
+                                <field-paths>
+                                    <field-path value="date_of_birth"/>
+                                </field-paths>
+                            </date-format>
+                        </formatting>-->
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
 
             <suggest-box id="l_suggestbox">
                 <field-path
