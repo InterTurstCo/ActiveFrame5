@@ -164,7 +164,6 @@ public abstract class PluginView implements IsWidget {
             updateActionToolBar();
             if (actionToolBar.getWidgetCount() > 0) {
                 panel.add(actionToolBar);
-                actionToolBar.getElement().getParentElement().getParentElement().addClassName("action-bar-tr");
             }
         }
         panel.add(getViewWidget());

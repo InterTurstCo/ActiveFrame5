@@ -374,8 +374,6 @@
     position: absolute !important;
     top: 65px;
     left: 50%;
-    margin-left: -55px;
-    width: 110px;
     height: 31px;
     opacity: 0.15;
     background: black;
@@ -415,7 +413,6 @@
 
 .month-block {
     height: 18px;
-    width: 124px;
     padding-top: 9px;
     text-align: center;
     color: #ffffff;

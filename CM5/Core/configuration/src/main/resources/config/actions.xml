@@ -31,6 +31,21 @@
     <act:action name="aSaveCsv" componentName="save-csv.action" order="500" dirtySensitivity="false"
                 immediate="true" text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
 
+    <act:tool-bar plugin="calendar.plugin">
+        <act:action-ref name-ref="aRefresh"/>
+        <act:action-separator order="50"/>
+        <act:action name="aWeek" componentName="calendar.week.mode" rendered="mode=='month'" dirtySensitivity="false"
+                    immediate="true" text="Неделя" order="100"/>
+        <act:action name="aMonth" componentName="calendar.month.mode" rendered="mode=='week'" dirtySensitivity="false"
+                    immediate="true" text="Месяц" order="100"/>
+        <act:action name="aPreviousWeek" componentName="calendar.previous.week" rendered="mode=='week'"
+                    dirtySensitivity="false" immediate="true" text="&lt; Предыдущая неделя" order="150"/>
+        <act:action name="aNextWeek" componentName="calendar.next.week" rendered="mode=='week'" dirtySensitivity="false"
+                    immediate="true" text="Сдедующая неделя &gt;" order="200"/>
+        <act:action name="aToday" componentName="calendar.select.today" dirtySensitivity="false" immediate="true"
+                    text="Сегодня" order="250" rendered="mode=='week'" />
+    </act:tool-bar>
+
     <act:tool-bar plugin="collection.plugin">
         <act:action-ref name-ref="aRefresh"/>
         <act:action-separator order="50"/>

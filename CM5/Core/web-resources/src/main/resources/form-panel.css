@@ -271,10 +271,6 @@
 }
 
 /* Action Bar */
-.action-bar-tr {
-    height: 40px;
-}
-
 .action-bar {
     background: #ffffff;
     background: -moz-linear-gradient(top, #ffffff 0%, #eaeef1 100%);

@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.gui.model.DateTimeContext;
-
 import java.text.DateFormat;
+import java.util.Date;
+
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -13,4 +15,8 @@ public interface DateValueConverter<T> {
     DateTimeContext valueToContext(T value, String timeZoneId, DateFormat dateFormat);
 
     T contextToValue(DateTimeContext dateTimeContext);
+
+    Date valueToDate(T value, String timeZoneId);
+
+    Value dateToValue(Date date, String timeZoneId);
 }
