@@ -263,7 +263,7 @@
                 <field-path/>
                 <text>E1 (1:N):</text>
             </label>
-            <suggest-box id="e1_1:N" read-only="true">
+            <suggest-box id="e1_1:N">
                 <field-path value="e1^a1">
                     <!--<on-link>
                         <update>
