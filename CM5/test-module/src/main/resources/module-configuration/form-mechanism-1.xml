@@ -47,7 +47,7 @@
 
     <domain-object-type name="e1">
         <fields>
-            <reference name="a1" type="a1"/>
+            <reference name="a1" type="a1" not-null="true"/>
             <string name="name1" length="128" not-null="true"/>
             <string name="name2" length="128"/>
             <string name="string_field" length="128"/>
@@ -263,7 +263,7 @@
                 <field-path/>
                 <text>E1 (1:N):</text>
             </label>
-            <suggest-box id="e1_1:N">
+            <suggest-box id="e1_1:N" read-only="true">
                 <field-path value="e1^a1">
                     <!--<on-link>
                         <update>

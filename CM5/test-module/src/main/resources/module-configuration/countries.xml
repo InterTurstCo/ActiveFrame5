@@ -501,7 +501,7 @@
             <label id="cities_label">
                 <text>Города:</text>
             </label>
-            <suggest-box id="cities">
+            <suggest-box id="cities" read-only="true">
                 <field-path value="city^country"/>
 
                 <collection-ref name="Cities"/>
