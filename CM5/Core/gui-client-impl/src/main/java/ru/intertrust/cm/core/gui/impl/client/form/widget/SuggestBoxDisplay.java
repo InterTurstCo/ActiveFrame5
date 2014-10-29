@@ -55,4 +55,7 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
         return p;
 
     }
+    public boolean isNotShown(){
+        return !getSuggestionPopup().isShowing();
+    }
 }
