@@ -14,6 +14,12 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarNextWeekEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarNextWeekEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarPreviousWeekEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarPreviousWeekEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
@@ -23,13 +29,15 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
  * @author Sergey.Okolot
  *         Created on 17.10.2014 14:17.
  */
-public class DayPanel extends FlowPanel implements RequiresResize {
+public class DayPanel extends FlowPanel implements RequiresResize, CalendarNextWeekEventHandler,
+        CalendarPreviousWeekEventHandler, CalendarTodayEventHandler {
 
     private final CalendarTableModel tableModel;
     private final EventBus localEventBus;
     private final CalendarConfig calendarConfig;
     private boolean weekendPanelExpanded;
     private Date currentDate = new Date();
+    private Date beginWeekDate;
 
     public DayPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
         this.tableModel = tableModel;
@@ -37,19 +45,45 @@ public class DayPanel extends FlowPanel implements RequiresResize {
         this.calendarConfig = config;
         weekendPanelExpanded = config.isShowWeekend();
         setStyleName("calendar-scroll-panel");
+        this.localEventBus.addHandler(CalendarTodayEvent.TYPE, this);
+        this.localEventBus.addHandler(CalendarPreviousWeekEvent.TYPE, this);
+        this.localEventBus.addHandler(CalendarNextWeekEvent.TYPE, this);
     }
 
     @Override
     public void onResize() {
+        buildPresentation();
+    }
 
+    @Override
+    public void goToNextWeek() {
+        CalendarUtil.addDaysToDate(beginWeekDate, 7);
+        buildPresentation();
+    }
+
+    @Override
+    public void goToPreviousWeek() {
+        CalendarUtil.addDaysToDate(beginWeekDate, -7);
+        buildPresentation();
+    }
+
+    @Override
+    public void goToToday() {
+        beginWeekDate = CalendarUtil.copyDate(tableModel.getSelectedDate());
+        final int dayToMonday = beginWeekDate.getDay() - 1;
+        CalendarUtil.addDaysToDate(beginWeekDate, - dayToMonday);
+        buildPresentation();
     }
 
     @Override
     protected void onLoad() {
         super.onLoad();
-        final Date cursorDate = CalendarUtil.copyDate(tableModel.getSelectedDate());
-        final int dayToMonday = cursorDate.getDay() - 1;
-        CalendarUtil.addDaysToDate(cursorDate, - dayToMonday);
+        goToToday();
+    }
+
+    private void buildPresentation() {
+        clear();
+        final Date cursorDate = CalendarUtil.copyDate(beginWeekDate);
         final int dayCount = weekendPanelExpanded ? 6 : 5;
         final int height = getOffsetHeight();
         final int width = getOffsetWidth() / dayCount;
@@ -66,9 +100,11 @@ public class DayPanel extends FlowPanel implements RequiresResize {
     private class WeekendItem extends FlowPanel {
 
         private WeekendItem(final Date startDate, int width, final int height) {
-            getElement().getStyle().setFloat(Style.Float.LEFT);
-            final int childrenHeight = height / 2;
             width -= 2;
+            getElement().getStyle().setFloat(Style.Float.LEFT);
+            getElement().getStyle().setWidth(width - 2, Style.Unit.PX);
+            getElement().getStyle().setHeight(height - 1, Style.Unit.PX);
+            final int childrenHeight = height / 2;
             DateItem item = new DateItem(startDate, width, childrenHeight);
             add(item);
             CalendarUtil.addDaysToDate(startDate, 1);
@@ -78,7 +114,6 @@ public class DayPanel extends FlowPanel implements RequiresResize {
     }
 
     private class DateItem extends FlowPanel {
-
         private final Date date;
 
         private DateItem(final Date date, int width, int height) {
@@ -131,8 +166,7 @@ public class DayPanel extends FlowPanel implements RequiresResize {
 
         @Override
         public void fillValues(List<CalendarItemData> values) {
-            if (values != null) {
-                System.out.println("--------------> container: " + container);
+            if (values != null && !values.isEmpty()) {
                 for (CalendarItemData calendarItemData : values) {
                     if (calendarItemData.getImage() != null) {
                         final HorizontalPanel wrapper = new HorizontalPanel();

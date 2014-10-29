@@ -13,7 +13,6 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -35,13 +34,13 @@ public class CalendarPluginView extends PluginView {
      *
      * @param plugin плагин, являющийся по сути, контроллером (или представителем) в паттерне MVC
      */
-    protected CalendarPluginView(Plugin plugin) {
+    protected CalendarPluginView(final Plugin plugin, final EventBus localEventBus) {
         super(plugin);
-        localEventBus = new SimpleEventBus();
+        this.localEventBus = localEventBus;
         final CalendarPluginData initialData = plugin.getInitialData();
-        tableModel = new CalendarTableModel((CalendarPlugin) plugin);
+        this.tableModel = new CalendarTableModel((CalendarPlugin) plugin);
         final Date selectedDate = initialData.getSelectedDate();
-        tableModel.setSelectedDate(selectedDate);
+        this.tableModel.setSelectedDate(selectedDate);
     }
 
     @Override

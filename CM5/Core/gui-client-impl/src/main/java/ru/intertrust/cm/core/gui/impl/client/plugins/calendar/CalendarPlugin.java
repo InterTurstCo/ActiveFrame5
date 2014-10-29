@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
+
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -14,9 +17,11 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 @ComponentName(CalendarConfig.COMPONENT_NAME)
 public class CalendarPlugin extends Plugin implements IsActive {
 
+    private EventBus localEventBus = new SimpleEventBus();
+
     @Override
     public PluginView createView() {
-        return new CalendarPluginView(this);
+        return new CalendarPluginView(this, localEventBus);
     }
 
     @Override
@@ -32,5 +37,9 @@ public class CalendarPlugin extends Plugin implements IsActive {
     @Override
     public void setPluginState(PluginState pluginState) {
 
+    }
+
+    public EventBus getLocalEventBus() {
+        return localEventBus;
     }
 }
