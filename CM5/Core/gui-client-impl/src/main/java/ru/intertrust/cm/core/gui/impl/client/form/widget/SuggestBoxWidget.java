@@ -30,6 +30,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClic
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.LinkCreatorWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.suggestbox.SuggestTextBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipButtonClickHandler;
@@ -199,9 +200,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         localEventBus.addHandler(WidgetItemRemoveEvent.TYPE, this);
         final SuggestPresenter presenter = new SuggestPresenter((LinkCreatorWidgetState) state);
         MultiWordSuggestOracle oracle = new Cm5MultiWordSuggestOracle();
-        SuggestBoxDisplay display = new SuggestBoxDisplay();
-        TextBox suggestTextBox = new TextBox();
-        suggestTextBox.addStyleName("testSuggest");
+        final SuggestBoxDisplay display = new SuggestBoxDisplay();
+        TextBox suggestTextBox = new SuggestTextBox();
         suggestBox = new SuggestBox(oracle, suggestTextBox, display);
 
         presenter.suggestBox = suggestBox;
@@ -214,6 +214,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 Id id = selectedItem.getId();
                 String representation = selectedItem.getReplacementString();
                 insertItem(id, representation);
+                suggestBox.refreshSuggestionList();
 
             }
         });
@@ -222,20 +223,11 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             @Override
             public void onBlur(BlurEvent event) {
                 validate();
+                if(display.isNotShown()){
                 suggestBox.setText(EMPTY_VALUE);
-            }
-        }, BlurEvent.getType());
-        suggestBox.addKeyUpHandler(new KeyUpHandler() {
-            @Override
-            public void onKeyUp(KeyUpEvent event) {
-                int eventKeyCode = event.getNativeEvent().getKeyCode();
-                switch (eventKeyCode) {
-                    case KeyCodes.KEY_ENTER:
-                        presenter.getNotFilteredSuggestions();
-                        break;
                 }
             }
-        });
+        }, BlurEvent.getType());
 
         suggestBox.addKeyDownHandler(new KeyDownHandler() {
             @Override
@@ -271,10 +263,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 impl.setWidth(impl.getElement().getOffsetWidth() + "px");
             }
 
-
         }
         currentState.getSelectedIds().add(id);
-        suggestBox.refreshSuggestionList();
         presenter.changeSuggestInputWidth();
         suggestBox.setText(EMPTY_VALUE);
         suggestBox.setFocus(true);
@@ -513,11 +503,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         public void getNotFilteredSuggestions() {
             suggestBox.setText(ALL_SUGGESTIONS);
             lastScrollPos = 0;
-            SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
-            if (!display.getSuggestionPopup().isShowing()) {
-                lazyLoadState = null;
-                suggestBox.showSuggestionList();
-            }
+            lazyLoadState = null;
+            suggestBox.showSuggestionList();
             suggestBox.setText(EMPTY_VALUE);
             suggestBox.setFocus(true);
 
@@ -576,9 +563,13 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             if (shouldDrawTooltipButton()) {
                 addTooltipButton(false);
             }
-
+            addClearButton(state);
             super.add(suggestBox, container);
             changeSuggestInputWidth();
+
+        }
+
+        private void addClearButton(SuggestBoxState state){
             if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
                 FocusPanel focusPanel = new FocusPanel();
                 ButtonForm clearButton = new ButtonForm(focusPanel,
@@ -593,7 +584,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                         selectedSuggestions.clear();
                         currentState.evictTooltipItems();
                         currentState.getSelectedIds().clear();
-                        clearAllItems();
+                        clearAll();
+
                     }
                 });
             }
@@ -645,6 +637,14 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             }
             SelectedItemComposite lastItem = getLastItem();
             return lastItem;
+        }
+
+        private void clearAll(){
+            clearAllItems();
+            Widget widget = getTooltipButton();
+            if(widget != null){
+                widget.removeFromParent();
+            }
         }
 
         private Widget getTooltipButton() {
@@ -787,7 +787,9 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 lazyLoadState.onNextPage();
 
                 suggestBox.showSuggestionList();
+                if(suggestBox.getText().equalsIgnoreCase(ALL_SUGGESTIONS)){
                 suggestBox.setText(EMPTY_VALUE);
+                }
 
             }
         }
