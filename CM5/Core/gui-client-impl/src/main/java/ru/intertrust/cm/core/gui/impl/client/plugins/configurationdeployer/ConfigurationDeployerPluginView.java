@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer;
 
+import com.google.gwt.core.shared.GWT;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypeConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
@@ -74,6 +77,8 @@ public class ConfigurationDeployerPluginView extends PluginView {
         acceptedTypesConfig.setAcceptedTypeConfigs(acceptedTypeConfigs);
         state.setAcceptedTypesConfig(acceptedTypesConfig);
         attachmentBox.setDisplayConfig(displayConfig);
+        EventBus eventBus = GWT.create(SimpleEventBus.class);
+        attachmentBox.setEventBus(eventBus);
         attachmentBox.setState(state);
         attachmentBox.asWidget().setStyleName("uploadReportTemplate");
 

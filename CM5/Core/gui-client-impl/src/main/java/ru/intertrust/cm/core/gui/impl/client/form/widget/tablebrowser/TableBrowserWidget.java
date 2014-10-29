@@ -240,9 +240,9 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             }
         });
         root.add(widgetItemsView);
-        addCreateButton();
-        root.add(openDialogButton);
 
+        root.add(openDialogButton);
+        addCreateButton();
         root.add(clearButton);
 
         return root;

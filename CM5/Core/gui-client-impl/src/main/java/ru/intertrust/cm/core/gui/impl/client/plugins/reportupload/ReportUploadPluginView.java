@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.reportupload;
 
+import com.google.gwt.core.shared.GWT;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -59,6 +62,8 @@ public class ReportUploadPluginView  extends PluginView {
         WidgetDisplayConfig displayConfig = new WidgetDisplayConfig();
         AttachmentBoxState state = new AttachmentBoxState();
         attachmentBox.setDisplayConfig(displayConfig);
+        EventBus eventBus = GWT.create(SimpleEventBus.class);
+        attachmentBox.setEventBus(eventBus);
         attachmentBox.setState(state);
         attachmentBox.asWidget().setStyleName("upload-report-template");
 
