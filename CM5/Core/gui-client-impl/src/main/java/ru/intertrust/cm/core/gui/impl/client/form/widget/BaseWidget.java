@@ -153,8 +153,11 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
 
     public ValidationResult validate() {
         clearErrors();
-        Collection<Validator> validators = getValidators();
         ValidationResult validationResult = new ValidationResult();
+        if (!isEditable()) {
+            return validationResult;
+        }
+        Collection<Validator> validators = getValidators();
         for (Validator validator : validators) {
             validationResult.append(validator.validate(this, null));
         }
