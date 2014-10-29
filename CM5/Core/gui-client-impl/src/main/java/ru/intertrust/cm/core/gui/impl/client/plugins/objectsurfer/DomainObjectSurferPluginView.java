@@ -50,6 +50,8 @@ public class DomainObjectSurferPluginView extends PluginView {
     private SplitterSettingsTimeoutTimer timeoutTimer;
     private EventBus eventBus;
     private int rowNumber = 0;
+    private static int countClick = 0;
+    private static Timer timer;
 
     public DomainObjectSurferPluginView(Plugin plugin) {
         super(plugin);
@@ -237,9 +239,9 @@ public class DomainObjectSurferPluginView extends PluginView {
         eventBus.fireEvent(new CollectionRowSelectedEvent(id));
     }
 
-    private void doubleClickMethod(DomainObjectSurferPlugin domainObjectSurferPlugin) {
+    private void doubleClickMethod(DomainObjectSurferPlugin domainObjectSurferPlugin, CellPreviewEvent<CollectionRowItem> event) {
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) domainObjectSurferPlugin;
-        final Id id = editor.getFormState().getObjects().getRootNode().getDomainObject().getId();
+        Id id = event.getValue().getId();
         final FormPluginConfig config;
         if (id == null) {
             config = new FormPluginConfig(editor.getRootDomainObject().getTypeName());
@@ -272,13 +274,25 @@ public class DomainObjectSurferPluginView extends PluginView {
             CollectionDataGrid grid = (CollectionDataGrid) event.getSource();
             int row = grid.getKeyboardSelectedRow();
 
-                if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONDBLCLICK) {
-                    doubleClickMethod(domainObjectSurferPlugin);
-                }
+            if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONDBLCLICK) {
+                doubleClickMethod(domainObjectSurferPlugin, event);
+            }
 
-                if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONCLICK & rowNumber != row) {
-                    rowNumber = row;
-                    singleClickMethod(event);
+            if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONCLICK & rowNumber != row) {
+                countClick++;
+                rowNumber = row;
+                timer = new Timer() {
+                    @Override
+                    public void run() {
+                        if (countClick > 1) {
+                            doubleClickMethod(domainObjectSurferPlugin, event);
+                        } else {
+                            singleClickMethod(event);
+                        }
+                        countClick = 0;
+                    }
+                };
+                timer.schedule(500);
             }
         }
     }
