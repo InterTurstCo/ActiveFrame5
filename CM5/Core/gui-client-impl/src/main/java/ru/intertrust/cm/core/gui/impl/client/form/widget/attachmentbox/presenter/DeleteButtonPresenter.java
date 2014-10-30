@@ -1,10 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Panel;
 import ru.intertrust.cm.core.config.gui.form.widget.DeleteButtonConfig;
 
@@ -30,19 +28,19 @@ class DeleteButtonPresenter implements AttachmentElementPresenter {
     public Panel presentElement() {
         final Panel element = (presenter != null ? presenter.presentElement() : new AbsolutePanel());
         if (displayDeleteButton()) {
-            FocusPanel delBtn = new FocusPanel();
-            delBtn.addStyleName("facebook-btn");
-            delBtn.getElement().getStyle().setPadding(2, Style.Unit.PX);
-            delBtn.getElement().getStyle().setBackgroundColor("red");
+            Panel delBtn = new AbsolutePanel();
 
-            delBtn.addClickHandler(new ClickHandler() {
+            delBtn.addStyleName("facebook-btn");
+            delBtn.getElement().getStyle().clearPosition();
+
+            delBtn.addDomHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     element.removeFromParent();
                 }
-            });
+            }, ClickEvent.getType());
             if (deleteButtonHandler != null) {
-                delBtn.addClickHandler(deleteButtonHandler);
+                delBtn.addDomHandler(deleteButtonHandler, ClickEvent.getType());
             }
             element.add(delBtn);
         }
