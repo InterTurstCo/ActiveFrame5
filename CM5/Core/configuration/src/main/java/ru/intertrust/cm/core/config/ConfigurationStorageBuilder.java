@@ -506,6 +506,8 @@ public class ConfigurationStorageBuilder {
                 fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
                 configurationStorage.attachmentDomainObjectTypes.put(attachmentDomainObjectTypeConfig.getName(),
                         attachmentDomainObjectTypeConfig.getName());
+                fillAuditLogConfigMap(attachmentDomainObjectTypeConfig);
+
             }
         } catch (IOException e) {
             throw new ConfigurationException(e);

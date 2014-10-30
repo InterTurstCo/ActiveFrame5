@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AccessType;
@@ -27,9 +29,11 @@ import ru.intertrust.cm.core.dao.access.SystemSubject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * Реализация службы контроля доступа.
@@ -62,6 +66,9 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
+
+    @Autowired
+    private DomainObjectDao domainObjectDao;
 
     @Autowired
     private EventLogService eventLogService;
@@ -113,6 +120,8 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     private AccessToken createAccessToken(String login, Id objectId, AccessType type, boolean log) throws AccessException {
 
+        objectId = getRelevantObjectId(objectId);
+        
         Id personId = getUserIdByLogin(login);
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
         boolean isSuperUser = isPersonSuperUser(personId);
@@ -140,6 +149,20 @@ public class AccessControlServiceImpl implements AccessControlService {
             eventLogService.logAccessDomainObjectEvent(objectId, EventLogService.ACCESS_OBJECT_WRITE, true);
         }
         return token;
+    }
+
+    private Id getRelevantObjectId(Id id) {
+        if (id == null) {
+            return null;
+        }
+        Id objectId = id;
+        String domainObjectType = domainObjectTypeIdCache.getName(objectId);
+        if (configurationExplorer.isAuditLogType(domainObjectType)) {
+            AccessToken systemAccessToken = createSystemAccessToken("AccessControlServiceImpl");
+            DomainObject parentDomainObject = domainObjectDao.find(objectId, systemAccessToken);
+            objectId = parentDomainObject.getReference(Configuration.DOMAIN_OBJECT_ID_COLUMN);
+        }
+        return objectId;
     }
     
     @Override

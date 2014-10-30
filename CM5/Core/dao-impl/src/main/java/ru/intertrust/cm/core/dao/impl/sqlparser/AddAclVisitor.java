@@ -11,6 +11,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
@@ -103,10 +104,10 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         }
     }
 
-    private boolean isDomainObjectType(String tableName) {
+/*    private boolean isDomainObjectType(String tableName) {
         return configurationExplorer.getConfig(DomainObjectTypeConfig.class, tableName) != null;
     }
-
+*/
     /**
      * Выполняет замену названия таблицы на ACL подзапрос.
      * @param domainObjectType
@@ -115,9 +116,14 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
     private SubSelect createAclSubQuery(String domainObjectType) {
         domainObjectType = DaoUtils.unwrap(domainObjectType);
 
+        boolean isAuditLog = configurationExplorer.isAuditLogType(domainObjectType);
+        String originalDomainObjectType = domainObjectType;
+        // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.        
+        domainObjectType = AccessControlUtility.getRelevantType(domainObjectType, configurationExplorer);
+
         String aclQueryString = null;
-        if (aclSubQueryCache.get(domainObjectType) != null) {
-            aclQueryString = aclSubQueryCache.get(domainObjectType);
+        if (aclSubQueryCache.get(originalDomainObjectType) != null) {
+            aclQueryString = aclSubQueryCache.get(originalDomainObjectType);
         } else {
             
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
@@ -132,8 +138,8 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
             String rootType = configurationExplorer.getDomainObjectRootType(domainObjectType).toLowerCase();
             StringBuilder aclQuery = new StringBuilder();
             
-            aclQuery.append("Select * from ").append(DaoUtils.wrap(domainObjectType))
-                    .append(" " + domainObjectType + " where exists (select r.").append(DaoUtils.wrap("object_id"))
+            aclQuery.append("Select * from ").append(DaoUtils.wrap(originalDomainObjectType))
+                    .append(" " + originalDomainObjectType + " where exists (select r.").append(DaoUtils.wrap("object_id"))
                     .append("from ")
                     .append(DaoUtils.wrap(aclReadTable)).append(" r ");
             aclQuery.append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.")
@@ -144,10 +150,19 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
             aclQuery.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on r.")
                     .append(DaoUtils.wrap("object_id"))
                     .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
-            aclQuery.append(" where gm.person_id = ").append(SqlQueryModifier.USER_ID_PARAM)
-                    .append(" and rt.id = " + domainObjectType + ".id)");
+            aclQuery.append(" where gm.person_id = ").append(SqlQueryModifier.USER_ID_PARAM);
+
+            aclQuery.append(" and rt.id = ");
+            if (!isAuditLog) {
+                aclQuery.append(domainObjectType).append(".").append(Configuration.ID_COLUMN);
+
+            } else {
+                aclQuery.append(originalDomainObjectType).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
+            }
+            aclQuery.append(")");
+
             aclQueryString = aclQuery.toString();
-            aclSubQueryCache.put(domainObjectType, aclQueryString);
+            aclSubQueryCache.put(originalDomainObjectType, aclQueryString);
         }
 
         SubSelect subSelectWithAcl = new SubSelect();

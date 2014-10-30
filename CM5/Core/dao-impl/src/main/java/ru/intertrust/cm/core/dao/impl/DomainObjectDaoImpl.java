@@ -1990,8 +1990,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     Long currentUserId = currentUser != null ? ((RdbmsId) currentUser).getId() : null;
                     Integer currentUserType = currentUser != null ? ((RdbmsId) currentUser).getTypeId() : null;
 
-                    long createdById =  domainObject.getCreatedBy() != null ? ((RdbmsId)domainObject.getCreatedBy()).getId() : null;
-                    long createdByType =  domainObject.getCreatedBy() != null ? ((RdbmsId)domainObject.getCreatedBy()).getTypeId() : null;
+                    Long createdById = domainObject.getCreatedBy() != null ? ((RdbmsId) domainObject.getCreatedBy()).getId() : null;
+                    Long createdByType = domainObject.getCreatedBy() != null ? new Long(((RdbmsId) domainObject.getCreatedBy()).getTypeId()) : null;
                     
                     parameters.put(DomainObjectDao.CREATED_BY, createdById);
                     parameters.put(DomainObjectDao.CREATED_BY_TYPE_COLUMN, createdByType);

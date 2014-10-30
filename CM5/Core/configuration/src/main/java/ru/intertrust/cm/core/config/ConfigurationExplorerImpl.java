@@ -354,7 +354,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Override
     public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
         readLock.lock();
-        try {
+        try {            
+            if (isAuditLogType(domainObjectType)) {
+                domainObjectType = getParentTypeOfAuditLog(domainObjectType);
+            }
+
             if (status == null) {
                 status = "*";
             }
@@ -379,12 +383,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public AccessMatrixConfig getAccessMatrixByObjectType(String domainObjectType) {
         readLock.lock();
         try {
+            if (isAuditLogType(domainObjectType)) {
+                domainObjectType = getParentTypeOfAuditLog(domainObjectType);
+            }
             //Получение конфигурации матрицы, здесь НЕЛЬЗЯ учитывать наследование, так как вызывающие методы должны получить матрицу непосредственно для переданного типа
             AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
             return getReturnObject(accessMatrixConfig, AccessMatrixConfig.class);
         } finally {
             readLock.unlock();
         }
+    }
+
+    private String getParentTypeOfAuditLog(String domainObjectType) {
+        domainObjectType = domainObjectType.replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        return domainObjectType;
     }
 
     /**
@@ -394,6 +406,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public AccessMatrixConfig getAccessMatrixByObjectTypeUsingExtension(String domainObjectType) {
         readLock.lock();
         try {
+            if (isAuditLogType(domainObjectType)) {
+                domainObjectType = getParentTypeOfAuditLog(domainObjectType);
+            }
+
             AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
 
             if (accessMatrixConfig != null) {
