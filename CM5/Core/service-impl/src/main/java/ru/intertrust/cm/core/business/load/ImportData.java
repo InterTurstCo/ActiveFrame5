@@ -124,41 +124,51 @@ public class ImportData {
 
             //итератор по строкам
             for (CSVRecord record : records) {
+                if (!isEmptyRow(record)) {
+                    //CMFIVE-2116 В случае если в одном файле импортируются данные разных типов то сбрасываем счетчик строк в 0 и обнуляем всю метаинформацию
+                    if (lineNum > 0 && record.size() > 0 && record.get(0).trim().toUpperCase().startsWith(ImportDataService.TYPE_NAME + "=")) {
+                        lineNum = 0;
+                        typeName = null;
+                        keys = null;
+                        fields = null;
+                        emptyStringSymbol = null;
+                    }
 
-                //Первые две строки это метаданные
-                if (lineNum == 0) {
-                    //Метаданные
-                    for (String metaData : record) {
-                        String normalMetaData = metaData.trim();
-                        String[] metaItem = normalMetaData.split("=");
-                        if (metaItem[0].equalsIgnoreCase(ImportDataService.TYPE_NAME)) {
-                            typeName = metaItem[1];
-                        } else if (metaItem[0].equalsIgnoreCase(ImportDataService.KEYS)) {
-                            keys = metaItem[1].split(",");
-                        } else if (metaItem[0].equalsIgnoreCase(ImportDataService.EMPTY_STRING_SYMBOL)) {
-                            emptyStringSymbol = metaItem[1];
+                    //Первые две строки это метаданные
+                    if (lineNum == 0) {
+                        //Метаданные
+                        for (String metaData : record) {
+                            String normalMetaData = metaData.trim();
+                            String[] metaItem = normalMetaData.split("=");
+                            if (metaItem[0].equalsIgnoreCase(ImportDataService.TYPE_NAME)) {
+                                typeName = metaItem[1];
+                            } else if (metaItem[0].equalsIgnoreCase(ImportDataService.KEYS)) {
+                                keys = metaItem[1].split(",");
+                            } else if (metaItem[0].equalsIgnoreCase(ImportDataService.EMPTY_STRING_SYMBOL)) {
+                                emptyStringSymbol = metaItem[1];
+                            }
                         }
-                    }
-                } else if (lineNum == 1) {
-                    //Имена полей
-                    List<String> fieldList = new ArrayList<String>();
-                    for (int i = 0; i < record.size(); i++) {
-                        if (record.get(i).trim().length() > 0) {
-                            fieldList.add(record.get(i).trim());
+                    } else if (lineNum == 1) {
+                        //Имена полей
+                        List<String> fieldList = new ArrayList<String>();
+                        for (int i = 0; i < record.size(); i++) {
+                            if (record.get(i).trim().length() > 0) {
+                                fieldList.add(record.get(i).trim());
+                            }
+                            fields = fieldList.toArray(new String[fieldList.size()]);
                         }
-                        fields = fieldList.toArray(new String[fieldList.size()]);
+                        //Строим таблицу соответствия имени поля и его индекса, для оптимизации
+                        fieldIndex = new Hashtable<String, Integer>();
+                        for (int i = 0; i < fields.length; i++) {
+                            fieldIndex.put(fields[i], i);
+                        }
+                    } else {
+                        //Импорт одной строки
+                        importLine(csvRecordToArray(record), rewrite);
                     }
-                    //Строим таблицу соответствия имени поля и его индекса, для оптимизации
-                    fieldIndex = new Hashtable<String, Integer>();
-                    for (int i = 0; i < fields.length; i++) {
-                        fieldIndex.put(fields[i], i);
-                    }                    
-                } else {
-                    //Импорт одной строки
-                    importLine(csvRecordToArray(record), rewrite);
+
+                    lineNum++;
                 }
-
-                lineNum++;
             }
         } catch (Exception ex) {
             throw new FatalException("Error load data. TypeName=" + typeName, ex);
@@ -168,6 +178,22 @@ public class ImportData {
             } catch (Exception ignoreEx) {
             }
         }
+    }
+
+    /**
+     * Проверка на то, что строка содержит только пустые значения
+     * @param record
+     * @return
+     */
+    private boolean isEmptyRow(CSVRecord record) {
+        boolean result = true;
+        for (String item : record) {
+            if (!item.isEmpty()){
+                result = false;
+                break;
+            }
+        }
+        return result;
     }
 
     private String[] csvRecordToArray(CSVRecord record) {
@@ -221,7 +247,6 @@ public class ImportData {
             for (int i = 0; i < fields.length; i++) {
                 String fieldName = fields[i];
 
-
                 //Обрабатываем ключевое поле вложения
                 if (ATTACHMENT_FIELD_NAME.equals(fieldName)) {
                     if (!fieldValues[i].isEmpty()) {
@@ -259,7 +284,7 @@ public class ImportData {
         }
     }
 
-    private Value getFieldValue(String fieldName, String fieldValue) throws ParseException{
+    private Value getFieldValue(String fieldName, String fieldValue) throws ParseException {
         Value newValue = null;
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
         if (fieldConfig != null) {
@@ -321,10 +346,10 @@ public class ImportData {
         } else {
             throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
         }
-        
+
         return newValue;
     }
-    
+
     private boolean isEmptySimvol(String testString) {
         //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
         return (emptyStringSymbol == null && testString.equals("_")) || (emptyStringSymbol != null && testString.equals(emptyStringSymbol));
@@ -496,7 +521,7 @@ public class ImportData {
                 values.add(new StringValue(getNormalizationField(field[1])));
             }
 
-            String query = getQuery(type, new String[] { fieldName }, values );
+            String query = getQuery(type, new String[] { fieldName }, values);
             return getReferenceFromSelect(query, values);
         } catch (Exception ex) {
             throw new FatalException("Error get reference from expression. FieldName=" + refFieldName + "; Value=" + referenceValueAsString, ex);
@@ -547,7 +572,7 @@ public class ImportData {
      * Поиск доменного объекта
      * @param fieldValues
      * @return
-     * @throws ParseException 
+     * @throws ParseException
      */
     private DomainObject findDomainObject(String[] fieldValues) throws ParseException {
         List<Value> values = getPlatformFieldValues(fieldValues);
@@ -559,7 +584,7 @@ public class ImportData {
         } else {
             accessToken = accessService.createCollectionAccessToken(login);
         }
-        
+
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, values, 0, 0, accessToken);
         DomainObject result = null;
         if (collection.size() > 0) {
@@ -626,13 +651,13 @@ public class ImportData {
         } while (config != null);
         result += from;
         result += where;
-        
+
         //Подменяем conditionValues на workConditionsValues
         conditionValues.clear();
         for (int i = 0; i < workConditionsValues.size(); i++) {
             conditionValues.add(workConditionsValues.get(i));
         }
-        
+
         return result;
     }
 
@@ -641,11 +666,11 @@ public class ImportData {
      * @param fieldValues
      * @param fieldName
      * @return
-     * @throws ParseException 
+     * @throws ParseException
      */
     private List<Value> getPlatformFieldValues(String[] fieldValues) throws ParseException {
         List<Value> result = new ArrayList<Value>();
-                
+
         for (int i = 0; i < keys.length; i++) {
             String fieldName = keys[i];
 

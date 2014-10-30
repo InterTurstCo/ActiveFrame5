@@ -1,0 +1,8 @@
+TYPE_NAME=Organization;KEYS=Name,Description,www;
+Name;Description;www
+Организация в иерархии;Организация в иерархии;http://www.org.ru
+;;
+TYPE_NAME=Department;KEYS=Name,Organization;
+Name;Organization;ParentDepartment
+Подразделение в иерархии;"name=""Организация в иерархии""";
+Подразделение в иерархии 2;"name=""Организация в иерархии""";"name=""Подразделение в иерархии"""
