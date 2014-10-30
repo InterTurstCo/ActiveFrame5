@@ -488,7 +488,7 @@ public class ConfigurationStorageBuilder {
     }
 
     public static String getALTableName(String name) {
-        return name + "_al";
+        return name + Configuration.AUDIT_LOG_SUFFIX;
     }
     
     private void fillConfigurationMapsOfAttachmentDomainObjectType(DomainObjectTypeConfig domainObjectTypeConfig) {

@@ -110,7 +110,7 @@ public class ConfigurationExplorerImplTest {
     private List<String> createAuditLogTables(List<String> tables) {
         List<String> auditLogTables = new ArrayList<>();
         for (String table : tables) {
-            auditLogTables.add(table + "_al");
+            auditLogTables.add(table + Configuration.AUDIT_LOG_SUFFIX);
         }
         return auditLogTables;
     }
