@@ -2,14 +2,13 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 
 import java.util.Date;
 import java.util.List;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
@@ -29,25 +28,18 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
  * @author Sergey.Okolot
  *         Created on 17.10.2014 14:17.
  */
-public class DayPanel extends FlowPanel implements RequiresResize, CalendarNextWeekEventHandler,
+public class DayPanel extends CalendarPanel implements CalendarNextWeekEventHandler,
         CalendarPreviousWeekEventHandler, CalendarTodayEventHandler {
 
-    private final CalendarTableModel tableModel;
-    private final EventBus localEventBus;
-    private final CalendarConfig calendarConfig;
     private boolean weekendPanelExpanded;
-    private Date currentDate = new Date();
     private Date beginWeekDate;
 
     public DayPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
-        this.tableModel = tableModel;
-        this.localEventBus = localEventBus;
-        this.calendarConfig = config;
+        super(localEventBus, tableModel, config);
         weekendPanelExpanded = config.isShowWeekend();
-        setStyleName("calendar-scroll-panel");
-        this.localEventBus.addHandler(CalendarTodayEvent.TYPE, this);
-        this.localEventBus.addHandler(CalendarPreviousWeekEvent.TYPE, this);
-        this.localEventBus.addHandler(CalendarNextWeekEvent.TYPE, this);
+        handlers.add(this.localEventBus.addHandler(CalendarTodayEvent.TYPE, this));
+        handlers.add(this.localEventBus.addHandler(CalendarPreviousWeekEvent.TYPE, this));
+        handlers.add(this.localEventBus.addHandler(CalendarNextWeekEvent.TYPE, this));
     }
 
     @Override
@@ -69,9 +61,10 @@ public class DayPanel extends FlowPanel implements RequiresResize, CalendarNextW
 
     @Override
     public void goToToday() {
-        beginWeekDate = CalendarUtil.copyDate(tableModel.getSelectedDate());
+        beginWeekDate = CalendarUtil.copyDate(currentDate);
         final int dayToMonday = beginWeekDate.getDay() - 1;
-        CalendarUtil.addDaysToDate(beginWeekDate, - dayToMonday);
+        CalendarUtil.addDaysToDate(beginWeekDate, -dayToMonday);
+        tableModel.setSelectedDate(currentDate);
         buildPresentation();
     }
 
@@ -97,47 +90,34 @@ public class DayPanel extends FlowPanel implements RequiresResize, CalendarNextW
         }
     }
 
-    private class WeekendItem extends FlowPanel {
+    private class WeekendItem extends AbstractWeekendItem {
 
         private WeekendItem(final Date startDate, int width, final int height) {
-            width -= 2;
-            getElement().getStyle().setFloat(Style.Float.LEFT);
-            getElement().getStyle().setWidth(width - 2, Style.Unit.PX);
-            getElement().getStyle().setHeight(height - 1, Style.Unit.PX);
-            final int childrenHeight = height / 2;
-            DateItem item = new DateItem(startDate, width, childrenHeight);
-            add(item);
-            CalendarUtil.addDaysToDate(startDate, 1);
-            item = new DateItem(startDate, width, childrenHeight);
-            add(item);
+            super(startDate, width, height);
+        }
+
+        @Override
+        protected AbstractDateItem createDateItem(Date date, int width, int height) {
+            return new DateItem(date, width, height);
         }
     }
 
-    private class DateItem extends FlowPanel {
-        private final Date date;
+    private class DateItem extends AbstractDateItem {
 
-        private DateItem(final Date date, int width, int height) {
-            this.date = CalendarUtil.copyDate(date);
-            width -= 1;
-            height -= 1;
-            if (CalendarUtil.isSameDate(date, tableModel.getSelectedDate())) {
-                setStyleName("calendar-focus-day-block");
-                height -= 2;
-                width -= 2;
-            } else {
-                setStyleName("calendar-day-block");
-            }
-            addStyle();
-            getElement().getStyle().setWidth(width, Style.Unit.PX);
-            getElement().getStyle().setHeight(height, Style.Unit.PX);
-
-            final Label label = new Label(date.getDate() + " " + GuiUtil.MONTHS[date.getMonth()]);
-            label.setStyleName("calendar-block-date");
-            add(label);
-            add(getTasksPanel());
+        private DateItem(Date date, int width, int height) {
+            super(date, width, height);
         }
 
-        private void addStyle() {
+        @Override
+        protected Label getItemLabel(Date date) {
+            final HTML result = new HTML(date.getDate() + " " + GuiUtil.MONTHS[date.getMonth()] + ",<br/>"
+                    + GuiUtil.WEEK_DAYS[date.getDay()], true);
+            result.setStyleName("calendar-block-date");
+            return result;
+        }
+
+        @Override
+        protected void addStyles() {
             final int dayIndex = date.getDay();
             if (dayIndex < 6) {
                 addStyleName("calendar-work-day-block");
@@ -149,7 +129,8 @@ public class DayPanel extends FlowPanel implements RequiresResize, CalendarNextW
             }
         }
 
-        private Widget getTasksPanel() {
+        @Override
+        protected Widget getTasksPanel() {
             final FlowPanel result = new FlowPanel();
             final CalendarTableModelCallback callback = new CalendarTableModelCallbackImpl(result);
             tableModel.fillByDateValues(date, callback);

@@ -6,7 +6,6 @@ import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -48,6 +47,7 @@ public class CalendarPluginView extends PluginView {
         final Container container = new Container();
         container.add(createBreadCrumbsPanel());
         final CalendarConfig calendarConfig = (CalendarConfig) plugin.getConfig();
+        final CalendarPanel calendarPanel;
         if (CalendarConfig.MONTH_MODE.equals(calendarConfig.getStartMode())) {
             final SimplePanel cursor = new SimplePanel();
             cursor.setStyleName("current-month-block");
@@ -56,13 +56,11 @@ public class CalendarPluginView extends PluginView {
             final MonthScrollPanel monthScrollPanel =
                     new MonthScrollPanel(localEventBus, tableModel.getSelectedDate());
             container.add(monthScrollPanel);
-            final MonthPanel monthPanel = new MonthPanel(localEventBus, tableModel, calendarConfig);
-            container.add(monthPanel);
+            calendarPanel = new MonthPanel(localEventBus, tableModel, calendarConfig);
         } else {
-
-            final DayPanel dayPanel = new DayPanel(localEventBus, tableModel, calendarConfig);
-            container.add(dayPanel);
+            calendarPanel = new DayPanel(localEventBus, tableModel, calendarConfig);
         }
+        container.add(calendarPanel);
         Application.getInstance().hideLoadingIndicator();
         return container;
     }

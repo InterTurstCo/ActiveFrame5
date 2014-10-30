@@ -6,18 +6,16 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.MouseWheelEvent;
 import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RequiresResize;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
-import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEventHandler;
@@ -30,22 +28,14 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
  * @author Sergey.Okolot
  *         Created on 17.10.2014 17:58.
  */
-public class MonthPanel extends FlowPanel implements RequiresResize, CalendarScrollEventHandler, MouseWheelHandler {
+public class MonthPanel extends CalendarPanel implements CalendarScrollEventHandler, MouseWheelHandler {
     private static int DATE_ITEM_HEIGHT = 98;
 
-    private final CalendarTableModel tableModel;
-    private final EventBus localEventBus;
-    private final CalendarConfig calendarConfig;
     private int containerOffset;
-    private Date currentDate = new Date();
-    private HandlerRegistration mouseWheelHandler;
 
     public MonthPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
-        this.calendarConfig = config;
-        this.localEventBus = localEventBus;
-        this.tableModel = tableModel;
-        setStyleName("calendar-scroll-panel");
-        mouseWheelHandler = addHandler(this, MouseWheelEvent.getType());
+        super(localEventBus, tableModel, config);
+        handlers.add(addHandler(this, MouseWheelEvent.getType()));
         sinkEvents(Event.ONMOUSEWHEEL);
     }
 
@@ -101,12 +91,6 @@ public class MonthPanel extends FlowPanel implements RequiresResize, CalendarScr
         initialize(startDate);
     }
 
-    @Override
-    protected void onDetach() {
-        mouseWheelHandler.removeHandler();
-        super.onDetach();
-    }
-
     private void initialize(final Date startDate) {
         final int height = getOffsetHeight();
         int weekCount = height / DATE_ITEM_HEIGHT + 2;
@@ -129,7 +113,7 @@ public class MonthPanel extends FlowPanel implements RequiresResize, CalendarScr
                 if (index < 5) {
                     add(new DateItem(date, dateWidth, DATE_ITEM_HEIGHT));
                 } else {
-                    add(new WeekendItem(date, dateWidth));
+                    add(new WeekendItem(date, dateWidth, DATE_ITEM_HEIGHT));
                 }
                 CalendarUtil.addDaysToDate(date, 1);
             }
@@ -139,45 +123,26 @@ public class MonthPanel extends FlowPanel implements RequiresResize, CalendarScr
         }
     }
 
-    private class WeekendItem extends FlowPanel {
+    private class WeekendItem extends AbstractWeekendItem {
 
-        private WeekendItem(final Date startDate, final int width) {
-            getElement().getStyle().setFloat(Style.Float.LEFT);
-            final int childrenHeight = DATE_ITEM_HEIGHT / 2;
-            DateItem item = new DateItem(startDate, width, childrenHeight);
-            add(item);
-            CalendarUtil.addDaysToDate(startDate, 1);
-            item = new DateItem(startDate, width, childrenHeight);
-            add(item);
+        private WeekendItem(Date startDate, int width, int height) {
+            super(startDate, width, height);
+        }
+
+        @Override
+        protected AbstractDateItem createDateItem(Date date, int width, int height) {
+            return new DateItem(date, width, height);
         }
     }
 
-    private class DateItem extends FlowPanel {
+    private class DateItem extends AbstractDateItem {
 
-        private final Date date;
-
-        private DateItem(final Date date, int width, int height) {
-            this.date = CalendarUtil.copyDate(date);
-            width -= 1;
-            height -= 1;
-            if (CalendarUtil.isSameDate(date, tableModel.getSelectedDate())) {
-                setStyleName("calendar-focus-day-block");
-                height -= 3;
-                width -= 3;
-            } else {
-                setStyleName("calendar-day-block");
-            }
-            addStyle();
-            getElement().getStyle().setWidth(width, Style.Unit.PX);
-            getElement().getStyle().setHeight(height, Style.Unit.PX);
-
-            final Label label = new Label(date.getDate() + "");
-            label.setStyleName("calendar-block-date");
-            add(label);
-            add(getTasksPanel());
+        private DateItem(Date date, int width, int height) {
+            super(date, width, height);
         }
 
-        private void addStyle() {
+        @Override
+        protected void addStyles() {
             final int dateIndex = date.getDate();
             final int dayIndex = date.getDay();
             if (dayIndex < 6) {
@@ -209,7 +174,16 @@ public class MonthPanel extends FlowPanel implements RequiresResize, CalendarScr
             }
         }
 
-        private Widget getTasksPanel() {
+        @Override
+        protected Label getItemLabel(Date date) {
+            final Label result = new Label(date.getDate() + "");
+            result.setStyleName("calendar-block-date");
+            return result;
+        }
+
+
+        @Override
+        protected Widget getTasksPanel() {
             final FlowPanel result = new FlowPanel();
             final CalendarTableModelCallback callback = new CalendarTableModelCallbackImpl(result);
             tableModel.fillByDateValues(date, callback);
