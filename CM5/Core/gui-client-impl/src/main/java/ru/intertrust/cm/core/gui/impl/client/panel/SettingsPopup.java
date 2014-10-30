@@ -1,14 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.panel;
 
-import java.util.Map;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemeConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -18,6 +12,9 @@ import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.action.system.ResetAllSettingsActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.ResetPluginSettingsActionContext;
+
+import java.util.Map;
+
 
 /**
  * @author Yaroslav Bondarchuk
@@ -41,9 +38,12 @@ public class SettingsPopup extends PopupPanel{
             AbsolutePanel container = new AbsolutePanel();
             container.setStyleName("settings-popup");
             container.getElement().getStyle().clearOverflow();
-            body.add(createThemePopup());
-            body.add(createResetPluginSettings());
-            body.add(createResetAllSettings());
+            Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
+            if(themeMap != null){
+                body.add(createMenuItem("Выбрать тему", new ThemePopupDomHandler(themeMap)));
+            }
+            body.add(createMenuItem("Сбросить настройки", new ResetPluginSettingDomHandler()));
+            body.add(createMenuItem("Сбросить все настройки", new ResetAllSettingDomHandler()));
 
             container.add(header);
             container.add(body);
@@ -51,40 +51,15 @@ public class SettingsPopup extends PopupPanel{
         }
     }
 
-    private Widget createThemePopup() {
-        final Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
-        final AbsolutePanel selectTheme;
-        if (themeMap != null) {
-            selectTheme = new AbsolutePanel();
-            Label label = new Label("Выбрать тему");
-            selectTheme.add(label);
-            selectTheme.setStyleName(SETTING_ITEM_STYLE);
-            selectTheme.addDomHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    ThemePopup themePopup = new ThemePopup(themeMap);
-                    themePopup.center();
-                }
-            }, ClickEvent.getType());
-        } else {
-            selectTheme = null;
-        }
-        return selectTheme;
-    }
 
-    private Widget createResetPluginSettings() {
+    private Widget createMenuItem(String text, ClickHandler handler){
         final AbsolutePanel result = new AbsolutePanel();
-        result.add(new Label("Сбросить настройки"));
+        Panel imagePanel = new AbsolutePanel();
+        imagePanel.addStyleName("menuImage");
+        result.add(imagePanel);
+        result.add(new Label(text));
         result.setStyleName(SETTING_ITEM_STYLE);
-        result.addDomHandler(new ResetPluginSettingDomHandler(), ClickEvent.getType());
-        return result;
-    }
-
-    private Widget createResetAllSettings() {
-        final AbsolutePanel result = new AbsolutePanel();
-        result.add(new Label("Сбросить все настройки"));
-        result.setStyleName(SETTING_ITEM_STYLE);
-        result.addDomHandler(new ResetAllSettingDomHandler(), ClickEvent.getType());
+        result.addDomHandler(handler, ClickEvent.getType());
         return result;
     }
 
@@ -119,6 +94,20 @@ public class SettingsPopup extends PopupPanel{
             action.setInitialContext(actionContext);
             action.perform();
             SettingsPopup.this.hide();
+        }
+    }
+
+    private class ThemePopupDomHandler implements ClickHandler{
+        private Map<String, ThemeConfig> themeMap;
+
+        private ThemePopupDomHandler(Map<String, ThemeConfig> themeMap) {
+            this.themeMap = themeMap;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+            ThemePopup themePopup = new ThemePopup(themeMap);
+            themePopup.center();
         }
     }
 }
