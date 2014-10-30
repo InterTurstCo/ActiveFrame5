@@ -4,7 +4,6 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HeaderPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 /**
@@ -14,12 +13,12 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
  */
 public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
     private HeaderPanel panel;
-    private EventBus eventBus;
-    public CollectionDataGrid(int pageNumber, Resources resources, final EventBus eventBus) {
+
+    public CollectionDataGrid(int pageNumber, Resources resources) {
         super(pageNumber, resources);
-        this.eventBus = eventBus;
+
         panel = (HeaderPanel) getWidget();
-        panel.getHeaderWidget().addStyleName("dataGridHeaderRow");
+        panel.getHeaderWidget().getElement().getFirstChildElement().setClassName("dataGridHeaderRow");
         setAutoHeaderRefreshDisabled(false);
         setHeaderBuilder(new HeaderBuilder<CollectionRowItem>(this, false));
         addStyleName("collection-plugin-view collection-plugin-view-container");

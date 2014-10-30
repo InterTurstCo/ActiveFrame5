@@ -140,7 +140,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     }
 
     public void changeVisibilityOfColumns() {
-
+        int widthBeforeChanges = dataGrid.getOffsetWidth();
         for (int i = 0; i < columnHeaderBlocks.size(); i++) {
             ColumnHeaderBlock columnHeaderBlock = columnHeaderBlocks.get(i);
             CollectionColumn collectionColumn = columnHeaderBlock.getColumn();
@@ -164,7 +164,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             }
         }
 
-        CollectionDataGridUtils.adjustColumnsWidth(Math.max(dataGrid.getOffsetWidth(), displayedWidth), dataGrid);
+        CollectionDataGridUtils.adjustWidthAfterChangedVisibility(Math.max(widthBeforeChanges, displayedWidth), dataGrid);
         changeFilterInputWidth();
         dataGrid.redraw();
 
@@ -211,7 +211,6 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         column.setDrawWidth(newWidth);
         column.setUserWidth(newWidth);
         saveFilterValues();
-
         dataGrid.redraw();
         updateFilterValues();
 

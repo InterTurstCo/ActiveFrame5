@@ -19,8 +19,8 @@ public class CollectionDataGridUtils {
     private CollectionDataGridUtils() {
     }
 
-    public static void adjustColumnsWidth(int tableWidth, CollectionDataGrid tableBody) {
-        calculateColumnsWidth(tableWidth, tableBody, true);
+    public static void adjustColumnsWidth(int tableWidth, CollectionDataGrid dataGrid) {
+        calculateColumnsWidth(tableWidth, dataGrid, true);
     }
 
     @Deprecated
@@ -61,6 +61,9 @@ public class CollectionDataGridUtils {
         dataGrid.redraw();
         return true;
 
+    }
+    public static void adjustWidthAfterChangedVisibility(int tableWidth, CollectionDataGrid dataGrid){
+        calculateColumnsWidth(tableWidth, dataGrid, false);
     }
 
     private static void calculateColumnsWidth(int tableWidth, CollectionDataGrid tableBody, boolean keepUserWidth){
