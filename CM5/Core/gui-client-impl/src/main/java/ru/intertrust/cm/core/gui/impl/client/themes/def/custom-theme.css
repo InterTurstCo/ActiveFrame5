@@ -118,6 +118,15 @@
 
 }
 
+.calendar-day-wrapper {
+    position: absolute;
+    padding: 2px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
 .calendar-day-container {
     position: absolute;
     width: 16.6%;
@@ -127,6 +136,7 @@
 .calendar-day-block {
     border-left: 1px solid #ddd;
     border-top: 1px solid #ddd;
+    position: relative;
 }
 
 .calendar-work-day-block {
@@ -229,7 +239,7 @@
 }
 
 .first {
-    position: relative;
+    position: absolute;
     height: 22px;
     width: 69px;
     color: white;

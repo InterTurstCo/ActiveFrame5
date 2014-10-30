@@ -116,6 +116,21 @@
 
 }
 
+.calendar-day-wrapper {
+    position: absolute;
+    padding: 2px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.calendar-day-block {
+    border-left: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    position: relative;
+}
+
 .calendar-day-container {
     position: absolute;
     width: 16.6%;
@@ -124,20 +139,12 @@
 
 .calendar-work-day-block {
     background: rgb(248, 249, 255);
-    border-left: 1px solid #ddd;
-    border-top: 1px solid #ddd;
-    height: 90px;
-    z-index: 5;
-
+    float: left;
 }
 
 .calendar-holiday-block {
-    height: 45px;
-    border-left: 1px solid #ddd;
-    border-top: 1px solid #ddd;
-    z-index: 5;
     background: rgb(248, 249, 255);
-
+    float: none;
 }
 
 .calendar-holiday-block:focus {

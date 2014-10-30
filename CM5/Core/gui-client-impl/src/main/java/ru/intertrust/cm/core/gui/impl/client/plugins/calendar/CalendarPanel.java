@@ -69,21 +69,24 @@ public abstract class CalendarPanel extends FlowPanel implements RequiresResize 
     protected abstract class AbstractDateItem extends FlowPanel implements ClickHandler {
 
         protected final Date date;
+        private FlowPanel itemWrapper = new FlowPanel();
 
         protected AbstractDateItem(final Date date, int width, int height) {
             this.date = CalendarUtil.copyDate(date);
             width -= 1;
             height -= 1;
+            itemWrapper.setStyleName("calendar-day-wrapper");
             setStyleName("calendar-day-block");
             if (CalendarUtil.isSameDate(date, tableModel.getSelectedDate())) {
                 selectedItem = this;
-                addStyleName(SELECTED_DATE_STYLE);
+                itemWrapper.addStyleName(SELECTED_DATE_STYLE);
             }
             addStyles();
             getElement().getStyle().setWidth(width, Style.Unit.PX);
             getElement().getStyle().setHeight(height, Style.Unit.PX);
-            add(getItemLabel(date));
-            add(getTasksPanel());
+            itemWrapper.add(getItemLabel(date));
+            itemWrapper.add(getTasksPanel());
+            add(itemWrapper);
             sinkEvents(Event.ONCLICK);
             handlers.add(addHandler(this, ClickEvent.getType()));
         }
@@ -91,11 +94,11 @@ public abstract class CalendarPanel extends FlowPanel implements RequiresResize 
         @Override
         public void onClick(ClickEvent event) {
             if (selectedItem != null) {
-                selectedItem.removeStyleName(SELECTED_DATE_STYLE);
+                selectedItem.itemWrapper.removeStyleName(SELECTED_DATE_STYLE);
             }
             selectedItem = this;
             tableModel.setSelectedDate(date);
-            addStyleName(SELECTED_DATE_STYLE);
+            itemWrapper.addStyleName(SELECTED_DATE_STYLE);
         }
 
         protected abstract Label getItemLabel(Date date);
