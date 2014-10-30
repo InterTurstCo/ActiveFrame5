@@ -62,6 +62,7 @@ public class NavigationTreePluginView extends PluginView {
     private Integer navigationTreeOpeningTime;
     private boolean iSOpenTheAnimatedTreePanel;
     private boolean openPanelMarker = false;
+
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
     }
@@ -77,7 +78,13 @@ public class NavigationTreePluginView extends PluginView {
     @Override
     public IsWidget getViewWidget() {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
-        navigationTreeOpeningTime = navigationTreePluginData.getSideBarOpenningTime();
+
+        if (navigationTreePluginData.getNavigationConfig().getSideBarOpeningTime() != null) {
+            navigationTreeOpeningTime = navigationTreePluginData.getNavigationConfig().getSideBarOpeningTime();
+        } else {
+            navigationTreeOpeningTime = navigationTreePluginData.getSideBarOpenningTime();
+        }
+
         pinButton = new HTML();
         navigationTreesPanel.setStyleName("navigation-dynamic-panel");
         navigationTreeContainer = new FocusPanel();
@@ -133,7 +140,7 @@ public class NavigationTreePluginView extends PluginView {
         navigationTreeContainer.addMouseOutHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {
-                if(mouseHoldTimer != null){
+                if (mouseHoldTimer != null) {
                     mouseHoldTimer.cancel();
                 }
                 openPanelMarker = false;
@@ -398,7 +405,7 @@ public class NavigationTreePluginView extends PluginView {
             navigationTreeContainer.addDomHandler(new MouseMoveHandler() {
                 @Override
                 public void onMouseMove(MouseMoveEvent mouseMoveEvent) {
-                    if((!openPanelMarker & mouseMoveEvent.getClientX() < 110) && !pinButtonClick){
+                    if ((!openPanelMarker & mouseMoveEvent.getClientX() < 110) && !pinButtonClick) {
                         openPanelMarker = true;
                         openTheAnimatedTreePanel();
                     }

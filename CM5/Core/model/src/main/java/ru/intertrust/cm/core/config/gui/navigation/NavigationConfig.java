@@ -24,6 +24,9 @@ public class NavigationConfig implements TopLevelConfig {
     @Attribute(name = "is-default")
     private boolean isDefault;
 
+    @Attribute(name = "side-bar-opening-time", required = false)
+    private Integer sideBarOpeningTime;
+
     @Override
     public String getName() {
         return name;
@@ -57,29 +60,29 @@ public class NavigationConfig implements TopLevelConfig {
         return hierarchicalLinkList;
     }
 
+    public Integer getSideBarOpeningTime() {
+        return sideBarOpeningTime;
+    }
+
+    public void setSideBarOpeningTime(Integer sideBarOpeningTime) {
+        this.sideBarOpeningTime = sideBarOpeningTime;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         NavigationConfig that = (NavigationConfig) o;
 
-        if (linkConfigList != null ? !linkConfigList.equals(that.getLinkConfigList()) : that.
-                getLinkConfigList() != null) {
+        if (isDefault != that.isDefault) return false;
+        if (hierarchicalLinkList != null ? !hierarchicalLinkList.equals(that.hierarchicalLinkList) : that.hierarchicalLinkList != null)
             return false;
-        }
-
-        if (isDefault != that.isDefault()) {
+        if (linkConfigList != null ? !linkConfigList.equals(that.linkConfigList) : that.linkConfigList != null)
             return false;
-        }
-
-        if (name != null ? !name.equals(that.getName()) : that.getName() != null) {
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (sideBarOpeningTime != null ? !sideBarOpeningTime.equals(that.sideBarOpeningTime) : that.sideBarOpeningTime != null)
             return false;
-        }
 
         return true;
     }
@@ -89,6 +92,8 @@ public class NavigationConfig implements TopLevelConfig {
         int result = linkConfigList != null ? linkConfigList.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (isDefault ? 1 : 0);
+        result = 31 * result + (sideBarOpeningTime != null ? sideBarOpeningTime.hashCode() : 0);
+        result = 31 * result + (hierarchicalLinkList != null ? hierarchicalLinkList.hashCode() : 0);
         return result;
     }
 }
