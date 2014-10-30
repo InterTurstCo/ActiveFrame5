@@ -23,7 +23,9 @@ public class Configuration implements Serializable {
     public static String DOMAIN_OBJECT_ID_COLUMN = "domain_object_id";
     public static String IP_ADDRESS_COLUMN = "ip_address";
     public static String INFO_COLUMN = "info";
-
+    public static String AUDIT_LOG_SUFFIX = "_al";    
+    public static String ID_COLUMN = "id";
+    
     @ElementList(type=TopLevelConfig.class, inline=true)
     private List<TopLevelConfig> configurationList = new ArrayList<>();
 

@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 
@@ -79,4 +80,10 @@ public class AccessControlUtility {
         return parentIds.toArray(new Id[parentIds.size()]);
     }
 
+    public static String getRelevantType(String typeName, ConfigurationExplorer configurationExplorer) {
+        if (configurationExplorer.isAuditLogType(typeName)) {
+            typeName = typeName.replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        }
+        return typeName;
+    }
 }

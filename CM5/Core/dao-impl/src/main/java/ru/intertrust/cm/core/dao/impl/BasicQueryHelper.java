@@ -57,6 +57,7 @@ import ru.intertrust.cm.core.config.TextFieldConfig;
 import ru.intertrust.cm.core.config.TimelessDateFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
@@ -666,7 +667,7 @@ public abstract class BasicQueryHelper {
     private boolean isParentObject(DomainObjectTypeConfig config) {
         boolean isParent = false;
         if (configurationExplorer.isAuditLogType(config.getName())) {
-            String parentDomainObjectName = config.getName().replace("_al", "");
+            String parentDomainObjectName = config.getName().replace(Configuration.AUDIT_LOG_SUFFIX, "");
             DomainObjectTypeConfig parentObjectConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentDomainObjectName);
             if (parentObjectConfig != null && parentObjectConfig.getExtendsAttribute() != null) {
                 isParent = false;

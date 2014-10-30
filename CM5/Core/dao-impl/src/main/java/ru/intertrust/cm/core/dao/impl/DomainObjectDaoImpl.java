@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AccessType;
@@ -1210,6 +1211,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" where ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("=:id ");
 
         if (accessToken.isDeferred()) {
+            // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
+            typeName = getRelevantType(typeName);
             String permissionType = typeName;
             String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(typeName);
             if (matrixRefType != null){
@@ -1247,6 +1250,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return query.toString();
     }
 
+    private String getRelevantType(String typeName) {
+        if (configurationExplorer.isAuditLogType(typeName)) {
+            typeName = typeName.replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        }
+        return typeName;
+    }
+
 
 
     /**
@@ -1267,6 +1277,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         appendTableNameQueryPart(query, typeName);
 
         if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(typeName)) {
+            // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
+            typeName = getRelevantType(typeName);
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
             String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
             String aclReadTable = null;
@@ -1571,10 +1583,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeIdParameter(Id id) {
+        id = getRelevantObjectId(id);
+        
         RdbmsId rdbmsId = (RdbmsId) id;
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
         return parameters;
+    }
+
+    private Id getRelevantObjectId(Id id) {
+        Id objectId = id;
+        String domainObjectType = domainObjectTypeIdCache.getName(id);
+        if (configurationExplorer.isAuditLogType(domainObjectType)) {
+            AccessToken systemAccessToken = createSystemAccessToken();
+            DomainObject parentDomainObject = find(id, systemAccessToken);
+            objectId = parentDomainObject.getReference(Configuration.DOMAIN_OBJECT_ID_COLUMN);
+        }
+        return objectId;
     }
 
     /**
@@ -1693,7 +1718,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return !str.equals(originalString);
 
     }
-
+    //TODO
     protected String buildFindChildrenQuery(String linkedType, String linkedField, int offset,
                                             int limit, AccessToken accessToken) {
         String tableAlias = getSqlAlias(linkedType);
@@ -1744,7 +1769,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private void appendAccessControlLogicToQuery(StringBuilder query,
             String linkedType) {
-
+        boolean isAuditLog = configurationExplorer.isAuditLogType(linkedType);
+        String originalLinkedType = linkedType;
+        // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.        
+        linkedType = getRelevantType(linkedType);
         //Добавляем учет ReadPermittedToEverybody
         if (!configurationExplorer.isReadPermittedToEverybody(linkedType)) {
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
@@ -1768,7 +1796,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on r.")
                     .append(DaoUtils.wrap("object_id"))
                     .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
-            query.append("where gm.person_id = :user_id and rt.id = ").append(linkedTypeAlias).append(".").append(DaoUtils.wrap(ID_COLUMN)).append(")");
+            query.append("where gm.person_id = :user_id and rt.id = ");
+            if (!isAuditLog) {
+                query.append(linkedTypeAlias).append(".").append(DaoUtils.wrap(ID_COLUMN));
+
+            } else {
+                query.append(originalLinkedType).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
+            }
+            query.append(")");
         }
     }
 
@@ -1927,16 +1962,18 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         domainObjectTypeConfig.getExtendsAttribute(), type, accessToken,
                         operation);
 
+                String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(domainObjectTypeConfig.getName());
+                Integer auditLogTypeId = domainObjectTypeIdCache.getId(auditLogTableName);
+                
                 if (id == null) {
-                    String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(domainObjectTypeConfig.getName());
-                    id = (Long) idGenerator.generateId(domainObjectTypeIdCache.getId(auditLogTableName));
+                    id = (Long) idGenerator.generateId(auditLogTypeId);
                 }
 
                 String query = generateCreateAuditLogQuery(domainObjectTypeConfig);
 
                 Map<String, Object> parameters = new HashMap<String, Object>();
                 parameters.put(DomainObjectDao.ID_COLUMN, id);
-                parameters.put(DomainObjectDao.TYPE_COLUMN, type);
+                parameters.put(DomainObjectDao.TYPE_COLUMN, auditLogTypeId);
 
                 if (!isDerived(domainObjectTypeConfig)) {
                     parameters.put(DomainObjectDao.OPERATION_COLUMN,
