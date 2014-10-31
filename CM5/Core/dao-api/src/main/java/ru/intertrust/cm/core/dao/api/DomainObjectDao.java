@@ -37,6 +37,8 @@ public interface DomainObjectDao {
     String OPERATION_COLUMN = "operation";
 
     String DOMAIN_OBJECT_ID_COLUMN = "domain_object_id";
+    String DOMAIN_OBJECT_ID_TYPE_COLUMN = "domain_object_id_type";
+    
     String COMPONENT_COLUMN = "component";
     String IP_ADDRESS_COLUMN = "ip_address";
     String INFO_COLUMN = "info";

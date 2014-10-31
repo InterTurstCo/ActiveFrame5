@@ -1513,6 +1513,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(wrap(OPERATION_COLUMN)).append(", ");
             query.append(wrap(COMPONENT_COLUMN)).append(", ");
             query.append(wrap(DOMAIN_OBJECT_ID_COLUMN)).append(", ");
+            query.append(wrap(DOMAIN_OBJECT_ID_TYPE_COLUMN)).append(", ");
+            
             query.append(wrap(INFO_COLUMN)).append(", ");
             query.append(wrap(IP_ADDRESS_COLUMN));
         }
@@ -1524,7 +1526,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(") values (:").append(ID_COLUMN).append(", :").append(TYPE_COLUMN);
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(", :created_date, :updated_date, :created_by, :created_by_type, :updated_by, :updated_by_type, " +
-            		" :status, :status_type, :access_object_id, :operation, :component, :domain_object_id, :info, :ip_address");
+            		" :status, :status_type, :access_object_id, :operation, :component, :domain_object_id, :domain_object_id_type, :info, :ip_address");
         }
 
         if (commaSeparatedParameters.length() > 0) {
@@ -2012,6 +2014,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     parameters.put(DomainObjectDao.COMPONENT_COLUMN, "");
                     parameters.put(DomainObjectDao.DOMAIN_OBJECT_ID_COLUMN,
                             ((RdbmsId) domainObject.getId()).getId());
+                    parameters.put(DomainObjectDao.DOMAIN_OBJECT_ID_TYPE_COLUMN,
+                            ((RdbmsId) domainObject.getId()).getTypeId());                    
                     parameters.put(DomainObjectDao.INFO_COLUMN, "");
                     // TODO Получение ip адреса
                     parameters.put(DomainObjectDao.IP_ADDRESS_COLUMN, "");
