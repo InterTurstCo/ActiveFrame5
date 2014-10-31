@@ -89,7 +89,7 @@ public class CollectionPluginView extends PluginView {
         super(plugin);
         this.eventBus = plugin.getLocalEventBus();
         DataGrid.Resources resources = GlobalThemesManager.getDataGridResources();
-        tableBody = new CollectionDataGrid(15, resources);
+        tableBody = new CollectionDataGrid(15, resources, eventBus);
         tableWidth = plugin.getOwner().getVisibleWidth();
         columnHeaderController =
                 new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth, eventBus);
@@ -856,8 +856,5 @@ public class CollectionPluginView extends PluginView {
         return plugin.getInitialData();
     }
 
-    public CollectionDataGrid getTableBody() {
-        return tableBody;
-    }
 }
 

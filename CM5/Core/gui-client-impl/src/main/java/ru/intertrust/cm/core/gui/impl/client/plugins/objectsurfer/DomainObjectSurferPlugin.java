@@ -18,6 +18,8 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.*;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
@@ -29,7 +31,6 @@ import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.LINK_KEY;
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SELECTED_IDS_KEY;
@@ -37,15 +38,12 @@ import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SELECTED_I
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,
         IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler,
-        HierarchicalCollectionEventHandler {
+        HierarchicalCollectionEventHandler, OpenDomainObjectFormEventHandler {
 
     private CollectionPlugin collectionPlugin;
     private FormPlugin formPlugin;
     // локальная шина событий
     private EventBus eventBus;
-
-    static Logger log = Logger.getLogger("domain.object.surfer.plugin");
-
 
     /*
      * Конструктор плагина в котором
@@ -57,6 +55,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         eventBus = GWT.create(SimpleEventBus.class);
         eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
         eventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
+        eventBus.addHandler(OpenDomainObjectFormEvent.TYPE, this);
     }
 
     @Override
@@ -188,17 +187,10 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
     public void updateSizes() {
         int width = getOwner().getVisibleWidth();
         int height = getOwner().getVisibleHeight();
-
         collectionPlugin.getOwner().setVisibleWidth(width);
         collectionPlugin.getOwner().setVisibleHeight(height / 2);
         collectionPlugin.getView().onPluginPanelResize();
- /*       formPlugin.setTemporaryWidth(width);
-        formPlugin.setTemporaryHeight(height / 2);
-        getView().onPluginPanelResize();
 
-        if (formPlugin != null && formPlugin.getView() != null) {
-            formPlugin.getView().onPluginPanelResize();
-        }*/
     }
 
     @Override
@@ -254,6 +246,24 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
                         new NavigationTreeItemSelectedEvent(pluginConfig, link.getName(), navigationConfig));
             }
         });
+    }
+
+    @Override
+    public void onOpenDomainObjectFormEvent(OpenDomainObjectFormEvent event) {
+        Id id = event.getId();
+        final FormPluginConfig config = new FormPluginConfig(id);
+        final FormPluginState state = new FormPluginState();
+        state.setEditable(true);
+        state.setInCentralPanel(true);
+        state.setToggleEdit(true);
+        config.setPluginState(state);
+        config.setFormViewerConfig(getFormViewerConfig());
+        final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+        formPlugin.setConfig(config);
+        formPlugin.setDisplayActionToolBar(true);
+        formPlugin.setLocalEventBus(getLocalEventBus());
+
+        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
     }
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {
