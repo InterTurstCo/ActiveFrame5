@@ -631,6 +631,10 @@ public class SqlQueryModifier {
      */
     public static String getDOTypeName(PlainSelect plainSelect, Column column, boolean forSubSelect) {
 
+        if (hasEvaluatedExpressionWithSameAliasInPlainSelect(plainSelect, column)) {
+            return null;
+        }
+        
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
             PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
@@ -639,9 +643,6 @@ public class SqlQueryModifier {
         } else if (plainSelect.getFromItem() instanceof Table) {
             Table fromItem = (Table) plainSelect.getFromItem();
 
-            if (forSubSelect && hasEvaluatedExpressionWithSameAliasInSubselect(plainSelect, column)) {
-                return null;
-            }
             // если колока колока не имеет названия таблицы - берется перая таблица из from выражения
             if ((column.getTable() == null || column.getTable().getName() == null)) {
                 return DaoUtils.unwrap(fromItem.getName());
@@ -686,13 +687,13 @@ public class SqlQueryModifier {
 
     /**
      * Проверяет, объявлена ли колонка (основного SQL запроса) в подзапросе как вычисляемая колонка
-     * @param plainSubSelect
+     * @param plainSelect
      * @param column
      * @return
      */
-    private static boolean hasEvaluatedExpressionWithSameAliasInSubselect(PlainSelect plainSubSelect, Column column) {
-        if (plainSubSelect.getSelectItems() != null) {
-            for (SelectItem selectItem : plainSubSelect.getSelectItems()) {
+    private static boolean hasEvaluatedExpressionWithSameAliasInPlainSelect(PlainSelect plainSelect, Column column) {
+        if (plainSelect.getSelectItems() != null) {
+            for (SelectItem selectItem : plainSelect.getSelectItems()) {
                 if (!SelectExpressionItem.class.equals(selectItem.getClass())) {
                     continue;
                 }

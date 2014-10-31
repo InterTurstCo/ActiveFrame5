@@ -121,14 +121,75 @@ public class CollectionsIT extends IntegrationTestBase {
     }
 
     @Test
-    public void testFindCollectionByQuery() {
+    public void testFindCollectionByQuery() throws LoginException {
         String query = "select t.id from Employee t where t.Name='" + EMPLOYEE_1_NAME + "'";
         IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
+        
+        query = "select e.id as id, e.department as department_id, e.name from employee e union select e.id as id, null as department_id, e.name from employee e";
+        collection = collectionService.findCollectionByQuery(query);
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
+        
+        query = "select * from country_al";
+        collection = collectionService.findCollectionByQuery(query);
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
+
+        query = "select * from country_al ca inner join country c on ca.domain_object_id = c.id where c.id = {0}";
+        List<Value> params = new ArrayList<Value>();
+        Integer countryTypeid = domainObjectTypeIdCache.getId("country");
+        params.add(new StringValue(new RdbmsId(countryTypeid, 33).toStringRepresentation()));
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
+        
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+        // query = "select * from country_al ca inner join country c on ca.domain_object_id = c.id where c.id = {0}";
+        // params = new ArrayList<Value>();
+        // params.add(new StringValue(new RdbmsId(countryTypeid, 33).toStringRepresentation()));
+        //
+        // collection = collectionService.findCollectionByQuery(query, params);
+        // assertNotNull(collection);
+        // assertTrue(collection.size() >= 1);
+
+        lc.logout();
+
+    }
+    
+    @Test
+    public void testFindCollectionByQueryWithAliasInSubSelect() throws LoginException {
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+
+        String query = "select id, organization from (select d.id, '<id>' as organization from department d ) t";
+        List<Value> params = new ArrayList<Value>();
+        params = new ArrayList<Value>();
+        params.add(new StringValue(new RdbmsId(countryTypeid, 33).toStringRepresentation()));
+
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
+
+        query = "select id, organization from (select d.id, '<id>' as organization from department d ) t";
+
+        collection = collectionService.findCollectionByQuery(query);
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
+
+        query = "select d.id, '<id>' as organization from department d ";
+
+        collection = collectionService.findCollectionByQuery(query);
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
+        lc.logout();
+
     }
 
-//    @Test
+    @Test
     public void testFindCollectionByQueryWithCastExpression() throws LoginException {
         String query = "select c.id,  cast (c.name as char(3))  from country c";
         List<Value> params = new ArrayList<Value>();
