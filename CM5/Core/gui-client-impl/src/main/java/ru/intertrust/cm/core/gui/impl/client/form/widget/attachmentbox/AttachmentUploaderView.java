@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
@@ -23,12 +24,12 @@ import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadCompletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadUpdatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenter;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +49,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private FormPanel submitForm;
     private boolean singleChoice;
     private List<AttachmentItem> attachments;
+    private List<AttachmentItem> allAttachments;
     private AcceptedTypesConfig acceptedTypesConfig;
     private ExtensionValidator extensionValidator;
     private Timer elapsedTimer;
@@ -56,8 +58,11 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private EventBus eventBus;
     private boolean displayAddButton;
 
-    public AttachmentUploaderView(SelectionStyleConfig selectionStyleConfig, AcceptedTypesConfig acceptedTypesConfig,
-                                  boolean displayAddButton, EventBus eventBus) {
+    public AttachmentUploaderView(List<AttachmentItem> attachments, List<AttachmentItem> allAttachments, SelectionStyleConfig selectionStyleConfig,
+                                  AcceptedTypesConfig acceptedTypesConfig, boolean displayAddButton,
+                                  EventBus eventBus) {
+        this.attachments = attachments;
+        this.allAttachments = allAttachments;
         this.acceptedTypesConfig = acceptedTypesConfig;
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         this.displayAddButton = displayAddButton;
@@ -65,16 +70,20 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         init();
     }
 
-    public void setAttachments(List<AttachmentItem> attachments) {
-        this.attachments = attachments;
-    }
-
     public List<AttachmentItem> getAttachments() {
         return attachments;
     }
 
+    public List<AttachmentItem> getAllAttachments() {
+        return allAttachments;
+    }
+
     public void setPresenterFactory(AttachmentElementPresenterFactory presenterFactory) {
         this.presenterFactory = presenterFactory;
+    }
+
+    protected boolean isSingleChoice() {
+        return singleChoice;
     }
 
     public void setSingleChoice(boolean singleChoice) {
@@ -102,20 +111,49 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             submitForm.addSubmitHandler(new FormSubmitHandler());
         }
         initWidget(root);
-
     }
 
     @Override
-    public void displayAttachmentItem(AttachmentElementPresenter presenter){
-        mainBoxPanel.add(presenter.presentElement());
+    public void displayAttachmentItem(AttachmentItem item){
+        mainBoxPanel.add(createAttachmentElement(item));
     }
 
     @Override
-    public void displayAttachmentItems(List<AttachmentElementPresenter> presenters) {
+    public void displayAttachmentItems(List<AttachmentItem> items) {
         cleanUp();
-        for (AttachmentElementPresenter presenter : presenters) {
-            displayAttachmentItem(presenter);
+        this.attachments = items;
+        for (Widget element : createSelectedElements()) {
+            mainBoxPanel.add(element);
         }
+        for (Widget element : createNonSelectedElements()) {
+            mainBoxPanel.add(element);
+        }
+    }
+
+    @Override
+    public void displayAttachmentItemInProgress(AttachmentItem item) {
+        mainBoxPanel.add(createAttachmentProgressElement(item));
+    }
+
+    protected Widget createAttachmentElement(AttachmentItem item) {
+        return presenterFactory.createEditablePresenter(item).presentElement();
+    }
+
+    protected Widget createAttachmentProgressElement(AttachmentItem item) {
+        return presenterFactory.createUploadPresenter(item, new CancelUploadAttachmentHandler(item))
+                .presentElement();
+    }
+
+    protected List<Widget> createSelectedElements() {
+        List<Widget> elements = new ArrayList<>(attachments.size());
+        for (AttachmentItem item : attachments) {
+            elements.add(createAttachmentElement(item));
+        }
+        return elements;
+    }
+
+    protected List<Widget> createNonSelectedElements() {
+        return new ArrayList<>();
     }
 
     /**
@@ -142,7 +180,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         fileUpload.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
-                if (singleChoice && !attachments.isEmpty()) {
+                if (showRewriteConfirmation()) {
                     showDialogBox();
                 } else {
                     InputElement inputElement = fileUpload.getElement().cast();
@@ -165,6 +203,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
     }
 
+    protected boolean showRewriteConfirmation() {
+        return singleChoice && !attachments.isEmpty();
+    }
+
     private void initSubmitForm() {
 
         submitForm = new FormPanel();
@@ -175,7 +217,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         submitForm.addStyleName("attachment-plugin-form-panel");
     }
 
-    public void reinitSubmitForm() {
+    private void reinitSubmitForm() {
         submitForm.removeFromParent();
         root.add(submitForm);
 
@@ -263,7 +305,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             String filename = getFilename(browserFileName);
             AttachmentItem item = new AttachmentItem();
             item.setName(filename);
-            displayAttachmentItem(presenterFactory.createUploadPresenter(item, new CancelUploadAttachmentHandler(item)));
+            displayAttachmentItemInProgress(item);
             elapsedTimer = new Timer() {
                 public void run() {
                     setUpProgressOfUpload(false);
@@ -284,7 +326,6 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             attachmentItem.setName(clearName);
         }
         attachmentItem.setTemporaryName(filePath);
-        attachments.add(attachmentItem);
         return attachmentItem;
     }
 
@@ -300,8 +341,12 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
             for (String filePath : filePaths.split(",")) {
                 AttachmentItem item = handleFileNameFromServer(filePath);
+
+                attachments.add(item);
+                allAttachments.add(item);
+
                 eventBus.fireEvent(new UploadCompletedEvent());
-                displayAttachmentItem(presenterFactory.createEditablePresenter(item));
+                displayAttachmentItem(item);
                 cancelTimer();
             }
         }
@@ -347,7 +392,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         }
     }
 
-    public static native String getFileNames(Element input) /*-{
+    private static native String getFileNames(Element input) /*-{
 
         var ret = "";
 

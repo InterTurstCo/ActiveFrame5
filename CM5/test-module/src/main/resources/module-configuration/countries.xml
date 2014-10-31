@@ -17,12 +17,14 @@
             <reference name="most_famous_city" type="city"/>
             <reference name="country_union" type="country_union"/>
             <string name="description" length="1024"/>
+            <reference name="flag" type="country_flag"/>
         </fields>
         <uniqueKey>
             <field name="name"/>
         </uniqueKey>
         <attachment-types>
             <attachment-type name="country_attachment"/>
+            <attachment-type name="country_flag" />
         </attachment-types>
     </domain-object-type>
 
@@ -365,7 +367,12 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <widget id="15" width="600px"/>
+                                        <widget id="country_attachment" width="600px"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="flag_attachment" width="600px"/>
                                     </td>
                                 </tr>
                             </table>
@@ -466,10 +473,10 @@
                 <force-required-asterisk value="true"/>
             </label>
             <list-box id="8a">
-                   <field-path value="capital"/>
-                   <!--а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
-                   <pattern value="{name} ({population} чел.)"/>
-               </list-box>
+                <field-path value="capital"/>
+                <!--а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
+                <pattern value="{name} ({population} чел.)"/>
+            </list-box>
 
             <label id="7a">
                 <text>Известный город:</text>
@@ -634,22 +641,33 @@
                  <pattern value="{name} ({population} чел.)"/>
                 <single-choice value="true"/>
              </list-box>-->
-            <attachment-box id="15">
+            <attachment-box id="country_attachment">
                 <field-path value="country_attachment^country"/>
                 <images-only>
                     <read-only-preview  preserve-proportion="true"/>
                     <small-preview display="true" preserve-proportion="true"/>
                     <large-preview display="true" preserve-proportion="true" width="500px" height="400px"/>
                 </images-only>
-                <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
                 <attachment-type-ref name="country_attachment"/>
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
                 <choice-style name="popup"/>
                 <delete-button display="true"/>
-                <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
             </attachment-box>
+
+            <!--attachment-box id="flag_attachment">
+                <field-path value="flag"/>
+                <images-only>
+                    <read-only-preview preserve-proportion="true"/>
+                    <small-preview display="true" preserve-proportion="true"/>
+                    <large-preview display="true" preserve-proportion="true" width="500px" height="400px"/>
+                </images-only>
+                <attachment-type-ref name="country_flag"/>
+                <scanner enabled="true"/>
+                <selection-style name="inline"/>
+                <choice-style name="inline"/>
+            </attachment-box-->
 
             <table-browser id="17a" read-only="false">
                 <field-path value="city^country"/>

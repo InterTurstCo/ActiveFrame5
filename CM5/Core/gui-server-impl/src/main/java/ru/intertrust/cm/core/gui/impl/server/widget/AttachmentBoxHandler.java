@@ -5,8 +5,10 @@ import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
@@ -17,14 +19,21 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
+import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
+import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -49,28 +58,19 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     private PropertyResolver propertyResolver;
     @Autowired
     private AccessVerificationService accessVerificationService;
+    @Autowired
+    private CrudService crudService;
 
     @Override
     public AttachmentBoxState getInitialState(WidgetContext context) {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        List<AttachmentItem> savedAttachments = new ArrayList<AttachmentItem>();
-
-        MultiObjectNode node = (MultiObjectNode) context.getFormObjects().getNode(fieldPath);
-        for (DomainObject object : node) {
-            AttachmentItem attachmentItem = new AttachmentItem();
-            attachmentItem.setName(object.getString(ATTACHMENT_NAME));
-            attachmentItem.setDescription(object.getString(ATTACHMENT_DESCRIPTION));
-            Long contentLength = object.getLong(ATTACHMENT_CONTENT_LENGTH);
-            String humanReadableContentLength = GuiUtil.humanReadableByteCount(contentLength);
-            attachmentItem.setContentLength(humanReadableContentLength);
-            attachmentItem.setId(object.getId());
-            savedAttachments.add(attachmentItem);
-        }
-
         AttachmentBoxState state = new AttachmentBoxState();
+        state.setAttachments(findSelectedAttachments(context));
+        state.setAllAttachments(findAllAttachments(context));
+        state.setInSelectionMode(isSelectionMode(fieldPath));
+
         state.setActionLinkConfig(widgetConfig.getActionLinkConfig());
-        state.setAttachments(savedAttachments);
         SelectionStyleConfig selectionStyleConfig = widgetConfig.getSelectionStyle();
         state.setSelectionStyleConfig(selectionStyleConfig);
         state.setAcceptedTypesConfig(widgetConfig.getAcceptedTypesConfig());
@@ -85,6 +85,44 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         return state;
     }
 
+    private List<AttachmentItem> findSelectedAttachments(WidgetContext context) {
+        List<AttachmentItem> selectedAttachments = new ArrayList<AttachmentItem>();
+        AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
+        FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
+        ObjectsNode node = context.getFormObjects().getNode(fieldPath);
+        if (node instanceof MultiObjectNode) {
+            for (DomainObject object : (MultiObjectNode) node) {
+                selectedAttachments.add(createAttachmentItem(object));
+            }
+        } else if (node instanceof SingleObjectNode){
+            DomainObject object = ((SingleObjectNode) node).getDomainObject();
+            selectedAttachments.add(createAttachmentItem(object));
+        }  else {
+            Id selectedId = context.getFieldPlainValue();
+            if (selectedId != null) {
+                selectedAttachments.add(createAttachmentItem(crudService.find(selectedId)));
+            }
+        }
+        return selectedAttachments;
+    }
+
+    private List<AttachmentItem> findAllAttachments(WidgetContext context) {
+        List<AttachmentItem> allAttachments = new ArrayList<>();
+
+        final FieldPath[] fieldPaths = context.getFieldPaths();
+        String[] linkTypes = getLinkedObjectTypes(context, fieldPaths);
+        for (int i = 0; i < linkTypes.length; i++) {
+            String linkType = linkTypes[i];
+            List<DomainObject> domainObjects = crudService.findAll(linkType);
+            if (domainObjects != null) {
+                for (DomainObject object : domainObjects) {
+                    allAttachments.add(createAttachmentItem(object));
+                }
+            }
+        }
+        return allAttachments;
+    }
+
     public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         List<AttachmentItem> attachmentItems = attachmentBoxState.getAttachments();
@@ -93,7 +131,6 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         String attachmentType = widgetConfig.getAttachmentType().getName();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        String parentLinkFieldName = fieldPath.getLinkToParentName();
 
         ArrayList<DomainObject> newObjects = new ArrayList<>(attachmentItems.size());
         for (AttachmentItem attachmentItem : attachmentItems) {
@@ -105,7 +142,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             File fileToSave = new File(filePath);
             long contentLength = fileToSave.length();
             try (InputStream fileData = new FileInputStream(fileToSave);
-                 RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
+
+                RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
                 DomainObject attachmentDomainObject = attachmentService.
                         createAttachmentDomainObjectFor(domainObject.getId(), attachmentType);
                 attachmentDomainObject.setValue(ATTACHMENT_NAME, new StringValue(attachmentItem.getName()));
@@ -114,10 +152,43 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                 String mimeType = Files.probeContentType(Paths.get(filePath));
                 mimeType = mimeType == null ? "undefined" : mimeType;
                 attachmentDomainObject.setValue(ATTACHMENT_MIME_TYPE, new StringValue(mimeType));
-
                 attachmentDomainObject.setValue(ATTACHMENT_CONTENT_LENGTH, new LongValue(contentLength));
-                attachmentDomainObject.setReference(parentLinkFieldName, domainObject);
-                final DomainObject savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+
+
+                DomainObject savedDo;
+//                if (fieldPath.isOneToManyReference()) {  //TODO: check for other reference types and handle accordingly
+//                    String parentLinkFieldName = fieldPath.getLinkToParentName();
+//                    attachmentDomainObject.setReference(parentLinkFieldName, domainObject);
+//                } else if (fieldPath.isOneToOneDirectReference()) {
+//                    System.out.println("1:1");
+//                } else if (fieldPath.isOneToOneBackReference()) {
+//                    System.out.println("|");
+//                } else if (fieldPath.isManyToManyReference()) {
+//                    System.out.println("n:m");
+//                }
+//                savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+//                if (fieldPath.isField()) {
+//                    domainObject.setReference(fieldPath.getFieldName(), savedDo);
+//                    crudService.save(domainObject);
+//                }
+
+                if (fieldPath.isOneToManyReference() || fieldPath.isOneToOneBackReference()) {
+                    String parentLinkFieldName = fieldPath.getLinkToParentName();
+                    attachmentDomainObject.setReference(parentLinkFieldName, domainObject);
+                    savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+                } else if (fieldPath.isManyToManyReference()) {
+                    savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+                    String referenceType = fieldPath.getReferenceType();
+                    DomainObject referencedObject = crudService.createDomainObject(referenceType);
+                    referencedObject.setReference(fieldPath.getLinkToChildrenName(), savedDo);
+                    referencedObject.setReference(fieldPath.getLinkToParentName(), domainObject);
+                    crudService.save(referencedObject);
+                } else { // one-to-one reference
+                    savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+                    domainObject.setReference(fieldPath.getFieldName(), savedDo);
+                    crudService.save(domainObject);
+                }
+
                 newObjects.add(savedDo);
                 fileToSave.delete();
             } catch (FileNotFoundException e) {
@@ -135,8 +206,46 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         return true;
     }
 
+    @Override
+    //TODO: this method overrides WidgetHandler.isSingleChoice() to return true for isOneToOneBackReference.
+    //TODO: Need to analyze if it's applicable for other widgets, and if so, to change the method in  WidgetHandler, and remove this one.
+    protected boolean isSingleChoice(WidgetContext context, Boolean singleChoiceFromConfig) {
+        FieldPath[] fieldPaths = context.getFieldPaths();
+        Boolean singleChoiceAnalyzed = null;
+        for (FieldPath fieldPath : fieldPaths) {
+            if (singleChoiceAnalyzed != null) {
+                if (singleChoiceAnalyzed != (fieldPath.isOneToOneDirectReference() || fieldPath.isField())
+                        || fieldPath.isOneToOneBackReference()){
+                    throw new GuiException("Multiply fieldPaths should be all reference type or all backreference type");
+                }
+            }
+            singleChoiceAnalyzed = fieldPath.isOneToOneDirectReference() || fieldPath.isField()
+                    || fieldPath.isOneToOneBackReference();
+        }
+        return singleChoiceAnalyzed || (singleChoiceFromConfig != null && singleChoiceFromConfig);
+    }
+
+    private AttachmentItem createAttachmentItem(DomainObject object) {
+        AttachmentItem attachmentItem = new AttachmentItem();
+        attachmentItem.setName(object.getString(ATTACHMENT_NAME));
+        attachmentItem.setDescription(object.getString(ATTACHMENT_DESCRIPTION));
+        Long contentLength = object.getLong(ATTACHMENT_CONTENT_LENGTH);
+        String humanReadableContentLength = GuiUtil.humanReadableByteCount(contentLength);
+        attachmentItem.setContentLength(humanReadableContentLength);
+        attachmentItem.setId(object.getId());
+
+        return attachmentItem;
+    }
+
     private boolean isAddPermitted(AddButtonConfig addButtonConfig, String attachmentTypeName) {
         return (addButtonConfig == null || addButtonConfig.isDisplay()) &&
             accessVerificationService.isCreatePermitted(attachmentTypeName);
+    }
+
+    private boolean isSelectionMode(FieldPath fieldPath) {
+        if (fieldPath.isOneToManyReference() || fieldPath.isOneToOneBackReference()) {
+            return false;
+        }
+        return true;
     }
 }

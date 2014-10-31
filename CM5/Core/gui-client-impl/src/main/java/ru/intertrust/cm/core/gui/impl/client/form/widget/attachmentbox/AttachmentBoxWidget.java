@@ -42,21 +42,20 @@ public class AttachmentBoxWidget extends BaseWidget {
     private void setCurrentStateForEditableWidget(AttachmentBoxState state) {
         AttachmentUploaderView view = (AttachmentUploaderView) impl;
         List<AttachmentItem> attachments = state.getAttachments();
-        boolean singleChoice = state.isSingleChoice();
-        view.setAttachments(attachments);
         view.setPresenterFactory(presenterFactory);
-        view.setSingleChoice(singleChoice);
-        view.displayAttachmentItems(presenterFactory.createEditablePresenters(attachments));
+        view.setSingleChoice(state.isSingleChoice());
+        view.displayAttachmentItems(attachments);
     }
 
     private void setCurrentStateForNoneEditableWidget(AttachmentBoxState state) {
         List<AttachmentItem> attachments = state.getAttachments();
         AttachmentNonEditablePanel noneEditablePanel = (AttachmentNonEditablePanel) impl;
-        noneEditablePanel.displayAttachmentItems(presenterFactory.createNonEditablePresenters(attachments));
+        noneEditablePanel.setPresenterFactory(presenterFactory);
+        noneEditablePanel.displayAttachmentItems(attachments);
     }
 
     @Override
-    protected boolean isChanged() {
+    protected boolean isChanged() { //TODO: unneeded confirmation sometimes appears
         AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
         List<AttachmentItem> currentValues = attachmentUploaderView.getAttachments();
         List<AttachmentItem> initValues = getInitialData() == null
@@ -69,8 +68,8 @@ public class AttachmentBoxWidget extends BaseWidget {
         if (isEditable()) {
             AttachmentBoxState currentState = new AttachmentBoxState();
             AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
-            List<AttachmentItem> attachmentsEditable = attachmentUploaderView.getAttachments();
-            currentState.setAttachments(attachmentsEditable);
+            currentState.setAttachments(attachmentUploaderView.getAttachments());
+            currentState.setAllAttachments(attachmentUploaderView.getAllAttachments());
             return currentState;
         } else {
             return getInitialData();
@@ -82,11 +81,14 @@ public class AttachmentBoxWidget extends BaseWidget {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
         AcceptedTypesConfig acceptedTypesConfig = attachmentBoxState.getAcceptedTypesConfig();
-
-        AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView(selectionStyleConfig,
+        if (attachmentBoxState.isInSelectionMode()) {
+            return new SelectAttachmentUploaderView(attachmentBoxState.getAttachments(),
+                attachmentBoxState.getAllAttachments(), selectionStyleConfig,
                 acceptedTypesConfig, attachmentBoxState.isDisplayAddButton(), eventBus);
-
-        return attachmentUploaderView;
+        } else {
+            return new AttachmentUploaderView(attachmentBoxState.getAttachments(), attachmentBoxState.getAllAttachments(),
+                    selectionStyleConfig, acceptedTypesConfig, attachmentBoxState.isDisplayAddButton(), eventBus);
+        }
     }
 
     @Override
