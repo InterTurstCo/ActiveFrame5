@@ -1583,8 +1583,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeIdParameter(Id id) {
-        id = getRelevantObjectId(id);
-        
         RdbmsId rdbmsId = (RdbmsId) id;
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
