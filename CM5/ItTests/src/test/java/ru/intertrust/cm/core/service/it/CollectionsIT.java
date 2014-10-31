@@ -155,7 +155,6 @@ public class CollectionsIT extends IntegrationTestBase {
         // collection = collectionService.findCollectionByQuery(query, params);
         // assertNotNull(collection);
         // assertTrue(collection.size() >= 1);
-
         lc.logout();
 
     }
@@ -168,6 +167,7 @@ public class CollectionsIT extends IntegrationTestBase {
         String query = "select id, organization from (select d.id, '<id>' as organization from department d ) t";
         List<Value> params = new ArrayList<Value>();
         params = new ArrayList<Value>();
+        Integer countryTypeid = domainObjectTypeIdCache.getId("country");
         params.add(new StringValue(new RdbmsId(countryTypeid, 33).toStringRepresentation()));
 
         IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
