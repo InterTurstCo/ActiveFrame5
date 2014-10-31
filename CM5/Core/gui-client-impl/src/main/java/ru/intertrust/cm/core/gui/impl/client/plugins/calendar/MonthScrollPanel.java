@@ -15,19 +15,22 @@ import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 
 /**
  * @author Sergey.Okolot
  *         Created on 13.10.2014 17:13.
  */
-public class MonthScrollPanel extends HorizontalPanel
-        implements RequiresResize, CalendarScrollEventHandler, MouseDownHandler {
+public class MonthScrollPanel extends HorizontalPanel implements RequiresResize,
+        CalendarScrollEventHandler, MouseDownHandler, CalendarTodayEventHandler {
     public static int MONTH_SCROLL_ITEM_WIDTH = 126;
 
     private final EventBus localEventBus;
     private HandlerRegistration eventPreviewHandler;
     private HandlerRegistration mouseDownHandler;
+    private HandlerRegistration todayHandler;
     private int containerOffset;
     private Date cursorDate;
 
@@ -35,10 +38,20 @@ public class MonthScrollPanel extends HorizontalPanel
         this.localEventBus = localEventBus;
         this.cursorDate = cursorDate;
         setStyleName("month-panel");
+        localEventBus.addHandler(CalendarScrollEvent.TYPE, this);
+        todayHandler = localEventBus.addHandler(CalendarTodayEvent.TYPE, this);
+        mouseDownHandler = addHandler(this, MouseDownEvent.getType());
+        this.sinkEvents(Event.ONMOUSEDOWN);
     }
 
     @Override
     public void onResize() {
+        initializeContainer();
+    }
+
+    @Override
+    public void goToToday() {
+        cursorDate = new Date();
         initializeContainer();
     }
 
@@ -49,7 +62,6 @@ public class MonthScrollPanel extends HorizontalPanel
             cursorDate = CalendarUtil.copyDate(date);
             final int delta = MONTH_SCROLL_ITEM_WIDTH / 31 * dateDistance;
             moveBy(delta);
-//            System.out.println("------------------------> MonthScrollPanel " + date + " dateDistance:" + dateDistance);
         }
     }
 
@@ -63,15 +75,13 @@ public class MonthScrollPanel extends HorizontalPanel
     @Override
     protected void onLoad() {
         super.onLoad();
-        localEventBus.addHandler(CalendarScrollEvent.TYPE, this);
-        this.sinkEvents(Event.ONMOUSEDOWN);
-        mouseDownHandler = addHandler(this, MouseDownEvent.getType());
         initializeContainer();
     }
 
     @Override
     protected void onDetach() {
         mouseDownHandler.removeHandler();
+        todayHandler.removeHandler();
         super.onDetach();
     }
 
@@ -116,7 +126,7 @@ public class MonthScrollPanel extends HorizontalPanel
         public void onPreviewNativeEvent(Event.NativePreviewEvent event) {
             switch (event.getTypeInt()) {
                 case Event.ONMOUSEMOVE:
-                    final int delta = event.getNativeEvent().getClientX() - startX;
+                    final int delta = (event.getNativeEvent().getClientX() - startX);
                     startX = event.getNativeEvent().getClientX();
                     moveBy(delta);
                     int cursorPosition = getWidgetCount() / 2;
@@ -128,8 +138,6 @@ public class MonthScrollPanel extends HorizontalPanel
                     cursorDate = new Date(item.getYear() - 1900, item.getMonthIndex(), 0);
                     int dateIndex = containerOffset * 31 / MONTH_SCROLL_ITEM_WIDTH;
                     CalendarUtil.addDaysToDate(cursorDate, evenItems ? dateIndex + 15 : dateIndex);
-
-
                     localEventBus.fireEvent(new CalendarScrollEvent(MonthScrollPanel.this, cursorDate));
                     break;
                 case Event.ONMOUSEUP:

@@ -7,18 +7,20 @@ import com.google.gwt.event.dom.client.MouseWheelEvent;
 import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
@@ -28,27 +30,100 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
  * @author Sergey.Okolot
  *         Created on 17.10.2014 17:58.
  */
-public class MonthPanel extends CalendarPanel implements CalendarScrollEventHandler, MouseWheelHandler {
-    private static int DATE_ITEM_HEIGHT = 98;
+public class MonthPanel extends CalendarPanel implements CalendarScrollEventHandler, MouseWheelHandler,
+        CalendarTodayEventHandler {
+    private static int DATE_ITEM_HEIGHT = 100;
 
     private int containerOffset;
+    private Date cursorDate;
+    private Timer resizeTimer;
+    private ScrollTimer scrollTimer;
 
     public MonthPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
         super(localEventBus, tableModel, config);
-        handlers.add(addHandler(this, MouseWheelEvent.getType()));
         sinkEvents(Event.ONMOUSEWHEEL);
+        handlers.add(addHandler(this, MouseWheelEvent.getType()));
+        handlers.add(this.localEventBus.addHandler(CalendarTodayEvent.TYPE, this));
     }
 
     @Override
     public void scrollTo(final Widget source, final Date date) {
         if (this != source) {
-//            System.out.println("-----------------> MonthPanel " + date);
+            if (scrollTimer == null) {
+                scrollTimer = new ScrollTimer(date);
+            } else {
+                scrollTimer.cancel();
+                scrollTimer.setScrollDate(date);
+            }
+            scrollTimer.schedule(500);
         }
     }
 
     @Override
+    public void goToToday() {
+        currentDate = new Date();
+        CalendarUtil.resetTime(currentDate);
+        cursorDate = CalendarUtil.copyDate(currentDate);
+        tableModel.setSelectedDate(currentDate);
+        initialize();
+    }
+
+    @Override
     public void onMouseWheel(MouseWheelEvent event) {
-        final int delta = event.getDeltaY();
+        final int delta = event.getDeltaY() * 5;
+        changeOffset(delta);
+        final WeekItem weekItem = (WeekItem) getWidget(0);
+        final DateItem dateItem = (DateItem) weekItem.getWidget(0);
+        final Date date = CalendarUtil.copyDate(dateItem.date);
+        final int dateOffset =  containerOffset / (DATE_ITEM_HEIGHT / 7);
+        CalendarUtil.addDaysToDate(date, 7 + dateOffset);
+        localEventBus.fireEvent(new CalendarScrollEvent(this, date));
+    }
+
+    @Override
+    public void onResize() {
+        if (resizeTimer == null) {
+            resizeTimer = new Timer() {
+
+                @Override
+                public void run() {
+                    resizeTimer = null;
+                    initialize();
+                }
+            };
+        } else {
+            resizeTimer.cancel();
+        }
+        resizeTimer.schedule(500);
+    }
+
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+        cursorDate = CalendarUtil.copyDate(tableModel.getSelectedDate());
+        localEventBus.addHandler(CalendarScrollEvent.TYPE, this);
+        initialize();
+    }
+
+    private void initialize() {
+        clear();
+        final Date date = CalendarUtil.copyDate(cursorDate);
+        CalendarUtil.addDaysToDate(date, -(cursorDate.getDay() + 13));
+        final int dayOffset = cursorDate.getDay();
+        final int height = getOffsetHeight();
+        int weekCount = height / DATE_ITEM_HEIGHT + 2;
+        containerOffset = DATE_ITEM_HEIGHT - dayOffset * DATE_ITEM_HEIGHT / 7;
+        getElement().getStyle().setMarginTop(-containerOffset, Style.Unit.PX);
+        final int offsetWidth = getOffsetWidth();
+        for (int index = 0; index < weekCount; index++) {
+            add(new WeekItem(date, offsetWidth, calendarConfig.isShowWeekend()));
+            if (!calendarConfig.isShowWeekend()) {
+                CalendarUtil.addDaysToDate(date, 2);
+            }
+        }
+    }
+
+    private void changeOffset(int delta) {
         containerOffset -= delta;
         if (containerOffset < 0) {
             final WeekItem weekItem = (WeekItem) getWidget(0);
@@ -68,45 +143,11 @@ public class MonthPanel extends CalendarPanel implements CalendarScrollEventHand
             containerOffset -= DATE_ITEM_HEIGHT;
         }
         getElement().getStyle().setMarginTop(-containerOffset, Style.Unit.PX);
-        final WeekItem weekItem = (WeekItem) getWidget(0);
-        final DateItem dateItem = (DateItem) weekItem.getWidget(0);
-        final Date date = CalendarUtil.copyDate(dateItem.date);
-        final int dateOffset =  containerOffset / (DATE_ITEM_HEIGHT / 7);
-        CalendarUtil.addDaysToDate(date, 7 + dateOffset);
-        localEventBus.fireEvent(new CalendarScrollEvent(this, date));
-    }
-
-    @Override
-    public void onResize() {
-
-    }
-
-    @Override
-    protected void onLoad() {
-        super.onLoad();
-        final Date selectedDate = tableModel.getSelectedDate();
-        final Date startDate = CalendarUtil.copyDate(selectedDate);
-        CalendarUtil.addDaysToDate(startDate, - selectedDate.getDay() - 13);
-        localEventBus.addHandler(CalendarScrollEvent.TYPE, this);
-        initialize(startDate);
-    }
-
-    private void initialize(final Date startDate) {
-        final int height = getOffsetHeight();
-        int weekCount = height / DATE_ITEM_HEIGHT + 2;
-        containerOffset = DATE_ITEM_HEIGHT;
-        getElement().getStyle().setMarginTop( - containerOffset, Style.Unit.PX);
-        final int offsetWidth = getOffsetWidth();
-        for (int index = 0; index < weekCount; index++) {
-            add(new WeekItem(startDate, offsetWidth, calendarConfig.isShowWeekend()));
-            CalendarUtil.addDaysToDate(startDate, 7);
-        }
     }
 
     private class WeekItem extends FlowPanel {
 
-        private WeekItem(final Date startDate, final int width, final boolean showWeekend) {
-            final Date date = CalendarUtil.copyDate(startDate);
+        private WeekItem(final Date date, final int width, final boolean showWeekend) {
             final int dayContainersCount = showWeekend ? 6 : 5;
             final int dateWidth = width / dayContainersCount;
             for (int index = 0; index < dayContainersCount; index++) {
@@ -201,7 +242,6 @@ public class MonthPanel extends CalendarPanel implements CalendarScrollEventHand
         @Override
         public void fillValues(List<CalendarItemData> values) {
             if (values != null) {
-                System.out.println("--------------> container: " + container);
                 for (CalendarItemData calendarItemData : values) {
                     if (calendarItemData.getImage() != null) {
                         final HorizontalPanel wrapper = new HorizontalPanel();
@@ -221,6 +261,31 @@ public class MonthPanel extends CalendarPanel implements CalendarScrollEventHand
         private Label getDescription(CalendarItemData itemData) {
             final Label result = new Label(itemData.getDescription(), false);
             return result;
+        }
+    }
+
+    private class ScrollTimer extends Timer {
+        private Date scrollTo;
+
+        private ScrollTimer(final Date scrollTo) {
+            this.scrollTo = scrollTo;
+        }
+
+            @Override
+            public void run() {
+                scrollTimer = null;
+                final int dayOffset = CalendarUtil.getDaysBetween(cursorDate, scrollTo);
+                cursorDate = CalendarUtil.copyDate(scrollTo);
+                if (Math.abs(dayOffset) > 7) {
+                    initialize();
+                } else {
+                    final int delta = dayOffset * DATE_ITEM_HEIGHT / 7;
+                    changeOffset(-delta);
+                }
+            }
+
+        public void setScrollDate(final Date scrollTo) {
+            this.scrollTo = scrollTo;
         }
     }
 }

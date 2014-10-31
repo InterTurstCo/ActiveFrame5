@@ -88,7 +88,7 @@ public abstract class CalendarPanel extends FlowPanel implements RequiresResize 
             itemWrapper.add(getTasksPanel());
             add(itemWrapper);
             sinkEvents(Event.ONCLICK);
-            handlers.add(addHandler(this, ClickEvent.getType()));
+            addHandler(this, ClickEvent.getType());
         }
 
         @Override

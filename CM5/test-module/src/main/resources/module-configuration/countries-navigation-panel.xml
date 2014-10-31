@@ -4,6 +4,34 @@
     <navigation name="panel"
                 is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
 
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
+            <child-links>
+                <link name="Calendar1" display-text="Календар 1">
+                    <plugin>
+                        <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                            <calendar-view>
+                                <collection-ref name="Countries"/>
+                                <date-field-path value="independence_day"/>
+                                <date-field-filter name="byIndependenceDay" type="datetime"/>
+                                <pattern value="{population} {name}"/>
+                                <sort-criteria>
+                                    <sort-criterion field="population" order="asc"/>
+                                </sort-criteria>
+                                <image-field name="population">
+                                    <image-mappings imageWidth="30px" imageHeight="30px">
+                                        <mapping value="" image="cancel.png"/>
+                                        <mapping value="0" image="addButton.png"/>
+                                        <mapping value="45469800" image="addButton.png"/>
+                                        <mapping value="143548980" image="CMJSpinner.gif"/>
+                                    </image-mappings>
+                                </image-field>
+                            </calendar-view>
+                        </calendar>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
+
         <!-- Пример на основе "Руководства разработчика"-->
         <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
             <child-links>
@@ -148,34 +176,6 @@
                     <decorations>
                         <collection-counter/>
                     </decorations>
-                </link>
-            </child-links>
-        </link>
-
-        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
-            <child-links>
-                <link name="Calendar1" display-text="Календар 1">
-                    <plugin>
-                        <calendar  show-detail-panel="true" show-weekend="true" start-mode="week">
-                            <calendar-view>
-                                <collection-ref name="Countries"/>
-                                <date-field-path value="independence_day"/>
-                                <date-field-filter name="byIndependenceDay" type="datetime"/>
-                                <pattern value="{population} {name}"/>
-                                <sort-criteria>
-                                    <sort-criterion field="population" order="asc"/>
-                                </sort-criteria>
-                                <image-field name="population">
-                                    <image-mappings imageWidth="30px" imageHeight="30px">
-                                        <mapping value="" image="cancel.png"/>
-                                        <mapping value="0" image="addButton.png"/>
-                                        <mapping value="45469800" image="addButton.png"/>
-                                        <mapping value="143548980" image="CMJSpinner.gif"/>
-                                    </image-mappings>
-                                </image-field>
-                            </calendar-view>
-                        </calendar>
-                    </plugin>
                 </link>
             </child-links>
         </link>
