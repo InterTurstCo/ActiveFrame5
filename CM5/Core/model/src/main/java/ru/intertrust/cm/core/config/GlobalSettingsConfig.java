@@ -38,6 +38,17 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Element(name = "event-logs", required = false)
     private EventLogsConfig eventLogsConfig;
 
+    @Element(name = "application-help", required = false)
+    private ApplicationHelpConfig applicationHelpConfig;
+
+    public ApplicationHelpConfig getApplicationHelpConfig() {
+        return applicationHelpConfig;
+    }
+
+    public void setApplicationHelpConfig(ApplicationHelpConfig applicationHelpConfig) {
+        this.applicationHelpConfig = applicationHelpConfig;
+    }
+
     public AuditLog getAuditLog() {
         return auditLog;
     }
@@ -120,17 +131,19 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
         GlobalSettingsConfig that = (GlobalSettingsConfig) o;
 
+        if (applicationHelpConfig != null ? !applicationHelpConfig.equals(that.applicationHelpConfig) : that.applicationHelpConfig != null)
+            return false;
         if (auditLog != null ? !auditLog.equals(that.auditLog) : that.auditLog != null) return false;
+        if (developmentMode != null ? !developmentMode.equals(that.developmentMode) : that.developmentMode != null)
+            return false;
+        if (eventLogsConfig != null ? !eventLogsConfig.equals(that.eventLogsConfig) : that.eventLogsConfig != null)
+            return false;
         if (productTitle != null ? !productTitle.equals(that.productTitle) : that.productTitle != null) return false;
         if (productVersion != null ? !productVersion.equals(that.productVersion) : that.productVersion != null)
             return false;
         if (searchLanguages != null ? !searchLanguages.equals(that.searchLanguages) : that.searchLanguages != null)
             return false;
         if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
-            return false;
-        if (developmentMode != null ? !developmentMode.equals(that.developmentMode) : that.developmentMode != null)
-            return false;
-        if (eventLogsConfig != null ? !eventLogsConfig.equals(that.eventLogsConfig) : that.eventLogsConfig != null)
             return false;
 
         return true;
@@ -140,6 +153,12 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     public int hashCode() {
         int result = productTitle != null ? productTitle.hashCode() : 0;
         result = 31 * result + (productVersion != null ? productVersion.hashCode() : 0);
+        result = 31 * result + (auditLog != null ? auditLog.hashCode() : 0);
+        result = 31 * result + (transactionTrace != null ? transactionTrace.hashCode() : 0);
+        result = 31 * result + (searchLanguages != null ? searchLanguages.hashCode() : 0);
+        result = 31 * result + (developmentMode != null ? developmentMode.hashCode() : 0);
+        result = 31 * result + (eventLogsConfig != null ? eventLogsConfig.hashCode() : 0);
+        result = 31 * result + (applicationHelpConfig != null ? applicationHelpConfig.hashCode() : 0);
         return result;
     }
 
