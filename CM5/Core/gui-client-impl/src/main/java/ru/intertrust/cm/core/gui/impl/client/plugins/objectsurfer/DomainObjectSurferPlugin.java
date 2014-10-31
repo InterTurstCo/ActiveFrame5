@@ -119,7 +119,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         newConfig.setPluginState((FormPluginState) formPluginData.getPluginState());
         newConfig.setFormViewerConfig(getFormViewerConfig());
         newFormPlugin.setConfig(newConfig);
-        formPluginPanel.open(newFormPlugin, false);
+        formPluginPanel.open(newFormPlugin);
         this.formPlugin = newFormPlugin;
         newFormPlugin.addViewCreatedListener(new FormPluginCreatedListener());
     }

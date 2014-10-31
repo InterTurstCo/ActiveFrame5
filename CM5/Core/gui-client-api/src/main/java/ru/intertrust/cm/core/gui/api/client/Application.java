@@ -1,10 +1,11 @@
 package ru.intertrust.cm.core.gui.api.client;
 
 import com.google.gwt.core.shared.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 
@@ -22,14 +23,11 @@ public class Application {
     private static Application ourInstance = null;
 
     private PopupPanel glassPopupPanel;
-    private PopupPanel glassWithImagePopupPanel;
 
     private Timer timer = new Timer() {
         @Override
         public void run() {
-            glassWithImagePopupPanel.center();
-            glassWithImagePopupPanel.show();
-            glassPopupPanel.hide();
+            RootPanel.get().getElement().getStyle().setCursor(Style.Cursor.WAIT);
         }
     };
 
@@ -60,7 +58,6 @@ public class Application {
         compactModeState = new CompactModeState();
         historyManager = GWT.create(HistoryManager.class);
         glassPopupPanel = createGlassPopup();
-        glassWithImagePopupPanel = createGlassPopupWithImage();
     }
 
     /*
@@ -146,7 +143,7 @@ public class Application {
 
     public void hideLoadingIndicator() {
         timer.cancel();
-        glassWithImagePopupPanel.hide();
+        RootPanel.get().getElement().getStyle().setCursor(Style.Cursor.DEFAULT);
         glassPopupPanel.hide();
     }
 
@@ -156,17 +153,6 @@ public class Application {
         glassPopup.setGlassEnabled(true);
         glassPopup.setGlassStyleName("transparentGlass");
         glassPopup.setStyleName("PopupPanelPreloader");
-        return glassPopup;
-    }
-
-    private PopupPanel createGlassPopupWithImage() {
-        final PopupPanel glassPopup = createGlassPopup();
-        glassPopup.setStyleName("PopupPanelPreloader");
-        glassPopup.setGlassStyleName("glass");
-        Image image = new Image();
-        image.setUrl("progressbar.gif");
-        image.addStyleName("loading");
-        glassPopup.add(image);
         return glassPopup;
     }
 }
