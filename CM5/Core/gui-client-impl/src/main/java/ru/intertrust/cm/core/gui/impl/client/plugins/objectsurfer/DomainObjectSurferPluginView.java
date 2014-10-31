@@ -1,34 +1,26 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
-import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
 import ru.intertrust.cm.core.gui.model.action.system.SplitterSettingsActionContext;
-import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 
 import java.util.logging.Logger;
 
@@ -45,13 +37,10 @@ public class DomainObjectSurferPluginView extends PluginView {
     //локальная шина событий
     private SplitterEx dockLayoutPanel;
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
-    //private FlowPanel flowPanel;
     private AbsolutePanel rootSurferPanel;
     private SplitterSettingsTimeoutTimer timeoutTimer;
     private EventBus eventBus;
-    private int rowNumber = 0;
-    private static int countClick = 0;
-    private static Timer timer;
+
 
     public DomainObjectSurferPluginView(Plugin plugin) {
         super(plugin);
@@ -185,10 +174,6 @@ public class DomainObjectSurferPluginView extends PluginView {
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, plugin.getClass().getSimpleName());
 
-        CollectionPluginView collectionPluginView = (CollectionPluginView) domainObjectSurferPlugin.getCollectionPlugin().getView();
-        collectionPluginView.getTableBody().addCellPreviewHandler(new CollectionCellPreviewHandler());
-        collectionPluginView.getTableBody().sinkEvents(Event.ONDBLCLICK | Event.ONCLICK);
-
         return rootSurferPanel;
     }
 
@@ -233,67 +218,4 @@ public class DomainObjectSurferPluginView extends PluginView {
         }
     }
 
-    private void singleClickMethod(CellPreviewEvent<CollectionRowItem> event) {
-        Id id = event.getValue().getId();
-        Application.getInstance().getHistoryManager().setSelectedIds(id);
-        eventBus.fireEvent(new CollectionRowSelectedEvent(id));
-    }
-
-    private void doubleClickMethod(DomainObjectSurferPlugin domainObjectSurferPlugin, CellPreviewEvent<CollectionRowItem> event) {
-        final IsDomainObjectEditor editor = (IsDomainObjectEditor) domainObjectSurferPlugin;
-        Id id = event.getValue().getId();
-        final FormPluginConfig config;
-        if (id == null) {
-            config = new FormPluginConfig(editor.getRootDomainObject().getTypeName());
-        } else {
-            config = new FormPluginConfig(id);
-        }
-        final FormPluginState state = editor.getFormPluginState();
-        config.setPluginState(state);
-        state.setEditable(true);
-        config.setFormViewerConfig(editor.getFormViewerConfig());
-
-        final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
-        formPlugin.setConfig(config);
-        formPlugin.setDisplayActionToolBar(true);
-        formPlugin.setLocalEventBus(domainObjectSurferPlugin.getLocalEventBus());
-
-        if (state.isInCentralPanel()) {
-            domainObjectSurferPlugin.getOwner().closeCurrentPlugin();
-        } else {
-            state.setInCentralPanel(true);
-        }
-        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
-
-    }
-
-    private class CollectionCellPreviewHandler implements CellPreviewEvent.Handler<CollectionRowItem> {
-
-        @Override
-        public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
-            CollectionDataGrid grid = (CollectionDataGrid) event.getSource();
-            int row = grid.getKeyboardSelectedRow();
-
-            if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONDBLCLICK) {
-                doubleClickMethod(domainObjectSurferPlugin, event);
-            }
-
-            if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONCLICK & rowNumber != row) {
-                countClick++;
-                rowNumber = row;
-                timer = new Timer() {
-                    @Override
-                    public void run() {
-                        if (countClick > 1) {
-                            doubleClickMethod(domainObjectSurferPlugin, event);
-                        } else {
-                            singleClickMethod(event);
-                        }
-                        countClick = 0;
-                    }
-                };
-                timer.schedule(500);
-            }
-        }
-    }
 }
