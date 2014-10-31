@@ -35,6 +35,9 @@ public class HeaderContainer extends SimplePanel {
     private Label productVersion;
     private AbsolutePanel infoPanel;
 
+    public HeaderContainer() {
+    }
+
     public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig, CurrentVersionInfo version) {
         this.settingsPopupConfig = settingsPopupConfig;
         addUserInfoToDialog(currentUserInfo);
@@ -207,5 +210,17 @@ public class HeaderContainer extends SimplePanel {
         dialogBox = new InformationDialogBox(currentUserInfo.getCurrentLogin(), currentUserInfo.getFirstName(), currentUserInfo.getLastName(), currentUserInfo.getMail());
     }
 
+    public void setInfoPage(final String pagePath){
+
+        Label help = new Label("Справка");
+        infoPanel.add(help);
+
+        help.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Window.open(GWT.getHostPageBaseURL()+ pagePath, "_blank", "");
+            }
+        });
+    }
 
 }

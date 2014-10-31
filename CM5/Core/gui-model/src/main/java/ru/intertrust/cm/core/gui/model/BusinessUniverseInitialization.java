@@ -25,6 +25,21 @@ public class BusinessUniverseInitialization implements Dto {
     private String applicationVersion;
     private String productVersion;
     private Integer SideBarOpenningTimeConfig;
+    private String helperLink;
+
+
+    public String getHelperLink() {
+        return helperLink;
+    }
+
+    public void setHelperLink(String helperLink) {
+        if(helperLink != null){
+            this.helperLink = helperLink;
+        }
+        else{
+            this.helperLink = "help/page404.html";
+        }
+    }
 
     public String getProductVersion() {
         return productVersion;

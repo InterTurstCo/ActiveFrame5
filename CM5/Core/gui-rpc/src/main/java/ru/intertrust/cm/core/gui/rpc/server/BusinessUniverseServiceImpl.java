@@ -64,6 +64,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setApplicationVersion(version);
 
         GlobalSettingsConfig globalSettingsConfig = configurationService.getGlobalSettings();
+        initialization.setHelperLink(globalSettingsConfig.getApplicationHelpConfig().getSource());
         final ProductTitle productTitle = globalSettingsConfig.getProductTitle();
         initialization.setPageNamePrefix(productTitle == null ? null : productTitle.getTitle() == null ? null : productTitle.getTitle() + ": ");
         final ProductVersion productVersion = globalSettingsConfig.getProductVersion();

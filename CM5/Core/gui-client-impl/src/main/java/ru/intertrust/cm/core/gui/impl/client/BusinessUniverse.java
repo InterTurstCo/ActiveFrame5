@@ -68,6 +68,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private AbsolutePanel right;
     private AbsolutePanel footer;
     private String initialToken;
+    private HeaderContainer headerContainer;
 
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
@@ -126,7 +127,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 Integer sideBarOpenningTime = result.getSideBarOpenningTimeConfig();
                 navigationTreePlugin.setSideBarOpenningTime(sideBarOpenningTime);
-
                 centralPluginPanel = new CentralPluginPanel();
                 centralPluginPanel.setStyle("rightSectionWrapper");
                 centralDivPanel.add(centralPluginPanel);
@@ -139,7 +139,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 String logoImagePath = GlobalThemesManager.getResourceFolder() + result.getLogoImagePath();
                 CurrentUserInfo currentUserInfo = getUserInfo(result);
                 CurrentVersionInfo version = getVersion(result);
-                header.add(new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version));
+                headerContainer = new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version);
+                headerContainer.setInfoPage(result.getHelperLink());
+                header.add(headerContainer);
+
                 left.add(navigationTreePanel);
 
                 glEventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {

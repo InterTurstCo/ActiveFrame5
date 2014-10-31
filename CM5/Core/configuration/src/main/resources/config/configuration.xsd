@@ -534,6 +534,11 @@
                       type="xs:string"/>
     </xs:complexType>
 
+    <xs:complexType name="applicationHelpType">
+        <xs:attribute name="source" use="optional"
+                      type="xs:string"/>
+    </xs:complexType>
+
     <xs:complexType name="themesType">
         <xs:sequence minOccurs="1">
             <xs:element name="theme"
@@ -677,7 +682,9 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-
+            <xs:element name="application-help" type="con:applicationHelpType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
 
