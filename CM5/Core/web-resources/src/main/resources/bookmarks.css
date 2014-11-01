@@ -129,27 +129,56 @@ ins {
     background: linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
     float: left;
     padding: 10px 5px 0 20px;
+    -webkit-transition: width 0.5s;
+    transition: width 0.5s;
     width: 190px;
 }
 
 .left-div-invisible {
-    display: none;
+    /*display: none;*/
+    background: #dde4ea;
+    background: -moz-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, #ffffff), color-stop(100%, #d4e1e9));
+    background: -webkit-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+    background: -o-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+    background: -ms-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+    filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#ffffff", endColorstr\= "#d4e1e9", GradientType\= 1 \);
+    background: linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+    float: left;
+    /*padding: 10px 5px 0 20px;*/
+    -webkit-transition: width 0.5s;
+    transition: width 0.5s;
+    width: 0px;
 }
 
-.right-div,
-.bookmarks-no-margin {
+.right-div {
     padding: 17px 10px 10px 20px;
     position: relative;
     background: #ffffff;
     border: none;
     border-radius: 5px 0 0 0;
     box-shadow: -2px 0 2px #cccccc;
+    -webkit-transition: margin-left 0.5s;
+    transition: margin-left 0.5s;
     margin-left: 215px;
 }
 
 .bookmarks-no-margin {
+    /*-webkit-transition: margin-left 0.5s;*/
+    /*transition: margin-left 0.5s;*/
+    /*margin-left: 10px;*/
+    /*padding-left: 37px !important;*/
+
+    padding: 17px 10px 10px 37px;
+    position: relative;
+    background: #fff;
+    border: none;
+    border-radius: 5px 0 0 0;
+    box-shadow: -2px 0 2px #ccc;
+    -webkit-transition: margin-left 0.5s;
+    transition: margin-left 0.5s;
     margin-left: 10px;
-    padding-left: 37px !important;
+
 }
 
 .decorated-left-div,

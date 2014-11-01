@@ -107,7 +107,7 @@ public class BookmarksHelper implements IsWidget {
                 decoratedDivLeft.setVisible(false);
                 divLeftButton.setVisible(false);
                 divRightButton.setVisible(true);
-                divRight.addStyleName("bookmarks-no-margin");
+                divRight.setStyleName("bookmarks-no-margin");
                 divLeft.setStyleName("left-div-invisible");
                 rootDiv.setStyleName("root-div-unshadowed");
             }
@@ -121,7 +121,7 @@ public class BookmarksHelper implements IsWidget {
                 divRightButton.setVisible(false);
 
                 divLeft.setStyleName("left-div-visible");
-                divRight.removeStyleName("bookmarks-no-margin");
+                divRight.setStyleName("right-div");
                 rootDiv.setStyleName("root-div");
             }
         });
