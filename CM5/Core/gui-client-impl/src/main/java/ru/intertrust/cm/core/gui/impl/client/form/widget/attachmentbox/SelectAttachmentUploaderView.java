@@ -54,13 +54,14 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
             @Override
             public void onValueChange(ValueChangeEvent<Boolean> event) {
                 if (event.getValue()) {
-                    getAttachments().add(item);
                     if (isSingleChoice()) {
                         //TODO:  may be it would be better to use radio-button group?
                         uncheckOthers(checkbox);
+                        clearAttachments();
                     }
+                    addAttachment(item);
                 } else {
-                    getAttachments().remove(item);
+                    removeAttachment(item);
                 }
             }
         });
@@ -80,7 +81,7 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
     private void uncheckOthers(CheckBox checkbox) {
         for (CheckBox chb : checkboxes) {
             if (checkbox != chb) {
-                chb.setValue(false, true);
+                chb.setValue(false);
             }
         }
     }

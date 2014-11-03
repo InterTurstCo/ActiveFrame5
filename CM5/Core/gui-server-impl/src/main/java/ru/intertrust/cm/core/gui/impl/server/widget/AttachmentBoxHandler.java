@@ -188,9 +188,9 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                     domainObject.setReference(fieldPath.getFieldName(), savedDo);
                     crudService.save(domainObject);
                 }
-
                 newObjects.add(savedDo);
                 fileToSave.delete();
+                attachmentItem.setId(savedDo.getId());
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {

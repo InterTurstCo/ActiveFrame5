@@ -44,6 +44,7 @@ public class AttachmentBoxWidget extends BaseWidget {
         List<AttachmentItem> attachments = state.getAttachments();
         view.setPresenterFactory(presenterFactory);
         view.setSingleChoice(state.isSingleChoice());
+        view.setAllAttachments(state.getAllAttachments());
         view.displayAttachmentItems(attachments);
     }
 

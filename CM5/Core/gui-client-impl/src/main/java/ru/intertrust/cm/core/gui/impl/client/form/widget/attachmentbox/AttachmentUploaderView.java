@@ -48,8 +48,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private FileUpload fileUpload;
     private FormPanel submitForm;
     private boolean singleChoice;
-    private List<AttachmentItem> attachments;
-    private List<AttachmentItem> allAttachments;
+    private List<AttachmentItem> attachments = new ArrayList<>();
+    private List<AttachmentItem> allAttachments = new ArrayList<>();
     private AcceptedTypesConfig acceptedTypesConfig;
     private ExtensionValidator extensionValidator;
     private Timer elapsedTimer;
@@ -61,8 +61,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     public AttachmentUploaderView(List<AttachmentItem> attachments, List<AttachmentItem> allAttachments, SelectionStyleConfig selectionStyleConfig,
                                   AcceptedTypesConfig acceptedTypesConfig, boolean displayAddButton,
                                   EventBus eventBus) {
-        this.attachments = attachments;
-        this.allAttachments = allAttachments;
+        setAttachments(attachments);
+        setAllAttachments(allAttachments);
         this.acceptedTypesConfig = acceptedTypesConfig;
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         this.displayAddButton = displayAddButton;
@@ -70,11 +70,11 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         init();
     }
 
-    public List<AttachmentItem> getAttachments() {
+    protected List<AttachmentItem> getAttachments() {
         return attachments;
     }
 
-    public List<AttachmentItem> getAllAttachments() {
+    protected List<AttachmentItem> getAllAttachments() {
         return allAttachments;
     }
 
@@ -86,7 +86,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         return singleChoice;
     }
 
-    public void setSingleChoice(boolean singleChoice) {
+    protected void setSingleChoice(boolean singleChoice) {
         this.singleChoice = singleChoice;
     }
 
@@ -121,7 +121,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     @Override
     public void displayAttachmentItems(List<AttachmentItem> items) {
         cleanUp();
-        this.attachments = items;
+        setAttachments(items);
         for (Widget element : createSelectedElements()) {
             mainBoxPanel.add(element);
         }
@@ -147,7 +147,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     protected List<Widget> createSelectedElements() {
         List<Widget> elements = new ArrayList<>(attachments.size());
         for (AttachmentItem item : attachments) {
-            elements.add(createAttachmentElement(item));
+           elements.add(createAttachmentElement(item));
         }
         return elements;
     }
@@ -159,8 +159,31 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     /**
      * Удаляет все прикрепления из отображения
      */
-    public void cleanUp() {
+    protected void cleanUp() {
         mainBoxPanel.clear();
+    }
+
+    protected void setAttachments(List<AttachmentItem> attachments) {
+        this.attachments = attachments;
+    }
+
+    protected void setAllAttachments(List<AttachmentItem> allAttachments) {
+        this.allAttachments = allAttachments;
+    }
+
+    protected void removeAttachment(AttachmentItem attachment) {
+        attachments.remove(attachment);
+    }
+
+    protected void addAttachment(AttachmentItem attachment) {
+        if (singleChoice) {
+            attachments.clear();
+        }
+        attachments.add(attachment);
+    }
+
+    protected void clearAttachments() {
+        attachments.clear();
     }
 
     private void initFileUpload() {
@@ -342,7 +365,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             for (String filePath : filePaths.split(",")) {
                 AttachmentItem item = handleFileNameFromServer(filePath);
 
-                attachments.add(item);
+                addAttachment(item);
                 allAttachments.add(item);
 
                 eventBus.fireEvent(new UploadCompletedEvent());
