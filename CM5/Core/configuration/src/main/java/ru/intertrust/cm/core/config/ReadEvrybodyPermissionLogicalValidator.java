@@ -49,7 +49,7 @@ public class ReadEvrybodyPermissionLogicalValidator implements ConfigurationVali
                                 + checkType + " from " + rootType + " type hierarchy has matrix with read-everybody=" + checkMatrixConfig.isReadEverybody());
                         //Не брасаем Exception а пишем в консоль
                         if (exception != null) {
-                            logger.warn("Not valid configuration.", exception);
+                            logger.warn("Not valid configuration: " + exception.getMessage());
                         }
 
                     }
@@ -66,7 +66,7 @@ public class ReadEvrybodyPermissionLogicalValidator implements ConfigurationVali
                                                         + checkType + " from " + rootType + " type hierarchy has matrix with read block.");
                                         //Не брасаем Exception а пишем в консоль
                                         if (exception != null) {
-                                            logger.warn("Not valid configuration.", exception);
+                                            logger.warn("Not valid configuration: " + exception.getMessage());
                                         }
 
                                     }
