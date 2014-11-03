@@ -235,6 +235,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
             public void onFailure(Throwable caught) {
                 ApplicationWindow.errorAlert(caught.getMessage());
             }
+
             @Override
             public void onSuccess(Dto result) {
                 HierarchicalCollectionData data = (HierarchicalCollectionData) result;
@@ -253,9 +254,17 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         Id id = event.getId();
         final FormPluginConfig config = new FormPluginConfig(id);
         final FormPluginState state = new FormPluginState();
-        state.setEditable(true);
+
+        if (this.getFormPluginState().isEditable()) {
+            state.setEditable(true);
+            state.setToggleEdit(true);
+        } else {
+            state.setEditable(false);
+            state.setToggleEdit(false);
+        }
+
         state.setInCentralPanel(true);
-        state.setToggleEdit(true);
+
         config.setPluginState(state);
         config.setFormViewerConfig(getFormViewerConfig());
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
