@@ -34,21 +34,16 @@ public class UniqueNameLogicalValidator implements ConfigurationValidator {
         }
 
         for (Class topLevelConfigClass : topLevelConfigClasses) {
-            Collection configs = getConfigs(topLevelConfigClass);
-            if (configs == null || configs.size() < 2) {
-                continue;
-            }
-
-            List<TopLevelConfig> configsList = new ArrayList<TopLevelConfig>(configs);
+            List<String> configNames = getConfigNames(topLevelConfigClass);
             NameComparator nameComparator = new NameComparator();
-            Collections.sort(configsList, nameComparator);
+            Collections.sort(configNames, nameComparator);
 
-            for (int i = 1; i < configsList.size(); i ++) {
-                TopLevelConfig config1 = configsList.get(i - 1);
-                TopLevelConfig config2 = configsList.get(i);
+            for (int i = 1; i < configNames.size(); i ++) {
+                String name1 = configNames.get(i - 1);
+                String name2 = configNames.get(i);
 
-                if (config1.getName() != null && nameComparator.compare(config1, config2) == 0) {
-                    LogicalErrors logicalErrors = LogicalErrors.getInstance(config1.getName(), getTopLevelConfigTagName(config1));
+                if (name1 != null && nameComparator.compare(name1, name2) == 0) {
+                    LogicalErrors logicalErrors = LogicalErrors.getInstance(name1, getTopLevelConfigTagName(topLevelConfigClass));
                     logicalErrors.addError("There are top level configurations with identical name");
                     logicalErrorsList.add(logicalErrors);
                 }
@@ -58,41 +53,54 @@ public class UniqueNameLogicalValidator implements ConfigurationValidator {
         return logicalErrorsList;
     }
 
-    private List<TopLevelConfig> getConfigs(Class clazz) {
+    private List<String> getConfigNames(Class clazz) {
         Configuration configuration = configurationExplorer.getConfiguration();
-        List<TopLevelConfig> result = new LinkedList<>();
+        List<String> result = new LinkedList<>();
 
         for(TopLevelConfig config : configuration.getConfigurationList()) {
             if (config.getClass().equals(clazz)) {
-                result.add(config);
+                result.add(config.getName());
+
+                // Для типов ДО необходимо включать в проверку имена вложений, т.к. они также являются типами ДО
+                if (DomainObjectTypeConfig.class.equals(clazz)) {
+                    DomainObjectTypeConfig doTypeConfig = (DomainObjectTypeConfig) config;
+
+                    if (doTypeConfig.getAttachmentTypesConfig() != null &&
+                            doTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs() != null) {
+                        for (AttachmentTypeConfig attachmentTypeConfig :
+                                doTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+                            result.add(attachmentTypeConfig.getName());
+                        }
+                    }
+                }
             }
         }
 
         return result;
     }
 
-    private class NameComparator implements Comparator<TopLevelConfig> {
+    private class NameComparator implements Comparator<String> {
 
         @Override
-        public int compare(TopLevelConfig o1, TopLevelConfig o2) {
-            if (o1.getName() == null && o2.getName() == null) {
+        public int compare(String o1, String o2) {
+            if (o1 == null && o2 == null) {
                 return 0;
-            } else if (o1.getName() == null) {
+            } else if (o1 == null) {
                 return -1;
-            } else if (o2.getName() == null) {
+            } else if (o2 == null) {
                 return 1;
             } else {
-                return o1.getName().compareTo(o2.getName());
+                return o1.compareToIgnoreCase(o2);
             }
         }
     }
 
-    private String getTopLevelConfigTagName(TopLevelConfig topLevelConfig) {
-        Root root = topLevelConfig.getClass().getAnnotation(Root.class);
+    private String getTopLevelConfigTagName(Class<TopLevelConfig> topLevelConfigClass) {
+        Root root = topLevelConfigClass.getAnnotation(Root.class);
         if (root != null) {
             return root.name();
         } else {
-            return topLevelConfig.getClass().getName();
+            return topLevelConfigClass.getName();
         }
     }
 }

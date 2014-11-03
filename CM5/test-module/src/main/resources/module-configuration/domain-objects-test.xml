@@ -258,7 +258,7 @@
     </domain-object-type>
         
     
-    <collection name="Employees_test" idField="id">
+    <collection name="Employees_Test2" idField="id">
         <prototype>
             <![CDATA[                                    
     select

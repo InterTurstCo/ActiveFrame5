@@ -131,7 +131,7 @@
             <reference name="esd" type="esd"/><!--ЭСД-->            
         </fields>
         <attachment-types>
-            <attachment-type name="attachment"/>
+            <attachment-type name="storage_files_attachment"/>
         </attachment-types>  
     </domain-object-type>   
 
