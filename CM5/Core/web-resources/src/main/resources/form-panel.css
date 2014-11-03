@@ -37,10 +37,11 @@
 }
 
 .form-footer-long {
+    -webkit-transition: background 0.7s;
+    transition: background 0.7s;
     background: url(images/form/form-footer-bg_long.jpg) repeat-y scroll 0 0;
     border-radius: 5px;
     position: absolute;
-    /*height: 100%;*/
     top: 125px;
     right: 10px;
     bottom: 10px;
@@ -49,10 +50,11 @@
 }
 
 .form-footer-short {
+    -webkit-transition: background 0.7s;
+    transition: background 0.7s;
     background: url(images/form/form-footer-bg_short.jpg) repeat-y scroll 0 0;
     border-radius: 5px;
     position: absolute;
-    /*height: 100%;*/
     top: 125px;
     right: 10px;
     bottom: 10px;
