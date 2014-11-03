@@ -58,9 +58,9 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
         public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
 
             final Id id = event.getValue().getId();
-            if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONDBLCLICK) {
-                eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
-            }
+//            if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONDBLCLICK) {
+//                eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
+//            }
 
             if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONCLICK) {
                 countClick++;
@@ -82,4 +82,6 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
             }
         }
     }
+
+
 }
