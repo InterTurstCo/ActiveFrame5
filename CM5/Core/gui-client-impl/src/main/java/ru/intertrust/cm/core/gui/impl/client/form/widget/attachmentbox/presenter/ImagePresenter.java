@@ -42,13 +42,16 @@ class ImagePresenter implements AttachmentElementPresenter {
         if (previewConfig.getHeight() != null) {
             element.setHeight(previewConfig.getHeight());
         }
-
+        Panel takeHandlerPanel = new AbsolutePanel();
+        takeHandlerPanel.addStyleName("imagePreviewHandlerPanel");
+        if (clickHandler != null) {
+            takeHandlerPanel.addDomHandler(clickHandler, ClickEvent.getType());
+        }
+        element.add(takeHandlerPanel);
         final Image image = new Image(createPreviewUrl(item));
         image.addLoadHandler(new ScalePreviewHandler(previewConfig, image, true));
-        if (clickHandler != null) {
-            element.addDomHandler(clickHandler, ClickEvent.getType());
-        }
-        element.add(image);
+
+        takeHandlerPanel.add(image);
 //        element.add(imageShadow);
         return element;
     }

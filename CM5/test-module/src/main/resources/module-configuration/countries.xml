@@ -656,7 +656,7 @@
                 <delete-button display="true"/>
             </attachment-box>
 
-            <!--attachment-box id="flag_attachment">
+            <attachment-box id="flag_attachment">
                 <field-path value="flag"/>
                 <images-only>
                     <read-only-preview preserve-proportion="true"/>
@@ -667,7 +667,7 @@
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
                 <choice-style name="inline"/>
-            </attachment-box-->
+            </attachment-box>
 
             <table-browser id="17a" read-only="false">
                 <field-path value="city^country"/>

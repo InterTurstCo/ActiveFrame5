@@ -1190,11 +1190,23 @@ h1 {
     z-index: 1;
 }
 
+.imagePreviewHandlerPanel {
+    height: 100%;
+    width: 100%;
+}
+
 .imagePreview img {
     height: 100%;
     margin: 0 !important;
     width: auto;
     z-index: 1;
+}
+
+.imagePreview .gwt-CheckBox {
+    position: absolute;
+    top: 1px;
+    right: 20px;
+    z-index: 2;
 }
 
 .imagePreview .facebook-btn {
@@ -1203,6 +1215,7 @@ h1 {
     top: 2px;
     background-color: rgba(0, 0, 0, 0.3) !important;
     border-radius: 50%;
+    z-index: 2;
 }
 
 .imageLargePreview {
