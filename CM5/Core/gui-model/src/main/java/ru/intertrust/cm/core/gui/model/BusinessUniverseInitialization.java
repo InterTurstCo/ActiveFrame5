@@ -33,12 +33,7 @@ public class BusinessUniverseInitialization implements Dto {
     }
 
     public void setHelperLink(String helperLink) {
-        if(helperLink != null){
             this.helperLink = helperLink;
-        }
-        else{
-            this.helperLink = "help/page404.html";
-        }
     }
 
     public String getProductVersion() {

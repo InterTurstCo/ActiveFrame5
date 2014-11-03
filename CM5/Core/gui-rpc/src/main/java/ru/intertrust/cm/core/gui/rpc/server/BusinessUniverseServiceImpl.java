@@ -68,6 +68,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         if (helpConfig != null) {
             initialization.setHelperLink(helpConfig.getSource());
         }
+        else{
+            initialization.setHelperLink("help/page404.html");
+        }
         final ProductTitle productTitle = globalSettingsConfig.getProductTitle();
         initialization.setPageNamePrefix(productTitle == null ? null : productTitle.getTitle() == null ? null : productTitle.getTitle() + ": ");
         final ProductVersion productVersion = globalSettingsConfig.getProductVersion();

@@ -212,13 +212,14 @@ public class HeaderContainer extends SimplePanel {
 
     public void setInfoPage(final String pagePath){
 
+       final String currentPath = pagePath.contains("http://")? pagePath : GWT.getHostPageBaseURL()+ pagePath;
         Label help = new Label("Справка");
         infoPanel.add(help);
 
         help.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                Window.open(GWT.getHostPageBaseURL()+ pagePath, "_blank", "");
+                    Window.open(currentPath, "_blank", "");
             }
         });
     }
