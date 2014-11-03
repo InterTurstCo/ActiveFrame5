@@ -19,6 +19,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
@@ -56,16 +57,16 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private boolean dontShowNewRow;
     private AttachmentElementPresenterFactory presenterFactory;
     private EventBus eventBus;
-    private boolean displayAddButton;
+    private AddButtonConfig addButtonConfig;
 
-    public AttachmentUploaderView(List<AttachmentItem> attachments, List<AttachmentItem> allAttachments, SelectionStyleConfig selectionStyleConfig,
-                                  AcceptedTypesConfig acceptedTypesConfig, boolean displayAddButton,
-                                  EventBus eventBus) {
+    public AttachmentUploaderView(List<AttachmentItem> attachments, List<AttachmentItem> allAttachments,
+                                  SelectionStyleConfig selectionStyleConfig, AcceptedTypesConfig acceptedTypesConfig,
+                                  AddButtonConfig addButtonConfig, EventBus eventBus) {
         setAttachments(attachments);
         setAllAttachments(allAttachments);
         this.acceptedTypesConfig = acceptedTypesConfig;
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
-        this.displayAddButton = displayAddButton;
+        this.addButtonConfig = addButtonConfig;
         this.eventBus = eventBus;
         init();
     }
@@ -100,7 +101,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
         root.add(mainBoxPanel);
-        if (displayAddButton) {
+        if (addButtonConfig.isDisplay()) {
             initSubmitForm();
             initFileUpload();
             initUploadButton();

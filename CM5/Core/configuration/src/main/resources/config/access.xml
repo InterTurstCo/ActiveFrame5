@@ -738,8 +738,22 @@
 
     <access-matrix type="country_attachment">
         <create>
+            <permit-group name="Administrators" />
             <permit-group name="test-group-1" />
         </create>
+        <status name="*">
+            <read>
+                <permit-group name="Administrators" />
+                <permit-group name="Administrators_Read_Only" />
+            </read>
+            <write>
+                <permit-group name="Administrators" />
+            </write>
+            <delete>
+                <permit-group name="Administrators" />
+            </delete>
+        </status>
+
     </access-matrix>
 
 </configuration>

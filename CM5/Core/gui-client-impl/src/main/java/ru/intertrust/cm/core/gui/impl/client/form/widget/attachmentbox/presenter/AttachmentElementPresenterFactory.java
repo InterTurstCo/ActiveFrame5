@@ -85,7 +85,7 @@ public class AttachmentElementPresenterFactory {
 
     private AttachmentElementPresenter createEditableTextPresenter(final AttachmentItem item) {
         AttachmentElementPresenter presenter = new TextPresenter(item.getTitle(), new DownloadAttachmentHandler(item));
-        presenter = new DeleteButtonPresenter(presenter, deleteButtonConfig, new DeleteAttachmentClickHandler(item));
+        presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, new DeleteAttachmentClickHandler(item));
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
         return presenter;
     }
@@ -93,7 +93,7 @@ public class AttachmentElementPresenterFactory {
     public AttachmentElementPresenter createUploadPresenter(final AttachmentItem item, ClickHandler handler) {
         AttachmentElementPresenter presenter = new TextPresenter(item.getName());
         presenter = new UploadProgressPresenter(presenter, eventBus);
-        presenter = new DeleteButtonPresenter(presenter, deleteButtonConfig, handler);
+        presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, handler);
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
         return presenter;
     }
@@ -106,7 +106,7 @@ public class AttachmentElementPresenterFactory {
     private AttachmentElementPresenter createEditableImagePresenter(final AttachmentItem item) {
         AttachmentElementPresenter presenter = new ImagePresenter(item, imageConfig.getSmallPreviewConfig(),
                 getOnClickHandler(item));
-        presenter = new DeleteButtonPresenter(presenter, deleteButtonConfig, new DeleteAttachmentClickHandler(item));
+        presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, new DeleteAttachmentClickHandler(item));
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
         return presenter;
     }

@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
@@ -23,8 +24,9 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
     private List<CheckBox> checkboxes = new ArrayList<>();
 
     public SelectAttachmentUploaderView(List<AttachmentItem> attachments, List<AttachmentItem> allAttachments,
-                                        SelectionStyleConfig selectionStyleConfig, AcceptedTypesConfig acceptedTypesConfig, boolean displayAddButton, EventBus eventBus) {
-        super(attachments, allAttachments, selectionStyleConfig, acceptedTypesConfig, displayAddButton, eventBus);
+                                        SelectionStyleConfig selectionStyleConfig, AcceptedTypesConfig acceptedTypesConfig,
+                                        AddButtonConfig addButtonConfig, EventBus eventBus) {
+        super(attachments, allAttachments, selectionStyleConfig, acceptedTypesConfig, addButtonConfig, eventBus);
     }
 
     @Override

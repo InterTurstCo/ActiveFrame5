@@ -18,6 +18,10 @@ public class ButtonConfig implements Dto {
     @Attribute(name = "display", required = false)
     private boolean display = true;
 
+    public void setDisplay(boolean display) {
+        this.display = display;
+    }
+
     public String getImage() {
         return image;
     }

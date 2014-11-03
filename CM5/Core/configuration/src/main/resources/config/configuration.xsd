@@ -3136,6 +3136,7 @@
     <xs:complexType name="abstractButtonType" abstract="true">
         <xs:attribute type="xs:string" name="image" use="optional"/>
         <xs:attribute type="xs:string" name="text" use="optional"/>
+        <xs:attribute type="xs:boolean" name="display" use="optional" default="true"/>
     </xs:complexType>
 
     <xs:complexType name="createNewButtonType">

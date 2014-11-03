@@ -85,10 +85,10 @@ public class AttachmentBoxWidget extends BaseWidget {
         if (attachmentBoxState.isInSelectionMode()) {
             return new SelectAttachmentUploaderView(attachmentBoxState.getAttachments(),
                 attachmentBoxState.getAllAttachments(), selectionStyleConfig,
-                acceptedTypesConfig, attachmentBoxState.isDisplayAddButton(), eventBus);
+                acceptedTypesConfig, attachmentBoxState.getAddButtonConfig(), eventBus);
         } else {
             return new AttachmentUploaderView(attachmentBoxState.getAttachments(), attachmentBoxState.getAllAttachments(),
-                    selectionStyleConfig, acceptedTypesConfig, attachmentBoxState.isDisplayAddButton(), eventBus);
+                    selectionStyleConfig, acceptedTypesConfig, attachmentBoxState.getAddButtonConfig(), eventBus);
         }
     }
 

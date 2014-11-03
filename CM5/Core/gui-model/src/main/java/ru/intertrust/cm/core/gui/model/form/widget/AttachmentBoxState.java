@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DeleteButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ImagesOnlyConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
@@ -25,7 +26,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
     private AcceptedTypesConfig acceptedTypesConfig;
     private ImagesOnlyConfig imagesConfig;
     private DeleteButtonConfig deleteButtonConfig;
-    private boolean displayAddButton = true;
+    private AddButtonConfig addButtonConfig;
 
     public SelectionStyleConfig getSelectionStyleConfig() {
         return selectionStyleConfig;
@@ -107,12 +108,12 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         this.deleteButtonConfig = deleteButtonConfig;
     }
 
-    public boolean isDisplayAddButton() {
-        return displayAddButton;
+    public AddButtonConfig getAddButtonConfig() {
+        return addButtonConfig;
     }
 
-    public void setDisplayAddButton(boolean displayAddButton) {
-        this.displayAddButton = displayAddButton;
+    public void setAddButtonConfig(AddButtonConfig addButtonConfig) {
+        this.addButtonConfig = addButtonConfig;
     }
 
     @Override
@@ -133,7 +134,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
             return false;
         if (deleteButtonConfig != null ? !deleteButtonConfig.equals(that.deleteButtonConfig) : that.deleteButtonConfig != null)
             return false;
-        if (displayAddButton != that.displayAddButton)
+        if (addButtonConfig != null ? !addButtonConfig.equals(that.addButtonConfig) : that.addButtonConfig != null)
             return false;
         return true;
     }
@@ -146,7 +147,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         result = 31 * result + (actionLinkConfig != null ? actionLinkConfig.hashCode() : 0);
         result = 31 * result + (imagesConfig != null ? imagesConfig.hashCode() : 0);
         result = 31 * result + (deleteButtonConfig != null ? deleteButtonConfig.hashCode() : 0);
-        result = 31 * result + (displayAddButton ? 1 : 0);
+        result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         return result;
     }
 }

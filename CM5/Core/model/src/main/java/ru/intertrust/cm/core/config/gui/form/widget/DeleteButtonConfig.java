@@ -19,6 +19,10 @@ public class DeleteButtonConfig implements Dto {
         return display;
     }
 
+    public void setDisplay(boolean display) {
+        this.display = display;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
