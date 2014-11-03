@@ -25,6 +25,7 @@ import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
  * @author Sergey.Okolot
@@ -65,6 +66,7 @@ public class MonthPanel extends CalendarPanel implements CalendarScrollEventHand
         CalendarUtil.resetTime(currentDate);
         cursorDate = CalendarUtil.copyDate(currentDate);
         tableModel.setSelectedDate(currentDate);
+        calendarConfig.addHistoryValue(UserSettingsHelper.CALENDAR_SELECTED_DATE, currentDate);
         initialize();
     }
 

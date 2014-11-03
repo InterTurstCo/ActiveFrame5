@@ -19,6 +19,8 @@ public class UserSettingsHelper {
     public static final String DO_THEME_FIELD_KEY = "theme";
     public static final String DO_SPLITTER_ORIENTATION_FIELD_KEY = "splitter_orientation";
     public static final String DO_SPLITTER_POSITION_FIELD_KEY = "splitter_position";
+    /* calendar */
+    public static final String CALENDAR_SELECTED_DATE = "selectedDate";
 
     private UserSettingsHelper() {}
 }

@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -28,98 +30,124 @@ public class CalendarTableModel {
 
     private final CalendarPlugin owner;
 
+    private final Map<Date, List<CalendarItemData>> values = new HashMap<>();
+    private final List<QueueItem> queueItems = new ArrayList<>();
     private Date selectedDate;
-    private Map<Date, List<CalendarItemData>> values = new HashMap<>();
     private Date valuesFrom;
     private Date valuesTo;
-    private boolean isReady = true;
+    private boolean ready;
 
     public CalendarTableModel(final CalendarPlugin owner) {
         this.owner = owner;
         final CalendarPluginData initialData = owner.getInitialData();
-        valuesFrom = initialData.getFromDate();
-        valuesTo = initialData.getToDate();
-        values = initialData.getValues();
+        values.putAll(initialData.getValues());
         selectedDate = initialData.getSelectedDate();
-        CalendarUtil.resetTime(valuesFrom);
-        CalendarUtil.resetTime(valuesTo);
         CalendarUtil.resetTime(selectedDate);
+        setRange(initialData.getFromDate(), initialData.getToDate());
+        ready = true;
     }
 
     public void fillByDateValues(final Date date, final CalendarTableModelCallback callback) {
-        if (valuesFrom == null) {
-
-        }
-        if (date.before(valuesFrom)) {
-
-        }
-
-
-        if (values == null) {
-            valuesFrom = CalendarUtil.copyDate(selectedDate);
-            CalendarUtil.addDaysToDate(valuesFrom, -30);
-            valuesTo = CalendarUtil.copyDate(selectedDate);
-            CalendarUtil.addDaysToDate(valuesTo, 30);
-            requestRows(valuesFrom, valuesTo, new RequestCallback() {
-                @Override
-                public void valuesReady() {
-                    callback.fillValues(values.get(date));
-                }
-            });
-        } else {
+        if (date.before(valuesTo) && date.after(valuesFrom)) {
             callback.fillValues(values.get(date));
+        } else {
+            final Date from;
+            final Date to;
+            if (date.before(valuesFrom)) {
+                to = CalendarUtil.copyDate(valuesFrom);
+                from = CalendarUtil.copyDate(date);
+                CalendarUtil.addMonthsToDate(from, -1);
+            } else {
+                from = CalendarUtil.copyDate(valuesTo);
+                to = CalendarUtil.copyDate(date);
+                CalendarUtil.addMonthsToDate(to, 1);
+            }
+            queueItems.add(new QueueItem(date, callback));
+            requestRows(from, to);
         }
     }
 
-    private void requestRows(final Date fromDate, final Date toDate, final RequestCallback requestCallback) {
-        isReady = false;
-        final AsyncCallback<Dto> callback = new AsyncCallback<Dto>() {
+    private void requestRows(final Date fromDate, final Date toDate) {
+        if (ready) {
+            ready = false;
+            final AsyncCallback<Dto> callback = new AsyncCallback<Dto>() {
 
-            @Override
-            public void onFailure(Throwable caught) {
-                Application.getInstance().hideLoadingIndicator();
-                isReady = true;
-            }
+                @Override
+                public void onFailure(Throwable caught) {
+                    Application.getInstance().hideLoadingIndicator();
+                    ready = true;
+                }
 
-            @Override
-            public void onSuccess(Dto result) {
-                Application.getInstance().hideLoadingIndicator();
-                final CalendarRowsResponse data = (CalendarRowsResponse) result;
-                if (values == null || values.size() > MAX_VALUES_SIZE) {
-                    values = data.getValues();
-                } else {
-                    values.putAll(data.getValues());
+                @Override
+                public void onSuccess(Dto result) {
+                    Application.getInstance().hideLoadingIndicator();
+                    final CalendarRowsResponse data = (CalendarRowsResponse) result;
+                    if (values.size() > MAX_VALUES_SIZE) {
+                        values.clear();
+                        values.putAll(data.getValues());
+                        setRange(data.getFrom(), data.getTo());
+                    } else {
+                        values.putAll(data.getValues());
+                        updateRange(data.getFrom(), data.getTo());
+                    }
+                    for (Iterator<QueueItem> it = queueItems.iterator(); it.hasNext(); ) {
+                        final QueueItem item = it.next();
+                        item.getCallback().fillValues(values.get(item.getDate()));
+                        it.remove();
+                    }
+                    ready = true;
                 }
-                isReady = true;
-                if (requestCallback != null) {
-                    requestCallback.valuesReady();
-                }
-            }
-        };
-        Application.getInstance().showLoadingIndicator();
-        final CalendarConfig calendarConfig = (CalendarConfig) owner.getConfig();
-        final CalendarRowsRequest request = new CalendarRowsRequest(calendarConfig, fromDate, toDate);
-        final Command command = new Command("requestRows", CalendarConfig.COMPONENT_NAME, request);
-        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
+            };
+            Application.getInstance().showLoadingIndicator();
+            final CalendarConfig calendarConfig = (CalendarConfig) owner.getConfig();
+            final CalendarRowsRequest request = new CalendarRowsRequest(calendarConfig, fromDate, toDate);
+            final Command command = new Command("requestRows", CalendarConfig.COMPONENT_NAME, request);
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, callback);
+        }
     }
 
     public Date getSelectedDate() {
         return selectedDate;
     }
 
-    public void setSelectedDate(final Date selectedDate) {
-        this.selectedDate = CalendarUtil.copyDate(selectedDate);
-        CalendarUtil.resetTime(this.selectedDate);
-//        if (valuesFrom == null) {
-//            valuesFrom = CalendarUtil.copyDate(this.selectedDate);
-//            CalendarUtil.addDaysToDate(valuesFrom, -30);
-//            valuesTo = CalendarUtil.copyDate(this.selectedDate);
-//            CalendarUtil.addDaysToDate(valuesTo, 30);
-//            requestRows(valuesFrom, valuesTo, null);
-//        }
+    public void setSelectedDate(final Date date) {
+        this.selectedDate = CalendarUtil.copyDate(date);
+        CalendarUtil.resetTime(selectedDate);
     }
 
-    private interface RequestCallback {
-        void valuesReady();
+    private void updateRange(final Date from, final Date to) {
+        CalendarUtil.resetTime(from);
+        CalendarUtil.resetTime(to);
+        if (from.before(this.valuesFrom)) {
+            valuesFrom = CalendarUtil.copyDate(from);
+        }
+        if (to.after(this.valuesTo)) {
+            valuesTo = CalendarUtil.copyDate(to);
+        }
+    }
+
+    private void setRange(final Date from, final Date to) {
+        CalendarUtil.resetTime(from);
+        CalendarUtil.resetTime(to);
+        valuesFrom = CalendarUtil.copyDate(from);
+        valuesTo = CalendarUtil.copyDate(to);
+    }
+
+    private static class QueueItem {
+        private final Date date;
+        private final CalendarTableModelCallback callback;
+
+        private QueueItem(Date date, CalendarTableModelCallback callback) {
+            this.date = date;
+            this.callback = callback;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public CalendarTableModelCallback getCallback() {
+            return callback;
+        }
     }
 }

@@ -45,6 +45,7 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsRequest;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsResponse;
 import ru.intertrust.cm.core.gui.model.util.GuiDateUtil;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
  * Created by lvov on 03.04.14.
@@ -65,12 +66,17 @@ public class CalendarPluginHandler extends ActivePluginHandler {
         final CalendarConfig pluginConfig = (CalendarConfig) param;
         final CalendarPluginData result = new CalendarPluginData();
         final Calendar calendar = GregorianCalendar.getInstance();
+        final Date pluginSelectedDate = pluginConfig.getHistoryValue(UserSettingsHelper.CALENDAR_SELECTED_DATE);
+        if (pluginSelectedDate != null) {
+            calendar.setTime(pluginSelectedDate);
+        }
         result.setSelectedDate(calendar.getTime());
-        calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) + 1);
+        final boolean monthMode = CalendarConfig.MONTH_MODE.equals(pluginConfig.getStartMode());
+        calendar.add(Calendar.MONTH, monthMode ? 2 : 1);
         final Date toDate = calendar.getTime();
         GuiDateUtil.setStartOfDay(toDate);
         result.setToDate(toDate);
-        calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) - 2);
+        calendar.add(Calendar.MONTH, monthMode ? -3 : -2);
         final Date fromDate = calendar.getTime();
         GuiDateUtil.setStartOfDay(fromDate);
         result.setFromDate(fromDate);
@@ -82,11 +88,10 @@ public class CalendarPluginHandler extends ActivePluginHandler {
     }
 
     public CalendarRowsResponse requestRows(Dto dto) {
-        System.out.println("----------------------> CalendarHandler#requestRows");
         final CalendarRowsRequest request = (CalendarRowsRequest) dto;
         final Map<Date, List<CalendarItemData>> values = getValues(
                 request.getCalendarConfig().getCalendarViewConfig(), request.getFromDate(), request.getToDate());
-        return new CalendarRowsResponse(values);
+        return new CalendarRowsResponse(values, request.getFromDate(), request.getToDate());
     }
 
     private Map<Date, List<CalendarItemData>> getValues(final CalendarViewConfig viewConfig,
@@ -191,6 +196,7 @@ public class CalendarPluginHandler extends ActivePluginHandler {
         final DateValueConverter converter = getDateValueConverter(fieldType);
         final String timeZoneRaw = GuiContext.get().getUserInfo().getTimeZoneId();
         final Filter rangeFilter = new Filter();
+        rangeFilter.setFilter(viewConfig.getDateFieldFilterConfig().getName());
         rangeFilter.addCriterion(0, converter.dateToValue(from, timeZoneRaw));
         rangeFilter.addCriterion(1, converter.dateToValue(to, timeZoneRaw));
         result.add(rangeFilter);

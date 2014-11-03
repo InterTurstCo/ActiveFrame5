@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
  * @author Sergey.Okolot
@@ -65,13 +66,17 @@ public class DayPanel extends CalendarPanel implements CalendarNextWeekEventHand
         final int dayToMonday = beginWeekDate.getDay() - 1;
         CalendarUtil.addDaysToDate(beginWeekDate, -dayToMonday);
         tableModel.setSelectedDate(currentDate);
+        calendarConfig.addHistoryValue(UserSettingsHelper.CALENDAR_SELECTED_DATE, currentDate);
         buildPresentation();
     }
 
     @Override
     protected void onLoad() {
         super.onLoad();
-        goToToday();
+        beginWeekDate = CalendarUtil.copyDate(tableModel.getSelectedDate());
+        final int dayToMonday = beginWeekDate.getDay() - 1;
+        CalendarUtil.addDaysToDate(beginWeekDate, -dayToMonday);
+        buildPresentation();
     }
 
     private void buildPresentation() {

@@ -36,10 +36,7 @@ public class CalendarPluginView extends PluginView {
     protected CalendarPluginView(final Plugin plugin, final EventBus localEventBus) {
         super(plugin);
         this.localEventBus = localEventBus;
-        final CalendarPluginData initialData = plugin.getInitialData();
         this.tableModel = new CalendarTableModel((CalendarPlugin) plugin);
-        final Date selectedDate = initialData.getSelectedDate();
-        this.tableModel.setSelectedDate(selectedDate);
     }
 
     @Override

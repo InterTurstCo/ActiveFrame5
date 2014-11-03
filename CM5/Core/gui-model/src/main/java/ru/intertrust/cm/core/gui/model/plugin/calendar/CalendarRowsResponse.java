@@ -12,15 +12,27 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class CalendarRowsResponse implements Dto {
     private Map<Date, List<CalendarItemData>> values;
+    private Date from;
+    private Date to;
 
     public CalendarRowsResponse() {
     }
 
-    public CalendarRowsResponse(Map<Date, List<CalendarItemData>> values) {
+    public CalendarRowsResponse(final Map<Date, List<CalendarItemData>> values, final Date from, final Date to) {
         this.values = values;
+        this.from = from;
+        this.to = to;
     }
 
     public Map<Date, List<CalendarItemData>> getValues() {
         return values;
+    }
+
+    public Date getFrom() {
+        return from;
+    }
+
+    public Date getTo() {
+        return to;
     }
 }

@@ -32,8 +32,6 @@
                 immediate="true" text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
 
     <act:tool-bar plugin="calendar.plugin">
-        <act:action-ref name-ref="aRefresh"/>
-        <act:action-separator order="50"/>
         <act:action name="aWeek" componentName="calendar.week.mode" rendered="mode=='month'" dirtySensitivity="false"
                     immediate="true" text="Неделя" order="100"/>
         <act:action name="aMonth" componentName="calendar.month.mode" rendered="mode=='week'" dirtySensitivity="false"

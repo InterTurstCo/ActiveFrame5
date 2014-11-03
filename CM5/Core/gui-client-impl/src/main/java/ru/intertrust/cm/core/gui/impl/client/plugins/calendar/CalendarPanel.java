@@ -17,6 +17,7 @@ import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
  * @author Sergey.Okolot
@@ -98,6 +99,7 @@ public abstract class CalendarPanel extends FlowPanel implements RequiresResize 
             }
             selectedItem = this;
             tableModel.setSelectedDate(date);
+            calendarConfig.addHistoryValue(UserSettingsHelper.CALENDAR_SELECTED_DATE, date);
             itemWrapper.addStyleName(SELECTED_DATE_STYLE);
         }
 
