@@ -1,12 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -25,6 +20,11 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Lesia Puhova
@@ -63,7 +63,7 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
             if (firstFieldPath == null) {
                 continue;
             }
-            String paramName = firstFieldPath.getFieldName();
+            String paramName = firstFieldPath.toString();
 
             WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
             if (widgetState == null) {

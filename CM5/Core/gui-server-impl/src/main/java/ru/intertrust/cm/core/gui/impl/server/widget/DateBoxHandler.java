@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -28,17 +29,23 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         final DateBoxConfig config = widgetContext.getWidgetConfig();
         final DateBoxState state = new DateBoxState();
         state.setPattern(config.getPattern());
-        final FieldType fieldType = getFieldType(widgetContext);
+
+
+        FieldType fieldType = FormConfig.TYPE_REPORT.equals(widgetContext.getFormType()) ?
+                FieldType.DATETIME : getFieldType(widgetContext);
+
         final boolean displayTimeZoneChoice = config.isDisplayTimeZoneChoice()
                 && fieldType == FieldType.DATETIMEWITHTIMEZONE;
         state.setDisplayTimeZoneChoice(displayTimeZoneChoice);
         final DateValueConverter converter = getConverter(fieldType);
         final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
-        final DateTimeContext context = converter.valueToContext(widgetContext.getValue(), config.getTimeZoneId(), dateFormat);
+        Value value = FormConfig.TYPE_REPORT.equals(widgetContext.getFormType()) ? null : widgetContext.getValue();
+        final DateTimeContext context = converter.valueToContext(value, config.getTimeZoneId(), dateFormat);
         context.setTimeZoneId(config.getTimeZoneId());
+        state.setDateTimeContext(context);
+
         boolean displayTime = fieldType == FieldType.TIMELESSDATE ? false : config.isDisplayTimeBox();
         state.setDisplayTime(displayTime);
-        state.setDateTimeContext(context);
         state.setDateBoxConfig(config);
         return state;
     }
