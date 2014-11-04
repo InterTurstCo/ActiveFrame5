@@ -316,10 +316,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         for (int i = 0; i < result.length; i++) {
+            String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(domainObjects[i].getTypeName());
+            Integer auditLogType = domainObjectTypeIdCache.getId(auditLogTableName);
+            
             // Запись в auditLog
             createAuditLog(result[i], result[i].getTypeName(),
-                    domainObjectTypeIdCache.getId(domainObjects[i].getTypeName()), accessToken,
-                    operation);
+                    auditLogType, accessToken, operation);
 
             // Вызов точки расширения после сохранения
             for (String typeName : parentTypes) {
@@ -569,9 +571,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         // Пишем в аудит лог
         for (DomainObject deletedObject : deletedObjects) {
-            createAuditLog(deletedObject, deletedObject.getTypeName(),
-                    domainObjectTypeIdCache.getId(deletedObject.getTypeName()), accessToken,
-                    DomainObjectVersion.AuditLogOperation.DELETE);
+            String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(deletedObject.getTypeName());
+            Integer auditLogType = domainObjectTypeIdCache.getId(auditLogTableName);
+          
+            createAuditLog(deletedObject, deletedObject.getTypeName(), auditLogType, accessToken, DomainObjectVersion.AuditLogOperation.DELETE);
         }
 
         // Точка расширения после удаления, вызывается с установкой фильтра текущего типа и всех наследников
@@ -1211,6 +1214,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" where ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("=:id ");
 
         if (accessToken.isDeferred()) {
+            boolean isAuditLog = configurationExplorer.isAuditLogType(typeName);
+            String mainTableAlias = getSqlAlias(getSqlName(typeName));
+
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             typeName = getRelevantType(typeName);
             String permissionType = typeName;
@@ -1235,10 +1241,19 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
                         .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
                 //обавляем в связи с появлением функциональности замещения прав
-                query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
-                .append(DaoUtils.wrap("access_object_id")).
-                append(" = a.").append(DaoUtils.wrap("object_id"));
-                query.append(") where gm.person_id = :user_id and o.id = :id)");
+                query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.");
+                query.append(DaoUtils.wrap("access_object_id"));
+                query.append(" = a.").append(DaoUtils.wrap("object_id"));
+                
+                query.append(") where gm.person_id = :user_id and ");
+//                query.append("o.id = :id)");
+                
+                if (isAuditLog) {
+                    query.append("o.id = ").append(mainTableAlias).append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN)).append(" and ").append(mainTableAlias).append(".id = :id)");
+
+                } else {
+                    query.append("o.id = :id)");
+                }
             }
 
         }
@@ -1943,29 +1958,29 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * Запись информации аудит лог в базу
      *
      * @param domainObject
-     * @param type
+     * @param auditLogType
      * @return
      */
-    private Long createAuditLog(DomainObject domainObject, String typeName,
-            Integer type, AccessToken accessToken, DomainObjectVersion.AuditLogOperation operation) {
+    private Long createAuditLog(DomainObject domainObject, String domainObjectType,
+            Integer auditLogType, AccessToken accessToken, DomainObjectVersion.AuditLogOperation operation) {
         Long id = null;
-        if (typeName != null) {
+        if (domainObjectType != null) {
             DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
-                    .getConfig(DomainObjectTypeConfig.class, typeName);
+                    .getConfig(DomainObjectTypeConfig.class, domainObjectType);
 
             // Проверка на включенность аудит лога, или если пришли рекурсивно
             // из подчиненного уровня, где аудит был включен
             if (isAuditLogEnable(domainObjectTypeConfig)
-                    || !domainObject.getTypeName().equals(typeName)) {
+                    || !domainObject.getTypeName().equals(domainObjectType)) {
 
                 id = createAuditLog(domainObject,
-                        domainObjectTypeConfig.getExtendsAttribute(), type, accessToken,
+                        domainObjectTypeConfig.getExtendsAttribute(), auditLogType, accessToken,
                         operation);
 
-                String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(domainObjectTypeConfig.getName());
-                Integer auditLogTypeId = domainObjectTypeIdCache.getId(auditLogTableName);
                 
                 if (id == null) {
+                    String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(domainObjectType);
+                    Integer auditLogTypeId = domainObjectTypeIdCache.getId(auditLogTableName);
                     id = (Long) idGenerator.generateId(auditLogTypeId);
                 }
 
@@ -1973,7 +1988,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
                 Map<String, Object> parameters = new HashMap<String, Object>();
                 parameters.put(DomainObjectDao.ID_COLUMN, id);
-                parameters.put(DomainObjectDao.TYPE_COLUMN, auditLogTypeId);
+                parameters.put(DomainObjectDao.TYPE_COLUMN, auditLogType);
 
                 if (!isDerived(domainObjectTypeConfig)) {
                     parameters.put(DomainObjectDao.OPERATION_COLUMN,
