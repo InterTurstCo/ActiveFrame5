@@ -101,7 +101,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
         root.add(mainBoxPanel);
-        if (addButtonConfig.isDisplay()) {
+        if (addButtonConfig == null || addButtonConfig.isDisplay()) {
             initSubmitForm();
             initFileUpload();
             initUploadButton();

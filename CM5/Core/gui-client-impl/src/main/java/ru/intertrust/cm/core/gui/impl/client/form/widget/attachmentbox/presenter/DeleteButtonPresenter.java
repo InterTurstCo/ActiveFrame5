@@ -71,7 +71,6 @@ class DeleteButtonPresenter implements AttachmentElementPresenter {
     }
 
     private boolean displayDeleteButton() {
-        //TODO: take into account 1) access 2) ref type (1:1, 1:n, n:m)
         return deleteButtonConfig == null || deleteButtonConfig.isDisplay();
     }
 }
