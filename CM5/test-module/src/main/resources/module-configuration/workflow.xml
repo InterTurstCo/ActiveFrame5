@@ -8,7 +8,7 @@
                 select
                     t.mainattachment, t.name, t.description, p.login
                 from
-                    Person_Task t 
+                    Person_Task t
                     inner join Assignee_Person ap on (t.id = ap.persontask)
                     inner join Person p on (ap.person = p.id)
                     inner join Status s on (t.status = s.id)
@@ -501,21 +501,37 @@
         </widget-config>
     </form>
 
-    <act:action name="start-internal-document-process" componentName="start.process.action"
+    <act:simple-action name="start-internal-document-process" componentName="simple.action"
+                       action-handler="generic.workflow.action"
+                       text="Отправить на согласование" image="sign.png" merged="true">
+        <act:action-params>
+            <act:action-param name="process.name" value="InternalDocument" />
+            <act:action-param name="process.type" value="start.process"/>
+        </act:action-params>
+        <act:before-execution>
+            <act:confirmation-message text="Отправить на согласование?" />
+            <act:save-context value="false"/>
+        </act:before-execution>
+        <act:after-execution>
+            <act:on-success-message text="Документ подписан"/>
+        </act:after-execution>
+    </act:simple-action>
+
+    <act:action name="start-internal-document-process-temp" componentName="start.process.action"
                 text="Отправить на согласование" image="sign.png" merged="true">
         <act:before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
             <act:confirmation-message text="Отправить на согласование?"/>
 
-            <!-- Доменный объект, который требуется создать перед выполнением 
-                данного действия. При этом перед выполнением открывается форма редактирования 
-                этого доменного объекта form-name - параметр не обязательный, но позволяет 
+            <!-- Доменный объект, который требуется создать перед выполнением
+                данного действия. При этом перед выполнением открывается форма редактирования
+                этого доменного объекта form-name - параметр не обязательный, но позволяет
                 выбрать форму, отличную от "по умолчанию" -->
             <!-- domain-object-to-create type="doc_sign"
                 form-name="sign_default_form" /-->
 
-            <!--Не обязательный атрибут, по умолчанию "true" - определяет, 
-                требуется ли сохранять доменный объект контекста действия (открытый доменный 
+            <!--Не обязательный атрибут, по умолчанию "true" - определяет,
+                требуется ли сохранять доменный объект контекста действия (открытый доменный
                 объект) перед выполнением -->
             <!-- save-context value="false" /-->
         </act:before-execution>
@@ -574,7 +590,7 @@
         </act:domain-object-context>
         <act:action name="start-test_process_attachment-process"/>
     </act:action-context>
-    
+
     <act:action name="test-action-for-test-7" componentName="start.process.action"
                 text="Запустить тестовый процесс" image="sign.png" merged="true">
         <act:before-execution>
@@ -656,11 +672,11 @@
             </track-domain-objects>
         </groups>
     </context-role>
-    
+
     <access-matrix type="test_process_attachment">
         <create>
             <permit-group name="AllPersons" />
-        </create>        
+        </create>
         <status name="Draft">
             <read>
                 <permit-group name="AllPersons" />
@@ -683,6 +699,6 @@
                 <permit-role name="test_process_attachment_registrator"/>
             </execute-action>
         </status>
-    </access-matrix>    
+    </access-matrix>
 
 </configuration>

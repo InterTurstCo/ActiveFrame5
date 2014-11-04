@@ -11,6 +11,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -38,6 +39,8 @@ import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
+import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
 import ru.intertrust.cm.core.model.ActionServiceException;
@@ -69,6 +72,8 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
+    @Autowired private ApplicationContext applicationContext;
+
     @Override
     public List<ActionContext> getActions(Id domainObjectId) {
         try {
@@ -87,16 +92,17 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                                 && domainObjectStatusIds.contains(domainObject.getStatus())) {
                             List<ActionContextActionConfig> actionConfigs = actionContextConfig.getAction();
                             for (ActionContextActionConfig actionContextActionConfig : actionConfigs) {
-                                ActionConfig actConfig = configurationExplorer.getConfig(ActionConfig.class, actionContextActionConfig.getName());
+                                ActionConfig actConfig = getActionConfig(actionContextActionConfig.getName());
 
-                                ActionContext actionContext = null;
-                                if (actConfig.getActionSettings() != null && actConfig.getActionSettings().getActionContextClass() != null) {
-                                    actionContext = (ActionContext) actConfig.getActionSettings().getActionContextClass().newInstance();
+                                final ActionContext actionContext;
+                                final boolean hasHandler = applicationContext.containsBean(actConfig.getComponentName());
+                                if (hasHandler) {
+                                    final ActionHandler handler =
+                                            (ActionHandler) applicationContext.getBean(actConfig.getComponentName());
+                                    actionContext = handler.getActionContext(actConfig);
                                 } else {
-                                    actionContext = new ActionContext();
+                                    actionContext = new ActionContext(actConfig);
                                 }
-
-                                actionContext.setActionConfig(actConfig);
                                 actionContext.setRootObjectId(domainObject.getId());
 
                                 //Проверка прав
@@ -111,8 +117,16 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
 
                 List<DomainObject> tasks = processService.getUserDomainObjectTasks(domainObject.getId());
                 for (DomainObject task : tasks) {
-                    ActionConfig actConfig = configurationExplorer.getConfig(ActionConfig.class, task.getString("ActivityId"));
-                    CompleteTaskActionContext actionContext = new CompleteTaskActionContext();
+                    ActionConfig actConfig = getActionConfig(task.getString("ActivityId"));
+                    final boolean hasHandler = applicationContext.containsBean(actConfig.getComponentName());
+                    final ActionContext actionContext;
+                    if (hasHandler) {
+                        final ActionHandler handler =
+                                (ActionHandler) applicationContext.getBean(actConfig.getComponentName());
+                        actionContext = handler.getActionContext(actConfig) ;
+                    } else {
+                        actionContext = new CompleteTaskActionContext(actConfig);
+                    }
                     actionContext.setRootObjectId(domainObject.getId());
 
                     String taskAction = task.getString("Actions");
@@ -125,14 +139,18 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                             //Проверка прав на задачи процесса
                             String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId") + "." + taskActionItem;
                             if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)){
-                                list.add(getCompleteTaskActionContext(taskActionItem, taskActionName, domainObject.getId(), actConfig, task));
+                                fillCompleteTaskContext(actionContext, taskActionItem, taskActionName, task);
+//                                list.add(getCompleteTaskActionContext(taskActionItem, taskActionName, domainObject.getId(), actConfig, task));
+                                list.add(actionContext);
                             }
                         }
                     } else {
                         //Проверка прав на задачи процесса
                         String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId");
                         if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)){
-                            list.add(getCompleteTaskActionContext(null, task.getString("Name"), domainObject.getId(), actConfig, task));
+                            fillCompleteTaskContext(actionContext, null, task.getString("Name"), task);
+                            list.add(actionContext);
+//                            list.add(getCompleteTaskActionContext(null, task.getString("Name"), domainObject.getId(), actConfig, task));
                         }
                     }
 
@@ -152,7 +170,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
      */
     private boolean hasActionPermission(Id domainObjectId, String action){
         boolean result = false;
-        
+
         DomainObjectPermission permission = permissionService.getObjectPermission(domainObjectId, currentUserAccessor.getCurrentUserId());
         if (permission != null && permission.getActions() != null){
             result = permission.getActions().contains(action);
@@ -216,23 +234,38 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
         return result;
     }
 
-    private ActionContext getCompleteTaskActionContext(String action, String name, Id mainAttachmentId, ActionConfig actConfig, DomainObject task) {
-        CompleteTaskActionContext actionContext = new CompleteTaskActionContext();
-        actionContext.setRootObjectId(mainAttachmentId);
-
-        actionContext.setTaskAction(action);
-        actionContext.setTaskId(task.getId());
-        actionContext.setActivityId(task.getString("ActivityId"));
-
-        if (actConfig != null) {
-            actionContext.setActionConfig(actConfig);
-        } else {
-            actConfig = new ActionConfig("complete.task.action");
-            actConfig.setText(name);
-            actionContext.setActionConfig(actConfig);
+    private void fillCompleteTaskContext(ActionContext actionContext, String action, String name, DomainObject task) {
+        if (actionContext instanceof CompleteTaskActionContext) { // todo удалить вместе с CompleteTaskActionContext
+            final CompleteTaskActionContext context = (CompleteTaskActionContext) actionContext;
+            context.setTaskAction(action);
+            context.setTaskId(task.getId());
+            context.setActivityId(task.getString("ActivityId"));
         }
-        return actionContext;
+        final ActionConfig actionConfig = actionContext.getActionConfig();
+        actionConfig.setText(name);
+        actionConfig.getProperties().put(PluginHandlerHelper.WORKFLOW_PROCESS_TYPE_KEY, "complete.process");
+        actionConfig.getProperties().put("complete.task.action", action);
+        actionConfig.getProperties().put("complete.task.id", task.getId().toStringRepresentation());
+        actionConfig.getProperties().put("complete.activity.id", task.getString("ActivityId"));
     }
+
+//    private ActionContext getCompleteTaskActionContext(String action, String name, Id mainAttachmentId, ActionConfig actConfig, DomainObject task) {
+//        CompleteTaskActionContext actionContext = new CompleteTaskActionContext();
+//        actionContext.setRootObjectId(mainAttachmentId);
+//
+//        actionContext.setTaskAction(action);
+//        actionContext.setTaskId(task.getId());
+//        actionContext.setActivityId(task.getString("ActivityId"));
+//
+//        if (actConfig != null) {
+//            actionContext.setActionConfig(actConfig);
+//        } else {
+//            actConfig = new ActionConfig("complete.task.action");
+//            actConfig.setText(name);
+//            actionContext.setActionConfig(actConfig);
+//        }
+//        return actionContext;
+//    }
 
     @Override
     public List<ActionContext> getActions(String domainObjectType) {

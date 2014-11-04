@@ -273,9 +273,6 @@ public abstract class PluginView implements IsWidget {
         public void execute() {
             final ActionConfig config = context.getActionConfig();
             String componentName = config.getComponentName();
-            if (componentName == null) {
-                componentName = "generic.workflow.action";
-            }
             final Action action = ComponentRegistry.instance.get(componentName);
             action.setInitialContext(context);
             action.setPlugin(plugin);
