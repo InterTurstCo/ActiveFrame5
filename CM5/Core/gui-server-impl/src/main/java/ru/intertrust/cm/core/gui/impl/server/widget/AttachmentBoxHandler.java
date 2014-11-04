@@ -94,17 +94,23 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         ObjectsNode node = context.getFormObjects().getNode(fieldPath);
         if (node instanceof MultiObjectNode) {
             for (DomainObject object : (MultiObjectNode) node) {
-                selectedAttachments.add(createAttachmentItem(object));
+                if (fieldPath.isManyToManyReference()) {
+                    String linkedField =  fieldPath.getReferenceName();
+                    Id selectedId = object.getReference(linkedField);
+                    if (selectedId != null && accessVerificationService.isReadPermitted(selectedId)) {
+                        selectedAttachments.add(createAttachmentItem(crudService.find(selectedId)));
+                    }
+                } else {
+                    selectedAttachments.add(createAttachmentItem(object));
+                }
             }
         } else if (node instanceof SingleObjectNode){
             DomainObject object = ((SingleObjectNode) node).getDomainObject();
             selectedAttachments.add(createAttachmentItem(object));
         }  else {
             Id selectedId = context.getFieldPlainValue();
-            if (selectedId != null) {
-                if (accessVerificationService.isReadPermitted(selectedId)) {
+            if (selectedId != null && accessVerificationService.isReadPermitted(selectedId)) {
                     selectedAttachments.add(createAttachmentItem(crudService.find(selectedId)));
-                }
             }
         }
         return selectedAttachments;
@@ -160,22 +166,6 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
 
 
                 DomainObject savedDo;
-//                if (fieldPath.isOneToManyReference()) {  //TODO: check for other reference types and handle accordingly
-//                    String parentLinkFieldName = fieldPath.getLinkToParentName();
-//                    attachmentDomainObject.setReference(parentLinkFieldName, domainObject);
-//                } else if (fieldPath.isOneToOneDirectReference()) {
-//                    System.out.println("1:1");
-//                } else if (fieldPath.isOneToOneBackReference()) {
-//                    System.out.println("|");
-//                } else if (fieldPath.isManyToManyReference()) {
-//                    System.out.println("n:m");
-//                }
-//                savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
-//                if (fieldPath.isField()) {
-//                    domainObject.setReference(fieldPath.getFieldName(), savedDo);
-//                    crudService.save(domainObject);
-//                }
-
                 if (fieldPath.isOneToManyReference() || fieldPath.isOneToOneBackReference()) {
                     String parentLinkFieldName = fieldPath.getLinkToParentName();
                     attachmentDomainObject.setReference(parentLinkFieldName, domainObject);

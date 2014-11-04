@@ -24,7 +24,8 @@
         </uniqueKey>
         <attachment-types>
             <attachment-type name="country_attachment"/>
-            <attachment-type name="country_flag" />
+            <attachment-type name="country_flag"/>
+            <attachment-type name="fauna_attachment"/>
         </attachment-types>
     </domain-object-type>
 
@@ -116,6 +117,13 @@
         <fields>
             <reference name="federal_unit" type="federal_unit"/>
             <reference name="city" type="city"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="country_fauna">
+        <fields>
+            <reference name="country" type="country"/>
+            <reference name="animal" type="fauna_attachment"/>
         </fields>
     </domain-object-type>
 
@@ -367,12 +375,32 @@
                             <table>
                                 <tr>
                                     <td>
+                                        <widget id="attachmentLbl"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
                                         <widget id="country_attachment" width="600px"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
+                                        <widget id="flagAttachmentLbl"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
                                         <widget id="flag_attachment" width="600px"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="faunaAttachmentLbl"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="fauna_attachment" width="600px"/>
                                     </td>
                                 </tr>
                             </table>
@@ -641,6 +669,9 @@
                  <pattern value="{name} ({population} чел.)"/>
                 <single-choice value="true"/>
              </list-box>-->
+            <label id="attachmentLbl">
+                <text>Вложения:</text>
+            </label>
             <attachment-box id="country_attachment">
                 <field-path value="country_attachment^country"/>
                 <images-only>
@@ -656,6 +687,9 @@
                 <delete-button display="true"/>
             </attachment-box>
 
+            <label id="flagAttachmentLbl">
+                <text>Государственный флаг:</text>
+            </label>
             <attachment-box id="flag_attachment">
                 <field-path value="flag"/>
                 <images-only>
@@ -668,6 +702,24 @@
                 <selection-style name="inline"/>
                 <choice-style name="inline"/>
             </attachment-box>
+
+            <label id="faunaAttachmentLbl">
+                <text>Представители фауны:</text>
+            </label>
+            <attachment-box id="fauna_attachment">
+                <field-path value="country_fauna^country.animal" on-root-delete="unlink"/>
+                <images-only>
+                    <read-only-preview preserve-proportion="true"/>
+                    <small-preview display="true" preserve-proportion="true"/>
+                    <large-preview display="true" preserve-proportion="true" width="500px" height="400px"/>
+                </images-only>
+                <attachment-type-ref name="fauna_attachment"/>
+                <scanner enabled="true"/>
+                <selection-style name="inline"/>
+                <choice-style name="inline"/>
+                <add-button display="true"/>
+            </attachment-box>
+
 
             <table-browser id="17a" read-only="false">
                 <field-path value="city^country"/>
