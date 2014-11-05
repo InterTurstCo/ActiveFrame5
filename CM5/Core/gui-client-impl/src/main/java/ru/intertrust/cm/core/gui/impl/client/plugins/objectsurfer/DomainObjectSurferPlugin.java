@@ -260,7 +260,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
             state.setToggleEdit(true);
         } else {
             state.setEditable(false);
-            state.setToggleEdit(false);
+            state.setToggleEdit(true);
         }
 
         state.setInCentralPanel(true);
