@@ -48,6 +48,7 @@ ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
             for (Iterator joinsIterartor = plainSelect.getJoins().iterator(); joinsIterartor.hasNext();) {
                 Join join = (Join) joinsIterartor.next();
                 join.getRightItem().accept(this);
+                join.getOnExpression().accept(this);
             }
         }
 
@@ -85,6 +86,7 @@ ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
     public void visit(SubJoin subjoin) {
         if (subjoin.getJoin().getRightItem() != null) {
             subjoin.getJoin().getRightItem().accept(this);
+            subjoin.getJoin().getOnExpression().accept(this);
         }
         if (subjoin.getLeft() != null) {
             subjoin.getLeft().accept(this);

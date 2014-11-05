@@ -145,17 +145,15 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
-        
-        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
-        lc.login();
-        // query = "select * from country_al ca inner join country c on ca.domain_object_id = c.id where c.id = {0}";
-        // params = new ArrayList<Value>();
-        // params.add(new StringValue(new RdbmsId(countryTypeid, 33).toStringRepresentation()));
-        //
-        // collection = collectionService.findCollectionByQuery(query, params);
-        // assertNotNull(collection);
-        // assertTrue(collection.size() >= 1);
-        lc.logout();
+
+        query = "SELECT d.id FROM (SELECT id FROM employee) e join department d on d.boss = e.id WHERE d.boss={0}";
+        params = new ArrayList<Value>();
+        Integer employeeTypeid = domainObjectTypeIdCache.getId("Employee");
+        params.add(new ReferenceValue(new RdbmsId(employeeTypeid, 3)));
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
 
     }
     
@@ -539,7 +537,7 @@ public class CollectionsIT extends IntegrationTestBase {
     }
 
 
-//    @Test
+//   TODO  @Test
     public void testFindCollectionWithAcl() throws LoginException {
         createAuthenticationInfo();
         SortOrder sortOrder = new SortOrder();

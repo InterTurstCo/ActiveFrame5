@@ -87,14 +87,13 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
 
     @Override
     public void visit(RegExpMatchOperator regExpMatchOperator) {
-
     }
 
     private void collectColumnConfiguration(Column column) {
         FieldConfig fieldConfig =
                 configurationExplorer.getFieldConfig(SqlQueryModifier.getDOTypeName(plainSelect, column, false),
                         DaoUtils.unwrap(column.getColumnName()));
-        //если колонка не объявлена в основном запросе, выполняется поиск по подзапросам
+        // если колонка не объявлена в основном запросе, выполняется поиск по подзапросам
         if (fieldConfig == null) {
             for (PlainSelect innerSubSelect : innerSubSelects) {
                 fieldConfig =
@@ -104,6 +103,7 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
                     break;
                 }
             }
+
         }
         if (fieldConfig != null) {
             columnToConfigMapping.put(getColumnName(column), fieldConfig);

@@ -630,7 +630,7 @@ public class SqlQueryModifier {
      * @return
      */
     public static String getDOTypeName(PlainSelect plainSelect, Column column, boolean forSubSelect) {
-
+        
         if (hasEvaluatedExpressionWithSameAliasInPlainSelect(plainSelect, column)) {
             return null;
         }
@@ -638,8 +638,20 @@ public class SqlQueryModifier {
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
             PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
+            // если название таблицы у колонки совпадает с алиасом подзапроса, то таблица данной колоки - первая таблица
+            // из From выражения подзапроса.
+            if (column.getTable() != null && column.getTable().getName() != null && subSelect.getAlias() != null
+                    && column.getTable().getName().equals(subSelect.getAlias().getName())) {
+                column.setTable(null);
+                return getDOTypeName(plainSubSelect, column, true);
+            }
 
-            return getDOTypeName(plainSubSelect, column, true);
+            String resultType = processJoins(plainSelect, column);
+            if (resultType != null) {
+                return resultType;
+            } else {
+                return getDOTypeName(plainSubSelect, column, true);
+            }
         } else if (plainSelect.getFromItem() instanceof Table) {
             Table fromItem = (Table) plainSelect.getFromItem();
 
@@ -661,8 +673,12 @@ public class SqlQueryModifier {
 
                     if (join.getRightItem() instanceof SubSelect) {
                         SubSelect subSelect = (SubSelect) join.getRightItem();
-                        PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
-                        return getDOTypeName(plainSubSelect, column, true);
+                        if (column.getTable() != null && column.getTable().getName() != null) {
+                            if (subSelect.getAlias() != null && column.getTable().getName().equalsIgnoreCase(subSelect.getAlias().getName())) {
+                                PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
+                                return getDOTypeName(plainSubSelect, column, true);
+                            }
+                        }
                     } else if (join.getRightItem() instanceof Table) {
                         Table joinTable = (Table) join.getRightItem();
                         if (joinTable.getAlias() != null
@@ -677,14 +693,53 @@ public class SqlQueryModifier {
             }
             // если в подзапросе соответствие колонки по алиасу таблицы не найдено, то возвращается первая таблица из
             // from выражения
-            if (forSubSelect) {
-                return DaoUtils.unwrap(fromItem.getName());
-            }
+//            if (forSubSelect) {
+//                return DaoUtils.unwrap(fromItem.getName());
+//            }
 
         }
         return null;
     }
 
+    private static String processJoins(PlainSelect plainSelect, Column column) {
+        if (column == null) {
+            return null;
+        }
+        List joinList = plainSelect.getJoins();
+
+        if (joinList != null) {
+            for (Object joinObject : joinList) {
+                Join join = (Join) joinObject;
+
+                if (join.getRightItem() instanceof SubSelect) {
+                    SubSelect subSelect = (SubSelect) join.getRightItem();
+                    if (column.getTable() != null && column.getTable().getName() != null) {
+                        if (subSelect.getAlias() != null && column.getTable().getName().equalsIgnoreCase(subSelect.getAlias().getName())) {
+                            PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
+                            return getDOTypeName(plainSubSelect, column, true);
+                        }
+                    }
+                } else if (join.getRightItem() instanceof Table) {
+                    try {
+                        Table joinTable = (Table) join.getRightItem();
+                        if (joinTable.getAlias() != null && column.getTable() != null && column.getTable().getName() != null) {
+                            if (column.getTable().getName().equals(joinTable.getAlias().getName()) ||
+                                    column.getTable().getName().equals(joinTable.getName())) {
+                                return DaoUtils.unwrap(joinTable.getName());
+                            }
+
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+        }
+        return null;
+    }
+   
     /**
      * Проверяет, объявлена ли колонка (основного SQL запроса) в подзапросе как вычисляемая колонка
      * @param plainSelect
