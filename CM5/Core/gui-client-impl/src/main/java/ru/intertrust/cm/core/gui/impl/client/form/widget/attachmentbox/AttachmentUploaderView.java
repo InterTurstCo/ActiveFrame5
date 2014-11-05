@@ -18,7 +18,6 @@ import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
-import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
@@ -51,7 +50,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private boolean singleChoice;
     private List<AttachmentItem> attachments = new ArrayList<>();
     private List<AttachmentItem> allAttachments = new ArrayList<>();
-    private AcceptedTypesConfig acceptedTypesConfig;
+
     private ExtensionValidator extensionValidator;
     private Timer elapsedTimer;
     private boolean dontShowNewRow;
@@ -60,11 +59,11 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private AddButtonConfig addButtonConfig;
 
     public AttachmentUploaderView(List<AttachmentItem> attachments, List<AttachmentItem> allAttachments,
-                                  SelectionStyleConfig selectionStyleConfig, AcceptedTypesConfig acceptedTypesConfig,
+                                  SelectionStyleConfig selectionStyleConfig, ExtensionValidator extensionValidator,
                                   AddButtonConfig addButtonConfig, EventBus eventBus) {
         setAttachments(attachments);
         setAllAttachments(allAttachments);
-        this.acceptedTypesConfig = acceptedTypesConfig;
+        this.extensionValidator = extensionValidator;
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         this.addButtonConfig = addButtonConfig;
         this.eventBus = eventBus;
@@ -198,7 +197,6 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         style.setPosition(Style.Position.ABSOLUTE);
         style.setTop(-1000, Style.Unit.PX);
         style.setLeft(-1000, Style.Unit.PX);
-        extensionValidator = new ExtensionValidator(acceptedTypesConfig);
         extensionValidator.setMimeType(fileUpload.getElement());
       //  fileUpload.getElement().setAttribute("accept", "application/xml");
         fileUpload.addChangeHandler(new ChangeHandler() {

@@ -275,6 +275,13 @@
     color: #ffffff;
 }
 
+.month-detail-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+
 /**
 *  Form Panel - right part
 **/

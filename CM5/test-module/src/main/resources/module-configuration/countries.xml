@@ -685,6 +685,11 @@
                 <single-choice value="false"/>
                 <choice-style name="popup"/>
                 <delete-button display="true"/>
+                <accepted-types>
+                    <accepted-type extensions=".txt" mime-type="text/plain"/> <!-- non-image type, will be ignored -->
+                    <accepted-type extensions=".png" mime-type="image/png"/>
+                    <accepted-type extensions=".jpg, .jpeg" mime-type="image/jpeg"/>
+                </accepted-types>
             </attachment-box>
 
             <label id="flagAttachmentLbl">

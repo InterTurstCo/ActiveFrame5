@@ -23,7 +23,7 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
  * @author Sergey.Okolot
  *         Created on 30.10.2014 12:45.
  */
-public abstract class CalendarPanel extends FlowPanel implements RequiresResize {
+public abstract class AbstractCalendarPanel extends FlowPanel implements RequiresResize {
     protected static final String SELECTED_DATE_STYLE = "calendar-focus-day-block";
 
     protected final List<HandlerRegistration> handlers = new ArrayList<>();
@@ -33,7 +33,8 @@ public abstract class CalendarPanel extends FlowPanel implements RequiresResize 
     protected Date currentDate = new Date();
     private AbstractDateItem selectedItem;
 
-    public CalendarPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
+    public AbstractCalendarPanel(final EventBus localEventBus, final CalendarTableModel tableModel,
+                                 final CalendarConfig config) {
         this.tableModel = tableModel;
         this.localEventBus = localEventBus;
         this.calendarConfig = config;

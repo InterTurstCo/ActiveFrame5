@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 import java.util.Date;
 import java.util.List;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseWheelEvent;
 import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.event.shared.EventBus;
@@ -11,6 +13,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
@@ -31,20 +34,31 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
  * @author Sergey.Okolot
  *         Created on 17.10.2014 17:58.
  */
-public class MonthPanel extends CalendarPanel implements CalendarScrollEventHandler, MouseWheelHandler,
+public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollEventHandler, MouseWheelHandler,
         CalendarTodayEventHandler {
     private static int DATE_ITEM_HEIGHT = 100;
 
     private int containerOffset;
+    private FlowPanel monthContainer;
     private Date cursorDate;
     private Timer resizeTimer;
     private ScrollTimer scrollTimer;
+    private FlowPanel switchBtn;
+    private FlowPanel detailPanel;
+    private DetailDateItem detailItem;
 
     public MonthPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
         super(localEventBus, tableModel, config);
         sinkEvents(Event.ONMOUSEWHEEL);
         handlers.add(addHandler(this, MouseWheelEvent.getType()));
         handlers.add(this.localEventBus.addHandler(CalendarTodayEvent.TYPE, this));
+        monthContainer = new FlowPanel();
+        add(monthContainer);
+        detailPanel = new FlowPanel();
+        detailPanel.setStyleName("month-detail-panel");
+        add(detailPanel);
+        switchBtn = createSwitchBtn();
+        detailPanel.add(switchBtn);
     }
 
     @Override
@@ -74,11 +88,12 @@ public class MonthPanel extends CalendarPanel implements CalendarScrollEventHand
     public void onMouseWheel(MouseWheelEvent event) {
         final int delta = event.getDeltaY() * 5;
         changeOffset(delta);
-        final WeekItem weekItem = (WeekItem) getWidget(0);
+        final WeekItem weekItem = (WeekItem) monthContainer.getWidget(0);
         final DateItem dateItem = (DateItem) weekItem.getWidget(0);
         final Date date = CalendarUtil.copyDate(dateItem.date);
         final int dateOffset =  containerOffset / (DATE_ITEM_HEIGHT / 7);
         CalendarUtil.addDaysToDate(date, 7 + dateOffset);
+        cursorDate = date;
         localEventBus.fireEvent(new CalendarScrollEvent(this, date));
     }
 
@@ -90,7 +105,7 @@ public class MonthPanel extends CalendarPanel implements CalendarScrollEventHand
                 @Override
                 public void run() {
                     resizeTimer = null;
-                    initialize();
+                    buildPresentation(getStartDate());
                 }
             };
         } else {
@@ -108,43 +123,105 @@ public class MonthPanel extends CalendarPanel implements CalendarScrollEventHand
     }
 
     private void initialize() {
-        clear();
         final Date date = CalendarUtil.copyDate(cursorDate);
         CalendarUtil.addDaysToDate(date, -(cursorDate.getDay() + 13));
         final int dayOffset = cursorDate.getDay();
+        containerOffset = DATE_ITEM_HEIGHT - dayOffset * DATE_ITEM_HEIGHT / 7;
+        monthContainer.getElement().getStyle().setMarginTop(-containerOffset, Style.Unit.PX);
+        buildPresentation(date);
+    }
+
+    private void buildPresentation(final Date date) {
+        monthContainer.clear();
+        if (detailItem != null) {
+            detailPanel.remove(detailItem);
+        }
+        setSwitchBtnStyle();
         final int height = getOffsetHeight();
         int weekCount = height / DATE_ITEM_HEIGHT + 2;
-        containerOffset = DATE_ITEM_HEIGHT - dayOffset * DATE_ITEM_HEIGHT / 7;
-        getElement().getStyle().setMarginTop(-containerOffset, Style.Unit.PX);
-        final int offsetWidth = getOffsetWidth();
+        int calendarWidth = getCalendarWidth();
         for (int index = 0; index < weekCount; index++) {
-            add(new WeekItem(date, offsetWidth, calendarConfig.isShowWeekend()));
+            monthContainer.add(new WeekItem(date, calendarWidth, calendarConfig.isShowWeekend()));
             if (!calendarConfig.isShowWeekend()) {
                 CalendarUtil.addDaysToDate(date, 2);
             }
         }
+        if (calendarConfig.isShowDetailPanel()) {
+            detailItem = new DetailDateItem(tableModel.getSelectedDate(), getOffsetWidth() / 5, height);
+            detailPanel.add(detailItem);
+        }
+    }
+
+    private int getCalendarWidth() {
+        int result = getOffsetWidth();
+        if (calendarConfig.isShowDetailPanel()) {  // detail panel width 20%
+            result -= result / 5;
+        }
+        return result;
     }
 
     private void changeOffset(int delta) {
         containerOffset -= delta;
         if (containerOffset < 0) {
-            final WeekItem weekItem = (WeekItem) getWidget(0);
-            final DateItem dateItem = (DateItem) weekItem.getWidget(0);
-            final Date startDate = CalendarUtil.copyDate(dateItem.date);
+            final Date startDate = CalendarUtil.copyDate(getStartDate());
             CalendarUtil.addDaysToDate(startDate, -7);
-            remove(getWidgetCount() - 1);
-            insert(new WeekItem(startDate, getOffsetWidth(), calendarConfig.isShowWeekend()), 0);
+            monthContainer.remove(monthContainer.getWidgetCount() - 1);
+            monthContainer.insert(new WeekItem(startDate, getCalendarWidth(), calendarConfig.isShowWeekend()), 0);
             containerOffset += DATE_ITEM_HEIGHT;
         } else if (containerOffset > DATE_ITEM_HEIGHT) {
-            final WeekItem weekItem = (WeekItem) getWidget(getWidgetCount() - 1);
+            final WeekItem weekItem = (WeekItem) monthContainer.getWidget(monthContainer.getWidgetCount() - 1);
             final DateItem dateItem = (DateItem) weekItem.getWidget(0);
             final Date startDate = CalendarUtil.copyDate(dateItem.date);
             CalendarUtil.addDaysToDate(startDate, 7);
-            remove(0);
-            add(new WeekItem(startDate, getOffsetWidth(), calendarConfig.isShowWeekend()));
+            monthContainer.remove(0);
+            monthContainer.add(new WeekItem(startDate, getCalendarWidth(), calendarConfig.isShowWeekend()));
             containerOffset -= DATE_ITEM_HEIGHT;
         }
-        getElement().getStyle().setMarginTop(-containerOffset, Style.Unit.PX);
+        monthContainer.getElement().getStyle().setMarginTop(-containerOffset, Style.Unit.PX);
+    }
+
+    private void setSwitchBtnStyle() { // todo установить необходимые стили переключателя
+        if (calendarConfig.isShowDetailPanel()) {
+            Style btnStyle = switchBtn.getElement().getStyle();
+            btnStyle.setPosition(Style.Position.ABSOLUTE);
+            btnStyle.setZIndex(100);
+            btnStyle.setTop(50, Style.Unit.PCT);
+            btnStyle.setLeft(0, Style.Unit.PX);
+            btnStyle.setMarginLeft(-20, Style.Unit.PX);
+            btnStyle.setBorderColor("red");
+            btnStyle.setBorderStyle(Style.BorderStyle.SOLID);
+            btnStyle.setBorderWidth(1, Style.Unit.PX);
+        } else {
+            Style btnStyle = switchBtn.getElement().getStyle();
+            btnStyle.setPosition(Style.Position.ABSOLUTE);
+            btnStyle.setZIndex(100);
+            btnStyle.setTop(50, Style.Unit.PCT);
+            btnStyle.setLeft(0, Style.Unit.PX);
+            btnStyle.setMarginLeft(-20, Style.Unit.PX);
+            btnStyle.setBorderColor("red");
+            btnStyle.setBorderStyle(Style.BorderStyle.SOLID);
+            btnStyle.setBorderWidth(1, Style.Unit.PX);
+        }
+    }
+
+    private FlowPanel createSwitchBtn() {
+        final FlowPanel result = new FlowPanel();
+        result.add(new InlineLabel("Задачи дня"));
+        result.addHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                calendarConfig.setShowDetailPanel(!calendarConfig.isShowDetailPanel());
+                buildPresentation(getStartDate());
+            }
+        }, ClickEvent.getType());
+        result.sinkEvents(Event.ONCLICK);
+        return result;
+    }
+
+    private Date getStartDate() {
+        final WeekItem weekItem = (WeekItem) monthContainer.getWidget(0);
+        final DateItem dateItem = (DateItem) weekItem.getWidget(0);
+        return dateItem.date;
     }
 
     private class WeekItem extends FlowPanel {
@@ -224,7 +301,6 @@ public class MonthPanel extends CalendarPanel implements CalendarScrollEventHand
             return result;
         }
 
-
         @Override
         protected Widget getTasksPanel() {
             final FlowPanel result = new FlowPanel();
@@ -234,7 +310,32 @@ public class MonthPanel extends CalendarPanel implements CalendarScrollEventHand
         }
     }
 
-    private class CalendarTableModelCallbackImpl implements CalendarTableModelCallback {
+    private class DetailDateItem extends AbstractDateItem {
+
+        private DetailDateItem(Date date, int width, int height) {
+            super(date, width, height);
+        }
+
+        @Override
+        protected Label getItemLabel(Date date) {
+            return new Label("Detail panel");
+        }
+
+        @Override
+        protected Widget getTasksPanel() {
+            final FlowPanel result = new FlowPanel();
+            final CalendarTableModelCallback callback = new CalendarTableModelCallbackImpl(result);
+            tableModel.fillByDateValues(date, callback);
+            return result;
+        }
+
+        @Override
+        protected void addStyles() {
+
+        }
+    }
+
+    private static class CalendarTableModelCallbackImpl implements CalendarTableModelCallback {
         private final Panel container;
 
         private CalendarTableModelCallbackImpl(final Panel container) {
