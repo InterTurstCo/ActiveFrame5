@@ -22,7 +22,8 @@ public final class ComponentHelper {
     public static final String LEFT_ID = "left_pnl";
     public static final String CENTER_ID = "center_pnl";
     public static final String DOMAIN_ID = "domain_pnl";
-
+    public static final String RIGHT_ID = "right_pnl";
+    public static final String FOOTER_ID = "footer_pnl";
     /**
      * Don't create instance of helper class.
      */

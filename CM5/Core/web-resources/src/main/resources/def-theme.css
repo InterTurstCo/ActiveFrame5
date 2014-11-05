@@ -837,6 +837,20 @@ h1 {
     margin: 70px 11px 11px 375px;
 }
 
+.centralPanelRightPanelOpen {
+    background: #fafafa;
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: margin 0.5s;
+    margin: 70px 265px 0px 130px;
+}
+
 #action-bar-id {
     background: #c2e7f0; /* Old browsers */
     /* IE9 SVG, needs conditional override of 'filter' to 'none' */
@@ -962,9 +976,6 @@ h1 {
 .rightSectionWrapper {
     height: 100%;
     width: 100%;
-}
-
-.footer-section {
 }
 
 .center-section {
@@ -2659,3 +2670,51 @@ a:active .icon.back {
 .linkEditingButtonText{
     color: white;
 }
+
+
+/* ------------>>> rightPanel <<<------------ */
+.stickerPanelOff{
+    border-radius: 5px 0 0;
+    background: #fafafa;
+    float: right;
+    position: absolute;
+    top: 70px;
+    right: 0;
+    bottom: 0;
+    -webkit-transition: width 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: width 0.5s;
+    width: 0;
+    z-index: 11;
+}
+
+.stickerPanelOn{
+    border-radius: 5px 0 0;
+    background: #fafafa;
+    float: right;
+    position: absolute;
+    top: 70px;
+    right: 0;
+    bottom: 0;
+    -webkit-transition: width 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: width 0.5s;
+    width: 255px;
+    z-index: 11;
+}
+/* ------------>>> end right Panel <<<------------ */
+
+/* ------------>>> sticker/footer Panel <<<------------ */
+.footer-section {
+}
+
+.footerOpenButton {
+    background: #E5EBEF;
+    border: 1px solid #9eafbf;
+    border-radius: 7px 7px 0 0;
+    height: 20px;
+    position: absolute;
+    bottom: 0;
+    left: 40px;
+    width: 33px;
+    z-index: 15;
+}
+/* ------------>>> end sticker/footer Panel <<<------------ */

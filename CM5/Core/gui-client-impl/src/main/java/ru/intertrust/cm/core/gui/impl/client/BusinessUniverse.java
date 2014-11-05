@@ -96,6 +96,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 right = new AbsolutePanel();
                 footer = new AbsolutePanel();
                 AbsolutePanel root = new AbsolutePanel();
+                AbsolutePanel footerButton = new AbsolutePanel();
+                footerButton.setStyleName("footerOpenButton");
+                footerButton.getElement().getStyle().clearPosition();
+                root.add(footerButton);
                 final AbsolutePanel centralDivPanel = new AbsolutePanel();
                 centralDivPanel.setStyleName("central-div-panel-test");
                 centralDivPanel.getElement().setId(ComponentHelper.DOMAIN_ID);
@@ -260,31 +264,41 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
 
+//    private void addStickerPanel() {
+//
+//        final FlowPanel flowPanel = new FlowPanel();
+//        final ToggleButton toggleBtn = new ToggleButton("sticker");
+//        final FocusPanel focusPanel = new FocusPanel();
+//        toggleBtn.addClickHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                if (toggleBtn.getValue()) {
+//
+//                    centralPluginWidth -= 300;
+//                    stickerPluginWidth = 300;
+//                } else {
+//                    centralPluginWidth += 300;
+//                    stickerPluginWidth = 30;
+//                }
+//
+//                centralPluginPanel.setVisibleWidth(centralPluginWidth);
+//                Application.getInstance().getEventBus().fireEvent(new PluginPanelSizeChangedEvent());
+//            }
+//        });
+//        flowPanel.add(toggleBtn);
+//        focusPanel.add(flowPanel);
+//        focusPanel.getElement().getStyle().setBackgroundColor("white");
+//        stickerPluginWidth = 30;
+//
+//    }
+
     private void addStickerPanel() {
+        AbsolutePanel panel = new AbsolutePanel();
+        panel.getElement().setId(ComponentHelper.RIGHT_ID);
+        panel.getElement().getStyle().clearPosition();
+        panel.getElement().setClassName("stickerPanelOff");
 
-        final FlowPanel flowPanel = new FlowPanel();
-        final ToggleButton toggleBtn = new ToggleButton("sticker");
-        final FocusPanel focusPanel = new FocusPanel();
-        toggleBtn.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                if (toggleBtn.getValue()) {
-
-                    centralPluginWidth -= 300;
-                    stickerPluginWidth = 300;
-                } else {
-                    centralPluginWidth += 300;
-                    stickerPluginWidth = 30;
-                }
-
-                centralPluginPanel.setVisibleWidth(centralPluginWidth);
-                Application.getInstance().getEventBus().fireEvent(new PluginPanelSizeChangedEvent());
-            }
-        });
-        flowPanel.add(toggleBtn);
-        focusPanel.add(flowPanel);
-        focusPanel.getElement().getStyle().setBackgroundColor("white");
-        stickerPluginWidth = 30;
+        center.add(panel);
 
     }
 
