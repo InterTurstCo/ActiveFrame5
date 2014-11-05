@@ -43,7 +43,9 @@ public class CollectionViewLogicalValidator implements ConfigurationValidator {
                 String name = collectionViewConfig.getName();
                 LogicalErrors logicalErrors = LogicalErrors.getInstance(name, "collection-view");
                 validateCollectionViewConfig(collectionViewConfig, collectionConfigList, logicalErrors);
-                logicalErrorsList.add(logicalErrors);
+                if (logicalErrors.getErrorCount() > 0) {
+                    logicalErrorsList.add(logicalErrors);
+                }
             }
         }
 

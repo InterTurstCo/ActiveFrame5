@@ -1494,7 +1494,7 @@
     <xs:complexType name="trType">
         <xs:sequence>
             <xs:element type="con:tdType" name="td"
-                        maxOccurs="unbounded" minOccurs="0"
+                        maxOccurs="unbounded" minOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="height" use="optional"/>

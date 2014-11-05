@@ -1063,9 +1063,9 @@
                                     <td h-align="left">
                                         <widget id="hyperlink"/>
                                     </td>
-                                    <td h-align="left">
+                                    <!--<td h-align="left">
                                         <widget id="language"/>
-                                    </td>
+                                    </td>-->
 
                                 </tr>
                             </table>

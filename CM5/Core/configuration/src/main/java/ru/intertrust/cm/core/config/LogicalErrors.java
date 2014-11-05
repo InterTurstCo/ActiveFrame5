@@ -30,7 +30,9 @@ public class LogicalErrors {
 
         StringBuilder errorLogBuilder = new StringBuilder();
         for (LogicalErrors errors : logicalErrorsList) {
-            errorLogBuilder.append(errors.toString()).append("\n");
+            if (errors.getErrorCount() > 0) {
+                errorLogBuilder.append(errors.toString()).append("\n");
+            }
         }
 
         return errorLogBuilder.toString();

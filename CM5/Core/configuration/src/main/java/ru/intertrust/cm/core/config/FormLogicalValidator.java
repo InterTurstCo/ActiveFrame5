@@ -65,7 +65,9 @@ public class FormLogicalValidator implements ConfigurationValidator {
             String formName = formConfig.getName();
             LogicalErrors logicalErrors = LogicalErrors.getInstance(formName, "form");
             validateFormConfig(formConfig, logicalErrors);
-            logicalErrorsList.add(logicalErrors);
+            if (logicalErrors.getErrorCount() > 0) {
+                logicalErrorsList.add(logicalErrors);
+            }
         }
 
         return logicalErrorsList;
@@ -78,7 +80,7 @@ public class FormLogicalValidator implements ConfigurationValidator {
         String domainObjectType = formConfig.getDomainObjectType();
         data.setFormName(formName);
         data.setDomainObjectType(domainObjectType);
-        logger.info("Validating '{}' form", formName);
+//        logger.info("Validating '{}' form", formName);
         MarkupConfig markup = formConfig.getMarkup();
 
         if (markup == null) {
@@ -105,7 +107,7 @@ public class FormLogicalValidator implements ConfigurationValidator {
             ReportFormLogicalValidator validator = new ReportFormLogicalValidator();
             validator.validate(formConfig, logicalErrors);
         }
-        logger.info("Form '{}' is validated", formName);
+//        logger.info("Form '{}' is validated", formName);
     }
 
     private void validateHeader(FormToValidate data,

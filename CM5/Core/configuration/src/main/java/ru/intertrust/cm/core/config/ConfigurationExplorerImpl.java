@@ -118,35 +118,22 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     }
 
     public void validateGui() {
-        StringBuilder errorLogBuilder = new StringBuilder();
+        List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 
-        try {
-            navigationPanelLogicalValidator.setConfigurationExplorer(this);
-            navigationPanelLogicalValidator.validate();
-        } catch (ConfigurationException e) {
-            errorLogBuilder.append(e.getMessage());
+        navigationPanelLogicalValidator.setConfigurationExplorer(this);
+        logicalErrorsList.addAll(navigationPanelLogicalValidator.validate());
+
+        formLogicalValidator.setConfigurationExplorer(this);
+        logicalErrorsList.addAll(formLogicalValidator.validate());
+
+        logicalErrorsList.addAll(new CollectionViewLogicalValidator(this).validate());
+
+        if (!logicalErrorsList.isEmpty()) {
+            String errorMessage = LogicalErrors.toString(logicalErrorsList);
+            if (!errorMessage.isEmpty()) {
+                throw new ConfigurationException(LogicalErrors.toString(logicalErrorsList));
+            }
         }
-
-        try {
-            formLogicalValidator.setConfigurationExplorer(this);
-            formLogicalValidator.validate();
-        } catch (ConfigurationException e) {
-            errorLogBuilder.append(e.getMessage());
-        }
-
-        try {
-            CollectionViewLogicalValidator collectionLogicalValidator = new CollectionViewLogicalValidator(this);
-            collectionLogicalValidator.validate();
-        } catch (ConfigurationException e) {
-            errorLogBuilder.append(e.getMessage());
-        }
-
-        String errorLog = errorLogBuilder.toString();
-        if (errorLog.length() > 0){
-            throw new ConfigurationException(errorLog);
-        }
-
-        logger.info("GUI configuration has passed logical validation");
     }
 
     /**

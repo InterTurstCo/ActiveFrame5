@@ -142,7 +142,7 @@ public class ConfigurationSchemaValidator {
             final Validator validator = schema.newValidator();
 
             validateDomainObjectConfiguration(validator);
-            logger.info("Document is valid against XSD");
+            //logger.info("Document is valid against XSD");
         } catch (SAXException ex) {
             throw new FatalException("Document " + configurationPath + " is not valid against XSD schema: " + ex
                     .getMessage(), ex);

@@ -77,7 +77,9 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
             validatePluginHandlers(linkConfig, logicalErrors);
         }
 
-        logicalErrorsList.add(logicalErrors);
+        if (logicalErrors.getErrorCount() > 0) {
+            logicalErrorsList.add(logicalErrors);
+        }
     }
 
     private void validateLinkConfig(LinkConfig linkConfig, LogicalErrors logicalErrors) {
