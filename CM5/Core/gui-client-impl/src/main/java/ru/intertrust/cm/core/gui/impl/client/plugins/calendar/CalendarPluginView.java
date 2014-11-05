@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 
-import java.util.Date;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
@@ -18,7 +17,6 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
-import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarPluginData;
 
 /**
  * Created by lvov on 03.04.14.
@@ -44,7 +42,7 @@ public class CalendarPluginView extends PluginView {
         final Container container = new Container();
         container.add(createBreadCrumbsPanel());
         final CalendarConfig calendarConfig = (CalendarConfig) plugin.getConfig();
-        final CalendarPanel calendarPanel;
+        final AbstractCalendarPanel calendarPanel;
         if (CalendarConfig.MONTH_MODE.equals(calendarConfig.getStartMode())) {
             final SimplePanel cursor = new SimplePanel();
             cursor.setStyleName("current-month-block");
@@ -55,7 +53,7 @@ public class CalendarPluginView extends PluginView {
             container.add(monthScrollPanel);
             calendarPanel = new MonthPanel(localEventBus, tableModel, calendarConfig);
         } else {
-            calendarPanel = new DayPanel(localEventBus, tableModel, calendarConfig);
+            calendarPanel = new WeekPanel(localEventBus, tableModel, calendarConfig);
         }
         container.add(calendarPanel);
         Application.getInstance().hideLoadingIndicator();

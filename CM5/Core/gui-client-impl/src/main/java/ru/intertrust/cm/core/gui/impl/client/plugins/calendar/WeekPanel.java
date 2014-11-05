@@ -34,16 +34,14 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
  * @author Sergey.Okolot
  *         Created on 17.10.2014 14:17.
  */
-public class WeekPanel extends CalendarPanel implements CalendarNextWeekEventHandler,
+public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeekEventHandler,
         CalendarPreviousWeekEventHandler, CalendarTodayEventHandler {
 
-    private boolean weekendPanelExpanded;
     private Date beginWeekDate;
     private FlowPanel switchBtn;
 
     public WeekPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
         super(localEventBus, tableModel, config);
-        weekendPanelExpanded = config.isShowWeekend();
         handlers.add(this.localEventBus.addHandler(CalendarTodayEvent.TYPE, this));
         handlers.add(this.localEventBus.addHandler(CalendarPreviousWeekEvent.TYPE, this));
         handlers.add(this.localEventBus.addHandler(CalendarNextWeekEvent.TYPE, this));
@@ -89,7 +87,7 @@ public class WeekPanel extends CalendarPanel implements CalendarNextWeekEventHan
     private void buildPresentation() {
         clear();
         final Date cursorDate = CalendarUtil.copyDate(beginWeekDate);
-        final int dayCount = weekendPanelExpanded ? 6 : 5;
+        final int dayCount = calendarConfig.isShowWeekend() ? 6 : 5;
         final int height = getOffsetHeight();
         final int width = getOffsetWidth() / dayCount;
         for (int index = 0; index < dayCount; index++) {
@@ -108,7 +106,7 @@ public class WeekPanel extends CalendarPanel implements CalendarNextWeekEventHan
     }
 
     private void setSwitchBtnStyle() { // todo установить необходимые стили переключателя
-        if (weekendPanelExpanded) {
+        if (calendarConfig.isShowWeekend()) {
             Style btnStyle = switchBtn.getElement().getStyle();
             btnStyle.setPosition(Style.Position.ABSOLUTE);
             btnStyle.setZIndex(100);
@@ -135,7 +133,7 @@ public class WeekPanel extends CalendarPanel implements CalendarNextWeekEventHan
         result.addHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                weekendPanelExpanded = !weekendPanelExpanded;
+                calendarConfig.setShowWeekend(!calendarConfig.isShowWeekend());
                 buildPresentation();
             }
         }, ClickEvent.getType());

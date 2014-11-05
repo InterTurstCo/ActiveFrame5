@@ -37,6 +37,10 @@ public class CalendarConfig extends PluginConfig {
         return showWeekend;
     }
 
+    public void setShowWeekend(boolean showWeekend) {
+        this.showWeekend = showWeekend;
+    }
+
     public String getStartMode() {
         return startMode;
     }
@@ -47,6 +51,10 @@ public class CalendarConfig extends PluginConfig {
 
     public boolean isShowDetailPanel() {
         return showDetailPanel;
+    }
+
+    public void setShowDetailPanel(boolean showDetailPanel) {
+        this.showDetailPanel = showDetailPanel;
     }
 
     public ToolBarConfig getToolBarConfig() {
