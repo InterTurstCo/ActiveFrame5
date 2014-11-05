@@ -54,6 +54,10 @@ import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 @RunWith(Arquillian.class)
 public class CrudServiceIT extends IntegrationTestBase {
 
+    private static final String ADMIN = "admin";
+
+    private static final String PERSON_2_LOGIN = "person2";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -100,8 +104,21 @@ public class CrudServiceIT extends IntegrationTestBase {
     }
 
     @Test
-    public void testFindDelete() {
+    public void testFindAuditLogs() throws LoginException {
+        Integer countryAlTypeid = domainObjectTypeIdCache.getId("country_al");
+        Id countryAuditId = new RdbmsId(countryAlTypeid, 33);
 
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+
+        DomainObject foundCountryAudit = crudService.find(countryAuditId);
+        assertNotNull(foundCountryAudit);
+        assertNotNull(foundCountryAudit.getId());
+        lc.logout();
+    }
+    
+    @Test
+    public void testFindDelete() {
         DomainObject organization1 = createOrganizationDomainObject();
         DomainObject savedOrganization1 = crudService.save(organization1);
 
@@ -169,11 +186,10 @@ public class CrudServiceIT extends IntegrationTestBase {
         DomainObject savedOrganization = crudService.save(organization);
         DomainObject department = createDepartmentDomainObject(savedOrganization);
         DomainObject savedDepartment = crudService.save(department);
-        
-        DomainObject employee = createEmployeeDomainObject(savedDepartment);        
+
+        DomainObject employee = createEmployeeDomainObject(savedDepartment);
         DomainObject savedEmployee = crudService.save(employee);
-        
-        
+
         List<DomainObject> linkedObjects =
                 crudService.findLinkedDomainObjects(savedOrganization.getId(), "Department", "Organization");
         assertNotNull(linkedObjects);
@@ -183,9 +199,21 @@ public class CrudServiceIT extends IntegrationTestBase {
                 crudService.findLinkedDomainObjectsIds(savedOrganization.getId(), "Department", "Organization");
         assertNotNull(linkedObjectsIds);
         assertEquals(linkedObjectsIds.get(0), savedDepartment.getId());
-
     }
 
+    @Test
+    public void testFindLinkedDoaminObjectsForAuditLog() throws LoginException {
+        DomainObject organization = createOrganizationDomainObject();
+        DomainObject savedOrganization = crudService.save(organization);
+        LoginContext lc = login("person2", "admin");
+        lc.login();
+        List<DomainObject> linkedObjects =
+                crudService.findLinkedDomainObjects(savedOrganization.getId(), "Organization_al", "domain_object_id");
+        assertNotNull(linkedObjects);
+        lc.logout();
+    
+    }
+    
     @Test
     public void testGetDomainObjectType() {
         DomainObject organization = createOrganizationDomainObject();

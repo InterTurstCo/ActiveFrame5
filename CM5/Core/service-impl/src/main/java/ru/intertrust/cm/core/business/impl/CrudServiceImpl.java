@@ -1,30 +1,42 @@
 package ru.intertrust.cm.core.business.impl;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.api.*;
-import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
-import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.dao.exception.InvalidIdException;
-import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.CrudException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import java.util.*;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.CrudException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * Реализация сервиса для работы c базовы CRUD-операциями. Смотри link @CrudService
@@ -229,14 +241,22 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     }
 
     private boolean isReadPermittedToEverybody(Id id) {
-        String domainObjectType = domainObjectTypeIdCache.getName(id);
+        String domainObjectType = domainObjectTypeIdCache.getName(id);        
         return isReadPermittedToEverybody(domainObjectType);
     }
 
     private boolean isReadPermittedToEverybody(String domainObjectType) {
+        domainObjectType = getRelevantType(domainObjectType);
         return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
     }
 
+    private String getRelevantType(String typeName) {
+        if (configurationExplorer.isAuditLogType(typeName)) {
+            typeName = typeName.replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        }
+        return typeName;
+    }
+    
     @Override
     public DomainObject findAndLock(Id id) {
         try {

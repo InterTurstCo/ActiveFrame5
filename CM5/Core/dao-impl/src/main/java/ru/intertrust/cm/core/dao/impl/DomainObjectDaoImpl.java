@@ -1233,7 +1233,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 //Таблица с правами на read получается с учетом наследования типов
                 String aclReadTable = AccessControlUtility
                         .getAclReadTableName(configurationExplorer, permissionType);
-                String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, typeName));
+                String toplevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, typeName);
+                String topLevelAuditTable = getALTableSqlName(toplevelParentType);
+                String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(toplevelParentType);
     
                 query.append(" and exists (select a.object_id from ").append(aclReadTable).append(" a ");
                 query.append(" inner join ").append(wrap("group_group")).append(" gg on a.")
@@ -1242,14 +1244,16 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
                 //обавляем в связи с появлением функциональности замещения прав
                 query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.");
-                query.append(DaoUtils.wrap("access_object_id"));
-                query.append(" = a.").append(DaoUtils.wrap("object_id"));
-                
-                query.append(") where gm.person_id = :user_id and ");
-//                query.append("o.id = :id)");
-                
+                query.append(DaoUtils.wrap("access_object_id")).append(" = a.").append(DaoUtils.wrap("object_id")).append(")");
                 if (isAuditLog) {
-                    query.append("o.id = ").append(mainTableAlias).append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN)).append(" and ").append(mainTableAlias).append(".id = :id)");
+                    query.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(tableAlias).append(".")
+                            .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
+                }
+
+                query.append(" where gm.person_id = :user_id and ");
+
+                if (isAuditLog) {
+                    query.append("o.id = ").append(topLevelAuditTable).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN)).append(")");                    
 
                 } else {
                     query.append("o.id = :id)");

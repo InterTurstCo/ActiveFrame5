@@ -120,8 +120,6 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     private AccessToken createAccessToken(String login, Id objectId, AccessType type, boolean log) throws AccessException {
 
-        objectId = getRelevantObjectId(objectId);
-        
         Id personId = getUserIdByLogin(login);
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
         boolean isSuperUser = isPersonSuperUser(personId);
@@ -134,7 +132,8 @@ public class AccessControlServiceImpl implements AccessControlService {
         if (DomainObjectAccessType.READ.equals(type)) {
             deferred = true; // Проверка прав на чтение объекта осуществляется при его выборке
         } else { // Для всех других типов доступа к доменному объекту производим запрос в БД
-
+            
+            objectId = getRelevantObjectId(objectId);
             if (!databaseAgent.checkDomainObjectAccess(personIdInt, objectId, type)) {
                 if (log) {
                     eventLogService.logAccessDomainObjectEvent(objectId, EventLogService.ACCESS_OBJECT_WRITE, false);
