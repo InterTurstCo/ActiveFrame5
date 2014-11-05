@@ -4,7 +4,9 @@ import java.util.List;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
 public class TestCollectionsWithPermission extends TestCollection{
     public static void main(String[] args) {
@@ -17,6 +19,18 @@ public class TestCollectionsWithPermission extends TestCollection{
     }
 
     public void execute(String[] args) throws Exception {
+        super.execute(args);
+        
+        PersonManagementService personManagementService = (PersonManagementService.Remote) getService(
+                "PersonManagementService", PersonManagementService.Remote.class);
+        Id groupId = personManagementService.getGroupId("Administrators_Read_Only");
+        Id personId = personManagementService.getPersonId("person10");
+        
+        if (!personManagementService.isPersonInGroup(groupId, personId)){
+            personManagementService.addPersonToGroup(groupId, personId);
+        }
+        
+        
         collectionService = (CollectionsService.Remote) getService(
                 "CollectionsServiceImpl", CollectionsService.Remote.class, "person10", "admin");
 
@@ -48,6 +62,13 @@ public class TestCollectionsWithPermission extends TestCollection{
                 }
             }
         }
+        
+        query = "select id, organization from ("
+                + "select d.id,    "
+                + "'<id>' as organization    "
+                + "from department d "
+                + ") t";
+        executeQuery(query, 2);
         
     }
 }
