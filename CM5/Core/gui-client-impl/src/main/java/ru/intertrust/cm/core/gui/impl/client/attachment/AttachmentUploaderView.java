@@ -211,7 +211,7 @@ public class AttachmentUploaderView extends Composite {
         style.setPosition(Style.Position.ABSOLUTE);
         style.setTop(-1000, Style.Unit.PX);
         style.setLeft(-1000, Style.Unit.PX);
-        extensionValidator = new ExtensionValidator(acceptedTypesConfig);
+        extensionValidator = new ExtensionValidator(acceptedTypesConfig, false);
         extensionValidator.setMimeType(fileUpload.getElement());
       //  fileUpload.getElement().setAttribute("accept", "application/xml");
         fileUpload.addChangeHandler(new ChangeHandler() {

@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -82,13 +83,14 @@ public class AttachmentBoxWidget extends BaseWidget {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
         AcceptedTypesConfig acceptedTypesConfig = attachmentBoxState.getAcceptedTypesConfig();
+        ExtensionValidator extensionValidator = new ExtensionValidator(acceptedTypesConfig, attachmentBoxState.getImagesConfig() != null);
         if (attachmentBoxState.isInSelectionMode()) {
             return new SelectAttachmentUploaderView(attachmentBoxState.getAttachments(),
                 attachmentBoxState.getAllAttachments(), selectionStyleConfig,
-                acceptedTypesConfig, attachmentBoxState.getAddButtonConfig(), eventBus);
+                    extensionValidator, attachmentBoxState.getAddButtonConfig(), eventBus);
         } else {
             return new AttachmentUploaderView(attachmentBoxState.getAttachments(), attachmentBoxState.getAllAttachments(),
-                    selectionStyleConfig, acceptedTypesConfig, attachmentBoxState.getAddButtonConfig(), eventBus);
+                    selectionStyleConfig, extensionValidator, attachmentBoxState.getAddButtonConfig(), eventBus);
         }
     }
 
