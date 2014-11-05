@@ -197,7 +197,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
 
     @Override
     public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
-        return true;
+        FieldPath fieldPath = new FieldPath(config.getFieldPathConfig().getValue());
+        return (fieldPath.isOneToManyReference());
     }
 
     @Override
