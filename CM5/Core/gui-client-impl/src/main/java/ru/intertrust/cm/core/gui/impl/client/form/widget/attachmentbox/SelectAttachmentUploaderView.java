@@ -6,9 +6,8 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
-import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenterFactory;
+import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 import java.util.ArrayList;
@@ -23,10 +22,8 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
 
     private List<CheckBox> checkboxes = new ArrayList<>();
 
-    public SelectAttachmentUploaderView(List<AttachmentItem> attachments, List<AttachmentItem> allAttachments,
-                                        SelectionStyleConfig selectionStyleConfig, ExtensionValidator extensionValidator,
-                                        AddButtonConfig addButtonConfig, EventBus eventBus) {
-        super(attachments, allAttachments, selectionStyleConfig, extensionValidator, addButtonConfig, eventBus);
+    public SelectAttachmentUploaderView(AttachmentBoxState state, AttachmentElementPresenterFactory presenterFactory, EventBus eventBus) {
+        super(state, presenterFactory, eventBus);
     }
 
     @Override
@@ -61,9 +58,9 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
                         uncheckOthers(checkbox);
                         clearAttachments();
                     }
-                    addAttachment(item);
+                    selectAttachment(item);
                 } else {
-                    removeAttachment(item);
+                    deselectAttachment(item);
                 }
             }
         });

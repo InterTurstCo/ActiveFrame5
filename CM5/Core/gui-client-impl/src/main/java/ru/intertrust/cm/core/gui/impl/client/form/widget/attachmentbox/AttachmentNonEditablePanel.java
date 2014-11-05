@@ -15,18 +15,13 @@ import java.util.List;
 public class AttachmentNonEditablePanel extends AbstractNoneEditablePanel implements AttachmentElementsContainer {
     private AttachmentElementPresenterFactory factory;
 
-    public AttachmentNonEditablePanel(SelectionStyleConfig selectionStyleConfig) {
+    public AttachmentNonEditablePanel(SelectionStyleConfig selectionStyleConfig, AttachmentElementPresenterFactory factory) {
         super(selectionStyleConfig);
+        this.factory = factory;
     }
 
-    @Override
-    public void displayAttachmentItem(AttachmentItem item){
+    private void displayAttachmentItem(AttachmentItem item){
         mainBoxPanel.add(factory.createNonEditablePresenter(item).presentElement());
-    }
-
-    @Override
-    public void displayAttachmentItemInProgress(AttachmentItem item) {
-        // do nothing - N/A
     }
 
     @Override
@@ -36,8 +31,4 @@ public class AttachmentNonEditablePanel extends AbstractNoneEditablePanel implem
         }
     }
 
-    @Override
-    public void setPresenterFactory(AttachmentElementPresenterFactory factory) {
-        this.factory = factory;
-    }
 }

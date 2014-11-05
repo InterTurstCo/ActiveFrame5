@@ -1,10 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox;
 
 import com.google.gwt.user.client.ui.Widget;
-import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -22,8 +20,6 @@ import java.util.List;
 @ComponentName("attachment-box")
 public class AttachmentBoxWidget extends BaseWidget {
 
-    private AttachmentElementPresenterFactory presenterFactory;
-
     @Override
     public Component createNew() {
         return new AttachmentBoxWidget();
@@ -31,8 +27,6 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         AttachmentBoxState state = (AttachmentBoxState) currentState;
-        presenterFactory = new AttachmentElementPresenterFactory(state.getAttachments(), state.getActionLinkConfig(),
-                state.getImagesConfig(), state.getDeleteButtonConfig(), eventBus);
         if (isEditable()) {
             setCurrentStateForEditableWidget(state);
         } else {
@@ -43,8 +37,6 @@ public class AttachmentBoxWidget extends BaseWidget {
     private void setCurrentStateForEditableWidget(AttachmentBoxState state) {
         AttachmentUploaderView view = (AttachmentUploaderView) impl;
         List<AttachmentItem> attachments = state.getAttachments();
-        view.setPresenterFactory(presenterFactory);
-        view.setSingleChoice(state.isSingleChoice());
         view.setAllAttachments(state.getAllAttachments());
         view.displayAttachmentItems(attachments);
     }
@@ -52,12 +44,11 @@ public class AttachmentBoxWidget extends BaseWidget {
     private void setCurrentStateForNoneEditableWidget(AttachmentBoxState state) {
         List<AttachmentItem> attachments = state.getAttachments();
         AttachmentNonEditablePanel noneEditablePanel = (AttachmentNonEditablePanel) impl;
-        noneEditablePanel.setPresenterFactory(presenterFactory);
         noneEditablePanel.displayAttachmentItems(attachments);
     }
 
     @Override
-    protected boolean isChanged() { //TODO: unneeded confirmation sometimes appears
+    protected boolean isChanged() {
         AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
         List<AttachmentItem> currentValues = attachmentUploaderView.getAttachments();
         List<AttachmentItem> initValues = getInitialData() == null
@@ -81,16 +72,12 @@ public class AttachmentBoxWidget extends BaseWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
-        SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
-        AcceptedTypesConfig acceptedTypesConfig = attachmentBoxState.getAcceptedTypesConfig();
-        ExtensionValidator extensionValidator = new ExtensionValidator(acceptedTypesConfig, attachmentBoxState.getImagesConfig() != null);
+        AttachmentElementPresenterFactory presenterFactory = new AttachmentElementPresenterFactory(attachmentBoxState.getActionLinkConfig(),
+                attachmentBoxState.getImagesConfig(), attachmentBoxState.getDeleteButtonConfig(), eventBus);
         if (attachmentBoxState.isInSelectionMode()) {
-            return new SelectAttachmentUploaderView(attachmentBoxState.getAttachments(),
-                attachmentBoxState.getAllAttachments(), selectionStyleConfig,
-                    extensionValidator, attachmentBoxState.getAddButtonConfig(), eventBus);
+            return new SelectAttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
         } else {
-            return new AttachmentUploaderView(attachmentBoxState.getAttachments(), attachmentBoxState.getAllAttachments(),
-                    selectionStyleConfig, extensionValidator, attachmentBoxState.getAddButtonConfig(), eventBus);
+            return new AttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
         }
     }
 
@@ -98,7 +85,9 @@ public class AttachmentBoxWidget extends BaseWidget {
     protected Widget asNonEditableWidget(WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
-        return new AttachmentNonEditablePanel(selectionStyleConfig);
+        AttachmentElementPresenterFactory presenterFactory = new AttachmentElementPresenterFactory(attachmentBoxState.getActionLinkConfig(),
+                attachmentBoxState.getImagesConfig(), attachmentBoxState.getDeleteButtonConfig(), eventBus);
+        return new AttachmentNonEditablePanel(selectionStyleConfig, presenterFactory);
     }
 
 }

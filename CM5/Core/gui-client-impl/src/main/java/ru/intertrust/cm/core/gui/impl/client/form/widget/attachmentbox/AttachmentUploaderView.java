@@ -19,13 +19,13 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadCompletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadUpdatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
+import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -58,15 +58,15 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private EventBus eventBus;
     private AddButtonConfig addButtonConfig;
 
-    public AttachmentUploaderView(List<AttachmentItem> attachments, List<AttachmentItem> allAttachments,
-                                  SelectionStyleConfig selectionStyleConfig, ExtensionValidator extensionValidator,
-                                  AddButtonConfig addButtonConfig, EventBus eventBus) {
-        setAttachments(attachments);
-        setAllAttachments(allAttachments);
-        this.extensionValidator = extensionValidator;
-        displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
-        this.addButtonConfig = addButtonConfig;
+    public AttachmentUploaderView(AttachmentBoxState state, AttachmentElementPresenterFactory presenterFactory, EventBus eventBus) {
+        setAttachments(state.getAttachments());
+        setAllAttachments(state.getAllAttachments());
+        this.extensionValidator = new ExtensionValidator(state.getAcceptedTypesConfig(), state.getImagesConfig() != null);
+        displayStyle = DisplayStyleBuilder.getDisplayStyle(state.getSelectionStyleConfig());
+        this.addButtonConfig = state.getAddButtonConfig();
         this.eventBus = eventBus;
+        this.presenterFactory = presenterFactory;
+        this.singleChoice = state.isSingleChoice();
         init();
     }
 
@@ -78,16 +78,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         return allAttachments;
     }
 
-    public void setPresenterFactory(AttachmentElementPresenterFactory presenterFactory) {
-        this.presenterFactory = presenterFactory;
-    }
-
     protected boolean isSingleChoice() {
         return singleChoice;
-    }
-
-    protected void setSingleChoice(boolean singleChoice) {
-        this.singleChoice = singleChoice;
     }
 
     /**
@@ -113,8 +105,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         initWidget(root);
     }
 
-    @Override
-    public void displayAttachmentItem(AttachmentItem item){
+    private void displayAttachmentItem(AttachmentItem item){
         mainBoxPanel.add(createAttachmentElement(item));
     }
 
@@ -130,13 +121,12 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         }
     }
 
-    @Override
-    public void displayAttachmentItemInProgress(AttachmentItem item) {
+    private void displayAttachmentItemInProgress(AttachmentItem item) {
         mainBoxPanel.add(createAttachmentProgressElement(item));
     }
 
     protected Widget createAttachmentElement(AttachmentItem item) {
-        return presenterFactory.createEditablePresenter(item).presentElement();
+        return presenterFactory.createEditablePresenter(item, new DeleteAttachmentClickHandler(item)).presentElement();
     }
 
     protected Widget createAttachmentProgressElement(AttachmentItem item) {
@@ -171,15 +161,25 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         this.allAttachments = allAttachments;
     }
 
-    protected void removeAttachment(AttachmentItem attachment) {
-        attachments.remove(attachment);
-    }
-
-    protected void addAttachment(AttachmentItem attachment) {
+    protected void selectAttachment(AttachmentItem attachment) {
         if (singleChoice) {
             attachments.clear();
         }
         attachments.add(attachment);
+    }
+
+    protected void deselectAttachment(AttachmentItem attachment) {
+        attachments.remove(attachment);
+    }
+
+    protected void addAttachment(AttachmentItem attachment) {
+        selectAttachment(attachment);
+        allAttachments.add(attachment);
+    }
+
+    protected void removeAttachment(AttachmentItem attachment) {
+        attachments.remove(attachment);
+        allAttachments.remove(attachment);
     }
 
     protected void clearAttachments() {
@@ -365,12 +365,25 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 AttachmentItem item = handleFileNameFromServer(filePath);
 
                 addAttachment(item);
-                allAttachments.add(item);
 
                 eventBus.fireEvent(new UploadCompletedEvent());
                 displayAttachmentItem(item);
                 cancelTimer();
             }
+        }
+    }
+
+    public class DeleteAttachmentClickHandler implements ClickHandler {
+
+        private final AttachmentItem item;
+
+        private DeleteAttachmentClickHandler(AttachmentItem item) {
+            this.item = item;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+            attachments.remove(item);
         }
     }
 
