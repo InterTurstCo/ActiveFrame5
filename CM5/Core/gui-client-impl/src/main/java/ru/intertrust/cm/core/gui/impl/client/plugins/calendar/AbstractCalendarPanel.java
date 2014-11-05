@@ -10,20 +10,27 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
+import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
  * @author Sergey.Okolot
  *         Created on 30.10.2014 12:45.
  */
-public abstract class CalendarPanel extends FlowPanel implements RequiresResize {
+public abstract class AbstractCalendarPanel extends FlowPanel implements RequiresResize {
     protected static final String SELECTED_DATE_STYLE = "calendar-focus-day-block";
 
     protected final List<HandlerRegistration> handlers = new ArrayList<>();
@@ -33,7 +40,8 @@ public abstract class CalendarPanel extends FlowPanel implements RequiresResize 
     protected Date currentDate = new Date();
     private AbstractDateItem selectedItem;
 
-    public CalendarPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
+    public AbstractCalendarPanel(final EventBus localEventBus, final CalendarTableModel tableModel,
+                                 final CalendarConfig config) {
         this.tableModel = tableModel;
         this.localEventBus = localEventBus;
         this.calendarConfig = config;

@@ -2,11 +2,16 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 
 import java.util.Date;
 import java.util.List;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
@@ -29,18 +34,20 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
  * @author Sergey.Okolot
  *         Created on 17.10.2014 14:17.
  */
-public class DayPanel extends CalendarPanel implements CalendarNextWeekEventHandler,
+public class WeekPanel extends CalendarPanel implements CalendarNextWeekEventHandler,
         CalendarPreviousWeekEventHandler, CalendarTodayEventHandler {
 
     private boolean weekendPanelExpanded;
     private Date beginWeekDate;
+    private FlowPanel switchBtn;
 
-    public DayPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
+    public WeekPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
         super(localEventBus, tableModel, config);
         weekendPanelExpanded = config.isShowWeekend();
         handlers.add(this.localEventBus.addHandler(CalendarTodayEvent.TYPE, this));
         handlers.add(this.localEventBus.addHandler(CalendarPreviousWeekEvent.TYPE, this));
         handlers.add(this.localEventBus.addHandler(CalendarNextWeekEvent.TYPE, this));
+        switchBtn = createSwitchBtn();
     }
 
     @Override
@@ -87,12 +94,53 @@ public class DayPanel extends CalendarPanel implements CalendarNextWeekEventHand
         final int width = getOffsetWidth() / dayCount;
         for (int index = 0; index < dayCount; index++) {
             if (index < 5) {
-                add(new DateItem(cursorDate, width, height));
-            } else { // fixme change style to show weekend selector
+                final DateItem item = new DateItem(cursorDate, width, height);
+                if (index == 4) {
+                    setSwitchBtnStyle();
+                    item.add(switchBtn);
+                }
+                add(item);
+            } else {
                 add(new WeekendItem(cursorDate, width, height));
             }
             CalendarUtil.addDaysToDate(cursorDate, 1);
         }
+    }
+
+    private void setSwitchBtnStyle() { // todo установить необходимые стили переключателя
+        if (weekendPanelExpanded) {
+            Style btnStyle = switchBtn.getElement().getStyle();
+            btnStyle.setPosition(Style.Position.ABSOLUTE);
+            btnStyle.setZIndex(100);
+            btnStyle.setTop(50, Style.Unit.PCT);
+            btnStyle.setRight(0, Style.Unit.PX);
+            btnStyle.setBorderColor("red");
+            btnStyle.setBorderStyle(Style.BorderStyle.SOLID);
+            btnStyle.setBorderWidth(1, Style.Unit.PX);
+        } else {
+            Style btnStyle = switchBtn.getElement().getStyle();
+            btnStyle.setPosition(Style.Position.ABSOLUTE);
+            btnStyle.setZIndex(100);
+            btnStyle.setTop(50, Style.Unit.PCT);
+            btnStyle.setRight(0, Style.Unit.PX);
+            btnStyle.setBorderColor("red");
+            btnStyle.setBorderStyle(Style.BorderStyle.SOLID);
+            btnStyle.setBorderWidth(1, Style.Unit.PX);
+        }
+    }
+
+    private FlowPanel createSwitchBtn() {
+        final FlowPanel result = new FlowPanel();
+        result.add(new InlineLabel("Суббота, Воскресенье"));
+        result.addHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                weekendPanelExpanded = !weekendPanelExpanded;
+                buildPresentation();
+            }
+        }, ClickEvent.getType());
+        result.sinkEvents(Event.ONCLICK);
+        return result;
     }
 
     private class WeekendItem extends AbstractWeekendItem {
