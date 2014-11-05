@@ -2707,14 +2707,26 @@ a:active .icon.back {
 }
 
 .footerOpenButton {
-    background: #E5EBEF;
+    background: url(images/footerButton.png) no-repeat -33px 0 #E5EBEF;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
     border: 1px solid #9eafbf;
+    border-bottom: 0;
     border-radius: 7px 7px 0 0;
     height: 20px;
     position: absolute;
     bottom: 0;
     left: 40px;
     width: 33px;
-    z-index: 15;
+    z-index: 16;
+}
+
+.footerOpenButton:hover {
+    background: url(images/footerButton.png) no-repeat -33px -20px #ebf1f5;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
+    border: 1px solid #94a5b5;
+    border-bottom: 0;
+    cursor: pointer;
 }
 /* ------------>>> end sticker/footer Panel <<<------------ */
