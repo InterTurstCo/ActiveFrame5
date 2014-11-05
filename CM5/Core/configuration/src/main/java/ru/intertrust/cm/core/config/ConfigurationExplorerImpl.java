@@ -62,7 +62,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     }
 
     private void init() {
-        validateGui();
+        if (configStorage.globalSettings.validateGui()) {
+            validateGui();
+        }
     }
 
     /**
