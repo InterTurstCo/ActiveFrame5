@@ -97,6 +97,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 footer = new AbsolutePanel();
                 AbsolutePanel root = new AbsolutePanel();
                 AbsolutePanel footerButton = new AbsolutePanel();
+                footerButton.addDomHandler(new StickerPanelHandler(), ClickEvent.getType());
                 footerButton.setStyleName("footerOpenButton");
                 footerButton.getElement().getStyle().clearPosition();
                 root.add(footerButton);
@@ -115,7 +116,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 center.setStyleName("center-section");
                 center.getElement().setId(ComponentHelper.CENTER_ID);
                 right.setStyleName("right-section");
-                footer.setStyleName("footer-section");
+                //footer.setStyleName("footer-section");
+                footer.getElement().setClassName("footerPanelOff");
                 root.setStyleName("root-section");
                 root.add(header);
                 root.add(center);
@@ -388,4 +390,17 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             }
         }
     }
+
+    private class StickerPanelHandler implements ClickHandler {
+        @Override
+        public void onClick(ClickEvent event) {
+            if(footer.getStyleName().equals("footerPanelOff")){
+                footer.getElement().setClassName("footerPanelOn");
+            }
+            else{
+                footer.getElement().setClassName("footerPanelOff");
+            }
+        }
+    }
+
 }
