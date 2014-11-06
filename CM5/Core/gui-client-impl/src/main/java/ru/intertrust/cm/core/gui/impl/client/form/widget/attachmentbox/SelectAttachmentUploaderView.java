@@ -27,9 +27,16 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
     }
 
     @Override
-    protected Widget createAttachmentElement(AttachmentItem item) {
-        Panel element = (Panel)super.createAttachmentElement(item);
+    protected Widget createSelectedElement(AttachmentItem item) {
+        Panel element = (Panel)super.createSelectedElement(item);
         element.add(createCheckbox(item, true));
+        return element;
+    }
+
+    @Override
+    protected Widget createNonSelectedElement(AttachmentItem item) {
+        Panel element = (Panel)super.createSelectedElement(item);
+        element.add(createCheckbox(item, false));
         return element;
     }
 
@@ -38,9 +45,7 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
         List<Widget> elements = new ArrayList<>(getAllAttachments().size());
         for (AttachmentItem item : getAllAttachments()) {
             if (!getAttachments().contains(item)) {
-                Panel element = (Panel)super.createAttachmentElement(item);
-                element.add(createCheckbox(item, false));
-                elements.add(element);
+                elements.add(createNonSelectedElement(item));
             }
         }
         return elements;

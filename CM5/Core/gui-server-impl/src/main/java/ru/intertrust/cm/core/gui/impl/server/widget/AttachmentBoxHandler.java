@@ -68,6 +68,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     public AttachmentBoxState getInitialState(WidgetContext context) {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
+
         AttachmentBoxState state = new AttachmentBoxState();
         state.setAttachments(findSelectedAttachments(context));
         state.setAllAttachments(findAllAttachments(context));
@@ -77,13 +78,17 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         SelectionStyleConfig selectionStyleConfig = widgetConfig.getSelectionStyle();
         state.setSelectionStyleConfig(selectionStyleConfig);
         state.setAcceptedTypesConfig(widgetConfig.getAcceptedTypesConfig());
+        state.setChoiceStyleConfig(widgetConfig.getChoiceStyleConfig());
+
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         Boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
         state.setSingleChoice(singleChoice);
+
         state.setImagesConfig(widgetConfig.getImagesConfig());
         state.setDeleteButtonConfig(prepareDeleteButtonConfig(widgetConfig.getDeleteButtonConfig(), fieldPath));
-        state.setAddButtonConfig(prepareAddButtonConfig(widgetConfig.getAddButtonConfig(), fieldPath,                widgetConfig.getAttachmentType().getName()));                
+        state.setAddButtonConfig(prepareAddButtonConfig(widgetConfig.getAddButtonConfig(), fieldPath,
+                widgetConfig.getAttachmentType().getName()));
         return state;
     }
 
@@ -145,10 +150,12 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
 
         newObjects = processAttachmentItems(newlyAddedAttachments, newObjects, context, false);
 
-        List<AttachmentItem> deletedAttachments = attachmentBoxState.getNewlyDeletedAttachments();
-        for (AttachmentItem deletedAttachment : deletedAttachments) {
-            if (deletedAttachment.getId() != null) {
-                attachmentService.deleteAttachment(deletedAttachment.getId());
+        if (isSelectionMode(new FieldPath(context.getWidgetConfig().getFieldPathConfig().getValue()))) {
+            List<AttachmentItem> deletedAttachments = attachmentBoxState.getNewlyDeletedAttachments();
+            for (AttachmentItem deletedAttachment : deletedAttachments) {
+                if (deletedAttachment.getId() != null) {
+                    attachmentService.deleteAttachment(deletedAttachment.getId());
+                }
             }
         }
         return newObjects;
