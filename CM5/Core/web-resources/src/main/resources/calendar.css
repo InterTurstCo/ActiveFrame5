@@ -160,7 +160,7 @@
     background: #dfe9f2;
     border-left: 1px solid #afbccc;
     position: absolute;
-    top: 0;
+    top: 30px;
     bottom: 0;
     right: 0;
 }
@@ -183,6 +183,7 @@
     -moz-transform: rotate(270deg); /* Firefox */
     -webkit-transform: rotate(270deg); /* Safari and Chrome */
     -o-transform: rotate(270deg); /* Opera */
+    width: 70px;
 }
 
 .monthPanelOnSwitchButton span {
@@ -204,4 +205,41 @@
     transition: color 0.5s;
 }
 
+.monthPanelOffSwitchButton {
+    background: #fafafa;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
+    border: 1px solid #afbccc;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 7px;
+    position: absolute;
+    z-index: 100;
+    top: 50%;
+    left: -58px;
+    -ms-transform: rotate(270deg); /* IE 9 */
+    -moz-transform: rotate(270deg); /* Firefox */
+    -webkit-transform: rotate(270deg); /* Safari and Chrome */
+    -o-transform: rotate(270deg); /* Opera */
+    width: 70px;
+}
+
+.monthPanelOffSwitchButton span {
+    border-bottom: 1px dotted #9eafbf;
+    -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: color 0.5s;
+}
+
+.monthPanelOffSwitchButton:hover {
+    background: #afbccc;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
+    cursor: pointer;
+}
+
+.monthPanelOffSwitchButton:hover span {
+    color: #fafafa;
+    -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: color 0.5s;
+}
 /* ------------>>> end Calendar Month Panel <<<------------ */
