@@ -52,6 +52,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private List<AttachmentItem> attachments = new ArrayList<>();
     private List<AttachmentItem> allAttachments = new ArrayList<>();
     private List<AttachmentItem> newlyAddedAttachments = new ArrayList<>();
+    private List<AttachmentItem> newlyDeletedAttachments = new ArrayList<>();
 
     private ExtensionValidator extensionValidator;
     private Timer elapsedTimer;
@@ -82,6 +83,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
     protected List<AttachmentItem> getNewlyAddedAttachments() {
         return newlyAddedAttachments;
+    }
+
+    public List<AttachmentItem> getNewlyDeletedAttachments() {
+        return newlyDeletedAttachments;
     }
 
     protected boolean isSingleChoice() {
@@ -119,6 +124,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     public void displayAttachmentItems(List<AttachmentItem> items) {
         cleanUp();
         setAttachments(items);
+        newlyAddedAttachments.clear();
+        newlyDeletedAttachments.clear();
         for (Widget element : createSelectedElements()) {
             mainBoxPanel.add(element);
         }
@@ -188,6 +195,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         attachments.remove(attachment);
         newlyAddedAttachments.remove(attachment);
         allAttachments.remove(attachment);
+        newlyDeletedAttachments.add(attachment);
     }
 
     protected void deselectAllAttachments() {

@@ -706,6 +706,7 @@
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
                 <choice-style name="inline"/>
+                <delete-button display="true"/>
             </attachment-box>
 
             <label id="faunaAttachmentLbl">
@@ -723,6 +724,7 @@
                 <selection-style name="inline"/>
                 <choice-style name="inline"/>
                 <add-button display="true"/>
+                <delete-button display="true"/>
             </attachment-box>
 
 

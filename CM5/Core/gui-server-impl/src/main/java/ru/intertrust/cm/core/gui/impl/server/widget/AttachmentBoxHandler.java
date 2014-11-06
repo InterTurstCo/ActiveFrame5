@@ -145,6 +145,12 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
 
         newObjects = processAttachmentItems(newlyAddedAttachments, newObjects, context, false);
 
+        List<AttachmentItem> deletedAttachments = attachmentBoxState.getNewlyDeletedAttachments();
+        for (AttachmentItem deletedAttachment : deletedAttachments) {
+            if (deletedAttachment.getId() != null) {
+                attachmentService.deleteAttachment(deletedAttachment.getId());
+            }
+        }
         return newObjects;
     }
 
