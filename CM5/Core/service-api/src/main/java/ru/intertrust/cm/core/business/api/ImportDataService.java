@@ -9,6 +9,10 @@ public interface ImportDataService {
     public static final String TYPE_NAME = "TYPE_NAME";
     public static final String KEYS = "KEYS";    
     public static final String EMPTY_STRING_SYMBOL = "EMPTY_STRING_SYMBOL";
+    public static final String DELETE_OTHER = "DELETE_OTHER";
+    public static final String ATTACHMENT_FIELD_NAME = "_ATTACHMENT_";
+    public static final String DEFAULT_ENCODING = "ANSI-1251";
+    
     
     /**
      * Удаленный интерфейс

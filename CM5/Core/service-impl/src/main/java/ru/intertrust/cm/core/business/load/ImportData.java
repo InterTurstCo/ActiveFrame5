@@ -34,6 +34,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
@@ -41,7 +42,6 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.impl.BaseAttachmentServiceImpl;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -64,9 +64,8 @@ import ru.intertrust.cm.core.model.FatalException;
  */
 public class ImportData {
 
-    public static final String ATTACHMENT_FIELD_NAME = "_ATTACHMENT_";
-    public static final String DEFAULT_ENCODING = "ANSI-1251";
     private String typeName;
+    private boolean deleteOther;
     private String[] keys;
     private String[] fields;
     private CollectionsDao collectionsDao;
@@ -79,6 +78,7 @@ public class ImportData {
     private String login;
     private Hashtable<String, Integer> fieldIndex;
     private String emptyStringSymbol;
+    private List<Id> importedIds;
 
     /**
      * Конструктор. Инициалитзирует класс нужными сервисами
@@ -108,7 +108,7 @@ public class ImportData {
         Reader reader = null;
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(loadFileAsByteArray);
-            reader = new InputStreamReader(input, encoding != null ? encoding : DEFAULT_ENCODING);
+            reader = new InputStreamReader(input, encoding != null ? encoding : ImportDataService.DEFAULT_ENCODING);
 
             Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
             int lineNum = 0;
@@ -121,6 +121,10 @@ public class ImportData {
             fields = null;
             //Символ означающий пустую строку
             emptyStringSymbol = null;
+            //Удаление всех записей данного типа, которые отсутствуют в импортируемом файле
+            deleteOther = false;
+            //Список импортированных записей
+            importedIds = new ArrayList<Id>();
 
             //итератор по строкам
             for (CSVRecord record : records) {
@@ -132,6 +136,10 @@ public class ImportData {
                         keys = null;
                         fields = null;
                         emptyStringSymbol = null;
+                        deleteOther = false;
+                        
+                        deleteOther();
+                        importedIds.clear();
                     }
 
                     //Первые две строки это метаданные
@@ -146,6 +154,8 @@ public class ImportData {
                                 keys = metaItem[1].split(",");
                             } else if (metaItem[0].equalsIgnoreCase(ImportDataService.EMPTY_STRING_SYMBOL)) {
                                 emptyStringSymbol = metaItem[1];
+                            } else if (metaItem[0].equalsIgnoreCase(ImportDataService.DELETE_OTHER)) {
+                                deleteOther = Boolean.parseBoolean(metaItem[1]);
                             }
                         }
                     } else if (lineNum == 1) {
@@ -164,12 +174,14 @@ public class ImportData {
                         }
                     } else {
                         //Импорт одной строки
-                        importLine(csvRecordToArray(record), rewrite);
+                        Id importedId = importLine(csvRecordToArray(record), rewrite);
+                        importedIds.add(importedId);
                     }
 
                     lineNum++;
                 }
             }
+            deleteOther();
         } catch (Exception ex) {
             throw new FatalException("Error load data. TypeName=" + typeName, ex);
         } finally {
@@ -178,6 +190,29 @@ public class ImportData {
             } catch (Exception ignoreEx) {
             }
         }
+    }
+
+    /**
+     * Удаление всех записей импортируемого типа, если данные записи не упоминаются в csv файле
+     */
+    private void deleteOther() {
+        //Проверка флага удалить лишнее в заголовке
+        if (deleteOther){
+            //Поиск объектов в базе
+            List<Id> toDeleteIds = new ArrayList<Id>();
+            String query = "select id from " + typeName;
+            IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, accessService.createSystemAccessToken(this.getClass().getName()));
+            for (IdentifiableObject identifiableObject : collection) {
+                if (!importedIds.contains(identifiableObject.getId())){
+                    toDeleteIds.add(identifiableObject.getId());
+                }
+            }
+            
+            //Удаление лишних записей
+            if (toDeleteIds.size() > 0){
+                domainObjectDao.delete(toDeleteIds, accessService.createSystemAccessToken(this.getClass().getName()));
+            }
+        }        
     }
 
     /**
@@ -215,7 +250,7 @@ public class ImportData {
      * @throws IOException
      * @throws NoSuchAlgorithmException
      */
-    private void importLine(String[] line, Boolean rewrite) throws ParseException, IOException,
+    private Id importLine(String[] line, Boolean rewrite) throws ParseException, IOException,
             NoSuchAlgorithmException {
         AccessToken accessToken = null;
         //Разделяем строку на значения
@@ -248,7 +283,7 @@ public class ImportData {
                 String fieldName = fields[i];
 
                 //Обрабатываем ключевое поле вложения
-                if (ATTACHMENT_FIELD_NAME.equals(fieldName)) {
+                if (ImportDataService.ATTACHMENT_FIELD_NAME.equals(fieldName)) {
                     if (!fieldValues[i].isEmpty()) {
                         attachments = fieldValues[i];
                     }
@@ -282,6 +317,7 @@ public class ImportData {
                 }
             }
         }
+        return domainObject.getId();
     }
 
     private Value getFieldValue(String fieldName, String fieldValue) throws ParseException {
