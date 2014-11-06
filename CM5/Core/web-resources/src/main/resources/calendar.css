@@ -182,7 +182,10 @@
     -moz-transform: rotate(270deg); /* Firefox */
     -webkit-transform: rotate(270deg); /* Safari and Chrome */
     -o-transform: rotate(270deg); /* Opera */
-    width: 70px;
+    font-size: 13px; /* IE layout fix */
+    font-family: Arial, sans-serif; /* IE layout fix */
+    line-height: 13px; /* IE layout fix */
+    letter-spacing: normal; /* IE layout fix */
 }
 
 .monthPanelOnSwitchButton span {
@@ -220,7 +223,11 @@
     -moz-transform: rotate(270deg); /* Firefox */
     -webkit-transform: rotate(270deg); /* Safari and Chrome */
     -o-transform: rotate(270deg); /* Opera */
-    width: 70px;
+    width: 72px;
+    font-size: 13px; /* IE layout fix */
+    font-family: Arial, sans-serif; /* IE layout fix */
+    line-height: 13px; /* IE layout fix */
+    letter-spacing: normal; /* IE layout fix */
 }
 
 .monthPanelOffSwitchButton span {
@@ -260,6 +267,10 @@
     -moz-transform: rotate(270deg); /* Firefox */
     -webkit-transform: rotate(270deg); /* Safari and Chrome */
     -o-transform: rotate(270deg); /* Opera */
+    font-size: 13px; /* IE layout fix */
+    font-family: Arial, sans-serif; /* IE layout fix */
+    line-height: 13px; /* IE layout fix */
+    letter-spacing: normal; /* IE layout fix */
 }
 
 .weekPanelOnSwitchButton span {
@@ -297,6 +308,10 @@
     -moz-transform: rotate(270deg); /* Firefox */
     -webkit-transform: rotate(270deg); /* Safari and Chrome */
     -o-transform: rotate(270deg); /* Opera */
+    font-size: 13px; /* IE layout fix */
+    font-family: Arial, sans-serif; /* IE layout fix */
+    line-height: 13px; /* IE layout fix */
+    letter-spacing: normal; /* IE layout fix */
 }
 
 .weekPanelOffSwitchButton span {
