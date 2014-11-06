@@ -1,14 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.InlineHyperlink;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -17,14 +20,17 @@ import ru.intertrust.cm.core.config.gui.form.title.TitleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
 
 /**
@@ -123,7 +129,17 @@ public final class GuiUtil {
             hyperlink.addHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    System.out.println("------------------------> click " + rootObjectId.toStringRepresentation());
+                    final FormPluginConfig formPluginConfig = new FormPluginConfig(rootObjectId);
+                    final FormPluginState formPluginState = new FormPluginState();
+                    formPluginState.setInCentralPanel(Application.getInstance().getCompactModeState().isExpanded());
+                    formPluginState.setToggleEdit(true);
+                    formPluginConfig.setPluginState(formPluginState);
+                    final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+                    formPlugin.setConfig(formPluginConfig);
+                    formPlugin.setDisplayActionToolBar(true);
+                    formPlugin.setLocalEventBus((EventBus) GWT.create(SimpleEventBus.class));
+                    Application.getInstance().getEventBus().fireEvent(
+                            new CentralPluginChildOpeningRequestedEvent(formPlugin));
                 }
             }, ClickEvent.getType());
             result = hyperlink;
