@@ -277,9 +277,10 @@
 
 .month-detail-panel {
     position: absolute;
-    top: 0;
+    top: 31px;
     bottom: 0;
     right: 0;
+    padding: 5px;
 }
 
 /**

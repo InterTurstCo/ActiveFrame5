@@ -12,6 +12,7 @@ import com.google.gwt.user.datepicker.client.CalendarUtil;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarSelectDateListener;
 import ru.intertrust.cm.core.gui.impl.client.plugins.calendar.CalendarPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
@@ -30,6 +31,7 @@ public class CalendarTableModel {
 
     private final CalendarPlugin owner;
 
+    private List<CalendarSelectDateListener> selectListeners = new ArrayList<>();
     private final Map<Date, List<CalendarItemData>> values = new HashMap<>();
     private final List<QueueItem> queueItems = new ArrayList<>();
     private Date selectedDate;
@@ -113,6 +115,19 @@ public class CalendarTableModel {
     public void setSelectedDate(final Date date) {
         this.selectedDate = CalendarUtil.copyDate(date);
         CalendarUtil.resetTime(selectedDate);
+        for (CalendarSelectDateListener listener : selectListeners) {
+            listener.onSelect(date);
+        }
+    }
+
+    public void addSelectListener(final CalendarSelectDateListener listener) {
+        if (!selectListeners.contains(listener)) {
+            selectListeners.add(listener);
+        }
+    }
+
+    public void removeListener(final CalendarSelectDateListener listener) {
+        selectListeners.remove(listener);
     }
 
     private void updateRange(final Date from, final Date to) {

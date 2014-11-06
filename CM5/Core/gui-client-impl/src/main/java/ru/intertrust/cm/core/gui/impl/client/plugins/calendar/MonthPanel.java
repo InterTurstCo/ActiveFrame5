@@ -11,8 +11,10 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -45,7 +47,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
     private ScrollTimer scrollTimer;
     private FlowPanel switchBtn;
     private FlowPanel detailPanel;
-    private DetailDateItem detailItem;
+    private DetailDatePanel detailItem;
 
     public MonthPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
         super(localEventBus, tableModel, config);
@@ -147,7 +149,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
             }
         }
         if (calendarConfig.isShowDetailPanel()) {
-            detailItem = new DetailDateItem(tableModel.getSelectedDate(), getOffsetWidth() / 5, height);
+            detailItem = new DetailDatePanel(tableModel, getOffsetWidth() / 5, height);
             detailPanel.add(detailItem);
         }
     }
@@ -296,7 +298,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
 
         @Override
         protected Label getItemLabel(Date date) {
-            final Label result = new Label(date.getDate() + "");
+            final Label result = new Label(Integer.toString(date.getDate()));
             result.setStyleName("calendar-block-date");
             return result;
         }
@@ -307,31 +309,6 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
             final CalendarTableModelCallback callback = new CalendarTableModelCallbackImpl(result);
             tableModel.fillByDateValues(date, callback);
             return result;
-        }
-    }
-
-    private class DetailDateItem extends AbstractDateItem {
-
-        private DetailDateItem(Date date, int width, int height) {
-            super(date, width, height);
-        }
-
-        @Override
-        protected Label getItemLabel(Date date) {
-            return new Label("Detail panel");
-        }
-
-        @Override
-        protected Widget getTasksPanel() {
-            final FlowPanel result = new FlowPanel();
-            final CalendarTableModelCallback callback = new CalendarTableModelCallbackImpl(result);
-            tableModel.fillByDateValues(date, callback);
-            return result;
-        }
-
-        @Override
-        protected void addStyles() {
-
         }
     }
 
@@ -361,8 +338,9 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
             }
         }
 
-        private Label getDescription(CalendarItemData itemData) {
-            final Label result = new Label(itemData.getDescription(), false);
+        private HTML getDescription(CalendarItemData itemData) {
+            final HTML result = new InlineHTML(itemData.getDescription());
+            result.setTitle(result.getText());
             return result;
         }
     }

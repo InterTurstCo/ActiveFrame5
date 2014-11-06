@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin.calendar;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
  *
@@ -9,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class CalendarItemData implements Dto {
 
+    private Id rootObjectId;
     private String imageWidth;
     private String imageHeight;
     private String image;
@@ -17,7 +19,7 @@ public class CalendarItemData implements Dto {
     public CalendarItemData() {
     }
 
-    public CalendarItemData(String description) {
+    public CalendarItemData(final Id rootObjectId, final String description) {
         this.description = description;
     }
 
@@ -48,6 +50,10 @@ public class CalendarItemData implements Dto {
         return this;
     }
 
+    public Id getRootObjectId() {
+        return rootObjectId;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -55,8 +61,9 @@ public class CalendarItemData implements Dto {
     @Override
     public String toString() {
         return new StringBuilder(CalendarItemData.class.getSimpleName())
-                .append(": image='").append(image)
-                .append("', description='").append(description)
-                .append("'").toString();
+                .append(": rootObjectId=").append(rootObjectId.toStringRepresentation())
+                .append(", image=").append(image)
+                .append(", description=").append(description)
+                .toString();
     }
 }

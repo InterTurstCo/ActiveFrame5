@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -215,8 +216,8 @@ public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeek
             }
         }
 
-        private Label getDescription(CalendarItemData itemData) {
-            final Label result = new Label(itemData.getDescription(), false);
+        private HTML getDescription(CalendarItemData itemData) {
+            final HTML result = new InlineHTML(itemData.getDescription());
             return result;
         }
     }
