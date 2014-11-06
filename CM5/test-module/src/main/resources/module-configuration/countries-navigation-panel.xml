@@ -13,10 +13,20 @@
                                 <collection-ref name="Countries"/>
                                 <date-field-path value="independence_day"/>
                                 <date-field-filter name="byIndependenceDay" type="datetime"/>
-                                <pattern value="Страна:&lt;span style='color:red;font-size:x-small;font-weight:bold;'&gt;{name}&lt;/span&gt;"/>
                                 <sort-criteria>
                                     <sort-criterion field="population" order="asc"/>
                                 </sort-criteria>
+                                <month-item type="label">
+                                    <pattern value="{population} &lt;span style='color:red'&gt;{name}&lt;/span&gt;"/>
+                                </month-item>
+                                <day-items>
+                                    <day-item type="link">
+                                        <pattern value="{population} &lt;span style='color:red'&gt;{name}&lt;/span&gt;"/>
+                                    </day-item>
+                                    <day-item type="label">
+                                        <pattern value="Столица {capital.name}"/>
+                                    </day-item>
+                                </day-items>
                                 <image-field name="population">
                                     <image-mappings imageWidth="30px" imageHeight="30px">
                                         <mapping value="" image="cancel.png"/>

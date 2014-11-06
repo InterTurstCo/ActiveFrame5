@@ -3200,9 +3200,16 @@
                                         <xs:attribute name="type" type="con:columnFieldTypeEnum" use="required"/>
                                     </xs:complexType>
                                 </xs:element>
-                                <xs:element name="pattern" type="con:patternType" minOccurs="1" maxOccurs="1"/>
                                 <xs:element name="sort-criteria" type="con:sortCriteriaType" minOccurs="0" maxOccurs="1"/>
                                 <xs:element name="renderer" type="con:uiRendererType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="month-item" type="con:calendarItemType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="day-items" minOccurs="0" maxOccurs="1">
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element name="day-item" type="con:calendarItemType" minOccurs="1" maxOccurs="unbounded"/>
+                                        </xs:sequence>
+                                    </xs:complexType>
+                                </xs:element>
                                 <xs:element name="image-field" minOccurs="0" maxOccurs="1">
                                     <xs:complexType>
                                         <xs:sequence>
@@ -3227,6 +3234,20 @@
                 </xs:attribute>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="calendarItemType">
+        <xs:sequence>
+            <xs:element name="pattern" type="con:patternType" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="type" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="label"/>
+                    <xs:enumeration value="link"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
     </xs:complexType>
 
 </xs:schema>

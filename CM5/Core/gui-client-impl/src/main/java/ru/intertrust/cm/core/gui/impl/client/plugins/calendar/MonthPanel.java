@@ -323,7 +323,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
         }
 
         private HTML getDescription(CalendarItemData itemData) {
-            final HTML result = new InlineHTML(itemData.getDescription());
+            final HTML result = new InlineHTML(itemData.getMonthItem());
             result.setTitle(result.getText());
             return result;
         }

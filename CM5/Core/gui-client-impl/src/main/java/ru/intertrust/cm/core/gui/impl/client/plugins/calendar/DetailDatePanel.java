@@ -99,7 +99,7 @@ public class DetailDatePanel extends FlowPanel implements CalendarSelectDateList
         }
 
         private HTML getDescription(CalendarItemData itemData) {
-            final HTML result = new InlineHTML(itemData.getDescription());
+            final HTML result = new InlineHTML(itemData.getMonthItem());
             return result;
         }
     }

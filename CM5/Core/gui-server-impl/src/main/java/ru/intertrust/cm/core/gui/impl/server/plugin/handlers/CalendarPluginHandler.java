@@ -129,11 +129,12 @@ public class CalendarPluginHandler extends ActivePluginHandler {
                         viewConfig.getRendererConfig().getValue());
                 valueList.add(renderer.renderItem(identifiableObject, viewConfig));
             } else {
-                final String valuePattern = viewConfig.getPattern().getValue();
+                final String valuePattern = viewConfig.getMonthItemConfig().getPattern().getValue();
                 Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
                 Matcher matcher = pattern.matcher(valuePattern);
                 final String itemPresentation = formatHandler.format(identifiableObject, matcher, null);
-                final CalendarItemData itemData = new CalendarItemData(identifiableObject.getId(), itemPresentation);
+                final CalendarItemData itemData = new CalendarItemData(identifiableObject.getId())
+                        .setMonthItem(itemPresentation);
                 final ImageFieldConfig imageFieldConfig = viewConfig.getImageFieldConfig();
                 if (imageFieldConfig != null) {
                     final Value value = identifiableObject.getValue(imageFieldConfig.getName());

@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.model.plugin.calendar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
@@ -14,13 +17,15 @@ public class CalendarItemData implements Dto {
     private String imageWidth;
     private String imageHeight;
     private String image;
-    private String description;
+    private String monthItem;
+    private List<String> dayItems;
 
     public CalendarItemData() {
     }
 
-    public CalendarItemData(final Id rootObjectId, final String description) {
-        this.description = description;
+    public CalendarItemData(final Id rootObjectId)
+    {
+        this.rootObjectId = rootObjectId;
     }
 
     public String getImageWidth() {
@@ -54,8 +59,25 @@ public class CalendarItemData implements Dto {
         return rootObjectId;
     }
 
-    public String getDescription() {
-        return description;
+    public String getMonthItem() {
+        return monthItem;
+    }
+
+    public CalendarItemData setMonthItem(String monthItem) {
+        this.monthItem = monthItem;
+        return this;
+    }
+
+    public List<String> getDayItems() {
+        return dayItems;
+    }
+
+    public CalendarItemData addDayItem(final String dayItem) {
+        if (dayItems == null) {
+            dayItems = new ArrayList<>();
+        }
+        dayItems.add(dayItem);
+        return this;
     }
 
     @Override
@@ -63,7 +85,8 @@ public class CalendarItemData implements Dto {
         return new StringBuilder(CalendarItemData.class.getSimpleName())
                 .append(": rootObjectId=").append(rootObjectId.toStringRepresentation())
                 .append(", image=").append(image)
-                .append(", description=").append(description)
+                .append(", monthItem=").append(monthItem)
+                .append(", dayItems=").append(dayItems)
                 .toString();
     }
 }
