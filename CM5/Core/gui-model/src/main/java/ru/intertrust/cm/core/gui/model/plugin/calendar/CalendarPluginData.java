@@ -15,7 +15,7 @@ public class CalendarPluginData extends ActivePluginData {
     private Date toDate;
     private Date selectedDate;
 
-    private Map<Date, List<CalendarItemData>> values;
+    private Map<Date, List<CalendarItemsData>> values;
 
     public Date getFromDate() {
         return fromDate;
@@ -41,11 +41,11 @@ public class CalendarPluginData extends ActivePluginData {
         this.selectedDate = selectedDate;
     }
 
-    public Map<Date, List<CalendarItemData>> getValues() {
+    public Map<Date, List<CalendarItemsData>> getValues() {
         return values;
     }
 
-    public void setValues(Map<Date, List<CalendarItemData>> values) {
+    public void setValues(Map<Date, List<CalendarItemsData>> values) {
         this.values = values;
     }
 }

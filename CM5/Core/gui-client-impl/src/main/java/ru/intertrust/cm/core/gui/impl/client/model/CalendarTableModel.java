@@ -15,7 +15,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarSelectDateListener;
 import ru.intertrust.cm.core.gui.impl.client.plugins.calendar.CalendarPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsRequest;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsResponse;
@@ -32,7 +32,7 @@ public class CalendarTableModel {
     private final CalendarPlugin owner;
 
     private List<CalendarSelectDateListener> selectListeners = new ArrayList<>();
-    private final Map<Date, List<CalendarItemData>> values = new HashMap<>();
+    private final Map<Date, List<CalendarItemsData>> values = new HashMap<>();
     private final List<QueueItem> queueItems = new ArrayList<>();
     private Date selectedDate;
     private Date valuesFrom;

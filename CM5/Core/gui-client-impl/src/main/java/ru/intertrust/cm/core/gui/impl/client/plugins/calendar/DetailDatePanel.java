@@ -7,7 +7,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -17,6 +16,7 @@ import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 
 /**
  * @author Sergey.Okolot
@@ -77,20 +77,20 @@ public class DetailDatePanel extends FlowPanel implements CalendarSelectDateList
         }
 
         @Override
-        public void fillValues(List<CalendarItemData> values) {
+        public void fillValues(List<CalendarItemsData> values) {
             if (values != null) {
-                for (CalendarItemData calendarItemData : values) {
+                for (CalendarItemsData calendarItemsData : values) {
                     final Widget taskItem;
-                    if (calendarItemData.getImage() != null) {
+                    if (calendarItemsData.getImage() != null) {
                         final HorizontalPanel wrapper = new HorizontalPanel();
-                        final Image image = new Image(calendarItemData.getImage());
-                        image.setWidth(calendarItemData.getImageWidth());
-                        image.setHeight(calendarItemData.getImageHeight());
+                        final Image image = new Image(calendarItemsData.getImage());
+                        image.setWidth(calendarItemsData.getImageWidth());
+                        image.setHeight(calendarItemsData.getImageHeight());
                         wrapper.add(image);
-                        wrapper.add(getDescription(calendarItemData));
+                        wrapper.add(getPresentations(calendarItemsData));
                         taskItem = wrapper;
                     } else {
-                        taskItem = getDescription(calendarItemData);
+                        taskItem = getPresentations(calendarItemsData);
                     }
                     container.add(new HTML("<hr/>"));
                     container.add(taskItem);
@@ -98,8 +98,15 @@ public class DetailDatePanel extends FlowPanel implements CalendarSelectDateList
             }
         }
 
-        private HTML getDescription(CalendarItemData itemData) {
-            final HTML result = new InlineHTML(itemData.getMonthItem());
+        private Widget getPresentations(CalendarItemsData itemsData) {
+            final VerticalPanel result = new VerticalPanel();
+            if (itemsData.getDayItems() == null) {
+                result.add(GuiUtil.getCalendarItemPresentation(itemsData.getMonthItem(), itemsData.getRootObjectId()));
+            } else {
+                for (CalendarItemData itemData: itemsData.getDayItems()) {
+                    result.add(GuiUtil.getCalendarItemPresentation(itemData, itemsData.getRootObjectId()));
+                }
+            }
             return result;
         }
     }

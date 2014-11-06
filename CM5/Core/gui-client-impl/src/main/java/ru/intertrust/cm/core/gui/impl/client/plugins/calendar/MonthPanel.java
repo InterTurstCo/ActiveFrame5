@@ -30,6 +30,7 @@ import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
@@ -304,28 +305,24 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
         }
 
         @Override
-        public void fillValues(List<CalendarItemData> values) {
+        public void fillValues(List<CalendarItemsData> values) {
             if (values != null) {
-                for (CalendarItemData calendarItemData : values) {
-                    if (calendarItemData.getImage() != null) {
+                for (CalendarItemsData calendarItemsData : values) {
+                    if (calendarItemsData.getImage() != null) {
                         final HorizontalPanel wrapper = new HorizontalPanel();
-                        final Image image = new Image(calendarItemData.getImage());
-                        image.setWidth(calendarItemData.getImageWidth());
-                        image.setHeight(calendarItemData.getImageHeight());
+                        final Image image = new Image(calendarItemsData.getImage());
+                        image.setWidth(calendarItemsData.getImageWidth());
+                        image.setHeight(calendarItemsData.getImageHeight());
                         wrapper.add(image);
-                        wrapper.add(getDescription(calendarItemData));
+                        wrapper.add(GuiUtil.getCalendarItemPresentation(
+                                calendarItemsData.getMonthItem(), calendarItemsData.getRootObjectId()));
                         container.add(wrapper);
                     } else {
-                        container.add(getDescription(calendarItemData));
+                        container.add(GuiUtil.getCalendarItemPresentation(
+                                calendarItemsData.getMonthItem(), calendarItemsData.getRootObjectId()));
                     }
                 }
             }
-        }
-
-        private HTML getDescription(CalendarItemData itemData) {
-            final HTML result = new InlineHTML(itemData.getMonthItem());
-            result.setTitle(result.getText());
-            return result;
         }
     }
 

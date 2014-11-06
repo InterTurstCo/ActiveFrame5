@@ -25,6 +25,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
+import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarItemConfig;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarViewConfig;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.ImageFieldConfig;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
@@ -41,6 +42,7 @@ import ru.intertrust.cm.core.gui.impl.server.widget.TimelessDateValueConverter;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsRequest;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsResponse;
@@ -80,7 +82,7 @@ public class CalendarPluginHandler extends ActivePluginHandler {
         final Date fromDate = calendar.getTime();
         GuiDateUtil.setStartOfDay(fromDate);
         result.setFromDate(fromDate);
-        final Map<Date, List<CalendarItemData>> values =
+        final Map<Date, List<CalendarItemsData>> values =
                 getValues(pluginConfig.getCalendarViewConfig(), fromDate, toDate);
         result.setValues(values);
         result.setToolbarContext(getToolbarContext(pluginConfig));
@@ -89,12 +91,12 @@ public class CalendarPluginHandler extends ActivePluginHandler {
 
     public CalendarRowsResponse requestRows(Dto dto) {
         final CalendarRowsRequest request = (CalendarRowsRequest) dto;
-        final Map<Date, List<CalendarItemData>> values = getValues(
+        final Map<Date, List<CalendarItemsData>> values = getValues(
                 request.getCalendarConfig().getCalendarViewConfig(), request.getFromDate(), request.getToDate());
         return new CalendarRowsResponse(values, request.getFromDate(), request.getToDate());
     }
 
-    private Map<Date, List<CalendarItemData>> getValues(final CalendarViewConfig viewConfig,
+    private Map<Date, List<CalendarItemsData>> getValues(final CalendarViewConfig viewConfig,
                                                         final Date from, final Date to) {
         final String collectionName = viewConfig.getCollectionRefConfig().getName();
         final List<Filter> filters = getRangeFilters(viewConfig, from, to);
@@ -106,7 +108,7 @@ public class CalendarPluginHandler extends ActivePluginHandler {
         }
         final IdentifiableObjectCollection identifiableObjects =
                 collectionsService.findCollection(collectionName, sortOrder, filters);
-        final Map<Date, List<CalendarItemData>> values = new HashMap<>();
+        final Map<Date, List<CalendarItemsData>> values = new HashMap<>();
         for (Iterator<IdentifiableObject> it = identifiableObjects.iterator(); it.hasNext();) {
             final IdentifiableObject identifiableObject = it.next();
             final Value dateValue =
@@ -117,7 +119,7 @@ public class CalendarPluginHandler extends ActivePluginHandler {
                 continue;
             }
             GuiDateUtil.setStartOfDay(date);
-            List<CalendarItemData> valueList = values.get(date);
+            List<CalendarItemsData> valueList = values.get(date);
             if (valueList == null) {
                 valueList = new ArrayList<>();
                 values.put(date, valueList);
@@ -130,11 +132,17 @@ public class CalendarPluginHandler extends ActivePluginHandler {
                 valueList.add(renderer.renderItem(identifiableObject, viewConfig));
             } else {
                 final String valuePattern = viewConfig.getMonthItemConfig().getPattern().getValue();
-                Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
-                Matcher matcher = pattern.matcher(valuePattern);
-                final String itemPresentation = formatHandler.format(identifiableObject, matcher, null);
-                final CalendarItemData itemData = new CalendarItemData(identifiableObject.getId())
-                        .setMonthItem(itemPresentation);
+                final String monthItemPresentation = getPresentation(identifiableObject, valuePattern);
+                final CalendarItemsData itemsData = new CalendarItemsData(identifiableObject.getId())
+                        .setMonthItem(new CalendarItemData(viewConfig.getMonthItemConfig().isLink(),
+                                monthItemPresentation));
+                if (viewConfig.getDayItemsConfig() != null) {
+                    for (CalendarItemConfig calendarItemConfig : viewConfig.getDayItemsConfig()) {
+                        final String dayValuePattern = calendarItemConfig.getPattern().getValue();
+                        final String dayItemPresentation = getPresentation(identifiableObject, dayValuePattern);
+                        itemsData.addDayItem(new CalendarItemData(calendarItemConfig.isLink(), dayItemPresentation));
+                    }
+                }
                 final ImageFieldConfig imageFieldConfig = viewConfig.getImageFieldConfig();
                 if (imageFieldConfig != null) {
                     final Value value = identifiableObject.getValue(imageFieldConfig.getName());
@@ -143,15 +151,22 @@ public class CalendarPluginHandler extends ActivePluginHandler {
                             : value.get().toString();
                     final String image = imageFieldConfig.getImageMappingsConfig().getImage(imageKey);
                     if (image != null) {
-                        itemData.setImage(image)
+                        itemsData.setImage(image)
                                 .setImageWidth(imageFieldConfig.getImageMappingsConfig().getImageWidth())
                                 .setImageHeight(imageFieldConfig.getImageMappingsConfig().getImageHeight());
                     }
                 }
-                valueList.add(itemData);
+                valueList.add(itemsData);
             }
         }
         return values;
+    }
+
+    private String getPresentation(final IdentifiableObject identifiableObject, final String valuePattern) {
+        Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
+        Matcher matcher = pattern.matcher(valuePattern);
+        final String itemPresentation = formatHandler.format(identifiableObject, matcher, null);
+        return itemPresentation;
     }
 
     private ToolbarContext getToolbarContext(final CalendarConfig pluginConfig) {

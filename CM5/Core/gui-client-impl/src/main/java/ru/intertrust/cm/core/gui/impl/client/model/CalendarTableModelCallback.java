@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.model;
 
 import java.util.List;
 
-import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 
 /**
  * @author Sergey.Okolot
@@ -10,5 +10,5 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
  */
 public interface CalendarTableModelCallback {
 
-    void fillValues(List<CalendarItemData> values);
+    void fillValues(List<CalendarItemsData> values);
 }

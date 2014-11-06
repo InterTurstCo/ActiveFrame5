@@ -4,6 +4,12 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.InlineHTML;
+import com.google.gwt.user.client.ui.InlineHyperlink;
+import com.google.gwt.user.client.ui.Widget;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.title.AbstractTitleRepresentationConfig;
@@ -19,6 +25,7 @@ import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -108,4 +115,21 @@ public final class GuiUtil {
         return action;
     }
 
+    public static Widget getCalendarItemPresentation(final CalendarItemData itemData, final Id rootObjectId) {
+        final Widget result;
+        if (itemData.isLink()) {
+            final Hyperlink hyperlink = new InlineHyperlink();
+            hyperlink.setHTML(itemData.getPresentation());
+            hyperlink.addHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    System.out.println("------------------------> click " + rootObjectId.toStringRepresentation());
+                }
+            }, ClickEvent.getType());
+            result = hyperlink;
+        } else {
+            result = new InlineHTML(itemData.getPresentation());
+        }
+        return result;
+    }
 }

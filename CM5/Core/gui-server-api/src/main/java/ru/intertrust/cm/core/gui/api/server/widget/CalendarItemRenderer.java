@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarViewConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
-import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 
 /**
  * @author Sergey.Okolot
@@ -11,5 +11,5 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
  */
 public interface CalendarItemRenderer extends ComponentHandler {
 
-    CalendarItemData renderItem(IdentifiableObject identifiableObject, CalendarViewConfig config);
+    CalendarItemsData renderItem(IdentifiableObject identifiableObject, CalendarViewConfig config);
 }

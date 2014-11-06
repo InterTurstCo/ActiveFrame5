@@ -16,15 +16,15 @@
                                 <sort-criteria>
                                     <sort-criterion field="population" order="asc"/>
                                 </sort-criteria>
-                                <month-item type="label">
+                                <month-item type="link">
                                     <pattern value="{population} &lt;span style='color:red'&gt;{name}&lt;/span&gt;"/>
                                 </month-item>
                                 <day-items>
                                     <day-item type="link">
-                                        <pattern value="{population} &lt;span style='color:red'&gt;{name}&lt;/span&gt;"/>
+                                        <pattern value="&lt;span style='color:red'&gt;{name}&lt;/span&gt; Население:{population}"/>
                                     </day-item>
                                     <day-item type="label">
-                                        <pattern value="Столица {capital.name}"/>
+                                        <pattern value="Столица: {capital.name}"/>
                                     </day-item>
                                 </day-items>
                                 <image-field name="population">

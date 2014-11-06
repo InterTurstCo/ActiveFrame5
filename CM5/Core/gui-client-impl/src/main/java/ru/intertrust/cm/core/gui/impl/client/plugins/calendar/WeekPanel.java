@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
@@ -29,6 +30,7 @@ import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
@@ -198,27 +200,35 @@ public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeek
         }
 
         @Override
-        public void fillValues(List<CalendarItemData> values) {
+        public void fillValues(List<CalendarItemsData> values) {
             if (values != null && !values.isEmpty()) {
-                for (CalendarItemData calendarItemData : values) {
-                    if (calendarItemData.getImage() != null) {
+                for (CalendarItemsData calendarItemsData : values) {
+                    if (calendarItemsData.getImage() != null) {
                         final HorizontalPanel wrapper = new HorizontalPanel();
-                        final Image image = new Image(calendarItemData.getImage());
-                        image.setWidth(calendarItemData.getImageWidth());
-                        image.setHeight(calendarItemData.getImageHeight());
+                        final Image image = new Image(calendarItemsData.getImage());
+                        image.setWidth(calendarItemsData.getImageWidth());
+                        image.setHeight(calendarItemsData.getImageHeight());
                         wrapper.add(image);
-                        wrapper.add(getDescription(calendarItemData));
+                        wrapper.add(getPresentations(calendarItemsData));
                         container.add(wrapper);
                     } else {
-                        container.add(getDescription(calendarItemData));
+                        container.add(getPresentations(calendarItemsData));
                     }
                 }
             }
         }
 
-        private HTML getDescription(CalendarItemData itemData) {
-            final HTML result = new InlineHTML(itemData.getMonthItem());
+        private Widget getPresentations(CalendarItemsData itemsData) {
+            final VerticalPanel result = new VerticalPanel();
+            if (itemsData.getDayItems() == null) {
+                result.add(GuiUtil.getCalendarItemPresentation(itemsData.getMonthItem(), itemsData.getRootObjectId()));
+            } else {
+                for (CalendarItemData itemData: itemsData.getDayItems()) {
+                    result.add(GuiUtil.getCalendarItemPresentation(itemData, itemsData.getRootObjectId()));
+                }
+            }
             return result;
         }
+
     }
 }
