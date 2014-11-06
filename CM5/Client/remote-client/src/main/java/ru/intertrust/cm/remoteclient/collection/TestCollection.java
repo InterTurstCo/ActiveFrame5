@@ -17,8 +17,10 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
@@ -130,7 +132,7 @@ public class TestCollection extends ClientBase {
             query = "select id from employee where (select count(e.id) from employee e where e.name = 'xxx') > 0";
             executeQuery(query, 1);
             
-            /* Расскоментировать после исправления CMFIVE-1220
+            //Расскоментировать после исправления CMFIVE-1220
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5018, 1)));
             query = "select x.id, x.col2 from ( ";
@@ -138,23 +140,56 @@ public class TestCollection extends ClientBase {
             query += "union ";
             query += "select t.id, t.created_date as col2, t.organization as col3 from department t ";
             query += ") x where x.col3 = {0}";
-            executeQuery(query, 2, params);*/
+            executeQuery(query, 2, params);
 
-            /* Расскоментировать после исправления CMFIVE-1225 
-             params.clear();
-            List<ReferenceValue> listParam = new ArrayList<ReferenceValue>();
+            // Расскоментировать после исправления CMFIVE-1225 
+            params.clear();
+            List <Value> listParam = new ArrayList<Value>();
             listParam.add(new ReferenceValue(new RdbmsId(5018, 1)));
             listParam.add(new ReferenceValue(new RdbmsId(5018, 2)));
             listParam.add(new ReferenceValue(new RdbmsId(5018, 3)));
-            params.add(listParam);
+            params.add(new ListValue(listParam));
             query = "select id, name from organization where id in ({0})";
-            executeQuery(query, 2, params);*/
+            executeQuery(query, 2, params);
             
             
             query = "select id, dateon, dateoff, dateall from tst_employee";
             executeQuery(query, 4);
             
+            query = "select id from ("
+                    + "select x.id from ("
+                    + "select e.id, e.position, e.department as dpt "
+                    + "from tst_employee e) x "
+                    + "inner join person p on p.id = x.id "
+                    + "where x.dpt = {0}) y";
+            params.clear();
+            params.add(new ReferenceValue(new RdbmsId(5015, 1)));
+            executeQuery(query, 1, params);
+            
+            //test CMFIVE-2150
+            query = "SELECT ";
+            query += "d.id ";
+            query += "FROM ";
+            query += "(SELECT id ";
+            query += "FROM employee) e ";
+            query += "join department d on d.boss = e.id ";
+            query += "WHERE ";
+            query += "d.boss={0} ";
+            params.clear();
+            params.add(new ReferenceValue(new RdbmsId(5064, 1)));
+            executeQuery(query, 1, params);
 
+            query = "SELECT ";
+            query += "d.name as boss ";
+            query += "FROM ";
+            query += "employee e ";
+            query += "join department d on d.boss = e.id ";
+            query += "WHERE ";
+            query += "e.id={0} ";
+            params.clear();
+            params.add(new ReferenceValue(new RdbmsId(5013, 2)));
+            executeQuery(query, 1, params);            
+            
         } finally {
             writeLog();
         }
