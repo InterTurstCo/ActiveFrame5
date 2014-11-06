@@ -117,8 +117,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 center.setStyleName("center-section");
                 center.getElement().setId(ComponentHelper.CENTER_ID);
                 right.setStyleName("right-section");
-                //footer.setStyleName("footer-section");
                 footer.getElement().setClassName("footerPanelOff");
+                footer.getElement().getStyle().clearPosition();
                 root.setStyleName("root-section");
                 root.add(header);
                 root.add(center);
@@ -397,11 +397,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         public void onClick(ClickEvent event) {
             if(footer.getStyleName().equals("footerPanelOff")){
                 footer.getElement().setClassName("footerPanelOn");
-                footerButton.setStyleName("footerOpenButton");
+                footerButton.setStyleName("footerCloseButton");
             }
             else{
                 footer.getElement().setClassName("footerPanelOff");
-                footerButton.setStyleName("footerOpenButtoff");
+                footerButton.setStyleName("footerOpenButton");
             }
         }
     }
