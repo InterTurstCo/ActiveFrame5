@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
@@ -41,8 +42,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
     private static final BusinessUniverseServiceAsync SERVICE = BusinessUniverseServiceAsync.Impl.getInstance();
 
-    private AbsolutePanel mainBoxPanel;
-    private AbsolutePanel root;
+    private Panel mainBoxPanel;
+    private Panel root;
     private Style.Display displayStyle;
     private FocusPanel addFile;
     private FileUpload fileUpload;
@@ -117,7 +118,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     }
 
     private void displayAttachmentItem(AttachmentItem item){
-        mainBoxPanel.add(createAttachmentElement(item));
+        mainBoxPanel.add(createSelectedElement(item));
     }
 
     @Override
@@ -126,11 +127,20 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         setAttachments(items);
         newlyAddedAttachments.clear();
         newlyDeletedAttachments.clear();
+
+        displaySelectedElements(mainBoxPanel);
+        displayNonSelectedElements(mainBoxPanel);
+    }
+
+    protected void displaySelectedElements(Panel parentPanel) {
         for (Widget element : createSelectedElements()) {
-            mainBoxPanel.add(element);
+            parentPanel.add(element);
         }
+    }
+
+    protected void displayNonSelectedElements(Panel parentPanel) {
         for (Widget element : createNonSelectedElements()) {
-            mainBoxPanel.add(element);
+            parentPanel.add(element);
         }
     }
 
@@ -138,7 +148,11 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         mainBoxPanel.add(createAttachmentProgressElement(item));
     }
 
-    protected Widget createAttachmentElement(AttachmentItem item) {
+    protected Widget createSelectedElement(AttachmentItem item) {
+        return presenterFactory.createEditablePresenter(item, new DeleteAttachmentClickHandler(item)).presentElement();
+    }
+
+    protected Widget createNonSelectedElement(AttachmentItem item) {
         return presenterFactory.createEditablePresenter(item, new DeleteAttachmentClickHandler(item)).presentElement();
     }
 
@@ -150,7 +164,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     protected List<Widget> createSelectedElements() {
         List<Widget> elements = new ArrayList<>(attachments.size());
         for (AttachmentItem item : attachments) {
-           elements.add(createAttachmentElement(item));
+           elements.add(createSelectedElement(item));
         }
         return elements;
     }
