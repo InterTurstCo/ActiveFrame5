@@ -260,7 +260,6 @@
     -moz-transform: rotate(270deg); /* Firefox */
     -webkit-transform: rotate(270deg); /* Safari and Chrome */
     -o-transform: rotate(270deg); /* Opera */
-    width: 136px;
 }
 
 .weekPanelOnSwitchButton span {
@@ -298,7 +297,6 @@
     -moz-transform: rotate(270deg); /* Firefox */
     -webkit-transform: rotate(270deg); /* Safari and Chrome */
     -o-transform: rotate(270deg); /* Opera */
-    width: 136px;
 }
 
 .weekPanelOffSwitchButton span {
