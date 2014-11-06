@@ -337,7 +337,7 @@ public class CrudServiceIT extends IntegrationTestBase {
     @Test
     public void testFindByUniqueKeyByNonSuperUser() throws Exception {
         DomainObject testObject = crudService.createDomainObject("nunid2punid_map");
-        String value = "value";
+        String value = "value" + System.currentTimeMillis();
         testObject.setString("nunid", value);
         DomainObject savedTestObject = crudService.save(testObject);
 

@@ -9,10 +9,12 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.DomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -483,7 +485,13 @@ public class ConfigurationStorageBuilder {
             auditLogDomainObjectConfig.getFieldConfigs().add(infoField);
         }
         
-        auditLogDomainObjectConfig.getFieldConfigs().addAll(domainObjectTypeConfig.getFieldConfigs());
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            ObjectCloner cloner = new ObjectCloner();
+            final FieldConfig clonedConfig = cloner.cloneObject(fieldConfig, fieldConfig.getClass());
+            clonedConfig.setNotNull(false);
+            auditLogDomainObjectConfig.getFieldConfigs().add(clonedConfig);
+
+        }
         return auditLogDomainObjectConfig;
     }
 
