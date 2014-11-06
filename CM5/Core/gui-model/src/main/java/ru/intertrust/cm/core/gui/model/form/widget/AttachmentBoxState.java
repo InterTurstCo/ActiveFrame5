@@ -18,7 +18,8 @@ import java.util.List;
  */
 public class AttachmentBoxState extends LinkEditingWidgetState {
     private List<AttachmentItem> attachments = new ArrayList<AttachmentItem>(); //selected for 'check-box' mode, all for 1:N
-    private List<AttachmentItem> allAttachments = new ArrayList<AttachmentItem>(); // all from attachment table + all uploaded in this session
+    private List<AttachmentItem> allAttachments = new ArrayList<AttachmentItem>(); // all from attachment table + all uploaded (not saved yet)
+    private List<AttachmentItem> newlyAddedAttachments = new ArrayList<AttachmentItem>(); // uploaded (not saved yet)
     private boolean inSelectionMode; // if true, show checkbox
 
     private SelectionStyleConfig selectionStyleConfig;
@@ -50,6 +51,14 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
 
     public void setAllAttachments(List<AttachmentItem> allAttachments) {
         this.allAttachments = allAttachments;
+    }
+
+    public List<AttachmentItem> getNewlyAddedAttachments() {
+        return newlyAddedAttachments;
+    }
+
+    public void setNewlyAddedAttachments(List<AttachmentItem> newlyAddedAttachments) {
+        this.newlyAddedAttachments = newlyAddedAttachments;
     }
 
     public boolean isInSelectionMode() {
@@ -128,6 +137,8 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
             return false;
         if (attachments != null ? !attachments.equals(that.attachments) : that.attachments != null) return false;
         if (allAttachments != null ? !allAttachments.equals(that.allAttachments) : that.allAttachments != null) return false;
+        if (newlyAddedAttachments != null ? !newlyAddedAttachments.equals(that.newlyAddedAttachments) : that.newlyAddedAttachments != null)
+            return false;
         if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) : that.selectionStyleConfig != null)
             return false;
         if (imagesConfig != null ? !imagesConfig.equals(that.imagesConfig) : that.imagesConfig != null)
@@ -144,6 +155,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         int result = selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0;
         result = 31 * result + (attachments != null ? attachments.hashCode() : 0);
         result = 31 * result + (allAttachments != null ? allAttachments.hashCode() : 0);
+        result = 31 * result + (newlyAddedAttachments != null ? newlyAddedAttachments.hashCode() : 0);
         result = 31 * result + (actionLinkConfig != null ? actionLinkConfig.hashCode() : 0);
         result = 31 * result + (imagesConfig != null ? imagesConfig.hashCode() : 0);
         result = 31 * result + (deleteButtonConfig != null ? deleteButtonConfig.hashCode() : 0);

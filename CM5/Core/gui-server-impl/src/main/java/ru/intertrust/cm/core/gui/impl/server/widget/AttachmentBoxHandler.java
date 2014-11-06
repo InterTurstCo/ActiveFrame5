@@ -136,51 +136,42 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         List<AttachmentItem> attachmentItems = attachmentBoxState.getAttachments();
+
+        List<DomainObject> newObjects = processAttachmentItems(attachmentItems,
+                new ArrayList<DomainObject>(attachmentItems.size()), context, true);
+
+        List<AttachmentItem> newlyAddedAttachments = attachmentBoxState.getNewlyAddedAttachments();
+        newlyAddedAttachments.removeAll(attachmentItems); // added but not selected
+
+        newObjects = processAttachmentItems(newlyAddedAttachments, newObjects, context, false);
+
+        return newObjects;
+    }
+
+    private List<DomainObject> processAttachmentItems(List<AttachmentItem> attachmentItems, List<DomainObject> newObjects,
+                                                      WidgetContext context, boolean setupLinks) {
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
 
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         String attachmentType = widgetConfig.getAttachmentType().getName();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-
-        ArrayList<DomainObject> newObjects = new ArrayList<>(attachmentItems.size());
         for (AttachmentItem attachmentItem : attachmentItems) {
             if (attachmentItem.getId() != null) {
                 continue;
             }
-            String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
-            String filePath = pathForTempFilesStore + attachmentItem.getTemporaryName();
+            String filePath = getFilePath(attachmentItem);
             File fileToSave = new File(filePath);
             long contentLength = fileToSave.length();
             try (InputStream fileData = new FileInputStream(fileToSave);
-
-                RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
-                DomainObject attachmentDomainObject = attachmentService.
-                        createAttachmentDomainObjectFor(domainObject.getId(), attachmentType);
-                attachmentDomainObject.setValue(ATTACHMENT_NAME, new StringValue(attachmentItem.getName()));
-                attachmentDomainObject.setValue(ATTACHMENT_DESCRIPTION, new StringValue(attachmentItem.
-                        getDescription()));
-                String mimeType = Files.probeContentType(Paths.get(filePath));
-                mimeType = mimeType == null ? "undefined" : mimeType;
-                attachmentDomainObject.setValue(ATTACHMENT_MIME_TYPE, new StringValue(mimeType));
-                attachmentDomainObject.setValue(ATTACHMENT_CONTENT_LENGTH, new LongValue(contentLength));
-
+                 RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
+                DomainObject attachmentDomainObject = createAttachmentDomainObject(attachmentItem, domainObject,
+                        attachmentType, filePath, contentLength);
 
                 DomainObject savedDo;
-                if (fieldPath.isOneToManyReference() || fieldPath.isOneToOneBackReference()) {
-                    String parentLinkFieldName = fieldPath.getLinkToParentName();
-                    attachmentDomainObject.setReference(parentLinkFieldName, domainObject);
+                if (setupLinks) {
+                    savedDo = saveAttachment(attachmentDomainObject, domainObject, fieldPath, remoteFileData);
+                } else {
                     savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
-                } else if (fieldPath.isManyToManyReference()) {
-                    savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
-                    String referenceType = fieldPath.getReferenceType();
-                    DomainObject referencedObject = crudService.createDomainObject(referenceType);
-                    referencedObject.setReference(fieldPath.getLinkToChildrenName(), savedDo);
-                    referencedObject.setReference(fieldPath.getLinkToParentName(), domainObject);
-                    crudService.save(referencedObject);
-                } else { // one-to-one reference
-                    savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
-                    domainObject.setReference(fieldPath.getFieldName(), savedDo);
-                    crudService.save(domainObject);
                 }
                 newObjects.add(savedDo);
                 fileToSave.delete();
@@ -190,9 +181,51 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
         return newObjects;
+    }
+
+
+    private String getFilePath(AttachmentItem attachmentItem) {
+        String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
+        return pathForTempFilesStore + attachmentItem.getTemporaryName();
+    }
+
+    private DomainObject createAttachmentDomainObject(AttachmentItem attachmentItem, DomainObject parentDomainObject,
+                                  String attachmentType, String filePath, long contentLength) throws IOException {
+        DomainObject attachmentDomainObject = attachmentService.
+                createAttachmentDomainObjectFor(parentDomainObject.getId(), attachmentType);
+        attachmentDomainObject.setValue(ATTACHMENT_NAME, new StringValue(attachmentItem.getName()));
+        attachmentDomainObject.setValue(ATTACHMENT_DESCRIPTION, new StringValue(attachmentItem.
+                getDescription()));
+        String mimeType = Files.probeContentType(Paths.get(filePath));
+        mimeType = mimeType == null ? "undefined" : mimeType;
+        attachmentDomainObject.setValue(ATTACHMENT_MIME_TYPE, new StringValue(mimeType));
+        attachmentDomainObject.setValue(ATTACHMENT_CONTENT_LENGTH, new LongValue(contentLength));
+
+        return attachmentDomainObject;
+    }
+
+    private DomainObject saveAttachment(DomainObject attachmentDomainObject, DomainObject parentDomainObject,
+                                        FieldPath fieldPath, RemoteInputStreamServer remoteFileData) {
+        DomainObject savedDo;
+        if (fieldPath.isOneToManyReference() || fieldPath.isOneToOneBackReference()) {
+            String parentLinkFieldName = fieldPath.getLinkToParentName();
+            attachmentDomainObject.setReference(parentLinkFieldName, parentDomainObject);
+            savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+        } else if (fieldPath.isManyToManyReference()) {
+            savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+            String referenceType = fieldPath.getReferenceType();
+            DomainObject referencedObject = crudService.createDomainObject(referenceType);
+            referencedObject.setReference(fieldPath.getLinkToChildrenName(), savedDo);
+            referencedObject.setReference(fieldPath.getLinkToParentName(), parentDomainObject);
+            crudService.save(referencedObject);
+        } else { // one-to-one reference
+            savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+            parentDomainObject.setReference(fieldPath.getFieldName(), savedDo);
+            crudService.save(parentDomainObject);
+        }
+        return  savedDo;
     }
 
     @Override

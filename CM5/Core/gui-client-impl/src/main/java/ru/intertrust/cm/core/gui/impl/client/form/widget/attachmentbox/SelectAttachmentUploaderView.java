@@ -56,7 +56,7 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
                     if (isSingleChoice()) {
                         //TODO:  may be it would be better to use radio-button group?
                         uncheckOthers(checkbox);
-                        clearAttachments();
+                        deselectAllAttachments();
                     }
                     selectAttachment(item);
                 } else {

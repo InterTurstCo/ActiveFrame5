@@ -48,8 +48,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private FileUpload fileUpload;
     private FormPanel submitForm;
     private boolean singleChoice;
+
     private List<AttachmentItem> attachments = new ArrayList<>();
     private List<AttachmentItem> allAttachments = new ArrayList<>();
+    private List<AttachmentItem> newlyAddedAttachments = new ArrayList<>();
 
     private ExtensionValidator extensionValidator;
     private Timer elapsedTimer;
@@ -76,6 +78,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
     protected List<AttachmentItem> getAllAttachments() {
         return allAttachments;
+    }
+
+    protected List<AttachmentItem> getNewlyAddedAttachments() {
+        return newlyAddedAttachments;
     }
 
     protected boolean isSingleChoice() {
@@ -173,16 +179,18 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     }
 
     protected void addAttachment(AttachmentItem attachment) {
-        selectAttachment(attachment);
+        newlyAddedAttachments.add(attachment);
         allAttachments.add(attachment);
+        selectAttachment(attachment);
     }
 
     protected void removeAttachment(AttachmentItem attachment) {
         attachments.remove(attachment);
+        newlyAddedAttachments.remove(attachment);
         allAttachments.remove(attachment);
     }
 
-    protected void clearAttachments() {
+    protected void deselectAllAttachments() {
         attachments.clear();
     }
 
@@ -383,7 +391,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
         @Override
         public void onClick(ClickEvent event) {
-            attachments.remove(item);
+            removeAttachment(item);
         }
     }
 
