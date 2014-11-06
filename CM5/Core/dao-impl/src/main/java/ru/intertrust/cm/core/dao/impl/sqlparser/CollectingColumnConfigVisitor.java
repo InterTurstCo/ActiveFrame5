@@ -68,16 +68,6 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
     @Override
     public void visit(SelectExpressionItem selectExpressionItem) {
         selectExpressionItem.getExpression().accept(this);
-
-        // Add column to config mapping for column alias
-        if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null &&
-                selectExpressionItem.getExpression() instanceof Column) {
-            Column column = (Column) selectExpressionItem.getExpression();
-            String aliasName = DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase());
-            if (columnToConfigMapping.get(aliasName) == null) {
-                columnToConfigMapping.put(aliasName, columnToConfigMapping.get(getColumnName(column)));
-            }
-        }
     }
 
     @Override

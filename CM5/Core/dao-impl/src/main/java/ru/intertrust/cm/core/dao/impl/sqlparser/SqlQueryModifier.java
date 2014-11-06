@@ -136,7 +136,7 @@ public class SqlQueryModifier {
         });
     }
 
-    public Map<String, FieldConfig> buildColumnToConfigMap(String query) {
+    public Map<String, FieldConfig> buildColumnToConfigMapForParameters(String query) {
         final Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
 
         //TODO перенести всю логику поиска конфигурации колонок в CollectingColumnConfigVisitor
@@ -150,20 +150,52 @@ public class SqlQueryModifier {
         processQuery(query, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
-                buildColumnToConfigMap(plainSelect, columnToTableMapping);
+                buildColumnToConfigMapUsingVisitor(plainSelect, columnToTableMapping);
             }
         });
         
         return columnToTableMapping;
     }
 
-    private void buildColumnToConfigMap(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {        
+    private void buildColumnToConfigMapUsingVisitor(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {        
         CollectingColumnConfigVisitor collectColumnConfigVisitor = new CollectingColumnConfigVisitor(configurationExplorer, plainSelect);        
 
         plainSelect.accept(collectColumnConfigVisitor);
         
         for (String column : collectColumnConfigVisitor.getColumnToConfigMapping().keySet()) {
             FieldConfig fieldConfig = collectColumnConfigVisitor.getColumnToConfigMapping().get(column);
+            if (fieldConfig != null) {
+                columnToTableMapping.put(column, fieldConfig);
+            }
+        }
+    }
+
+    public Map<String, FieldConfig> buildColumnToConfigMapForSelectItems(String query) {
+        final Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
+
+        processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                buildColumnToConfigMapInPlainSelect(plainSelect, columnToTableMapping);
+            }
+        });
+        processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                buildSelectItemConfigMapUsingVisitor(plainSelect, columnToTableMapping);
+            }
+        });
+        
+        return columnToTableMapping;
+    }
+
+    private void buildSelectItemConfigMapUsingVisitor(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {        
+        CollectingSelectItemConfigVisitor collectSelectItemConfigVisitor = new CollectingSelectItemConfigVisitor(configurationExplorer, plainSelect);        
+
+        plainSelect.accept(collectSelectItemConfigVisitor);
+        
+        for (String column : collectSelectItemConfigVisitor.getColumnToConfigMapping().keySet()) {
+            FieldConfig fieldConfig = collectSelectItemConfigVisitor.getColumnToConfigMapping().get(column);
             if (fieldConfig != null) {
                 columnToTableMapping.put(column, fieldConfig);
             }
@@ -495,7 +527,7 @@ public class SqlQueryModifier {
                 SubSelect subSelect = (SubSelect) selectExpressionItem.getExpression();
                 if (subSelect.getSelectBody() instanceof PlainSelect) {
                     PlainSelect plainSubSelect = (PlainSelect) subSelect.getSelectBody();
-                    buildColumnToConfigMap(plainSubSelect, columnToConfigMap);
+                    buildColumnToConfigMapUsingVisitor(plainSubSelect, columnToConfigMap);
                 }
 
             } else if (selectExpressionItem.getExpression() instanceof CaseExpression) {
@@ -664,7 +696,13 @@ public class SqlQueryModifier {
                     column.getTable().getName().equals(fromItem.getName())) {
                 return DaoUtils.unwrap(fromItem.getName());
             }
-
+            if (forSubSelect) {
+                for (Object selectItem : plainSelect.getSelectItems()) {
+                    if (selectItem instanceof AllColumns) {
+                        return DaoUtils.unwrap(fromItem.getName());
+                    }
+                }
+            }
             List joinList = plainSelect.getJoins();
 
             if (joinList != null) {

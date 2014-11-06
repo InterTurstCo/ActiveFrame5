@@ -123,8 +123,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 getFindCollectionQuery(collectionConfig, filterValues, sortOrder, offset, limit, accessToken);
 
         Map<String, FieldConfig> columnToConfigMap =
-                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMap(collectionQuery);
+                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForParameters(collectionQuery);
+        Map<String, FieldConfig> columnToConfigMapForSelectItems = new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(collectionQuery);
 
+        
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
         collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(collectionQuery, filterValues, columnToConfigMap);
 
@@ -141,7 +143,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(collectionName, columnToConfigMap, collectionConfig.getIdField(),
+                new CollectionRowMapper(collectionName, columnToConfigMapForSelectItems, collectionConfig.getIdField(),
                         configurationExplorer, domainObjectTypeIdCache));
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled){
@@ -201,13 +203,13 @@ public class CollectionsDaoImpl implements CollectionsDao {
             fillAclParameters(accessToken, parameters);
         }
 
-        Map<String, FieldConfig> columnToConfigMap =
-                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMap(collectionQuery);
+        Map<String, FieldConfig> columnToConfigMapForSelectItems =
+                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(collectionQuery);
 
         collectionQuery = wrapAndLowerCaseNames(collectionQuery);
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(columnToConfigMap, configurationExplorer, domainObjectTypeIdCache));
+                new CollectionRowMapper(columnToConfigMapForSelectItems, configurationExplorer, domainObjectTypeIdCache));
 
         return collection;
     }
@@ -232,7 +234,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
 
-        Map<String, FieldConfig> columnToConfigMap = sqlQueryModifier.buildColumnToConfigMap(collectionQuery);
+        Map<String, FieldConfig> columnToConfigMap = sqlQueryModifier.buildColumnToConfigMapForParameters(collectionQuery);
+        Map<String, FieldConfig> columnToConfigMapForSelectItems = sqlQueryModifier.buildColumnToConfigMapForSelectItems(collectionQuery);
 
         collectionQuery = sqlQueryModifier.modifyQueryWithParameters(collectionQuery, params, columnToConfigMap);
         collectionQuery = wrapAndLowerCaseNames(collectionQuery);
@@ -241,7 +244,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         fillParameterMap(params, parameters);
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(columnToConfigMap, configurationExplorer, domainObjectTypeIdCache));
+                new CollectionRowMapper(columnToConfigMapForSelectItems, configurationExplorer, domainObjectTypeIdCache));
 
         return collection;
     }
