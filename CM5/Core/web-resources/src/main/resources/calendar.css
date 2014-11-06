@@ -165,8 +165,7 @@
     right: 0;
 }
 
-
-/* ------------>>> Calendar Month Panel <<<------------ */
+/* ------------>>> Calendar Month Panel buttons <<<------------ */
 .monthPanelOnSwitchButton {
     background: #fafafa;
     -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
@@ -242,4 +241,82 @@
     -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
     transition: color 0.5s;
 }
-/* ------------>>> end Calendar Month Panel <<<------------ */
+/* ------------>>> end Calendar Month Panel buttons <<<------------ */
+
+/* ------------>>> Calendar Week Panel buttons <<<------------ */
+.weekPanelOnSwitchButton {
+    background: #fafafa;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
+    border: 1px solid #afbccc;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 7px;
+    position: absolute;
+    z-index: 100;
+    top: 50%;
+    right: -90px;
+    -ms-transform: rotate(270deg); /* IE 9 */
+    -moz-transform: rotate(270deg); /* Firefox */
+    -webkit-transform: rotate(270deg); /* Safari and Chrome */
+    -o-transform: rotate(270deg); /* Opera */
+    width: 136px;
+}
+
+.weekPanelOnSwitchButton span {
+    border-bottom: 1px dotted #9eafbf;
+    -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: color 0.5s;
+}
+
+.weekPanelOnSwitchButton:hover {
+    background: #afbccc;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
+    cursor: pointer;
+}
+
+.weekPanelOnSwitchButton:hover span {
+    color: #fafafa;
+    -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: color 0.5s;
+}
+
+.weekPanelOffSwitchButton {
+    background: #fafafa;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
+    border: 1px solid #afbccc;
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    padding: 7px;
+    position: absolute;
+    z-index: 100;
+    top: 50%;
+    right: -65px;
+    -ms-transform: rotate(270deg); /* IE 9 */
+    -moz-transform: rotate(270deg); /* Firefox */
+    -webkit-transform: rotate(270deg); /* Safari and Chrome */
+    -o-transform: rotate(270deg); /* Opera */
+    width: 136px;
+}
+
+.weekPanelOffSwitchButton span {
+    border-bottom: 1px dotted #9eafbf;
+    -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: color 0.5s;
+}
+
+.weekPanelOffSwitchButton:hover {
+    background: #afbccc;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
+    cursor: pointer;
+}
+
+.weekPanelOffSwitchButton:hover span {
+    color: #fafafa;
+    -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: color 0.5s;
+}
+/* ------------>>> end Calendar Week Panel buttons <<<------------ */

@@ -108,25 +108,11 @@ public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeek
         }
     }
 
-    private void setSwitchBtnStyle() { // todo установить необходимые стили переключателя
+    private void setSwitchBtnStyle() {
         if (calendarConfig.isShowWeekend()) {
-            Style btnStyle = switchBtn.getElement().getStyle();
-            btnStyle.setPosition(Style.Position.ABSOLUTE);
-            btnStyle.setZIndex(100);
-            btnStyle.setTop(50, Style.Unit.PCT);
-            btnStyle.setRight(0, Style.Unit.PX);
-            btnStyle.setBorderColor("red");
-            btnStyle.setBorderStyle(Style.BorderStyle.SOLID);
-            btnStyle.setBorderWidth(1, Style.Unit.PX);
+            switchBtn.getElement().setClassName("weekPanelOnSwitchButton");
         } else {
-            Style btnStyle = switchBtn.getElement().getStyle();
-            btnStyle.setPosition(Style.Position.ABSOLUTE);
-            btnStyle.setZIndex(100);
-            btnStyle.setTop(50, Style.Unit.PCT);
-            btnStyle.setRight(0, Style.Unit.PX);
-            btnStyle.setBorderColor("red");
-            btnStyle.setBorderStyle(Style.BorderStyle.SOLID);
-            btnStyle.setBorderWidth(1, Style.Unit.PX);
+            switchBtn.getElement().setClassName("weekPanelOffSwitchButton");
         }
     }
 
