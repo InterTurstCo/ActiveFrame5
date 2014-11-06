@@ -260,7 +260,7 @@
 
 /*CalendarPlugin*/
 
-.calendar-scroll-panel {
+.calendarScrollPanel {
     position: absolute !important;
     top: 65px;
     right: -16px;
@@ -272,7 +272,7 @@
 
 }
 
-.calendar-container {
+.calendarContainer {
     /*position: absolute;*/
     background: rgba(89, 17, 20, 0.15);
     right: 0;
@@ -280,7 +280,7 @@
 
 }
 
-.calendar-day-wrapper {
+.calendarDayWrapper {
     position: absolute;
     padding: 2px;
     top: 0;
@@ -289,7 +289,7 @@
     right: 0;
 }
 
-.calendar-day-block {
+.calendarDayBlock {
     border-left: 1px solid #ddd;
     border-top: 1px solid #ddd;
     position: relative;
@@ -329,7 +329,7 @@
 
 }
 
-.calendar-focus-day-block {
+.calendarFocusDayBlock {
     background: #fffbe2;
     border: 2px solid #ffa34c !important;
     border-radius: 10px;

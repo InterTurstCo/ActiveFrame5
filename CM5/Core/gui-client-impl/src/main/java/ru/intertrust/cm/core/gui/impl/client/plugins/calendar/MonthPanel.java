@@ -57,7 +57,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
         monthContainer = new FlowPanel();
         add(monthContainer);
         detailPanel = new FlowPanel();
-        detailPanel.setStyleName("month-detail-panel");
+        detailPanel.setStyleName("monthDetailPanel");
         add(detailPanel);
         switchBtn = createSwitchBtn();
         detailPanel.add(switchBtn);
@@ -182,27 +182,11 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
         monthContainer.getElement().getStyle().setMarginTop(-containerOffset, Style.Unit.PX);
     }
 
-    private void setSwitchBtnStyle() { // todo установить необходимые стили переключателя
+    private void setSwitchBtnStyle() {
         if (calendarConfig.isShowDetailPanel()) {
-            Style btnStyle = switchBtn.getElement().getStyle();
-            btnStyle.setPosition(Style.Position.ABSOLUTE);
-            btnStyle.setZIndex(100);
-            btnStyle.setTop(50, Style.Unit.PCT);
-            btnStyle.setLeft(0, Style.Unit.PX);
-            btnStyle.setMarginLeft(-20, Style.Unit.PX);
-            btnStyle.setBorderColor("red");
-            btnStyle.setBorderStyle(Style.BorderStyle.SOLID);
-            btnStyle.setBorderWidth(1, Style.Unit.PX);
+            switchBtn.getElement().setClassName("monthPanelOnSwitchButton");
         } else {
-            Style btnStyle = switchBtn.getElement().getStyle();
-            btnStyle.setPosition(Style.Position.ABSOLUTE);
-            btnStyle.setZIndex(100);
-            btnStyle.setTop(50, Style.Unit.PCT);
-            btnStyle.setLeft(0, Style.Unit.PX);
-            btnStyle.setMarginLeft(-20, Style.Unit.PX);
-            btnStyle.setBorderColor("red");
-            btnStyle.setBorderStyle(Style.BorderStyle.SOLID);
-            btnStyle.setBorderWidth(1, Style.Unit.PX);
+            switchBtn.getElement().setClassName("monthPanelOffSwitchButton");
         }
     }
 

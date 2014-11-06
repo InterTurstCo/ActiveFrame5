@@ -1,0 +1,207 @@
+.calendarScrollPanel {
+    position: absolute !important;
+    top: 65px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border: solid 1px #ddd;
+    background: rgba(248, 249, 255, 1.0);
+}
+
+.calendarContainer {
+    background: rgba(89, 17, 20, 0.15);
+    right: 0;
+    left: 0;
+}
+
+.calendarDayWrapper {
+    position: absolute;
+    padding: 2px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.calendar-day-container {
+    position: absolute;
+    width: 16.6%;
+    overflow: visible !important;
+}
+
+.calendarDayBlock {
+    border-left: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    position: relative;
+}
+
+.calendar-work-day-block {
+    background: rgb(248, 249, 255);
+    float: left;
+}
+
+.calendar-holiday-block {
+    background: rgb(248, 249, 255);
+    float: none;
+}
+
+.calendar-work-after-today {
+    background-color: #fff;
+    float: left;
+}
+
+.calendar-weekend-after-today {
+    background-color: #fff;
+    float: left;
+}
+
+.calendar-holiday-block:focus {
+    border-left: 1px solid #ddd;
+    background: rgb(248, 249, 255);
+}
+
+.calendar-holiday-block:hover,
+.calendar-work-day-block:hover {
+    background: #f6f6f6;
+}
+
+.calendar-weekend-day-bloks {}
+
+.calendarFocusDayBlock {
+    background: #fffbe2;
+    border: 2px solid #ffa34c !important;
+    border-radius: 10px;
+}
+
+.calendar-block-date {
+    float: right;
+    color: #aaa;
+    margin: 0.3em 0.5em;
+    font-size: 90%;
+    z-index: 2;
+}
+
+.first-day-month {
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
+}
+
+.days-of-first-week {
+    border-top: 1px solid #000;
+}
+
+.second-weekend {
+    border-left: 1px solid #000 !important;
+}
+
+.today {
+    background: #fffbe2;
+}
+
+.month-panel {
+    position: absolute !important;
+    overflow: hidden;
+    width: 100%;
+    height: 31px;
+    top: 65px;
+    z-index: 5;
+    background: #afbccc;
+    cursor: pointer;
+}
+
+.current-month-block {
+    position: absolute !important;
+    top: 65px;
+    left: 50%;
+    height: 31px;
+    opacity: 0.15;
+    background: black;
+    z-index: 10;
+}
+
+.first {
+    position: absolute;
+    height: 22px;
+    width: 69px;
+    color: white;
+    line-height: 18px;
+    background: url(css/i/calendar-bg-day-labels.png) left top no-repeat;
+    text-align: center;
+    left: 50%;
+    top: -13px;
+    margin-left: -35px;
+    font-size: 90%;
+    z-Index: 4;
+}
+
+.first2 {
+    position: absolute;
+    height: 22px;
+    width: 69px;
+    color: white;
+    line-height: 18px;
+    background: url(css/i/calendar-bg-day-labels.png) left top no-repeat;
+    text-align: center;
+    left: 50%;
+    top: 33px;
+    margin-left: -35px;
+    font-size: 90%;
+    z-Index: 4;
+}
+
+.month-block {
+    height: 18px;
+    padding-top: 9px;
+    text-align: center;
+    color: #ffffff;
+}
+
+.monthDetailPanel {
+    background: #dfe9f2;
+    border-left: 1px solid #afbccc;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+
+
+/* ------------>>> Calendar Month Panel <<<------------ */
+.monthPanelOnSwitchButton {
+    background: #fafafa;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
+    border: 1px solid #afbccc;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 7px;
+    position: absolute;
+    z-index: 100;
+    top: 50%;
+    left: -30px;
+    -ms-transform: rotate(270deg); /* IE 9 */
+    -moz-transform: rotate(270deg); /* Firefox */
+    -webkit-transform: rotate(270deg); /* Safari and Chrome */
+    -o-transform: rotate(270deg); /* Opera */
+}
+
+.monthPanelOnSwitchButton span {
+    border-bottom: 1px dotted #9eafbf;
+    -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: color 0.5s;
+}
+
+.monthPanelOnSwitchButton:hover {
+    background: #afbccc;
+    -webkit-transition: background 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: background 0.5s;
+    cursor: pointer;
+}
+
+.monthPanelOnSwitchButton:hover span {
+    color: #fafafa;
+    -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: color 0.5s;
+}
+
+/* ------------>>> end Calendar Month Panel <<<------------ */

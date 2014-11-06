@@ -24,7 +24,7 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
  *         Created on 30.10.2014 12:45.
  */
 public abstract class AbstractCalendarPanel extends FlowPanel implements RequiresResize {
-    protected static final String SELECTED_DATE_STYLE = "calendar-focus-day-block";
+    protected static final String SELECTED_DATE_STYLE = "calendarFocusDayBlock";
 
     protected final List<HandlerRegistration> handlers = new ArrayList<>();
     protected final CalendarConfig calendarConfig;
@@ -39,7 +39,7 @@ public abstract class AbstractCalendarPanel extends FlowPanel implements Require
         this.localEventBus = localEventBus;
         this.calendarConfig = config;
         CalendarUtil.resetTime(currentDate);
-        setStyleName("calendar-scroll-panel");
+        setStyleName("calendarScrollPanel");
     }
 
     @Override
@@ -77,8 +77,8 @@ public abstract class AbstractCalendarPanel extends FlowPanel implements Require
             this.date = CalendarUtil.copyDate(date);
             width -= 1;
             height -= 1;
-            itemWrapper.setStyleName("calendar-day-wrapper");
-            setStyleName("calendar-day-block");
+            itemWrapper.setStyleName("calendarDayWrapper");
+            setStyleName("calendarDayBlock");
             if (CalendarUtil.isSameDate(date, tableModel.getSelectedDate())) {
                 selectedItem = this;
                 itemWrapper.addStyleName(SELECTED_DATE_STYLE);
