@@ -396,12 +396,12 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         @Override
         public void onClick(ClickEvent event) {
             if(footer.getStyleName().equals("footerPanelOff")){
+                footerButton.getElement().setClassName("footerCloseButton");
                 footer.getElement().setClassName("footerPanelOn");
-                footerButton.setStyleName("footerCloseButton");
             }
             else{
+                footerButton.getElement().setClassName("footerOpenButton");
                 footer.getElement().setClassName("footerPanelOff");
-                footerButton.setStyleName("footerOpenButton");
             }
         }
     }
