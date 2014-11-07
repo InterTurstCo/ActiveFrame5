@@ -6,4 +6,6 @@
     <set-property name="gwt.logging.enabled" value="TRUE"/>
     <set-property name="gwt.logging.popupHandler" value="DISABLED" />
     <entry-point class='ru.intertrust.cm.core.gui.impl.client.BusinessUniverse'/>
+
+    <add-linker name="xsiframe"/>
 </module>

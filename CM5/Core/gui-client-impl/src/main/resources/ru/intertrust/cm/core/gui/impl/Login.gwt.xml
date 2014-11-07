@@ -9,4 +9,5 @@
 
     <source path="authentication"/>
 
+    <add-linker name="xsiframe"/>
 </module>

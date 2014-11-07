@@ -4,7 +4,6 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeImages;
 import com.google.gwt.user.client.ui.TreeItem;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
@@ -17,7 +16,7 @@ import java.util.*;
 
 class NavigationTreeBuilder {
 
-    private TreeImages images;
+    private Tree.Resources resources;
     private String childToOpenName;
     private List<LinkConfig> linkConfigs;
     private String groupName;
@@ -31,7 +30,7 @@ class NavigationTreeBuilder {
     }
 
     public Tree toTree() {
-        tree = createTreeWidget(images);
+        tree = createTreeWidget(resources);
         addSelectionEventToTree(tree, handlers);
         if (groupName != null) {
             TreeItem group = composeGroupItem(groupName);
@@ -93,8 +92,8 @@ class NavigationTreeBuilder {
         return this;
     }
 
-    public NavigationTreeBuilder setImages(TreeImages images) {
-        this.images = images;
+    public NavigationTreeBuilder setResources(Tree.Resources resources) {
+        this.resources = resources;
         return this;
     }
 
@@ -147,8 +146,8 @@ class NavigationTreeBuilder {
         }
     }
 
-    private Tree createTreeWidget(TreeImages images) {
-        Tree firstLevelTree = new Tree(images);
+    private Tree createTreeWidget(Tree.Resources resources) {
+        Tree firstLevelTree = new Tree(resources);
         firstLevelTree.setAnimationEnabled(true);
         firstLevelTree.removeStyleName("folder-list");
         firstLevelTree.addStyleName("group-tree");

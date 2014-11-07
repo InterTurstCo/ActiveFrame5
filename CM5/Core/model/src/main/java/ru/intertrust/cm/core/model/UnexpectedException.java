@@ -9,7 +9,7 @@ public class UnexpectedException extends SystemException {
     }
 
     public UnexpectedException(String ejbName, String method, String parameters, Exception ex) {
-        super(ejbName + "#" + method + " " + parameters + "\n" + ex.getClass().getName() + ":" + ex.getMessage());
+        super(ejbName + "#" + method + " " + parameters + "\n" + ex.getClass().getName() + ":" + ex.getMessage(), ex);
     }
 
     public UnexpectedException(String message) {

@@ -1,13 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.Event;
+import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -67,12 +66,12 @@ public class NavigationTreePluginView extends PluginView {
         super(plugin);
     }
 
-    interface MyTreeImages extends TreeImages {
-        @Resource("treeOpen.png")
-        AbstractImagePrototype treeOpen();
+    interface MyTreeImages extends Tree.Resources {
+        @Source("treeOpen.png")
+        ImageResource treeOpen();
 
-        @Resource("treeClosed.png")
-        AbstractImagePrototype treeClosed();
+        @Source("treeClosed.png")
+        ImageResource treeClosed();
     }
 
     @Override
@@ -300,7 +299,7 @@ public class NavigationTreePluginView extends PluginView {
         VerticalPanel verticalPanel = new VerticalPanel();
         verticalPanel.add(pinButton);
         SelectionHandler<TreeItem> handler = createSelectionHandler();
-        TreeImages images = GWT.create(MyTreeImages.class);
+        Tree.Resources resources = GWT.create(MyTreeImages.class);
         List<ChildLinksConfig> childLinksConfigs = selectedRootLinkConfig.getChildLinksConfigList();
         for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
             String groupName = childLinksConfig.getGroupName();
@@ -309,7 +308,7 @@ public class NavigationTreePluginView extends PluginView {
             navigationTreeBuilder
                     .addSelectionHandler(handler)
                     .setChildToOpenName(childToOpen == null ? selectedRootLinkConfig.getChildToOpen() : childToOpen)
-                    .setImages(images);
+                    .setResources(resources);
             Tree tree = navigationTreeBuilder.toTree();
             counterDecorators.addAll(navigationTreeBuilder.getCounterDecorators());
             verticalPanel.add(tree);

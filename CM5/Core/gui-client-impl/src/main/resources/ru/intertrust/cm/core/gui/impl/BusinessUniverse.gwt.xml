@@ -18,5 +18,5 @@
         <when-type-assignable class="ru.intertrust.cm.core.gui.api.client.history.HistoryManager"/>
     </replace-with>
 
-
+    <add-linker name="xsiframe"/>
 </module>

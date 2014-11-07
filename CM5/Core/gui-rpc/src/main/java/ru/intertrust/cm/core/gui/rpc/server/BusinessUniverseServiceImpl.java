@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
 import java.lang.ref.SoftReference;
@@ -113,7 +114,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
-        final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e.getCause() == null ? e : e.getCause());
+        final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e);
         final String message = messageInfo.getFirst();
         final Boolean toLog = messageInfo.getSecond();
         if (toLog) {
