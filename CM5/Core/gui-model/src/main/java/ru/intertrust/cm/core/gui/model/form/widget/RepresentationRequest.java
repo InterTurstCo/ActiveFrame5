@@ -19,6 +19,8 @@ public class RepresentationRequest implements Dto {
     private FormattingConfig formattingConfig;
     private SummaryTableConfig summaryTableConfig;
     private FormState createdObjectState;
+    private String linkedFormName;
+
     public RepresentationRequest() {
     }
 
@@ -77,5 +79,13 @@ public class RepresentationRequest implements Dto {
 
     public void setCreatedObjectState(FormState createdObjectState) {
         this.createdObjectState = createdObjectState;
+    }
+
+    public String getLinkedFormName() {
+        return linkedFormName;
+    }
+
+    public void setLinkedFormName(String linkedFormName) {
+        this.linkedFormName = linkedFormName;
     }
 }

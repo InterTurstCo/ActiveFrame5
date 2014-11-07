@@ -149,14 +149,14 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             for (FieldPath path : paths) {
                 String rootDomainObjectType = formState.getRootDomainObjectType();
                 if (path.isOneToManyReference()) {
-                    if(path.getLinkedObjectType().equalsIgnoreCase(rootDomainObjectType)) {
+                    if (path.getLinkedObjectType().equalsIgnoreCase(rootDomainObjectType)) {
                         final HashMap<FieldPath, Value> rootObjectValues = new HashMap<>();
                         rootObjectValues.put(new FieldPath(path.getLinkToParentName()), new ReferenceValue(rootDomainObject.getId()));
                         FormSaver formSaver = getFormSaver(formState, rootObjectValues);
                         savedObject = formSaver.saveForm();
                     }
                 } else if (path.isManyToManyReference()) {
-                    if(path.getLinkToChildrenName().equalsIgnoreCase(rootDomainObjectType)) {
+                    if (path.getLinkToChildrenName().equalsIgnoreCase(rootDomainObjectType)) {
                         FormSaver formSaver = getFormSaver(formState, null);
                         savedObject = formSaver.saveForm();
                         String referenceType = path.getReferenceType();
@@ -172,7 +172,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                     rootDomainObject.setReference(path.getFieldName(), savedObject);
                     crudService.save(rootDomainObject);
                 }
-                if(savedObject != null) {
+                if (savedObject != null) {
                     newObjects.add(savedObject);
                 }
             }
@@ -210,13 +210,59 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     public RowItem map(DomainObject domainObject, List<SummaryTableColumnConfig> summaryTableColumnConfigs) {
         RowItem rowItem = new RowItem();
         for (SummaryTableColumnConfig columnConfig : summaryTableColumnConfigs) {
-            PatternConfig patternConfig = columnConfig.getPatternConfig();
-            String columnPattern = patternConfig.getValue();
-            FormattingConfig formattingConfig = columnConfig.getFormattingConfig();
-            String displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig);
+            String displayValue;
+            String valueGeneratorComponentName = columnConfig.getValueGeneratorComponent();
+            if (valueGeneratorComponentName != null) {
+                StringValueRenderer valueRenderer = (StringValueRenderer) applicationContext.getBean(valueGeneratorComponentName);
+                displayValue = valueRenderer.render(domainObject);
+            } else {
+                LinkedTablePatternConfig patternConfig = findSuitablePatternForObjectType(columnConfig, domainObject.getTypeName());
+                String columnPattern = patternConfig.getValue();
+                FormattingConfig formattingConfig = columnConfig.getFormattingConfig();
+                displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig);
+
+            }
             rowItem.setValueByKey(columnConfig.getWidgetId(), displayValue);
         }
         return rowItem;
+    }
+
+    private LinkedTablePatternConfig findSuitablePatternForObjectType(SummaryTableColumnConfig columnConfig, String domainObjectType) {
+        LinkedTablePatternConfig config = null;
+        List<LinkedTablePatternConfig> patternConfigList = columnConfig.getPatternConfig();
+        for (LinkedTablePatternConfig linkedTablePatternConfig : patternConfigList) {
+            if (isPatternSuitableForType(domainObjectType, linkedTablePatternConfig)) {
+                config = linkedTablePatternConfig;
+                break;
+            }
+        }
+        if (config == null) {
+            config = findDefaultPattern(patternConfigList);
+        }
+        return config;
+    }
+
+    private LinkedTablePatternConfig findDefaultPattern(List<LinkedTablePatternConfig> patternConfigList) {
+        for (LinkedTablePatternConfig config : patternConfigList) {
+            if (config.getPatternDomainObjectTypesConfig() == null) {
+                return config;
+            }
+        }
+        return null;
+    }
+
+    private boolean isPatternSuitableForType(String domainObjectType, LinkedTablePatternConfig linkedTablePatternConfig) {
+        PatternDomainObjectTypesConfig patternDomainObjectTypesConfig = linkedTablePatternConfig.getPatternDomainObjectTypesConfig();
+        if (patternDomainObjectTypesConfig == null) {
+            return false;
+        }
+        List<PatternDomainObjectTypeConfig> patternDomainObjectTypeConfigList = patternDomainObjectTypesConfig.getPatternDomainObjectTypeConfig();
+        for (PatternDomainObjectTypeConfig patternDomainObjectTypeConfig : patternDomainObjectTypeConfigList) {
+            if (patternDomainObjectTypeConfig.getName().equalsIgnoreCase(domainObjectType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Matcher fieldPatternMatcher(String pattern) {
@@ -246,47 +292,70 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             item.setObjectId(requestIds.get(0));
         }
         for (SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
-            String widgetId = summaryTableColumnConfig.getWidgetId();
+            String widgetId;
+            widgetId = findWidgetIdFromMappings(summaryTableColumnConfig, request.getLinkedFormName());
+            if (widgetId == null) {
+                //default widget-id
+                widgetId = summaryTableColumnConfig.getWidgetId();
+            }
             WidgetState widgetState = createdObjectState.getFullWidgetsState().get(widgetId);
-            String selectionPattern = summaryTableColumnConfig.getPatternConfig().getValue();
             StringBuilder representation = new StringBuilder();
-            Matcher matcher = fieldPatternMatcher(selectionPattern);
-            if (widgetState != null) {
-                FormattingConfig formattingConfig = summaryTableColumnConfig.getFormattingConfig();
-                if (widgetState instanceof TextState) {
-                    TextState textBoxState = (TextState) widgetState;
-                    String text = textBoxState.getText();
-                    representation.append(formatHandler.format(new StringValue(text), matcher, formattingConfig));
-                } else if (widgetState instanceof IntegerBoxState) {
-                    IntegerBoxState integerBoxState = (IntegerBoxState) widgetState;
-                    Long number = integerBoxState.getNumber();
-                    representation.append(formatHandler.format(new LongValue(number), matcher, formattingConfig));
-
-                } else if (widgetState instanceof DecimalBoxState) {
-                    DecimalBoxState decimalBoxState = (DecimalBoxState) widgetState;
-                    BigDecimal number = decimalBoxState.getNumber();
-                    representation.append(formatHandler.format(new DecimalValue(number), matcher, formattingConfig));
-
-                } else if (widgetState instanceof CheckBoxState) {
-                    CheckBoxState checkBoxState = (CheckBoxState) widgetState;
-                    Boolean checked = checkBoxState.isSelected();
-                    representation.append(formatHandler.format(new BooleanValue(checked), matcher, formattingConfig));
-
-                } else if (widgetState instanceof DateBoxState) {
-                    DateBoxState dateBoxState = (DateBoxState) widgetState;
-                    representation.append(formatHandler.format(dateBoxState, matcher, formattingConfig));
-
-                } else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
-                    LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
-                    List<Id> ids = linkEditingWidgetState.getIds();
-                    representation.append(formatHandler.format(selectionPattern, ids, formattingConfig));
-
-                }
+            if (summaryTableColumnConfig.getValueGeneratorComponent() != null) {
+                StringValueRenderer valueRenderer = (StringValueRenderer) applicationContext.getBean(summaryTableColumnConfig.getValueGeneratorComponent());
+                representation.append(valueRenderer.render(createdObjectState));
                 item.setValueByKey(widgetId, representation.toString());
+            } else {
+                String selectionPattern = findSuitablePatternForObjectType(summaryTableColumnConfig, createdObjectState.getRootDomainObjectType()).getValue();
+                Matcher matcher = fieldPatternMatcher(selectionPattern);
+                if (widgetState != null) {
+                    FormattingConfig formattingConfig = summaryTableColumnConfig.getFormattingConfig();
+                    if (widgetState instanceof TextState) {
+                        TextState textBoxState = (TextState) widgetState;
+                        String text = textBoxState.getText();
+                        representation.append(formatHandler.format(new StringValue(text), matcher, formattingConfig));
+                    } else if (widgetState instanceof IntegerBoxState) {
+                        IntegerBoxState integerBoxState = (IntegerBoxState) widgetState;
+                        Long number = integerBoxState.getNumber();
+                        representation.append(formatHandler.format(new LongValue(number), matcher, formattingConfig));
+
+                    } else if (widgetState instanceof DecimalBoxState) {
+                        DecimalBoxState decimalBoxState = (DecimalBoxState) widgetState;
+                        BigDecimal number = decimalBoxState.getNumber();
+                        representation.append(formatHandler.format(new DecimalValue(number), matcher, formattingConfig));
+
+                    } else if (widgetState instanceof CheckBoxState) {
+                        CheckBoxState checkBoxState = (CheckBoxState) widgetState;
+                        Boolean checked = checkBoxState.isSelected();
+                        representation.append(formatHandler.format(new BooleanValue(checked), matcher, formattingConfig));
+
+                    } else if (widgetState instanceof DateBoxState) {
+                        DateBoxState dateBoxState = (DateBoxState) widgetState;
+                        representation.append(formatHandler.format(dateBoxState, matcher, formattingConfig));
+
+                    } else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
+                        LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
+                        List<Id> ids = linkEditingWidgetState.getIds();
+                        representation.append(formatHandler.format(selectionPattern, ids, formattingConfig));
+
+                    }
+                    item.setValueByKey(widgetId, representation.toString());
+                }
             }
 
         }
         return item;
+    }
+
+    private String findWidgetIdFromMappings(SummaryTableColumnConfig summaryTableColumnConfig, String linkedFormName) {
+        if (summaryTableColumnConfig.getWidgetIdMappingsConfig() != null) {
+            for (WidgetIdMappingConfig widgetIdMappingConfig :
+                    summaryTableColumnConfig.getWidgetIdMappingsConfig().getWidgetIdMappingConfigs()) {
+                if (widgetIdMappingConfig.getLinkedFormName().equalsIgnoreCase(linkedFormName)) {
+                    return widgetIdMappingConfig.getWidgetId();
+                }
+            }
+        }
+        return null;
     }
 
 

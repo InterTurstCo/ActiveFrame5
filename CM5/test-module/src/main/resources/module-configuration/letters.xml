@@ -289,7 +289,8 @@
                 <text>Приоритет:</text>
             </label>
             <linked-domain-objects-table id="l_linkedtable">
-                <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                <field-path
+                        value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <linked-form name="organization_form" inline="true"/>
                 <linked-form-mapping>
                     <linked-form name="organization_form" domain-object-type="Organization"/>
@@ -303,10 +304,26 @@
                 </created-objects>
                 <summary-table>
                     <summary-table-column header="Название" widget-id="Name">
-                        <pattern value="{name}"/> <!-- пути задаются относительно базового field-path (correspondent) -->
-                        <!--<formatting>
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="organization_form" widget-id="Name"/>
+                            <widget-id-mapping linked-form-name="employee_form" widget-id="Name"/>
+                            <widget-id-mapping linked-form-name="department_form" widget-id="Name"/>
+                        </widget-id-mappings>
+                        <pattern value="{name} {description} - Organization">
+                            <domain-object-types>
+                                <domain-object-type name="Organization"/>
+                            </domain-object-types>
+                        </pattern>
+                        <pattern value="{name} - Department">
+                            <domain-object-types>
+                                <domain-object-type name="Department"/>
+                            </domain-object-types>
+                        </pattern>
+                        <pattern value="{name}"/>
+                        <!-- пути задаются относительно базового field-path (correspondent) -->
+                        <formatting>
                             <number-format pattern="###.####">
-                                <field-paths> &lt;!&ndash; описание путей к полям, к которым применяется форматирование &ndash;&gt;
+                                <field-paths> <!-- описание путей к полям, к которым применяется форматирование -->
                                     <field-path value="age"/>
                                     <field-path value="age"/>
                                 </field-paths>
@@ -316,7 +333,35 @@
                                     <field-path value="date_of_birth"/>
                                 </field-paths>
                             </date-format>
-                        </formatting>-->
+                        </formatting>
+                    </summary-table-column>
+                    <summary-table-column header="Название - generated" widget-id="Description"
+                                          column-renderer-component="summarytable.column.renderer">
+                        <pattern value="{name} {description} - Organization">
+                            <domain-object-types>
+                                <domain-object-type name="Organization"/>
+                            </domain-object-types>
+                        </pattern>
+                        <pattern value="{name} - Department">
+                            <domain-object-types>
+                                <domain-object-type name="Department"/>
+                            </domain-object-types>
+                        </pattern>
+                        <pattern value="{name}"/>
+                        <!-- пути задаются относительно базового field-path (correspondent) -->
+                        <formatting>
+                            <number-format pattern="###.####">
+                                <field-paths> <!-- описание путей к полям, к которым применяется форматирование -->
+                                    <field-path value="age"/>
+                                    <field-path value="age"/>
+                                </field-paths>
+                            </number-format>
+                            <date-format pattern="dd-mm-yyyy" style="short">
+                                <field-paths>
+                                    <field-path value="date_of_birth"/>
+                                </field-paths>
+                            </date-format>
+                        </formatting>
                     </summary-table-column>
                 </summary-table>
             </linked-domain-objects-table>
@@ -471,11 +516,11 @@
                     </selection-sort-criteria>
 
                     <created-objects>
-                        <created-object text = "Орг" domain-object-type="Organization"/>
+                        <created-object text="Орг" domain-object-type="Organization"/>
                     </created-objects>
                     <linked-form-mapping>
 
-                    <linked-form name="organization_form"  domain-object-type="organization"/>
+                        <linked-form name="organization_form" domain-object-type="organization"/>
 
                     </linked-form-mapping>
                     <!--<selection-filters row-limit="1"></selection-filters>-->
@@ -486,26 +531,26 @@
                         </single-choice>
                         <fill-parent-on-add field-to-fill="organization"/>
                         <linked-form-mapping>
-                        <linked-form name="department_form"  domain-object-type="department">
-                            <title>
-                                <existing-object>
-                                    <pattern value="{id}, {created_date}"/>
-                                    <formatting>
-                                        <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
-                                            <time-zone id="Europe/Kiev"/>
-                                            <field-paths>
-                                                <field-path value="created_date"/>
-                                            </field-paths>
-                                        </date-format>
-                                    </formatting>
-                                </existing-object>
-                                <new-object>
-                                    <pattern value="new form "/>
+                            <linked-form name="department_form" domain-object-type="department">
+                                <title>
+                                    <existing-object>
+                                        <pattern value="{id}, {created_date}"/>
+                                        <formatting>
+                                            <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                                <time-zone id="Europe/Kiev"/>
+                                                <field-paths>
+                                                    <field-path value="created_date"/>
+                                                </field-paths>
+                                            </date-format>
+                                        </formatting>
+                                    </existing-object>
+                                    <new-object>
+                                        <pattern value="new form "/>
 
-                                </new-object>
-                            </title>
+                                    </new-object>
+                                </title>
 
-                        </linked-form>
+                            </linked-form>
                         </linked-form-mapping>
                         <create-new-button text="Department" image="images/icons/arrow-down.png"/>
 
@@ -522,24 +567,24 @@
                             <!-- паттерн отображения уже выбранных значений -->
                             <selection-pattern value="{name} {position}"/>
                             <linked-form-mapping>
-                                <linked-form name="employee_form"  domain-object-type="employee"/>
-                           </linked-form-mapping>
+                                <linked-form name="employee_form" domain-object-type="employee"/>
+                            </linked-form-mapping>
                         </node-collection-def>
                     </node-collection-def>
                     <node-collection-def collection="employeesWithOrganization" parent-filter="byOrganization"
-                                          title="Сотрудника">
-                        <create-new-button text="Создать" />
+                                         title="Сотрудника">
+                        <create-new-button text="Создать"/>
                         <fill-parent-on-add field-to-fill="organization"/>
                         <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name} {position}"/>
                         <created-objects>
-                            <created-object text = "Сотрудник" domain-object-type="employee"/>
-                            <created-object text = "Разработчик" domain-object-type="Developer"/>
+                            <created-object text="Сотрудник" domain-object-type="employee"/>
+                            <created-object text="Разработчик" domain-object-type="Developer"/>
                         </created-objects>
                         <linked-form-mapping>
-                            <linked-form name="employee_form"  domain-object-type="employee"/>
-                            <linked-form name="developer_form2"  domain-object-type="developer"/>
+                            <linked-form name="employee_form" domain-object-type="employee"/>
+                            <linked-form name="developer_form2" domain-object-type="developer"/>
                         </linked-form-mapping>
                     </node-collection-def>
                 </node-collection-def>

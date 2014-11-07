@@ -2694,14 +2694,17 @@
     </xs:complexType>
     <xs:complexType name="summaryTableColumnType">
         <xs:sequence>
-            <xs:element type="con:patternType" name="pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:widgetIdMappingsType" name="widget-id-mappings"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="con:linkedTablePatternType" name="pattern"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element type="con:formattingType" name="formatting"
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="header" use="optional"/>
         <xs:attribute type="xs:string" name="widget-id" use="optional"/>
+        <xs:attribute type="xs:string" name="column-renderer-component" use="optional"/>
     </xs:complexType>
     <xs:complexType name="formTableColumnType">
         <xs:simpleContent>
@@ -3252,4 +3255,29 @@
         </xs:attribute>
     </xs:complexType>
 
+    <xs:complexType name="patternDomainObjectTypes">
+        <xs:sequence>
+            <xs:element type="con:patternDomainObjectType" name="domain-object-type"
+                    minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="patternDomainObjectType">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="linkedTablePatternType">
+        <xs:sequence>
+            <xs:element type="con:patternDomainObjectTypes" name="domain-object-types" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="value" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="widgetIdMappingsType">
+        <xs:sequence>
+            <xs:element type="con:widgetIdMappingType" name="widget-id-mapping" minOccurs="1" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="widgetIdMappingType">
+        <xs:attribute name="linked-form-name" type="xs:string"/>
+        <xs:attribute name="widget-id" type="xs:string"/>
+    </xs:complexType>
 </xs:schema>

@@ -86,7 +86,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
         model.addDataDisplay(table);
         drawTooltipButtonIfRequired();
-        if(addButton != null) {
+        if (addButton != null) {
             addHandlersToAddButton(addButton);
         }
     }
@@ -128,15 +128,14 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     private void addHandlersToAddButton(Button button) {
         final CreatedObjectsConfig createdObjectsConfig = currentState.getLinkedDomainObjectsTableConfig().getCreatedObjectsConfig();
         if (createdObjectsConfig != null && !createdObjectsConfig.getCreateObjectConfigs().isEmpty()) {
-          button.addClickHandler(new ClickHandler() {
-              @Override
-              public void onClick(ClickEvent event) {
+            button.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
                     SelectDomainObjectTypePopup selectDomainObjectTypePopup = new SelectDomainObjectTypePopup(createdObjectsConfig);
                     selectDomainObjectTypePopup.show();
-              }
-          });
-        }
-        else {
+                }
+            });
+        } else {
             button.addClickHandler(new OpenFormClickHandler(currentState.getObjectTypeName(), null));
         }
     }
@@ -172,16 +171,16 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             } else {
                 showNewForm(domainObjectType);
             }
-           if(sourcePopup != null) {
-               sourcePopup.hide();
-           }
+            if (sourcePopup != null) {
+                sourcePopup.hide();
+            }
         }
     }
 
     class SelectDomainObjectTypePopup extends PopupPanel {
         SelectDomainObjectTypePopup(CreatedObjectsConfig createdObjectsConfig) {
             super(true, false);
-            this.setPopupPosition(addButton.getAbsoluteLeft() - 48 ,addButton.getAbsoluteTop() +  40);
+            this.setPopupPosition(addButton.getAbsoluteLeft() - 48, addButton.getAbsoluteTop() + 40);
             AbsolutePanel header = new AbsolutePanel();
             header.setStyleName("srch-corner");
             final VerticalPanel body = new VerticalPanel();
@@ -309,7 +308,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     private void convertFormStateAndFillRowItem(final FormState formState) {
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
         RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
-
+        LinkedFormMappingConfig linkedFormMappingConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig();
+        String linkedFormName = findLinkedFormName(formState, linkedFormMappingConfig);
+        request.setLinkedFormName(linkedFormName);
         Command command = new Command("convertFormStateToRowItem", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -328,9 +329,21 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         });
     }
 
+    private String findLinkedFormName(FormState formState, LinkedFormMappingConfig linkedFormMappingConfig) {
+        if (linkedFormMappingConfig != null) {
+            for (LinkedFormConfig linkedFormConfig : linkedFormMappingConfig.getLinkedFormConfigs()) {
+                if (linkedFormConfig.getDomainObjectType().equalsIgnoreCase(formState.getRootDomainObjectType())) {
+                    return linkedFormConfig.getName();
+                }
+            }
+        }
+        return null;
+    }
+
     private void convertFormStateAndUpdateRowItem(final FormState formState, final Integer index, final boolean tooltipContent) {
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
         RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
+        request.setLinkedFormName(findLinkedFormName(formState, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig()));
         if (index != null && currentState.getIds().size() > index) {
             List<Id> ids = Arrays.asList(currentState.getIds().get(index));
             request.setIds(ids);

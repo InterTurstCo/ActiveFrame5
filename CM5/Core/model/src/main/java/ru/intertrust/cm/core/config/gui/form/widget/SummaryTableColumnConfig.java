@@ -2,7 +2,11 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -15,17 +19,23 @@ public class SummaryTableColumnConfig extends ColumnParentConfig {
     @Attribute(name = "widget-id", required = false)
     private String widgetId;
 
-    @Element(name = "pattern", required = false)
-    private PatternConfig patternConfig;
+    @Element(name="widget-id-mappings",required = false)
+    private WidgetIdMappingsConfig widgetIdMappingsConfig;
+
+    @ElementList(name = "pattern", required = false, entry = "pattern", inline = true)
+    private List<LinkedTablePatternConfig> patternConfig = new ArrayList<>();
 
     @Element(name = "formatting", required = false)
     private FormattingConfig formattingConfig;
 
-    public PatternConfig getPatternConfig() {
+    @Attribute(name = "column-renderer-component",required = false)
+    private String valueGeneratorComponent;
+
+    public List<LinkedTablePatternConfig> getPatternConfig() {
         return patternConfig;
     }
 
-    public void setPatternConfig(PatternConfig patternConfig) {
+    public void setPatternConfig(List<LinkedTablePatternConfig> patternConfig) {
         this.patternConfig = patternConfig;
     }
 
@@ -54,6 +64,14 @@ public class SummaryTableColumnConfig extends ColumnParentConfig {
         return true;
     }
 
+    public WidgetIdMappingsConfig getWidgetIdMappingsConfig() {
+        return widgetIdMappingsConfig;
+    }
+
+    public void setWidgetIdMappingsConfig(WidgetIdMappingsConfig widgetIdMappingsConfig) {
+        this.widgetIdMappingsConfig = widgetIdMappingsConfig;
+    }
+
     @Override
     public int hashCode() {
         int result = super.hashCode();
@@ -71,4 +89,11 @@ public class SummaryTableColumnConfig extends ColumnParentConfig {
         this.widgetId = widgetId;
     }
 
+    public String getValueGeneratorComponent() {
+        return valueGeneratorComponent;
+    }
+
+    public void setValueGeneratorComponent(String valueGeneratorComponent) {
+        this.valueGeneratorComponent = valueGeneratorComponent;
+    }
 }
