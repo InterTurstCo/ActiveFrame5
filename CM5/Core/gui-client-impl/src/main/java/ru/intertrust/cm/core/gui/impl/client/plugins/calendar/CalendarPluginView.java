@@ -6,14 +6,10 @@ import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.RequiresResize;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.Widget;
-
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
@@ -35,6 +31,7 @@ public class CalendarPluginView extends PluginView {
         super(plugin);
         this.localEventBus = localEventBus;
         this.tableModel = new CalendarTableModel((CalendarPlugin) plugin);
+        Application.getInstance().getHistoryManager().setMode(HistoryManager.Mode.APPLY, CalendarPlugin.class.getSimpleName());
     }
 
     @Override
