@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 import java.util.ArrayList;
 

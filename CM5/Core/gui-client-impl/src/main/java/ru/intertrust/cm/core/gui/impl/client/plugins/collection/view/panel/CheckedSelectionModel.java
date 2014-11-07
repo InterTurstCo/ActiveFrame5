@@ -4,7 +4,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 public class CheckedSelectionModel<T extends CollectionRowItem> extends SingleSelectionModel<T> {
 

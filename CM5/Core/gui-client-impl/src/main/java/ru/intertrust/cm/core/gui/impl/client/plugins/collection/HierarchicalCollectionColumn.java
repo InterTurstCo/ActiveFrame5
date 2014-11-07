@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerCon
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.HierarchicalCell;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 import java.util.List;
 

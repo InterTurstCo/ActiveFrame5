@@ -275,6 +275,11 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
     }
 
+    @Override
+    public void refresh() {
+        collectionPlugin.refresh();
+    }
+
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {
 
         @Override

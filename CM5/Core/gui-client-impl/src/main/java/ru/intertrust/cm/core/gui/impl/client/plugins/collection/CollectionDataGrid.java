@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 /**
  * @author Yaroslav Bondacrhuk

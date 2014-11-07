@@ -2,14 +2,21 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
+
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.List;
 
@@ -52,19 +59,33 @@ public class CollectionPlugin extends Plugin {
         return ((CollectionPluginView) getView()).createRequest();
     }
 
-    public void refreshCollection(List<CollectionRowItem> collectionRowItems) {
-        Application.getInstance().showLoadingIndicator();
-        CollectionPluginView view = ((CollectionPluginView) getView());
-        view.clearScrollHandler();
-        view.handleCollectionRowsResponse(collectionRowItems, true);
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+    @Override
+    public void refresh() {
+        final CollectionRowsRequest rowsRequest = getCollectionRowRequest();
+        final List<Id> selectedIds = ((CollectionPluginView) getView()).getSelectedIds();
+        final Id selectedId = selectedIds == null ? null : selectedIds.get(0);
+        final Command command = new Command("refreshCollection", "collection.plugin",
+                new CollectionRefreshRequest(rowsRequest, selectedId));
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
-            public void execute() {
-                Application.getInstance().hideLoadingIndicator();
+            public void onFailure(Throwable caught) {
+            }
 
+            @Override
+            public void onSuccess(Dto result) {
+                final CollectionRowsResponse response = (CollectionRowsResponse) result;
+                Application.getInstance().showLoadingIndicator();
+                CollectionPluginView view = ((CollectionPluginView) getView());
+                view.clearScrollHandler();
+                view.handleCollectionRowsResponse(response.getCollectionRows(), true);
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        Application.getInstance().hideLoadingIndicator();
+                    }
+                });
             }
         });
-
     }
 
     @Override

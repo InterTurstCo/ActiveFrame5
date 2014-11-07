@@ -20,9 +20,10 @@ import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 import java.util.*;
@@ -278,7 +279,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         return collectionRowsResponse;
     }
 
-    public CollectionRowsResponse refreshCollection(CollectionRowsRequest request, Id id) {
+    public CollectionRowsResponse refreshCollection(Dto dto) {
+        final CollectionRowsRequest request = ((CollectionRefreshRequest) dto).getCollectionRowsRequest();
+        final Id id = ((CollectionRefreshRequest) dto).getId();
         LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
         int offsetFromRequest = request.getOffset();
         int limitFromRequest = request.getLimit();

@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.util;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 
 import java.util.*;
 

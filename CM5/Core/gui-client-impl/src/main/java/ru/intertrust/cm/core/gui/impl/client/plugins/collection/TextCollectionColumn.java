@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.TextCell;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 /**
  * @author Yaroslav Bondacrhuk

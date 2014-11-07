@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.model.plugin;
+package ru.intertrust.cm.core.gui.model.plugin.collection;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;

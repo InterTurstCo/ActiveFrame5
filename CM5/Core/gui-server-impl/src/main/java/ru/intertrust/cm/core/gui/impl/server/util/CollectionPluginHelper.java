@@ -16,8 +16,8 @@ import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 
 import java.text.DateFormat;
 import java.util.*;

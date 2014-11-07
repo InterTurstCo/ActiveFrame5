@@ -48,9 +48,9 @@ import ru.intertrust.cm.core.gui.model.SortedMarker;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.*;

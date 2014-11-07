@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import com.google.gwt.cell.client.AbstractCell;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 /**
  * @author Yaroslav Bondacrhuk

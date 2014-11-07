@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.model.plugin;
+package ru.intertrust.cm.core.gui.model.plugin.collection;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
+import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 
 import java.util.ArrayList;
 import java.util.Collection;

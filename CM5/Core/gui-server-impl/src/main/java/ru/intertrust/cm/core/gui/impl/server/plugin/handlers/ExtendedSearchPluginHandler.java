@@ -42,8 +42,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkSt
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;

@@ -277,4 +277,11 @@ public abstract class Plugin extends BaseComponent {
     public boolean isDirty() {
         return false;
     }
+
+    /**
+     * Вызывается из действия Refresh. Должен быть переопределен для плагинов,
+     * поддерживающих это действие.
+     */
+    public void refresh() {
+    }
 }

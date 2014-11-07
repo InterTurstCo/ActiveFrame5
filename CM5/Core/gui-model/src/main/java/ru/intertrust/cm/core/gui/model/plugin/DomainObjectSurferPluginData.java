@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 
 public class DomainObjectSurferPluginData extends ActivePluginData {
     private CollectionPluginData collectionPluginData;
