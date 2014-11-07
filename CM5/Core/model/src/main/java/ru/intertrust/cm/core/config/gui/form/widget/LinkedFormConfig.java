@@ -22,6 +22,12 @@ public class LinkedFormConfig implements Dto{
     @Attribute(name = "domain-object-type", required = false)
     private String domainObjectType;
 
+    @Attribute(name = "modal-width", required = false)
+    private String modalWidth;
+
+    @Attribute(name = "modal-height", required = false)
+    private String modalHeight;
+
     @Element(name = "title", required = false)
     private TitleConfig titleConfig;
 
@@ -57,6 +63,14 @@ public class LinkedFormConfig implements Dto{
         this.domainObjectType = domainObjectType;
     }
 
+    public String getModalWidth() {
+        return modalWidth;
+    }
+
+    public String getModalHeight() {
+        return modalHeight;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -80,7 +94,12 @@ public class LinkedFormConfig implements Dto{
         if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType!= null) {
             return false;
         }
-
+        if (modalWidth != null ? !modalWidth.equals(that.modalWidth) : that.modalWidth!= null) {
+            return false;
+        }
+        if (modalHeight != null ? !modalHeight.equals(that.modalHeight) : that.modalHeight!= null) {
+            return false;
+        }
         return true;
     }
 
@@ -90,6 +109,8 @@ public class LinkedFormConfig implements Dto{
         result = 31 * result + (inline ? 1 : 0);
         result = 31 * result + (titleConfig != null ? titleConfig.hashCode() : 0);
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
+        result = 31 * result + (modalWidth != null ? modalWidth.hashCode() : 0);
+        result = 31 * result + (modalHeight != null ? modalHeight.hashCode() : 0);
         return result;
     }
 }

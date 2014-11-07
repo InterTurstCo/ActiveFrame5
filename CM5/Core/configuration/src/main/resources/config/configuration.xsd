@@ -2286,6 +2286,8 @@
         <xs:attribute type="xs:string" name="name" use="optional"/>
         <xs:attribute type="xs:string" name="inline" use="optional"/>
         <xs:attribute type="xs:string" name="domain-object-type" use="optional"/>
+        <xs:attribute type="xs:string" name="modal-width" use="optional"/>
+        <xs:attribute type="xs:string" name="modal-height" use="optional"/>
     </xs:complexType>
     <xs:complexType name="widgetTemplateType">
         <xs:sequence>

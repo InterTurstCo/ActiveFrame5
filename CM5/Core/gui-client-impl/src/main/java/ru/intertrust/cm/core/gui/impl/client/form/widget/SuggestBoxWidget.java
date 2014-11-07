@@ -14,6 +14,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
@@ -381,6 +382,11 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     @Override
     public LinkedFormMappingConfig getLinkedFormMappingConfig() {
         return currentState.getWidgetConfig().getLinkedFormMappingConfig();
+    }
+
+    @Override
+    public LinkedFormConfig getLinkedFormConfig() {
+        return currentState.getWidgetConfig().getLinkedFormConfig();
     }
 
     @Override

@@ -23,9 +23,18 @@ public class FormDialogBox extends DialogBox {
     private PluginPanel formPluginPanel;
     private AbsolutePanel buttonsPanel;
     private String headerTitle;
+    private String modalWidth;
+    private String modalHeight;
 
     public FormDialogBox(String headerTitle) {
         this.headerTitle = headerTitle;
+        init();
+    }
+
+    public FormDialogBox(String headerTitle, String modalWidth, String modalHeight) {
+        this.headerTitle = headerTitle;
+        this.modalWidth  = modalWidth;
+        this.modalHeight = modalHeight;
         init();
     }
 
@@ -48,7 +57,12 @@ public class FormDialogBox extends DialogBox {
         buttonsPanel.addStyleName("buttons-panel");
         buttonsPanel.getElement().getStyle().clearPosition();
         panel.add(buttonsPanel);
-
+        if (modalWidth != null) {
+            panel.setWidth(modalWidth);
+        }
+        if (modalHeight != null) {
+            panel.setHeight(modalHeight);
+        }
         this.add(panel);
     }
 

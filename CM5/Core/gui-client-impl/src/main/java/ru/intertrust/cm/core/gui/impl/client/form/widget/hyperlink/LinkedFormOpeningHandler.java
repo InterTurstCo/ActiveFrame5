@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -34,6 +35,7 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
     protected boolean tooltipContent;
     protected Map<String, PopupTitlesHolder> typeTitleMap;
     protected String popupTitle;
+    private String domainObjectType;
 
     public LinkedFormOpeningHandler(Id id, EventBus eventBus, boolean tooltipContent,
                                     Map<String, PopupTitlesHolder> typeTitleMap) {
@@ -45,7 +47,8 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
 
     protected void createEditableFormDialogBox(HasLinkedFormMappings widget) {
         final FormPluginConfig config = createFormPluginConfig(widget, true);
-        final FormDialogBox editableFormDialogBox = new FormDialogBox(popupTitle);
+
+        final FormDialogBox editableFormDialogBox = new FormDialogBox(popupTitle, getModalWidth(widget), getModalHeight(widget));
         final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config, eventBus);
         editableFormDialogBox.initButton("Изменить", new ClickHandler() {
             @Override
@@ -61,6 +64,45 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
         });
     }
 
+    private String getModalHeight(HasLinkedFormMappings widget) {
+        LinkedFormConfig linkedFormConfig = widget.getLinkedFormConfig();
+        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+            return linkedFormConfig.getModalHeight();
+        }
+        if (domainObjectType != null) {
+            linkedFormConfig = getLinkedFormConfig(domainObjectType, widget.getLinkedFormMappingConfig());
+            if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+                return linkedFormConfig.getModalHeight();
+            }
+        }
+        return null;
+    }
+
+    private String getModalWidth(HasLinkedFormMappings widget) {
+        LinkedFormConfig linkedFormConfig = widget.getLinkedFormConfig();
+        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+            return linkedFormConfig.getModalWidth();
+        }
+        if (domainObjectType != null) {
+            linkedFormConfig = getLinkedFormConfig(domainObjectType, widget.getLinkedFormMappingConfig());
+            if (linkedFormConfig != null && linkedFormConfig.getModalWidth() != null) {
+                return linkedFormConfig.getModalWidth();
+            }
+        }
+        return null;
+    }
+
+    private LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {
+        if (mappingConfig != null) {
+            for (LinkedFormConfig linkedFormConfig : mappingConfig.getLinkedFormConfigs()) {
+                if (domainObjectType.equals(linkedFormConfig.getDomainObjectType())) {
+                    return linkedFormConfig;
+                }
+            }
+        }
+        return null;
+    }
+
     protected void init(final HasLinkedFormMappings widget){
 
         Command command = new Command("getType", "domain-object-type-extractor", id);
@@ -68,7 +110,7 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
             @Override
             public void onSuccess(Dto result) {
                StringValue value = (StringValue) result;
-               String domainObjectType = value.get();
+               domainObjectType = value.get();
                PopupTitlesHolder popupTitlesHolder = typeTitleMap.get(domainObjectType);
                popupTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
                createNonEditableFormDialogBox(widget);
@@ -83,7 +125,8 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
     }
 
     protected void createNonEditableFormDialogBox(HasLinkedFormMappings widget) {
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(popupTitle);
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(popupTitle,
+               getModalWidth(widget), getModalHeight(widget));
         final FormPluginConfig config = createFormPluginConfig(widget, false);
         final FormPlugin plugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {

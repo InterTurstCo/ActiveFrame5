@@ -6,6 +6,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
@@ -152,8 +153,6 @@ public class LinkedFormDialogBoxBuilder {
         // create dialog box
         final DialogBox db = new DialogBox();
         db.removeStyleName("gwt-DialogBox");
-        db.setHeight(height);
-        db.setWidth(width);
         db.addStyleName("popup-body popup-z-index");
         db.setModal(true);
 
@@ -186,13 +185,17 @@ public class LinkedFormDialogBoxBuilder {
                 }
             });
         }
-        FlowPanel buttons = new FlowPanel();
+        Panel buttons = new FlowPanel();
         buttons.addStyleName("linked-form-buttons-panel");
         buttons.add(saveButton);
         buttons.add(cancelButton);
         ScrollPanel scrollPanel = new ScrollPanel();
-        FlowPanel container = new FlowPanel();
-        container.add(linkedFormPluginPanel);
+        Panel container = new FlowPanel();
+        Panel formPluginWrapper = new FlowPanel();
+        formPluginWrapper.setWidth(width);
+        formPluginWrapper.setHeight(height);
+        formPluginWrapper.add(linkedFormPluginPanel);
+        container.add(formPluginWrapper);
         container.add(buttons);
         scrollPanel.add(container);
         db.setWidget(scrollPanel);

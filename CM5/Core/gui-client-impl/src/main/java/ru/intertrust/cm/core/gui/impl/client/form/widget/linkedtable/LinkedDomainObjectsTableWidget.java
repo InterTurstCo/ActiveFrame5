@@ -8,15 +8,22 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.IWidgetStateFilter;
@@ -26,12 +33,16 @@ import ru.intertrust.cm.core.gui.impl.client.event.linkedtable.LinkedTableRowDel
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
-import ru.intertrust.cm.core.gui.impl.client.panel.SettingsPopup;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedTableTooltipRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedTableTooltipResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.Arrays;
@@ -220,14 +231,53 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         LinkedFormDialogBoxBuilder lfb = linkedFormDialogBoxBuilder
                 .setSaveAction(saveAction)
                 .setCancelAction(cancelAction)
-                .withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
-                .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
+                .withHeight(getModalHeight(domainObjectType))
+                .withWidth(getModalWidth(domainObjectType))
                 .withObjectType(domainObjectType)
                 .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                 .withPopupTitlesHolder(currentState.getPopupTitlesHolder()).buildDialogBox();
 
         lfb.display();
 
+    }
+
+    private String getModalHeight(String domainObjectType) {
+        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
+        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+            return linkedFormConfig.getModalHeight();
+        }
+        if (domainObjectType != null) {
+            linkedFormConfig = getLinkedFormConfig(domainObjectType, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig());
+            if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+                return linkedFormConfig.getModalHeight();
+            }
+        }
+        return currentState.getLinkedDomainObjectsTableConfig().getModalHeight();
+    }
+
+    private String getModalWidth(String domainObjectType) {
+        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
+        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+            return linkedFormConfig.getModalWidth();
+        }
+        if (domainObjectType != null) {
+            linkedFormConfig = getLinkedFormConfig(domainObjectType, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig());
+            if (linkedFormConfig != null && linkedFormConfig.getModalWidth() != null) {
+                return linkedFormConfig.getModalWidth();
+            }
+        }
+       return currentState.getLinkedDomainObjectsTableConfig().getModalWidth();
+    }
+
+    private LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {
+        if (mappingConfig != null) {
+            for (LinkedFormConfig linkedFormConfig : mappingConfig.getLinkedFormConfigs()) {
+                if (domainObjectType.equals(linkedFormConfig.getDomainObjectType())) {
+                    return linkedFormConfig;
+                }
+            }
+        }
+        return null;
     }
 
     private void insertInCorrectModel(RowItem rowItem) {
@@ -529,8 +579,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .setCancelAction(cancelAction)
                         .withObjectType(pooledEditedFormState.getRootDomainObjectType())
                         .withFormState(pooledEditedFormState).
-                                withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
-                        .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
+                                withHeight(getModalHeight(pooledEditedFormState.getRootDomainObjectType()))
+                        .withWidth(getModalWidth(pooledEditedFormState.getRootDomainObjectType()))
                         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
                         .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                         .buildDialogBox();
@@ -540,8 +590,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .setSaveAction(saveAction)
                         .setCancelAction(cancelAction)
                         .withId(object.getObjectId())
-                        .withHeight(currentState.getLinkedDomainObjectsTableConfig().getModalHeight())
-                        .withWidth(currentState.getLinkedDomainObjectsTableConfig().getModalWidth())
+                        .withHeight(getModalHeight(null))
+                        .withWidth(getModalWidth(null))
                         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
                         .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                         .buildDialogBox();
@@ -549,4 +599,5 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             lfb.display();
         }
     }
+
 }

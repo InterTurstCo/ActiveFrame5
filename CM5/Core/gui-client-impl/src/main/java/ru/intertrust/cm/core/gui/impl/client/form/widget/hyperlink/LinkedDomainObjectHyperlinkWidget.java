@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -125,5 +126,11 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
     public LinkedFormMappingConfig getLinkedFormMappingConfig() {
         return linkedDomainObjectHyperlinkConfig.getLinkedFormMappingConfig();
     }
+
+    @Override
+    public LinkedFormConfig getLinkedFormConfig() {
+        return linkedDomainObjectHyperlinkConfig.getLinkedFormConfig();
+    }
+
 }
 

@@ -9,6 +9,7 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
@@ -420,6 +421,11 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     @Override
     public LinkedFormMappingConfig getLinkedFormMappingConfig() {
         return currentState.getWidgetConfig().getLinkedFormMappingConfig();
+    }
+
+    @Override
+    public LinkedFormConfig getLinkedFormConfig() {
+        return currentState.getWidgetConfig().getLinkedFormConfig();
     }
 
     @Override

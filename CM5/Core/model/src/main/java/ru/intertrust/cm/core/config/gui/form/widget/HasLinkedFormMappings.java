@@ -7,4 +7,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappin
  */
 public interface HasLinkedFormMappings {
     LinkedFormMappingConfig getLinkedFormMappingConfig();
+
+    LinkedFormConfig getLinkedFormConfig();
+
 }
