@@ -199,6 +199,17 @@
             <reference name="test_type_8" type="test_type_8" not-null="true" immutable="true"/>
         </fields>
     </domain-object-type>
+
+    <domain-object-type name="test_type_10" initial-status="Active">
+        <fields>
+            <string name="description" length="128" />
+        </fields>
+        <attachment-types>
+            <attachment-type name="test_type_10_att1" />
+            <attachment-type name="test_type_10_att2" />
+            <attachment-type name="test_type_10_att3" />
+        </attachment-types>
+    </domain-object-type>
     
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>

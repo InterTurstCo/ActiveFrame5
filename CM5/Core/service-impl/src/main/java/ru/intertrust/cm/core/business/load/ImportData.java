@@ -452,11 +452,23 @@ public class ImportData {
      * @throws IOException
      * @throws NoSuchAlgorithmException
      */
-    private DomainObject createAttachment(DomainObject domainObject, String filePath) throws IOException,
+    private DomainObject createAttachment(DomainObject domainObject, String fileInfo) throws IOException,
             NoSuchAlgorithmException {
         DomainObject result = null;
-        //Получение типа доменного объекта вложения
-        AttachmentTypeInfo attachmentTypeInfo = getAttachmentTypeInfo(typeName);
+        
+        //Получение типа вложения путь к ресурсу из csv, если тип не задан возмется первый тип указанный в конфигурации
+        String attachmentType = null;
+        String filePath = null;
+        if (fileInfo.indexOf(":") > 0){
+            String[] fileInfoArray = fileInfo.split(":");
+            attachmentType = fileInfoArray[0];
+            filePath = fileInfoArray[1];
+        }else{
+            filePath = fileInfo;
+        }
+        
+        //Получение описания типа доменного объекта вложения
+        AttachmentTypeInfo attachmentTypeInfo = getAttachmentTypeInfo(typeName, attachmentType);
 
         //Проверка наличия вложения у типа
         if (attachmentTypeInfo != null) {
@@ -530,7 +542,7 @@ public class ImportData {
         return Arrays.equals(fileDigest, attachmentDigest);
     }
 
-    private AttachmentTypeInfo getAttachmentTypeInfo(String type) {
+    private AttachmentTypeInfo getAttachmentTypeInfo(String type, String attachmentType) {
         AttachmentTypeInfo result = null;
         //Получение типа доменного объекта вложения
         DomainObjectTypeConfig typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type);
@@ -539,15 +551,25 @@ public class ImportData {
         if (typeConfig.getAttachmentTypesConfig() != null &&
                 typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs() != null &&
                 typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().size() > 0) {
-            result = new AttachmentTypeInfo();
-            result.attachmentTypeConfig = typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().get(0);
-            result.refAttrName = type;
+            if (attachmentType == null){
+                result = new AttachmentTypeInfo();
+                result.attachmentTypeConfig = typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().get(0);
+                result.refAttrName = type;
+            }else{
+                for (AttachmentTypeConfig attachmentTypeConfig : typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+                    if (attachmentTypeConfig.getName().equalsIgnoreCase(attachmentType)){
+                        result = new AttachmentTypeInfo();
+                        result.attachmentTypeConfig = attachmentTypeConfig;
+                        result.refAttrName = type;
+                    }
+                }
+            }
         }
 
         //Если нет конфигурации вложения проверяем наличия супертипа
         if (result == null && typeConfig.getExtendsAttribute() != null) {
             //Если супертип есть, то проверяем наличие вложения у него
-            result = getAttachmentTypeInfo(typeConfig.getExtendsAttribute());
+            result = getAttachmentTypeInfo(typeConfig.getExtendsAttribute(), attachmentType);
         }
         return result;
     }

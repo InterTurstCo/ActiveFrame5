@@ -120,6 +120,7 @@
         <import-file rewrite="false">importdata/ss_moduleorg.csv</import-file>
 
         <import-file rewrite="false">importdata/import-super-country.csv</import-file>
+        <import-file>importdata/import-test-type-10.csv</import-file>
 
         <!-- Из модуля "контакты" -->
         <import-file>contacts-module/importdata/status.csv</import-file>
@@ -130,6 +131,7 @@
         <import-file>contacts-module/importdata/imp-addr-street-type.csv</import-file>
         <import-file>contacts-module/importdata/imp-addr-addresses-assigning.csv</import-file>
         <import-file>contacts-module/importdata/import-classifiers-objects.csv</import-file>
+        
     </import-files>
 
     <import-reports>

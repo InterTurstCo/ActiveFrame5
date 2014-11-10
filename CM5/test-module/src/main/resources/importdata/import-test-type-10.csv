@@ -1,0 +1,8 @@
+TYPE_NAME=test_type_10;KEYS=description;
+description;_ATTACHMENT_
+test 1;test_type_10_att1:importdata/contents/HierarchicalBrowser.png
+test 2;test_type_10_att2:importdata/contents/HierarchicalBrowser.png
+test 3;test_type_10_att3:importdata/contents/HierarchicalBrowser.png
+test 4;test_type_10_att1:importdata/contents/HierarchicalBrowser.png,test_type_10_att2:importdata/contents/HierarchicalBrowser.png,test_type_10_att3:importdata/contents/HierarchicalBrowser.png
+test 5;importdata/contents/HierarchicalBrowser.png,test_type_10_att2:importdata/contents/HierarchicalBrowser.png,test_type_10_att3:importdata/contents/HierarchicalBrowser.png
+test 6;importdata/contents/HierarchicalBrowser.png
