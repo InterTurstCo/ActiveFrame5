@@ -302,7 +302,7 @@
                     <created-object text="Отдел" domain-object-type="Department"/>
                     <created-object text="Сотрудник" domain-object-type="Employee"/>
                 </created-objects>
-                <summary-table>
+                <summary-table page-size="10">
                     <summary-table-column header="Название" widget-id="Name">
                         <widget-id-mappings>
                             <widget-id-mapping linked-form-name="organization_form" widget-id="Name"/>
@@ -364,6 +364,7 @@
                         </formatting>
                     </summary-table-column>
                 </summary-table>
+
             </linked-domain-objects-table>
 
             <suggest-box id="l_suggestbox">

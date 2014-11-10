@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -76,9 +77,12 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         if (table != null) {
             view.remove(table);
         }
-        table = new CellTable<RowItem>();
-        view.add(table);
+
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
+        table = createCellTable(summaryTableConfig.getPageSize());
+        SimplePager pager = createPager(table);
+        view.add(table);
+        view.add(pager);
         if (isEditable()) {
             LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(model, false),
                     localEventBus);
@@ -91,6 +95,21 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         if (addButton != null) {
             addHandlersToAddButton(addButton);
         }
+    }
+
+    private CellTable<RowItem> createCellTable(Integer pageSize) {
+        CellTable<RowItem> rowItemCellTable = new CellTable<>();
+        if (pageSize != null) {
+            rowItemCellTable.setPageSize(pageSize);
+        }
+        return rowItemCellTable;
+    }
+
+    private SimplePager createPager(CellTable<RowItem> table) {
+        SimplePager pager = new SimplePager();
+        pager.setRangeLimited(false);
+        pager.setDisplay(table);
+        return pager;
     }
 
     @Override

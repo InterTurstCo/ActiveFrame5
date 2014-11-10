@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -15,8 +16,12 @@ import java.util.List;
 @Root(name = "summary-table")
 public class SummaryTableConfig implements Dto {
 
+    @Attribute(name = "page-size", required = false)
+    private Integer pageSize;
+
     @ElementList(inline = true)
     private List<SummaryTableColumnConfig> summaryTableColumnConfigList = new ArrayList<SummaryTableColumnConfig>();
+
     @Deprecated
     public List<SummaryTableColumnConfig> getSummaryTableColumnConfig() {
         return summaryTableColumnConfigList;
@@ -29,9 +34,18 @@ public class SummaryTableConfig implements Dto {
     public void setSummaryTableColumnConfigList(List<SummaryTableColumnConfig> summaryTableColumnConfigList) {
         this.summaryTableColumnConfigList = summaryTableColumnConfigList;
     }
+
     @Deprecated
     public void setSummaryTableColumnConfig(List<SummaryTableColumnConfig> summaryTableColumnConfigList) {
         this.summaryTableColumnConfigList = summaryTableColumnConfigList;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 
     @Override
