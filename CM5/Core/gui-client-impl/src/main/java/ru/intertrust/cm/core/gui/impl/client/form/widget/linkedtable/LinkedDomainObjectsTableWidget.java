@@ -46,6 +46,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.STATE_KEY;
@@ -61,6 +62,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     private LinkedDomainObjectsTableTooltip tooltip;
     private EventBus localEventBus = new SimpleEventBus();
     private Button addButton;
+    private boolean hasRemovedItems;
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -93,32 +95,34 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
     @Override
     protected boolean isChanged() {
-        final List<Id> initialValue = ((LinkedDomainObjectsTableState) getInitialData()).getIds();
-        final List<Id> currentValue = currentState.getIds();
-        return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
-    }
 
-    @Override
-    protected Widget asEditableWidget(WidgetState state) {
-        VerticalPanel hp = new VerticalPanel();
-        addButton = createAddButton();
-        addButton.removeStyleName("gwt-Button");
-        addButton.addStyleName("lightButton ldotCreate");
-        hp.add(addButton);
-        localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this);
-        return hp;
-    }
+        LinkedHashMap<String, FormState> editedNestedFormStates = currentState.getEditedNestedFormStates();
+        LinkedHashMap<String, FormState> newFormStates = currentState.getNewFormStates();
 
-    @Override
-    protected Widget asNonEditableWidget(WidgetState state) {
-        VerticalPanel hp = new VerticalPanel();
-        return hp;
+        return hasRemovedItems || !editedNestedFormStates.isEmpty()
+                || !newFormStates.isEmpty();
     }
+        @Override
+        protected Widget asEditableWidget (WidgetState state){
+            VerticalPanel hp = new VerticalPanel();
+            addButton = createAddButton();
+            addButton.removeStyleName("gwt-Button");
+            addButton.addStyleName("lightButton ldotCreate");
+            hp.add(addButton);
+            localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this);
+            return hp;
+        }
 
-    @Override
-    protected WidgetState createNewState() {
-        return currentState;
-    }
+        @Override
+        protected Widget asNonEditableWidget (WidgetState state){
+            VerticalPanel hp = new VerticalPanel();
+            return hp;
+        }
+
+        @Override
+        protected WidgetState createNewState () {
+            return currentState;
+        }
 
     private Button createAddButton() {
         Button button = new Button(""); // была прописана клавиша - Добавить
@@ -265,7 +269,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 return linkedFormConfig.getModalWidth();
             }
         }
-       return currentState.getLinkedDomainObjectsTableConfig().getModalWidth();
+        return currentState.getLinkedDomainObjectsTableConfig().getModalWidth();
     }
 
     private LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {
@@ -439,6 +443,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             if (rowItem.getObjectId() != null) {
                 currentState.getIds().remove(rowItem.getObjectId());
                 currentState.getRowItems().remove(rowItem);
+                hasRemovedItems = true;
 
             }
         }
