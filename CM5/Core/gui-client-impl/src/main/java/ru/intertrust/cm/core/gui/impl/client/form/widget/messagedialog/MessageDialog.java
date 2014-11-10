@@ -3,10 +3,8 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.*;
 
 
 /**
@@ -40,7 +38,8 @@ public abstract class MessageDialog extends DialogBox {
             }
         });
 
-        Label label = new Label(text);
+        //Label label = new Label(text);
+        HTML label = new HTML(new SafeHtmlBuilder().appendEscapedLines(text).toSafeHtml());
         label.setStyleName(getMessageStyleName());
         AbsolutePanel panel = new AbsolutePanel();
         panel.setStyleName(getContentStyleName());
