@@ -71,7 +71,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
 
         AttachmentBoxState state = new AttachmentBoxState();
         state.setAttachments(findSelectedAttachments(context));
-        state.setAllAttachments(findAllAttachments(context));
+        state.setAllAttachments(new ArrayList<AttachmentItem>());
         state.setInSelectionMode(isSelectionMode(fieldPath));
 
         state.setActionLinkConfig(widgetConfig.getActionLinkConfig());
@@ -121,49 +121,11 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         return selectedAttachments;
     }
 
-    private List<AttachmentItem> findAllAttachments(WidgetContext context) {
-        List<AttachmentItem> allAttachments = new ArrayList<>();
-
-        final FieldPath[] fieldPaths = context.getFieldPaths();
-        String[] linkTypes = getLinkedObjectTypes(context, fieldPaths);
-        for (int i = 0; i < linkTypes.length; i++) {
-            String linkType = linkTypes[i];
-            List<DomainObject> domainObjects = crudService.findAll(linkType);
-            if (domainObjects != null) {
-                for (DomainObject object : domainObjects) {
-                    allAttachments.add(createAttachmentItem(object));
-                }
-            }
-        }
-        return allAttachments;
-    }
-
     public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         List<AttachmentItem> attachmentItems = attachmentBoxState.getAttachments();
-
-        List<DomainObject> newObjects = processAttachmentItems(attachmentItems,
-                new ArrayList<DomainObject>(attachmentItems.size()), context, true);
-
-        List<AttachmentItem> newlyAddedAttachments = attachmentBoxState.getNewlyAddedAttachments();
-        newlyAddedAttachments.removeAll(attachmentItems); // added but not selected
-
-        newObjects = processAttachmentItems(newlyAddedAttachments, newObjects, context, false);
-
-        if (isSelectionMode(new FieldPath(context.getWidgetConfig().getFieldPathConfig().getValue()))) {
-            List<AttachmentItem> deletedAttachments = attachmentBoxState.getNewlyDeletedAttachments();
-            for (AttachmentItem deletedAttachment : deletedAttachments) {
-                if (deletedAttachment.getId() != null) {
-                    attachmentService.deleteAttachment(deletedAttachment.getId());
-                }
-            }
-        }
-        return newObjects;
-    }
-
-    private List<DomainObject> processAttachmentItems(List<AttachmentItem> attachmentItems, List<DomainObject> newObjects,
-                                                      WidgetContext context, boolean setupLinks) {
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
+        List<DomainObject> newObjects = new ArrayList<>(attachmentItems.size());
 
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         String attachmentType = widgetConfig.getAttachmentType().getName();
@@ -181,11 +143,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                         attachmentType, filePath, contentLength);
 
                 DomainObject savedDo;
-                if (setupLinks) {
-                    savedDo = saveAttachment(attachmentDomainObject, domainObject, fieldPath, remoteFileData);
-                } else {
-                    savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
-                }
+                savedDo = saveAttachment(attachmentDomainObject, domainObject, fieldPath, remoteFileData);
                 newObjects.add(savedDo);
                 fileToSave.delete();
                 attachmentItem.setId(savedDo.getId());
@@ -195,9 +153,9 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                 e.printStackTrace();
             }
         }
+
         return newObjects;
     }
-
 
     private String getFilePath(AttachmentItem attachmentItem) {
         String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);

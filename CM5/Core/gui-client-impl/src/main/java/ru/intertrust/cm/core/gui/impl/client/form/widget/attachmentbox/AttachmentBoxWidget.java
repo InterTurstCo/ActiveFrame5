@@ -62,8 +62,6 @@ public class AttachmentBoxWidget extends BaseWidget {
             AttachmentBoxState currentState = new AttachmentBoxState();
             AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
             currentState.setAttachments(attachmentUploaderView.getAttachments());
-            currentState.setNewlyAddedAttachments(attachmentUploaderView.getNewlyAddedAttachments());
-            currentState.setNewlyDeletedAttachments(attachmentUploaderView.getNewlyDeletedAttachments());
             currentState.setAllAttachments(attachmentUploaderView.getAllAttachments());
             return currentState;
         } else {
