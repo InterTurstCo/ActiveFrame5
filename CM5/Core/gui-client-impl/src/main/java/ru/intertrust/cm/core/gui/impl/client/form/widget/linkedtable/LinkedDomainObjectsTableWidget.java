@@ -102,27 +102,28 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         return hasRemovedItems || !editedNestedFormStates.isEmpty()
                 || !newFormStates.isEmpty();
     }
-        @Override
-        protected Widget asEditableWidget (WidgetState state){
-            VerticalPanel hp = new VerticalPanel();
-            addButton = createAddButton();
-            addButton.removeStyleName("gwt-Button");
-            addButton.addStyleName("lightButton ldotCreate");
-            hp.add(addButton);
-            localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this);
-            return hp;
-        }
 
-        @Override
-        protected Widget asNonEditableWidget (WidgetState state){
-            VerticalPanel hp = new VerticalPanel();
-            return hp;
-        }
+    @Override
+    protected Widget asEditableWidget(WidgetState state) {
+        VerticalPanel hp = new VerticalPanel();
+        addButton = createAddButton();
+        addButton.removeStyleName("gwt-Button");
+        addButton.addStyleName("lightButton ldotCreate");
+        hp.add(addButton);
+        localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this);
+        return hp;
+    }
 
-        @Override
-        protected WidgetState createNewState () {
-            return currentState;
-        }
+    @Override
+    protected Widget asNonEditableWidget(WidgetState state) {
+        VerticalPanel hp = new VerticalPanel();
+        return hp;
+    }
+
+    @Override
+    protected WidgetState createNewState() {
+        return currentState;
+    }
 
     private Button createAddButton() {
         Button button = new Button(""); // была прописана клавиша - Добавить
@@ -344,9 +345,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         return null;
     }
 
-    private void convertFormStateAndUpdateRowItem(final FormState formState, final Integer index, final boolean tooltipContent) {
+    private void convertFormStateAndUpdateRowItem(final FormState formState, final Integer index, final boolean tooltipContent, final RowItem oldRowItem) {
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
-        RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
+        final RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
         request.setLinkedFormName(findLinkedFormName(formState, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig()));
         if (index != null && currentState.getIds().size() > index) {
             List<Id> ids = Arrays.asList(currentState.getIds().get(index));
@@ -357,6 +358,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             @Override
             public void onSuccess(Dto result) {
                 RowItem rowItem = (RowItem) result;
+                rowItem.setParameter(STATE_KEY, oldRowItem.getParameter(STATE_KEY));
                 if (tooltipContent) {
                     tooltip.getTooltipModel().getList().set(index, rowItem);
                 } else {
@@ -563,7 +565,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                             return false;
                         }
                     }, true);
-                    convertFormStateAndUpdateRowItem(formState, index, tooltipContent);
+                    convertFormStateAndUpdateRowItem(formState, index, tooltipContent, object);
                     Id id = object.getObjectId();
                     if (id != null) {
                         currentState.putEditedFormState(id.toStringRepresentation(), formState);
