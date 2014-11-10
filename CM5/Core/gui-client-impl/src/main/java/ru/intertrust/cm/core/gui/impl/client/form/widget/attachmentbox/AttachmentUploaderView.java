@@ -56,7 +56,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private ExtensionValidator extensionValidator;
     private Timer elapsedTimer;
     private boolean dontShowNewRow;
-    private AttachmentElementPresenterFactory presenterFactory;
+    protected AttachmentElementPresenterFactory presenterFactory; //TODO: do not expose it
     private EventBus eventBus;
     private AddButtonConfig addButtonConfig;
 
@@ -107,7 +107,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         initWidget(root);
     }
 
-    private void displayAttachmentItem(AttachmentItem item){
+    protected void displayAttachmentItem(AttachmentItem item){
         mainBoxPanel.add(createSelectedElement(item));
     }
 
@@ -149,6 +149,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 .presentElement();
     }
 
+    protected boolean isItemSelected(AttachmentItem item) {
+        return attachments.contains(item);
+    }
+
     protected List<Widget> createSelectedElements() {
         List<Widget> elements = new ArrayList<>(attachments.size());
         for (AttachmentItem item : attachments) {
@@ -180,7 +184,9 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         if (singleChoice) {
             attachments.clear();
         }
-        attachments.add(attachment);
+        if (!attachments.contains((attachment))) {
+            attachments.add(attachment);
+        }
     }
 
     protected void deselectAttachment(AttachmentItem attachment) {
@@ -188,7 +194,9 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     }
 
     protected void addAttachment(AttachmentItem attachment) {
-        allAttachments.add(attachment);
+        if (!allAttachments.contains(attachment)) {
+            allAttachments.add(attachment);
+        }
         selectAttachment(attachment);
     }
 
@@ -277,7 +285,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         dialogBox.addOkButtonClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 dialogBox.hide();
-                mainBoxPanel.clear();
+                cleanUp();
                 attachments.clear();
                 InputElement inputElement = fileUpload.getElement().cast();
                 String fileNames = inputElement.getValue();
@@ -381,10 +389,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
                 addAttachment(item);
 
-                eventBus.fireEvent(new UploadCompletedEvent());
-                displayAttachmentItem(item);
+                eventBus.fireEvent(new UploadCompletedEvent()); //TODO: why we do it in loop?
                 cancelTimer();
             }
+            displaySelectedElements(mainBoxPanel);
         }
     }
 
@@ -392,7 +400,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
         private final AttachmentItem item;
 
-        private DeleteAttachmentClickHandler(AttachmentItem item) {
+        DeleteAttachmentClickHandler(AttachmentItem item) {
             this.item = item;
         }
 

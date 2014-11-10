@@ -705,7 +705,7 @@
                 <attachment-type-ref name="country_flag"/>
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
-                <choice-style name="inline"/>
+                <choice-style name="popup"/>
                 <delete-button display="true"/>
             </attachment-box>
 
@@ -722,7 +722,7 @@
                 <attachment-type-ref name="fauna_attachment"/>
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
-                <choice-style name="inline"/>
+                <choice-style name="popup"/>
                 <add-button display="true"/>
                 <delete-button display="true"/>
             </attachment-box>

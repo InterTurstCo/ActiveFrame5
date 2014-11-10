@@ -38,10 +38,15 @@ public class AttachmentElementPresenterFactory {
     }
 
     public AttachmentElementPresenter createEditablePresenter(final AttachmentItem item, ClickHandler deleteHandler) {
+        return createEditablePresenter(item, deleteHandler, true);
+    }
+
+    public AttachmentElementPresenter createEditablePresenter(final AttachmentItem item, ClickHandler deleteHandler,
+                                                              boolean deletable) {
         if (imageConfig != null) {
-            return createEditableImagePresenter(item, deleteHandler);
+            return createEditableImagePresenter(item, deleteHandler, deletable);
         } else {
-            return createEditableTextPresenter(item, deleteHandler);
+            return createEditableTextPresenter(item, deleteHandler, deletable);
         }
     }
 
@@ -49,9 +54,12 @@ public class AttachmentElementPresenterFactory {
         return new TextPresenter(item.getTitle(), new DownloadAttachmentHandler(item));
     }
 
-    private AttachmentElementPresenter createEditableTextPresenter(final AttachmentItem item, ClickHandler deleteHandler) {
+    private AttachmentElementPresenter createEditableTextPresenter(final AttachmentItem item, ClickHandler deleteHandler,
+                                                                   boolean deletable) {
         AttachmentElementPresenter presenter = new TextPresenter(item.getTitle(), new DownloadAttachmentHandler(item));
-        presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, deleteHandler);
+        if (deletable) {
+            presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, deleteHandler);
+        }
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
         return presenter;
     }
@@ -69,10 +77,13 @@ public class AttachmentElementPresenterFactory {
                getOnClickHandler(item));
     }
 
-    private AttachmentElementPresenter createEditableImagePresenter(final AttachmentItem item, ClickHandler deleteHandler) {
+    private AttachmentElementPresenter createEditableImagePresenter(final AttachmentItem item, ClickHandler deleteHandler,
+                                                                    boolean deletable) {
         AttachmentElementPresenter presenter = new ImagePresenter(item, imageConfig.getSmallPreviewConfig(),
                 getOnClickHandler(item));
-        presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, deleteHandler);
+        if (deletable) {
+            presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, deleteHandler);
+        }
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
         return presenter;
     }

@@ -71,7 +71,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
 
         AttachmentBoxState state = new AttachmentBoxState();
         state.setAttachments(findSelectedAttachments(context));
-        state.setAllAttachments(new ArrayList<AttachmentItem>());
+        state.setAllAttachments(findSelectedAttachments(context));
         state.setInSelectionMode(isSelectionMode(fieldPath));
 
         state.setActionLinkConfig(widgetConfig.getActionLinkConfig());
