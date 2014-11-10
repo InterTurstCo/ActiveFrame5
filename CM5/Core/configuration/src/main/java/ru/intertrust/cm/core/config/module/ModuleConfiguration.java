@@ -30,8 +30,8 @@ public class ModuleConfiguration implements Dto {
     @ElementList(entry="server-components-package", required=false, name="server-components-packages")
     private List<String> serverComponentsPackages;
 
-    @Element(required=false, name="import-files")
-    private ImportFilesConfiguration importFiles;
+    @ElementList(required=false, entry="import-files", inline=true)
+    private List<ImportFilesConfiguration> importFiles;
 
     @Element(required=false, name="configuration-schema-path")
     private String configurationSchemaPath;
@@ -95,10 +95,10 @@ public class ModuleConfiguration implements Dto {
     public void setServerComponentsPackages(List<String> serverComponentsPackages) {
         this.serverComponentsPackages = serverComponentsPackages;
     }
-    public ImportFilesConfiguration getImportFiles() {
+    public List<ImportFilesConfiguration> getImportFiles() {
         return importFiles;
     }
-    public void setImportFiles(ImportFilesConfiguration importFiles) {
+    public void setImportFiles(List<ImportFilesConfiguration> importFiles) {
         this.importFiles = importFiles;
     }
 

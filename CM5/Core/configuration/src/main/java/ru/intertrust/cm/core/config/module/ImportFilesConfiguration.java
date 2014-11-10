@@ -8,6 +8,9 @@ import org.simpleframework.xml.ElementList;
 public class ImportFilesConfiguration {
     @Attribute(name="csv-encoding", required=false)
     private String csvEncoding;
+    
+    @Attribute(name="on-clean-base-by-type", required=false)
+    private String onCleanBaseByType;    
 
     @Attribute(name="rewrite", required=false)
     private Boolean rewrite;
@@ -37,6 +40,14 @@ public class ImportFilesConfiguration {
 
     public void setRewrite(Boolean rewrite) {
         this.rewrite = rewrite;
+    }
+
+    public String getOnCleanBaseByType() {
+        return onCleanBaseByType;
+    }
+
+    public void setOnCleanBaseByType(String onCleanBaseByType) {
+        this.onCleanBaseByType = onCleanBaseByType;
     }
 
 }
