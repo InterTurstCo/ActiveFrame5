@@ -7,8 +7,9 @@ import java.net.URL;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.module.ImportFileConfiguration;
 import ru.intertrust.cm.core.config.module.ImportFilesConfiguration;
@@ -50,6 +51,8 @@ public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.
     private ModuleService moduleService;
     @Autowired
     private AttachmentContentDao attachmentContentDao;
+    @Autowired
+    private ApplicationContext springContext;
 
     public void load() {
         String fileName = null;
@@ -82,10 +85,7 @@ public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.
                         else {
                             rewrite = false;
                         }
-                        ImportData importData =
-                                new ImportData(collectionsDao,
-                                        configurationExplorer, domainObjectDao, accessControlService,
-                                        attachmentContentDao, null);
+                        ImportData importData = (ImportData)springContext.getBean(ImportData.SYSTEM_IMPORT_BEAN);
 
                         importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString()
                                 + importFile.getFileName())), importFiles.getCsvEncoding(), rewrite);

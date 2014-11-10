@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <import-settings name="test-import_settings">
+        <before-import import-type="test_type_7">
+            <delete-all doel="test_type_8^test_type_7.test_type_9^test_type_8" />
+            <delete-all doel="test_type_8^test_type_7" />
+        </before-import>
+    </import-settings>
+</configuration>

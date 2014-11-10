@@ -16,13 +16,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
@@ -48,11 +52,17 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.config.importcsv.BeforeImportConfig;
+import ru.intertrust.cm.core.config.importcsv.DeleteAllConfig;
+import ru.intertrust.cm.core.config.importcsv.ImportSettingsConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.FatalException;
@@ -63,41 +73,52 @@ import ru.intertrust.cm.core.model.FatalException;
  * 
  */
 public class ImportData {
-
+    //Имя спринг бина для работы под системными правами
+    public static final String SYSTEM_IMPORT_BEAN = "system-import-data";
+    //Имя спринг бина для работы под пользовательскими правами
+    public static final String PERSON_IMPORT_BEAN = "person-import-data";
+    
+    @Autowired
+    private CollectionsDao collectionsDao;
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+    @Autowired
+    private DomainObjectDao domainObjectDao;
+    @Autowired
+    private AttachmentContentDao attachmentContentDao;
+    @Autowired
+    private AccessControlService accessService;
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private DoelEvaluator doelEvaluator;
+    
     private String typeName;
     private boolean deleteOther;
     private String[] keys;
     private String[] fields;
-    private CollectionsDao collectionsDao;
-    private ConfigurationExplorer configurationExplorer;
-    private DomainObjectDao domainObjectDao;
-    private AttachmentContentDao attachmentContentDao;
     private SimpleDateFormat dateFofmat = new SimpleDateFormat("dd.MM.yyyy");
     private SimpleDateFormat timeFofmat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-    private AccessControlService accessService;
     private String login;
     private Hashtable<String, Integer> fieldIndex;
     private String emptyStringSymbol;
     private List<Id> importedIds;
+    private boolean systemPermission;
 
     /**
-     * Конструктор. Инициалитзирует класс нужными сервисами
-     * @param collectionsDao
-     * @param configurationExplorer
-     * @param domainObjectDao
-     * @param accessService
-     * @param login
+     * Конструктор. Инициалитзирует класс флагом с какими правами должен работать сервис
+     * @param systemPermission в случае если параметр равен true импорт производить под системными 
+     * правами, иначе под правами текущего пользователя
      */
-    public ImportData(CollectionsDao collectionsDao, ConfigurationExplorer configurationExplorer,
-            DomainObjectDao domainObjectDao, AccessControlService accessService,
-            AttachmentContentDao attachmentContentDao,
-            String login) {
-        this.collectionsDao = collectionsDao;
-        this.configurationExplorer = configurationExplorer;
-        this.domainObjectDao = domainObjectDao;
-        this.accessService = accessService;
-        this.attachmentContentDao = attachmentContentDao;
-        this.login = login;
+    public ImportData(boolean systemPermission) {
+        this.systemPermission = systemPermission;
+    }
+    
+    @PostConstruct
+    public void init(){
+        if (!systemPermission){
+            login = currentUserAccessor.getCurrentUser();
+        }
     }
 
     /**
@@ -193,6 +214,41 @@ public class ImportData {
     }
 
     /**
+     * Выполняем действия описанные в конфигурации импорта
+     */
+    private void doBeforeImportRow(Id importedId) {
+        Collection<ImportSettingsConfig> importSettings = configurationExplorer.getConfigs(ImportSettingsConfig.class);
+        for (ImportSettingsConfig importSettingsConfig : importSettings) {
+            if (importSettingsConfig.getBeforeImport() != null){
+                for (BeforeImportConfig beforeImportConfig : importSettingsConfig.getBeforeImport()) {
+                    //Проверка на соответствие типа
+                    if (beforeImportConfig.getImportType().equalsIgnoreCase(typeName)){
+                        //Выполняем удаление дочерних типов
+                        deleteAll(importedId, beforeImportConfig.getDeleteAll());
+                    }
+                }
+            }
+        }        
+    }
+
+    /**
+     * Удаление дочерних типов, настроенных в конфигурации импорта
+     * @param deleteAll
+     */
+    private void deleteAll(Id importedId, List<DeleteAllConfig> deleteAll) {
+        if(importedId != null && deleteAll != null){
+            for (DeleteAllConfig deleteAllConfig : deleteAll) {
+                DoelExpression expression = DoelExpression.parse(deleteAllConfig.getDoel());
+                List<Value> domainObjectsToDelete = doelEvaluator.evaluate(expression, importedId, getSelectAccessToken());
+                for (Value id : domainObjectsToDelete) {
+                    Id deleteId = (Id)id.get();
+                    domainObjectDao.delete(deleteId, getDeleteAccessToken(deleteId));
+                }                
+            }
+        }        
+    }
+
+    /**
      * Удаление всех записей импортируемого типа, если данные записи не упоминаются в csv файле
      */
     private void deleteOther() {
@@ -201,7 +257,7 @@ public class ImportData {
             //Поиск объектов в базе
             List<Id> toDeleteIds = new ArrayList<Id>();
             String query = "select id from " + typeName;
-            IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, accessService.createSystemAccessToken(this.getClass().getName()));
+            IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, getSelectAccessToken());
             for (IdentifiableObject identifiableObject : collection) {
                 if (!importedIds.contains(identifiableObject.getId())){
                     toDeleteIds.add(identifiableObject.getId());
@@ -210,7 +266,9 @@ public class ImportData {
             
             //Удаление лишних записей
             if (toDeleteIds.size() > 0){
-                domainObjectDao.delete(toDeleteIds, accessService.createSystemAccessToken(this.getClass().getName()));
+                for (IdentifiableObject row : collection) {
+                    domainObjectDao.delete(row.getId(), getDeleteAccessToken(row.getId()));
+                }
             }
         }        
     }
@@ -252,7 +310,6 @@ public class ImportData {
      */
     private Id importLine(String[] line, Boolean rewrite) throws ParseException, IOException,
             NoSuchAlgorithmException {
-        AccessToken accessToken = null;
         //Разделяем строку на значения
         String[] fieldValues = line;
         List<String> fieldValuesList = new ArrayList<String>();
@@ -273,6 +330,9 @@ public class ImportData {
             //Создание доменного объекта
             domainObject = createDomainObject(typeName);
         }
+        
+        //Выполяем действия перед импортом
+        doBeforeImportRow(domainObject.getId());
 
         //Если доменный объект новый или стоит флаг перезаписывать атрибуты то устанавливаем атрибуты
         if (rewrite || domainObject.isNew()) {
@@ -297,16 +357,10 @@ public class ImportData {
                     }
                 }
             }
-            if (login == null || domainObject.isNew()) {
-                accessToken = accessService.createSystemAccessToken(this.getClass().getName());
-            } else {
-                accessToken =
-                        accessService.createAccessToken(login, domainObject.getId(), DomainObjectAccessType.WRITE);
-            }
 
             //Доменный объект сохраняем только если он изменился
             if (domainObject.isNew() || domainObject.isDirty()) {
-                domainObject = domainObjectDao.save(domainObject, accessToken);
+                domainObject = domainObjectDao.save(domainObject, getWriteAccessToken(domainObject));
             }
 
             //Создаем вложения если необходимо
@@ -401,7 +455,6 @@ public class ImportData {
     private DomainObject createAttachment(DomainObject domainObject, String filePath) throws IOException,
             NoSuchAlgorithmException {
         DomainObject result = null;
-        AccessToken accessToken = accessService.createSystemAccessToken(this.getClass().getName());
         //Получение типа доменного объекта вложения
         AttachmentTypeInfo attachmentTypeInfo = getAttachmentTypeInfo(typeName);
 
@@ -414,7 +467,7 @@ public class ImportData {
             //Получение вложения по имени
             DomainObject attachment = null;
             List<DomainObject> attachments = domainObjectDao.findLinkedDomainObjects(domainObject.getId(),
-                    attachmentTypeInfo.attachmentTypeConfig.getName(), attachmentTypeInfo.refAttrName, accessToken);
+                    attachmentTypeInfo.attachmentTypeConfig.getName(), attachmentTypeInfo.refAttrName, getSelectAccessToken());
             for (DomainObject existsAttachment : attachments) {
                 if (existsAttachment.getString("Name").equals(attachmentFile.getName())) {
                     attachment = existsAttachment;
@@ -586,13 +639,7 @@ public class ImportData {
      * @return
      */
     private Id getReferenceFromSelect(String query, List<Value> params) {
-        AccessToken accessToken = null;
-        if (login == null) {
-            accessToken = accessService.createSystemAccessToken(this.getClass().getName());
-        } else {
-            accessToken = accessService.createCollectionAccessToken(login);
-        }
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, getSelectAccessToken());
         Id result = null;
         if (collection.size() > 0) {
             result = collection.get(0).getId();
@@ -614,17 +661,11 @@ public class ImportData {
         List<Value> values = getPlatformFieldValues(fieldValues);
 
         String query = getQuery(typeName, keys, values);
-        AccessToken accessToken = null;
-        if (login == null) {
-            accessToken = accessService.createSystemAccessToken(this.getClass().getName());
-        } else {
-            accessToken = accessService.createCollectionAccessToken(login);
-        }
 
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, values, 0, 0, accessToken);
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, values, 0, 0, getSelectAccessToken());
         DomainObject result = null;
         if (collection.size() > 0) {
-            result = domainObjectDao.find(collection.get(0).getId(), accessToken);
+            result = domainObjectDao.find(collection.get(0).getId(), getReadAccessToken(collection.get(0).getId()));
         }
         return result;
     }
@@ -745,9 +786,7 @@ public class ImportData {
         return attachmentDomainObject;
     }
 
-    private DomainObject
-            saveAttachment(InputStream inputStream, DomainObject attachmentDomainObject, long contentLength) {
-        AccessToken accessToken = accessService.createSystemAccessToken(this.getClass().getName());
+    private DomainObject saveAttachment(InputStream inputStream, DomainObject attachmentDomainObject, long contentLength) {
 
         StringValue newFilePathValue = null;
         DomainObject savedDoaminObject = null;
@@ -763,7 +802,7 @@ public class ImportData {
 
             attachmentDomainObject.setLong("ContentLength", contentLength);
 
-            savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
+            savedDoaminObject = domainObjectDao.save(attachmentDomainObject, getWriteAccessToken(attachmentDomainObject));
 
             //предыдущий файл удаляем
             if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
@@ -797,5 +836,49 @@ public class ImportData {
         private AttachmentTypeConfig attachmentTypeConfig;
         private String refAttrName;
     }
+    
+    private AccessToken getSelectAccessToken(){
+        AccessToken result = null;
+        if (systemPermission){
+            result = accessService.createSystemAccessToken(this.getClass().getName());
+        }else{
+            result = accessService.createCollectionAccessToken(login);
+        }
+        return result;
+    }
 
+    private AccessToken getDeleteAccessToken(Id domainObjectId){
+        AccessToken result = null;
+        if (systemPermission){
+            result = accessService.createSystemAccessToken(this.getClass().getName());
+        }else{
+            result = accessService.createAccessToken(login, domainObjectId, DomainObjectAccessType.DELETE);
+        }
+        return result;
+    }
+
+    private AccessToken getWriteAccessToken(DomainObject domainObject){
+        AccessToken result = null;
+        if (systemPermission){
+            result = accessService.createSystemAccessToken(this.getClass().getName());
+        }else{
+            if (domainObject.isNew()){
+                result = accessService.createDomainObjectCreateToken(login, domainObject);
+            }else{
+                result = accessService.createAccessToken(login, domainObject.getId(), DomainObjectAccessType.WRITE);
+            }
+        }
+        return result;
+    }
+    
+    private AccessToken getReadAccessToken(Id domainObjectId){
+        AccessToken result = null;
+        if (systemPermission){
+            result = accessService.createSystemAccessToken(this.getClass().getName());
+        }else{
+            result = accessService.createAccessToken(login, domainObjectId, DomainObjectAccessType.READ);
+        }
+        return result;
+    }
+    
 }

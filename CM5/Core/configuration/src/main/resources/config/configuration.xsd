@@ -477,6 +477,8 @@
                         minOccurs="0" maxOccurs="unbounded"/>
             <xs:element type="con:notificationType" name="notification"
                         maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="import-settings" type="con:importSettings"
+                        maxOccurs="unbounded" minOccurs="0"/>
 
         </xs:choice>
     </xs:complexType>
@@ -3280,4 +3282,23 @@
         <xs:attribute name="linked-form-name" type="xs:string"/>
         <xs:attribute name="widget-id" type="xs:string"/>
     </xs:complexType>
+
+    <xs:complexType name="importSettings">
+        <xs:sequence>
+            <xs:element name="before-import" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="delete-all" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:attribute name="doel" type="xs:string" use="required" />
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="import-type" type="xs:string" use="required" />
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+    
 </xs:schema>

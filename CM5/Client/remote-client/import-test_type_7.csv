@@ -1,4 +1,4 @@
-TYPE_NAME=test_type_7;KEYS=description;DELETE_OTHER=true
-description
-test1
-test2
+TYPE_NAME=test_type_7;KEYS=description
+description;
+test1;
+test2;

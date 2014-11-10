@@ -198,4 +198,13 @@
     <bean id="fontLoader" class="ru.intertrust.cm.core.report.FontLoader"/>
     
     <bean id="mailReceiver" class="ru.intertrust.cm.core.business.impl.email.EmailReceiverImpl"/>
+
+    <bean id="system-import-data" class="ru.intertrust.cm.core.business.load.ImportData" scope="prototype">
+        <constructor-arg value="true" />
+    </bean>
+    <bean id="person-import-data" class="ru.intertrust.cm.core.business.load.ImportData" scope="prototype">
+        <constructor-arg value="false" />
+    </bean>
+    
+    
 </beans>

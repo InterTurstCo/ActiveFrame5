@@ -8,15 +8,11 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.load.ImportData;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
 
 @Stateless(name = "ImportDataService")
@@ -26,15 +22,7 @@ import ru.intertrust.cm.core.model.FatalException;
 public class ImportDataServiceImpl implements ImportDataService {
 
     @Autowired
-    private CollectionsDao collectionsDao;
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-    @Autowired
-    private AccessControlService accessControlService;
-    @Autowired
-    private DomainObjectDao domainObjectDao;
-    @Autowired
-    private AttachmentContentDao attachmentContentDao;
+    private ApplicationContext springContext;
     @Resource
     private EJBContext context;
 
@@ -45,20 +33,18 @@ public class ImportDataServiceImpl implements ImportDataService {
 
     @Override
     public void importData(byte[] importFileAsByteArray, String encoding) {
-       importData(importFileAsByteArray, encoding, false);
+        importData(importFileAsByteArray, encoding, false);
     }
 
-	@Override
-	public void importData(byte[] importFileAsByteArray, String encoding,
-			boolean rewrite) {
-		 try {
-	            ImportData ImportData =
-	                    new ImportData(collectionsDao, configurationExplorer, domainObjectDao, accessControlService,
-	                            attachmentContentDao, context.getCallerPrincipal().getName());
-	            ImportData.importData(importFileAsByteArray, encoding, rewrite);
-	        } catch (Exception ex) {
-	            throw new FatalException("Error load data", ex);
-	        }
-		
-	}
+    @Override
+    public void importData(byte[] importFileAsByteArray, String encoding,
+            boolean rewrite) {
+        try {
+            ImportData importData = (ImportData)springContext.getBean(ImportData.PERSON_IMPORT_BEAN);
+            importData.importData(importFileAsByteArray, encoding, rewrite);
+        } catch (Exception ex) {
+            throw new FatalException("Error load data", ex);
+        }
+
+    }
 }

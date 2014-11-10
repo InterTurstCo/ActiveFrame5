@@ -41,6 +41,8 @@
         <configuration-path>module-configuration/collection-test.xml</configuration-path>
         <configuration-path>module-configuration/agent_esd.xml</configuration-path>
         <configuration-path>module-configuration/numerator.xml</configuration-path>
+        <!-- Настройка импорта -->
+        <configuration-path>module-configuration/import-settings.xml</configuration-path>        
 
         <!-- Из модуля "контакты" -->
         <configuration-path>contacts-module/configuration/actions.xml</configuration-path>
