@@ -126,6 +126,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForParameters(collectionQuery);
         Map<String, FieldConfig> columnToConfigMapForSelectItems = new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(collectionQuery);
 
+        columnToConfigMap.putAll(columnToConfigMapForSelectItems);
         
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
         collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(collectionQuery, filterValues, columnToConfigMap);
@@ -236,6 +237,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         Map<String, FieldConfig> columnToConfigMap = sqlQueryModifier.buildColumnToConfigMapForParameters(collectionQuery);
         Map<String, FieldConfig> columnToConfigMapForSelectItems = sqlQueryModifier.buildColumnToConfigMapForSelectItems(collectionQuery);
+        
+        // нужно объединить конфигурации колонок из Select части запроса и и для параметров для случая, когда в
+        // параметре указывается алиса колонки из подзапроса
+        columnToConfigMap.putAll(columnToConfigMapForSelectItems);
 
         collectionQuery = sqlQueryModifier.modifyQueryWithParameters(collectionQuery, params, columnToConfigMap);
         collectionQuery = wrapAndLowerCaseNames(collectionQuery);

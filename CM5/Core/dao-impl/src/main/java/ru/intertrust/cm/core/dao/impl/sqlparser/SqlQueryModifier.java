@@ -666,7 +666,7 @@ public class SqlQueryModifier {
         if (hasEvaluatedExpressionWithSameAliasInPlainSelect(plainSelect, column)) {
             return null;
         }
-        
+
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
             PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
@@ -687,6 +687,14 @@ public class SqlQueryModifier {
         } else if (plainSelect.getFromItem() instanceof Table) {
             Table fromItem = (Table) plainSelect.getFromItem();
 
+            if (forSubSelect) {
+                for (Object selectItem : plainSelect.getSelectItems()) {
+                    if (selectItem instanceof AllColumns) {
+                        return DaoUtils.unwrap(fromItem.getName());
+                    }
+                }
+            }
+            
             // если колока колока не имеет названия таблицы - берется перая таблица из from выражения
             if ((column.getTable() == null || column.getTable().getName() == null)) {
                 return DaoUtils.unwrap(fromItem.getName());
@@ -696,13 +704,7 @@ public class SqlQueryModifier {
                     column.getTable().getName().equals(fromItem.getName())) {
                 return DaoUtils.unwrap(fromItem.getName());
             }
-            if (forSubSelect) {
-                for (Object selectItem : plainSelect.getSelectItems()) {
-                    if (selectItem instanceof AllColumns) {
-                        return DaoUtils.unwrap(fromItem.getName());
-                    }
-                }
-            }
+
             List joinList = plainSelect.getJoins();
 
             if (joinList != null) {
@@ -729,11 +731,46 @@ public class SqlQueryModifier {
 
                 }
             }
-            // если в подзапросе соответствие колонки по алиасу таблицы не найдено, то возвращается первая таблица из
-            // from выражения
-//            if (forSubSelect) {
-//                return DaoUtils.unwrap(fromItem.getName());
-//            }
+        }
+        return null;
+    }
+
+   public static String prepareColumnNames(PlainSelect plainSelect, Column column, boolean forSubSelect) {
+        
+
+        if (plainSelect.getFromItem() instanceof SubSelect) {
+            SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
+            PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
+            // если название таблицы у колонки совпадает с алиасом подзапроса, то таблица данной колоки - первая таблица
+            // из From выражения подзапроса.
+            if (column.getTable() != null && column.getTable().getName() != null && subSelect.getAlias() != null
+                    && column.getTable().getName().equals(subSelect.getAlias().getName())) {
+                column.setTable(null);
+                return prepareColumnNames(plainSubSelect, column, true);
+            }
+
+        } else if (plainSelect.getFromItem() instanceof Table) {
+            Table fromItem = (Table) plainSelect.getFromItem();
+
+            if (forSubSelect) {
+                for (Object selectItem : plainSelect.getSelectItems()) {
+                    //если колонка называется как алиас колонки в подзапросе, то имя колонки нужно переопределить - взять имя колонки из подзапроса по алиасу.
+                    if (selectItem instanceof SelectExpressionItem) {                        
+                        SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+                        if (selectExpressionItem.getExpression() instanceof Column) {
+                            Column selectColumn = (Column) selectExpressionItem.getExpression();
+
+                            if (selectExpressionItem.getAlias() != null
+                                    && column.getColumnName().equalsIgnoreCase(DaoUtils.unwrap(selectExpressionItem.getAlias().getName()))) {
+                                column.setColumnName(selectColumn.getColumnName());
+
+                                return DaoUtils.unwrap(fromItem.getName());
+                            }
+                        }
+                    }
+                }
+            }
+            
 
         }
         return null;
