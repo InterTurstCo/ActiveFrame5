@@ -8,7 +8,6 @@ import java.util.TimeZone;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -17,7 +16,6 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
@@ -27,8 +25,6 @@ import ru.intertrust.cm.remoteclient.ClientBase;
 public class TestCollection extends ClientBase {
 
     protected CollectionsService.Remote collectionService;
-    
-    protected SearchService.Remote searchService;
     
     protected CrudService.Remote crudService;
 
@@ -48,10 +44,6 @@ public class TestCollection extends ClientBase {
             collectionService = (CollectionsService.Remote) getService(
                     "CollectionsServiceImpl", CollectionsService.Remote.class);
             
-            searchService = (SearchService.Remote) getService(
-                    "SearchService", SearchService.Remote.class);
-            //searchService.dumpAll();
-
             String query = "select t.id, t.login, 'xxx' as xxx, 'yyy' as yyy from person t";
             executeQuery(query, 4);
 
@@ -186,6 +178,19 @@ public class TestCollection extends ClientBase {
             query += "join department d on d.boss = e.id ";
             query += "WHERE ";
             query += "e.id={0} ";
+            params.clear();
+            params.add(new ReferenceValue(new RdbmsId(5013, 2)));
+            executeQuery(query, 1, params);  
+            
+            //Проверка CMFIVE-2196
+            query = "SELECT ";
+            query += "d.boss ";
+            query += "FROM ";
+            query += "(SELECT id ";
+            query += "FROM employee) e ";
+            query += "join department d on d.boss = e.id ";
+            query += "WHERE ";
+            query += "d.boss={0} ";
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5013, 2)));
             executeQuery(query, 1, params);            
