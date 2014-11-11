@@ -2,8 +2,11 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
@@ -12,21 +15,28 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Lesia Puhova
- *         Date: 11.11.14
- *         Time: 12:31
+ *         Date: 30.10.14
+ *         Time: 13:12
  */
-public class PopupAttachmentUploaderView extends AttachmentUploaderView {
-
-    public PopupAttachmentUploaderView(AttachmentBoxState state, AttachmentElementPresenterFactory presenterFactory, EventBus eventBus) {
-        super(state, presenterFactory, eventBus);
-    }
+public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
 
     private Panel selectedItemsPanel = new AbsolutePanel();
     private Panel allItemsPanel;
     private DialogBox selectionDialog = new DialogBox(false, true);
+    private List<CheckBox> checkboxes = new ArrayList<>();
     private boolean initialized;
+    private List<AttachmentItem> tmpSelectedAttachments = new ArrayList<>();
+
+    public PopupSelectAttachmentUploaderView(AttachmentBoxState state, AttachmentElementPresenterFactory
+            presenterFactory,
+                                             EventBus eventBus) {
+        super(state, presenterFactory, eventBus);
+    }
 
     @Override
     protected void displayAttachmentItem(AttachmentItem item){
@@ -43,6 +53,8 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
             showPopupButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
+                    tmpSelectedAttachments.clear();
+                    tmpSelectedAttachments.addAll(getAttachments());
                     showItemsInPopup();
                     selectionDialog.center();
                 }
@@ -67,6 +79,7 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
 
     protected Widget createNonSelectedElement(AttachmentItem item) {
         Panel element = presenterFactory.createEditablePresenter(item, new DeleteAttachmentClickHandler(item), false).presentElement();
+        element.add(createCheckbox(item, isItemSelected(item)));
         return element;
     }
 
@@ -92,6 +105,12 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                getAttachments().clear();
+                getAttachments().addAll(tmpSelectedAttachments);
+                selectedItemsPanel.clear();
+                for (Widget element : createSelectedElements()) {
+                    selectedItemsPanel.add(element);
+                }
                 selectionDialog.hide();
             }
         });
@@ -115,9 +134,59 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
 
     private void showItemsInPopup() {
         allItemsPanel.clear();
-        for (AttachmentItem item : getAttachments()) {
+        for (AttachmentItem item : getAllAttachments()) {
             allItemsPanel.add(createNonSelectedElement(item));
         }
+    }
+
+    private CheckBox createCheckbox(final AttachmentItem item, boolean checked) {
+        final CheckBox checkbox = new CheckBox();
+        checkbox.setValue(checked);
+        checkbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                if (event.getValue()) {
+                    if (isSingleChoice()) {
+                        uncheckOthers(checkbox);
+                        deselectAllTmpAttachments();
+                    }
+                    selectTmpAttachment(item);
+                } else {
+                    deselectTmpAttachment(item);
+                }
+            }
+        });
+
+        checkboxes.add(checkbox);
+        if (checked && isSingleChoice()) {
+            uncheckOthers(checkbox);
+        }
+        return checkbox;
+    }
+
+    private void uncheckOthers(CheckBox checkbox) {
+        for (CheckBox chb : checkboxes) {
+            if (checkbox != chb) {
+                chb.setValue(false);
+            }
+        }
+    }
+
+    private void deselectAllTmpAttachments() {
+        tmpSelectedAttachments.clear();
+    }
+
+    private void selectTmpAttachment(AttachmentItem attachment) {
+        if (isSingleChoice()) {
+            tmpSelectedAttachments.clear();
+        }
+        if (!tmpSelectedAttachments.contains((tmpSelectedAttachments))) {
+            tmpSelectedAttachments.add(attachment);
+        }
+    }
+
+    private void deselectTmpAttachment(AttachmentItem attachment) {
+        tmpSelectedAttachments.remove(attachment);
     }
 
 }

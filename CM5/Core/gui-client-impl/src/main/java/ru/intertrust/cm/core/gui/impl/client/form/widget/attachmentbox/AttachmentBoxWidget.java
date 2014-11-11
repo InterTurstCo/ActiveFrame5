@@ -74,12 +74,15 @@ public class AttachmentBoxWidget extends BaseWidget {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         AttachmentElementPresenterFactory presenterFactory = new AttachmentElementPresenterFactory(attachmentBoxState.getActionLinkConfig(),
                 attachmentBoxState.getImagesConfig(), attachmentBoxState.getDeleteButtonConfig(), eventBus);
-        if (attachmentBoxState.isInSelectionMode()) {
-            if (attachmentBoxState.isPopupChoiceStyle()){
-                return new PopupAttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
+        if (attachmentBoxState.isPopupChoiceStyle()) {
+            if (attachmentBoxState.isInSelectionMode()) {
+                return new PopupSelectAttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
             } else {
-                return new SelectAttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
+                return new PopupAttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
             }
+        }
+        if (attachmentBoxState.isInSelectionMode()){
+            return new SelectAttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
         } else {
             return new AttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
         }
