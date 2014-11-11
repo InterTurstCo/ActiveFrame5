@@ -107,10 +107,6 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         initWidget(root);
     }
 
-    protected void displayAttachmentItem(AttachmentItem item){
-        mainBoxPanel.add(createSelectedElement(item));
-    }
-
     @Override
     public void displayAttachmentItems(List<AttachmentItem> items) {
         cleanUp();
@@ -120,7 +116,12 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         displayNonSelectedElements(mainBoxPanel);
     }
 
+    protected void displaySelectedElement(Panel parentPanel, AttachmentItem item) {
+        parentPanel.add(createSelectedElement(item));
+    }
+
     protected void displaySelectedElements(Panel parentPanel) {
+        parentPanel.clear();
         for (Widget element : createSelectedElements()) {
             parentPanel.add(element);
         }
@@ -388,11 +389,11 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 AttachmentItem item = handleFileNameFromServer(filePath);
 
                 addAttachment(item);
-
+                displaySelectedElement(mainBoxPanel, item);
                 eventBus.fireEvent(new UploadCompletedEvent()); //TODO: why we do it in loop?
                 cancelTimer();
             }
-            displaySelectedElements(mainBoxPanel);
+            //displaySelectedElements(mainBoxPanel);
         }
     }
 

@@ -26,31 +26,26 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
     private Panel selectedItemsPanel = new AbsolutePanel();
     private Panel allItemsPanel;
     private DialogBox selectionDialog = new DialogBox(false, true);
-    private boolean initialized;
 
     @Override
-    protected void displayAttachmentItem(AttachmentItem item){
+    protected void displaySelectedElement(Panel parentPanel, AttachmentItem item) {
         selectedItemsPanel.add(createSelectedElement(item));
     }
 
     @Override
     protected void displaySelectedElements(Panel parentPanel) {
-        if (!initialized) {
-            parentPanel.add(selectedItemsPanel);
+        parentPanel.add(selectedItemsPanel);
 
-            Button showPopupButton = new Button("...");
-            showPopupButton.getElement().setClassName("lightButton");
-            showPopupButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    showItemsInPopup();
-                    selectionDialog.center();
-                }
-            });
-            parentPanel.add(showPopupButton);
-
-            initialized = true;
-        }
+        Button showPopupButton = new Button("...");
+        showPopupButton.getElement().setClassName("lightButton");
+        showPopupButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                showItemsInPopup();
+                selectionDialog.center();
+            }
+        });
+        parentPanel.add(showPopupButton);
         selectedItemsPanel.clear();
         for (Widget element : createSelectedElements()) {
             selectedItemsPanel.add(element);
@@ -76,8 +71,7 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
     }
 
     protected void cleanUp() {
-        super.cleanUp();
-        initialized = false;
+        selectedItemsPanel.clear();
     }
 
     private void initSelectionDialog() {

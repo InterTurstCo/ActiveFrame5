@@ -29,40 +29,34 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
     private Panel allItemsPanel;
     private DialogBox selectionDialog = new DialogBox(false, true);
     private List<CheckBox> checkboxes = new ArrayList<>();
-    private boolean initialized;
     private List<AttachmentItem> tmpSelectedAttachments = new ArrayList<>();
 
     public PopupSelectAttachmentUploaderView(AttachmentBoxState state, AttachmentElementPresenterFactory
-            presenterFactory,
-                                             EventBus eventBus) {
+            presenterFactory, EventBus eventBus) {
         super(state, presenterFactory, eventBus);
     }
 
     @Override
-    protected void displayAttachmentItem(AttachmentItem item){
+    protected void displaySelectedElement(Panel parentPanel, AttachmentItem item) {
         selectedItemsPanel.add(createSelectedElement(item));
     }
 
     @Override
     protected void displaySelectedElements(Panel parentPanel) {
-        if (!initialized) {
-            parentPanel.add(selectedItemsPanel);
+        parentPanel.add(selectedItemsPanel);
 
-            Button showPopupButton = new Button("...");
-            showPopupButton.getElement().setClassName("lightButton");
-            showPopupButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    tmpSelectedAttachments.clear();
-                    tmpSelectedAttachments.addAll(getAttachments());
-                    showItemsInPopup();
-                    selectionDialog.center();
-                }
-            });
-            parentPanel.add(showPopupButton);
-
-            initialized = true;
-        }
+        Button showPopupButton = new Button("...");
+        showPopupButton.getElement().setClassName("lightButton");
+        showPopupButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                tmpSelectedAttachments.clear();
+                tmpSelectedAttachments.addAll(getAttachments());
+                showItemsInPopup();
+                selectionDialog.center();
+            }
+        });
+        parentPanel.add(showPopupButton);
         selectedItemsPanel.clear();
         for (Widget element : createSelectedElements()) {
             selectedItemsPanel.add(element);
@@ -89,8 +83,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
     }
 
     protected void cleanUp() {
-        super.cleanUp();
-        initialized = false;
+        selectedItemsPanel.clear();
     }
 
     private void initSelectionDialog() {
