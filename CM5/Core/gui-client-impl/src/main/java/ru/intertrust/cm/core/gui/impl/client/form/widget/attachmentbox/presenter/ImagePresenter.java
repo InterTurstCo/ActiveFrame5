@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
 import ru.intertrust.cm.core.config.gui.form.widget.PreviewConfig;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandler;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 /**
@@ -16,16 +17,16 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
  *         Date: 21.10.14
  *         Time: 13:59
  */
-class ImagePresenter implements AttachmentElementPresenter {
+public class ImagePresenter implements AttachmentElementPresenter {
 
-    private PreviewConfig previewConfig;
-    private ClickHandler clickHandler;
-    private AttachmentItem item;
+    private final PreviewConfig previewConfig;
+    private final AttachmentItem item;
+    private final PreviewConfig largePreviewConfig;
 
-    ImagePresenter(AttachmentItem item, PreviewConfig previewConfig, ClickHandler clickHandler) {
+    public ImagePresenter(AttachmentItem item, PreviewConfig previewConfig, PreviewConfig largePreviewConfig) {
         this.item = item;
         this.previewConfig = previewConfig;
-        this.clickHandler = clickHandler;
+        this.largePreviewConfig = largePreviewConfig;
     }
 
     @Override
@@ -44,9 +45,9 @@ class ImagePresenter implements AttachmentElementPresenter {
         }
         Panel takeHandlerPanel = new AbsolutePanel();
         takeHandlerPanel.addStyleName("imagePreviewHandlerPanel");
-        if (clickHandler != null) {
-            takeHandlerPanel.addDomHandler(clickHandler, ClickEvent.getType());
-        }
+        //if (clickHandler != null) {
+            takeHandlerPanel.addDomHandler(getClickHandler(item), ClickEvent.getType());
+         //}
         element.add(takeHandlerPanel);
         final Image image = new Image(createPreviewUrl(item));
         image.addLoadHandler(new ScalePreviewHandler(previewConfig, image, true));
@@ -54,6 +55,13 @@ class ImagePresenter implements AttachmentElementPresenter {
         takeHandlerPanel.add(image);
 //        element.add(imageShadow);
         return element;
+    }
+
+    private ClickHandler getClickHandler(AttachmentItem item) {
+        if (largePreviewConfig== null || !largePreviewConfig.isDisplay()) {
+            return new DownloadAttachmentHandler(item);
+        }
+        return new OpenLargePreviewHandler(item, largePreviewConfig);
     }
 
     private static String createPreviewUrl(AttachmentItem item) {
@@ -68,11 +76,11 @@ class ImagePresenter implements AttachmentElementPresenter {
         return url.toString();
     }
 
-    static class OpenLargePreviewHandler implements ClickHandler {
+    public static class OpenLargePreviewHandler implements ClickHandler {
         private final AttachmentItem item;
         private final PreviewConfig config;
 
-        OpenLargePreviewHandler(AttachmentItem item, PreviewConfig largePreviewConfig) {
+        public OpenLargePreviewHandler(AttachmentItem item, PreviewConfig largePreviewConfig) {
             this.item = item;
             this.config = largePreviewConfig;
         }

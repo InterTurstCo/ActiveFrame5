@@ -10,16 +10,17 @@ import com.google.gwt.user.client.ui.Panel;
  *         Date: 16.10.14
  *         Time: 14:32
  */
-class TextPresenter implements AttachmentElementPresenter {
+public class TextPresenter implements AttachmentElementPresenter {
 
-    private String text;
-    private ClickHandler clickHandler;
+    private final String text;
+    private final ClickHandler clickHandler;
 
-    TextPresenter(String text) {
+    public TextPresenter(String text) {
         this.text = text;
+        clickHandler = null;
     }
 
-    TextPresenter(String text, ClickHandler clickHandler) {
+    public TextPresenter(String text, ClickHandler clickHandler) {
         this.text = text;
         this.clickHandler = clickHandler;
     }

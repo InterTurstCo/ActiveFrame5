@@ -4,9 +4,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
@@ -22,33 +20,22 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
 
     private List<CheckBox> checkboxes = new ArrayList<>();
 
-    public SelectAttachmentUploaderView(AttachmentBoxState state, AttachmentElementPresenterFactory presenterFactory, EventBus eventBus) {
-        super(state, presenterFactory, eventBus);
+    public SelectAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus) {
+        super(state, eventBus);
     }
 
     @Override
-    protected Widget createSelectedElement(AttachmentItem item) {
-        Panel element = (Panel)super.createSelectedElement(item);
+    protected Panel createSelectedElement(AttachmentItem item) {
+        Panel element = super.createSelectedElement(item);
         element.add(createCheckbox(item, true));
         return element;
     }
 
     @Override
-    protected Widget createNonSelectedElement(AttachmentItem item) {
-        Panel element = (Panel)super.createSelectedElement(item);
+    protected Panel createNonSelectedElement(AttachmentItem item) {
+        Panel element = super.createSelectedElement(item);
         element.add(createCheckbox(item, false));
         return element;
-    }
-
-    @Override
-    protected List<Widget> createNonSelectedElements() {
-        List<Widget> elements = new ArrayList<>(getAllAttachments().size());
-        for (AttachmentItem item : getAllAttachments()) {
-            if (!getAttachments().contains(item)) {
-                elements.add(createNonSelectedElement(item));
-            }
-        }
-        return elements;
     }
 
     private CheckBox createCheckbox(final AttachmentItem item, boolean checked) {

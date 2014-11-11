@@ -24,7 +24,9 @@ import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadCompletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadUpdatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenterFactory;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditablePresenterFactory;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.UploadProgressPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -56,19 +58,23 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private ExtensionValidator extensionValidator;
     private Timer elapsedTimer;
     private boolean dontShowNewRow;
-    protected AttachmentElementPresenterFactory presenterFactory; //TODO: do not expose it
+    private AttachmentElementPresenterFactory presenterFactory;
+    private AttachmentElementPresenterFactory uploadPresenterFactory;
     private EventBus eventBus;
     private AddButtonConfig addButtonConfig;
 
-    public AttachmentUploaderView(AttachmentBoxState state, AttachmentElementPresenterFactory presenterFactory, EventBus eventBus) {
+    public AttachmentUploaderView(AttachmentBoxState state, EventBus eventBus) {
         setAttachments(state.getAttachments());
         setAllAttachments(state.getAllAttachments());
         this.extensionValidator = new ExtensionValidator(state.getAcceptedTypesConfig(), state.getImagesConfig() != null);
         displayStyle = DisplayStyleBuilder.getDisplayStyle(state.getSelectionStyleConfig());
         this.addButtonConfig = state.getAddButtonConfig();
-        this.eventBus = eventBus;
-        this.presenterFactory = presenterFactory;
         this.singleChoice = state.isSingleChoice();
+        this.eventBus = eventBus;
+        presenterFactory = new EditablePresenterFactory(state.getActionLinkConfig(),
+                state.getImagesConfig(), state.getDeleteButtonConfig());
+        uploadPresenterFactory = new UploadProgressPresenterFactory(state.getActionLinkConfig(),
+                state.getDeleteButtonConfig(), eventBus);
         init();
     }
 
@@ -82,6 +88,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
     protected boolean isSingleChoice() {
         return singleChoice;
+    }
+
+    protected Panel getAttachmentsPanel() {
+        return mainBoxPanel;
     }
 
     /**
@@ -108,45 +118,31 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     }
 
     @Override
-    public void displayAttachmentItems(List<AttachmentItem> items) {
+    public void displayAttachmentItems() {
         cleanUp();
-        setAttachments(items);
-
-        displaySelectedElements(mainBoxPanel);
-        displayNonSelectedElements(mainBoxPanel);
-    }
-
-    protected void displaySelectedElement(Panel parentPanel, AttachmentItem item) {
-        parentPanel.add(createSelectedElement(item));
-    }
-
-    protected void displaySelectedElements(Panel parentPanel) {
-        parentPanel.clear();
         for (Widget element : createSelectedElements()) {
-            parentPanel.add(element);
+            mainBoxPanel.add(element);
         }
     }
 
-    protected void displayNonSelectedElements(Panel parentPanel) {
-        for (Widget element : createNonSelectedElements()) {
-            parentPanel.add(element);
-        }
+    private void displaySelectedElement(AttachmentItem item) {
+        getAttachmentsPanel().add(createSelectedElement(item));
     }
 
     private void displayAttachmentItemInProgress(AttachmentItem item) {
         mainBoxPanel.add(createAttachmentProgressElement(item));
     }
 
-    protected Widget createSelectedElement(AttachmentItem item) {
-        return presenterFactory.createEditablePresenter(item, new DeleteAttachmentClickHandler(item)).presentElement();
+    protected Panel createSelectedElement(AttachmentItem item) {
+        return presenterFactory.createPresenter(item, new DeleteAttachmentClickHandler(item)).presentElement();
     }
 
-    protected Widget createNonSelectedElement(AttachmentItem item) {
-        return presenterFactory.createEditablePresenter(item, new DeleteAttachmentClickHandler(item)).presentElement();
+    protected Panel createNonSelectedElement(AttachmentItem item) {
+        return presenterFactory.createPresenter(item, new DeleteAttachmentClickHandler(item)).presentElement();
     }
 
-    protected Widget createAttachmentProgressElement(AttachmentItem item) {
-        return presenterFactory.createUploadPresenter(item, new CancelUploadAttachmentHandler(item))
+    protected Panel createAttachmentProgressElement(AttachmentItem item) {
+        return uploadPresenterFactory.createPresenter(item, new CancelUploadAttachmentHandler(item))
                 .presentElement();
     }
 
@@ -162,15 +158,11 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         return elements;
     }
 
-    protected List<Widget> createNonSelectedElements() {
-        return new ArrayList<>();
-    }
-
     /**
      * Удаляет все прикрепления из отображения
      */
-    protected void cleanUp() {
-        mainBoxPanel.clear();
+    private void cleanUp() {
+        getAttachmentsPanel().clear();
     }
 
     protected void setAttachments(List<AttachmentItem> attachments) {
@@ -389,7 +381,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 AttachmentItem item = handleFileNameFromServer(filePath);
 
                 addAttachment(item);
-                displaySelectedElement(mainBoxPanel, item);
+                displaySelectedElement(item);
                 eventBus.fireEvent(new UploadCompletedEvent()); //TODO: why we do it in loop?
                 cancelTimer();
             }

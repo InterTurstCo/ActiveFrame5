@@ -16,14 +16,14 @@ import ru.intertrust.cm.core.gui.impl.client.event.UploadUpdatedEventHandler;
  *         Date: 16.10.14
  *         Time: 17:27
  */
-class UploadProgressPresenter implements AttachmentElementPresenter,
+public class UploadProgressPresenter implements AttachmentElementPresenter,
         UploadUpdatedEventHandler, UploadCompletedEventHandler {
 
-    private AttachmentElementPresenter presenter;
-    private EventBus eventBus;
-    private Label percentage = new Label("0%");
+    private final AttachmentElementPresenter presenter;
+    private final EventBus eventBus;
+    private final Label percentage = new Label("0%");
 
-    UploadProgressPresenter(AttachmentElementPresenter presenter, EventBus eventBus) {
+    public UploadProgressPresenter(AttachmentElementPresenter presenter, EventBus eventBus) {
         this.presenter = presenter;
         this.eventBus = eventBus;
     }
@@ -39,7 +39,6 @@ class UploadProgressPresenter implements AttachmentElementPresenter,
         progressbar.setUrl("CMJSpinner.gif");
         element.add(progressbar);
 
-        percentage = new Label("0%");
         percentage.addStyleName("loading-attachment");
         element.add(percentage);
 

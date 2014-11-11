@@ -18,14 +18,14 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
  *         Date: 16.10.14
  *         Time: 15:33
  */
-class DeleteButtonPresenter implements AttachmentElementPresenter {
+public class DeleteButtonPresenter implements AttachmentElementPresenter {
 
-    private AttachmentItem item;
-    private AttachmentElementPresenter presenter;
-    private DeleteButtonConfig deleteButtonConfig;
-    private ClickHandler deleteButtonHandler;
+    private final AttachmentItem item;
+    private final AttachmentElementPresenter presenter;
+    private final DeleteButtonConfig deleteButtonConfig;
+    private final ClickHandler deleteButtonHandler;
 
-    DeleteButtonPresenter(AttachmentElementPresenter presenter, AttachmentItem item, DeleteButtonConfig deleteButtonConfig,
+    public DeleteButtonPresenter(AttachmentElementPresenter presenter, AttachmentItem item, DeleteButtonConfig deleteButtonConfig,
                           ClickHandler deleteButtonHandler) {
         this.presenter = presenter;
         this.item = item;

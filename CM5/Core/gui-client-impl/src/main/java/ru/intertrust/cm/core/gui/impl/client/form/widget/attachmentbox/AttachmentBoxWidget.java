@@ -4,7 +4,6 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -36,15 +35,14 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     private void setCurrentStateForEditableWidget(AttachmentBoxState state) {
         AttachmentUploaderView view = (AttachmentUploaderView) impl;
-        List<AttachmentItem> attachments = state.getAttachments();
+        view.setAttachments(state.getAttachments());
         view.setAllAttachments(state.getAllAttachments());
-        view.displayAttachmentItems(attachments);
+        view.displayAttachmentItems();
     }
 
     private void setCurrentStateForNoneEditableWidget(AttachmentBoxState state) {
-        List<AttachmentItem> attachments = state.getAttachments();
         AttachmentNonEditablePanel noneEditablePanel = (AttachmentNonEditablePanel) impl;
-        noneEditablePanel.displayAttachmentItems(attachments);
+        noneEditablePanel.displayAttachmentItems();
     }
 
     @Override
@@ -72,19 +70,17 @@ public class AttachmentBoxWidget extends BaseWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
-        AttachmentElementPresenterFactory presenterFactory = new AttachmentElementPresenterFactory(attachmentBoxState.getActionLinkConfig(),
-                attachmentBoxState.getImagesConfig(), attachmentBoxState.getDeleteButtonConfig(), eventBus);
         if (attachmentBoxState.isPopupChoiceStyle()) {
             if (attachmentBoxState.isInSelectionMode()) {
-                return new PopupSelectAttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
+                return new PopupSelectAttachmentUploaderView(attachmentBoxState, eventBus);
             } else {
-                return new PopupAttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
+                return new PopupAttachmentUploaderView(attachmentBoxState, eventBus);
             }
         }
         if (attachmentBoxState.isInSelectionMode()){
-            return new SelectAttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
+            return new SelectAttachmentUploaderView(attachmentBoxState, eventBus);
         } else {
-            return new AttachmentUploaderView(attachmentBoxState, presenterFactory, eventBus);
+            return new AttachmentUploaderView(attachmentBoxState, eventBus);
         }
     }
 
@@ -92,9 +88,7 @@ public class AttachmentBoxWidget extends BaseWidget {
     protected Widget asNonEditableWidget(WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
-        AttachmentElementPresenterFactory presenterFactory = new AttachmentElementPresenterFactory(attachmentBoxState.getActionLinkConfig(),
-                attachmentBoxState.getImagesConfig(), attachmentBoxState.getDeleteButtonConfig(), eventBus);
-        return new AttachmentNonEditablePanel(selectionStyleConfig, presenterFactory);
+        return new AttachmentNonEditablePanel(selectionStyleConfig, attachmentBoxState);
     }
 
 }

@@ -15,13 +15,13 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
  *         Date: 16.10.14
  *         Time: 15:47
  */
-class ActionPresenter implements AttachmentElementPresenter {
+public class ActionPresenter implements AttachmentElementPresenter {
 
-    private AttachmentElementPresenter presenter;
-    private ActionLinkConfig actionLinkConfig;
-    private AttachmentItem item;
+    private final AttachmentElementPresenter presenter;
+    private final ActionLinkConfig actionLinkConfig;
+    private final AttachmentItem item;
 
-    ActionPresenter(AttachmentElementPresenter presenter, ActionLinkConfig actionLinkConfig, AttachmentItem item)  {
+    public ActionPresenter(AttachmentElementPresenter presenter, ActionLinkConfig actionLinkConfig, AttachmentItem item)  {
         this.presenter = presenter;
         this.actionLinkConfig = actionLinkConfig;
         this.item = item;
