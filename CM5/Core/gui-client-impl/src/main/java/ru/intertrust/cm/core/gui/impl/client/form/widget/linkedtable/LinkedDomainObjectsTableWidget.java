@@ -56,6 +56,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     private EventBus localEventBus = new SimpleEventBus();
     private Button addButton;
     private boolean hasRemovedItems;
+    private SimplePager pager;
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -72,9 +73,14 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
         table = createCellTable(summaryTableConfig.getPageSize());
-        SimplePager pager = createPager(table);
         view.add(table);
-        view.add(pager);
+        if(summaryTableConfig.getPageSize() != null) {
+            if (pager != null) {
+                view.remove(pager);
+            }
+            pager = createPager(table);
+            view.add(pager);
+        }
         if (isEditable()) {
             LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(model, false),
                     localEventBus);
@@ -93,6 +99,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         CellTable<RowItem> rowItemCellTable = new CellTable<>();
         if (pageSize != null) {
             rowItemCellTable.setPageSize(pageSize);
+        }
+        else {
+            rowItemCellTable.setPageSize(Integer.MAX_VALUE);
         }
         return rowItemCellTable;
     }
