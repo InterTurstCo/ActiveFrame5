@@ -382,7 +382,9 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
     }
 
     private boolean isExtraStyleRequired() {
-        return state.isEditable() && state.isToggleEdit();
+        //boolean result = state.isEditable() && state.isToggleEdit();
+        boolean result = state.isToggleEdit();
+        return result;
     }
 
     private String getFormIdentifier() {
