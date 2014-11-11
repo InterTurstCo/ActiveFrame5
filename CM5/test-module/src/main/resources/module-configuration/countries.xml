@@ -1135,7 +1135,7 @@
             <![CDATA[
                 select
                     co.id, co.name, co.independence_day, co.population, co.description, co.capital, co.square,
-                    cou.name as country_union_name
+                    cou.name as country_union_name, cou.id as country_union_id
                 from country co
                 left join country_union cou on cou.id=co.country_union
 
@@ -1208,6 +1208,7 @@
                 </image-mappings>
             </column>
             <column field="country_union_name" name="Состоит" type="string" editable="false" sortable="false"/>
+            <column field="country_union_id" name="Состоит ID" type="reference" editable="false" sortable="false"/>
             <column field="description" name="Описание" type="string" editable="false" sortable="true"
                     search-filter="byDescription"/>
             <column field="square" name="Площадь" type="string" editable="false" sortable="true"
