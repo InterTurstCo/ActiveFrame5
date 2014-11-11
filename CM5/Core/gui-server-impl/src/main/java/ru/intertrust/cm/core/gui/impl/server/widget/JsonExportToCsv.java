@@ -9,30 +9,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
-import ru.intertrust.cm.core.gui.impl.server.util.DateUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.JsonUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonCsvRequest;
 import ru.intertrust.cm.core.gui.model.csv.JsonInitialFilters;
 import ru.intertrust.cm.core.gui.model.csv.JsonSortCriteria;
+import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
@@ -44,13 +33,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -191,7 +174,7 @@ public class JsonExportToCsv {
             String fieldName = jsonProperties.getFieldName();
             CollectionColumnProperties columnProperties = columnPropertiesMap.get(fieldName);
             if (areFilterValuesValid(filterValues)) {
-                Filter filter = FilterBuilderUtil.prepareSearchFilter(filterValues, columnProperties);
+                Filter filter = FilterBuilderUtil.prepareColumnFilter(filterValues, columnProperties, null);
                 filters.add(filter);
                 excludedFilterFields.add(filter.getFilter());//TODO: is it filter name??
             } else {
@@ -206,9 +189,11 @@ public class JsonExportToCsv {
         InitialFiltersConfig hierarchicalFiltersConfig = JsonUtil.convertToInitialFiltersConfig(jsonHierarchicalFilters);
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper
                 .getFilterNameColumnPropertiesMap(columnPropertiesMap, initialFiltersConfig);
-        filterBuilder.prepareInitialFilters(initialFiltersConfig, excludedFilterFields, filters, filterNameColumnPropertiesMap);
-        filterBuilder.prepareInitialFilters(hierarchicalFiltersConfig, excludedFilterFields, filters, filterNameColumnPropertiesMap);
-        filterBuilder.prepareSelectionFilters(hierarchicalFiltersConfig, null, filters);
+        InitialFiltersParams simpleFiltersParams = new InitialFiltersParams(excludedFilterFields, filterNameColumnPropertiesMap);
+        filterBuilder.prepareInitialFilters(initialFiltersConfig, simpleFiltersParams, filters);
+        InitialFiltersParams hierarchyFiltersParams = new InitialFiltersParams(excludedFilterFields, filterNameColumnPropertiesMap);
+        filterBuilder.prepareInitialFilters(hierarchicalFiltersConfig, hierarchyFiltersParams, filters);
+     //   filterBuilder.prepareSelectionFilters(hierarchicalFiltersConfig, null, filters); //TODO check
         return filters;
     }
 

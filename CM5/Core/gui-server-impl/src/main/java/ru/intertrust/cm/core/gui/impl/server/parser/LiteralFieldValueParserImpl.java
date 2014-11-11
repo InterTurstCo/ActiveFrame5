@@ -75,6 +75,10 @@ public class LiteralFieldValueParserImpl implements LiteralFieldValueParser {
         FieldType fieldType = FieldType.forTypeName(fieldTypeStr);
         return textToValue(valueText, fieldType);
     }
+    public Value getCurrentTimeValue(String fieldTypeStr, String timeZoneId, boolean setCurrentMoment) {
+        FieldType fieldType = FieldType.forTypeName(fieldTypeStr);
+        return textToValue(null, fieldType, timeZoneId, setCurrentMoment);
+    }
 
     @Override
     public Value textToValue(String valueText, FieldType fieldType) {

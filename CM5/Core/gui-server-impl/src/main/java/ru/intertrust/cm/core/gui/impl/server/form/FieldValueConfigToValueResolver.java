@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -85,7 +84,7 @@ public class FieldValueConfigToValueResolver {
         return domainObject;
     }
 
-    private DomainObject findDomainObjectByUniqueKey(UniqueKeyValueConfig uniqueKeyValueConfig) {
+    public DomainObject findDomainObjectByUniqueKey(UniqueKeyValueConfig uniqueKeyValueConfig) {
         final List<FieldValueConfig> fieldValueConfigs = uniqueKeyValueConfig.getFieldValueConfigs();
         final String type = uniqueKeyValueConfig.getType();
         final HashMap<String, Value> uniqueKeyValuesByName = new HashMap<>(fieldValueConfigs.size());

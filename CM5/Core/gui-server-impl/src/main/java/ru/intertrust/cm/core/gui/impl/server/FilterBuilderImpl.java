@@ -2,17 +2,18 @@ package ru.intertrust.cm.core.gui.impl.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.gui.api.server.filters.CollectionExtraFiltersBuilder;
+import ru.intertrust.cm.core.gui.api.server.filters.InitialFiltersBuilder;
+import ru.intertrust.cm.core.gui.api.server.filters.SelectionFiltersBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
-import ru.intertrust.cm.core.gui.api.server.plugin.LiteralFieldValueParser;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,79 +22,40 @@ import java.util.Map;
  *         Date: 26.07.2014
  *         Time: 9:51
  */
-@ComponentName("filter-builder")
+
 public class FilterBuilderImpl implements FilterBuilder {
+    @Autowired
+    private InitialFiltersBuilder initialFiltersBuilder;
 
     @Autowired
-    private LiteralFieldValueParser literalFieldValueParser;
+    private SelectionFiltersBuilder selectionFiltersBuilder;
+
+    @Autowired
+    private CollectionExtraFiltersBuilder collectionExtraFiltersBuilder;
 
 
+    public boolean prepareInitialFilters(InitialFiltersConfig config, InitialFiltersParams params, List<Filter> filters) {
+        return initialFiltersBuilder.prepareInitialFilters(config, params, filters);
+    }
+
+    @Override
+    public boolean prepareSelectionFilters(SelectionFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters) {
+        return selectionFiltersBuilder.prepareSelectionFilters(config, params, filters);
+    }
+
+    @Override
+    public boolean prepareExtraFilters(CollectionExtraFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters) {
+        return collectionExtraFiltersBuilder.prepareCollectionExtraFilters(config, params, filters);
+    }
     public boolean prepareInitialFilters(AbstractFiltersConfig abstractFiltersConfig, List<String> excludedInitialFilterNames,
-                                            List<Filter> filters, Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap) {
-        if (abstractFiltersConfig == null) {
-            return false;
-        }
-        List<AbstractFilterConfig> abstractFilterConfigs = abstractFiltersConfig.getAbstractFilterConfigs();
-        if (abstractFilterConfigs != null && !abstractFilterConfigs.isEmpty()) {
-            for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
-                String filterName = abstractFilterConfig.getName();
-                if (excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)) {
-                    List<String> filterValues = prepareFilterStringValues(abstractFilterConfig);
-                    CollectionColumnProperties columnProperties = filterNameColumnPropertiesMap.get(filterName);
-                    Filter initialFilter = FilterBuilderUtil.prepareSearchFilter(filterValues, columnProperties);
-                    filters.add(initialFilter);
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-    public boolean prepareSelectionFilters(AbstractFiltersConfig abstractFiltersConfig,
-                                            List<String> excludedInitialFilterNames, List<Filter> filters) {
-
-        if (abstractFiltersConfig == null) {
-            return false;
-        }
-        List<AbstractFilterConfig> abstractFilterConfigs = abstractFiltersConfig.getAbstractFilterConfigs();
-        if (abstractFilterConfigs != null && !abstractFilterConfigs.isEmpty()) {
-            for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
-                String filterName = abstractFilterConfig.getName();
-                if (excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)) {
-                    Filter initialFilter = prepareSelectionFilter(abstractFilterConfig);
-                    filters.add(initialFilter);
-                }
-            }
-            return true;
-        }
-        return false;
+                                         List<Filter> filters, Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap) {
+        return false; //not supported for now
     }
 
-    private Filter prepareSelectionFilter(AbstractFilterConfig abstractFilterConfig) {
-        String filterName = abstractFilterConfig.getName();
-        Filter initFilter = new Filter();
-        initFilter.setFilter(filterName);
-        List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
-        if (paramConfigs != null && !paramConfigs.isEmpty()) {
-            for (ParamConfig paramConfig : paramConfigs) {
+    public boolean prepareSelectionFilters(AbstractFiltersConfig selectionFiltersConfig,
+                                           List<String> excludedInitialFilterNames, List<Filter> filters) {
 
-                String valueStr = paramConfig.getValue();
-                String type = paramConfig.getType();
-                Value value = literalFieldValueParser.textToValue(valueStr, type);
-                Integer name = paramConfig.getName();
-                initFilter.addCriterion(name, value);
-            }
-
-        }
-        return initFilter;
+        return false; //not supported for now
     }
 
-    private List<String> prepareFilterStringValues(AbstractFilterConfig abstractFilterConfig){
-        List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
-        List<String> result = new ArrayList<String>(paramConfigs.size());
-        for (ParamConfig paramConfig : paramConfigs) {
-            result.add(paramConfig.getValue());
-        }
-        return result;
-
-    }
 }

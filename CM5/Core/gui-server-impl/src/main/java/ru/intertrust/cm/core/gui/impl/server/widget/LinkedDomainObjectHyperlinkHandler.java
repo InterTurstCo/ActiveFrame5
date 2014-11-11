@@ -26,6 +26,8 @@ import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
@@ -66,6 +68,10 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
                 LinkedDomainObjectHyperlinkConfig.class);
         LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
         ArrayList<Id> selectedIds = context.getAllObjectIds();
+        Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames =
+                WidgetUtil.getWidgetIdsComponentsNamesForFilters(widgetConfig.getSelectionFiltersConfig(), context.getWidgetConfigsById());
+        state.setSelectionWidgetIdsComponentNames(selectionWidgetIdsComponentNames);
+        Id rootId = context.getFormObjects().getRootNode().getDomainObject().getId();
         if (!selectedIds.isEmpty()) {
             Id id = selectedIds.get(0);
             FormPluginConfig config = getFormPluginConfig(id);
@@ -73,9 +79,12 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
             DomainObject firstDomainObject = crudService.find(id);
             state.setDomainObjectType(firstDomainObject.getTypeName());
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            LinkedHashMap<Id, String> listValues = selectionFiltersConfig == null
+            Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
+                    context, widgetConfig.getId());
+            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(rootId, widgetValueMap);
+            LinkedHashMap<Id, String> listValues = selectionFiltersConfig == null || widgetConfig.getCollectionRefConfig() == null
                     ? generateHyperlinkItems(widgetConfig, selectedIds)
-                    : generateFilteredHyperlinkItems(widgetConfig, selectedIds, false);
+                    : generateFilteredHyperlinkItems(widgetConfig, selectedIds, filtersParams,false);
             state.setListValues(listValues);
         }
         state.setWidgetConfig(widgetConfig);
@@ -104,10 +113,11 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     }
 
     private LinkedHashMap<Id, String> generateFilteredHyperlinkItems(LinkedDomainObjectHyperlinkConfig widgetConfig,
-                                                                     List<Id> selectedIds, boolean tooltipContent) {
+                                                                     List<Id> selectedIds, ComplicatedFiltersParams filtersParams,
+                                                                     boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
-        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams, filters);
         Filter includedIds = FilterBuilderUtil.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilderUtil.INCLUDED_IDS_FILTER);
         filters.add(includedIds);
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
@@ -163,7 +173,8 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         collectionRefConfig.setName(collectionName);
         widgetConfig.setCollectionRefConfig(collectionRefConfig);
         List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
-        LinkedHashMap<Id, String> listValues = generateFilteredHyperlinkItems(widgetConfig, selectedIds, true);
+        ComplicatedFiltersParams filtersParams = widgetItemsRequest.getComplicatedFiltersParams();
+        LinkedHashMap<Id, String> listValues = generateFilteredHyperlinkItems(widgetConfig, selectedIds, filtersParams,true);
         WidgetItemsResponse response = new WidgetItemsResponse();
         response.setListValues(listValues);
 

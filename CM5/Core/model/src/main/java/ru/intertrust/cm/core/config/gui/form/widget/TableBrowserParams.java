@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,31 +14,13 @@ import java.util.HashSet;
  *         Time: 20:43
  */
 public class TableBrowserParams implements Dto {
-    private String filterName;
-    private String filterValue;
+    private Dto complicatedFiltersParams;
     private Collection<Id> excludedIds;
     private boolean displayChosenValues;
     private boolean singleChoice;
     private int pageSize;
+    private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
     public TableBrowserParams() {
-    }
-
-    public String getFilterName() {
-        return filterName;
-    }
-
-    public TableBrowserParams setFilterName(String filterName) {
-        this.filterName = filterName;
-        return this;
-    }
-
-    public String getFilterValue() {
-        return filterValue;
-    }
-
-    public TableBrowserParams setFilterValue(String filterValue) {
-        this.filterValue = filterValue;
-        return this;
     }
 
     public Collection<Id> getExcludedIds() {
@@ -73,6 +56,24 @@ public class TableBrowserParams implements Dto {
 
     public TableBrowserParams  setPageSize(int pageSize) {
         this.pageSize = pageSize;
+        return this;
+    }
+
+    public Dto getComplicatedFiltersParams() {
+        return complicatedFiltersParams;
+    }
+
+    public TableBrowserParams setComplicatedFiltersParams(Dto complicatedFiltersParams) {
+        this.complicatedFiltersParams = complicatedFiltersParams;
+        return this;
+    }
+
+    public CollectionExtraFiltersConfig getCollectionExtraFiltersConfig() {
+        return collectionExtraFiltersConfig;
+    }
+
+    public TableBrowserParams setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
+        this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
         return this;
     }
 }

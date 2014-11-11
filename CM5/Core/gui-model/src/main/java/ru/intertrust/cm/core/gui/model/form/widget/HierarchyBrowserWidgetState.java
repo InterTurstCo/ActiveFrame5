@@ -5,10 +5,12 @@ import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RootNodeLinkConfig;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +31,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     private ArrayList<Id> temporarySelectedIds;
     private ArrayList<HierarchyBrowserItem> temporaryTooltipChosenItems;
     private Map<String, Integer> temporaryCountOfType;
+    private Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames;
 
     public HierarchyBrowserConfig getHierarchyBrowserConfig() {
         return hierarchyBrowserConfig;
@@ -71,6 +74,14 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
 
     public void setSelectedIds(ArrayList<Id> selectedIds) {
         this.selectedIds = selectedIds;
+    }
+
+    public Collection<WidgetIdComponentName> getSelectionWidgetIdsComponentNames() {
+        return selectionWidgetIdsComponentNames;
+    }
+
+    public void setSelectionWidgetIdsComponentNames(Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames) {
+        this.selectionWidgetIdsComponentNames = selectionWidgetIdsComponentNames;
     }
 
     public ArrayList<HierarchyBrowserItem> getTooltipChosenItems() {

@@ -12,7 +12,6 @@ import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.InlineHyperlink;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.title.AbstractTitleRepresentationConfig;
@@ -23,15 +22,25 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewer
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -120,6 +129,34 @@ public final class GuiUtil {
         action.setPlugin(formPlugin);
         return action;
     }
+    public static ComplicatedFiltersParams createComplicatedFiltersParams(String filterValue, String filterName, WidgetsContainer container,
+                                                                          Collection<WidgetIdComponentName> widgetsIds){
+        ComplicatedFiltersParams params = new ComplicatedFiltersParams();
+        params.setInputFilterName(filterName);
+        params.setInputFilterValue(filterValue);
+        Plugin plugin = container.getPlugin();
+        FormPluginConfig formConfig = (FormPluginConfig) plugin.getConfig();
+        params.setRootId(formConfig.getDomainObjectId());
+        params.setWidgetValuesMap(getOtherWidgetsValues(container, widgetsIds));
+        return params;
+    }
+    public static ComplicatedFiltersParams createComplicatedFiltersParams(WidgetsContainer container,
+                                                                          Collection<WidgetIdComponentName> widgetsIds){
+
+        return createComplicatedFiltersParams(null, null, container, widgetsIds);
+    }
+
+    private static Map<WidgetIdComponentName, WidgetState> getOtherWidgetsValues(WidgetsContainer container,Collection<WidgetIdComponentName> widgetsIds){
+        Map<WidgetIdComponentName, WidgetState> result = new HashMap<WidgetIdComponentName, WidgetState>();
+        for (WidgetIdComponentName widgetIdComponentName : widgetsIds) {
+            BaseWidget widget = container.getWidget(widgetIdComponentName.getWidgetId());
+            WidgetState widgetState = widget.getCurrentState();
+
+            result.put(widgetIdComponentName, widgetState);
+        }
+        return result;
+    }
+
 
     public static Widget getCalendarItemPresentation(final CalendarItemData itemData, final Id rootObjectId) {
         final Widget result;

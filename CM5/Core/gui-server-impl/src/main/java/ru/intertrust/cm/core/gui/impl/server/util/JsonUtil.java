@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
@@ -82,12 +81,12 @@ public class JsonUtil {
         String panelState = jsonInitialFilters.getPanelState();
         initialFiltersConfig.setPanelState(panelState);
         List<JsonInitialFilter> initialFilters = jsonInitialFilters.getJsonInitialFilters();
-        List<AbstractFilterConfig> initialFilterConfigs = new ArrayList<>();
+        List<InitialFilterConfig> initialFilterConfigs = new ArrayList<InitialFilterConfig>();
         for (JsonInitialFilter initialFilter : initialFilters) {
             InitialFilterConfig initialFilterConfig = convertToInitialFilterConfig(initialFilter);
             initialFilterConfigs.add(initialFilterConfig);
         }
-        initialFiltersConfig.setAbstractFilterConfigs(initialFilterConfigs);
+        initialFiltersConfig.setFilterConfigs(initialFilterConfigs);
         return initialFiltersConfig;
 
     }
@@ -98,9 +97,9 @@ public class JsonUtil {
         initialFilterConfig.setName(filterName);
         List<JsonFilterParam> jsonFilterParams = initialFilter.getFilterParams();
         if (jsonFilterParams != null && !jsonFilterParams.isEmpty()) {
-            List<ParamConfig> paramConfigs = new ArrayList<>();
+            List<InitialParamConfig> paramConfigs = new ArrayList<>();
             for (JsonFilterParam jsonFilterParam : jsonFilterParams) {
-                ParamConfig paramConfig = new ParamConfig();
+                InitialParamConfig paramConfig = new InitialParamConfig();
                 paramConfig.setName(jsonFilterParam.getName());
                 paramConfig.setValue(jsonFilterParam.getValue());
                 paramConfig.setType(jsonFilterParam.getType());

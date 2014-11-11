@@ -7,6 +7,7 @@
             <date-time name="actual_start_period"/>
             <date-time name="actual_end_period"/>
             <long name="priority"/>
+            <string name="receiver_status" length="20"/>
         </fields>
     </domain-object-type>
     <domain-object-type name="letter_creator" initial-status="Active">
@@ -178,6 +179,15 @@
                                         <widget id="letter_priority"/>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="status_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="status"/>
+                                    </td>
+
+                                </tr>
 
                             </table>
                         </tab-group>
@@ -302,6 +312,12 @@
                     <created-object text="Отдел" domain-object-type="Department"/>
                     <created-object text="Сотрудник" domain-object-type="Employee"/>
                 </created-objects>
+                <selection-filters>
+                    <selection-filter name="byStatus">
+                    <param name="0" widget-id="status"/>
+                </selection-filter>
+                </selection-filters>
+
                 <summary-table page-size="10">
                     <summary-table-column header="Название" widget-id="Name">
                         <widget-id-mappings>
@@ -314,6 +330,7 @@
                                 <domain-object-type name="Organization"/>
                             </domain-object-types>
                         </pattern>
+
                         <pattern value="{name} - Department">
                             <domain-object-types>
                                 <domain-object-type name="Department"/>
@@ -364,7 +381,7 @@
                         </formatting>
                     </summary-table-column>
                 </summary-table>
-
+                <collection-ref name="Organizations"/>
             </linked-domain-objects-table>
 
             <suggest-box id="l_suggestbox">
@@ -415,15 +432,49 @@
                     <created-object domain-object-type="Employee" text="Сотрудник"/>
                     <created-object domain-object-type="Developer" text="Разработчки"/>
                 </created-objects>
-            </suggest-box>
+                <collection-extra-filters>
+                    <!-- example with widget-id, create new Organization with status "Pretermit",
+                    chose letter status "Pretermit"-->
+                    <extra-filter name="byStatus" null-value-filter-name="nullBossFilter">
+                        <param name="0" widget-id="status"/>
+                    </extra-filter>
 
-            <table-browser id="l_tablebrowser">
-                <field-path
-                        value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
-                <collection-ref name="Organizations"/>
-                <collection-view-ref name="organizations_default_view"/>
+                    <!-- two simple string params example-->
+                    <!-- <extra-filter name="byNames">
+                         <param name="0" value="Организация 1" type="string"/>
+                         <param name="1" value="Организация 2" type="string"/>
+                     </extra-filter>-->
 
-                <!-- паттерн отображения уже выбранных значений -->
+                    <!-- current user example, login person1/admin, create new  organization via hierarchy browser-->
+                     <!--<extra-filter name="byCreator">
+                         <param name="0" set-current-user="true"/>
+                     </extra-filter>-->
+
+                    <!-- filter organizations by boss employee with phone number "8 (495) 777-55-01"   -->
+
+                    <!--<extra-filter name="byEmployee">
+                        <param name="0" type="reference">
+                            <unique-key-value type="Employee">
+                                <field name="Phone" value="8 (495) 999-55-01"/>
+                            </unique-key-value>
+                        </param>
+                    </extra-filter>-->
+
+                    <!-- current date example-->
+                   <!-- <extra-filter name="byCreatedDate">
+                        <param name="0" set-current-moment="true" type="datetime"/>
+                    </extra-filter>-->
+                    <!-- <param name="6" set-base-object="true"/>-->
+                 </collection-extra-filters>
+             </suggest-box>
+
+             <table-browser id="l_tablebrowser">
+                 <field-path
+                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                 <collection-ref name="Organizations"/>
+                 <collection-view-ref name="organizations_default_view"/>
+
+                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name}"/>
 
                 <!-- название фильтра по тексту, введённому пользователем -->
@@ -439,6 +490,7 @@
                 <add-button image="..." text="Выбрать"/>
                 <default-sort-criteria column-field="name" order="desc"/>
                 <display-values-as-links value="true"/>
+
                 <linked-form-mapping>
                     <linked-form name="organization_linked_form" domain-object-type="Organization"/>
                     <linked-form name="department_linked_form" domain-object-type="Department"/>
@@ -469,6 +521,47 @@
                     <created-object domain-object-type="Employee" text="Сотрудник"/>
                     <created-object domain-object-type="Developer" text="Разработчки"/>
                 </created-objects>
+                <collection-extra-filters>
+                    <!--<extra-filter name="byStatus">
+                        <param name="0" widget-id="status"/>
+                    </extra-filter>-->
+                    <extra-filter name="byNames">
+                        <param name="0" value="Организация 1" type="string"/>
+                        <param name="1" value="Организация 2" type="string"/>
+
+                    </extra-filter>
+                   <!-- <extra-filter name="byCreator">
+                        <param name="0" set-current-user="true"/>
+                    </extra-filter>-->
+                   <!-- <extra-filter name="byEmployee">
+                        <param name="0" type="reference">
+                            <unique-key-value type="Employee">
+                                <field name="Phone" value="8 (495) 777-55-01"/>
+                            </unique-key-value>
+                        </param>
+                    </extra-filter>-->
+                   <!-- <extra-filter name="filter2" null-value-filter-name="filter-by-null">
+                        <param name="0" value="3.14" type="decimal"/>
+                        <param name="1" value="true" type="boolean"/>
+                        <param name="2" value="2014-07-11 19:32:57.737" time-zone-id="Europe/Kiev" type="datetime"/>
+                        <param name="3" set-current-moment="true" type="datetime"/>
+                        <param name="4" set-current-moment="true" type="dateTimeWithTimeZone"/>
+                        <param name="5" set-current-moment="true" type="timelessDate"/>
+                        <param name="6" set-base-object="true"/>
+                        <param name="7" set-current-user="true"/>
+                    </extra-filter>
+                    <extra-filter name="filter3">
+                        <param name="0" value="3.14" type="reference"/>
+                        <param name="1" widget-id="some-text-field" type="string"/>
+                        <param name="2" widget-id="some-suggest-box" type="reference"/>
+                        <param name="3" type="reference">
+                            <unique-key-value type="Employee">
+                                <field name="Phone" value="8 (495) 777-55-01"/>
+
+                            </unique-key-value>
+                        </param>
+                    </extra-filter>-->
+                </collection-extra-filters>
             </table-browser>
 
             <linked-domain-object-hyperlink id="l_hyperlink">
@@ -481,6 +574,14 @@
                     <linked-form name="employee_linked_form" domain-object-type="Employee"/>
                     <linked-form name="developer_form2" domain-object-type="Developer"/>
                 </linked-form-mapping>
+                <collection-ref name="Organizations"/>
+                <selection-filters>
+                    <selection-filter name="byNames">
+                        <param name="0" value="Организация 1" type="string"/>
+                        <param name="1" value="Организация 2" type="string"/>
+                    </selection-filter>
+
+                </selection-filters>
                 <pattern value="{name}"/>
             </linked-domain-object-hyperlink>
 
@@ -509,9 +610,7 @@
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
-                    <selection-filters row-limit="2">
 
-                    </selection-filters>
                     <selection-sort-criteria>
                         <sort-criterion field="name" order="asc"/>
                     </selection-sort-criteria>
@@ -612,6 +711,17 @@
                 <field-path value="actual_end_period"/>
                 <range-start widget-id="actual_start_period"/>
             </date-box>
+            <label id="status_label">
+                <text>Статус:</text>
+            </label>
+            <enumeration-box id="status">
+                <field-path value="receiver_status"/>
+                <mapping>
+                    <map value="Active" display-text="Active"/>
+                    <map value="Pretermit" display-text="Pretermit"/>
+
+                </mapping>
+            </enumeration-box>
         </widget-config>
     </form>
 
@@ -831,6 +941,14 @@
                             <widget id="cmfive1377"/>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <widget id="status_label"/>
+                        </td>
+                        <td>
+                            <widget id="status"/>
+                        </td>
+                    </tr>
                 </table>
             </header>
             <body display-single-tab="false">
@@ -927,6 +1045,37 @@
             <label id="titleNew">
                 <text>Coздание Организации</text>
             </label>
+            <label id="status_label">
+                <text>Статус:</text>
+            </label>
+            <suggest-box id="status">
+                <field-path value="status"/>
+
+                <collection-ref name="Statuses"/>
+                <selection-filters row-limit="1"></selection-filters>
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{name}"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byName"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                <page-size>10</page-size>
+                <display-values-as-links value="false"/>
+                <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
+                    Если тэг отсутствует, то используется "inline"-вариант. -->
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <default-sort-criteria column-field="name" order="asc"/>
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
+
+            </suggest-box>
         </widget-config>
     </form>
 
@@ -1319,5 +1468,28 @@
         <form-mapping domain-object-type="Developer" form="developer_form2"/>
 
     </form-mappings>
+    <collection name="Statuses" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                       s.id, s.name
+                    from
+                        Status s
 
+                        where
+                    1 = 1 ::where-clause
+                ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from Organization o
+        </counting-prototype>
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    s.name like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
 </configuration>

@@ -3,11 +3,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -15,7 +11,7 @@ import java.util.List;
  *         Time: 13:15
  */
 @Root(name = "initial-filters")
-public class InitialFiltersConfig extends AbstractFiltersConfig implements Dto {
+public class InitialFiltersConfig extends AbstractFiltersConfig<InitialFilterConfig> implements Dto {
     @Attribute(name = "panel-state", required = false)
     private String panelState;
 
@@ -27,14 +23,6 @@ public class InitialFiltersConfig extends AbstractFiltersConfig implements Dto {
         this.panelState = panelState;
     }
 
-    public void addInitialFilterConfig(AbstractFilterConfig initialFilterConfig){
-        List<AbstractFilterConfig> abstractFilterConfigs = getAbstractFilterConfigs();
-        if(abstractFilterConfigs == null){
-            abstractFilterConfigs = new ArrayList<AbstractFilterConfig>(1);
-            setAbstractFilterConfigs(abstractFilterConfigs);
-        }
-        abstractFilterConfigs.add(initialFilterConfig);
-    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

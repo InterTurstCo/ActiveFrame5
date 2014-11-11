@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget.filter;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 
 import java.util.List;
@@ -12,20 +13,21 @@ import java.util.List;
  *         Date: 10.06.14
  *         Time: 13:15
  */
-public class AbstractFiltersConfig implements Dto {
+public class AbstractFiltersConfig<T extends AbstractFilterConfig> implements Dto {
 
    @ElementListUnion({
            @ElementList(entry = "initial-filter", type = InitialFilterConfig.class, inline = true, required = false),
+           @ElementList(entry = "extra-filter", type = ExtraFilterConfig.class, inline = true, required = false),
            @ElementList(entry = "selection-filter", type = SelectionFilterConfig.class, inline = true, required = false)
    })
-    private List<AbstractFilterConfig> abstractFilterConfigs;
+    private List<T> filterConfigs;
 
-    public List<AbstractFilterConfig> getAbstractFilterConfigs() {
-        return abstractFilterConfigs;
+    public List<T> getFilterConfigs() {
+        return filterConfigs;
     }
 
-    public void setAbstractFilterConfigs(List<AbstractFilterConfig> abstractFilterConfigs) {
-        this.abstractFilterConfigs = abstractFilterConfigs;
+    public void setFilterConfigs(List<T> abstractFilterConfigs) {
+        this.filterConfigs = abstractFilterConfigs;
     }
 
     @Override
@@ -39,8 +41,8 @@ public class AbstractFiltersConfig implements Dto {
 
         AbstractFiltersConfig that = (AbstractFiltersConfig) o;
 
-        if (abstractFilterConfigs != null ? !abstractFilterConfigs.equals(that.abstractFilterConfigs) :
-                that.abstractFilterConfigs != null) {
+        if (filterConfigs != null ? !filterConfigs.equals(that.filterConfigs) :
+                that.filterConfigs != null) {
             return false;
         }
 
@@ -49,6 +51,6 @@ public class AbstractFiltersConfig implements Dto {
 
     @Override
     public int hashCode() {
-        return abstractFilterConfigs != null ? abstractFilterConfigs.hashCode() : 0;
+        return filterConfigs != null ? filterConfigs.hashCode() : 0;
     }
 }

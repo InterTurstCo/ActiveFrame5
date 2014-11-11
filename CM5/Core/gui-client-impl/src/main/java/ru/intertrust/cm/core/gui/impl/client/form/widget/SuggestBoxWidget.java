@@ -25,6 +25,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHan
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
@@ -35,8 +36,11 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.suggestbox.SuggestTextB
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipButtonClickHandler;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
@@ -348,17 +352,23 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         String dropDownPatternConfig = suggestBoxConfig.getDropdownPatternConfig().getValue();
         result.setDropdownPattern(dropDownPatternConfig);
         result.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
-        result.setText(requestQuery);
         result.setExcludeIds(new LinkedHashSet<Id>(currentState.getSelectedIds()));
-        result.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
+        result.setComplicatedFiltersParams(createFiltersParams(requestQuery));
         result.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
         result.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
+        result.setCollectionExtraFiltersConfig(suggestBoxConfig.getCollectionExtraFiltersConfig());
         if (lazyLoadState == null) {
             lazyLoadState = new LazyLoadState(suggestBoxConfig.getPageSize(), 0);
         }
         result.setLazyLoadState(lazyLoadState);
         return result;
 
+    }
+    private ComplicatedFiltersParams createFiltersParams(String requestQuery){
+        Collection<WidgetIdComponentName> widgetsIdsComponentNames = currentState.getExtraWidgetIdsComponentNames();
+        String filterName = suggestBoxConfig.getInputTextFilterConfig().getName();
+        WidgetsContainer container = getContainer();
+        return GuiUtil.createComplicatedFiltersParams(requestQuery, filterName, container, widgetsIdsComponentNames);
     }
 
     @Override

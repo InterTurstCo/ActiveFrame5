@@ -7,15 +7,12 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 
@@ -59,16 +56,15 @@ public class CollectionPluginHelper {
         }
         Map<String, CollectionColumnProperties> result = new LinkedHashMap<String, CollectionColumnProperties>();
         Collection<CollectionColumnProperties> columnPropertiesList = fieldColumnPropertiesMap.values();
-        List<AbstractFilterConfig> filterConfigs = initialFiltersConfig.getAbstractFilterConfigs();
+        List<InitialFilterConfig> filterConfigs = initialFiltersConfig.getFilterConfigs();
         for (CollectionColumnProperties columnProperties : columnPropertiesList) {
-            for (AbstractFilterConfig filterConfig : filterConfigs) {
+            for (InitialFilterConfig filterConfig : filterConfigs) {
                 String filterName = filterConfig.getName();
                 String nameOfColumnFilter = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
                 if (filterName.equalsIgnoreCase(nameOfColumnFilter)) {
                     result.put(filterName, columnProperties);
                 }
             }
-
 
         }
         return result;
@@ -227,13 +223,17 @@ public class CollectionPluginHelper {
         return values;
 
     }
-
+    /*
+     * use FilterBuilder  boolean prepareExtraFilters(CollectionExtraFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters)
+     */
+    @Deprecated
     public static void prepareTableBrowserFilter(TableBrowserParams tableBrowserParams, List<Filter> filters) {
         if (tableBrowserParams == null) {
             return;
         }
-        String filterName = tableBrowserParams.getFilterName();
-        String filterValue = tableBrowserParams.getFilterValue();
+        ComplicatedFiltersParams bundle = (ComplicatedFiltersParams) tableBrowserParams.getComplicatedFiltersParams();
+        String filterName = bundle.getInputFilterName();
+        String filterValue = bundle.getInputFilterValue();
         if (filterName != null && filterValue.length() > 0) {
             Filter result = CollectionPluginHelper.prepareInputTextFilter(filterName, filterValue);
             filters.add(result);

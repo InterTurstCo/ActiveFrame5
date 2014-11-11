@@ -125,10 +125,14 @@
         <prototype>
             <![CDATA[
                     select
-                        o.id, o.name
+                        o.id, o.name, o.created_date, o.created_by, o.boss as boss, s.name as status_name
                     from
                         Organization o
-                         where
+                    left join employee e
+                        on e.id = o.boss
+                    left join status s
+                        on s.id = o.status
+                        where
                     1 = 1 ::where-clause
                 ]]>
         </prototype>
@@ -139,6 +143,50 @@
             <criteria placeholder="where-clause">
                 <![CDATA[
                     o.name like {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byNames">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    o.name in ({0}, {1})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCreator">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    o.created_by = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byEmployee">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    o.boss  = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byStatus">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    s.name = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="nullBossFilter">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    o.boss is null
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byCreatedDate">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    o.created_date >= {0}
                 ]]>
             </criteria>
         </filter>

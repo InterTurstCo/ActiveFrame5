@@ -40,51 +40,63 @@ public class FilterBuilderUtil {
 
     }
 
-    public static Filter prepareSearchFilter(List<String> filterValues, CollectionColumnProperties columnProperties) {
-        Filter filter = new Filter();
+
+     public static Filter prepareColumnFilter(List<String> filterValues, CollectionColumnProperties columnProperties, Filter filter){
+        Filter result = null;
         if (columnProperties != null) {
             String filterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
-            filter.setFilter(filterName);
+            result = initFilter(filterName, filter);
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
             switch (fieldType) {
                 case TIMELESS_DATE_TYPE:
                     try {
-                        prepareTimelessDateFilter(filter, filterValues, columnProperties);
+                        prepareTimelessDateFilter(result, filterValues, columnProperties);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                     break;
                 case DATE_TIME_TYPE:
                     try {
-                        prepareDateTimeFilter(filter, filterValues, columnProperties);
+                        prepareDateTimeFilter(result, filterValues, columnProperties);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                     break;
                 case DATE_TIME_WITH_TIME_ZONE_TYPE:
                     try {
-                        prepareDateTimeWithTimeZoneFilter(filter, filterValues, columnProperties);
+                        prepareDateTimeWithTimeZoneFilter(result, filterValues, columnProperties);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                     break;
                 case LONG_TYPE:
-                    prepareLongFilter(filter, filterValues);
+                    prepareLongFilter(result, filterValues);
                     break;
                 case DECIMAL_TYPE:
-                    prepareDecimalFilter(filter, filterValues);
+                    prepareDecimalFilter(result, filterValues);
                     break;
                 case BOOLEAN_TYPE:
-                    prepareBooleanFilter(filter, filterValues);
+                    prepareBooleanFilter(result, filterValues);
                     break;
                 default:
-                    prepareStringFilter(filter, filterValues);
+                    prepareStringFilter(result, filterValues);
                     break;
             }
         }
-        return filter;
+        return result;
     }
 
+    /**
+     * @link Deperecated
+     *  use Filter prepareColumnFilter(List<String> filterValues, CollectionColumnProperties columnProperties, Filter filter)
+     * @param filterValues
+     * @param columnProperties
+     * @return
+     */
+    @Deprecated
+    public static Filter prepareSearchFilter(List<String> filterValues, CollectionColumnProperties columnProperties) {
+        return prepareColumnFilter(filterValues, columnProperties, null);
+    }
 
     private static Filter createRequiredFilter(List<ReferenceValue> idsCriterion, String type) {
         if (EXCLUDED_IDS_FILTER.equalsIgnoreCase(type)) {
@@ -285,6 +297,17 @@ public class FilterBuilderUtil {
             filter.addCriterion(1, rangeEndDateTimeWithTimeZoneValue);
         }
 
+
+    }
+    public static Filter initFilter(String filterName, Filter filter) {
+        Filter result = null;
+        if (filter == null) {
+            result = new Filter();
+            result.setFilter(filterName);
+        } else {
+            result = filter;
+        }
+        return result;
 
     }
 

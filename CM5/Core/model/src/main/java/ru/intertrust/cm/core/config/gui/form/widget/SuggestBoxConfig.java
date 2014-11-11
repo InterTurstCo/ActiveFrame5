@@ -5,6 +5,7 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Transient;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
@@ -69,6 +70,8 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
     @Element(name = "linked-form", required = false)
     private LinkedFormConfig linkedFormConfig;
 
+    @Element(name = "collection-extra-filters",required = false)
+    private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
     @Override
     public String getComponentName() {
         return "suggest-box";
@@ -202,6 +205,14 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         this.linkedFormConfig = linkedFormConfig;
     }
 
+    public CollectionExtraFiltersConfig getCollectionExtraFiltersConfig() {
+        return collectionExtraFiltersConfig;
+    }
+
+    public void setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
+        this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -284,6 +295,10 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
             return false;
         }
+        if (collectionExtraFiltersConfig != null ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig)
+                : that.collectionExtraFiltersConfig != null) {
+            return false;
+        }
 
         return true;
     }
@@ -307,6 +322,7 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
+        result = 31 * result + (collectionExtraFiltersConfig!= null ? collectionExtraFiltersConfig.hashCode() : 0);
         return result;
     }
 }

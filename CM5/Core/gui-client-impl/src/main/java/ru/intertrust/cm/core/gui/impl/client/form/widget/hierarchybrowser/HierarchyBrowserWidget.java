@@ -28,6 +28,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -504,7 +505,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     private void fetchWidgetItems(final TooltipCallback tooltipCallback) {
         final HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
-        final HierarchyBrowserTooltipRequest request = new HierarchyBrowserTooltipRequest(config, currentState.getIds());
+        ComplicatedFiltersParams filtersParams =
+                GuiUtil.createComplicatedFiltersParams(getContainer(), currentState.getSelectionWidgetIdsComponentNames());
+        final HierarchyBrowserTooltipRequest request = new HierarchyBrowserTooltipRequest(config, currentState.getIds(), filtersParams);
         Command command = new Command("fetchWidgetItems", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

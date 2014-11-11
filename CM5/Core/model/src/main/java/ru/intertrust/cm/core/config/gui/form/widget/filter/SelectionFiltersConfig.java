@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 13:15
  */
 @Root(name = "selection-filters")
-public class SelectionFiltersConfig extends AbstractFiltersConfig implements Dto {
+public class SelectionFiltersConfig extends AbstractFiltersConfig<SelectionFilterConfig> implements Dto {
     @Attribute(name = "row-limit", required = false)
     private int rowLimit = -1;
 

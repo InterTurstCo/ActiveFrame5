@@ -23,8 +23,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -99,7 +98,7 @@ public class CollectionPluginView extends PluginView {
     private void updateSizes() {
         // one pixel inaccuracy causes drawing fake scroll, removing 1px prevents scroll issue
         tableWidth = plugin.getOwner().getVisibleWidth() - 1;
-        CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody);
+        CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody); //TODO save and restore filter values
         columnHeaderController.setDisplayedWidth(tableWidth);
         columnHeaderController.changeVisibilityOfColumns();
     }
@@ -362,7 +361,7 @@ public class CollectionPluginView extends PluginView {
         filtersMap.clear();
         InitialFiltersConfig initialFiltersConfig = getPluginData().getInitialFiltersConfig();
         if(initialFiltersConfig != null){
-        List<AbstractFilterConfig> initialFilters = initialFiltersConfig.getAbstractFilterConfigs();
+        List<InitialFilterConfig> initialFilters = initialFiltersConfig.getFilterConfigs();
         if(initialFilters != null){
             initialFilters.clear();
         }
@@ -372,15 +371,15 @@ public class CollectionPluginView extends PluginView {
 
     private void updateFilterConfig() {
         final CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
-        final List<AbstractFilterConfig> configs = new ArrayList<>();
+        final List<InitialFilterConfig> configs = new ArrayList<InitialFilterConfig>();
         for (Map.Entry<String, List<String>> entry : filtersMap.entrySet()) {
             if (entry.getValue() != null && !entry.getValue().isEmpty()) {
                 final InitialFilterConfig initialFilterConfig = new InitialFilterConfig();
                 initialFilterConfig.setName((String) getPluginData().getDomainObjectFieldPropertiesMap()
                         .get(entry.getKey()).getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY));
-                final List<ParamConfig> paramConfigs = new ArrayList<>();
+                final List<InitialParamConfig> paramConfigs = new ArrayList<InitialParamConfig>();
                 for (int index = 0; index < entry.getValue().size(); index++) {
-                    final ParamConfig paramConfig = new ParamConfig();
+                    final InitialParamConfig paramConfig = new InitialParamConfig();
                     paramConfig.setName(Integer.valueOf(index));
                     final String paramValue = entry.getValue().get(index).trim();
                     if (!paramValue.isEmpty()) {
@@ -400,7 +399,7 @@ public class CollectionPluginView extends PluginView {
             config.setInitialFiltersConfig(null);
         } else {
             final InitialFiltersConfig initialFiltersConfig = new InitialFiltersConfig();
-            initialFiltersConfig.setAbstractFilterConfigs(configs);
+            initialFiltersConfig.setFilterConfigs(configs);
             config.setInitialFiltersConfig(initialFiltersConfig);
         }
         final Action action = ComponentRegistry.instance.get(CollectionFiltersActionContext.COMPONENT_NAME);

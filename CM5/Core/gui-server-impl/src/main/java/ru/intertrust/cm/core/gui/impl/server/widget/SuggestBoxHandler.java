@@ -18,6 +18,8 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.util.ObjectCloner;
@@ -47,11 +49,14 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         ObjectCloner cloner = new ObjectCloner();
         SuggestBoxConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(), SuggestBoxConfig.class);
         state.setSuggestBoxConfig(widgetConfig);
+        Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames =
+                WidgetUtil.getWidgetIdsComponentsNamesForFilters(widgetConfig.getSelectionFiltersConfig(), context.getWidgetConfigsById());
+        state.setSelectionWidgetIdsComponentNames(selectionWidgetIdsComponentNames);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
-        DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
-        fillTypeTitleMap(domainObject, widgetConfig.getLinkedFormMappingConfig(), state);
-        abandonAccessed(domainObject, widgetConfig.getCreatedObjectsConfig(), null);
-        PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);
+        DomainObject root = context.getFormObjects().getRootNode().getDomainObject();
+        fillTypeTitleMap(root, widgetConfig.getLinkedFormMappingConfig(), state);
+        abandonAccessed(root, widgetConfig.getCreatedObjectsConfig(), null);
+        PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), root);
         state.setPopupTitlesHolder(popupTitlesHolder);
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
         if (!selectedIds.isEmpty()) {
@@ -63,7 +68,10 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             Filter idsIncludedFilter = FilterBuilderUtil.prepareFilter(idsIncluded, FilterBuilderUtil.INCLUDED_IDS_FILTER);
             filters.add(idsIncludedFilter);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+            Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
+                    context, widgetConfig.getId());
+            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId(), widgetValueMap);
+            boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == -1;
             IdentifiableObjectCollection collection = noLimit
@@ -72,17 +80,21 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
             FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
             objects = (!hasSelectionFilters && collection.size() != selectedIds.size() && noLimit)
-                    ? widgetItemsHandler.generateWidgetItemsFromCollectionAndIds(selectionPatternConfig, formattingConfig, collection, selectedIds)
+                    ? widgetItemsHandler.generateWidgetItemsFromCollectionAndIds(selectionPatternConfig,
+                    formattingConfig, collection, selectedIds)
                     : widgetItemsHandler.generateWidgetItemsFromCollection(selectionPatternConfig,
                     formattingConfig, collection);
         }
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         Boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean isReportForm = FormConfig.TYPE_REPORT.equals(context.getFormType());
-        boolean singleChoice = isReportForm ? (singleChoiceFromConfig != null && singleChoiceFromConfig) : isSingleChoice(context, singleChoiceFromConfig);
+        boolean singleChoice = isReportForm ? (singleChoiceFromConfig != null && singleChoiceFromConfig)
+                : isSingleChoice(context, singleChoiceFromConfig);
         state.setSelectedIds(new LinkedHashSet<>(selectedIds));
         state.setSingleChoice(singleChoice);
         state.setListValues(objects);
+        state.setExtraWidgetIdsComponentNames(WidgetUtil.
+                getWidgetIdsComponentsNamesForFilters(widgetConfig.getCollectionExtraFiltersConfig(), context.getWidgetConfigsById()));
         boolean displayingAsHyperlinks = WidgetUtil.isDisplayingAsHyperlinks(widgetConfig.getDisplayValuesAsLinksConfig());
         state.setDisplayingAsHyperlinks(displayingAsHyperlinks);
         return state;
@@ -94,7 +106,8 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         if (!suggestionRequest.getExcludeIds().isEmpty()) {
             filters.add(FilterBuilderUtil.prepareFilter(suggestionRequest.getExcludeIds(), FilterBuilderUtil.EXCLUDED_IDS_FILTER));
         }
-        filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));
+        ComplicatedFiltersParams filtersParams = suggestionRequest.getComplicatedFiltersParams();
+        filterBuilder.prepareExtraFilters(suggestionRequest.getCollectionExtraFiltersConfig(), filtersParams, filters);
         DefaultSortCriteriaConfig sortCriteriaConfig = suggestionRequest.getDefaultSortCriteriaConfig();
         SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
         LazyLoadState lazyLoadState = suggestionRequest.getLazyLoadState();
@@ -118,15 +131,5 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         return suggestionResponse;
     }
 
-    private Filter prepareInputTextFilter(String text, String inputTextFilterName) {
-        Filter textFilter = new Filter();
-        textFilter.setFilter(inputTextFilterName);
-        if (text.equals("*")) {
-            textFilter.addCriterion(0, new StringValue("%"));
-        } else {
-            textFilter.addCriterion(0, new StringValue(text + "%"));
-        }
-        return textFilter;
-    }
 
 }

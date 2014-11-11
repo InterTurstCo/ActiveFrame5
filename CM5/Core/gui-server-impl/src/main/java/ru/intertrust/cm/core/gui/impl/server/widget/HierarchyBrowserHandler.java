@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
@@ -21,6 +21,8 @@ import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.util.ObjectCloner;
@@ -67,13 +69,14 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
         boolean hasSelectionFilters = false;
         boolean noLimit = true;
+        Collection<NodeCollectionDefConfig > nodeConfigs = collectionNameNodeMap.values();
+        Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValuesMap(nodeConfigs, context, widgetConfig.getId());
         if (!selectedIds.isEmpty()) {
-            Set<String> collectionNames = collectionNameNodeMap.keySet();
-            for (String collectionName : collectionNames) {
-                hasSelectionFilters = hasSelectionFilters || hasSelectionFilters(collectionName, collectionNameNodeMap);
-                noLimit = noLimit && hasNoLimit(collectionName, collectionNameNodeMap);
-                generateChosenItems(collectionName, collectionNameNodeMap, formattingConfig, selectedIds, chosenItems,
-                        false);
+            for (NodeCollectionDefConfig nodeDefConfig : nodeConfigs) {
+                hasSelectionFilters = hasSelectionFilters || hasSelectionFilters(nodeDefConfig);
+                noLimit = noLimit && hasNoLimit(nodeConfig);
+                ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId(), widgetValueMap);
+                generateChosenItems(nodeDefConfig, formattingConfig, selectedIds, chosenItems, filtersParams,false);
 
             }
 
@@ -82,6 +85,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             correctChosenItems(selectedIds, chosenItems);
         }
         HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
+        state.setSelectionWidgetIdsComponentNames(new ArrayList<>(widgetValueMap.keySet())); //serialization issue keySet() is not supported by gwt
         state.setSelectedIds(selectedIds);
         state.setCollectionNameNodeMap(collectionNameNodeMap);
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
@@ -94,15 +98,28 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
         return state;
     }
+    private Map<WidgetIdComponentName, WidgetState> getWidgetValuesMap(Collection<NodeCollectionDefConfig> nodeConfigs,
+                                                                       WidgetContext context, String widgetId) {
+        Map<WidgetIdComponentName, WidgetState> result = new HashMap<>();
+        for (NodeCollectionDefConfig nodeConfig : nodeConfigs) {
+            SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
+            Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames =
+                    WidgetUtil.getWidgetIdsComponentsNamesForFilters(selectionFiltersConfig, context.getWidgetConfigsById());
+            Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
+                    context, widgetId);
+            result.putAll(widgetValueMap);
+        }
+        return result;
+    }
 
-    private void generateChosenItems(String collectionName, Map<String, NodeCollectionDefConfig> collectionNameNodeMap,
+    private void generateChosenItems(NodeCollectionDefConfig nodeConfig,
                                      FormattingConfig formattingConfig, List<Id> selectedIds,
-                                     List<HierarchyBrowserItem> items, boolean tooltipContent) {
+                                     List<HierarchyBrowserItem> items, ComplicatedFiltersParams filtersParams, boolean tooltipContent) {
         List<Filter> filters = new ArrayList<Filter>();
         filters = addIncludeIdsFilter(selectedIds, filters);
-        NodeCollectionDefConfig nodeConfig = collectionNameNodeMap.get(collectionName);
+        String collectionName = nodeConfig.getCollection();
         SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
-        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams, filters);
         Integer limit = WidgetUtil.getLimit(selectionFiltersConfig);
         SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(nodeConfig.getSelectionSortCriteriaConfig());
 
@@ -248,8 +265,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             }
             DefaultSortCriteriaConfig sortCriteriaConfig = nodeConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
-            SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
-            filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+
             IdentifiableObjectCollection collection = collectionsService.
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
             FormattingConfig formattingConfig = nodeContentRequest.getFormattingConfig();
@@ -328,24 +344,24 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<Id> selectedIds = request.getSelectedIds();
         FormattingConfig formattingConfig = config.getFormattingConfig();
         ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
+        ComplicatedFiltersParams filtersParams = request.getFiltersParams();
         for (String collectionName : collectionNames) {
-            generateChosenItems(collectionName, collectionNameNodeMap, formattingConfig, selectedIds, chosenItems, true);
+            NodeCollectionDefConfig nodeCollectionConfig = collectionNameNodeMap.get(collectionName);
+            generateChosenItems(nodeCollectionConfig, formattingConfig, selectedIds, chosenItems, filtersParams, true);
 
         }
         HierarchyBrowserTooltipResponse response = new HierarchyBrowserTooltipResponse(chosenItems, selectedIds);
         return response;
     }
 
-    private boolean hasSelectionFilters(String collectionName, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
-        NodeCollectionDefConfig nodeCollectionDefConfig = collectionNameNodeMap.get(collectionName);
-        SelectionFiltersConfig selectionFiltersConfig = nodeCollectionDefConfig.getSelectionFiltersConfig();
-        List<AbstractFilterConfig> list = selectionFiltersConfig == null ? null : selectionFiltersConfig.getAbstractFilterConfigs();
+    private boolean hasSelectionFilters(NodeCollectionDefConfig nodeConfig) {
+        SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
+        List<SelectionFilterConfig> list = selectionFiltersConfig == null ? null : selectionFiltersConfig.getFilterConfigs();
         return list != null && !list.isEmpty();
     }
 
-    private boolean hasNoLimit(String collectionName, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
-        NodeCollectionDefConfig nodeCollectionDefConfig = collectionNameNodeMap.get(collectionName);
-        SelectionFiltersConfig selectionFiltersConfig = nodeCollectionDefConfig.getSelectionFiltersConfig();
+    private boolean hasNoLimit(NodeCollectionDefConfig nodeConfig) {
+        SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
         return selectionFiltersConfig == null || selectionFiltersConfig.getRowLimit() == 0;
     }
 

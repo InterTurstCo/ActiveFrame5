@@ -17,7 +17,6 @@ public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
     private boolean singleChoice;
     private PopupTitlesHolder popupTitlesHolder;
 
-
     public boolean isSingleChoice() {
         return singleChoice;
     }

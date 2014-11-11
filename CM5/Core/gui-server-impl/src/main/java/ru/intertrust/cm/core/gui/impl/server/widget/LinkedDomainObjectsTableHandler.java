@@ -17,6 +17,8 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -47,30 +49,35 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     public LinkedDomainObjectsTableState getInitialState(WidgetContext context) {
 
         LinkedDomainObjectsTableState state = new LinkedDomainObjectsTableState();
-        LinkedDomainObjectsTableConfig domainObjectsTableConfig = context.getWidgetConfig();
-        state.setLinkedDomainObjectTableConfig(domainObjectsTableConfig);
-        SingleChoiceConfig singleChoiceConfig = domainObjectsTableConfig.getSingleChoiceConfig();
+        LinkedDomainObjectsTableConfig widgetConfig = context.getWidgetConfig();
+        state.setLinkedDomainObjectTableConfig(widgetConfig);
+        SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoiceConfig();
         Boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig);
         state.setSingleChoice(singleChoice);
         ArrayList<Id> ids = context.getAllObjectIds();
-        DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
-        PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(domainObjectsTableConfig
-                .getLinkedFormConfig(), domainObject);
+        DomainObject root = context.getFormObjects().getRootNode().getDomainObject();
+        PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig
+                .getLinkedFormConfig(), root);
         state.setPopupTitlesHolder(popupTitlesHolder);
         state.setIds(ids);
 
-        String linkedFormName = domainObjectsTableConfig.getLinkedFormConfig().getName();
+        String linkedFormName = widgetConfig.getLinkedFormConfig().getName();
         if (linkedFormName != null && !linkedFormName.isEmpty()) {
             FormConfig formConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
             state.setObjectTypeName(formConfig.getDomainObjectType());
         }
-        SelectionFiltersConfig selectionFiltersConfig = domainObjectsTableConfig.getSelectionFiltersConfig();
-        CollectionRefConfig refConfig = domainObjectsTableConfig.getCollectionRefConfig();
+        SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
+        CollectionRefConfig refConfig = widgetConfig.getCollectionRefConfig();
         boolean collectionNameConfigured = refConfig != null;
-
-        List<RowItem> rowItems = selectionFiltersConfig == null || !collectionNameConfigured ? generateRowItems(domainObjectsTableConfig, ids)
-                : generateFilteredRowItems(domainObjectsTableConfig, ids, false);
+        Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames =
+                WidgetUtil.getWidgetIdsComponentsNamesForFilters(widgetConfig .getSelectionFiltersConfig(), context.getWidgetConfigsById());
+        state.setSelectionWidgetIdsComponentNames(selectionWidgetIdsComponentNames);
+        Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
+                context, widgetConfig.getId());
+        ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId(), widgetValueMap);
+        List<RowItem> rowItems = selectionFiltersConfig == null || !collectionNameConfigured ? generateRowItems(widgetConfig, ids)
+                : generateFilteredRowItems(widgetConfig, ids, filtersParams,false);
         state.setRowItems(rowItems);
 
         return state;
@@ -78,10 +85,10 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
 
     private List<RowItem> generateFilteredRowItems(LinkedDomainObjectsTableConfig widgetConfig,
-                                                   List<Id> selectedIds, boolean tooltipContent) {
+                                                   List<Id> selectedIds, ComplicatedFiltersParams filtersParams, boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
-        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
         Filter includedIds = FilterBuilderUtil.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilderUtil.INCLUDED_IDS_FILTER);
         filters.add(includedIds);
 
@@ -274,10 +281,10 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         LinkedTableTooltipRequest request = (LinkedTableTooltipRequest) inputParams;
         LinkedDomainObjectsTableConfig config = request.getConfig();
         List<Id> ids = request.getSelectedIds();
-
+        ComplicatedFiltersParams filtersParams = request.getFiltersParams();
         SelectionFiltersConfig selectionFiltersConfig = config.getSelectionFiltersConfig();
         List<RowItem> rowItems = selectionFiltersConfig == null ? generateRowItems(config, ids)
-                : generateFilteredRowItems(config, ids, true);
+                : generateFilteredRowItems(config, ids, filtersParams,true);
 
         return new LinkedTableTooltipResponse(rowItems);
     }

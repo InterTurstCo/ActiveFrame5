@@ -8,11 +8,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
@@ -25,6 +21,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
@@ -34,9 +31,12 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.model.plugin.HierarchicalCollectionData;
@@ -183,12 +183,12 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
         TableBrowserParams tableBrowserParams = new TableBrowserParams()
-                .setFilterName(tableBrowserConfig.getInputTextFilterConfig().getName())
-                .setFilterValue(widgetItemsView.getFilterValue())
+                .setComplicatedFiltersParams(createFiltersParams())
                 .setExcludedIds(currentState.getIds())
                 .setSingleChoice(currentState.isSingleChoice())
                 .setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues())
-                .setPageSize(tableBrowserConfig.getPageSize());
+                .setPageSize(tableBrowserConfig.getPageSize())
+                .setCollectionExtraFiltersConfig(tableBrowserConfig.getCollectionExtraFiltersConfig());
         collectionViewerConfig.setTableBrowserParams(tableBrowserParams);
         collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
@@ -203,6 +203,15 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
 
         collectionViewerConfig.setInitialFiltersConfig(tableBrowserConfig.getInitialFiltersConfig());
         return collectionViewerConfig;
+    }
+
+    private ComplicatedFiltersParams createFiltersParams(){
+        Collection<WidgetIdComponentName> widgetsIdsComponentNames = currentState.getExtraWidgetIdsComponentNames();
+        String filterName = currentState.getTableBrowserConfig().getInputTextFilterConfig().getName();
+        String filterValue = widgetItemsView.getFilterValue();
+        WidgetsContainer container = getContainer();
+        return GuiUtil.createComplicatedFiltersParams(filterValue, filterName, container, widgetsIdsComponentNames);
+
     }
 
     private CollectionPlugin openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig) {
@@ -527,6 +536,9 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         widgetItemsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
         widgetItemsRequest.setSelectionSortCriteriaConfig(tableBrowserConfig.getSelectionSortCriteriaConfig());
         widgetItemsRequest.setSelectionFiltersConfig(tableBrowserConfig.getSelectionFiltersConfig());
+        ComplicatedFiltersParams params = GuiUtil.createComplicatedFiltersParams(getContainer(),
+                currentState.getSelectionWidgetIdsComponentNames());
+        widgetItemsRequest.setComplicatedFiltersParams(params);
         Command command = new Command("fetchTableBrowserItems", getName(), widgetItemsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

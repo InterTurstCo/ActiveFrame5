@@ -734,7 +734,9 @@
 
                 <collection-view-ref name="cities_default_view"/>
                 <selection-filters row-limit="2">
-
+                    <selection-filter name="byName">
+                        <param name="0" value="Цю%" type="string"/>
+                    </selection-filter>
                 </selection-filters>
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>

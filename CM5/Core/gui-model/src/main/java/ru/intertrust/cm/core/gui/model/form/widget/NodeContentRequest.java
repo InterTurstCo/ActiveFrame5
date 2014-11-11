@@ -26,6 +26,7 @@ public class NodeContentRequest implements Dto {
     private boolean openChildren = true;
     private FormattingConfig formattingConfig;
     private Map<String, PopupTitlesHolder> titlesHolderMap;
+
     public int getNumberOfItemsToDisplay() {
         return numberOfItemsToDisplay;
     }

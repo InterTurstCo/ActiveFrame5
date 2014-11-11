@@ -9,12 +9,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -35,15 +30,12 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkedTableTooltipRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkedTableTooltipResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.Arrays;
@@ -402,8 +394,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             tooltip.showRelativeTo(impl);
             return;
         }
+        ComplicatedFiltersParams filtersParams =
+                GuiUtil.createComplicatedFiltersParams(getContainer(), currentState.getSelectionWidgetIdsComponentNames());
         LinkedTableTooltipRequest request = new LinkedTableTooltipRequest(currentState.getLinkedDomainObjectsTableConfig(),
-                currentState.getIds());
+                currentState.getIds(), filtersParams);
         Command command = new Command("fetchWidgetItems", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -422,8 +416,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     }
 
     private void getWidgetItems(final TooltipCallback tooltipCallback) {
+        ComplicatedFiltersParams filtersParams =
+                GuiUtil.createComplicatedFiltersParams(getContainer(), currentState.getSelectionWidgetIdsComponentNames());
         LinkedTableTooltipRequest request = new LinkedTableTooltipRequest(currentState.getLinkedDomainObjectsTableConfig(),
-                currentState.getIds());
+                currentState.getIds(), filtersParams);
         Command command = new Command("fetchWidgetItems", getName(), request);
         final HandlerRegistration handlerRegistration = Event.addNativePreviewHandler(new EventBlocker(impl));
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {

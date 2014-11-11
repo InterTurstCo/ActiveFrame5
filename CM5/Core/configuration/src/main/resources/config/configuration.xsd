@@ -1976,6 +1976,8 @@
                                 minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:createNewButtonType" name="create-new-button"
                                 minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:collectionExtraFiltersType" name="collection-extra-filters"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -2020,16 +2022,10 @@
 
     <xs:complexType name="initialFilterType">
         <xs:sequence>
-            <xs:element type="con:paramType" name="param" minOccurs="0" maxOccurs="unbounded"
+            <xs:element type="con:initialParamType" name="param" minOccurs="0" maxOccurs="unbounded"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
-    </xs:complexType>
-
-    <xs:complexType name="paramType">
-        <xs:attribute name="name" use="required" type="xs:integer"/>
-        <xs:attribute name="value" use="required" type="xs:string"/>
-        <xs:attribute name="type" use="optional" type="con:columnFieldTypeEnum"/>
     </xs:complexType>
 
     <xs:complexType name="filterPanelType">
@@ -2054,10 +2050,11 @@
     </xs:complexType>
     <xs:complexType name="selectionFilterType">
         <xs:sequence>
-            <xs:element type="con:paramType" name="param" minOccurs="0" maxOccurs="unbounded"
+            <xs:element type="con:selectionParamType" name="param" minOccurs="0" maxOccurs="unbounded"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
+        <xs:attribute name="null-value-filter-name" use="optional" type="xs:string"/>
     </xs:complexType>
 
 
@@ -2174,6 +2171,8 @@
                                 minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:createNewButtonType" name="create-new-button"
                                 minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:collectionExtraFiltersType" name="collection-extra-filters"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -3063,7 +3062,7 @@
     </xs:complexType>
 
     <xs:complexType name="uniqueKeyValueType">
-        <xs:sequence>
+        <xs:sequence minOccurs="1" maxOccurs="1">
             <xs:element type="con:fieldValueType" name="field"
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
@@ -3241,6 +3240,69 @@
                 </xs:attribute>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Filters -->
+    <xs:complexType name="abstractParamType" abstract="true">
+        <xs:attribute name="value" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:token">
+                    <xs:minLength value="1"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="type" type="con:columnFieldTypeEnum" use="optional"/>
+        <xs:attribute name="set-current-user" type="xs:boolean" use="optional"/>
+        <xs:attribute name="set-current-moment" type="xs:boolean" use="optional"/>
+        <xs:attribute name="set-base-object" type="xs:boolean" use="optional"/>
+        <xs:attribute name="name" type="xs:integer" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="complicatedParamType" abstract="true">
+        <xs:complexContent>
+            <xs:extension base="con:abstractParamType">
+                <xs:sequence minOccurs="0" maxOccurs="1">
+                    <xs:element name="unique-key-value" type="con:uniqueKeyValueType"/>
+                </xs:sequence>
+                <xs:attribute name="time-zone-id" type="xs:string" use="optional"/>
+                <xs:attribute name="widget-id" type="xs:string"  use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="extraParamType">
+        <xs:complexContent>
+            <xs:extension base="con:complicatedParamType"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="selectionParamType">
+        <xs:complexContent>
+            <xs:extension base="con:complicatedParamType"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="initialParamType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractParamType"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="collectionExtraFiltersType">
+        <xs:sequence maxOccurs="unbounded" minOccurs="0">
+            <xs:element name="extra-filter" type="con:extraFilterType" maxOccurs="unbounded" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:integer" name="row-limit" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="extraFilterType">
+        <xs:sequence>
+            <xs:element name="param" type="con:extraParamType"  minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required" type="xs:string"/>
+        <xs:attribute name="null-value-filter-name" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="calendarItemType">

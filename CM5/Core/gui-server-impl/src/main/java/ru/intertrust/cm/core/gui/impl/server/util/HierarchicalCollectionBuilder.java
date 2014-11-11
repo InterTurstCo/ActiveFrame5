@@ -6,14 +6,8 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -82,19 +76,19 @@ public class HierarchicalCollectionBuilder implements ComponentHandler {
 
     private void prepareFilterForHierarchicalCollection(
             CollectionViewerConfig collectionViewerConfig, String filter, Id selectedId) {
-        AbstractFilterConfig filterConfig = new InitialFilterConfig();
+        InitialFilterConfig filterConfig = new InitialFilterConfig();
         filterConfig.setName(filter);
-        List<ParamConfig> paramConfigs = new ArrayList<>();
-        ParamConfig paramConfig = new ParamConfig();
+        List<InitialParamConfig> paramConfigs = new ArrayList<>();
+        InitialParamConfig paramConfig = new InitialParamConfig();
         paramConfig.setName(0);
         paramConfig.setType(ModelConstants.REFERENCE_TYPE);
         paramConfig.setValue(selectedId.toStringRepresentation());
         paramConfigs.add(paramConfig);
         filterConfig.setParamConfigs(paramConfigs);
-        List<AbstractFilterConfig> abstractFilterConfigs = new ArrayList<>();
-        abstractFilterConfigs.add(filterConfig);
+        List<InitialFilterConfig> filterConfigs = new ArrayList<InitialFilterConfig>();
+        filterConfigs.add(filterConfig);
         InitialFiltersConfig filtersConfig = new InitialFiltersConfig();
-        filtersConfig.setAbstractFilterConfigs(abstractFilterConfigs);
+        filtersConfig.setFilterConfigs(filterConfigs);
         collectionViewerConfig.setHierarchicalFiltersConfig(filtersConfig);
     }
 

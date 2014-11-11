@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
-import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
@@ -16,9 +13,12 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.util.ObjectCloner;
 
@@ -49,10 +49,15 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         Set<Id> selectedIdsSet = new LinkedHashSet<>(selectedIds);
         state.setSelectedIds(selectedIdsSet);
         LinkedHashMap<Id, String> listValues = null;
-        DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
-        fillTypeTitleMap(domainObject, widgetConfig.getLinkedFormMappingConfig(), state);
-        abandonAccessed(domainObject, widgetConfig.getCreatedObjectsConfig(), null);
-        PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), domainObject);
+        DomainObject root = context.getFormObjects().getRootNode().getDomainObject();
+        fillTypeTitleMap(root, widgetConfig.getLinkedFormMappingConfig(), state);
+
+        abandonAccessed(root, widgetConfig.getCreatedObjectsConfig(), null);
+        PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), root);
+        Map<String, WidgetConfig> widgetIdConfigMap = context.getWidgetConfigsById();
+        Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames = WidgetUtil.
+                getWidgetIdsComponentsNamesForFilters(widgetConfig.getSelectionFiltersConfig(), widgetIdConfigMap);
+        state.setSelectionWidgetIdsComponentNames(selectionWidgetIdsComponentNames);
         state.setPopupTitlesHolder(popupTitlesHolder);
         if (!selectedIds.isEmpty()) {
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
@@ -62,7 +67,10 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             SelectionSortCriteriaConfig selectionSortCriteriaConfig = widgetConfig.getSelectionSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(selectionSortCriteriaConfig);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+            Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
+                    context, widgetConfig.getId());
+            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId(), widgetValueMap);
+            boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == -1;
             IdentifiableObjectCollection collection = noLimit
@@ -77,6 +85,9 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             state.setListValues(listValues);
 
         }
+        state.setExtraWidgetIdsComponentNames(WidgetUtil.
+                getWidgetIdsComponentsNamesForFilters(widgetConfig.getCollectionExtraFiltersConfig(),
+                        widgetIdConfigMap));
 
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         Boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
@@ -98,7 +109,8 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         SelectionSortCriteriaConfig defaultSortCriteriaConfig = widgetItemsRequest.getSelectionSortCriteriaConfig();
         SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(defaultSortCriteriaConfig);
         SelectionFiltersConfig selectionFiltersConfig = widgetItemsRequest.getSelectionFiltersConfig();
-        boolean selectionFiltersWereApplied = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, null, filters);
+        boolean selectionFiltersWereApplied = filterBuilder.prepareSelectionFilters(selectionFiltersConfig,
+                widgetItemsRequest.getComplicatedFiltersParams(),filters);
         IdentifiableObjectCollection collection = null;
         boolean hasLostItems = false;
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);

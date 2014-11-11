@@ -3,8 +3,9 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 
 import java.util.LinkedHashSet;
 
@@ -17,25 +18,17 @@ import java.util.LinkedHashSet;
  */
 public class SuggestionRequest implements Dto {
 
-    private String text;
     private String collectionName;
     private String dropdownPattern;
     private String selectionPattern;
-    private String inputTextFilterName;
     private String idsExclusionFilterName;
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     private LinkedHashSet<Id> excludeIds = new LinkedHashSet<Id>();
     private FormattingConfig formattingConfig;
-    private SelectionFiltersConfig selectionFiltersConfig;
+    private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
     private boolean tooltipContent;
     private LazyLoadState lazyLoadState;
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
+    private ComplicatedFiltersParams complicatedFiltersParams;
 
     public String getCollectionName() {
         return collectionName;
@@ -69,14 +62,6 @@ public class SuggestionRequest implements Dto {
         this.selectionPattern = selectionPattern;
     }
 
-    public String getInputTextFilterName() {
-        return inputTextFilterName;
-    }
-
-    public void setInputTextFilterName(String inputTextFilterName) {
-        this.inputTextFilterName = inputTextFilterName;
-    }
-
     public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
         return defaultSortCriteriaConfig;
     }
@@ -101,12 +86,12 @@ public class SuggestionRequest implements Dto {
         this.formattingConfig = formattingConfig;
     }
 
-    public SelectionFiltersConfig getSelectionFiltersConfig() {
-        return selectionFiltersConfig;
+    public CollectionExtraFiltersConfig getCollectionExtraFiltersConfig() {
+        return collectionExtraFiltersConfig;
     }
 
-    public void setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
-        this.selectionFiltersConfig = selectionFiltersConfig;
+    public void setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
+        this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
     }
 
     public boolean isTooltipContent() {
@@ -123,5 +108,13 @@ public class SuggestionRequest implements Dto {
 
     public void setLazyLoadState(LazyLoadState lazyLoadState) {
         this.lazyLoadState = lazyLoadState;
+    }
+
+    public ComplicatedFiltersParams getComplicatedFiltersParams() {
+        return complicatedFiltersParams;
+    }
+
+    public void setComplicatedFiltersParams(ComplicatedFiltersParams complicatedFiltersParams) {
+        this.complicatedFiltersParams = complicatedFiltersParams;
     }
 }

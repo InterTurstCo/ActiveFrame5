@@ -1,12 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONBoolean;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import com.google.gwt.json.client.*;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
@@ -134,10 +130,10 @@ public class JsonUtil {
         }
         JSONArray jsonInitialFiltersArr = new JSONArray();
 
-        List<AbstractFilterConfig> abstractFilterConfigs = initialFiltersConfig.getAbstractFilterConfigs();
+        List<InitialFilterConfig> abstractFilterConfigs = initialFiltersConfig.getFilterConfigs();
         int index = 0;
-        for (AbstractFilterConfig abstractFilterConfig : abstractFilterConfigs) {
-            prepareJsonInitialFilter(jsonInitialFiltersArr, abstractFilterConfig, index);
+        for (InitialFilterConfig filterConfig : abstractFilterConfigs) {
+            prepareJsonInitialFilter(jsonInitialFiltersArr, filterConfig, index);
             index++;
         }
         jsonInitialFiltersObj.put("jsonInitialFilters", jsonInitialFiltersArr);
@@ -145,15 +141,16 @@ public class JsonUtil {
 
     }
 
-    private static void prepareJsonInitialFilter(JSONArray jsonInitialFiltersArr, AbstractFilterConfig abstractFilterConfig, int index) {
+    private static void prepareJsonInitialFilter(JSONArray jsonInitialFiltersArr, InitialFilterConfig initialFilterConfig,
+                                                 int index) {
         JSONObject jsonInitialFilterObj = new JSONObject();
-        String filterName = abstractFilterConfig.getName();
+        String filterName = initialFilterConfig.getName();
         jsonInitialFilterObj.put("name", new JSONString(filterName));
-        List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
+        List<InitialParamConfig> paramConfigs = initialFilterConfig.getParamConfigs();
         if (paramConfigs != null) {
             int paramIndex = 0;
             JSONArray jsonFilterParamArr = new JSONArray();
-            for (ParamConfig paramConfig : paramConfigs) {
+            for (InitialParamConfig paramConfig : paramConfigs) {
                 prepareJsonFilterParam(jsonFilterParamArr, paramConfig, paramIndex);
                 paramIndex++;
             }
@@ -163,7 +160,7 @@ public class JsonUtil {
 
     }
 
-    private static void prepareJsonFilterParam(JSONArray jsonFilterParamArr, ParamConfig paramConfig, int index) {
+    private static void prepareJsonFilterParam(JSONArray jsonFilterParamArr, InitialParamConfig paramConfig, int index) {
         JSONObject jsonFilterParamObj = new JSONObject();
         Integer name = paramConfig.getName();
         jsonFilterParamObj.put("name", new JSONNumber(name));

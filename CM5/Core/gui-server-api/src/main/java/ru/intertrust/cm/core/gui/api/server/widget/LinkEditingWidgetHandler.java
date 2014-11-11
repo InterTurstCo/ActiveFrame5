@@ -43,10 +43,12 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
     @Autowired
     protected AccessVerificationService accessVerificationService;
 
+
     @Override
     public Value getValue(WidgetState state) {
         ArrayList<Id> ids = ((LinkEditingWidgetState) state).getIds();
         return ids == null || ids.isEmpty() ? null : new ReferenceValue(ids.get(0));
+
     }
 
     protected String getLinkedObjectType(WidgetContext context, FieldPath fieldPath) {
@@ -100,9 +102,10 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
                 while (iterator.hasNext()) {
                     CreatedObjectConfig createdObjectConfig = iterator.next();
                     String domainObjectType = createdObjectConfig.getDomainObjectType();
+                    Id rootId = root.getId();
                     boolean displayingCreateButton = fillParentOnAddConfig == null
                             ? accessVerificationService.isCreatePermitted(domainObjectType)
-                            : accessVerificationService.isCreateChildPermitted(domainObjectType, root.getId());
+                            : (rootId == null || accessVerificationService.isCreateChildPermitted(domainObjectType, root.getId()));
                     if (!displayingCreateButton) {
                         iterator.remove();
                     }
@@ -115,6 +118,5 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
         return false;
 
     }
-
 
 }

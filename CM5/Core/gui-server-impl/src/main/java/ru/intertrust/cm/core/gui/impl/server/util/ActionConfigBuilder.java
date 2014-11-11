@@ -1,16 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.PropertyAccessor;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -33,6 +28,11 @@ import ru.intertrust.cm.core.gui.api.server.el.DomainObjectTypeComparator;
 import ru.intertrust.cm.core.gui.api.server.el.ReferenceValuePropertyAccessor;
 import ru.intertrust.cm.core.gui.impl.server.action.FakeActionHandler;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -159,7 +159,7 @@ public class ActionConfigBuilder {
     }
 
     private boolean hasPermission(final DomainObject domainObject, final ActionConfig config) {
-        if (domainObject != null && config.getPermissions() != null && !config.getPermissions().isEmpty()) {
+        if (domainObject != null && domainObject.getId() != null && config.getPermissions() != null && !config.getPermissions().isEmpty()) {
             final String[] permissions = config.getPermissions().split(",");
             final Id id = domainObject.getId();
             boolean result = false;

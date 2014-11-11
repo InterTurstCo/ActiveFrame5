@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget.filter;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -9,24 +8,24 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 03.05.14
  *         Time: 13:15
  */
-@Root(name = "param")
-public class ParamConfig implements Dto {
+public abstract class ParamConfig implements Dto{
     @Attribute(name = "name")
     private Integer name;
 
-    @Attribute(name = "value")
+    @Attribute(name = "value", required = false)
     private String value;
 
     @Attribute(name = "type", required = false)
     private String type;
 
-    public Integer getName() {
-        return name;
-    }
+    @Attribute(name = "set-base-object", required = false)
+    private boolean setBaseObject;
 
-    public void setName(Integer name) {
-        this.name = name;
-    }
+    @Attribute(name = "set-current-moment", required = false)
+    private boolean setCurrentMoment;
+
+    @Attribute(name = "set-current-user", required = false)
+    private boolean setCurrentUser;
 
     public String getValue() {
         return value;
@@ -44,6 +43,38 @@ public class ParamConfig implements Dto {
         this.type = type;
     }
 
+    public boolean isSetCurrentMoment() {
+        return setCurrentMoment;
+    }
+
+    public void setSetCurrentMoment(boolean setCurrentMoment) {
+        this.setCurrentMoment = setCurrentMoment;
+    }
+
+    public boolean isSetCurrentUser() {
+        return setCurrentUser;
+    }
+
+    public void setSetCurrentUser(boolean setCurrentUser) {
+        this.setCurrentUser = setCurrentUser;
+    }
+
+    public Integer getName() {
+        return name;
+    }
+
+    public void setName(Integer name) {
+        this.name = name;
+    }
+
+    public boolean isSetBaseObject() {
+        return setBaseObject;
+    }
+
+    public void setSetBaseObject(boolean setBaseObject) {
+        this.setBaseObject = setBaseObject;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -58,10 +89,19 @@ public class ParamConfig implements Dto {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
+        if (type != null ? !type.equals(that.type) : that.type != null) {
+            return false;
+        }
         if (value != null ? !value.equals(that.value) : that.value != null) {
             return false;
         }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
+        if (setBaseObject != that.setBaseObject) {
+            return false;
+        }
+        if (setCurrentMoment != that.setCurrentMoment) {
+            return false;
+        }
+        if (setCurrentUser != that.setCurrentUser) {
             return false;
         }
 
@@ -70,9 +110,12 @@ public class ParamConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
+        int result = value != null ? value.hashCode() : 0;
+        result = name != null ? name.hashCode() : 0;
         result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (setBaseObject ? 1 : 0);
+        result = 31 * result + (setCurrentMoment ? 1 : 0);
+        result = 31 * result + (setCurrentUser ? 1 : 0);
         return result;
     }
 }

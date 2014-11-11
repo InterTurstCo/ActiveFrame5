@@ -12,9 +12,11 @@ import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
  *         Time: 9:20
  */
 public interface LiteralFieldValueParser extends ComponentHandler {
-    public Value textToValue(FieldValueConfig fieldValueConfig, FieldConfig fieldConfig);
+    Value textToValue(FieldValueConfig fieldValueConfig, FieldConfig fieldConfig);
 
-    public Value textToValue(String valueText, String fieldTypeStr);
+    Value textToValue(String valueText, String fieldTypeStr);
 
-    public Value textToValue(String valueText, FieldType fieldType);
+    Value textToValue(String valueText, FieldType fieldType);
+
+    Value getCurrentTimeValue(String fieldTypeStr, String timeZoneId, boolean setCurrentMoment);
 }
