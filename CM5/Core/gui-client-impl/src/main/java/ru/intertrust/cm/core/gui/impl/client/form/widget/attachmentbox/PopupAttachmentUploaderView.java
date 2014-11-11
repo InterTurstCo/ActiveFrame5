@@ -25,11 +25,12 @@ import java.util.List;
  */
 public class PopupAttachmentUploaderView extends AttachmentUploaderView {
 
-    private Panel selectedItemsPanel = new AbsolutePanel();;
+    private Panel selectedItemsPanel = new AbsolutePanel();
     private Panel allItemsPanel;
     private DialogBox selectionDialog = new DialogBox(false, true);
     private List<CheckBox> checkboxes = new ArrayList<>();
     private boolean initialized;
+    private List<AttachmentItem> tmpSelectedAttachments = new ArrayList<>();
 
     public PopupAttachmentUploaderView(AttachmentBoxState state, AttachmentElementPresenterFactory presenterFactory,
                                        EventBus eventBus) {
@@ -51,6 +52,8 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
             showPopupButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
+                    tmpSelectedAttachments.clear();
+                    tmpSelectedAttachments.addAll(getAttachments());
                     showItemsInPopup();
                     selectionDialog.center();
                 }
@@ -101,6 +104,8 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                getAttachments().clear();
+                getAttachments().addAll(tmpSelectedAttachments);
                 selectedItemsPanel.clear();
                 for (Widget element : createSelectedElements()) {
                     selectedItemsPanel.add(element);
@@ -142,11 +147,11 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
                 if (event.getValue()) {
                     if (isSingleChoice()) {
                                 uncheckOthers(checkbox);
-                        deselectAllAttachments();
+                        deselectAllTmpAttachments();
                     }
-                    selectAttachment(item);
+                    selectTmpAttachment(item);
                 } else {
-                    deselectAttachment(item);
+                    deselectTmpAttachment(item);
                 }
             }
         });
@@ -165,4 +170,22 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
             }
         }
     }
+
+    private void deselectAllTmpAttachments() {
+        tmpSelectedAttachments.clear();
+    }
+
+    private void selectTmpAttachment(AttachmentItem attachment) {
+        if (isSingleChoice()) {
+            tmpSelectedAttachments.clear();
+        }
+        if (!tmpSelectedAttachments.contains((tmpSelectedAttachments))) {
+            tmpSelectedAttachments.add(attachment);
+        }
+    }
+
+    private void deselectTmpAttachment(AttachmentItem attachment) {
+        tmpSelectedAttachments.remove(attachment);
+    }
+
 }
