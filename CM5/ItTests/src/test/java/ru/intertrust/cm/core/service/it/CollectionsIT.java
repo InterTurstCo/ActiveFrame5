@@ -164,6 +164,15 @@ public class CollectionsIT extends IntegrationTestBase {
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
         
+        query = "SELECT d.boss FROM (SELECT id FROM employee) e join department d on d.boss = e.id WHERE d.boss={0}";
+        params = new ArrayList<Value>();
+        employeeTypeid = domainObjectTypeIdCache.getId("Employee");
+        params.add(new ReferenceValue(new RdbmsId(employeeTypeid, 3)));
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
+       
         query = "select x.id, x.col2 from ( select t.id, t.created_date as col2, t.organization as col3 from department t union select t.id, t.created_date as col2, t.organization as col3 from department t ) x where x.col3 = {0}";
         params = new ArrayList<Value>();     
         Integer organizationTypeid = domainObjectTypeIdCache.getId("Organization");
