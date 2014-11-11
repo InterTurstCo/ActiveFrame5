@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by andrey on 25.04.14.
@@ -33,6 +34,7 @@ import java.util.List;
 public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService {
     final static public String PATH_NAME = "Path";
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(RemoteAttachmentServiceImpl.class);
+
     @Autowired
     private AttachmentContentDao attachmentContentDao;
     @Autowired
@@ -240,6 +242,86 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",
                     "domainObjectId:" + domainObjectId + " attachmentType:" + attachmentType, ex);
         }
+    }
+
+    @Override
+    public DomainObject copyAttachment(Id attachmentDomainObjectId, Id destinationDomainObjectId, String destinationAttachmentType) {
+        DomainObject attachDomainObject = crudService.find(attachmentDomainObjectId);
+
+        DomainObject attachmentCopyDomainObject = createAttachmentDomainObjectFor(destinationDomainObjectId, destinationAttachmentType);
+        attachmentCopyDomainObject.setString(NAME, attachDomainObject.getString(NAME));
+        attachmentCopyDomainObject.setString(MIME_TYPE, attachDomainObject.getString(MIME_TYPE));
+        attachmentCopyDomainObject.setLong(CONTENT_LENGTH, attachDomainObject.getLong(CONTENT_LENGTH));
+        attachmentCopyDomainObject.setString(DESCRIPTION, attachDomainObject.getString(DESCRIPTION));
+
+        RemoteInputStream remoteInputStream = loadAttachment(attachmentDomainObjectId);
+        attachmentCopyDomainObject = saveAttachment(remoteInputStream, attachmentCopyDomainObject);
+
+        return attachmentCopyDomainObject;
+    }
+
+    @Override
+    public List<DomainObject> copyAttachments(List<Id> attachmentDomainObjectIds, Id destinationDomainObjectId,
+                                              String destinationAttachmentType) {
+        if (attachmentDomainObjectIds == null || attachmentDomainObjectIds.isEmpty()) {
+            return new ArrayList<>(0);
+        }
+
+        List<DomainObject> attachmentCopyDomainObjects = new ArrayList<>(attachmentDomainObjectIds.size());
+
+        for(Id attachmentDomainObjectId : attachmentDomainObjectIds) {
+            DomainObject attachDomainObject =
+                    copyAttachment(attachmentDomainObjectId, destinationDomainObjectId, destinationAttachmentType);
+            attachmentCopyDomainObjects.add(attachDomainObject);
+        }
+
+        return attachmentCopyDomainObjects;
+    }
+
+    @Override
+    public List<DomainObject> copyAttachmentsFrom(Id sourceDomainObjectId, String sourceAttachmentType,
+                                           Id destinationDomainObjectId, String destinationAttachmentType) {
+        List<DomainObject> attachmentDomainObjects =
+                findAttachmentDomainObjectsFor(sourceDomainObjectId, sourceAttachmentType);
+        return copyAttachments(extractIds(attachmentDomainObjects), destinationDomainObjectId, destinationAttachmentType);
+    }
+
+    @Override
+    public List<DomainObject> copyAllAttachmentsFrom(Id sourceDomainObjectId, Id destinationDomainObjectId,
+                                              String destinationAttachmentType){
+        List<DomainObject> attachmentDomainObjects = findAttachmentDomainObjectsFor(sourceDomainObjectId);
+        return copyAttachments(extractIds(attachmentDomainObjects), destinationDomainObjectId, destinationAttachmentType);
+    }
+
+    @Override
+    public List<DomainObject> copyAllAttachmentsFrom(Id sourceDomainObjectId, Id destinationDomainObjectId,
+                                              Map<String, String> attachmentTypeMap) {
+        if (attachmentTypeMap == null || attachmentTypeMap.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<DomainObject> attachmentDomainObjects = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : attachmentTypeMap.entrySet()) {
+            attachmentDomainObjects.addAll(
+                    copyAttachmentsFrom(sourceDomainObjectId, entry.getKey(), destinationDomainObjectId, entry.getValue()));
+        }
+
+        return attachmentDomainObjects;
+    }
+
+    private List<Id> extractIds(List<DomainObject> attachmentDomainObjects) {
+        if (attachmentDomainObjects == null || attachmentDomainObjects.isEmpty()) {
+            return new ArrayList<>(0);
+        }
+
+        List<Id> attachmentCopyDomainObjectIds = new ArrayList<>(attachmentDomainObjects.size());
+
+        for(DomainObject attachmentDomainObject : attachmentDomainObjects) {
+            attachmentCopyDomainObjectIds.add(attachmentDomainObject.getId());
+        }
+
+        return attachmentCopyDomainObjectIds;
     }
 
     private String getAttachmentOwnerObject(String attachmentType, String domainObjectType) {

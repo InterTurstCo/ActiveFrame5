@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by andrey on 25.04.14.
@@ -65,4 +66,55 @@ public interface BaseAttachmentService {
      * @return список ДО Вложений
      */
     List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType);
+
+    /**
+     * Копирует вложение по идентификатору
+     * @param attachmentDomainObjectId идентификатор копируемого вложения
+     * @param destinationDomainObjectId идентификатор ДО, в который копируется вложение
+     * @param destinationAttachmentType тип вложения в ДО, в который копируется вложение
+     * @return ДО копии вложения
+     */
+    DomainObject copyAttachment(Id attachmentDomainObjectId, Id destinationDomainObjectId, String destinationAttachmentType);
+
+    /**
+     * Копирует вложения по идентификатору
+     * @param attachmentDomainObjectIds идентификаторы копируемых вложений
+     * @param destinationDomainObjectId идентификатор ДО, в который копируется вложение
+     * @param destinationAttachmentType тип вложения в ДО, в который копируется вложение
+     * @return список ДО копий вложений
+     */
+    List<DomainObject> copyAttachments(List<Id> attachmentDomainObjectIds, Id destinationDomainObjectId,
+                                       String destinationAttachmentType);
+
+    /**
+     * Копирует вложения определенного типа из ДО в ДО
+     * @param sourceDomainObjectId идентификатор ДО, из которого копируются вложения
+     * @param sourceAttachmentType тип копируемых вложений
+     * @param destinationDomainObjectId идентификатор ДО, в который копируются вложения
+     * @param destinationAttachmentType тип вложения в ДО, в который копируются вложения
+     * @return список ДО копий вложений
+     */
+    List<DomainObject> copyAttachmentsFrom(Id sourceDomainObjectId, String sourceAttachmentType,
+                                           Id destinationDomainObjectId, String destinationAttachmentType);
+
+    /**
+     * Копирует все вложения из ДО в ДО
+     * @param sourceDomainObjectId идентификатор ДО, из которого копируются вложения
+     * @param destinationDomainObjectId идентификатор ДО, в который копируются вложения
+     * @param destinationAttachmentType тип вложения в ДО, в который копируются вложения
+     * @return список ДО копий вложений
+     */
+    List<DomainObject> copyAllAttachmentsFrom(Id sourceDomainObjectId, Id destinationDomainObjectId,
+                                              String destinationAttachmentType);
+
+    /**
+     * Копирует все вложения из ДО в ДО
+     * @param sourceDomainObjectId идентификатор ДО, из которого копируются вложения
+     * @param destinationDomainObjectId идентификатор ДО, в который копируются вложения
+     * @param attachmentTypeMap {@link Map<String, String>} соответситвия типов вложений в исходном ДО и
+     *                                                     ДО, в который копируются вложения
+     * @return список ДО копий вложений
+     */
+    List<DomainObject> copyAllAttachmentsFrom(Id sourceDomainObjectId, Id destinationDomainObjectId,
+                                              Map<String, String> attachmentTypeMap);
 }
