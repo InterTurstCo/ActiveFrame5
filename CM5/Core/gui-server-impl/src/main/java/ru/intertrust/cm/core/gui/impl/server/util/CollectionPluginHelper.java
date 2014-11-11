@@ -54,7 +54,7 @@ public class CollectionPluginHelper {
         if (initialFiltersConfig == null) {
             return Collections.emptyMap();
         }
-        Map<String, CollectionColumnProperties> result = new LinkedHashMap<String, CollectionColumnProperties>();
+        Map<String, CollectionColumnProperties> result = new LinkedHashMap<>();
         Collection<CollectionColumnProperties> columnPropertiesList = fieldColumnPropertiesMap.values();
         List<InitialFilterConfig> filterConfigs = initialFiltersConfig.getFilterConfigs();
         for (CollectionColumnProperties columnProperties : columnPropertiesList) {
@@ -65,6 +65,7 @@ public class CollectionPluginHelper {
                     result.put(filterName, columnProperties);
                 }
             }
+
 
         }
         return result;
@@ -174,43 +175,23 @@ public class CollectionPluginHelper {
     public static LinkedHashMap<String, Value> getRowValues(final IdentifiableObject identifiableObject,
                                                             final Map<String, CollectionColumnProperties> columnPropertiesMap,
                                                             final Map<String, Map<Value, ImagePathValue>> fieldMappings) {
-        LinkedHashMap<String, Value> values = new LinkedHashMap<String, Value>();
-        Set<String> fields = fieldMappings.keySet();
-        for (String field : fields) {
-            Value value;
-            if ("id".equalsIgnoreCase(field)) {
-                value = new StringValue(identifiableObject.getId().toStringRepresentation());
-            } else {
-                value = identifiableObject.getValue(field.toLowerCase());
-            }
+        LinkedHashMap<String, Value> values = new LinkedHashMap<>();
+        for (String field : fieldMappings.keySet()) {
+            Value value = identifiableObject.getValue(field.toLowerCase());
+
             if (value != null && value.get() != null) {
-                Calendar calendar;
-                String timeZoneId;
-                String datePattern =
-                        (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.DATE_PATTERN);
-                String timePattern =
-                        (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.TIME_PATTERN);
-                DateFormat dateFormat = DateUtil.getDateFormat(datePattern, timePattern);
                 switch (value.getFieldType()) {
+                    case REFERENCE:
+                        value = referenceToStringValue(value);
+                        break;
                     case DATETIMEWITHTIMEZONE:
-                        final DateTimeWithTimeZone dateTimeWithTimeZone = (DateTimeWithTimeZone) value.get();
-                        calendar = GuiServerHelper.dateTimeWithTimezoneToCalendar(dateTimeWithTimeZone);
-                        dateFormat.setTimeZone(TimeZone.getTimeZone(
-                                dateTimeWithTimeZone.getTimeZoneContext().getTimeZoneId()));
-                        value = new StringValue(dateFormat.format(calendar.getTime()));
+                        value = dateTimeWithTimeZoneToStringValue(value, getDateFormatter(field, columnPropertiesMap));
                         break;
                     case DATETIME:
-                        timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
-                        final DateTimeValue dateTimeValue = (DateTimeValue) value;
-                        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
-                        value = new StringValue(dateFormat.format(dateTimeValue.get()));
+                        value = dateTimeToStringValue(value, getDateFormatter(field, columnPropertiesMap));
                         break;
                     case TIMELESSDATE:
-                        final TimelessDate timelessDate = (TimelessDate) value.get();
-                        timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
-                        calendar = GuiServerHelper.timelessDateToCalendar(timelessDate, GuiServerHelper.GMT_TIME_ZONE);
-                        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
-                        value = new StringValue(dateFormat.format(calendar.getTime()));
+                        value = timelessDateToStringValue(value, getDateFormatter(field, columnPropertiesMap));
                 }
             }
             Map<Value, ImagePathValue> imagePathValueMap = fieldMappings.get(field);
@@ -222,6 +203,43 @@ public class CollectionPluginHelper {
         }
         return values;
 
+    }
+
+    private static StringValue referenceToStringValue(Value value) {
+        return new StringValue(((Id) value.get()).toStringRepresentation());
+    }
+
+    private static StringValue dateTimeWithTimeZoneToStringValue(Value value, DateFormat formatter) {
+        final DateTimeWithTimeZone dateTimeWithTimeZone = (DateTimeWithTimeZone) value.get();
+        final Date date = GuiServerHelper.dateTimeWithTimezoneToCalendar(dateTimeWithTimeZone).getTime();
+        final String timeZoneId = dateTimeWithTimeZone.getTimeZoneContext().getTimeZoneId();
+        return toStringValue(date, timeZoneId, formatter);
+    }
+
+    private static StringValue dateTimeToStringValue(Value value, DateFormat formatter) {
+        final Date date = ((DateTimeValue) value).get();
+        final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
+        return toStringValue(date, timeZoneId, formatter);
+    }
+
+    private static StringValue timelessDateToStringValue(Value value, DateFormat formatter) {
+        final Date date = GuiServerHelper.timelessDateToCalendar((TimelessDate) value.get(), GuiServerHelper.GMT_TIME_ZONE).getTime();
+        final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
+        return toStringValue(date, timeZoneId, formatter);
+    }
+
+    private static StringValue toStringValue(Date date, String timeZoneId, DateFormat dateFormat) {
+        if (timeZoneId != null) {
+            dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+        }
+        return new StringValue(dateFormat.format(date));
+    }
+
+    private static DateFormat getDateFormatter(String field, Map<String, CollectionColumnProperties> columnPropertiesMap) {
+        final CollectionColumnProperties columnProperties = columnPropertiesMap.get(field);
+        final String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.DATE_PATTERN);
+        final String timePattern = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_PATTERN);
+        return DateUtil.getDateFormat(datePattern, timePattern);
     }
     /*
      * use FilterBuilder  boolean prepareExtraFilters(CollectionExtraFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters)
