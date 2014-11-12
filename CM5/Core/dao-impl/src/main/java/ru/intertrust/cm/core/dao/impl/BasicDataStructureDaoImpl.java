@@ -119,15 +119,15 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     @Override
-    public void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isAl) {
+    public void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList) {
         if (config == null || ((fieldConfigList == null || fieldConfigList.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
 
-        String query = getQueryHelper().generateAddColumnsQuery(getName(config.getName(), isAl), fieldConfigList);
+        String query = getQueryHelper().generateAddColumnsQuery(getName(config.getName(), false), fieldConfigList);
         jdbcTemplate.update(query);
 
-        createAutoIndices(config, fieldConfigList, isAl, true);
+        createAutoIndices(config, fieldConfigList, false, true);
     }
 
     @Override

@@ -106,7 +106,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         when(jdbcTemplate.queryForObject(anyString(), any(Object[].class), any(Class.class))).thenReturn(0);
 
-        dataStructureDao.updateTableStructure(domainObjectTypeConfig, newColumns, false);
+        dataStructureDao.updateTableStructure(domainObjectTypeConfig, newColumns);
 
         verify(jdbcTemplate).update(queryHelper.generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns));
 
