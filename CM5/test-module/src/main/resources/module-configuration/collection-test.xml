@@ -100,5 +100,28 @@
     <collection name="EmployeesGenerator" idField="id">
         <generator class-name="employee.collection.test" />
     </collection>
+
+    <collection name="Employee_Person" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT 
+            e.id as id,
+            p.profile, 
+            p.created_date 
+            FROM 
+            employee e 
+            join person p on p.id = e.id and p.id_type = e.id_type 
+            where p.login is not null
+                    ::where-clause
+            ]]>
+        </prototype>
+        <filter name="PROFILE">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    profile = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
     
 </configuration>

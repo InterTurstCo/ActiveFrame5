@@ -194,6 +194,26 @@ public class TestCollection extends ClientBase {
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5013, 2)));
             executeQuery(query, 1, params);            
+
+            query = "SELECT ";
+            query += "e.id as id, ";
+            query += "p.Profile, ";
+            query += "p.created_date ";
+            query += "FROM ";
+            query += "employee e ";
+            query += "join person p on p.id = e.id and p.id_type = e.id_type ";
+            query += "where p.login is not null and profile = {0}";
+            params.clear();
+            params.add(new ReferenceValue(new RdbmsId(5036, 2)));
+            executeQuery(query, 3, params);      
+            
+            sortOrder = new SortOrder();
+            filters = new ArrayList<Filter>();
+            Filter filter = new Filter();
+            filter.setFilter("PROFILE");
+            filter.addCriterion(0, new ReferenceValue(new RdbmsId(5036, 2)));
+            filters.add(filter);   
+            executeCollection("Employee_Person", 3, sortOrder, filters);            
             
         } finally {
             writeLog();
