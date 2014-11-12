@@ -311,6 +311,8 @@ public class SqlQueryModifier {
 
     private void addServiceColumnsInPlainSelect(PlainSelect plainSelect) {
 
+        Map<String, FieldConfig> columnToConfigMapForSelectItems = buildColumnToConfigMapForSelectItems(plainSelect.toString());
+        
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
             processSelectBody(subSelect.getSelectBody(), new AddServiceColumnsQueryProcessor());
@@ -328,7 +330,7 @@ public class SqlQueryModifier {
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
 
             if (selectExpressionItem.getExpression() instanceof Column) {
-                SelectExpressionItem serviceExpressionItem = getServiceExpression(plainSelect, selectExpressionItem);
+                SelectExpressionItem serviceExpressionItem = getServiceExpression(plainSelect, selectExpressionItem, columnToConfigMapForSelectItems);
                 if (serviceExpressionItem != null) {
                     selectItems.add(serviceExpressionItem);
                 }
@@ -337,7 +339,7 @@ public class SqlQueryModifier {
                 boolean returnsId = caseExpressionReturnsId(caseExpression, plainSelect);
 
                 if (returnsId) {
-                    //TODO клон CaseExpression не работает
+                    // TODO клон CaseExpression не работает
                     ObjectCloner objectCloner = new ObjectCloner();
                     CaseExpression idTypeExpression = objectCloner.cloneObject(caseExpression, caseExpression.getClass());
 
@@ -345,8 +347,7 @@ public class SqlQueryModifier {
                         WhenClause whenClause = (WhenClause) whenExpression;
                         if (whenClause.getThenExpression() instanceof Column) {
                             Column column = (Column) whenClause.getThenExpression();
-                            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
-                                    getDOTypeName(plainSelect, column, false), DaoUtils.unwrap(column.getColumnName()));
+                            FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(DaoUtils.unwrap(column.getColumnName()));
 
                             if (fieldConfig instanceof ReferenceFieldConfig) {
                                 column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
@@ -356,8 +357,7 @@ public class SqlQueryModifier {
 
                     if (idTypeExpression.getElseExpression() instanceof Column) {
                         Column column = (Column) idTypeExpression.getElseExpression();
-                        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
-                                getDOTypeName(plainSelect, column, false), DaoUtils.unwrap(column.getColumnName()));
+                        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(DaoUtils.unwrap(column.getColumnName()));
 
                         if (fieldConfig instanceof ReferenceFieldConfig) {
                             column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
@@ -365,7 +365,7 @@ public class SqlQueryModifier {
                     }
 
                     SelectExpressionItem idTypeSelectExpressionItem = new SelectExpressionItem();
-                    idTypeSelectExpressionItem.setExpression(idTypeExpression);
+               idTypeSelectExpressionItem.setExpression(idTypeExpression);
                     if (selectExpressionItem.getAlias() != null) {
                         idTypeSelectExpressionItem.setAlias(
                                 new Alias(getReferenceTypeColumnName(DaoUtils.unwrap(selectExpressionItem.getAlias().getName()))));
@@ -415,12 +415,12 @@ public class SqlQueryModifier {
                 }
 
                 SelectExpressionItem selectExpressionItem = new SelectExpressionItem(expression);
-                SelectExpressionItem serviceExpressionItem = getServiceExpression(plainSelect, selectExpressionItem);
+                SelectExpressionItem serviceExpressionItem = getServiceExpression(plainSelect, selectExpressionItem, columnToConfigMapForSelectItems);
 
                 if (serviceExpressionItem == null) {
                     selectExpressionItem = findSelectExpressionItemByAlias(plainSelect, ((Column) expression).getColumnName());
                     if (selectExpressionItem != null) {
-                        serviceExpressionItem = getServiceExpression(plainSelect, selectExpressionItem);
+                        serviceExpressionItem = getServiceExpression(plainSelect, selectExpressionItem, columnToConfigMapForSelectItems);
                     }
                 }
                 if (serviceExpressionItem != null) {
@@ -452,12 +452,14 @@ public class SqlQueryModifier {
         return null;
     }
 
-    private SelectExpressionItem getServiceExpression(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
-        if (! (selectExpressionItem.getExpression() instanceof Column)) {
+    private SelectExpressionItem getServiceExpression(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem,
+            Map<String, FieldConfig> columnToConfigMapForSelectItems) {
+        if (!(selectExpressionItem.getExpression() instanceof Column)) {
             return null;
         }
 
-        FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
+        Column column = (Column) selectExpressionItem.getExpression();
+        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(DaoUtils.unwrap(column.getColumnName()));
 
         if (fieldConfig instanceof ReferenceFieldConfig) {
             return createReferenceFieldTypeSelectItem(selectExpressionItem);
@@ -849,6 +851,7 @@ public class SqlQueryModifier {
                 || expressionValue instanceof CaseExpression || expressionValue instanceof CastExpression;
     }
 
+    //TODO
     private FieldConfig getFieldConfig(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
         if (!(selectExpressionItem.getExpression() instanceof Column)) {
             return null;
