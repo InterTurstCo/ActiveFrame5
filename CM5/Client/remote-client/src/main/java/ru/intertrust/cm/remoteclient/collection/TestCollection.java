@@ -215,6 +215,14 @@ public class TestCollection extends ClientBase {
             filters.add(filter);   
             executeCollection("Employee_Person", 3, sortOrder, filters);            
             
+            query = "SELECT orgDescr.Module FROM SO_OrgDescriptionSys so_org_desc_sys " +
+                    "join SO_OrgDescription orgDescr on orgDescr.id = so_org_desc_sys.id and orgDescr.id_type = so_org_desc_sys.id_type  " +
+                    "WHERE  orgDescr.IsDeleted=0 and orgDescr.Edited is null and module = {0}";
+            
+            params.clear();
+            params.add(new ReferenceValue(new RdbmsId(5110, 1)));
+            executeQuery(query, 1, params);            
+            
         } finally {
             writeLog();
         }

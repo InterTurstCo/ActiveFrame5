@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Корневой абстрактный ДОП "Описание Организации" -->
+    <domain-object-type name="SO_OrgDescription">
+    
+        <fields>
+            <string name="MigrationId" length="48" />
+            <reference name="Module" type="SS_Module" not-null="true" />
+            <boolean name="IsDeleted" not-null="true" />
+            <boolean name="IsRequest" not-null="true" />
+            <reference name="Edited" type="SO_OrgDescription" />
+            <reference name="ReplacedWith" type="SO_OrgDescription" />
+            <string name="Topic" length="253" />
+            <string name="Note" length="253" />
+            <string name="INN" length="253" />
+            <string name="KPP" length="253" />
+            <string name="BIK" length="253" />
+            <string name="OKONH" length="253" />
+            <string name="OKPO" length="253" />
+            <string name="Bank" length="253" />
+            <string name="Account" length="253" />
+            <string name="BankCorr" length="253" />
+            <string name="AccountCorr" length="253" />
+            <string name="Telex" length="253" />
+        </fields>
+        
+        <uniqueKey>
+        	<field name="MigrationId" />
+        </uniqueKey>
+        
+    </domain-object-type>
+
+    <!-- Корневой ДОП "Описание Системной Организации" -->
+    <domain-object-type name="SO_OrgDescriptionSys" extends="SO_OrgDescription">
+    
+        <fields>
+            <reference name="OrgSystem" type="SO_OrgSystem" not-null="true" />
+        </fields>
+        
+        <uniqueKey>
+            <field name="OrgSystem" />
+        </uniqueKey>
+        
+    </domain-object-type>  
+
+<!-- =============================================================================================================== -->
+<!-- ==================================================== ДОСТУП =================================================== -->
+<!-- =============================================================================================================== -->
+</configuration>

@@ -347,7 +347,7 @@ public class SqlQueryModifier {
                         WhenClause whenClause = (WhenClause) whenExpression;
                         if (whenClause.getThenExpression() instanceof Column) {
                             Column column = (Column) whenClause.getThenExpression();
-                            FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(DaoUtils.unwrap(column.getColumnName()));
+                            FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(getColumnName(column));
 
                             if (fieldConfig instanceof ReferenceFieldConfig) {
                                 column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
@@ -357,7 +357,7 @@ public class SqlQueryModifier {
 
                     if (idTypeExpression.getElseExpression() instanceof Column) {
                         Column column = (Column) idTypeExpression.getElseExpression();
-                        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(DaoUtils.unwrap(column.getColumnName()));
+                        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(getColumnName(column));
 
                         if (fieldConfig instanceof ReferenceFieldConfig) {
                             column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
@@ -459,7 +459,7 @@ public class SqlQueryModifier {
         }
 
         Column column = (Column) selectExpressionItem.getExpression();
-        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(DaoUtils.unwrap(column.getColumnName()));
+        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(getColumnName(column));
 
         if (fieldConfig instanceof ReferenceFieldConfig) {
             return createReferenceFieldTypeSelectItem(selectExpressionItem);
@@ -470,6 +470,10 @@ public class SqlQueryModifier {
         return null;
     }
 
+    private String getColumnName(Column column) {
+        return DaoUtils.unwrap(column.getColumnName().toLowerCase());
+    }
+    
     private boolean containsExpressionInPlainselect(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
         String plainSelectQuery = plainSelect.toString().replaceAll("\\s+", " ").trim();
         String selectExpressionItemQuery = selectExpressionItem.toString().replaceAll("\\s+", " ").trim();

@@ -176,12 +176,22 @@ public class CollectionsIT extends IntegrationTestBase {
         query = "select x.id, x.col2 from ( select t.id, t.created_date as col2, t.organization as col3 from department t union select t.id, t.created_date as col2, t.organization as col3 from department t ) x where x.col3 = {0}";
         params = new ArrayList<Value>();     
         Integer organizationTypeid = domainObjectTypeIdCache.getId("Organization");
-        params.add(new ReferenceValue(new RdbmsId(employeeTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(organizationTypeid, 1)));
 
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
 
+
+        query = "SELECT so_org_desc_sys.id as id, orgDescr.Module, orgDescr.created_date FROM SO_OrgDescriptionSys so_org_desc_sys " +
+        		"join SO_OrgDescription orgDescr on orgDescr.id = so_org_desc_sys.id and orgDescr.id_type = so_org_desc_sys.id_type  " +
+        		"WHERE  orgDescr.IsDeleted=0 and orgDescr.Edited is null and module = {0}";
+        params = new ArrayList<Value>();     
+        Integer ssModuleTypeid = domainObjectTypeIdCache.getId("SS_Module");
+        params.add(new ReferenceValue(new RdbmsId(ssModuleTypeid, 1)));
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
     }
     
     @Test
