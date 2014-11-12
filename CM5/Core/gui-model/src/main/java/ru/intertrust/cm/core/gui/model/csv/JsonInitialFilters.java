@@ -7,6 +7,7 @@ import java.util.List;
  *         Date: 28.05.14
  *         Time: 16:15
  */
+//TODO make abstarction JsonFilters
 public class JsonInitialFilters {
     private List<JsonInitialFilter> jsonInitialFilters;
     private String panelState;

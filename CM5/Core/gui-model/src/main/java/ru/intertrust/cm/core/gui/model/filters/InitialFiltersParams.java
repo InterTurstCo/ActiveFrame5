@@ -23,15 +23,20 @@ public class InitialFiltersParams {
         this.filterNameColumnPropertiesMap = filterNameColumnPropertiesMap;
     }
 
-    public InitialFiltersParams(List<String> excludedInitialFilterNames, Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap) {
-        this(filterNameColumnPropertiesMap);
+    public InitialFiltersParams(Id rootId, Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap) {
+        this.rootId = rootId;
         this.filterNameColumnPropertiesMap = filterNameColumnPropertiesMap;
+    }
+
+    public InitialFiltersParams(List<String> excludedInitialFilterNames,
+                                Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap) {
+        this(filterNameColumnPropertiesMap);
         this.excludedInitialFilterNames = excludedInitialFilterNames;
     }
 
-    public InitialFiltersParams(Id rootId, List<String> excludedInitialFilterNames, Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap) {
+    public InitialFiltersParams(Id rootId, List<String> excludedInitialFilterNames,
+                                Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap) {
         this(excludedInitialFilterNames, filterNameColumnPropertiesMap);
-        this.filterNameColumnPropertiesMap = filterNameColumnPropertiesMap;
         this.rootId = rootId;
     }
 

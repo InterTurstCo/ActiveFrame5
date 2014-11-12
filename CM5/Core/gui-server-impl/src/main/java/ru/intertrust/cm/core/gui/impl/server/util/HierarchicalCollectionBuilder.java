@@ -6,8 +6,13 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -76,18 +81,18 @@ public class HierarchicalCollectionBuilder implements ComponentHandler {
 
     private void prepareFilterForHierarchicalCollection(
             CollectionViewerConfig collectionViewerConfig, String filter, Id selectedId) {
-        InitialFilterConfig filterConfig = new InitialFilterConfig();
+        ExtraFilterConfig filterConfig = new ExtraFilterConfig();
         filterConfig.setName(filter);
-        List<InitialParamConfig> paramConfigs = new ArrayList<>();
-        InitialParamConfig paramConfig = new InitialParamConfig();
+        List<ExtraParamConfig> paramConfigs = new ArrayList<>();
+        ExtraParamConfig paramConfig = new ExtraParamConfig();
         paramConfig.setName(0);
         paramConfig.setType(ModelConstants.REFERENCE_TYPE);
         paramConfig.setValue(selectedId.toStringRepresentation());
         paramConfigs.add(paramConfig);
         filterConfig.setParamConfigs(paramConfigs);
-        List<InitialFilterConfig> filterConfigs = new ArrayList<InitialFilterConfig>();
+        List<ExtraFilterConfig> filterConfigs = new ArrayList<>();
         filterConfigs.add(filterConfig);
-        InitialFiltersConfig filtersConfig = new InitialFiltersConfig();
+        CollectionExtraFiltersConfig filtersConfig = new CollectionExtraFiltersConfig();
         filtersConfig.setFilterConfigs(filterConfigs);
         collectionViewerConfig.setHierarchicalFiltersConfig(filtersConfig);
     }

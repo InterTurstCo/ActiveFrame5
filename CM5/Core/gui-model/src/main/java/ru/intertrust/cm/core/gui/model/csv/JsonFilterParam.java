@@ -9,6 +9,9 @@ public class JsonFilterParam {
     private Integer name;
     private String value;
     private String type;
+    private boolean setCurrentMoment;
+    private boolean setCurrentUser;
+    private boolean setBaseObject;
 
     public Integer getName() {
         return name;
@@ -34,6 +37,30 @@ public class JsonFilterParam {
         this.type = type;
     }
 
+    public boolean isSetCurrentMoment() {
+        return setCurrentMoment;
+    }
+
+    public void setSetCurrentMoment(boolean setCurrentMoment) {
+        this.setCurrentMoment = setCurrentMoment;
+    }
+
+    public boolean isSetCurrentUser() {
+        return setCurrentUser;
+    }
+
+    public void setSetCurrentUser(boolean setCurrentUser) {
+        this.setCurrentUser = setCurrentUser;
+    }
+
+    public boolean isSetBaseObject() {
+        return setBaseObject;
+    }
+
+    public void setSetBaseObject(boolean setBaseObject) {
+        this.setBaseObject = setBaseObject;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -45,6 +72,15 @@ public class JsonFilterParam {
 
         JsonFilterParam that = (JsonFilterParam) o;
 
+        if (setBaseObject != that.setBaseObject) {
+            return false;
+        }
+        if (setCurrentMoment != that.setCurrentMoment) {
+            return false;
+        }
+        if (setCurrentUser != that.setCurrentUser) {
+            return false;
+        }
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
@@ -63,6 +99,9 @@ public class JsonFilterParam {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (value != null ? value.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (setCurrentMoment ? 1 : 0);
+        result = 31 * result + (setCurrentUser ? 1 : 0);
+        result = 31 * result + (setBaseObject ? 1 : 0);
         return result;
     }
 }

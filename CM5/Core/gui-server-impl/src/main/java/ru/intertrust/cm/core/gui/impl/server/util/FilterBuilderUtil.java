@@ -82,6 +82,8 @@ public class FilterBuilderUtil {
                     prepareStringFilter(result, filterValues);
                     break;
             }
+        } else {
+            result = filter;
         }
         return result;
     }

@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.model.plugin.collection;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -34,7 +34,7 @@ public class CollectionRowsRequest implements Dto {
     private LinkedHashMap<String, CollectionColumnProperties> columnProperties;
     private Map<String, List<String>> filtersMap;
     private TableBrowserParams tableBrowserParams;
-    private AbstractFiltersConfig hierarchicalFiltersConfig;
+    private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
                                   String simpleSearchQuery, String searchArea) {
@@ -185,11 +185,11 @@ public class CollectionRowsRequest implements Dto {
         this.tableBrowserParams = tableBrowserParams;
     }
 
-    public AbstractFiltersConfig getHierarchicalFiltersConfig() {
+    public CollectionExtraFiltersConfig getHierarchicalFiltersConfig() {
         return hierarchicalFiltersConfig;
     }
 
-    public void setHierarchicalFiltersConfig(AbstractFiltersConfig hierarchicalFiltersConfig) {
+    public void setHierarchicalFiltersConfig(CollectionExtraFiltersConfig hierarchicalFiltersConfig) {
         this.hierarchicalFiltersConfig = hierarchicalFiltersConfig;
     }
 }

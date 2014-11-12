@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchCollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.counters.NonReadElementsDefinitionConfig;
 
 /**
@@ -57,7 +58,7 @@ public class CollectionViewerConfig extends PluginConfig {
     //Used for hierarchical collections. Not intended to be used in xml configs.
     //Marked as @Element to be able to serialize the value in DB (in bu_nav_link_collection.collection_viewer)
     @Element(name = "hierarchical-filters", required = false)
-    private InitialFiltersConfig hierarchicalFiltersConfig;
+    private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
 
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
@@ -164,11 +165,11 @@ public class CollectionViewerConfig extends PluginConfig {
         return tableBrowserParams == null ? ModelConstants.INIT_ROWS_NUMBER : tableBrowserParams.getPageSize();
     }
 
-    public InitialFiltersConfig getHierarchicalFiltersConfig() {
+    public CollectionExtraFiltersConfig getHierarchicalFiltersConfig() {
         return hierarchicalFiltersConfig;
     }
 
-    public void setHierarchicalFiltersConfig(InitialFiltersConfig hierarchicalFiltersConfig) {
+    public void setHierarchicalFiltersConfig(CollectionExtraFiltersConfig hierarchicalFiltersConfig) {
         this.hierarchicalFiltersConfig = hierarchicalFiltersConfig;
     }
 

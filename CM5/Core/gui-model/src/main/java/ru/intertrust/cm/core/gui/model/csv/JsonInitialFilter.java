@@ -7,6 +7,7 @@ import java.util.List;
  *         Date: 28.05.14
  *         Time: 16:15
  */
+//TODO rename to JsonFilter
 public class JsonInitialFilter {
     private String name;
     private List<JsonFilterParam> filterParams;

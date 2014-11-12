@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -21,6 +22,7 @@ import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonCsvRequest;
 import ru.intertrust.cm.core.gui.model.csv.JsonInitialFilters;
 import ru.intertrust.cm.core.gui.model.csv.JsonSortCriteria;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
 import javax.servlet.ServletException;
@@ -186,13 +188,14 @@ public class JsonExportToCsv {
             }
         }
         InitialFiltersConfig initialFiltersConfig = JsonUtil.convertToInitialFiltersConfig(jsonInitialFilters);
-        InitialFiltersConfig hierarchicalFiltersConfig = JsonUtil.convertToInitialFiltersConfig(jsonHierarchicalFilters);
+        CollectionExtraFiltersConfig hierarchicalFiltersConfig = JsonUtil.
+                convertToCollectionExtraFiltersConfig(jsonHierarchicalFilters);
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper
                 .getFilterNameColumnPropertiesMap(columnPropertiesMap, initialFiltersConfig);
         InitialFiltersParams simpleFiltersParams = new InitialFiltersParams(excludedFilterFields, filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, simpleFiltersParams, filters);
-        InitialFiltersParams hierarchyFiltersParams = new InitialFiltersParams(excludedFilterFields, filterNameColumnPropertiesMap);
-        filterBuilder.prepareInitialFilters(hierarchicalFiltersConfig, hierarchyFiltersParams, filters);
+        ComplicatedFiltersParams hierarchyFiltersParams = new ComplicatedFiltersParams();
+        filterBuilder.prepareExtraFilters(hierarchicalFiltersConfig, hierarchyFiltersParams, filters);
      //   filterBuilder.prepareSelectionFilters(hierarchicalFiltersConfig, null, filters); //TODO check
         return filters;
     }

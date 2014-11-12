@@ -24,6 +24,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -81,7 +82,7 @@ public class CollectionPluginView extends PluginView {
     private EventBus eventBus;
     private CollectionCsvController csvController;
     private SetSelectionModel<CollectionRowItem> selectionModel;
-    private InitialFiltersConfig hierarchicalFiltersConfig;
+    private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
     private List<IsWidget> breadcrumbWidgets = new ArrayList<>();
 
     protected CollectionPluginView(CollectionPlugin plugin) {
@@ -333,7 +334,7 @@ public class CollectionPluginView extends PluginView {
                 JsonUtil.prepareJsonSortCriteria(requestObj,getPluginData().getDomainObjectFieldPropertiesMap(), sortCollectionState);
                 JsonUtil.prepareJsonColumnProperties(requestObj, getPluginData().getDomainObjectFieldPropertiesMap(), filtersMap);
                 JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig, "jsonInitialFilters");
-                JsonUtil.prepareJsonInitialFilters(requestObj, hierarchicalFiltersConfig, "jsonHierarchicalFilters");
+                JsonUtil.prepareJsonHierarchicalFiltersConfig(requestObj, hierarchicalFiltersConfig, "jsonHierarchicalFilters");
                 csvController.doPostRequest(requestObj.toString());
 
             }

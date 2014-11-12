@@ -1,6 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
@@ -100,13 +104,54 @@ public class JsonUtil {
             List<InitialParamConfig> paramConfigs = new ArrayList<>();
             for (JsonFilterParam jsonFilterParam : jsonFilterParams) {
                 InitialParamConfig paramConfig = new InitialParamConfig();
-                paramConfig.setName(jsonFilterParam.getName());
-                paramConfig.setValue(jsonFilterParam.getValue());
-                paramConfig.setType(jsonFilterParam.getType());
+                fillParamConfig(paramConfig, jsonFilterParam);
                 paramConfigs.add(paramConfig);
             }
             initialFilterConfig.setParamConfigs(paramConfigs);
         }
         return initialFilterConfig;
+    }
+
+    public static CollectionExtraFiltersConfig convertToCollectionExtraFiltersConfig(JsonInitialFilters jsonFilters) {
+        if (jsonFilters == null) {
+            return null;
+        }
+        CollectionExtraFiltersConfig initialFiltersConfig = new CollectionExtraFiltersConfig();
+
+        List<JsonInitialFilter> initialFilters = jsonFilters.getJsonInitialFilters();
+        List<ExtraFilterConfig> extraFilterConfigs = new ArrayList<>();
+        for (JsonInitialFilter initialFilter : initialFilters) {
+            ExtraFilterConfig extraFilterConfig = convertToExtraFilterConfig(initialFilter);
+            extraFilterConfigs.add(extraFilterConfig);
+        }
+        initialFiltersConfig.setFilterConfigs(extraFilterConfigs);
+        return initialFiltersConfig;
+
+    }
+
+    private static ExtraFilterConfig convertToExtraFilterConfig(JsonInitialFilter initialFilter) {
+        ExtraFilterConfig extraFilterConfig = new ExtraFilterConfig();
+        String filterName = initialFilter.getName();
+        extraFilterConfig.setName(filterName);
+        List<JsonFilterParam> jsonFilterParams = initialFilter.getFilterParams();
+        if (jsonFilterParams != null && !jsonFilterParams.isEmpty()) {
+            List<ExtraParamConfig> paramConfigs = new ArrayList<>();
+            for (JsonFilterParam jsonFilterParam : jsonFilterParams) {
+                ExtraParamConfig paramConfig = new ExtraParamConfig();
+                fillParamConfig(paramConfig, jsonFilterParam);
+                paramConfigs.add(paramConfig);
+            }
+            extraFilterConfig.setParamConfigs(paramConfigs);
+        }
+        return extraFilterConfig;
+    }
+
+    private static void fillParamConfig(ParamConfig paramConfig, JsonFilterParam jsonFilterParam) {
+        paramConfig.setName(jsonFilterParam.getName());
+        paramConfig.setValue(jsonFilterParam.getValue());
+        paramConfig.setType(jsonFilterParam.getType());
+        paramConfig.setSetBaseObject(jsonFilterParam.isSetBaseObject());
+        paramConfig.setSetCurrentMoment(jsonFilterParam.isSetCurrentMoment());
+        paramConfig.setSetCurrentUser(jsonFilterParam.isSetCurrentUser());
     }
 }
