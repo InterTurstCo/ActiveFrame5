@@ -93,7 +93,7 @@ public class AttachmentUploaderView extends Composite {
      */
     private void init() {
         root = new AbsolutePanel();
-        root.addStyleName("attachment-plugin-wrapper");
+        root.addStyleName("attachmentPluginWrapper");
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
@@ -259,7 +259,7 @@ public class AttachmentUploaderView extends Composite {
 
     private void initUploadButton() {
         addFile = new FocusPanel();
-        addFile.addStyleName("attPlImgCreate");
+        addFile.addStyleName("lightButton uploadButton");
         Style style = addFile.getElement().getStyle();
         addFile.addClickHandler(new ClickHandler() {
             @Override

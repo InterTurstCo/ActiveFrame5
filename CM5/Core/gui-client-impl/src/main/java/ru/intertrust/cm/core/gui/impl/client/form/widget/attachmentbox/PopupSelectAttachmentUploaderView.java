@@ -44,7 +44,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
     private void init() {
         mainBoxPanel = super.getAttachmentsPanel();
         Button showPopupButton = new Button("...");
-        showPopupButton.getElement().setClassName("lightButton");
+        showPopupButton.getElement().setClassName("lightButton selectionButton");
         showPopupButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
