@@ -7,7 +7,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.gui.model.util.GuiDateUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiDateUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
