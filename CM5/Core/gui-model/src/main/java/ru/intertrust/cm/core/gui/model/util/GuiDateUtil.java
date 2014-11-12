@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.model.util;
 
+import com.google.gwt.core.client.GWT;
+import ru.intertrust.cm.core.model.FatalException;
+
 import java.util.Date;
 
 /**
@@ -9,7 +12,10 @@ import java.util.Date;
  */
 public class GuiDateUtil {
 
-    public static Date setEndOfDay(Date date){
+    public static Date setEndOfDay(Date date) {
+        if (!GWT.isClient()) {
+            throw new FatalException("Method should not be used on server");
+        }
         date.setHours(23);
         date.setMinutes(59);
         date.setSeconds(59);
@@ -17,10 +23,12 @@ public class GuiDateUtil {
     }
 
     public static Date setStartOfDay(Date date){
+        if (!GWT.isClient()) {
+            throw new FatalException("Method should not be used on server");
+        }
         date.setHours(0);
         date.setMinutes(0);
         date.setSeconds(0);
         return date;
-
     }
 }

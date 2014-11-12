@@ -1,27 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
@@ -41,13 +23,12 @@ import ru.intertrust.cm.core.gui.impl.server.widget.DateValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.TimelessDateValueConverter;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
-import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
-import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
-import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsRequest;
-import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarRowsResponse;
-import ru.intertrust.cm.core.gui.model.util.GuiDateUtil;
+import ru.intertrust.cm.core.gui.model.plugin.calendar.*;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by lvov on 03.04.14.
@@ -67,7 +48,7 @@ public class CalendarPluginHandler extends ActivePluginHandler {
     public CalendarPluginData initialize(Dto param) {
         final CalendarConfig pluginConfig = (CalendarConfig) param;
         final CalendarPluginData result = new CalendarPluginData();
-        final Calendar calendar = GregorianCalendar.getInstance();
+        final Calendar calendar = GregorianCalendar.getInstance(GuiContext.getUserTimeZone());
         final Date pluginSelectedDate = pluginConfig.getHistoryValue(UserSettingsHelper.CALENDAR_SELECTED_DATE);
         if (pluginSelectedDate != null) {
             calendar.setTime(pluginSelectedDate);
@@ -75,12 +56,11 @@ public class CalendarPluginHandler extends ActivePluginHandler {
         result.setSelectedDate(calendar.getTime());
         final boolean monthMode = CalendarConfig.MONTH_MODE.equals(pluginConfig.getStartMode());
         calendar.add(Calendar.MONTH, monthMode ? 2 : 1);
-        final Date toDate = calendar.getTime();
-        GuiDateUtil.setStartOfDay(toDate);
+        final Date toDate = setToDayStart(calendar).getTime();
         result.setToDate(toDate);
         calendar.add(Calendar.MONTH, monthMode ? -3 : -2);
         final Date fromDate = calendar.getTime();
-        GuiDateUtil.setStartOfDay(fromDate);
+        //GuiDateUtil.setStartOfDay(fromDate);
         result.setFromDate(fromDate);
         final Map<Date, List<CalendarItemsData>> values =
                 getValues(pluginConfig.getCalendarViewConfig(), fromDate, toDate);
@@ -98,6 +78,7 @@ public class CalendarPluginHandler extends ActivePluginHandler {
 
     private Map<Date, List<CalendarItemsData>> getValues(final CalendarViewConfig viewConfig,
                                                         final Date from, final Date to) {
+        final Calendar calendar = GregorianCalendar.getInstance(GuiContext.getUserTimeZone());
         final String collectionName = viewConfig.getCollectionRefConfig().getName();
         final List<Filter> filters = getRangeFilters(viewConfig, from, to);
         final SortOrder sortOrder = new SortOrder();
@@ -114,11 +95,12 @@ public class CalendarPluginHandler extends ActivePluginHandler {
             final Value dateValue =
                     identifiableObject.getValue(viewConfig.getDateFieldPath().getValue());
             final DateValueConverter converter = getDateValueConverter(dateValue.getFieldType());
-            final Date date = converter.valueToDate(dateValue, GuiContext.get().getUserInfo().getTimeZoneId());
+            Date date = converter.valueToDate(dateValue, GuiContext.getUserTimeZoneId());
             if (date == null) {
                 continue;
             }
-            GuiDateUtil.setStartOfDay(date);
+            calendar.setTime(date);
+            date = setToDayStart(calendar).getTime();
             List<CalendarItemsData> valueList = values.get(date);
             if (valueList == null) {
                 valueList = new ArrayList<>();
@@ -160,6 +142,14 @@ public class CalendarPluginHandler extends ActivePluginHandler {
             }
         }
         return values;
+    }
+
+    private Calendar setToDayStart(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
     }
 
     private String getPresentation(final IdentifiableObject identifiableObject, final String valuePattern) {

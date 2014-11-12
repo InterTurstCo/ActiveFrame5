@@ -1,17 +1,15 @@
 package ru.intertrust.cm.core.config.doel;
 
-import java.util.HashMap;
-
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-
 import ru.intertrust.cm.core.model.DoelException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
+
+import javax.annotation.PostConstruct;
+import java.util.HashMap;
 
 public class DoelFunctionRegistry {
 
@@ -20,7 +18,7 @@ public class DoelFunctionRegistry {
     private HashMap<String, Class<?>> functionMap = new HashMap<>();
 
     @PostConstruct
-    private void initiаlize() {
+    private void initialize() {
         //TODO Get the path from cm-module.xmls
         String basePackage = "ru/intertrust/cm";
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
