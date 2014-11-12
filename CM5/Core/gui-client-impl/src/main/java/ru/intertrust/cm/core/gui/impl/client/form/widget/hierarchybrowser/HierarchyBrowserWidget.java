@@ -309,7 +309,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {
-                        final SaveAction action = GuiUtil.createSaveAction(editableFormPlugin, id);
+                        final SaveAction action = GuiUtil.createSaveAction(editableFormPlugin, id, true);
                         action.addActionSuccessListener(new ActionSuccessListener() {
                             @Override
                             public void onSuccess() {
@@ -416,7 +416,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, parentId);
+                final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, parentId, true);
                 action.addActionSuccessListener(new ActionSuccessListener() {
                     @Override
                     public void onSuccess() {

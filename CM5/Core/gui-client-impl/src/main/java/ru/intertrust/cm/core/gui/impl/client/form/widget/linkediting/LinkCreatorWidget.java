@@ -136,7 +136,7 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, null);
+                final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, null, false);
                 action.addActionSuccessListener(new ActionSuccessListener() {
                     @Override
                     public void onSuccess() {

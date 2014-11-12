@@ -119,10 +119,11 @@ public final class GuiUtil {
         return result;
     }
 
-    public static SaveAction createSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
+    public static SaveAction createSaveAction(final FormPlugin formPlugin, final Id rootObjectId, boolean dirtySensitivity) {
         SaveActionContext saveActionContext = new SaveActionContext();
         saveActionContext.setRootObjectId(rootObjectId);
         final ActionConfig actionConfig = new ActionConfig("save.action");
+        actionConfig.setDirtySensitivity(dirtySensitivity);
         saveActionContext.setActionConfig(actionConfig);
         final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());
         action.setInitialContext(saveActionContext);
