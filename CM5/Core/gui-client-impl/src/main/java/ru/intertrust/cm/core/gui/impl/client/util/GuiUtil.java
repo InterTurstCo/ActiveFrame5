@@ -135,8 +135,10 @@ public final class GuiUtil {
         params.setInputFilterName(filterName);
         params.setInputFilterValue(filterValue);
         Plugin plugin = container.getPlugin();
-        FormPluginConfig formConfig = (FormPluginConfig) plugin.getConfig();
-        params.setRootId(formConfig.getDomainObjectId());
+        if (plugin != null) {
+            FormPluginConfig formConfig = (FormPluginConfig) plugin.getConfig();
+            params.setRootId(formConfig.getDomainObjectId());
+        }
         params.setWidgetValuesMap(getOtherWidgetsValues(container, widgetsIds));
         return params;
     }
