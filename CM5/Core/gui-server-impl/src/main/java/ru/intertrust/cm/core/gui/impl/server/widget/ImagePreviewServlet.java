@@ -29,6 +29,7 @@ import java.io.OutputStream;
 @Controller
 public class ImagePreviewServlet {
 
+    private static final long MAX_AGE = 60*60*24*365;
     @Autowired
     private PropertyResolver propertyResolver;
 
@@ -62,7 +63,7 @@ public class ImagePreviewServlet {
             absolutePath = attachmentTempStoragePath + path;
         }
         if (path != null) {
-            response.addHeader("Cache-Control", "public, max-age=3600");
+            response.addHeader("Cache-Control", "public, max-age=" + MAX_AGE);
             InputStream in = new FileInputStream(absolutePath);
             OutputStream out = response.getOutputStream();
             OutputStream buffedOut = new BufferedOutputStream(out);
