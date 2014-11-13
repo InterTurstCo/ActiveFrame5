@@ -4,6 +4,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenter;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
+import java.util.List;
+
 /**
  * @author Lesia Puhova
  *         Date: 17.10.14
@@ -11,6 +13,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
  */
 public interface AttachmentElementPresenterFactory {
 
-    public AttachmentElementPresenter createPresenter(AttachmentItem item);
-    public AttachmentElementPresenter createPresenter(AttachmentItem item, ClickHandler handler);
+    public AttachmentElementPresenter createPresenter(AttachmentItem item, ClickHandler handler,
+                                                      List<AttachmentItem> attachments);
 }

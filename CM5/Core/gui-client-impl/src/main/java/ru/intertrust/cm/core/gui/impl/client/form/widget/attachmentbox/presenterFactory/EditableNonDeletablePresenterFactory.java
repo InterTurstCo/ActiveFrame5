@@ -10,6 +10,8 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.TextPresenter;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
+import java.util.List;
+
 /**
  * @author Lesia Puhova
  *         Date: 11.11.14
@@ -26,17 +28,13 @@ public class EditableNonDeletablePresenterFactory implements AttachmentElementPr
     }
 
     @Override
-    public AttachmentElementPresenter createPresenter(final AttachmentItem item) {
+    public AttachmentElementPresenter createPresenter(AttachmentItem item, ClickHandler handler,
+                                                      List<AttachmentItem> attachments) {
         if (imageConfig != null) {
-            return createEditableImagePresenter(item);
+            return createEditableImagePresenter(item, attachments);
         } else {
             return createEditableTextPresenter(item);
         }
-    }
-
-    @Override
-    public AttachmentElementPresenter createPresenter(AttachmentItem item, ClickHandler handler) {
-        return createPresenter(item);
     }
 
     private AttachmentElementPresenter createEditableTextPresenter(final AttachmentItem item) {
@@ -45,9 +43,9 @@ public class EditableNonDeletablePresenterFactory implements AttachmentElementPr
         return presenter;
     }
 
-    private AttachmentElementPresenter createEditableImagePresenter(final AttachmentItem item) {
+    private AttachmentElementPresenter createEditableImagePresenter(final AttachmentItem item, List<AttachmentItem> attachments) {
         AttachmentElementPresenter presenter = new ImagePresenter(item, imageConfig.getSmallPreviewConfig(),
-                imageConfig.getLargePreviewConfig());
+                imageConfig.getLargePreviewConfig(), attachments);
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
         return presenter;
     }

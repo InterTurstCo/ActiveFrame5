@@ -12,6 +12,8 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.TextPresenter;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
+import java.util.List;
+
 /**
  * @author Lesia Puhova
  *         Date: 11.11.14
@@ -30,14 +32,10 @@ public class EditablePresenterFactory implements AttachmentElementPresenterFacto
     }
 
     @Override
-    public AttachmentElementPresenter createPresenter(AttachmentItem item) {
-        return createPresenter(item, null);
-    }
-
-    @Override
-    public AttachmentElementPresenter createPresenter(final AttachmentItem item, ClickHandler deleteHandler) {
+    public AttachmentElementPresenter createPresenter(final AttachmentItem item, ClickHandler deleteHandler,
+                                                      List<AttachmentItem> attachments) {
         if (imageConfig != null) {
-            return createEditableImagePresenter(item, deleteHandler);
+            return createEditableImagePresenter(item, deleteHandler, attachments);
         } else {
             return createEditableTextPresenter(item, deleteHandler);
         }
@@ -50,9 +48,10 @@ public class EditablePresenterFactory implements AttachmentElementPresenterFacto
         return presenter;
     }
 
-    private AttachmentElementPresenter createEditableImagePresenter(final AttachmentItem item, ClickHandler deleteHandler) {
+    private AttachmentElementPresenter createEditableImagePresenter(final AttachmentItem item, ClickHandler deleteHandler,
+                                                                    List<AttachmentItem> attachments) {
         AttachmentElementPresenter presenter = new ImagePresenter(item, imageConfig.getSmallPreviewConfig(),
-                imageConfig.getLargePreviewConfig());
+                imageConfig.getLargePreviewConfig(), attachments);
         presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, deleteHandler);
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
         return presenter;

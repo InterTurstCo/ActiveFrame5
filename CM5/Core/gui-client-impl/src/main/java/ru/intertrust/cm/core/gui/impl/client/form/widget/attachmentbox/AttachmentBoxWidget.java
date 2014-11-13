@@ -29,7 +29,7 @@ public class AttachmentBoxWidget extends BaseWidget {
         if (isEditable()) {
             setCurrentStateForEditableWidget(state);
         } else {
-            setCurrentStateForNoneEditableWidget(state);
+            setCurrentStateForNonEditableWidget(state);
         }
     }
 
@@ -40,9 +40,10 @@ public class AttachmentBoxWidget extends BaseWidget {
         view.displayAttachmentItems();
     }
 
-    private void setCurrentStateForNoneEditableWidget(AttachmentBoxState state) {
-        AttachmentNonEditablePanel noneEditablePanel = (AttachmentNonEditablePanel) impl;
-        noneEditablePanel.displayAttachmentItems();
+    private void setCurrentStateForNonEditableWidget(AttachmentBoxState state) {
+        AttachmentNonEditablePanel nonEditablePanel = (AttachmentNonEditablePanel) impl;
+        nonEditablePanel.setAttachments(state.getAttachments());
+        nonEditablePanel.displayAttachmentItems();
     }
 
     @Override

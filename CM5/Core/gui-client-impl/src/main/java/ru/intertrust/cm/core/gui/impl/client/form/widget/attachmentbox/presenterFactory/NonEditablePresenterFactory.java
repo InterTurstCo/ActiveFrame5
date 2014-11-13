@@ -8,6 +8,8 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.TextPresenter;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
+import java.util.List;
+
 /**
  * @author Lesia Puhova
  *         Date: 11.11.14
@@ -22,22 +24,18 @@ public class NonEditablePresenterFactory implements AttachmentElementPresenterFa
     }
 
     @Override
-    public AttachmentElementPresenter createPresenter(AttachmentItem item) {
+    public AttachmentElementPresenter createPresenter(AttachmentItem item, ClickHandler handler, List<AttachmentItem> attachments) {
         if (imageConfig != null) {
-            return createNonEditableImagePresenter(item);
+            return createNonEditableImagePresenter(item, attachments);
         } else {
             return createNonEditableTextPresenter(item);
         }
     }
 
-    @Override
-    public AttachmentElementPresenter createPresenter(AttachmentItem item, ClickHandler handler) {
-        return createPresenter(item);
-    }
-
-    private AttachmentElementPresenter createNonEditableImagePresenter(final AttachmentItem item) {
+    private AttachmentElementPresenter createNonEditableImagePresenter(final AttachmentItem item, List<AttachmentItem
+            > attachments) {
         return new ImagePresenter(item, imageConfig.getReadOnlyPreviewConfig(),
-                imageConfig.getLargePreviewConfig());
+                imageConfig.getLargePreviewConfig(), attachments);
     }
 
     private AttachmentElementPresenter createNonEditableTextPresenter(AttachmentItem item) {

@@ -63,7 +63,7 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
     }
 
     protected Panel createNonSelectedElement(AttachmentItem item) {
-        Panel element = presenterFactory.createPresenter(item).presentElement();
+        Panel element = presenterFactory.createPresenter(item, null, getAllAttachments()).presentElement();
         return element;
     }
 

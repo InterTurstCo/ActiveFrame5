@@ -677,7 +677,7 @@
                 <images-only>
                     <read-only-preview  preserve-proportion="true"/>
                     <small-preview display="true" preserve-proportion="true"/>
-                    <large-preview display="true" preserve-proportion="true" width="500px" height="400px"/>
+                    <large-preview display="true" preserve-proportion="true" width="400px" height="300px"/>
                 </images-only>
                 <attachment-type-ref name="country_attachment"/>
                 <scanner enabled="true"/>
@@ -700,7 +700,7 @@
                 <images-only>
                     <read-only-preview preserve-proportion="true"/>
                     <small-preview display="true" preserve-proportion="true"/>
-                    <large-preview display="true" preserve-proportion="true" width="500px" height="400px"/>
+                    <large-preview display="true" preserve-proportion="true" width="400px" height="300px"/>
                 </images-only>
                 <attachment-type-ref name="country_flag"/>
                 <scanner enabled="true"/>
@@ -717,7 +717,7 @@
                 <images-only>
                     <read-only-preview preserve-proportion="true"/>
                     <small-preview display="true" preserve-proportion="true"/>
-                    <large-preview display="true" preserve-proportion="true" width="500px" height="400px"/>
+                    <large-preview display="true" preserve-proportion="true" width="400px" height="300px"/>
                 </images-only>
                 <attachment-type-ref name="fauna_attachment"/>
                 <scanner enabled="true"/>

@@ -73,7 +73,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
     }
 
     protected Panel createNonSelectedElement(AttachmentItem item) {
-        Panel element = presenterFactory.createPresenter(item).presentElement();
+        Panel element = presenterFactory.createPresenter(item, null, getAllAttachments()).presentElement();
         element.add(createCheckbox(item, isItemSelected(item)));
         return element;
     }

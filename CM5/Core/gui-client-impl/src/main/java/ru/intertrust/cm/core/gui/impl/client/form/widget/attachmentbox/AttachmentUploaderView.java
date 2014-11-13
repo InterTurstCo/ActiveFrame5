@@ -134,15 +134,15 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     }
 
     protected Panel createSelectedElement(AttachmentItem item) {
-        return presenterFactory.createPresenter(item, new DeleteAttachmentClickHandler(item)).presentElement();
+        return presenterFactory.createPresenter(item, new DeleteAttachmentClickHandler(item), getAttachments()).presentElement();
     }
 
     protected Panel createNonSelectedElement(AttachmentItem item) {
-        return presenterFactory.createPresenter(item, new DeleteAttachmentClickHandler(item)).presentElement();
+        return presenterFactory.createPresenter(item, new DeleteAttachmentClickHandler(item), getAttachments()).presentElement();
     }
 
     protected Panel createAttachmentProgressElement(AttachmentItem item) {
-        return uploadPresenterFactory.createPresenter(item, new CancelUploadAttachmentHandler(item))
+        return uploadPresenterFactory.createPresenter(item, new CancelUploadAttachmentHandler(item), getAttachments())
                 .presentElement();
     }
 

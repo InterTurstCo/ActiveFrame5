@@ -16,23 +16,26 @@ import java.util.List;
  */
 public class AttachmentNonEditablePanel extends AbstractNoneEditablePanel implements AttachmentElementsContainer {
     private AttachmentElementPresenterFactory factory;
-    private List<AttachmentItem> items;
+    private List<AttachmentItem> attachments;
 
     public AttachmentNonEditablePanel(SelectionStyleConfig selectionStyleConfig, AttachmentBoxState state) {
         super(selectionStyleConfig);
         factory = new NonEditablePresenterFactory(state.getImagesConfig());
-        items = state.getAttachments();
+        attachments = state.getAttachments();
     }
 
     private void displayAttachmentItem(AttachmentItem item){
-        mainBoxPanel.add(factory.createPresenter(item).presentElement());
+        mainBoxPanel.add(factory.createPresenter(item, null, attachments).presentElement());
     }
 
     @Override
     public void displayAttachmentItems() {
-        for (AttachmentItem item : items) {
+        for (AttachmentItem item : attachments) {
             displayAttachmentItem(item);
         }
     }
 
+    public void setAttachments(List<AttachmentItem> attachments) {
+        this.attachments = attachments;
+    }
 }

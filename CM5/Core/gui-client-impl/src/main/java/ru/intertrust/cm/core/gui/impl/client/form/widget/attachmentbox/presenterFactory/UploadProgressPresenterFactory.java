@@ -11,6 +11,8 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.UploadProgressPresenter;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
+import java.util.List;
+
 /**
  * @author Lesia Puhova
  *         Date: 11.11.14
@@ -29,12 +31,8 @@ public class UploadProgressPresenterFactory implements AttachmentElementPresente
     }
 
     @Override
-    public AttachmentElementPresenter createPresenter(AttachmentItem item) {
-        return createPresenter(item, null);
-    }
-
-    @Override
-    public AttachmentElementPresenter createPresenter(final AttachmentItem item, ClickHandler deleteHandler) {
+    public AttachmentElementPresenter createPresenter(final AttachmentItem item, ClickHandler deleteHandler,
+                                                      List<AttachmentItem> attachments) {
         AttachmentElementPresenter presenter = new TextPresenter(item.getName());
         presenter = new UploadProgressPresenter(presenter, eventBus);
         presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, deleteHandler);
