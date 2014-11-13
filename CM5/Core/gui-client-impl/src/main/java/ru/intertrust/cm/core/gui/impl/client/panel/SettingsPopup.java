@@ -22,7 +22,7 @@ import java.util.Map;
  *         Time: 10:25
  */
 public class SettingsPopup extends PopupPanel{
-    private static final String SETTING_ITEM_STYLE = "settings-item";
+    private static final String SETTING_ITEM_STYLE = "settingsItem";
 
     public SettingsPopup(SettingsPopupConfig settingsPopupConfig) {
         super(true, false);
@@ -40,10 +40,10 @@ public class SettingsPopup extends PopupPanel{
             container.getElement().getStyle().clearOverflow();
             Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
             if(themeMap != null){
-                body.add(createMenuItem("Выбрать тему", new ThemePopupDomHandler(themeMap)));
+                body.add(createMenuItem("Выбрать тему", "menuImage",new ThemePopupDomHandler(themeMap)));
             }
-            body.add(createMenuItem("Сбросить настройки", new ResetPluginSettingDomHandler()));
-            body.add(createMenuItem("Сбросить все настройки", new ResetAllSettingDomHandler()));
+            body.add(createMenuItem("Сбросить настройки", "menuImage",new ResetPluginSettingDomHandler()));
+            body.add(createMenuItem("Сбросить все настройки", "menuImage",new ResetAllSettingDomHandler()));
 
             container.add(header);
             container.add(body);
@@ -52,10 +52,10 @@ public class SettingsPopup extends PopupPanel{
     }
 
 
-    private Widget createMenuItem(String text, ClickHandler handler){
+    private Widget createMenuItem(String text, String imageStyleClass,ClickHandler handler){
         final AbsolutePanel result = new AbsolutePanel();
         Panel imagePanel = new AbsolutePanel();
-        imagePanel.addStyleName("menuImage");
+        imagePanel.addStyleName(imageStyleClass);
         result.add(imagePanel);
         result.add(new Label(text));
         result.setStyleName(SETTING_ITEM_STYLE);

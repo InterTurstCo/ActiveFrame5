@@ -215,7 +215,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
             for (CreatedObjectConfig createdObjectConfig : createdObjectsConfig.getCreateObjectConfigs()) {
                 final AbsolutePanel menuItemContainer = new AbsolutePanel();
-                menuItemContainer.setStyleName("settings-item");
+                menuItemContainer.setStyleName("settingsItem");
                 menuItemContainer.add(new Label(createdObjectConfig.getText()));
                 menuItemContainer.addDomHandler(new OpenFormClickHandler(createdObjectConfig.getDomainObjectType(), this), ClickEvent.getType());
                 body.add(menuItemContainer);

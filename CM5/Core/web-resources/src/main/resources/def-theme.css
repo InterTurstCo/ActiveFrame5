@@ -2521,8 +2521,17 @@ a:active .icon.back {
     width: 24px;
 }
 
-.settings-item .gwt-Label {
+.settingsItem .gwt-Label {
     cursor: pointer;
+    display: inline-block;
+}
+
+.settingsItem .menuImage {
+    background: url(resources/defaulttheme/images/icons/themes-icon.png) no-repeat;
+    display: inline-block;
+    height: 16px;
+    vertical-align: middle;
+    width: 16px;
 }
 
 .menuSeparatorInner {
@@ -2533,14 +2542,6 @@ a:active .icon.back {
 
 .focus-container {
     margin-left: 135px;
-    /*background: #4c93c9;
-    background: -moz-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9), color-stop(51%, #3b649a), color-stop(100%, #232464));
-    background: -webkit-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
-    background: -o-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
-    background: -ms-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0);
-    background: linear-gradient(478 BCC);*/
 }
 
 .navigation-scroll {
@@ -2739,6 +2740,7 @@ a:active .icon.back {
     background: -ms-linear-gradient(top,  #989ac0 1%,#cedbe4 100%); /* IE10+ */
     background: linear-gradient(to bottom,  #989ac0 1%,#cedbe4 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#989ac0', endColorstr='#cedbe4',GradientType=0 ); /* IE6-8 */
+    border-top: 1px solid #bbcfe8;
     box-shadow: inset 0 10px 20px rgba(0, 0, 0, .5);
     height: 160px;
     -webkit-transition: height 0.5s; /* For Safari 3.1 to 6.0 */
