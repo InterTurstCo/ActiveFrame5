@@ -1,5 +1,9 @@
 package ru.intertrust.cm.core.business.api;
 
+import java.util.List;
+
+import ru.intertrust.cm.core.business.api.dto.Id;
+
 /**
  * Сервис загрузки данных
  * @author larin
@@ -25,19 +29,19 @@ public interface ImportDataService {
      * Метод загрузки данных из файла.
      * @param loadFileAsByteArray зачитанный массив данных из файла
      */
-    void importData(byte[] importFileAsByteArray);
+    List<Id> importData(byte[] importFileAsByteArray);
     
     /**
      * Метод загрузки данных при отличие кодировки в CSV от дефалтовой ANSI-1251
      * @param importFileAsByteArray
      * @param encoding
      */
-    void importData(byte[] importFileAsByteArray, String encoding);
+    List<Id> importData(byte[] importFileAsByteArray, String encoding);
     
     /**
      * Метод загрузки данных при отличие кодировки в CSV от дефалтовой ANSI-1251 и флагом который позволяет\запрещает перезаписывать данные
      * @param importFileAsByteArray
      * @param encoding
      */
-    void importData(byte[] importFileAsByteArray, String encoding, boolean owerwrite);
+    List<Id> importData(byte[] importFileAsByteArray, String encoding, boolean owerwrite);
 }

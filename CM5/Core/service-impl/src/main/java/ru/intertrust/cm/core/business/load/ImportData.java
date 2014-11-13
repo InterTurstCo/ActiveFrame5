@@ -125,7 +125,7 @@ public class ImportData {
      * Загрузка одного файла с данными
      * @param loadFileAsByteArray
      */
-    public void importData(byte[] loadFileAsByteArray, String encoding, Boolean rewrite) {
+    public List<Id> importData(byte[] loadFileAsByteArray, String encoding, Boolean rewrite) {
         Reader reader = null;
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(loadFileAsByteArray);
@@ -160,7 +160,6 @@ public class ImportData {
                         deleteOther = false;
                         
                         deleteOther();
-                        importedIds.clear();
                     }
 
                     //Первые две строки это метаданные
@@ -203,6 +202,7 @@ public class ImportData {
                 }
             }
             deleteOther();
+            return importedIds;
         } catch (Exception ex) {
             throw new FatalException("Error load data. TypeName=" + typeName, ex);
         } finally {

@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.ejb.EJBContext;
 import javax.ejb.Local;
@@ -12,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ImportDataService;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.load.ImportData;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -27,21 +30,21 @@ public class ImportDataServiceImpl implements ImportDataService {
     private EJBContext context;
 
     @Override
-    public void importData(byte[] importFileAsByteArray) {
-        importData(importFileAsByteArray, null);
+    public List<Id> importData(byte[] importFileAsByteArray) {
+        return importData(importFileAsByteArray, null);
     }
 
     @Override
-    public void importData(byte[] importFileAsByteArray, String encoding) {
-        importData(importFileAsByteArray, encoding, false);
+    public List<Id> importData(byte[] importFileAsByteArray, String encoding) {
+        return importData(importFileAsByteArray, encoding, false);
     }
 
     @Override
-    public void importData(byte[] importFileAsByteArray, String encoding,
+    public List<Id> importData(byte[] importFileAsByteArray, String encoding,
             boolean rewrite) {
         try {
             ImportData importData = (ImportData)springContext.getBean(ImportData.PERSON_IMPORT_BEAN);
-            importData.importData(importFileAsByteArray, encoding, rewrite);
+            return importData.importData(importFileAsByteArray, encoding, rewrite);
         } catch (Exception ex) {
             throw new FatalException("Error load data", ex);
         }
