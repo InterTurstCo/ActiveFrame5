@@ -16,11 +16,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsCo
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
-import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
-import ru.intertrust.cm.core.gui.impl.client.event.DomainObjectTypeSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.DomainObjectTypeSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.SelectTypePopup;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.LinkCreatingButton;
@@ -35,7 +31,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -171,10 +167,10 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
     private void updateWidgetView(IdentifiableObject identifiableObject) {
         LinkCreatorWidgetState state = getInitialData();
         LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
-        List<Id> ids = new ArrayList<Id>();
         String selectionPattern = config.getSelectionPatternConfig().getValue();
-        ids.add(identifiableObject.getId());
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, config.getFormattingConfig());
+        String collectionName = config.getCollectionRefConfig() == null ? null : config.getCollectionRefConfig().getName();
+        List<Id> ids = Arrays.asList(identifiableObject.getId());
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, collectionName, config.getFormattingConfig());
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

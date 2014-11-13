@@ -2,9 +2,11 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -14,6 +16,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -29,9 +32,13 @@ import static ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetRepresenta
 @ComponentName("representation-updater")
 public class RepresentationFormatHandler implements FormatHandler {
     @Autowired
-    protected ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
     @Autowired
-    protected CrudService crudService;
+    private CrudService crudService;
+    @Autowired
+    private CollectionsService collectionsService;
+    @Autowired
+    private FilterBuilder filterBuilder;
 
     @Deprecated
     public RepresentationResponse getRepresentation(Dto inputParams) {
@@ -79,12 +86,29 @@ public class RepresentationFormatHandler implements FormatHandler {
         String selectionPattern = request.getPattern();
         FormattingConfig formattingConfig = request.getFormattingConfig();
         Matcher matcher = pattern.matcher(selectionPattern);
-        List<Id> ids = request.getIds();
-        Id id = ids.get(0);
-        DomainObject domainObject = crudService.find(id);
-        String representation = format(domainObject, matcher, formattingConfig);
-        RepresentationResponse response = new RepresentationResponse(id, representation);
+
+        IdentifiableObject identifiableObject = getIdentifiableObject(request);
+        String representation = format(identifiableObject, matcher, formattingConfig);
+        RepresentationResponse response = new RepresentationResponse(identifiableObject.getId(), representation);
         return response;
+    }
+
+    private IdentifiableObject getIdentifiableObject(RepresentationRequest request){
+        IdentifiableObject result = null;
+        if(request.getCollectionName() != null){
+            result = getIdentifiableObjectFromCollection(request);
+        }else {
+            result = crudService.find(request.getIds().get(0));
+        }
+
+        return result;
+    }
+    private IdentifiableObject getIdentifiableObjectFromCollection(RepresentationRequest request){
+        List<Id> ids = request.getIds();
+        List<Filter> filters = new ArrayList<>();
+        filterBuilder.prepareIncludedIdsFilter(ids, filters);
+        IdentifiableObjectCollection collection = collectionsService.findCollection(request.getCollectionName(), null, filters);
+        return collection.get(0);
     }
 
     private String formatWithSplit(IdentifiableObject identifiableObject, Matcher matcher, FormattingConfig formattingConfig) {

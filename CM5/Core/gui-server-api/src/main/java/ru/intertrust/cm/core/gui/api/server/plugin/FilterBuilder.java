@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.api.server.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
@@ -9,6 +10,7 @@ import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -43,5 +45,7 @@ public interface FilterBuilder {
     boolean prepareSelectionFilters(SelectionFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters);
 
     boolean prepareExtraFilters(CollectionExtraFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters);
+
+    void prepareIncludedIdsFilter(Collection<Id> ids, List<Filter> filters);
 
 }

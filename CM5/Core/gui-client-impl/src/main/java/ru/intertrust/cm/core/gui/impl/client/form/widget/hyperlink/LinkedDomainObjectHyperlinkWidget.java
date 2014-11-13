@@ -5,7 +5,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
@@ -35,9 +34,7 @@ import java.util.List;
 @ComponentName("linked-domain-object-hyperlink")
 public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements HyperlinkStateChangedEventHandler, HasLinkedFormMappings {
 
-    private String selectionPattern;
-    private FormattingConfig formattingConfig;
-    private LinkedDomainObjectHyperlinkConfig linkedDomainObjectHyperlinkConfig;
+    private LinkedDomainObjectHyperlinkConfig config;
 
     public LinkedDomainObjectHyperlinkWidget() {
     }
@@ -49,10 +46,9 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
 
     public void setCurrentState(WidgetState currentState) {
         LinkedDomainObjectHyperlinkState state = (LinkedDomainObjectHyperlinkState) currentState;
-        linkedDomainObjectHyperlinkConfig = ((LinkedDomainObjectHyperlinkState) currentState).getWidgetConfig();
+        config = ((LinkedDomainObjectHyperlinkState) currentState).getWidgetConfig();
         initialData = currentState;
-        selectionPattern = state.getWidgetConfig().getPatternConfig().getValue();
-        formattingConfig = state.getWidgetConfig().getFormattingConfig();
+
         LinkedHashMap<Id, String> listValues = state.getListValues();
         HyperlinkNoneEditablePanel panel = (HyperlinkNoneEditablePanel) impl;
         panel.displayHyperlinks(listValues, shouldDrawTooltipButton());
@@ -84,13 +80,16 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         return asEditableWidget(state);
     }
 
+    //TODO common method
     @Override
     public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
         final HyperlinkDisplay hyperlinkDisplay = event.getHyperlinkDisplay();
         Id id = event.getId();
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, formattingConfig);
+        String collectionName = config.getCollectionRefConfig() == null ? null : config.getCollectionRefConfig().getName();
+        RepresentationRequest request = new RepresentationRequest(ids, config.getSelectionPatternConfig().getValue(),
+                collectionName, config.getFormattingConfig());
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -124,12 +123,12 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
 
     @Override
     public LinkedFormMappingConfig getLinkedFormMappingConfig() {
-        return linkedDomainObjectHyperlinkConfig.getLinkedFormMappingConfig();
+        return config.getLinkedFormMappingConfig();
     }
 
     @Override
     public LinkedFormConfig getLinkedFormConfig() {
-        return linkedDomainObjectHyperlinkConfig.getLinkedFormConfig();
+        return config.getLinkedFormConfig();
     }
 
 }

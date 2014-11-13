@@ -148,8 +148,10 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         Id id = event.getId();
         List<Id> ids = new ArrayList<Id>();
         ids.add(id);
+        String collectionName = suggestBoxConfig.getCollectionRefConfig() == null ? null
+                : suggestBoxConfig.getCollectionRefConfig().getName();
         RepresentationRequest request = new RepresentationRequest(ids,
-                suggestBoxConfig.getSelectionPatternConfig().getValue(), suggestBoxConfig.getFormattingConfig());
+                suggestBoxConfig.getSelectionPatternConfig().getValue(), collectionName, suggestBoxConfig.getFormattingConfig());
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

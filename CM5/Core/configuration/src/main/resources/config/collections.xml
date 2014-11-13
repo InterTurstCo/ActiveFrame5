@@ -125,7 +125,7 @@
         <prototype>
             <![CDATA[
                     select
-                        o.id, o.name, o.created_date, o.created_by, o.boss as boss, s.name as status_name
+                        o.id, o.name, o.created_date, o.created_by, o.boss as boss, s.name as status_name, e.name as boss_name
                     from
                         Organization o
                     left join employee e

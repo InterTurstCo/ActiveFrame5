@@ -20,6 +20,7 @@ public class RepresentationRequest implements Dto {
     private SummaryTableConfig summaryTableConfig;
     private FormState createdObjectState;
     private String linkedFormName;
+    private String collectionName;
 
     public RepresentationRequest() {
     }
@@ -39,6 +40,12 @@ public class RepresentationRequest implements Dto {
     public RepresentationRequest(FormState createdObjectState, SummaryTableConfig summaryTableConfig) {
          this.createdObjectState = createdObjectState;
          this.summaryTableConfig = summaryTableConfig;
+    }
+    public RepresentationRequest(List<Id> ids, String pattern, String collectionName,FormattingConfig formattingConfig) {
+        this.ids = ids;
+        this.pattern = pattern;
+        this.collectionName = collectionName;
+        this.formattingConfig = formattingConfig;
     }
 
     public List<Id> getIds() {
@@ -87,5 +94,9 @@ public class RepresentationRequest implements Dto {
 
     public void setLinkedFormName(String linkedFormName) {
         this.linkedFormName = linkedFormName;
+    }
+
+    public String getCollectionName() {
+        return collectionName;
     }
 }

@@ -610,10 +610,13 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     private void updateHyperlink(final HyperlinkStateChangedEvent event) {
         List<Id> ids = new ArrayList<Id>();
         Id id = event.getId();
-        String selectionPattern = currentState.getTableBrowserConfig().getSelectionPatternConfig().getValue();
+        TableBrowserConfig config = currentState.getTableBrowserConfig();
+        String selectionPattern = config.getSelectionPatternConfig().getValue();
         ids.add(id);
-        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, currentState.
-                getTableBrowserConfig().getFormattingConfig());
+        String collectionName = config.getCollectionRefConfig() == null ? null : config.getCollectionRefConfig().getName();
+        RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, collectionName,
+                config.getFormattingConfig());
+
         Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

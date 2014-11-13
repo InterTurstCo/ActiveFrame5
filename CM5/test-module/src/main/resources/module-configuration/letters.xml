@@ -390,7 +390,7 @@
                 <collection-ref name="Organizations"/>
 
                 <!-- паттерн отображения уже выбранных значений -->
-                <selection-pattern value="{name}"/>
+                <selection-pattern value="{name}, начальник {boss_name}"/>
                 <drop-down-pattern value="{name}"/>
                 <!-- название фильтра по тексту, введённому пользователем -->
                 <input-text-filter name="byName"/>
@@ -949,6 +949,14 @@
                             <widget id="status"/>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <widget id="boss_label"/>
+                        </td>
+                        <td>
+                            <widget id="boss"/>
+                        </td>
+                    </tr>
                 </table>
             </header>
             <body display-single-tab="false">
@@ -1052,6 +1060,37 @@
                 <field-path value="status"/>
 
                 <collection-ref name="Statuses"/>
+                <selection-filters row-limit="1"></selection-filters>
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{name}"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byName"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                <page-size>10</page-size>
+                <display-values-as-links value="false"/>
+                <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
+                    Если тэг отсутствует, то используется "inline"-вариант. -->
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <default-sort-criteria column-field="name" order="asc"/>
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
+
+            </suggest-box>
+            <label id="boss_label">
+                <text>Начальник:</text>
+            </label>
+            <suggest-box id="boss">
+                <field-path value="boss"/>
+
+                <collection-ref name="Employees"/>
                 <selection-filters row-limit="1"></selection-filters>
                 <!-- паттерн отображения значений выпадающего списка -->
                 <drop-down-pattern value="{name}"/>
