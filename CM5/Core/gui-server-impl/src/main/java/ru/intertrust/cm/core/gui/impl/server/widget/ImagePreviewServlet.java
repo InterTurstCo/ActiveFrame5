@@ -62,6 +62,7 @@ public class ImagePreviewServlet {
             absolutePath = attachmentTempStoragePath + path;
         }
         if (path != null) {
+            response.addHeader("Cache-Control", "public, max-age=3600");
             InputStream in = new FileInputStream(absolutePath);
             OutputStream out = response.getOutputStream();
             OutputStream buffedOut = new BufferedOutputStream(out);
