@@ -5,7 +5,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
@@ -88,8 +87,8 @@ public class ImagePresenter implements AttachmentElementPresenter {
         private final List<AttachmentItem> attachments;
 
         private AttachmentItem currentLargePreviewItem;
-        private Button prevButton;
-        private Button nextButton;
+        private Panel prevButton;
+        private Panel nextButton;
 
         public OpenLargePreviewHandler(AttachmentItem item, PreviewConfig largePreviewConfig,
                                        List<AttachmentItem> attachments) {
@@ -112,29 +111,23 @@ public class ImagePresenter implements AttachmentElementPresenter {
                     largePreviewDialog.hide();
                 }
             });
-
-            prevButton = new Button("<");
-            prevButton.addStyleName("lightButton");
-            prevButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    showPrevImage(image);
-                    largePreviewDialog.center();
-                }
-            });
-            largePreviewPanel.add(prevButton);
             setupLargePreviewImage(item, image);
             largePreviewPanel.add(image);
-            nextButton = new Button(">");
-            nextButton.addStyleName("lightButton");
-            nextButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    showNextImage(image);
-                    largePreviewDialog.center();
-                }
-            });
+
+            prevButton = new AbsolutePanel();
+            Panel innerPrevButtonPanel = new AbsolutePanel();
+            prevButton.add(innerPrevButtonPanel);
+            innerPrevButtonPanel.addDomHandler(new PrevClickHandler(image, largePreviewDialog), ClickEvent.getType());
+            prevButton.addDomHandler(new PrevClickHandler(image, largePreviewDialog), ClickEvent.getType());
+            largePreviewPanel.add(prevButton);
+
+            nextButton = new AbsolutePanel();
+            Panel innerNextButtonPanel = new AbsolutePanel();
+            nextButton.add(innerNextButtonPanel);
+            innerNextButtonPanel.addDomHandler(new NextClickHandler(image, largePreviewDialog), ClickEvent.getType());
+            nextButton.addDomHandler(new NextClickHandler(image, largePreviewDialog), ClickEvent.getType());
             largePreviewPanel.add(nextButton);
+
             ensureVisibilityForNavigationButtons();
             largePreviewDialog.setWidget(largePreviewPanel);
             largePreviewDialog.center();
@@ -177,6 +170,38 @@ public class ImagePresenter implements AttachmentElementPresenter {
             nextButton.setVisible(currentIndex < attachments.size()-1);
         }
 
+
+        private class PrevClickHandler implements com.google.gwt.event.dom.client.ClickHandler {
+            private final Image image;
+            private final DialogBox largePreviewDialog;
+
+            private PrevClickHandler(Image image, DialogBox largePreviewDialog) {
+                this.image = image;
+                this.largePreviewDialog = largePreviewDialog;
+            }
+
+            @Override
+            public void onClick(ClickEvent event) {
+                showPrevImage(image);
+                largePreviewDialog.center();
+            }
+        }
+
+        private class NextClickHandler implements ClickHandler {
+            private final Image image;
+            private final DialogBox largePreviewDialog;
+
+            private NextClickHandler(Image image, DialogBox largePreviewDialog) {
+                this.image = image;
+                this.largePreviewDialog = largePreviewDialog;
+            }
+
+            @Override
+            public void onClick(ClickEvent event) {
+                showNextImage(image);
+                largePreviewDialog.center();
+            }
+        }
     }
 
     private static class ScalePreviewHandler implements LoadHandler {
@@ -243,4 +268,5 @@ public class ImagePresenter implements AttachmentElementPresenter {
 
         }
     }
+
 }
