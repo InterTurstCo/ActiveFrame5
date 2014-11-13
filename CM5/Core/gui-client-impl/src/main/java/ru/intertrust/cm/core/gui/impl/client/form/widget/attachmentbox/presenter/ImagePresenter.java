@@ -141,7 +141,7 @@ public class ImagePresenter implements AttachmentElementPresenter {
             if (config.getHeight() != null) {
                 image.setHeight(config.getHeight());
             }
-            image.addLoadHandler(new ScalePreviewHandler(config, image, true));
+            image.addLoadHandler(new ScalePreviewHandler(config, image, false));
         }
 
         private void showPrevImage(Image image) {
