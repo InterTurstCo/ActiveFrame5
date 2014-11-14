@@ -11,11 +11,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
@@ -112,6 +108,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 header.getElement().setId(ComponentHelper.HEADER_ID);
                 action.setStyleName("action-section");
                 left.setStyleName("left-section-active");
+                clearPositionAttribute(left);
                 left.getElement().setId(ComponentHelper.LEFT_ID);
                 centrInner.setStyleName("centr-inner-section");
                 center.setStyleName("center-section");
@@ -156,7 +153,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                     @Override
                     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
                         final CompactModeState compactModeState = Application.getInstance().getCompactModeState();
-                        if(!compactModeState.isExpanded()){
+                        if (!compactModeState.isExpanded()) {
                             left.setStyleName(event.getStyleForLeftSector());
                             centralDivPanel.setStyleName(event.getStyleForCenterSector());
                         }
@@ -183,7 +180,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 RootLayoutPanel.get().add(root);
                 RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
 
-               if (initialToken != null && !initialToken.isEmpty()) {
+                if (initialToken != null && !initialToken.isEmpty()) {
                     Application.getInstance().getHistoryManager().setToken(initialToken);
                 }
                 History.addValueChangeHandler(new HistoryValueChangeHandler());
@@ -395,15 +392,18 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private class StickerPanelHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
-            if(footer.getStyleName().equals("footerPanelOff")){
+            if (footer.getStyleName().equals("footerPanelOff")) {
                 footerButton.getElement().setClassName("footerCloseButton");
                 footer.getElement().setClassName("footerPanelOn");
-            }
-            else{
+            } else {
                 footerButton.getElement().setClassName("footerOpenButton");
                 footer.getElement().setClassName("footerPanelOff");
             }
         }
+    }
+
+    private void clearPositionAttribute(Widget element) {
+        element.getElement().getStyle().clearPosition();
     }
 
 }
