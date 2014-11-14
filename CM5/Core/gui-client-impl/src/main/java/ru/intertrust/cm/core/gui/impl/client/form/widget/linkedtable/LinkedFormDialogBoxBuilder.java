@@ -173,7 +173,7 @@ public class LinkedFormDialogBoxBuilder {
             });
         }
         Button cancelButton = new Button("Отменить");
-        cancelButton.setStyleName("lnfm-cancel-button lightBbutton");
+        cancelButton.setStyleName("lnfm-cancel-button darkButton");
         decorateButton(cancelButton);
         if (cancelAction != null) {
             cancelButton.addClickHandler(new ClickHandler() {
