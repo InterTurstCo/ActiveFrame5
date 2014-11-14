@@ -7,7 +7,7 @@
 .gwt-TabPanelBottom {
     background-color: #ffffff;
     border: 0;
-    padding: 0;
+    padding: 0 0 30px 0;
     position: relative;
     z-index: 1;
 }
