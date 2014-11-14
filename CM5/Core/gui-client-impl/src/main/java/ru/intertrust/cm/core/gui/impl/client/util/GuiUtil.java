@@ -173,6 +173,7 @@ public final class GuiUtil {
                     final FormPluginState formPluginState = new FormPluginState();
                     formPluginState.setInCentralPanel(Application.getInstance().getCompactModeState().isExpanded());
                     formPluginState.setToggleEdit(true);
+                    formPluginState.setInCentralPanel(true);
                     formPluginConfig.setPluginState(formPluginState);
                     final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
                     formPlugin.setConfig(formPluginConfig);

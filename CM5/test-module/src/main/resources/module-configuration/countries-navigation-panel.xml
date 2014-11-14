@@ -5,7 +5,7 @@
                 is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
         <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
             <child-links>
-                <link name="Calendar1" display-text="Календар 1">
+                <link name="Calendar1" display-text="Календарь1">
                     <plugin>
                         <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
                             <calendar-view>
