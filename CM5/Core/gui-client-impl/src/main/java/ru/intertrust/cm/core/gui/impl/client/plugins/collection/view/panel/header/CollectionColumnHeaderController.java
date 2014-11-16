@@ -11,10 +11,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
@@ -37,12 +34,14 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Date: 21/03/14
  *         Time: 12:05 PM
  */
-public class CollectionColumnHeaderController implements ComponentWidthChangedHandler, ComponentOrderChangedHandler {
+public class CollectionColumnHeaderController implements ComponentWidthChangedHandler, ComponentOrderChangedHandler,
+        SideBarResizeEventHandler {
     private final String collectionViewName;
     private List<ColumnHeaderBlock> columnHeaderBlocks;
     private CollectionDataGrid dataGrid;
     private ColumnSelectorPopup popup;
     private int displayedWidth;
+    private int otherWidgetsDelta;
     private boolean filtersVisibility;
 
     public CollectionColumnHeaderController(final String collectionViewName,
@@ -52,11 +51,9 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         this.displayedWidth = displayedWidth;
         eventBus.addHandler(ComponentWidthChangedEvent.TYPE, this);
         eventBus.addHandler(ComponentOrderChangedEvent.TYPE, this);
+        Application.getInstance().getEventBus().addHandler(SideBarResizeEvent.TYPE, this);
     }
 
-    public void setDisplayedWidth(int displayedWidth) {
-        this.displayedWidth = displayedWidth;
-    }
 
     public List<ColumnHeaderBlock> getColumnHeaderBlocks() {
         return columnHeaderBlocks;
@@ -164,10 +161,21 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             }
         }
 
-        CollectionDataGridUtils.adjustWidthAfterChangedVisibility(Math.max(widthBeforeChanges, displayedWidth), dataGrid);
+        CollectionDataGridUtils.adjustWidthWithoutUserSettingsKeeping(Math.max(widthBeforeChanges, displayedWidth - otherWidgetsDelta), dataGrid);
         changeFilterInputWidth();
+        updateFilterValues();
         dataGrid.redraw();
 
+    }
+
+    public void adjustColumnsWidth(int tableWidth, CollectionDataGrid dataGrid) {
+        displayedWidth = tableWidth;
+        saveFilterValues();
+        CollectionDataGridUtils.adjustWidthUserSettingsKeeping(displayedWidth - otherWidgetsDelta, dataGrid);
+        changeFilterInputWidth();
+
+        updateFilterValues();
+        dataGrid.redraw();
     }
 
     private void storeUserSettings() {
@@ -310,18 +318,23 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         updateOrderSettings();
     }
 
-    public void narrowTableIfPossible(int tableWidth, CollectionDataGrid dataGrid) {
-        saveFilterValues();
-        boolean tableRedrawn = CollectionDataGridUtils.narrowTableIfPossible(tableWidth, dataGrid);
-        if (tableRedrawn) {
-            changeFilterInputWidth();
-            updateFilterValues();
-
+    public void changeTableWidthByCondition() {
+        if(CollectionDataGridUtils.isTableHorizontalScrollNotVisible(dataGrid)){
+            return;
         }
+        changeColumnsWidth(displayedWidth - otherWidgetsDelta);
+    }
 
+    private void changeColumnsWidth(int tableWidth) {
+        saveFilterValues();
+        CollectionDataGridUtils.adjustWidthWithoutUserSettingsKeeping(tableWidth, dataGrid);
+        dataGrid.redraw();
+        changeFilterInputWidth();
+        updateFilterValues();
         updateWidthSettings();
     }
-    private Map<String, String> createFieldWidthMap(){
+
+    private Map<String, String> createFieldWidthMap() {
         Map<String, String> result = new HashMap<String, String>(dataGrid.getColumnCount());
         for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
             CollectionColumn column = columnHeaderBlock.getColumn();
@@ -329,6 +342,15 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
         }
         return result;
+    }
+
+    @Override
+    public void sideBarFixPositionEvent(final SideBarResizeEvent event) {
+                if (otherWidgetsDelta != 0) {
+                    changeColumnsWidth(displayedWidth);
+                }
+                otherWidgetsDelta = event.getSideBarWidths();
+
     }
 
     private class ColumnSelectorPopup extends PopupPanel {

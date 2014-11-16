@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.*;
 
@@ -19,7 +21,7 @@ public class CollectionDataGridUtils {
     private CollectionDataGridUtils() {
     }
 
-    public static void adjustColumnsWidth(int tableWidth, CollectionDataGrid dataGrid) {
+    public static void adjustWidthUserSettingsKeeping(int tableWidth, CollectionDataGrid dataGrid) {
         calculateColumnsWidth(tableWidth, dataGrid, true);
     }
 
@@ -53,16 +55,7 @@ public class CollectionDataGridUtils {
         return tableBrowserParams.isDisplayChosenValues();
     }
 
-    public static boolean narrowTableIfPossible(int tableWidth, CollectionDataGrid dataGrid) {
-        if (isTableHorizontalScrollNotVisible(dataGrid)) {
-            return false;
-        }
-        calculateColumnsWidth(tableWidth, dataGrid, false);
-        dataGrid.redraw();
-        return true;
-
-    }
-    public static void adjustWidthAfterChangedVisibility(int tableWidth, CollectionDataGrid dataGrid){
+    public static void adjustWidthWithoutUserSettingsKeeping(int tableWidth, CollectionDataGrid dataGrid){
         calculateColumnsWidth(tableWidth, dataGrid, false);
     }
 
@@ -116,6 +109,30 @@ public class CollectionDataGridUtils {
             tableBody.setColumnWidth(column, calculatedWidth + "px");
             column.setDrawWidth(calculatedWidth);
         }
+    }
+
+    public static void mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
+                                                                       List<InitialFilterConfig> previous){
+        if(WidgetUtil.isEmpty(previous)){
+            return;
+        }
+        Collection<String> names = getFilterNames(current);
+        for (InitialFilterConfig config: previous) {
+            if(!names.contains(config.getName())){
+                current.add(config);
+            }
+        }
+
+    }
+
+    private static Collection<String> getFilterNames(List<InitialFilterConfig> configs){
+        Set<String> result = new HashSet<>();
+        if(WidgetUtil.isNotEmpty(configs)){
+        for (InitialFilterConfig config : configs) {
+            result.add(config.getName());
+        }
+        }
+        return result;
     }
 
 }

@@ -99,9 +99,7 @@ public class CollectionPluginView extends PluginView {
     private void updateSizes() {
         // one pixel inaccuracy causes drawing fake scroll, removing 1px prevents scroll issue
         tableWidth = plugin.getOwner().getVisibleWidth() - 1;
-        CollectionDataGridUtils.adjustColumnsWidth(tableWidth, tableBody); //TODO save and restore filter values
-        columnHeaderController.setDisplayedWidth(tableWidth);
-        columnHeaderController.changeVisibilityOfColumns();
+        columnHeaderController.adjustColumnsWidth(tableWidth, tableBody);
     }
 
     /*This method is invoked when splitter changes position and after initialization of BusinessUniverse
@@ -396,6 +394,8 @@ public class CollectionPluginView extends PluginView {
                 }
             }
         }
+        List<InitialFilterConfig> previous = config.getInitialFiltersConfig().getFilterConfigs();
+       // CollectionDataGridUtils.mergeInitialFiltersConfigs(configs, previous);
         if (configs.isEmpty()) {
             config.setInitialFiltersConfig(null);
         } else {
@@ -496,7 +496,7 @@ public class CollectionPluginView extends PluginView {
         columnWidthRecalculateButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                columnHeaderController.narrowTableIfPossible(tableWidth, tableBody);
+                columnHeaderController.changeTableWidthByCondition();
             }
         });
         treeLinkWidget.add(columnWidthRecalculateButton);
