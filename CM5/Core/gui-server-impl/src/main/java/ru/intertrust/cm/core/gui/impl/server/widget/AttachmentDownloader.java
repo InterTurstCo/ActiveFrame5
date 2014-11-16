@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,24 +42,21 @@ public class AttachmentDownloader {
     protected AttachmentService.Remote remoteAttachmentService;
 
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
-    public void getFile(@PathVariable("id") String id, HttpServletResponse response) throws IOException {
+    public void getFile(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Id rdmsId = idService.createId(id);
         DomainObject domainObject = crudService.find(rdmsId);
         String mimeType = domainObject.getString("MimeType");
         RemoteInputStream remoteFileData = attachmentService.loadAttachment(rdmsId);
+        String userAgent = request.getHeader("user-agent");
         try (
-                InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);) {
-
+            InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);) {
             String filename = domainObject.getString("Name");
             filename = URLEncoder.encode(filename, "UTF-8");
-
             response.setCharacterEncoding("UTF-8");
-
-                response.setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
-
-
-
-
+            //For Firefox encoding issue
+            String contentDispositionPart = userAgent.indexOf("Firefox") > 0 ? "attachment; filename*='UTF-8'"
+                    :"attachment; filename=\"";
+            response.setHeader("Content-disposition", contentDispositionPart + filename + "\"");
             response.setContentType(mimeType);
             stream(fileData, response.getOutputStream());
         }
