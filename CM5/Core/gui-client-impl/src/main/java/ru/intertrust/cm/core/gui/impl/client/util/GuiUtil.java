@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappin
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
@@ -38,9 +39,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -188,5 +187,16 @@ public final class GuiUtil {
             result = new InlineHTML(itemData.getPresentation());
         }
         return result;
+    }
+
+    public static<T> List<T> filter(List<T> collection, Predicate<T> predicate){
+        List<T> result = new ArrayList<T>();
+        for (T t : collection) {
+            if(predicate.evaluate(t)){
+                result.add(t);
+            }
+        }
+        return result;
+
     }
 }

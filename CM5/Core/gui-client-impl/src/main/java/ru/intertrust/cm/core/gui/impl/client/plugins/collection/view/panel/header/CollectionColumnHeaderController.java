@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.form.CheckBoxInabilityManager;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
@@ -376,14 +377,16 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         }
 
         private void initCheckBoxItems(Panel container) {
+            CheckBoxInabilityManager inabilityManager = new CheckBoxInabilityManager();
             for (int i = 0; i < columnHeaderBlocks.size(); i++) {
                 ColumnHeaderBlock columnHeaderBlock = columnHeaderBlocks.get(i);
-                initCheckboxItem(columnHeaderBlock, container);
+                initCheckboxItem(columnHeaderBlock, container, inabilityManager);
 
             }
         }
 
-        private void initCheckboxItem(final ColumnHeaderBlock columnHeaderBlock, Panel container) {
+        private void initCheckboxItem(final ColumnHeaderBlock columnHeaderBlock, Panel container,
+                                      final CheckBoxInabilityManager inabilityManager) {
             final CollectionColumn column = columnHeaderBlock.getColumn();
             String checkBoxLabel = column.getDataStoreName();
             if (checkBoxLabel.equalsIgnoreCase(CHECK_BOX_COLUMN_NAME)) {
@@ -391,6 +394,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             }
             CheckBox checkBox = new CheckBox(column.getDataStoreName());
             checkBox.setValue(column.isVisible());
+            inabilityManager.addCheckBox(checkBox);
             checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
                 @Override
                 public void onValueChange(ValueChangeEvent<Boolean> event) {
@@ -398,6 +402,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
                     boolean shouldChangeVisibilityPrevious = columnHeaderBlock.shouldChangeVisibilityState();
                     columnHeaderBlock.setShouldChangeVisibilityState(!shouldChangeVisibilityPrevious);
                     column.setVisible(checked);
+                    inabilityManager.handleCheckBoxesInability();
 
                 }
             });
