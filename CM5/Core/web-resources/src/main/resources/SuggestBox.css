@@ -63,9 +63,9 @@
 
 .gwt-SuggestBoxPopup {
     background: #FFFDF0;
-    border-bottom: 1px solid #F7EC70;
-    border-left: 1px solid #F7EC70;
-    border-right: 1px solid #F7EC70;
+    border-bottom: 1px solid #7f9db9;
+    border-left: 1px solid #7f9db9;
+    border-right: 1px solid #7f9db9;
     margin-left: 0px !important;
     z-index: 101;
 }
