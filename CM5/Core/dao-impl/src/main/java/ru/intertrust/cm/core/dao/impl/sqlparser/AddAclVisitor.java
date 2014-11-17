@@ -165,7 +165,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
             aclQuery.append(" and rt.id = ");
             if (!isAuditLog) {
                 //topLevelParentType
-                aclQuery.append(topLevelParentType).append(".").append(Configuration.ID_COLUMN);
+                aclQuery.append(domainObjectType).append(".").append(Configuration.ID_COLUMN);
 
             } else {
                 //topLevelAuditTable
