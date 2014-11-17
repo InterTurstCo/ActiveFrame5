@@ -90,7 +90,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
     @Override
     public void onMouseWheel(MouseWheelEvent event) {
         final int delta = event.getDeltaY() * 5;
-        changeOffset(-delta);
+        changeOffset(delta);
         final WeekItem weekItem = (WeekItem) monthContainer.getWidget(0);
         final DateItem dateItem = (DateItem) weekItem.getWidget(0);
         final Date date = CalendarUtil.copyDate(dateItem.date);
@@ -130,7 +130,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
         CalendarUtil.addDaysToDate(date, -(cursorDate.getDay() + 13));
         final int dayOffset = cursorDate.getDay();
         containerOffset = DATE_ITEM_HEIGHT - dayOffset * DATE_ITEM_HEIGHT / 7;
-        monthContainer.getElement().getStyle().setMarginTop(-containerOffset, Style.Unit.PX);
+        monthContainer.getElement().getStyle().setMarginBottom(-containerOffset, Style.Unit.PX);
         buildPresentation(date);
     }
 
