@@ -15,7 +15,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +30,7 @@ import java.io.OutputStream;
 public class ImagePreviewServlet {
 
     private static final long MAX_AGE = 60*60*24*365;
+    private static final int BUFFER_SIZE = 1024*64;
     @Autowired
     private PropertyResolver propertyResolver;
 
@@ -53,6 +54,7 @@ public class ImagePreviewServlet {
         String attachmentObjectId = request.getParameter("id");
         String path;
         String absolutePath;
+
         if (attachmentObjectId != null) {
             Id id = new RdbmsId(attachmentObjectId);
             DomainObject attachmentObject = crudService.find(id);
@@ -64,23 +66,26 @@ public class ImagePreviewServlet {
         }
         if (path != null) {
             response.addHeader("Cache-Control", "public, max-age=" + MAX_AGE);
+            response.setHeader("Content-Length", String.valueOf(new File(absolutePath).length()));
+            response.setBufferSize(BUFFER_SIZE);
             InputStream in = new FileInputStream(absolutePath);
             OutputStream out = response.getOutputStream();
-            OutputStream buffedOut = new BufferedOutputStream(out);
-            copyStream(in, buffedOut);
+
+            copyStream(in, out);
             in.close();
             out.close();
         }
     }
 
     private static void copyStream(InputStream in, OutputStream out) {
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
         int bytesRead;
         try {
+            out.flush();
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
+                out.flush();
             }
-            out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
