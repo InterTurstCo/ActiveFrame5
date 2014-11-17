@@ -37,6 +37,8 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
@@ -71,6 +73,8 @@ public class CollectionsIT extends IntegrationTestBase {
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
     
     protected AuthenticationService authenticationService; 
+
+    private ConfigurationExplorer configurationExplorer;
 
     /**
      * Предотвращает загрузку данных для каждого теста. Данные загружаются один раз для всех тестов в данном классе.
@@ -118,6 +122,7 @@ public class CollectionsIT extends IntegrationTestBase {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
         domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
         authenticationService = applicationContext.getBean(AuthenticationService.class);
+        configurationExplorer = applicationContext.getBean(ConfigurationExplorer.class);
     }
 
     @Test
@@ -194,6 +199,82 @@ public class CollectionsIT extends IntegrationTestBase {
         assertNotNull(collection);
     }
     
+    @Test
+    public void testFindCollectionByQueryForAuditLog() throws LoginException {        
+        DomainObject organization = createOrganizationDomainObject();
+        DomainObject savedOrganization = crudService.save(organization);
+        DomainObject department = createDepartmentDomainObject(savedOrganization);
+        DomainObject savedDepartment = crudService.save(department);
+        GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
+        Boolean isAuditLogEnabled = false;
+        if (globalSettings != null && globalSettings.getAuditLog() != null) {
+            isAuditLogEnabled = globalSettings.getAuditLog().isEnable();
+        }
+
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+        
+        String query = "select * from country_al";
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
+        assertNotNull(collection);
+        if (isAuditLogEnabled) {
+            assertTrue(collection.size() >= 1);
+        }
+        query = "select * from department_al da inner join department d on da.domain_object_id = d.id where d.id = {0}";
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(savedDepartment.getId()));
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        if (isAuditLogEnabled) {
+            assertTrue(collection.size() >= 1);
+        }
+        
+        lc.logout();
+
+    }
+
+    @Test
+    public void testFindCollectionForAuditLog() throws LoginException {
+        DomainObject organization = createOrganizationDomainObject();
+        DomainObject savedOrganization = crudService.save(organization);
+        DomainObject department = createDepartmentDomainObject(savedOrganization);
+        DomainObject savedDepartment = crudService.save(department);
+        GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
+        Boolean isAuditLogEnabled = false;
+        if (globalSettings != null && globalSettings.getAuditLog() != null) {
+            isAuditLogEnabled = globalSettings.getAuditLog().isEnable();
+        }
+
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("da.id", Order.ASCENDING));
+
+        List<Filter> filterValues = new ArrayList<Filter>();
+        Filter filter = new Filter();
+        filter.setFilter("byDepartmentId");
+        filter.addCriterion(0, new ReferenceValue(savedDepartment.getId()));
+        filterValues.add(filter);
+
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+
+        IdentifiableObjectCollection departmantAuditCollection =
+                collectionService.findCollection("Department_Audit_Test", sortOrder, filterValues, 0, 0);
+
+        lc.logout();
+        if (isAuditLogEnabled) {
+            assertNotNull(departmantAuditCollection);
+            assertTrue(departmantAuditCollection.size() >= 1);
+        }
+
+    }
+    
+    private DomainObject createOrganizationDomainObject() {
+        DomainObject organizationDomainObject = crudService.createDomainObject("Organization");
+        organizationDomainObject.setString("Name", "Organization" + new Date());
+        return organizationDomainObject;
+    }
+
     @Test
     public void testFindCollectionByQueryWithAliasInSubSelect() throws LoginException {
         LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
