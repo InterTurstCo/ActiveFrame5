@@ -1,6 +1,8 @@
 
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -13,6 +15,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
+import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 import java.util.HashMap;
@@ -118,13 +121,14 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
 
         boolean isAuditLog = configurationExplorer.isAuditLogType(domainObjectType);
         String originalDomainObjectType = domainObjectType;
-        // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.        
-        domainObjectType = AccessControlUtility.getRelevantType(domainObjectType, configurationExplorer);
 
         String aclQueryString = null;
         if (aclSubQueryCache.get(originalDomainObjectType) != null) {
             aclQueryString = aclSubQueryCache.get(originalDomainObjectType);
         } else {
+            
+            // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
+            domainObjectType = AccessControlUtility.getRelevantType(domainObjectType, configurationExplorer);
             
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
             String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(domainObjectType);
@@ -135,7 +139,9 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
                 aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectType);
             }
                         
-            String rootType = configurationExplorer.getDomainObjectRootType(domainObjectType).toLowerCase();
+            String topLevelParentType = configurationExplorer.getDomainObjectRootType(domainObjectType).toLowerCase();
+            String topLevelAuditTable = getALTableSqlName(topLevelParentType);
+           
             StringBuilder aclQuery = new StringBuilder();
             
             aclQuery.append("Select * from ").append(DaoUtils.wrap(originalDomainObjectType))
@@ -147,17 +153,23 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
             aclQuery.append("inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
                     .append(DaoUtils.wrap("child_group_id"))
                     .append(" = gm.").append(DaoUtils.wrap("usergroup"));
-            aclQuery.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on r.")
+            aclQuery.append("inner join ").append(DaoUtils.wrap(topLevelParentType)).append(" rt on r.")
                     .append(DaoUtils.wrap("object_id"))
                     .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
+            if (isAuditLog) {
+                aclQuery.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(originalDomainObjectType).append(".")
+                        .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
+            }
             aclQuery.append(" where gm.person_id = ").append(SqlQueryModifier.USER_ID_PARAM);
 
             aclQuery.append(" and rt.id = ");
             if (!isAuditLog) {
-                aclQuery.append(domainObjectType).append(".").append(Configuration.ID_COLUMN);
+                //topLevelParentType
+                aclQuery.append(topLevelParentType).append(".").append(Configuration.ID_COLUMN);
 
             } else {
-                aclQuery.append(originalDomainObjectType).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
+                //topLevelAuditTable
+                aclQuery.append("pal.").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
             }
             aclQuery.append(")");
 

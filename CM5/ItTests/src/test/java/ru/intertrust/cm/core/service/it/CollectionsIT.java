@@ -205,6 +205,10 @@ public class CollectionsIT extends IntegrationTestBase {
         DomainObject savedOrganization = crudService.save(organization);
         DomainObject department = createDepartmentDomainObject(savedOrganization);
         DomainObject savedDepartment = crudService.save(department);
+        
+        DomainObject employee = createEmployeeDomainObject(savedDepartment);
+        DomainObject savedEmployee = crudService.save(employee);
+
         GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
         Boolean isAuditLogEnabled = false;
         if (globalSettings != null && globalSettings.getAuditLog() != null) {
@@ -230,7 +234,28 @@ public class CollectionsIT extends IntegrationTestBase {
             assertTrue(collection.size() >= 1);
         }
         
+        query = "select * from employee_al ea inner join person_al pa on pa.id = ea.id inner join employee e on pa.domain_object_id = e.id where e.id = {0}";
+        params = new ArrayList<Value>();
+        params.add(new ReferenceValue(savedEmployee.getId()));
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
         lc.logout();
+
+        lc = login(ADMIN, ADMIN);
+        query = "select * from employee_al ea inner join person_al pa on pa.id = ea.id inner join employee e on pa.domain_object_id = e.id where e.id = {0}";
+        params = new ArrayList<Value>();
+        params.add(new ReferenceValue(savedEmployee.getId()));
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        if (isAuditLogEnabled) {
+            assertTrue(collection.size() >= 1);
+        }
+                
+        lc.login();
+        lc.logout();
+        
 
     }
 
@@ -275,6 +300,17 @@ public class CollectionsIT extends IntegrationTestBase {
         return organizationDomainObject;
     }
 
+    private DomainObject createEmployeeDomainObject(DomainObject departmentObject) {
+        DomainObject personDomainObject = crudService.createDomainObject("Employee");
+        
+        personDomainObject.setString("Name", "Name " + System.currentTimeMillis());
+        personDomainObject.setString("Position", "Position " + System.currentTimeMillis());
+        personDomainObject.setString("Phone", "" + System.currentTimeMillis());        
+        personDomainObject.setReference("Department", departmentObject.getId());
+        
+        return personDomainObject;
+    }
+    
     @Test
     public void testFindCollectionByQueryWithAliasInSubSelect() throws LoginException {
         LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
