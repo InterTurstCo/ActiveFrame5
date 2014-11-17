@@ -1215,7 +1215,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (accessToken.isDeferred()) {
             boolean isAuditLog = configurationExplorer.isAuditLogType(typeName);
-            String mainTableAlias = getSqlAlias(getSqlName(typeName));
 
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             typeName = getRelevantType(typeName);
@@ -1789,11 +1788,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void appendAccessControlLogicToQuery(StringBuilder query,
             String linkedType) {
         boolean isAuditLog = configurationExplorer.isAuditLogType(linkedType);
-        String originalLinkedType = linkedType;
+        String originalLinkedType = DataStructureNamingHelper.getSqlName(linkedType);
+        
         // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.        
         linkedType = getRelevantType(linkedType);
         //Добавляем учет ReadPermittedToEverybody
         if (!configurationExplorer.isReadPermittedToEverybody(linkedType)) {
+         // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
+            linkedType = getRelevantType(linkedType);
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
             String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(linkedType);
             String childAclReadTable = null;
@@ -1802,11 +1804,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }else{
                 childAclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, linkedType);
             }
+            String topLevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, linkedType);            
+            String topLevelAuditTable = getALTableSqlName(topLevelParentType);
+
             String rootType = configurationExplorer.getDomainObjectRootType(linkedType).toLowerCase();
             
             query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
-
-            String linkedTypeAlias = getSqlAlias(linkedType);
 
             query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.").append(DaoUtils.wrap("group_id"))
                     .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
@@ -1815,9 +1818,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on r.")
                     .append(DaoUtils.wrap("object_id"))
                     .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
+            if (isAuditLog) {
+                query.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(originalLinkedType).append(".")
+                        .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
+            }
+
             query.append("where gm.person_id = :user_id and rt.id = ");
             if (!isAuditLog) {
-                query.append(linkedTypeAlias).append(".").append(DaoUtils.wrap(ID_COLUMN));
+                query.append(topLevelAuditTable).append(".").append(DaoUtils.wrap(ID_COLUMN));
 
             } else {
                 query.append(originalLinkedType).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.service.it;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -18,11 +19,13 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.validation.constraints.AssertTrue;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.runners.statements.Fail;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
@@ -43,6 +46,7 @@ import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
@@ -57,6 +61,8 @@ public class CrudServiceIT extends IntegrationTestBase {
     private static final String ADMIN = "admin";
 
     private static final String PERSON_2_LOGIN = "person2";
+    private static final String PERSON_3_LOGIN = "person3";
+    
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -103,20 +109,6 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     }
 
-    @Test
-    public void testFindAuditLogs() throws LoginException {
-        Integer countryAlTypeid = domainObjectTypeIdCache.getId("country_al");
-        Id countryAuditId = new RdbmsId(countryAlTypeid, 33);
-
-        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
-        lc.login();
-
-        DomainObject foundCountryAudit = crudService.find(countryAuditId);
-        assertNotNull(foundCountryAudit);
-        assertNotNull(foundCountryAudit.getId());
-        lc.logout();
-    }
-    
     @Test
     public void testFindDelete() {
         DomainObject organization1 = createOrganizationDomainObject();
@@ -199,19 +191,129 @@ public class CrudServiceIT extends IntegrationTestBase {
                 crudService.findLinkedDomainObjectsIds(savedOrganization.getId(), "Department", "Organization");
         assertNotNull(linkedObjectsIds);
         assertEquals(linkedObjectsIds.get(0), savedDepartment.getId());
+
+        GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
+        Boolean isAuditLogEnabled = false;
+        if (globalSettings != null && globalSettings.getAuditLog() != null) {
+            isAuditLogEnabled = globalSettings.getAuditLog().isEnable();
+        }
+        
+        List<DomainObject> linkedAuditObjects =
+                crudService.findLinkedDomainObjects(savedDepartment.getId(), "Department_al", "domain_object_id");
+        assertNotNull(linkedAuditObjects);
+            assertNotNull(linkedAuditObjects);
+        if(isAuditLogEnabled){
+            assertTrue(linkedAuditObjects.size() >= 1);
+            assertEquals(linkedAuditObjects.get(0).getReference("domain_object_id"), savedDepartment.getId());
+            
+        }
+
     }
 
     @Test
-    public void testFindLinkedDoaminObjectsForAuditLog() throws LoginException {
+    public void testFindAuditLogs() throws LoginException {
         DomainObject organization = createOrganizationDomainObject();
         DomainObject savedOrganization = crudService.save(organization);
-        LoginContext lc = login("person2", "admin");
+        DomainObject department = createDepartmentDomainObject(savedOrganization);
+        DomainObject savedDepartment = crudService.save(department);
+        GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
+        Boolean isAuditLogEnabled = false;
+        if (globalSettings != null && globalSettings.getAuditLog() != null) {
+            isAuditLogEnabled = globalSettings.getAuditLog().isEnable();
+        }
+
+        // Test by ADMIN
+        LoginContext lc = login(ADMIN, ADMIN);
         lc.login();
-        List<DomainObject> linkedObjects =
-                crudService.findLinkedDomainObjects(savedOrganization.getId(), "Organization_al", "domain_object_id");
-        assertNotNull(linkedObjects);
+
+        List<DomainObject> linkedAuditObjects =
+                crudService.findLinkedDomainObjects(savedDepartment.getId(), "Department_al", "domain_object_id");
+
+        assertNotNull(linkedAuditObjects);
+        if (isAuditLogEnabled) {
+            assertTrue(linkedAuditObjects.size() >= 1);
+            assertEquals(linkedAuditObjects.get(0).getReference("domain_object_id"), savedDepartment.getId());
+        }
+
+        DomainObject foundAuditLog = crudService.find(linkedAuditObjects.get(0).getId());
+        assertNotNull(foundAuditLog);
+        assertNotNull(foundAuditLog.getId());
+        assertEquals(foundAuditLog.getReference("domain_object_id"), savedDepartment.getId());
         lc.logout();
-    
+
+        // Test by PERSON2 (not ADMIN)
+        lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+
+        linkedAuditObjects =
+                crudService.findLinkedDomainObjects(savedDepartment.getId(), "Department_al", "domain_object_id");
+        assertNotNull(linkedAuditObjects);
+        if (isAuditLogEnabled) {
+            assertTrue(linkedAuditObjects.size() >= 1);
+            assertEquals(linkedAuditObjects.get(0).getReference("domain_object_id"), savedDepartment.getId());
+        }
+
+        foundAuditLog = crudService.find(linkedAuditObjects.get(0).getId());
+        assertNotNull(foundAuditLog);
+        assertNotNull(foundAuditLog.getId());
+        lc.logout();
+
+        // Test by PERSON3 (not Admin) not having permissions to read department objects.
+        lc = login(PERSON_3_LOGIN, ADMIN);
+        lc.login();
+
+        try {
+            linkedAuditObjects =
+                    crudService.findLinkedDomainObjects(savedDepartment.getId(), "Department_al", "domain_object_id");
+        } catch (ObjectNotFoundException ex) {
+
+        }
+        assertNotNull(linkedAuditObjects);
+        if (isAuditLogEnabled) {
+            assertTrue(linkedAuditObjects.size() == 0);
+        }
+        lc.logout();
+
+    }
+
+    @Test
+    public void testFindAuditLogsAsLinkedObjects() throws LoginException {
+        DomainObject organization = createOrganizationDomainObject();
+        DomainObject savedOrganization = crudService.save(organization);
+        DomainObject department = createDepartmentDomainObject(savedOrganization);
+        DomainObject savedDepartment = crudService.save(department);
+        GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
+        Boolean isAuditLogEnabled = false;
+        if (globalSettings != null && globalSettings.getAuditLog() != null) {
+            isAuditLogEnabled = globalSettings.getAuditLog().isEnable();
+        }
+        
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+     
+        List<DomainObject> linkedAuditObjects =
+                crudService.findLinkedDomainObjects(savedDepartment.getId(), "Department_al", "domain_object_id");
+        assertNotNull(linkedAuditObjects);
+        if(isAuditLogEnabled){
+            assertTrue(linkedAuditObjects.size() >= 1);
+            assertEquals(linkedAuditObjects.get(0).getReference("domain_object_id"), savedDepartment.getId());            
+        }
+                
+        lc.logout();
+
+        lc = login(PERSON_3_LOGIN, ADMIN);
+        lc.login();
+
+        linkedAuditObjects =
+                crudService.findLinkedDomainObjects(savedDepartment.getId(), "Department_al", "domain_object_id");
+        assertNotNull(linkedAuditObjects);
+        assertNotNull(linkedAuditObjects);
+        if (isAuditLogEnabled) {
+            assertTrue(linkedAuditObjects.size() == 0);
+        }
+
+        lc.logout();
+
     }
     
     @Test
