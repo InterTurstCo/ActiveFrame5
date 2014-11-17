@@ -1242,7 +1242,131 @@ h1 {
     width: auto;
 }
 
+.imageButtonWrapper {
+}
+
+.prevImageButtonWrapper {
+    background: rgba(250, 250, 250, 0);
+    -webkit-transition: background 0.5s;
+    -moz-transition: background 0.5s;
+    -ms-transition: background 0.5s;
+    -o-transition: background 0.5s;
+    transition: background 0.5s;
+    position: absolute;
+    top: 0;
+    bottom: 2px;
+    left: 0;
+    width: 60px;
+}
+
+.prevImageButton {
+    background: rgba(250, 250, 250, 0);
+    -webkit-transition: background 0.5s;
+    -moz-transition: background 0.5s;
+    -ms-transition: background 0.5s;
+    -o-transition: background 0.5s;
+    transition: background 0.5s;
+    border-radius: 50%;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    width: 20px;
+}
+
+.prevImageButton:before {
+    content: "‹";
+    font: bold 33px/15px Arial, sans-serif;
+    color: rgba(250, 250, 250, 0.1);
+}
+
+.nextImageButtonWrapper {
+    background: rgba(250, 250, 250, 0);
+    -webkit-transition: background 0.5s;
+    -moz-transition: background 0.5s;
+    -ms-transition: background 0.5s;
+    -o-transition: background 0.5s;
+    transition: background 0.5s;
+    position: absolute;
+    top: 0;
+    bottom: 2px;
+    right: 0;
+    width: 60px;
+}
+
+.nextImageButton {
+    background: rgba(250, 250, 250, 0);
+    -webkit-transition: background 0.5s;
+    -moz-transition: background 0.5s;
+    -ms-transition: background 0.5s;
+    -o-transition: background 0.5s;
+    transition: background 0.5s;
+    border-radius: 50%;
+    height: 20px;
+    margin: -10px -10px 0 0;
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    text-align: center;
+    width: 20px;
+}
+
+.nextImageButton:before {
+    content: "›";
+    font: bold 33px/15px Arial, sans-serif;
+    color: rgba(250, 250, 250, 0.1);
+}
+
+.imageLargePreview img:hover + .imageButtonWrapper .prevImageButtonWrapper,
+.imageLargePreview img:hover + .imageButtonWrapper .nextImageButtonWrapper {
+    background: rgba(250, 250, 250, 0.1);
+    -webkit-transition: background 0.3s;
+    -moz-transition: background 0.3s;
+    -ms-transition: background 0.3s;
+    -o-transition: background 0.3s;
+    transition: background 0.3s;
+}
+
+.imageLargePreview img:hover + .imageButtonWrapper .prevImageButtonWrapper .prevImageButton,
+.imageLargePreview img:hover + .imageButtonWrapper .nextImageButtonWrapper .nextImageButton {
+    background: rgba(42, 74, 125, 0.3);
+    -webkit-transition: background 0.3s;
+    -moz-transition: background 0.3s;
+    -ms-transition: background 0.3s;
+    -o-transition: background 0.3s;
+    transition: background 0.3s;
+}
+
+.prevImageButtonWrapper:hover,
+.nextImageButtonWrapper:hover {
+    background: rgba(250, 250, 250, 0.5);
+    -webkit-transition: background 0.3s;
+    -moz-transition: background 0.3s;
+    -ms-transition: background 0.3s;
+    -o-transition: background 0.3s;
+    transition: background 0.3s;
+    cursor: pointer;
+}
+
+.prevImageButtonWrapper:hover .prevImageButton,
+.nextImageButtonWrapper:hover .nextImageButton {
+    background: rgba(42, 74, 125, 0.9);
+    -webkit-transition: background 0.3s;
+    -moz-transition: background 0.3s;
+    -ms-transition: background 0.3s;
+    -o-transition: background 0.3s;
+    transition: background 0.3s;
+    cursor: pointer;
+}
+
+.prevImageButtonWrapper:hover .prevImageButton:before,
+.nextImageButtonWrapper:hover .nextImageButton:before {
+    color: rgba(250, 250, 250, 1);
+}
 /* ------------>>>  end Attachment-box Widget <<<------------ */
+
 /**
  *  Extended Search Panel
 **/

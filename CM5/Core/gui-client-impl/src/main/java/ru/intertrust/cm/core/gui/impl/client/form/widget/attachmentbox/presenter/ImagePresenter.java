@@ -87,8 +87,8 @@ public class ImagePresenter implements AttachmentElementPresenter {
         private final List<AttachmentItem> attachments;
 
         private AttachmentItem currentLargePreviewItem;
-        private Panel prevButton;
-        private Panel nextButton;
+        private Panel prevButtonWrapper;
+        private Panel nextButtonWrapper;
 
         public OpenLargePreviewHandler(AttachmentItem item, PreviewConfig largePreviewConfig,
                                        List<AttachmentItem> attachments) {
@@ -114,19 +114,29 @@ public class ImagePresenter implements AttachmentElementPresenter {
             setupLargePreviewImage(item, image);
             largePreviewPanel.add(image);
 
-            prevButton = new AbsolutePanel();
-            Panel innerPrevButtonPanel = new AbsolutePanel();
-            prevButton.add(innerPrevButtonPanel);
-            innerPrevButtonPanel.addDomHandler(new PrevClickHandler(image, largePreviewDialog), ClickEvent.getType());
-            prevButton.addDomHandler(new PrevClickHandler(image, largePreviewDialog), ClickEvent.getType());
-            largePreviewPanel.add(prevButton);
+            Panel buttonsPanel = new AbsolutePanel();
+            buttonsPanel.getElement().setClassName("imageButtonWrapper");
+            buttonsPanel.getElement().getStyle().clearPosition();
+            prevButtonWrapper = new AbsolutePanel();
+            prevButtonWrapper.getElement().setClassName("prevImageButtonWrapper");
+            prevButtonWrapper.getElement().getStyle().clearPosition();
+            Panel prevButton = new AbsolutePanel();
+            prevButton.getElement().setClassName("prevImageButton");
+            prevButton.getElement().getStyle().clearPosition();
+            prevButtonWrapper.addDomHandler(new PrevClickHandler(image, largePreviewDialog), ClickEvent.getType());
+            prevButtonWrapper.add(prevButton);
+            buttonsPanel.add(prevButtonWrapper);
 
-            nextButton = new AbsolutePanel();
-            Panel innerNextButtonPanel = new AbsolutePanel();
-            nextButton.add(innerNextButtonPanel);
-            innerNextButtonPanel.addDomHandler(new NextClickHandler(image, largePreviewDialog), ClickEvent.getType());
-            nextButton.addDomHandler(new NextClickHandler(image, largePreviewDialog), ClickEvent.getType());
-            largePreviewPanel.add(nextButton);
+            nextButtonWrapper = new AbsolutePanel();
+            nextButtonWrapper.getElement().setClassName("nextImageButtonWrapper");
+            nextButtonWrapper.getElement().getStyle().clearPosition();
+            Panel nextButton = new AbsolutePanel();
+            nextButton.getElement().setClassName("nextImageButton");
+            nextButton.getElement().getStyle().clearPosition();
+            nextButtonWrapper.addDomHandler(new NextClickHandler(image, largePreviewDialog), ClickEvent.getType());
+            nextButtonWrapper.add(nextButton);
+            buttonsPanel.add(nextButtonWrapper);
+            largePreviewPanel.add(buttonsPanel);
 
             ensureVisibilityForNavigationButtons();
             largePreviewDialog.setWidget(largePreviewPanel);
@@ -166,8 +176,8 @@ public class ImagePresenter implements AttachmentElementPresenter {
 
         private void ensureVisibilityForNavigationButtons() {
             int currentIndex = attachments.indexOf(currentLargePreviewItem);
-            prevButton.setVisible(currentIndex > 0);
-            nextButton.setVisible(currentIndex < attachments.size()-1);
+            prevButtonWrapper.setVisible(currentIndex > 0);
+            nextButtonWrapper.setVisible(currentIndex < attachments.size() - 1);
         }
 
 
