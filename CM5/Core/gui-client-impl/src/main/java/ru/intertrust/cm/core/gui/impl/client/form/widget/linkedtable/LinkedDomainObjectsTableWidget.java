@@ -57,6 +57,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     private Button addButton;
     private boolean hasRemovedItems;
     private SimplePager pager;
+    private HandlerRegistration addButtonHandlerRegistration;
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -91,7 +92,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         model.addDataDisplay(table);
         drawTooltipButtonIfRequired();
         if (addButton != null) {
-            addHandlersToAddButton(addButton);
+            if(addButtonHandlerRegistration != null) {
+                addButtonHandlerRegistration.removeHandler();
+            }
+            addButtonHandlerRegistration = addHandlersToAddButton(addButton);
         }
     }
 
@@ -150,10 +154,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         return button;
     }
 
-    private void addHandlersToAddButton(Button button) {
+    private HandlerRegistration addHandlersToAddButton(Button button) {
         final CreatedObjectsConfig createdObjectsConfig = currentState.getLinkedDomainObjectsTableConfig().getCreatedObjectsConfig();
         if (createdObjectsConfig != null && !createdObjectsConfig.getCreateObjectConfigs().isEmpty()) {
-            button.addClickHandler(new ClickHandler() {
+            return button.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     SelectDomainObjectTypePopup selectDomainObjectTypePopup = new SelectDomainObjectTypePopup(createdObjectsConfig);
@@ -161,7 +165,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 }
             });
         } else {
-            button.addClickHandler(new OpenFormClickHandler(currentState.getObjectTypeName(), null));
+            return button.addClickHandler(new OpenFormClickHandler(currentState.getObjectTypeName(), null));
         }
     }
 
