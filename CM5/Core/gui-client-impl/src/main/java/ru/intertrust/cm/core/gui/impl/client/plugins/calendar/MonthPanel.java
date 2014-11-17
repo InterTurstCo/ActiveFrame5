@@ -165,7 +165,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
     }
 
     private void changeOffset(int delta) {
-        containerOffset -= delta;
+        containerOffset += delta;
         if (containerOffset < 0) {
             final Date startDate = CalendarUtil.copyDate(getStartDate());
             CalendarUtil.addDaysToDate(startDate, -7);
