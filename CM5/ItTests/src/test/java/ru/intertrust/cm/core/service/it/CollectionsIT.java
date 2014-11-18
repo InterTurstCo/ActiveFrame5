@@ -240,6 +240,14 @@ public class CollectionsIT extends IntegrationTestBase {
 
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
+
+        query = "select * from employee ea inner join person pa on pa.id = ea.id where ea.id = {0}";
+        params = new ArrayList<Value>();
+        params.add(new ReferenceValue(savedEmployee.getId()));
+
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
         lc.logout();
 
         lc = login(ADMIN, ADMIN);
