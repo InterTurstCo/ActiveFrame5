@@ -16,9 +16,6 @@ import java.util.List;
 @Root(name = "summary-table")
 public class SummaryTableConfig implements Dto {
 
-    @Attribute(name = "page-size", required = false)
-    private Integer pageSize;
-
     @ElementList(inline = true)
     private List<SummaryTableColumnConfig> summaryTableColumnConfigList = new ArrayList<SummaryTableColumnConfig>();
 
@@ -38,14 +35,6 @@ public class SummaryTableConfig implements Dto {
     @Deprecated
     public void setSummaryTableColumnConfig(List<SummaryTableColumnConfig> summaryTableColumnConfigList) {
         this.summaryTableColumnConfigList = summaryTableColumnConfigList;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
     }
 
     @Override

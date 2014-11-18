@@ -56,7 +56,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     private EventBus localEventBus = new SimpleEventBus();
     private Button addButton;
     private boolean hasRemovedItems;
-    private SimplePager pager;
     private HandlerRegistration addButtonHandlerRegistration;
 
     @Override
@@ -73,15 +72,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         }
 
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
-        table = createCellTable(summaryTableConfig.getPageSize());
+        table = createCellTable();
         view.add(table);
-        if(summaryTableConfig.getPageSize() != null) {
-            if (pager != null) {
-                view.remove(pager);
-            }
-            pager = createPager(table);
-            view.add(pager);
-        }
         if (isEditable()) {
             LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(model, false),
                     localEventBus);
@@ -99,22 +91,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         }
     }
 
-    private CellTable<RowItem> createCellTable(Integer pageSize) {
+    private CellTable<RowItem> createCellTable() {
         CellTable<RowItem> rowItemCellTable = new CellTable<>();
-        if (pageSize != null) {
-            rowItemCellTable.setPageSize(pageSize);
-        }
-        else {
-            rowItemCellTable.setPageSize(Integer.MAX_VALUE);
-        }
+        rowItemCellTable.setPageSize(Integer.MAX_VALUE);
         return rowItemCellTable;
-    }
-
-    private SimplePager createPager(CellTable<RowItem> table) {
-        SimplePager pager = new SimplePager();
-        pager.setRangeLimited(false);
-        pager.setDisplay(table);
-        return pager;
     }
 
     @Override

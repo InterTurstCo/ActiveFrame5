@@ -318,7 +318,7 @@
                 </selection-filter>
                 </selection-filters>
 
-                <summary-table page-size="10">
+                <summary-table>
                     <summary-table-column header="Название" widget-id="Name">
                         <widget-id-mappings>
                             <widget-id-mapping linked-form-name="organization_form" widget-id="Name"/>
