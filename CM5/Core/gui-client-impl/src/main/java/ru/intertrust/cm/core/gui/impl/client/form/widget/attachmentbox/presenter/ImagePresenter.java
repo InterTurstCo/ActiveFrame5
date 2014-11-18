@@ -119,6 +119,7 @@ public class ImagePresenter implements AttachmentElementPresenter {
             largePreviewPanel.add(image);
 
             Button downloadButton = new Button("Загрузить");
+            downloadButton.getElement().setClassName("darkButton");
             DownloadAttachmentHandler downloadHandler = new DownloadAttachmentHandler(item);
             downloadButton.addClickHandler(downloadHandler);
 
