@@ -1,10 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 /**
@@ -26,9 +24,16 @@ public class DownloadAttachmentHandler implements ClickHandler {
 
     @Override
     public void onClick(ClickEvent event) {
-        Id id = item.getId();
-        Window.open(GWT.getHostPageBaseURL() + "attachment-download/" + id.toStringRepresentation(),
-                "download File", "");
+        StringBuilder url = new StringBuilder(com.google.gwt.core.client.GWT.getHostPageBaseURL())
+                .append("attachment-download?");
+        if (item.getId() != null) {
+            url.append("id=").append(item.getId().toStringRepresentation());
+        }
+        if (item.getTemporaryName() != null) {
+            url.append("tempName=").append(item.getTemporaryName());
+        }
+
+        Window.open(url.toString(), "download File", "");
     }
 
 }

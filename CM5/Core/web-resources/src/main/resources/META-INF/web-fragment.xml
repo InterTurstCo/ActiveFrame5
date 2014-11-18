@@ -17,7 +17,7 @@
     <servlet-mapping>
         <servlet-name>Spring Dispatcher</servlet-name>
         <url-pattern>/attachment-upload</url-pattern>
-        <url-pattern>/attachment-download/*</url-pattern>
+        <url-pattern>/attachment-download</url-pattern>
         <url-pattern>/generate-report/*</url-pattern>
         <url-pattern>/json-export-to-csv/*</url-pattern>
         <url-pattern>/image-preview</url-pattern>

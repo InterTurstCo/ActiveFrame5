@@ -75,7 +75,7 @@ public class ImagePresenter implements AttachmentElementPresenter {
 
     private static String createPreviewUrl(AttachmentItem item) {
         StringBuilder url = new StringBuilder(com.google.gwt.core.client.GWT.getHostPageBaseURL())
-                .append("image-preview?");
+                .append("attachment-download?");
         if (item.getId() != null) {
             url.append("id=").append(item.getId().toStringRepresentation());
         }
