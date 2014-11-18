@@ -26,6 +26,9 @@ public class ImagePresenter implements AttachmentElementPresenter {
     private final PreviewConfig largePreviewConfig;
     private final List<AttachmentItem> attachments;
 
+    private static final int DEFAULT_WIDTH = 100;
+    private static final int DEFAULT_HEIGHT = 100;
+
     public ImagePresenter(AttachmentItem item, PreviewConfig previewConfig, PreviewConfig largePreviewConfig,
                           List<AttachmentItem> attachments) {
         this.item = item;
@@ -55,9 +58,9 @@ public class ImagePresenter implements AttachmentElementPresenter {
          //}
         element.add(takeHandlerPanel);
         final Image image = new Image(createPreviewUrl(item));
+        takeHandlerPanel.add(image);
         image.addLoadHandler(new ScalePreviewHandler(previewConfig, image, true));
 
-        takeHandlerPanel.add(image);
 //        element.add(imageShadow);
         return element;
     }
@@ -242,9 +245,10 @@ public class ImagePresenter implements AttachmentElementPresenter {
                 int maxHeight = image.getParent().getOffsetHeight();
 
                 // workaround for the situation when the attachment-box widget is being updated while it's out of vision,
-                // f.e. when we switch to another tab and save the form. Let's just skip scaling for now.
+                // f.e. when we switch to another tab and save the form.
                 if (maxWidth == 0 || maxHeight == 0) {
-                    return; // TODO: Need to find better solution.
+                    maxWidth = getPixelSize(previewConfig.getWidth(), DEFAULT_WIDTH);
+                    maxHeight = getPixelSize(previewConfig.getHeight(), DEFAULT_HEIGHT);
                 }
 
                 image.setWidth("auto");
@@ -276,6 +280,18 @@ public class ImagePresenter implements AttachmentElementPresenter {
                 }
             }
 
+        }
+
+        private int getPixelSize(String sizeString, int defaultSize) {
+            if (sizeString == null || !sizeString.endsWith("px")) {
+                return defaultSize;
+            }
+            sizeString = sizeString.substring(0, sizeString.length() - "px".length());
+            try {
+                return Integer.parseInt(sizeString);
+            } catch (NumberFormatException nfe) {
+                return defaultSize;
+            }
         }
     }
 
