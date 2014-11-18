@@ -1,8 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
@@ -12,6 +9,9 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -54,6 +54,7 @@ public class CreateNewObjectAction extends Action {
             formPlugin.setConfig(formPluginConfig);
             formPlugin.setDisplayActionToolBar(true);
             formPlugin.setLocalEventBus(plugin.getLocalEventBus());
+            state.setInCentralPanel(true); //CMFIVE-2252
             getPlugin().getOwner().openChild(formPlugin);
         } else {
             editor.replaceForm(formPluginConfig);
