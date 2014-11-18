@@ -394,8 +394,7 @@ public class CollectionPluginView extends PluginView {
                 }
             }
         }
-        List<InitialFilterConfig> previous = config.getInitialFiltersConfig().getFilterConfigs();
-       // CollectionDataGridUtils.mergeInitialFiltersConfigs(configs, previous);
+
         if (configs.isEmpty()) {
             config.setInitialFiltersConfig(null);
         } else {
