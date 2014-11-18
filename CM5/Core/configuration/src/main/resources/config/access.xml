@@ -624,7 +624,8 @@
         </status>
     </access-matrix>
 
-    <access-matrix type="notification">
+	<!-- Сделать корректную матрицу для уведомлений -->
+    <access-matrix type="notification" read-everybody="true">
         <create>
             <permit-group name="AllPersons" />
         </create>
