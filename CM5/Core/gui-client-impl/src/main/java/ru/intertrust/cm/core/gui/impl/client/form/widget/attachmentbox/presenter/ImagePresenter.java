@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Panel;
@@ -117,6 +118,12 @@ public class ImagePresenter implements AttachmentElementPresenter {
             setupLargePreviewImage(item, image);
             largePreviewPanel.add(image);
 
+            Button downloadButton = new Button("Загрузить");
+            DownloadAttachmentHandler downloadHandler = new DownloadAttachmentHandler(item);
+            downloadButton.addClickHandler(downloadHandler);
+
+            largePreviewPanel.add(downloadButton);
+
             Panel buttonsPanel = new AbsolutePanel();
             buttonsPanel.getElement().setClassName("imageButtonWrapper");
             buttonsPanel.getElement().getStyle().clearPosition();
@@ -126,7 +133,7 @@ public class ImagePresenter implements AttachmentElementPresenter {
             Panel prevButton = new AbsolutePanel();
             prevButton.getElement().setClassName("prevImageButton");
             prevButton.getElement().getStyle().clearPosition();
-            prevButtonWrapper.addDomHandler(new PrevClickHandler(image, largePreviewDialog), ClickEvent.getType());
+            prevButtonWrapper.addDomHandler(new PrevClickHandler(image, largePreviewDialog, downloadHandler), ClickEvent.getType());
             prevButtonWrapper.add(prevButton);
             buttonsPanel.add(prevButtonWrapper);
 
@@ -136,7 +143,7 @@ public class ImagePresenter implements AttachmentElementPresenter {
             Panel nextButton = new AbsolutePanel();
             nextButton.getElement().setClassName("nextImageButton");
             nextButton.getElement().getStyle().clearPosition();
-            nextButtonWrapper.addDomHandler(new NextClickHandler(image, largePreviewDialog), ClickEvent.getType());
+            nextButtonWrapper.addDomHandler(new NextClickHandler(image, largePreviewDialog, downloadHandler), ClickEvent.getType());
             nextButtonWrapper.add(nextButton);
             buttonsPanel.add(nextButtonWrapper);
             largePreviewPanel.add(buttonsPanel);
@@ -187,32 +194,40 @@ public class ImagePresenter implements AttachmentElementPresenter {
         private class PrevClickHandler implements com.google.gwt.event.dom.client.ClickHandler {
             private final Image image;
             private final DialogBox largePreviewDialog;
+            private final DownloadAttachmentHandler downloadHandler;
 
-            private PrevClickHandler(Image image, DialogBox largePreviewDialog) {
+            private PrevClickHandler(Image image, DialogBox largePreviewDialog,
+                                     DownloadAttachmentHandler downloadHandler) {
                 this.image = image;
                 this.largePreviewDialog = largePreviewDialog;
+                this.downloadHandler = downloadHandler;
             }
 
             @Override
             public void onClick(ClickEvent event) {
                 showPrevImage(image);
                 largePreviewDialog.center();
+                downloadHandler.setItem(currentLargePreviewItem);
             }
         }
 
         private class NextClickHandler implements ClickHandler {
             private final Image image;
             private final DialogBox largePreviewDialog;
+            private final DownloadAttachmentHandler downloadHandler;
 
-            private NextClickHandler(Image image, DialogBox largePreviewDialog) {
+            private NextClickHandler(Image image, DialogBox largePreviewDialog, DownloadAttachmentHandler
+                    downloadHandler) {
                 this.image = image;
                 this.largePreviewDialog = largePreviewDialog;
+                this.downloadHandler = downloadHandler;
             }
 
             @Override
             public void onClick(ClickEvent event) {
                 showNextImage(image);
                 largePreviewDialog.center();
+                downloadHandler.setItem(currentLargePreviewItem);
             }
         }
     }

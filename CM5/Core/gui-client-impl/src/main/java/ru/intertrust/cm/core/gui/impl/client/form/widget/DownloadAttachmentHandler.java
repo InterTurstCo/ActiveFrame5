@@ -14,9 +14,13 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
  */
 public class DownloadAttachmentHandler implements ClickHandler {
 
-    AttachmentItem item;
+    private AttachmentItem item;
 
     public DownloadAttachmentHandler(AttachmentItem item) {
+        this.item = item;
+    }
+
+    public void setItem(AttachmentItem item) {
         this.item = item;
     }
 
