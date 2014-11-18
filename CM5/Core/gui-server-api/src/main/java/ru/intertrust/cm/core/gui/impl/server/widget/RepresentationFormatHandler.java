@@ -93,17 +93,18 @@ public class RepresentationFormatHandler implements FormatHandler {
         return response;
     }
 
-    private IdentifiableObject getIdentifiableObject(RepresentationRequest request){
+    private IdentifiableObject getIdentifiableObject(RepresentationRequest request) {
         IdentifiableObject result = null;
-        if(request.getCollectionName() != null){
+        if (request.getCollectionName() != null) {
             result = getIdentifiableObjectFromCollection(request);
-        }else {
+        } else {
             result = crudService.find(request.getIds().get(0));
         }
 
         return result;
     }
-    private IdentifiableObject getIdentifiableObjectFromCollection(RepresentationRequest request){
+
+    private IdentifiableObject getIdentifiableObjectFromCollection(RepresentationRequest request) {
         List<Id> ids = request.getIds();
         List<Filter> filters = new ArrayList<>();
         filterBuilder.prepareIncludedIdsFilter(ids, filters);
@@ -220,8 +221,10 @@ public class RepresentationFormatHandler implements FormatHandler {
                     return getDisplayValue(iterator.getValue(), tempIdentifiableObject, formattingConfig);
                 case DIRECT_REFERENCE:
                     Id referenceId = tempIdentifiableObject.getReference(iterator.getValue());
-                    if(referenceId != null){
+                    if (referenceId != null) {
                         tempIdentifiableObject = crudService.find(referenceId);
+                    } else {
+                        return displayValue.toString();
                     }
                     break;
                 case BACK_REFERENCE_ONE_TO_ONE:
