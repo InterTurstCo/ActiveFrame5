@@ -33,8 +33,7 @@ public class TextBoxWidget extends BaseWidget {
 
     @Override
     protected boolean isChanged() {
-        final String initData = ((TextState) getInitialData()).getText();
-        final String initValue = initData == null ? null : initData.trim();
+        String initValue = trim(((TextState) getInitialData()).getText());
         final String currentValue = getTrimmedText((HasText) impl);
         return initValue == null ? currentValue != null : !initValue.equals(currentValue);
     }

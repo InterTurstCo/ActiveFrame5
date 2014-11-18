@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -13,6 +15,8 @@ import java.util.List;
  *         Time: 20:18
  */
 public class DomainObjectFieldsSetter {
+    @Autowired
+    protected ApplicationContext applicationContext;
 
     private DomainObject linkedObject;
     private List<FieldValueConfig> fieldValueConfigs;
@@ -32,7 +36,7 @@ public class DomainObjectFieldsSetter {
 
     private void setFieldValue(final FieldValueConfig fieldValueConfig) {
         final String fieldName = fieldValueConfig.getName();
-        FieldValueConfigToValueResolver resolver = new FieldValueConfigToValueResolver(fieldName, fieldValueConfig, linkedObject.getTypeName(), baseObject);
+        FieldValueConfigToValueResolver resolver = (FieldValueConfigToValueResolver) applicationContext.getBean("fieldValueConfigToValueResolver", fieldName, fieldValueConfig, linkedObject.getTypeName(), baseObject);
         Value value = resolver.resolve();
         if (value instanceof ReferenceValue) {
             ReferenceValue referenceValue = (ReferenceValue) value;

@@ -10,8 +10,10 @@ import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 /**
@@ -22,17 +24,18 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
     private HeaderPanel panel;
     private EventBus eventBus;
-    private static int countClick = 0;
-    private static Timer timer;
-    public CollectionDataGrid(int pageNumber, Resources resources, EventBus eventBus) {
+    private CollectionPlugin plugin;
+
+    public CollectionDataGrid(CollectionPlugin plugin, int pageNumber, Resources resources, EventBus eventBus) {
         super(pageNumber, resources);
+        this.plugin = plugin;
         this.eventBus = eventBus;
         panel = (HeaderPanel) getWidget();
         panel.getHeaderWidget().getElement().getFirstChildElement().setClassName("dataGridHeaderRow");
         setAutoHeaderRefreshDisabled(false);
-        setHeaderBuilder(new HeaderBuilder<CollectionRowItem>(this, false));
+        setHeaderBuilder(new HeaderBuilder<>(this, false));
         addStyleName("collection-plugin-view collection-plugin-view-container");
-         addCellPreviewHandler(new CollectionCellPreviewHandler());
+        addCellPreviewHandler(new CollectionCellPreviewHandler());
         sinkEvents(Event.ONDBLCLICK | Event.ONCLICK);
         setEmptyTableMessage();
     }
@@ -43,7 +46,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
 
     @Override
     protected boolean resetFocusOnCell() {
-       return  true;
+        return  true;
     }
 
     private void setEmptyTableMessage() {
@@ -52,36 +55,61 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
         this.setEmptyTableWidget(emptyTableWidget);
 
     }
+
     private class CollectionCellPreviewHandler implements CellPreviewEvent.Handler<CollectionRowItem> {
+        private int countClick = 0;
+        private Id earlierClickedId;
 
         @Override
         public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
-
             final Id id = event.getValue().getId();
-//            if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONDBLCLICK) {
-//                eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
-//            }
-
             if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONCLICK) {
-                countClick++;
+                if (checkDirtiness()) {
+                    Application.getInstance().getActionManager().checkChangesBeforeExecution(new ConfirmCallback() {
+                        @Override
+                        public void onAffirmative() {
+                            handleClick(id);
+                        }
 
-                timer = new Timer() {
+                        @Override
+                        public void onCancel() {
+                            countClick = 0;
+                        }
+                    });
+                } else {
+                    handleClick(id);
+                }
+            }
+        }
+
+        private void handleClick(final Id id) {
+            countClick++;
+            if (countClick == 1) {
+                performOnClickAction(id);
+                Timer timer = new Timer() {
                     @Override
                     public void run() {
-                        if (countClick > 1) {
-                            eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
-                        } else {
-
-                            Application.getInstance().getHistoryManager().setSelectedIds(id);
-                            eventBus.fireEvent(new CollectionRowSelectedEvent(id));
-                        }
                         countClick = 0;
                     }
                 };
                 timer.schedule(500);
+            } else if (countClick == 2) {
+                performOnDoubleClickAction(id);
             }
         }
+
+        public void performOnClickAction(Id id) {
+            Application.getInstance().getHistoryManager().setSelectedIds(id);
+            eventBus.fireEvent(new CollectionRowSelectedEvent(id));
+        }
+
+        public void performOnDoubleClickAction(Id id) {
+            eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
+        }
+
+        private boolean checkDirtiness() {
+            final DomainObjectSurferPlugin parentSurfer = plugin.getContainingDomainObjectSurferPlugin();
+            return parentSurfer != null && !parentSurfer.getPluginState().isToggleEdit();
+        }
     }
-
-
 }

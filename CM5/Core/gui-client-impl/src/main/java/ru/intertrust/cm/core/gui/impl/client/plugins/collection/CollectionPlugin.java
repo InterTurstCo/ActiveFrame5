@@ -4,13 +4,13 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
@@ -30,10 +30,19 @@ public class CollectionPlugin extends Plugin {
 
     // поле для локальной шины событий
     protected EventBus eventBus;
+    protected DomainObjectSurferPlugin containingDomainObjectSurferPlugin;
 
     // установка локальной шины событий плагину
     public void setLocalEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
+    }
+
+    public DomainObjectSurferPlugin getContainingDomainObjectSurferPlugin() {
+        return containingDomainObjectSurferPlugin;
+    }
+
+    public void setContainingDomainObjectSurferPlugin(DomainObjectSurferPlugin containingDomainObjectSurferPlugin) {
+        this.containingDomainObjectSurferPlugin = containingDomainObjectSurferPlugin;
     }
 
     /**

@@ -17,6 +17,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -32,7 +33,6 @@ import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
@@ -89,7 +89,7 @@ public class CollectionPluginView extends PluginView {
         super(plugin);
         this.eventBus = plugin.getLocalEventBus();
         DataGrid.Resources resources = GlobalThemesManager.getDataGridResources();
-        tableBody = new CollectionDataGrid(15, resources, eventBus);
+        tableBody = new CollectionDataGrid(plugin, 15, resources, eventBus);
         tableWidth = plugin.getOwner().getVisibleWidth();
         columnHeaderController =
                 new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth, eventBus);
@@ -437,7 +437,7 @@ public class CollectionPluginView extends PluginView {
             return;  // если в коллекции не было элементов операция удаления ни к чему не приводит
         }
         // ищем какой элемент коллекции должен быть удален
-        int index = getSelectedIndex(collectionObject);
+        int index = getIndex(collectionObject);
         if (index < 0) {    // element of collection isn't found.
             return;
         }
@@ -627,7 +627,7 @@ public class CollectionPluginView extends PluginView {
 
     private void applySelectionModel() {
         if (singleChoice) {
-            selectionModel = new CheckedSelectionModel<>(true);
+            selectionModel = new SingleSelectionModel<>();
         } else {
             selectionModel = new MultiSelectionModel<>();
         }
@@ -744,55 +744,20 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
-                if (collectionRowItems.isEmpty()) { //it happens when the updated item doesn't belong to the collection anymore
-                    // перерисовка таблицы(коллекции)
-                    tableBody.setRowData(items);
-                    tableBody.redraw();
-                    tableBody.flush();
-                } else {
+                if (!collectionRowItems.isEmpty()) {
                     CollectionRowItem item = collectionRowItems.get(0);
-                    int index = getSelectedIndex(item.getId());
-                    // коллекция не пуста
-                    if (items.size() >= 0) {
-                        // признак вставки элемента в коллекцию
-                        boolean inserted = false;
-                        // если была выделена строка коллекции - снимаем выделение
-                        for (CollectionRowItem i : items) {
-                            if (selectionModel.isSelected(i)) {
-                                selectionModel.setSelected(i, false);
-                            }
-                        }
-
-                        // если был совпадающий по id элемент
-                        if (index >= 0) {
-                            try {
-                                // замена элемента в коллекции
-                                items.remove(index);
-                                items.add(index, item);
-                                selectionModel.setSelected(item, true);
-                                inserted = true;
-                                // обновляем таблицу
-                                tableBody.setRowData(items);
-                                tableBody.redraw();
-                                tableBody.flush();
-                            } catch (IndexOutOfBoundsException ie) {
-                            }
-                        }
-
-                        // добавление нового элемента
-                        if (!inserted) {
-
-                            items.add(item);
-                            selectionModel.clear();
-                            selectionModel.setSelected(item, true);
-                        }
+                    int index = getIndex(item.getId());
+                    if (index < 0) {
+                        items.add(item);
+                    } else {
+                        items.set(index, item);
                     }
-
-                    // перерисовка таблицы(коллекции)
-                    tableBody.setRowData(items);
-                    tableBody.redraw();
-                    tableBody.flush();
+                    selectionModel.clear();
+                    selectionModel.setSelected(item, true);
                 }
+                tableBody.setRowData(items);
+                tableBody.redraw();
+                tableBody.flush();
             }
         });
     }
@@ -832,11 +797,13 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    private int getSelectedIndex(final Id id) {
+    private int getIndex(final Id id) {
+        int index = 0;
         for (CollectionRowItem item : items) {
             if (item.getId().equals(id)) {
-                return items.indexOf(item);
+                return index;
             }
+            ++index;
         }
         return -1;
     }

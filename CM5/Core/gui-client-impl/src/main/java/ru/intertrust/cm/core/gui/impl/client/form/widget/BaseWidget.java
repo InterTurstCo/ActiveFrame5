@@ -204,7 +204,10 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     }
 
     protected static String getTrimmedText(HasText widget) {
-        String text = widget.getText();
+        return trim(widget.getText());
+    }
+
+    protected static String trim(String text) {
         if (text == null) {
             return null;
         }

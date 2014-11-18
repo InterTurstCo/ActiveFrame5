@@ -12,13 +12,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
-import ru.intertrust.cm.core.gui.model.plugin.IsActive;
-import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
-import ru.intertrust.cm.core.gui.model.plugin.PluginData;
-import ru.intertrust.cm.core.gui.model.plugin.PluginState;
+import ru.intertrust.cm.core.gui.model.plugin.*;
 
 import java.util.Map;
 
@@ -31,6 +25,7 @@ import java.util.Map;
 public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor, PluginPanelSizeChangedEventHandler {
     // поле для локальной шины событий
     protected EventBus eventBus;
+    private FormPluginState initialVisualState;
 
 
     // установка локальной шины событий плагину
@@ -46,6 +41,16 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
 
     public FormPlugin() {
         showBreadcrumbs = false;
+    }
+
+    @Override
+    public void setInitialData(PluginData initialData) {
+        super.setInitialData(initialData);
+        initialVisualState = (FormPluginState) initialData.getPluginState().createClone();
+    }
+
+    public FormPluginState getInitialVisualState() {
+        return initialVisualState;
     }
 
     @Override
@@ -121,14 +126,12 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
 
     @Override
     public FormPluginState getPluginState() {
-        final FormPluginData data = getInitialData();
-        return (FormPluginState) data.getPluginState().createClone();
+        return initialVisualState;
     }
 
     @Override
     public void setPluginState(PluginState pluginState) {
-        final FormPluginData data = getInitialData();
-        data.setPluginState(pluginState);
+        this.initialVisualState = (FormPluginState) pluginState;
     }
 
     @Override

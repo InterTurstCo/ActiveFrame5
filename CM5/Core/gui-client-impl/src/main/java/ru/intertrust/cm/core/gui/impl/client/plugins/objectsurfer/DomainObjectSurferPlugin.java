@@ -75,7 +75,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public FormPluginState getFormPluginState() {
-        return formPlugin.getPluginState();
+        return formPlugin.getFormPluginState();
     }
 
     @Override
@@ -115,11 +115,12 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         // после обновления формы ей снова "нужно дать" локальную шину событий
         newFormPlugin.setLocalEventBus(this.eventBus);
         final FormPluginConfig newConfig = new FormPluginConfig(event.getId());
-        final FormPluginData formPluginData = formPlugin.getInitialData();
-        newConfig.setPluginState((FormPluginState) formPluginData.getPluginState());
+        final FormPluginState pluginState = formPlugin.getPluginState();
+        newConfig.setPluginState(pluginState);
         newConfig.setFormViewerConfig(getFormViewerConfig());
         newFormPlugin.setConfig(newConfig);
-        formPluginPanel.open(newFormPlugin);
+        newFormPlugin.setPluginState(pluginState);
+        formPluginPanel.open(newFormPlugin, false);
         this.formPlugin = newFormPlugin;
         newFormPlugin.addViewCreatedListener(new FormPluginCreatedListener());
     }
@@ -170,6 +171,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
         if (this.collectionPlugin == null) {
             this.collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
+            this.collectionPlugin.setContainingDomainObjectSurferPlugin(this);
         }
         this.collectionPlugin.setConfig(((DomainObjectSurferConfig) getConfig()).getCollectionViewerConfig());
         this.collectionPlugin.setInitialData(initialData.getCollectionPluginData());
