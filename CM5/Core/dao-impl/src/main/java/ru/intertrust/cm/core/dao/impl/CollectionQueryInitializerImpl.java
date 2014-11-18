@@ -197,14 +197,14 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         query = sqlQueryModifier.addServiceColumns(query);
         query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
 
-/*        if (accessToken.isDeferred()) {
+        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query);
         }
-*/
+
         sqlQueryModifier.checkDuplicatedColumns(query);
 
         return query;
-    }        
+    }
 
     /**
      * Пост обработка запроса после применения фильтров и правил сортировки. Добавляет поле тип идентификатора доменного объекта и ACL фильтр.

@@ -127,16 +127,12 @@ public class CollectionsDaoImpl implements CollectionsDao {
         Map<String, FieldConfig> columnToConfigMapForSelectItems = new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(collectionQuery);
 
         columnToConfigMap.putAll(columnToConfigMapForSelectItems);
-
+        
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
         collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(collectionQuery, filterValues, columnToConfigMap);
 
         Map<String, Object> parameters = new HashMap<>();
         fillFilterParameters(filterValues, parameters);
-
-        if (accessToken.isDeferred()) {
-            collectionQuery = sqlQueryModifier.addAclQuery(collectionQuery);
-        }
 
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
