@@ -292,17 +292,19 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         clearAllButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                ApplicationWindow.confirm("Очистить содержимое?", new ConfirmCallback(){
-                    @Override
-                    public void onAffirmative() {
-                        cleanUp();
-                        deselectAllAttachments();
-                    }
-                    @Override
-                    public void onCancel() {
-                        //do nothing
-                    }
-                });
+                if (!attachments.isEmpty()) {
+                    ApplicationWindow.confirm("Очистить содержимое?", new ConfirmCallback(){
+                        @Override
+                        public void onAffirmative() {
+                            cleanUp();
+                            deselectAllAttachments();
+                        }
+                        @Override
+                        public void onCancel() {
+                            //do nothing
+                        }
+                    });
+                }
             }
         });
     }
