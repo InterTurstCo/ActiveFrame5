@@ -20,6 +20,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
+import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadCompletedEvent;
@@ -27,6 +30,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.UploadUpdatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditablePresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.UploadProgressPresenterFactory;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -48,9 +52,9 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private Panel root;
     private Style.Display displayStyle;
     private FocusPanel addFile;
+    private FocusPanel clearAllButton;
     private FileUpload fileUpload;
     private FormPanel submitForm;
-    private boolean singleChoice;
 
     private List<AttachmentItem> attachments = new ArrayList<>();
     private List<AttachmentItem> allAttachments = new ArrayList<>();
@@ -61,7 +65,9 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private AttachmentElementPresenterFactory presenterFactory;
     private AttachmentElementPresenterFactory uploadPresenterFactory;
     private EventBus eventBus;
+    private boolean singleChoice;
     private AddButtonConfig addButtonConfig;
+    private ClearAllButtonConfig clearAllButtonConfig;
 
     public AttachmentUploaderView(AttachmentBoxState state, EventBus eventBus) {
         setAttachments(state.getAttachments());
@@ -69,6 +75,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         this.extensionValidator = new ExtensionValidator(state.getAcceptedTypesConfig(), state.getImagesConfig() != null);
         displayStyle = DisplayStyleBuilder.getDisplayStyle(state.getSelectionStyleConfig());
         this.addButtonConfig = state.getAddButtonConfig();
+        this.clearAllButtonConfig = state.getClearAllButtonConfig();
         this.singleChoice = state.isSingleChoice();
         this.eventBus = eventBus;
         presenterFactory = new EditablePresenterFactory(state.getActionLinkConfig(),
@@ -113,6 +120,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             root.add(submitForm);
             submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
             submitForm.addSubmitHandler(new FormSubmitHandler());
+        }
+        if (clearAllButtonConfig != null && clearAllButtonConfig.isDisplay()) {
+            initClearAllButton();
+            root.add(clearAllButton);
         }
         initWidget(root);
     }
@@ -269,6 +280,29 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             public void onClick(ClickEvent event) {
                 fileUpload.getElement().<InputElement>cast().click();
 
+            }
+        });
+    }
+
+    private void initClearAllButton() {
+        clearAllButton = new FocusPanel();
+       // clearAllButton.addStyleName("lightButton");
+        ButtonForm buttonForm = new ButtonForm(clearAllButton, clearAllButtonConfig.getImage(), clearAllButtonConfig.getText());
+        clearAllButton.add(buttonForm);
+        clearAllButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                ApplicationWindow.confirm("Очистить содержимое?", new ConfirmCallback(){
+                    @Override
+                    public void onAffirmative() {
+                        cleanUp();
+                        deselectAllAttachments();
+                    }
+                    @Override
+                    public void onCancel() {
+                        //do nothing
+                    }
+                });
             }
         });
     }

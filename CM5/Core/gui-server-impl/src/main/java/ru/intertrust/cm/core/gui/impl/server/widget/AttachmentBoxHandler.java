@@ -89,6 +89,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         state.setDeleteButtonConfig(prepareDeleteButtonConfig(widgetConfig.getDeleteButtonConfig(), fieldPath));
         state.setAddButtonConfig(prepareAddButtonConfig(widgetConfig.getAddButtonConfig(), fieldPath,
                 widgetConfig.getAttachmentType().getName()));
+        state.setClearAllButtonConfig(widgetConfig.getClearButtonConfig());
         return state;
     }
 

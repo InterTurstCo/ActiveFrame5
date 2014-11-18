@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ChoiceStyleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DeleteButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ImagesOnlyConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
@@ -30,6 +31,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
     private DeleteButtonConfig deleteButtonConfig;
     private AddButtonConfig addButtonConfig;
     private ChoiceStyleConfig choiceStyleConfig;
+    private ClearAllButtonConfig clearAllButtonConfig;
 
     @Override
     public ArrayList<Id> getIds() {
@@ -130,6 +132,14 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         return "popup".equals(choiceStyleConfig.getName());
     }
 
+    public ClearAllButtonConfig getClearAllButtonConfig() {
+        return clearAllButtonConfig;
+    }
+
+    public void setClearAllButtonConfig(ClearAllButtonConfig clearAllButtonConfig) {
+        this.clearAllButtonConfig = clearAllButtonConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -150,6 +160,8 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
             return false;
         if (addButtonConfig != null ? !addButtonConfig.equals(that.addButtonConfig) : that.addButtonConfig != null)
             return false;
+        if (clearAllButtonConfig != null ? !clearAllButtonConfig.equals(that.clearAllButtonConfig) : that.clearAllButtonConfig != null)
+            return false;
         if (choiceStyleConfig != null ? !choiceStyleConfig.equals(that.choiceStyleConfig) : that.choiceStyleConfig != null)
             return false;
         return true;
@@ -164,7 +176,10 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         result = 31 * result + (imagesConfig != null ? imagesConfig.hashCode() : 0);
         result = 31 * result + (deleteButtonConfig != null ? deleteButtonConfig.hashCode() : 0);
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
+        result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         result = 31 * result + (choiceStyleConfig != null ? choiceStyleConfig.hashCode() : 0);
         return result;
     }
+
+
 }

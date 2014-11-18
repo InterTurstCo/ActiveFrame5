@@ -41,6 +41,9 @@ public class AttachmentBoxConfig extends WidgetConfig {
     @Element(name = "choice-style", required = false)
     private ChoiceStyleConfig choiceStyleConfig;
 
+    @Element(name = "clear-all-button", required = false)
+    private ClearAllButtonConfig clearButtonConfig;
+
     public AttachmentBoxConfig() {
         singleChoice = new SingleChoiceConfig();
         singleChoice.setSingleChoice(false);
@@ -110,6 +113,11 @@ public class AttachmentBoxConfig extends WidgetConfig {
         return choiceStyleConfig;
     }
 
+
+    public ClearAllButtonConfig getClearButtonConfig() {
+        return clearButtonConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -160,4 +168,5 @@ public class AttachmentBoxConfig extends WidgetConfig {
     public String getComponentName() {
         return "attachment-box";
     }
+
 }
