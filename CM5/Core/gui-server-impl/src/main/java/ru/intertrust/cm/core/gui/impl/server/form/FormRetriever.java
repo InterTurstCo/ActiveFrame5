@@ -147,12 +147,14 @@ public class FormRetriever extends FormProcessor {
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
             widgetContext.setFormType(formConfig.getType());
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
-            String fieldPathValue = config.getFieldPathConfig().getValue();
-            if (fieldPathValue != null && !fieldPathValue.isEmpty()) {
-                FieldPath[] paths = FieldPath.createPaths(fieldPathValue);
-                FormDefaultValueSetter formDefaultValueSetter;
-                formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig);
-                applyDefaultValuesToFormObjects(formObjects, paths, formDefaultValueSetter);
+            if (config.getFieldPathConfig() != null) {
+                String fieldPathValue = config.getFieldPathConfig().getValue();
+                if (fieldPathValue != null && !fieldPathValue.isEmpty()) {
+                    FieldPath[] paths = FieldPath.createPaths(fieldPathValue);
+                    FormDefaultValueSetter formDefaultValueSetter;
+                    formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig);
+                    applyDefaultValuesToFormObjects(formObjects, paths, formDefaultValueSetter);
+                }
             }
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
             // TODO: [report-plugin] validation...
