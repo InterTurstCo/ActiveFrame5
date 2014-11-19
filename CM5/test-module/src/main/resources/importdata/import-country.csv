@@ -1,8 +1,8 @@
 TYPE_NAME=country;KEYS=name;;
-name;population;description;independence_day;_ATTACHMENT_;country_union
-Россия;143548980;Российская Федерация;12.06.1990 00:00:00;importdata/contents/russia-map.png,importdata/contents/HierarchicalBrowser.png;"name=""СНГ"""
-Украина;45469800;Украина;24.08.1990 00:00:00;importdata/contents/ukraine-map.png;"name=""СНГ"""
-Бельгия;45469800;Бельгия;24.08.1990 00:00:00;importdata/contents/ukraine-map.png;"name=""ЕС"""
+name;population;description;independence_day;_ATTACHMENT_;country_union;
+Россия;143548980;Российская Федерация;12.06.1990 00:00:00;importdata/contents/russia-map.png,importdata/contents/HierarchicalBrowser.png,fauna_attachment:importdata/contents/fauna/bear.jpg;;"name=""СНГ"""
+Украина;45469800;Украина;24.08.1990 00:00:00;importdata/contents/ukraine-map.png,fauna_attachment:importdata/contents/fauna/fox.jpg,fauna_attachment:importdata/contents/fauna/rabbit.jpg;"name=""СНГ"""
+Бельгия;45469800;Бельгия;24.08.1990 00:00:00;importdata/contents/ukraine-map.png,fauna_attachment:importdata/contents/fauna/vulf.jpg;;"name=""ЕС"""
 Эстония;45469800;Эстония;24.08.1990 00:00:00;importdata/contents/ukraine-map.png;"name=""ЕС"""
 Латвия;45469800;Латвия;24.08.1990 00:00:00;importdata/contents/ukraine-map.png;"name=""ЕС"""
 Литва;45469800;Литва;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
@@ -15,7 +15,7 @@ name;population;description;independence_day;_ATTACHMENT_;country_union
 Кипр;45469800;Кипр;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
 Ангола;45469800;Ангола;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
 Италия;45469800;Италия;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
-Япония;45469800;Япония;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Япония;45469800;Япония;24.08.1990 00:00:00;importdata/contents/ukraine-map.png,fauna_attachment:importdata/contents/fauna/rhacophorus.jpg,fauna_attachment:importdata/contents/fauna/mustela.jpg;
 Китай;45469800;Китай;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
 Парагвай;45469800;Парагвай;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
 Испания;45469800;Испания;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
