@@ -41,7 +41,10 @@ import java.util.logging.Logger;
 public class AttachmentUploaderServlet {
     private static final Logger log = Logger.getLogger(FileUpload.class.getName());
     private static final String SESSION_ATTRIBUTE_UPLOAD_PROGRESS = "uploadProgress";
+    private static final int BUFFER_SIZE = 1024*64;
+
     private String pathForTempFilesStore;
+
     @Autowired
     private PropertyResolver propertyResolver;
 
@@ -84,6 +87,7 @@ public class AttachmentUploaderServlet {
                         InputStream inputStream = item.getInputStream();
                         OutputStream outputStream = new FileOutputStream(pathToSave)) {
                     stream(inputStream, outputStream);
+
                 }
                 savedFileNames = savedFileNames + savedFilename + ",";
             }
@@ -99,15 +103,12 @@ public class AttachmentUploaderServlet {
         try (
                 ReadableByteChannel inputChannel = Channels.newChannel(input);
                 WritableByteChannel outputChannel = Channels.newChannel(output)) {
-            ByteBuffer buffer = ByteBuffer.allocate(10240);
+            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
             while (inputChannel.read(buffer) != -1) {
-
                 buffer.flip();
                 outputChannel.write(buffer);
                 buffer.clear();
-
             }
-
         }
     }
 
