@@ -35,7 +35,7 @@ public class CreateNewObjectAction extends Action {
         }
         final FormPluginConfig formPluginConfig = new FormPluginConfig(domainObjectTypeToCreate);
         formPluginConfig.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
-        final FormPluginState state = editor.getFormPluginState();
+        final FormPluginState state = editor.getFormPluginState().createClone();
         formPluginConfig.setPluginState(state);
         if (actionConfig.getProperty(OBJECT_TYPE_PROP) == null) {
             final FormViewerConfig viewerConfig = new FormViewerConfig();
