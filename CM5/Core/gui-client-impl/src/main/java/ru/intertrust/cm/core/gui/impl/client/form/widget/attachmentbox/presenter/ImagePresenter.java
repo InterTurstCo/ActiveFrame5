@@ -116,6 +116,7 @@ public class ImagePresenter implements AttachmentElementPresenter {
                 }
             });
             setupLargePreviewImage(item, image);
+            currentLargePreviewItem = item;
             largePreviewPanel.add(image);
 
             Button downloadButton = new Button("Загрузить");
