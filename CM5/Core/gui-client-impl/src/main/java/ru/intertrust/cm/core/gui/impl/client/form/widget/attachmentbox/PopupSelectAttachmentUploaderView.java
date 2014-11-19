@@ -9,7 +9,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditableNonDeletablePresenterFactory;
@@ -26,13 +25,11 @@ import java.util.List;
  */
 public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
 
-    private Panel selectedItemsPanel = new AbsolutePanel();
     private Panel allItemsPanel;
     private DialogBox selectionDialog = new DialogBox(false, true);
     private List<CheckBox> checkboxes = new ArrayList<>();
     private List<AttachmentItem> tmpSelectedAttachments = new ArrayList<>();
     private AttachmentElementPresenterFactory presenterFactory;
-    private Panel mainBoxPanel;
 
     public PopupSelectAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus) {
         super(state, eventBus);
@@ -42,7 +39,6 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
     }
 
     private void init() {
-        mainBoxPanel = super.getAttachmentsPanel();
         Button showPopupButton = new Button("...");
         showPopupButton.getElement().setClassName("lightButton selectionButton");
         showPopupButton.addClickHandler(new ClickHandler() {
@@ -54,22 +50,8 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
                 selectionDialog.center();
             }
         });
-        mainBoxPanel.add(showPopupButton);
-        mainBoxPanel.add(selectedItemsPanel);
+        super.getControlPanel().add(showPopupButton);
         initSelectionDialog();
-    }
-
-    @Override
-    protected Panel getAttachmentsPanel() {
-        return selectedItemsPanel;
-    }
-
-    @Override
-    public void displayAttachmentItems() {
-        selectedItemsPanel.clear();
-        for (Widget element : createSelectedElements()) {
-            selectedItemsPanel.add(element);
-        }
     }
 
     protected Panel createNonSelectedElement(AttachmentItem item) {
@@ -97,10 +79,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
             public void onClick(ClickEvent event) {
                 getAttachments().clear();
                 getAttachments().addAll(tmpSelectedAttachments);
-                selectedItemsPanel.clear();
-                for (Widget element : createSelectedElements()) {
-                    selectedItemsPanel.add(element);
-                }
+                displayAttachmentItems();
                 selectionDialog.hide();
             }
         });

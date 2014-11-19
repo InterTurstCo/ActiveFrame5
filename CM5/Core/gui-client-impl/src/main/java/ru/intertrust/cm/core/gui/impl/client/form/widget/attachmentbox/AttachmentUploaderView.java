@@ -49,6 +49,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private static final BusinessUniverseServiceAsync SERVICE = BusinessUniverseServiceAsync.Impl.getInstance();
 
     private Panel mainBoxPanel;
+    private Panel controlPanel;
     private Panel root;
     private Style.Display displayStyle;
     private FocusPanel addFile;
@@ -101,31 +102,47 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         return mainBoxPanel;
     }
 
+    protected Panel getControlPanel() {
+        return controlPanel;
+    }
+
     /**
      * Инициализация частей составного виджета
      */
     private void init() {
         root = new AbsolutePanel();
         root.addStyleName("attachmentPluginWrapper");
+
+        initAttachmentsPanel();
+        initControlPanel();
+
+        initWidget(root);
+    }
+
+    private void initAttachmentsPanel() {
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
         root.add(mainBoxPanel);
+    }
+
+    private void initControlPanel() {
+        controlPanel = new AbsolutePanel();
+        root.add(controlPanel);
         if (addButtonConfig == null || addButtonConfig.isDisplay()) {
             initSubmitForm();
             initFileUpload();
             initUploadButton();
-            root.add(addFile);
+            controlPanel.add(addFile);
             submitForm.add(fileUpload);
-            root.add(submitForm);
+            controlPanel.add(submitForm);
             submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
             submitForm.addSubmitHandler(new FormSubmitHandler());
         }
         if (clearAllButtonConfig != null && clearAllButtonConfig.isDisplay()) {
             initClearAllButton();
-            root.add(clearAllButton);
+            controlPanel.add(clearAllButton);
         }
-        initWidget(root);
     }
 
     @Override
@@ -172,7 +189,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     /**
      * Удаляет все прикрепления из отображения
      */
-    private void cleanUp() {
+    protected void cleanUp() {
         getAttachmentsPanel().clear();
     }
 
