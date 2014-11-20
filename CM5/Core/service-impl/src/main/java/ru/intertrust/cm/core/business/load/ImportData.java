@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.load;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,7 +78,7 @@ public class ImportData {
     public static final String SYSTEM_IMPORT_BEAN = "system-import-data";
     //Имя спринг бина для работы под пользовательскими правами
     public static final String PERSON_IMPORT_BEAN = "person-import-data";
-    
+
     @Autowired
     private CollectionsDao collectionsDao;
     @Autowired
@@ -92,7 +93,7 @@ public class ImportData {
     private CurrentUserAccessor currentUserAccessor;
     @Autowired
     private DoelEvaluator doelEvaluator;
-    
+
     private String typeName;
     private boolean deleteOther;
     private String[] keys;
@@ -104,19 +105,22 @@ public class ImportData {
     private String emptyStringSymbol;
     private List<Id> importedIds;
     private boolean systemPermission;
+    private String attachmentBasePath;
 
     /**
-     * Конструктор. Инициалитзирует класс флагом с какими правами должен работать сервис
-     * @param systemPermission в случае если параметр равен true импорт производить под системными 
-     * правами, иначе под правами текущего пользователя
+     * Конструктор. Инициалитзирует класс флагом с какими правами должен
+     * работать сервис
+     * @param systemPermission
+     *            в случае если параметр равен true импорт производить под
+     *            системными правами, иначе под правами текущего пользователя
      */
     public ImportData(boolean systemPermission) {
         this.systemPermission = systemPermission;
     }
-    
+
     @PostConstruct
-    public void init(){
-        if (!systemPermission){
+    public void init() {
+        if (!systemPermission) {
             login = currentUserAccessor.getCurrentUser();
         }
     }
@@ -125,8 +129,10 @@ public class ImportData {
      * Загрузка одного файла с данными
      * @param loadFileAsByteArray
      */
-    public List<Id> importData(byte[] loadFileAsByteArray, String encoding, Boolean rewrite) {
+    public List<Id> importData(byte[] loadFileAsByteArray, String encoding, Boolean rewrite, String attachmentBasePath) {
         Reader reader = null;
+        this.attachmentBasePath = attachmentBasePath;
+
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(loadFileAsByteArray);
             reader = new InputStreamReader(input, encoding != null ? encoding : ImportDataService.DEFAULT_ENCODING);
@@ -158,7 +164,7 @@ public class ImportData {
                         fields = null;
                         emptyStringSymbol = null;
                         deleteOther = false;
-                        
+
                         deleteOther();
                     }
 
@@ -219,16 +225,16 @@ public class ImportData {
     private void doBeforeImportRow(Id importedId) {
         Collection<ImportSettingsConfig> importSettings = configurationExplorer.getConfigs(ImportSettingsConfig.class);
         for (ImportSettingsConfig importSettingsConfig : importSettings) {
-            if (importSettingsConfig.getBeforeImport() != null){
+            if (importSettingsConfig.getBeforeImport() != null) {
                 for (BeforeImportConfig beforeImportConfig : importSettingsConfig.getBeforeImport()) {
                     //Проверка на соответствие типа
-                    if (beforeImportConfig.getImportType().equalsIgnoreCase(typeName)){
+                    if (beforeImportConfig.getImportType().equalsIgnoreCase(typeName)) {
                         //Выполняем удаление дочерних типов
                         deleteAll(importedId, beforeImportConfig.getDeleteAll());
                     }
                 }
             }
-        }        
+        }
     }
 
     /**
@@ -236,41 +242,42 @@ public class ImportData {
      * @param deleteAll
      */
     private void deleteAll(Id importedId, List<DeleteAllConfig> deleteAll) {
-        if(importedId != null && deleteAll != null){
+        if (importedId != null && deleteAll != null) {
             for (DeleteAllConfig deleteAllConfig : deleteAll) {
                 DoelExpression expression = DoelExpression.parse(deleteAllConfig.getDoel());
                 List<Value> domainObjectsToDelete = doelEvaluator.evaluate(expression, importedId, getSelectAccessToken());
                 for (Value id : domainObjectsToDelete) {
-                    Id deleteId = (Id)id.get();
+                    Id deleteId = (Id) id.get();
                     domainObjectDao.delete(deleteId, getDeleteAccessToken(deleteId));
-                }                
+                }
             }
-        }        
+        }
     }
 
     /**
-     * Удаление всех записей импортируемого типа, если данные записи не упоминаются в csv файле
+     * Удаление всех записей импортируемого типа, если данные записи не
+     * упоминаются в csv файле
      */
     private void deleteOther() {
         //Проверка флага удалить лишнее в заголовке
-        if (deleteOther){
+        if (deleteOther) {
             //Поиск объектов в базе
             List<Id> toDeleteIds = new ArrayList<Id>();
             String query = "select id from " + typeName;
             IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, getSelectAccessToken());
             for (IdentifiableObject identifiableObject : collection) {
-                if (!importedIds.contains(identifiableObject.getId())){
+                if (!importedIds.contains(identifiableObject.getId())) {
                     toDeleteIds.add(identifiableObject.getId());
                 }
             }
-            
+
             //Удаление лишних записей
-            if (toDeleteIds.size() > 0){
+            if (toDeleteIds.size() > 0) {
                 for (IdentifiableObject row : collection) {
                     domainObjectDao.delete(row.getId(), getDeleteAccessToken(row.getId()));
                 }
             }
-        }        
+        }
     }
 
     /**
@@ -281,7 +288,7 @@ public class ImportData {
     private boolean isEmptyRow(CSVRecord record) {
         boolean result = true;
         for (String item : record) {
-            if (!item.isEmpty()){
+            if (!item.isEmpty()) {
                 result = false;
                 break;
             }
@@ -330,7 +337,7 @@ public class ImportData {
             //Создание доменного объекта
             domainObject = createDomainObject(typeName);
         }
-        
+
         //Выполяем действия перед импортом
         doBeforeImportRow(domainObject.getId());
 
@@ -434,7 +441,7 @@ public class ImportData {
                 }
             }
         } else {
-            throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
+            throw new FatalException("Field " + fieldName + " not found in type " + typeName);
         }
 
         return newValue;
@@ -455,18 +462,18 @@ public class ImportData {
     private DomainObject createAttachment(DomainObject domainObject, String fileInfo) throws IOException,
             NoSuchAlgorithmException {
         DomainObject result = null;
-        
+
         //Получение типа вложения путь к ресурсу из csv, если тип не задан возмется первый тип указанный в конфигурации
         String attachmentType = null;
         String filePath = null;
-        if (fileInfo.indexOf(":") > 0){
+        if (fileInfo.indexOf(":") > 0) {
             String[] fileInfoArray = fileInfo.split(":");
             attachmentType = fileInfoArray[0];
             filePath = fileInfoArray[1];
-        }else{
+        } else {
             filePath = fileInfo;
         }
-        
+
         //Получение описания типа доменного объекта вложения
         AttachmentTypeInfo attachmentTypeInfo = getAttachmentTypeInfo(typeName, attachmentType);
 
@@ -496,10 +503,10 @@ public class ImportData {
             if (attachment.isNew() || !contentEquals(filePath, attachment)) {
 
                 //Установка контента вложения
-                InputStream stream = this.getClass().getClassLoader().getResourceAsStream(filePath);
                 long contentLength = getContentLength(filePath);
-
-                result = saveAttachment(stream, attachment, contentLength);
+                try (InputStream stream = getAttachmentStream(filePath)) {
+                    result = saveAttachment(stream, attachment, contentLength);
+                }
             }
         }
         return result;
@@ -551,13 +558,13 @@ public class ImportData {
         if (typeConfig.getAttachmentTypesConfig() != null &&
                 typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs() != null &&
                 typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().size() > 0) {
-            if (attachmentType == null){
+            if (attachmentType == null) {
                 result = new AttachmentTypeInfo();
                 result.attachmentTypeConfig = typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().get(0);
                 result.refAttrName = type;
-            }else{
+            } else {
                 for (AttachmentTypeConfig attachmentTypeConfig : typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
-                    if (attachmentTypeConfig.getName().equalsIgnoreCase(attachmentType)){
+                    if (attachmentTypeConfig.getName().equalsIgnoreCase(attachmentType)) {
                         result = new AttachmentTypeInfo();
                         result.attachmentTypeConfig = attachmentTypeConfig;
                         result.refAttrName = type;
@@ -844,63 +851,74 @@ public class ImportData {
     }
 
     private long getContentLength(String filePath) throws IOException {
-        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
-        long result = 0;
-        long read = 0;
-        byte[] buffer = new byte[1024];
-        while ((read = inputStream.read(buffer)) > 0) {
-            result += read;
+        try (InputStream inputStream = getAttachmentStream(filePath)) {
+            long result = 0;
+            long read = 0;
+            byte[] buffer = new byte[1024];
+            while ((read = inputStream.read(buffer)) > 0) {
+                result += read;
+            }
+            return result;
         }
-        return result;
+    }
+
+    private InputStream getAttachmentStream(String filePath) throws FileNotFoundException {
+        InputStream inputStream = null;
+        if (attachmentBasePath == null) {
+            inputStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
+        } else {
+            inputStream = new FileInputStream(attachmentBasePath + "/" + filePath);
+        }
+        return inputStream;
     }
 
     private class AttachmentTypeInfo {
         private AttachmentTypeConfig attachmentTypeConfig;
         private String refAttrName;
     }
-    
-    private AccessToken getSelectAccessToken(){
+
+    private AccessToken getSelectAccessToken() {
         AccessToken result = null;
-        if (systemPermission){
+        if (systemPermission) {
             result = accessService.createSystemAccessToken(this.getClass().getName());
-        }else{
+        } else {
             result = accessService.createCollectionAccessToken(login);
         }
         return result;
     }
 
-    private AccessToken getDeleteAccessToken(Id domainObjectId){
+    private AccessToken getDeleteAccessToken(Id domainObjectId) {
         AccessToken result = null;
-        if (systemPermission){
+        if (systemPermission) {
             result = accessService.createSystemAccessToken(this.getClass().getName());
-        }else{
+        } else {
             result = accessService.createAccessToken(login, domainObjectId, DomainObjectAccessType.DELETE);
         }
         return result;
     }
 
-    private AccessToken getWriteAccessToken(DomainObject domainObject){
+    private AccessToken getWriteAccessToken(DomainObject domainObject) {
         AccessToken result = null;
-        if (systemPermission){
+        if (systemPermission) {
             result = accessService.createSystemAccessToken(this.getClass().getName());
-        }else{
-            if (domainObject.isNew()){
+        } else {
+            if (domainObject.isNew()) {
                 result = accessService.createDomainObjectCreateToken(login, domainObject);
-            }else{
+            } else {
                 result = accessService.createAccessToken(login, domainObject.getId(), DomainObjectAccessType.WRITE);
             }
         }
         return result;
     }
-    
-    private AccessToken getReadAccessToken(Id domainObjectId){
+
+    private AccessToken getReadAccessToken(Id domainObjectId) {
         AccessToken result = null;
-        if (systemPermission){
+        if (systemPermission) {
             result = accessService.createSystemAccessToken(this.getClass().getName());
-        }else{
+        } else {
             result = accessService.createAccessToken(login, domainObjectId, DomainObjectAccessType.READ);
         }
         return result;
     }
-    
+
 }

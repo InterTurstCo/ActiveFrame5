@@ -44,4 +44,15 @@ public interface ImportDataService {
      * @param encoding
      */
     List<Id> importData(byte[] importFileAsByteArray, String encoding, boolean owerwrite);
+    
+    /**
+     * Метод загрузки данных при отличие кодировки в CSV от дефалтовой ANSI-1251 и флагом который позволяет\запрещает 
+     * перезаписывать данные и возможностью подгрузки вложений с файловой системы, где расположен сервер
+     * @param importFileAsByteArray
+     * @param encoding
+     * @param owerwrite
+     * @param attachmentBasePath
+     * @return
+     */
+    List<Id> importData(byte[] importFileAsByteArray, String encoding, boolean owerwrite, String attachmentBasePath);
 }

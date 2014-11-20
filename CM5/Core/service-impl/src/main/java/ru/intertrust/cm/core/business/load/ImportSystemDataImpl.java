@@ -96,7 +96,7 @@ public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.
                                     ImportData importData = (ImportData) springContext.getBean(ImportData.SYSTEM_IMPORT_BEAN);
 
                                     importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString()
-                                            + importFile.getFileName())), importFilesConfiguration.getCsvEncoding(), rewrite);
+                                            + importFile.getFileName())), importFilesConfiguration.getCsvEncoding(), rewrite, null);
                                     logger.info("Import system data from file " + importFile.getFileName());
                                 }
                             }
