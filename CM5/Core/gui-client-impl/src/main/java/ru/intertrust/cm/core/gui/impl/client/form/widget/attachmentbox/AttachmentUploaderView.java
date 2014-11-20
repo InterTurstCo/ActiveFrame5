@@ -113,8 +113,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         root = new AbsolutePanel();
         root.addStyleName("attachmentPluginWrapper");
 
-        initAttachmentsPanel();
         initControlPanel();
+        initAttachmentsPanel();
 
         initWidget(root);
     }
