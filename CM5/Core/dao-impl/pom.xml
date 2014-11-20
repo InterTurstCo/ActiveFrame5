@@ -68,8 +68,7 @@
                 <version>2.16</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/*DaoTest.java</exclude>
-                        <exclude>**/DomainObjectDaoImplTest.java</exclude>                       
+                        <exclude>**/*DaoTest.java</exclude>                        
                     </excludes>
                 </configuration>
             </plugin>
