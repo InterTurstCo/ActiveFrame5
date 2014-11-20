@@ -121,7 +121,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
     private void initAttachmentsPanel() {
         mainBoxPanel = new AbsolutePanel();
-        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
+        mainBoxPanel.setStyleName("facebook-main-box");
+        mainBoxPanel.addStyleName(attachments.isEmpty() ? "linkedWidgetsBorderNone" : "linkedWidgetsBorderStyle");
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
         root.add(mainBoxPanel);
     }
@@ -151,6 +152,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         for (Widget element : createSelectedElements()) {
             mainBoxPanel.add(element);
         }
+        mainBoxPanel.setStyleName("facebook-main-box");
+        mainBoxPanel.addStyleName(attachments.isEmpty() ? "linkedWidgetsBorderNone" : "linkedWidgetsBorderStyle");
     }
 
     private void displaySelectedElement(AttachmentItem item) {
@@ -191,6 +194,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
      */
     protected void cleanUp() {
         getAttachmentsPanel().clear();
+        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderNone");
     }
 
     protected void setAttachments(List<AttachmentItem> attachments) {
@@ -438,7 +442,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 eventBus.fireEvent(new UploadCompletedEvent()); //TODO: why we do it in loop?
                 cancelTimer();
             }
-            //displaySelectedElements(mainBoxPanel);
+            mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         }
     }
 
@@ -453,6 +457,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         @Override
         public void onClick(ClickEvent event) {
             removeAttachment(item);
+            mainBoxPanel.setStyleName("facebook-main-box");
+            mainBoxPanel.addStyleName(attachments.isEmpty() ? "linkedWidgetsBorderNone" : "linkedWidgetsBorderStyle");
         }
     }
 
