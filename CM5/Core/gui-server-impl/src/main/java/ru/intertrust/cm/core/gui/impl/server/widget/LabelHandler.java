@@ -1,15 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.AllValuesEmptyMessageConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FontSizeConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FontStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FontWeightConfig;
@@ -27,6 +23,9 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Denis Mitavskiy
@@ -75,6 +74,7 @@ public class LabelHandler extends ValueEditingWidgetHandler {
             }
         }
         state.setAsteriskRequired(isAsteriskRequired(context, labelConfig));
+        state.setRelatedWidgetId(labelConfig.getRelatesTo() != null ?  labelConfig.getRelatesTo().getWidgetId() : null);
         return state;
     }
 

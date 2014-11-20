@@ -12,6 +12,7 @@ public class LabelState extends WidgetState {
     private String fontWeight;
     private String fontStyle;
     private String fontSize;
+    private String relatedWidgetId;
 
     public LabelState() {
     }
@@ -80,4 +81,11 @@ public class LabelState extends WidgetState {
         return super.equals(obj);
     }
 
+    public String getRelatedWidgetId() {
+        return relatedWidgetId;
+    }
+
+    public void setRelatedWidgetId(String relatedWidgetId) {
+        this.relatedWidgetId = relatedWidgetId;
+    }
 }

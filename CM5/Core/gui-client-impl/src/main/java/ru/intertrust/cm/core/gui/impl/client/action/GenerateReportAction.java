@@ -4,12 +4,18 @@ import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ValueUtil;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
+import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.report.ReportPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.GenerateReportActionContext;
 import ru.intertrust.cm.core.gui.model.action.GenerateReportActionData;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.util.Map;
 
@@ -77,5 +83,22 @@ public class GenerateReportAction extends SimpleServerAction {
     @Override
     public Component createNew() {
         return new GenerateReportAction();
+    }
+
+    @Override
+    public boolean isValid() {
+        PluginView view = getPlugin().getView();
+        FormPanel panel = (FormPanel) view.getViewWidget();
+        ValidationResult validationResult = new ValidationResult();
+        for (BaseWidget widget : panel.getWidgets()) {
+            if (widget.isEditable()) {
+                validationResult.append(widget.validate());
+            }
+        }
+        if (validationResult.hasErrors()) {
+            ApplicationWindow.errorAlert(BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE);
+            return false;
+        }
+        return true;
     }
 }
