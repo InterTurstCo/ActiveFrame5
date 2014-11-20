@@ -129,6 +129,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
     private void initControlPanel() {
         controlPanel = new AbsolutePanel();
+        controlPanel.getElement().setClassName("attachmentPluginButtonsPanel");
         root.add(controlPanel);
         if (addButtonConfig == null || addButtonConfig.isDisplay()) {
             initSubmitForm();

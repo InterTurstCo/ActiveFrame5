@@ -725,7 +725,7 @@
                 <choice-style name="popup"/>
                 <add-button display="true"/>
                 <delete-button display="true"/>
-                <clear-all-button text="Очистить"/>
+                <clear-all-button />
             </attachment-box>
 
 
