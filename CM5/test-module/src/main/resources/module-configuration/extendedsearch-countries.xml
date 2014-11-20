@@ -38,6 +38,8 @@
             <!-- label -->
             <label id="1">
                 <text>День Независимости:</text>
+                <force-required-asterisk value="true"/>
+                <relates-to widget-id="2"/>
             </label>
             <date-box id="2">
                 <field-path value="independence_day"/>
