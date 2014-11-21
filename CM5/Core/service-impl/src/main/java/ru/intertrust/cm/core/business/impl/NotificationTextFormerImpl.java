@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.env.Environment;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -128,7 +129,8 @@ public class NotificationTextFormerImpl implements NotificationTextFormer {
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
 
         for (String beanDefinitionName : beanDefinitionNames) {
-            if (applicationContext.isSingleton(beanDefinitionName)) {
+            if (applicationContext.isSingleton(beanDefinitionName) && 
+                    !((AbstractApplicationContext)applicationContext).getBeanFactory().getBeanDefinition(beanDefinitionName).isAbstract() ) {
                 Object bean = applicationContext.getBean(beanDefinitionName);
                 model.put(beanDefinitionName, bean);
             }
