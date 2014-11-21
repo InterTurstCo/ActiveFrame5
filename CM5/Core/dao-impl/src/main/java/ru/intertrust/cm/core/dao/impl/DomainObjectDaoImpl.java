@@ -1069,23 +1069,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         List<DomainObject> domainObjects = jdbcTemplate.query(query, parameters,
-                new MultipleObjectRowMapper(linkedType, configurationExplorer,
-                        domainObjectTypeIdCache));
+                new MultipleObjectRowMapper(linkedType, configurationExplorer, domainObjectTypeIdCache));
 
-        // Если тип доменного объекта является наследником linkedType, то необходимо извлечь доменный объект этого типа
-        for (int i = 0; i < domainObjects.size(); i++) {
-            DomainObject domainObject = domainObjects.get(i);
-            if (linkedType.equals(domainObject.getTypeName())) {
-                domainObjectCacheService.putObjectToCache(domainObject, accessToken);
-            } else {
-                AccessToken accessTokenToFind = null;
-                if (configurationExplorer.isReadPermittedToEverybody(domainObject.getTypeName())){
-                    accessTokenToFind = accessControlService.createSystemAccessToken(getClass().getName());
-                } else {
-                    accessTokenToFind = accessToken;
-                }
-                domainObjects.set(i, find(domainObject.getId(), accessTokenToFind));
-            }
+        if (domainObjects == null) {
+            domainObjects = new ArrayList<>();
+        }
+
+        for (DomainObject domainObject : domainObjects) {
+            domainObjectCacheService.putObjectToCache(domainObject, accessToken);
         }
 
         if (linkedDomainObjectCacheEnabled) {
@@ -1736,17 +1727,21 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return !str.equals(originalString);
 
     }
-    //TODO
+
     protected String buildFindChildrenQuery(String linkedType, String linkedField, int offset,
                                             int limit, AccessToken accessToken) {
         String tableAlias = getSqlAlias(linkedType);
         String tableHavingLinkedFieldAlias = getSqlAlias(findInHierarchyDOTypeHavingField(linkedType, linkedField));
 
-        StringBuilder query = new StringBuilder();
-        query.append("select ");
+        StringBuilder query = new StringBuilder("select ");
         appendColumnsQueryPart(query, linkedType);
+        appendChildColumns(query, linkedType);
+
         query.append(" from ");
+
         appendTableNameQueryPart(query, linkedType);
+        appendChildTables(query, linkedType);
+
         query.append(" where ").append(tableHavingLinkedFieldAlias).append(".").
                 append(wrap(getSqlName(linkedField))).append(" = :domain_object_id").
                 append(" and ").append(wrap(getSqlName(getReferenceTypeColumnName(linkedField))))
@@ -2144,6 +2139,27 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         appendParentTable(query, config.getExtendsAttribute());
     }
 
+    private void appendChildTables(StringBuilder query, String typeName) {
+        Collection<DomainObjectTypeConfig> childConfigs = configurationExplorer.findChildDomainObjectTypes(typeName, true);
+
+        if (childConfigs == null || childConfigs.isEmpty()) {
+            return;
+        }
+
+        String tableAlias = getSqlAlias(typeName);
+
+        for (DomainObjectTypeConfig childConfig : childConfigs) {
+            String childTableName = getSqlName(childConfig.getName());
+            String childTableAlias = getSqlAlias(childConfig.getName());
+
+            query.append(" left outer join ").append(wrap(childTableName)).append(" ").append(childTableAlias).
+                    append(" on (").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" = ").
+                    append(childTableAlias).append(".").append(wrap(ID_COLUMN)).append(" and ").
+                    append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" = ").
+                    append(childTableAlias).append(".").append(wrap(TYPE_COLUMN)).append(")");
+        }
+    }
+
     private String findInHierarchyDOTypeHavingField(String doType, String fieldName) {
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doType, fieldName, false);
         if (fieldConfig != null) {
@@ -2164,9 +2180,38 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObjectTypeConfig parentConfig = configurationExplorer.getConfig(
                 DomainObjectTypeConfig.class, config.getExtendsAttribute());
 
-        String tableAlias = getSqlAlias(parentConfig.getName());
+        appendColumnsExceptId(query, parentConfig);
 
-        for (FieldConfig fieldConfig : parentConfig.getFieldConfigs()) {
+        if (parentConfig.getExtendsAttribute() != null) {
+            appendParentColumns(query, parentConfig);
+        } else {
+            query.append(", ").append(wrap(CREATED_DATE_COLUMN));
+            query.append(", ").append(wrap(UPDATED_DATE_COLUMN));
+            query.append(", ").append(wrap(CREATED_BY));
+            query.append(", ").append(wrap(CREATED_BY_TYPE_COLUMN));
+            query.append(", ").append(wrap(UPDATED_BY));
+            query.append(", ").append(wrap(UPDATED_BY_TYPE_COLUMN));
+
+            query.append(", ").append(wrap(STATUS_FIELD_NAME));
+            query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
+        }
+    }
+
+    private void appendChildColumns(StringBuilder query, String typeName) {
+        Collection<DomainObjectTypeConfig> childConfigs = configurationExplorer.findChildDomainObjectTypes(typeName, true);
+
+        if (childConfigs == null || childConfigs.isEmpty()) {
+            return;
+        }
+
+        for (DomainObjectTypeConfig childConfig : childConfigs) {
+            appendColumnsExceptId(query, childConfig);
+        }
+    }
+
+    private void appendColumnsExceptId(StringBuilder query, DomainObjectTypeConfig domainObjectTypeConfig) {
+        String tableAlias = getSqlAlias(domainObjectTypeConfig.getName());
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             if (ID_COLUMN.equals(fieldConfig.getName())) {
                 continue;
             }
@@ -2181,20 +2226,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 query.append(", ").append(tableAlias).append(".")
                         .append(wrap(getTimeZoneIdColumnName(fieldConfig.getName())));
             }
-        }
-
-        if (parentConfig.getExtendsAttribute() != null) {
-            appendParentColumns(query, parentConfig);
-        } else {
-            query.append(", ").append(wrap(CREATED_DATE_COLUMN));
-            query.append(", ").append(wrap(UPDATED_DATE_COLUMN));
-            query.append(", ").append(wrap(CREATED_BY));
-            query.append(", ").append(wrap(CREATED_BY_TYPE_COLUMN));
-            query.append(", ").append(wrap(UPDATED_BY));
-            query.append(", ").append(wrap(UPDATED_BY_TYPE_COLUMN));
-
-            query.append(", ").append(wrap(STATUS_FIELD_NAME));
-            query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
         }
     }
 

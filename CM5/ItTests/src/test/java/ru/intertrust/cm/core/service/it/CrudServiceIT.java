@@ -173,7 +173,7 @@ public class CrudServiceIT extends IntegrationTestBase {
     }
 
     @Test
-    public void testFindLinkedDoaminObjects() {
+    public void testFindLinkedDomainObjects() {
         DomainObject organization = createOrganizationDomainObject();
         DomainObject savedOrganization = crudService.save(organization);
         DomainObject department = createDepartmentDomainObject(savedOrganization);
@@ -208,6 +208,46 @@ public class CrudServiceIT extends IntegrationTestBase {
             
         }
 
+    }
+
+    @Test
+    public void testFindLinkedDomainObjectsWithInheritance() {
+        DomainObject soOrgSystem = crudService.createDomainObject("SO_OrgSystem");
+        soOrgSystem.setBoolean("IsDeleted", false);
+        soOrgSystem.setString("ShortName", "ShortName1");
+        soOrgSystem.setString("FullName", "FullName1");
+        soOrgSystem.setString("NoticesFormulaIDs", "NoticesFormulaIDs1");
+        soOrgSystem = crudService.save(soOrgSystem);
+
+        DomainObject soParentSU = crudService.createDomainObject("SO_Parent_SU");
+        soParentSU.setReference("Owner", soOrgSystem);
+        soParentSU = crudService.save(soParentSU);
+
+        DomainObject soDepartmentExt = crudService.createDomainObject("SO_DepartmentExt");
+        soDepartmentExt.setString("TelexExt", "TelexExt");
+        soDepartmentExt.setString("ShortName", "ShortName2");
+        soDepartmentExt.setString("FullName", "FullName2");
+        soDepartmentExt.setString("NoticesFormulaIDs", "NoticesFormulaIDs2");
+        soDepartmentExt.setReference("HierRoot", soOrgSystem.getId());
+        soDepartmentExt.setReference("HierParent", soParentSU.getId());
+        soDepartmentExt.setString("Type", "Type2");
+        soDepartmentExt.setBoolean("IsIndependent", false);
+        soDepartmentExt.setBoolean("IsIsolated", false);
+        soDepartmentExt = crudService.save(soDepartmentExt);
+
+        List<DomainObject> linkedObjects = crudService.findLinkedDomainObjects(soOrgSystem.getId(), "SO_Department", "HierRoot");
+        assertNotNull(linkedObjects);
+        assertTrue(linkedObjects.size() > 0);
+
+        for (DomainObject linkedObject : linkedObjects) {
+            if (linkedObject.getString("TelexExt") != null && linkedObject.getString("TelexExt").equals("TelexExt") &&
+                    linkedObject.getString("NoticesFormulaIDs") != null &&
+                    linkedObject.getString("NoticesFormulaIDs").equals("NoticesFormulaIDs2")) {
+                return;
+            }
+        }
+
+        fail("Linked object wasn't found");
     }
 
     @Test
