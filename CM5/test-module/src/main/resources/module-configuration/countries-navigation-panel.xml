@@ -16,7 +16,7 @@
                                     <sort-criterion field="created_date" order="asc"/>
                                 </sort-criteria>
                                 <month-item type="link">
-                                    <pattern value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
+                                    <pattern value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
                                 </month-item>
                                 <day-items>
                                     <day-item type="link">

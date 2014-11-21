@@ -8,7 +8,13 @@ import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineLabel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEvent;
@@ -80,7 +86,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
 
     @Override
     public void onMouseWheel(MouseWheelEvent event) {
-        final int delta = event.getDeltaY() * 5;
+        final int delta = event.getDeltaY() * -5;
         changeOffset(delta);
         final WeekItem weekItem = (WeekItem) monthContainer.getWidget(0);
         final DateItem dateItem = (DateItem) weekItem.getWidget(0);

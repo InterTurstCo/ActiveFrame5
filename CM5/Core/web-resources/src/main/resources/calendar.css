@@ -333,4 +333,9 @@
     -webkit-transition: color 0.5s; /* For Safari 3.1 to 6.0 */
     transition: color 0.5s;
 }
+
+.calendarItemLink {
+    cursor: pointer;
+    curson: hand;
+}
 /* ------------>>> end Calendar Week Panel buttons <<<------------ */
