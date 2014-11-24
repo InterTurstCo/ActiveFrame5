@@ -187,15 +187,15 @@ public final class GuiUtil {
                             new CentralPluginChildOpeningRequestedEvent(formPlugin));
                 }
             }, ClickEvent.getType());
-            result = hyperlink;
+            hyperlink.addStyleName("calendarItemLink");
             toolTipText = hyperlink.getText();
+            result = hyperlink;
         } else {
             InlineHTML inlineHtml = new InlineHTML(itemData.getPresentation());
             toolTipText = inlineHtml.getText();
             result = inlineHtml;
 
         }
-        result.addStyleName("calendarItemLink");
         result.setTitle(toolTipText);
         return result;
     }
