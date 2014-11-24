@@ -122,6 +122,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         if (isExtraStyleRequired()) {
             panel.setStyleName("frm-pnl-top");
         }
+        panel.getElement().addClassName("modalFormWrapper");
         widgets = new ArrayList<>(formDisplayData.getFormState().getFullWidgetsState().size());
         MarkupConfig markup = formDisplayData.getMarkup();
         if (markup.getHeader().getTableLayout() != null) {
