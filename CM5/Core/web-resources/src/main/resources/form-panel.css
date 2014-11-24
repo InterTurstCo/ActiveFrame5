@@ -61,7 +61,7 @@
     background: url(images/form/form-footer-bg_long.jpg) repeat-y scroll 0 0;
     border-radius: 5px;
     position: absolute;
-    top: 110px;
+    top: 75px;
     right: 10px;
     bottom: 10px;
     left: 10px;
@@ -74,7 +74,7 @@
     background: url(images/form/form-footer-bg_short.jpg) repeat-y scroll 0 0;
     border-radius: 5px;
     position: absolute;
-    top: 110px;
+    top: 75px;
     right: 10px;
     bottom: 10px;
     left: 10px;
@@ -85,7 +85,7 @@
     background: #ffffff;
     border-radius: 5px;
     position: absolute;
-    top: 110px;
+    top: 75px;
     right: 10px;
     bottom: 10px;
     left: 10px;
