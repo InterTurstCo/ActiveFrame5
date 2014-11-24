@@ -170,7 +170,7 @@ a.tooltipButton:active {
 .uploadButton {
     background: #f5f5f5 url(resources/defaulttheme/images/icons/icon-create.png) no-repeat 50% 7%;
     padding: 11px;
-    float: left;
+    float: right;
 }
 
 .uploadButton:hover {
@@ -184,6 +184,7 @@ a.tooltipButton:active {
 .selectionButton {
     background: #f5f5f5;
     padding: 3px 5px;
+    float: right;
 }
 
 .selectionButton:hover {
@@ -207,6 +208,6 @@ a.tooltipButton:active {
 .table-browser-button.lightButton {
     background: #f5f5f5 url(resources/defaulttheme/images/icons/icon-clear.png) no-repeat 50% 1%;
     padding: 11px;
-    float: left;
+    float: right;
 }
 /* ------------>>> end Attachment Plugin <<<------------ */

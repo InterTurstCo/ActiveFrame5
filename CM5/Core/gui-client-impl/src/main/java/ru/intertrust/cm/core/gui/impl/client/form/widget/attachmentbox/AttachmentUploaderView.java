@@ -131,6 +131,10 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         controlPanel = new AbsolutePanel();
         controlPanel.getElement().setClassName("attachmentPluginButtonsPanel");
         root.add(controlPanel);
+        if (clearAllButtonConfig != null && clearAllButtonConfig.isDisplay()) {
+            initClearAllButton();
+            controlPanel.add(clearAllButton);
+        }
         if (addButtonConfig == null || addButtonConfig.isDisplay()) {
             initSubmitForm();
             initFileUpload();
@@ -140,10 +144,6 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             controlPanel.add(submitForm);
             submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
             submitForm.addSubmitHandler(new FormSubmitHandler());
-        }
-        if (clearAllButtonConfig != null && clearAllButtonConfig.isDisplay()) {
-            initClearAllButton();
-            controlPanel.add(clearAllButton);
         }
     }
 

@@ -50,8 +50,8 @@ public class GenerateReportServlet {
         try {
             Map<String, Object> params = convertParameters(request.getParameterMap());
 
-            response.setHeader("Content-Disposition", "attachment; filename=" + reportName);
             ReportResult reportResult = reportService.generate(reportName, params);
+            response.setHeader("Content-Disposition", "attachment; filename=" + reportResult.getFileName());
             bufferOut.write(reportResult.getReport());
         } catch (Exception e) {
             logger.error("Ошибка при генерации отчета " + reportName, e.getCause());
