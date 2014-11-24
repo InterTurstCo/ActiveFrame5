@@ -3,7 +3,13 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -13,15 +19,22 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 // визуализация плагина расширенного поиска
 public class ExtendedSearchPluginView extends PluginView {
@@ -87,14 +100,18 @@ public class ExtendedSearchPluginView extends PluginView {
         search.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                if (extendedSearchFormPlugin == null) {
+                    extSearchDialogBox.hide();
+                } else if (isValid()) {
                 // получаем данные из полей формы поиска для отправки на сервер
-                ExtendedSearchFormPluginView extendedSearchFormPluginView =
-                        (ExtendedSearchFormPluginView) extendedSearchFormPlugin.getView();
-                Map<String, WidgetState> widgetsWithData = extendedSearchFormPluginView.getWidgetsState();
-                searchFormData.setMaxResults(200); // временно хардкодом, в форме д.б. поле для ввода размера списка результатов
-                searchFormData.setSearchQuery(searchQuery);
-                searchFormData.setFormWidgetsData(widgetsWithData);
-                sendSearchData(searchFormData);
+                    ExtendedSearchFormPluginView extendedSearchFormPluginView =
+                            (ExtendedSearchFormPluginView) extendedSearchFormPlugin.getView();
+                    Map<String, WidgetState> widgetsWithData = extendedSearchFormPluginView.getWidgetsState();
+                    searchFormData.setMaxResults(200); // временно хардкодом, в форме д.б. поле для ввода размера списка результатов
+                    searchFormData.setSearchQuery(searchQuery);
+                    searchFormData.setFormWidgetsData(widgetsWithData);
+                    sendSearchData(searchFormData);
+                }
             }
         });
 
@@ -244,5 +261,23 @@ public class ExtendedSearchPluginView extends PluginView {
 
     private void searchButtonStyles(FocusPanel button) {
         button.addStyleName("auth_enter-button-search");
+    }
+
+    private boolean isValid() {
+            ExtendedSearchFormPluginView extendedSearchFormPluginView =
+                (ExtendedSearchFormPluginView) extendedSearchFormPlugin.getView();
+        FormPanel panel = (FormPanel)extendedSearchFormPluginView.getViewWidget();
+
+        ValidationResult validationResult = new ValidationResult();
+        for (BaseWidget widget : panel.getWidgets()) {
+            if (widget.isEditable()) {
+                validationResult.append(widget.validate());
+            }
+        }
+        if (validationResult.hasErrors()) {
+            ApplicationWindow.errorAlert(BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE);
+            return false;
+        }
+        return true;
     }
 }

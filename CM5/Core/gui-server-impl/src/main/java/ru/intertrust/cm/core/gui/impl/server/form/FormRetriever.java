@@ -5,7 +5,13 @@ import org.apache.commons.collections.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -24,10 +30,23 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormDefaultValueSetter;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.*;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
+import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
+import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
+import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -142,22 +161,24 @@ public class FormRetriever extends FormProcessor {
     private HashMap<String, WidgetState> buildWidgetStatesMap(List<WidgetConfig> widgetConfigs, FormObjects formObjects,
                                                               FormConfig formConfig) {
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
+        HashMap<String, WidgetConfig> widgetConfigsById = buildWidgetConfigsById(widgetConfigs);
         for (WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
-            WidgetContext widgetContext = new WidgetContext(config, formObjects);
+
+            WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
             widgetContext.setFormType(formConfig.getType());
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
-            String fieldPathValue = config.getFieldPathConfig().getValue();
-            if (fieldPathValue != null && !fieldPathValue.isEmpty()) {
-                FieldPath[] paths = FieldPath.createPaths(fieldPathValue);
-                FormDefaultValueSetter formDefaultValueSetter;
-                formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig);
-                applyDefaultValuesToFormObjects(formObjects, paths, formDefaultValueSetter);
+            if (config.getFieldPathConfig() != null) {
+                String fieldPathValue = config.getFieldPathConfig().getValue();
+                if (fieldPathValue != null && !fieldPathValue.isEmpty()) {
+                    FieldPath[] paths = FieldPath.createPaths(fieldPathValue);
+                    FormDefaultValueSetter formDefaultValueSetter;
+                    formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig);
+                    applyDefaultValuesToFormObjects(formObjects, paths, formDefaultValueSetter);
+                }
             }
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
-            // TODO: [report-plugin] validation...
-            WidgetContext context = new WidgetContext(config, formObjects); // why don't we re-use widgetContext?
-
+            WidgetContext context = new WidgetContext(config, formObjects, widgetConfigsById); // why don't we re-use widgetContext?
 
             context.setFormType(formConfig.getType());
             List<Constraint> constraints = buildConstraints(context);
@@ -167,7 +188,29 @@ public class FormRetriever extends FormProcessor {
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
         }
+
+        buildForceRequiredConstraints(widgetStateMap, widgetConfigsById);
         return widgetStateMap;
+    }
+
+    private void buildForceRequiredConstraints(Map<String, WidgetState> widgetStateMap, Map<String, WidgetConfig> widgetConfigsById) {
+        for (Map.Entry<String, WidgetState> entry : widgetStateMap.entrySet()) {
+            String widgetId = entry.getKey();
+            WidgetConfig widgetConfig = widgetConfigsById.get(widgetId);
+            if ("label".equals(widgetConfig.getComponentName())) {
+                LabelState labelState = (LabelState)entry.getValue();
+                if (labelState.isAsteriskRequired()) {
+                    String relatedWidget = labelState.getRelatedWidgetId();
+                    WidgetState relatedWidgetState = widgetStateMap.get(relatedWidget);
+                    if (relatedWidgetState != null)  {
+                        HashMap<String, String> params = new HashMap<>();
+                        params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_NOT_EMPTY);
+                        params.put(Constraint.PARAM_WIDGET_ID, relatedWidget);
+                        relatedWidgetState.getConstraints().add(new Constraint(Constraint.Type.SIMPLE, params));
+                    }
+                }
+            }
+        }
     }
 
     private FormDefaultValueSetter obtainFormDefaultValueSetter(FormConfig formConfig) {

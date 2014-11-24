@@ -1820,10 +1820,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             query.append("where gm.person_id = :user_id and rt.id = ");
             if (!isAuditLog) {
-                query.append(topLevelAuditTable).append(".").append(DaoUtils.wrap(ID_COLUMN));
+                query.append(originalLinkedType).append(".").append(DaoUtils.wrap(ID_COLUMN));
 
-            } else {
-                query.append(originalLinkedType).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
+            } else {                
+                query.append(topLevelAuditTable).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
             }
             query.append(")");
         }

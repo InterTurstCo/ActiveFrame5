@@ -39,7 +39,11 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -186,6 +190,7 @@ public final class GuiUtil {
         } else {
             result = new InlineHTML(itemData.getPresentation());
         }
+        result.addStyleName("calendarItemLink");
         return result;
     }
 

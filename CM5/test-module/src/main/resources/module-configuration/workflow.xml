@@ -362,6 +362,8 @@
                 <text>Все сотрудники, созданные за указаный период</text>
             </label>
             <label id="startLabel">
+                <force-required-asterisk value="true"/>
+                <relates-to widget-id="startInput"/>
                 <field-path/>
                 <text>Начало:</text>
             </label>
@@ -369,6 +371,8 @@
                 <field-path value="paramStart"/>
             </date-box>
             <label id="endLabel">
+                <force-required-asterisk value="true"/>
+                <relates-to widget-id="endInput"/>
                 <field-path/>
                 <text>Конец:</text>
             </label>

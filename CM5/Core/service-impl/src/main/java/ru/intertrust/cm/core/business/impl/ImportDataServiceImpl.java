@@ -41,13 +41,17 @@ public class ImportDataServiceImpl implements ImportDataService {
 
     @Override
     public List<Id> importData(byte[] importFileAsByteArray, String encoding,
-            boolean rewrite) {
+            boolean owerwrite) {
+        return importData(importFileAsByteArray, encoding, owerwrite, null);
+    }
+
+    @Override
+    public List<Id> importData(byte[] importFileAsByteArray, String encoding, boolean owerwrite, String attachmentBasePath) {
         try {
-            ImportData importData = (ImportData)springContext.getBean(ImportData.PERSON_IMPORT_BEAN);
-            return importData.importData(importFileAsByteArray, encoding, rewrite);
+            ImportData importData = (ImportData) springContext.getBean(ImportData.PERSON_IMPORT_BEAN);
+            return importData.importData(importFileAsByteArray, encoding, owerwrite, attachmentBasePath);
         } catch (Exception ex) {
             throw new FatalException("Error load data", ex);
         }
-
     }
 }

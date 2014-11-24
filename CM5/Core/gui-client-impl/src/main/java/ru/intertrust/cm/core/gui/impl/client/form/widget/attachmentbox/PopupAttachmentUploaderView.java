@@ -6,7 +6,6 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditableNonDeletablePresenterFactory;
@@ -21,10 +20,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 public class PopupAttachmentUploaderView extends AttachmentUploaderView {
 
     private AttachmentElementPresenterFactory presenterFactory;
-    private Panel selectedItemsPanel = new AbsolutePanel();
     private Panel allItemsPanel;
     private DialogBox selectionDialog = new DialogBox(false, true);
-    private Panel mainBoxPanel;
 
     public PopupAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus) {
         super(state, eventBus);
@@ -34,7 +31,6 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
     }
 
     private void init() {
-        mainBoxPanel = super.getAttachmentsPanel();
         Button showPopupButton = new Button("...");
         showPopupButton.getElement().setClassName("lightButton selectionButton");
         showPopupButton.addClickHandler(new ClickHandler() {
@@ -44,22 +40,8 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
                 selectionDialog.center();
             }
         });
-        mainBoxPanel.add(showPopupButton);
-        mainBoxPanel.add(selectedItemsPanel);
+        super.getControlPanel().add(showPopupButton);
         initSelectionDialog();
-    }
-
-    @Override
-    protected Panel getAttachmentsPanel() {
-        return selectedItemsPanel;
-    }
-
-    @Override
-    public void displayAttachmentItems() {
-        selectedItemsPanel.clear();
-        for (Widget element : createSelectedElements()) {
-            selectedItemsPanel.add(element);
-        }
     }
 
     protected Panel createNonSelectedElement(AttachmentItem item) {

@@ -49,6 +49,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private static final BusinessUniverseServiceAsync SERVICE = BusinessUniverseServiceAsync.Impl.getInstance();
 
     private Panel mainBoxPanel;
+    private Panel controlPanel;
     private Panel root;
     private Style.Display displayStyle;
     private FocusPanel addFile;
@@ -101,31 +102,49 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         return mainBoxPanel;
     }
 
+    protected Panel getControlPanel() {
+        return controlPanel;
+    }
+
     /**
      * Инициализация частей составного виджета
      */
     private void init() {
         root = new AbsolutePanel();
         root.addStyleName("attachmentPluginWrapper");
+
+        initControlPanel();
+        initAttachmentsPanel();
+
+        initWidget(root);
+    }
+
+    private void initAttachmentsPanel() {
         mainBoxPanel = new AbsolutePanel();
-        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
+        mainBoxPanel.setStyleName("facebook-main-box");
+        mainBoxPanel.addStyleName(attachments.isEmpty() ? "linkedWidgetsBorderNone" : "linkedWidgetsBorderStyle");
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
         root.add(mainBoxPanel);
+    }
+
+    private void initControlPanel() {
+        controlPanel = new AbsolutePanel();
+        controlPanel.getElement().setClassName("attachmentPluginButtonsPanel");
+        root.add(controlPanel);
         if (addButtonConfig == null || addButtonConfig.isDisplay()) {
             initSubmitForm();
             initFileUpload();
             initUploadButton();
-            root.add(addFile);
+            controlPanel.add(addFile);
             submitForm.add(fileUpload);
-            root.add(submitForm);
+            controlPanel.add(submitForm);
             submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
             submitForm.addSubmitHandler(new FormSubmitHandler());
         }
         if (clearAllButtonConfig != null && clearAllButtonConfig.isDisplay()) {
             initClearAllButton();
-            root.add(clearAllButton);
+            controlPanel.add(clearAllButton);
         }
-        initWidget(root);
     }
 
     @Override
@@ -134,6 +153,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         for (Widget element : createSelectedElements()) {
             mainBoxPanel.add(element);
         }
+        mainBoxPanel.setStyleName("facebook-main-box");
+        mainBoxPanel.addStyleName(attachments.isEmpty() ? "linkedWidgetsBorderNone" : "linkedWidgetsBorderStyle");
     }
 
     private void displaySelectedElement(AttachmentItem item) {
@@ -172,8 +193,9 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     /**
      * Удаляет все прикрепления из отображения
      */
-    private void cleanUp() {
+    protected void cleanUp() {
         getAttachmentsPanel().clear();
+        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderNone");
     }
 
     protected void setAttachments(List<AttachmentItem> attachments) {
@@ -421,7 +443,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 eventBus.fireEvent(new UploadCompletedEvent()); //TODO: why we do it in loop?
                 cancelTimer();
             }
-            //displaySelectedElements(mainBoxPanel);
+            mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         }
     }
 
@@ -436,6 +458,8 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         @Override
         public void onClick(ClickEvent event) {
             removeAttachment(item);
+            mainBoxPanel.setStyleName("facebook-main-box");
+            mainBoxPanel.addStyleName(attachments.isEmpty() ? "linkedWidgetsBorderNone" : "linkedWidgetsBorderStyle");
         }
     }
 

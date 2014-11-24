@@ -1,0 +1,12 @@
+TYPE_NAME=country_fauna;KEYS=country,animal
+country;animal
+"name=""Украина""";"name=""fox.jpg"""
+"name=""Украина""";"name=""rabbit.jpg"""
+"name=""Украина""";"name=""bear.jpg"""
+"name=""Украина""";"name=""vulf.jpg"""
+"name=""Россия""";"name=""bear.jpg"""
+"name=""Россия""";"name=""vulf.jpg"""
+"name=""Эстония""";"name=""vulf.jpg"""
+"name=""Япония""";"name=""mustela.jpg"""
+"name=""Япония""";"name=""rhacophorus.jpg"""
+

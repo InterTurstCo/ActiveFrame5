@@ -26,7 +26,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.util.Date;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -61,9 +60,9 @@ public class AttachmentDownloader {
     public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String userAgent = request.getHeader("user-agent");
         String id = request.getParameter("id");
-        String path = request.getParameter("tempName");
-        String absolutePath = attachmentTempStoragePath + path;
+        String absolutePath = "";
         String filename;
+        long contentLength;
         RemoteInputStream remoteFileData = null;
 
         if (id != null) {
@@ -73,11 +72,13 @@ public class AttachmentDownloader {
             response.setContentType(mimeType);
             remoteFileData = attachmentService.loadAttachment(rdmsId);
             filename = URLEncoder.encode(domainObject.getString("Name"),"UTF-8");
-            response.setHeader("Content-Length", domainObject.getLong("contentLength)") + "");
+            contentLength = remoteFileData.available();
         } else {
-            filename = path;
-            response.setHeader("Content-Length", String.valueOf(new File(absolutePath).length()));
+            filename = request.getParameter("tempName");
+            absolutePath = attachmentTempStoragePath + filename;
+            contentLength = new File(absolutePath).length();
         }
+        response.setHeader("Content-Length", String.valueOf(contentLength));
         response.addHeader("Cache-Control", "public, max-age=" + MAX_AGE);
         response.setBufferSize(BUFFER_SIZE);
         response.setCharacterEncoding("UTF-8");
@@ -88,10 +89,8 @@ public class AttachmentDownloader {
 
         try (InputStream fileData = (id != null ?  RemoteInputStreamClient.wrap(remoteFileData)
              : new FileInputStream(absolutePath)); ) {
-            Date start = new Date();
             stream(fileData, response.getOutputStream());
-            Date end = new Date();
-            System.out.println("Copy time: " + (end.getTime() - start.getTime()));
+            response.flushBuffer();
         }
     }
 

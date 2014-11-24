@@ -283,6 +283,19 @@
             </track-domain-objects>
         </groups>
     </context-role>
+    
+    <context-role name="notification-addressee">
+        <context>
+            <domain-object type="notification" />
+        </context>
+        <groups>
+            <track-domain-objects type="notification">
+                <get-group name="Person">
+                    <doel>To</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>    
 
     <!-- <dynamic-group name="Редактор Стран"> По одной группе на каждый объект "Person" (пользователь) в системе <context> <domain-object type="country"
         /> </context> <members> Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их в соответствующую группу, т.е.
@@ -624,11 +637,23 @@
         </status>
     </access-matrix>
 
-	<!-- Сделать корректную матрицу для уведомлений -->
-    <access-matrix type="notification" read-everybody="true">
-        <create>
+    <!-- Сделать корректную матрицу для уведомлений -->
+    <access-matrix type="notification">
+        <!-- Создавать записи может только система из соответствующего канала -->
+        <!-- сreate>
             <permit-group name="AllPersons" />
-        </create>
+        </create-->
+            <status name="*">
+                <read>
+                    <permit-role name="notification-addressee"/>
+                </read>
+                <write>
+                    <permit-role name="notification-addressee"/>
+                </write>
+                <delete>
+                    <permit-role name="notification-addressee"/>
+                </delete>
+            </status>
     </access-matrix>
 
     <access-matrix type="Assignment">

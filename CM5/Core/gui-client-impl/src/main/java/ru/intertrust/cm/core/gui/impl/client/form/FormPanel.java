@@ -383,7 +383,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
 
     private boolean isExtraStyleRequired() {
         //boolean result = state.isEditable() && state.isToggleEdit();
-        boolean result = state.isToggleEdit() & state.isInCentralPanel();
+        boolean result = /*state.isToggleEdit() &&*/ state.isInCentralPanel();
         return result;
     }
 
