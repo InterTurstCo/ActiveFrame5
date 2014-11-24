@@ -232,20 +232,14 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindChildrenQueryForBaseDomainObjectType() {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select internal_employee.*, person.\"email\", person.\"login\", person.\"password\", person.\"boss\", "
-                + "person.\"boss_type\", \"created_date\", \"updated_date\", \"created_by\", \"created_by_type\", \"updated_by\", "
-                + "\"updated_by_type\", \"status\", \"status_type\" from \"internal_employee\" internal_employee "
-                + "inner join \"person\" person on internal_employee.\"id\" = person.\"id\" "
-                + "where person.\"boss\" = :domain_object_id and \"boss_type\" = :domain_object_typeid "
-                + "and exists (select r.object_id from person_read r  "
-                + "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" "
-                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\""
-                + "inner join \"person\" rt on r.\"object_id\" = rt.\"access_object_id\""
-                + "where gm.person_id = :user_id and rt.id = internal_employee.\"id\")";
-                /* +
-                " and exists" +
-                " (select r.object_id from assignment_READ r inner join group_member " +
-                "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
+        String expectedQuery = "select person.* from \"person\" person left outer join " +
+                "\"internal_employee\" internal_employee on (person.\"id\" = internal_employee.\"id\" and " +
+                "person.\"id_type\" = internal_employee.\"id_type\") where person.\"boss\" = :domain_object_id and " +
+                "\"boss_type\" = :domain_object_typeid and exists (select r.object_id from person_read r  " +
+                "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" inner join " +
+                "\"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"inner join " +
+                "\"person\" rt on r.\"object_id\" = rt.\"access_object_id\"" +
+                "where gm.person_id = :user_id and rt.id = person.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("person", "Boss",
                 0, 0, accessToken));
 
@@ -411,7 +405,6 @@ public class DomainObjectDaoImplTest {
         when(jdbcTemplate.query(anyString(), any(Map.class), any(MultipleObjectRowMapper.class))).thenReturn(result);
 
         domainObjectDaoImpl.setConfigurationExplorer(configurationExplorer);
-        domainObjectDao.setDomainObjectCacheService(domainObjectCacheService);
 
         when(domainObjectCacheService.getObjectsFromCache(any(Id.class), any(AccessToken.class), (String[]) anyVararg())).
                 thenReturn(null);
@@ -425,8 +418,8 @@ public class DomainObjectDaoImplTest {
 
         List<DomainObject> l = domainObjectDaoImpl.findLinkedDomainObjects(new RdbmsId(1, 1), "Person1_Attachment",
                 "Person", accessToken);
-//        Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
-//        Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
+        Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
+        Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
     }
 
     @Test
