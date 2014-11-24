@@ -166,6 +166,7 @@ public final class GuiUtil {
 
     public static Widget getCalendarItemPresentation(final CalendarItemData itemData, final Id rootObjectId) {
         final Widget result;
+        String toolTipText;
         if (itemData.isLink()) {
             final Hyperlink hyperlink = new InlineHyperlink();
             hyperlink.setHTML(itemData.getPresentation());
@@ -187,10 +188,15 @@ public final class GuiUtil {
                 }
             }, ClickEvent.getType());
             result = hyperlink;
+            toolTipText = hyperlink.getText();
         } else {
-            result = new InlineHTML(itemData.getPresentation());
+            InlineHTML inlineHtml = new InlineHTML(itemData.getPresentation());
+            toolTipText = inlineHtml.getText();
+            result = inlineHtml;
+
         }
         result.addStyleName("calendarItemLink");
+        result.setTitle(toolTipText);
         return result;
     }
 
