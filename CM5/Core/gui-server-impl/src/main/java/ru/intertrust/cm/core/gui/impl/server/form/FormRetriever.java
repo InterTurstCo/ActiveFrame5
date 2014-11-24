@@ -320,6 +320,7 @@ public class FormRetriever extends FormProcessor {
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
         }
+        buildForceRequiredConstraints(widgetStateMap, widgetConfigsById);
 
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
