@@ -3,11 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
@@ -198,7 +194,10 @@ public class LinkedFormDialogBoxBuilder {
         container.add(formPluginWrapper);
         container.add(buttons);
         scrollPanel.add(container);
-        db.setWidget(scrollPanel);
+        Panel panel = new AbsolutePanel();
+        panel.add(scrollPanel);
+        panel.add(buttons);
+        db.setWidget(panel);
 
         return db;
     }
