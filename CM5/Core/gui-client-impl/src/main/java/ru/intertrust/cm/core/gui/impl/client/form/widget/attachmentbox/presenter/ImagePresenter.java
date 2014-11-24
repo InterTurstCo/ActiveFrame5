@@ -124,8 +124,6 @@ public class ImagePresenter implements AttachmentElementPresenter {
             DownloadAttachmentHandler downloadHandler = new DownloadAttachmentHandler(item);
             downloadButton.addClickHandler(downloadHandler);
 
-            largePreviewPanel.add(downloadButton);
-
             Panel buttonsPanel = new AbsolutePanel();
             buttonsPanel.getElement().setClassName("imageButtonWrapper");
             buttonsPanel.getElement().getStyle().clearPosition();
@@ -149,6 +147,8 @@ public class ImagePresenter implements AttachmentElementPresenter {
             nextButtonWrapper.add(nextButton);
             buttonsPanel.add(nextButtonWrapper);
             largePreviewPanel.add(buttonsPanel);
+
+            largePreviewPanel.add(downloadButton);
 
             ensureVisibilityForNavigationButtons();
             largePreviewDialog.setWidget(largePreviewPanel);
