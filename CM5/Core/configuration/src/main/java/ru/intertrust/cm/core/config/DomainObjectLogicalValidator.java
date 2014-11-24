@@ -85,6 +85,32 @@ public class DomainObjectLogicalValidator implements ConfigurationValidator {
             }
         }
 
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getSystemFieldConfigs()) {
+            if(fieldName.equals(fieldConfig.getName())) {
+                return;
+            }
+        }
+
+        List<IncludeFieldGroupConfig> includeFieldGroupConfigs =
+                domainObjectTypeConfig.getDomainObjectFieldsConfig().getIncludeGroups();
+
+        if (includeFieldGroupConfigs != null) {
+            for (IncludeFieldGroupConfig includeFieldGroupConfig : includeFieldGroupConfigs){
+                DomainObjectFieldGroupConfig fieldGroupConfig =
+                        configurationExplorer.getConfig(DomainObjectFieldGroupConfig.class, includeFieldGroupConfig.getName());
+
+                if (fieldGroupConfig.getFieldConfigs() == null) {
+                    continue;
+                }
+
+                for(FieldConfig fieldConfig : fieldGroupConfig.getFieldConfigs()) {
+                    if(fieldName.equals(fieldConfig.getName())) {
+                        return;
+                    }
+                }
+            }
+        }
+
         logicalErrors.addError("FieldConfig with name '" + fieldName + "' is not found");
     }
 
