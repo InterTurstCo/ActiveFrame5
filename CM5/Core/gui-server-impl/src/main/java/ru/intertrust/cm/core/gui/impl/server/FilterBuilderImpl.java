@@ -62,8 +62,14 @@ public class FilterBuilderImpl implements FilterBuilder {
 
         return false; //not supported for now
     }
+
     public void prepareIncludedIdsFilter(Collection<Id> ids, List<Filter> filters){
         filters.add(FilterBuilderUtil.prepareFilter(ids, FilterBuilderUtil.INCLUDED_IDS_FILTER));
+    }
+
+    @Override
+    public void prepareExcludedIdsFilter(Collection<Id> ids, List<Filter> filters) {
+        filters.add(FilterBuilderUtil.prepareFilter(ids, FilterBuilderUtil.EXCLUDED_IDS_FILTER));
     }
 
 }

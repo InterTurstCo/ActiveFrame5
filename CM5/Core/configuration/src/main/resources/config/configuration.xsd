@@ -2095,10 +2095,12 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
     <xs:complexType name="selectionStyleType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" type="con:selectionStyleAttr" default="inline"/>
+                <xs:attribute name="resizable" type="xs:string" default="false"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
