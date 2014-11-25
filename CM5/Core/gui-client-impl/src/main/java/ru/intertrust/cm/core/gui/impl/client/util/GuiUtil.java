@@ -139,7 +139,7 @@ public final class GuiUtil {
         params.setInputFilterName(filterName);
         params.setInputFilterValue(filterValue);
         Plugin plugin = container.getPlugin();
-        if (plugin != null) {
+        if (plugin != null && plugin.getConfig() != null) {
             FormPluginConfig formConfig = (FormPluginConfig) plugin.getConfig();
             params.setRootId(formConfig.getDomainObjectId());
         }
