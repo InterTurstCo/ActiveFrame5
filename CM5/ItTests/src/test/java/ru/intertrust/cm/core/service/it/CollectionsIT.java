@@ -248,6 +248,10 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
 
+        query = "select * from country c inner join domain_object_type_id t on c.id_type = t.id";
+        collection = collectionService.findCollectionByQuery(query);
+        assertNotNull(collection);
+
         lc.logout();
 
         lc = login(ADMIN, ADMIN);
@@ -261,7 +265,6 @@ public class CollectionsIT extends IntegrationTestBase {
             assertTrue(collection.size() >= 1);
         }
                 
-        lc.login();
         lc.logout();
         
 
