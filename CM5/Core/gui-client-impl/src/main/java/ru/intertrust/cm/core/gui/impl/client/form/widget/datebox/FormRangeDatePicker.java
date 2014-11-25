@@ -24,6 +24,8 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 public class FormRangeDatePicker extends RangeDatePicker {
     private RangeStartConfig rangeStartConfig;
     private RangeEndConfig rangeEndConfig;
+    private DateTimePicker startDateTimePicker;
+    private DateTimePicker endDateTimePicker;
 
     public FormRangeDatePicker(Date startDate, Date endDate, EventBus eventBus, boolean showTime,
                                boolean showSeconds) {
@@ -48,8 +50,8 @@ public class FormRangeDatePicker extends RangeDatePicker {
 
         Panel dateRangePanel = initDateSelectorWithPicker(CHOSE_DATE_RANGE_LABEL);
         container.add(dateRangePanel);
-        final DateTimePicker startDateTimePicker = new DateTimePicker(startDate, showTime, showSeconds);
-        final DateTimePicker endDateTimePicker = new DateTimePicker(endDate, showTime, showSeconds);
+        startDateTimePicker = new DateTimePicker(startDate, showTime, showSeconds);
+        endDateTimePicker = new DateTimePicker(endDate, showTime, showSeconds);
         Panel dateTimePickersPanel = initDatePickerPanel(startDateTimePicker, endDateTimePicker);
         dateRangePanel.addDomHandler(new DatetimeClickHandler(dateTimePickersPanel), ClickEvent.getType());
         container.add(dateTimePickersPanel);
@@ -87,6 +89,14 @@ public class FormRangeDatePicker extends RangeDatePicker {
         return container;
     }
 
+    public void setStartDate(Date date) {
+        startDateTimePicker.setDate(date);
+    }
+
+    public void setEndDate(Date date) {
+        endDateTimePicker.setDate(date);
+    }
+
     private class FormRangeEnumDateClickHandler implements ClickHandler {
         private String dateDescription;
 
@@ -101,6 +111,5 @@ public class FormRangeDatePicker extends RangeDatePicker {
             eventBus.fireEvent(new FormRangeDateSelectedEvent(dates.get(0), dates.get(1), rangeStartConfig, rangeEndConfig));
             FormRangeDatePicker.this.hide();
         }
-
     }
 }
