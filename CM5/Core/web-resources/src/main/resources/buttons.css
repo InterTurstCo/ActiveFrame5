@@ -206,8 +206,11 @@ a.tooltipButton:active {
 }
 
 .table-browser-button.lightButton {
-    background: #f5f5f5 url(resources/defaulttheme/images/icons/icon-clear.png) no-repeat 50% 1%;
-    padding: 11px;
+    /*background: #f5f5f5 url(resources/defaulttheme/images/icons/icon-clear.png) no-repeat 50% 1%;*/
+    background: #f5f5f5;
+    /*padding: 11px;*/
+    padding: 4px 6px 5px;
     float: right;
+    max-height: 13px;
 }
 /* ------------>>> end Attachment Plugin <<<------------ */

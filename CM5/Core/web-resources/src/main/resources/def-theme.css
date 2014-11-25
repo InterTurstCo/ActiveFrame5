@@ -443,10 +443,8 @@ h1 {
 }
 
 .common-widget-button-style {
-    padding-left: 3px;
     display: inline-block;
     position: relative;
-
 }
 
 .common-buttons-panel {
@@ -1237,7 +1235,7 @@ h1 {
 .imagePreview .facebook-btn {
     position: absolute;
     right: 2px;
-    top: 2px;
+    top: 11px;
     background-color: rgba(0, 0, 0, 0.3) !important;
     border-radius: 50%;
     z-index: 2;

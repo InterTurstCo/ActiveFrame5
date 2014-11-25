@@ -708,6 +708,7 @@
                 <selection-style name="inline"/>
                 <choice-style name="popup"/>
                 <delete-button display="true"/>
+                <clear-all-button image="resources/defaulttheme/images/icons/icon-clear2.png" />
             </attachment-box>
 
             <label id="faunaAttachmentLbl">
@@ -726,7 +727,7 @@
                 <choice-style name="popup"/>
                 <add-button display="true"/>
                 <delete-button display="true"/>
-                <clear-all-button />
+                <clear-all-button text="Очистить" />
             </attachment-box>
 
 
