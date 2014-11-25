@@ -1,13 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.datebox;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 import java.util.Date;
 
@@ -21,7 +16,9 @@ import java.util.Date;
  * Don't instaniate directly,
  * use subclasses FormDatePicker and CollectionDatePicker instead
  */
-public class OneDatePicker extends DatePickerPopup {
+public abstract class OneDatePicker extends DatePickerPopup {
+
+    private DateTimePicker dateTimePicker;
 
     public OneDatePicker(Date date, EventBus eventBus, boolean showTime, boolean showSeconds) {
         super(eventBus);
@@ -30,8 +27,7 @@ public class OneDatePicker extends DatePickerPopup {
     }
 
     private void initWidget(Date date, boolean showTime, boolean showSeconds) {
-
-        DateTimePicker dateTimePicker = new DateTimePicker(date, showTime, showSeconds);
+        dateTimePicker = new DateTimePicker(date, showTime, showSeconds);
         Panel dateTimePickerPanel = initDatePickerPanel(dateTimePicker);
         Panel container = new AbsolutePanel();
         container.add(dateTimePickerPanel);
@@ -40,24 +36,9 @@ public class OneDatePicker extends DatePickerPopup {
 
     }
 
-    //TODO make abstract
-    protected Panel initDatePickerPanel(final DateTimePicker dateTimePicker) {
-        final Panel container = new AbsolutePanel();
+    protected abstract Panel initDatePickerPanel(final DateTimePicker dateTimePicker);
 
-        container.add(dateTimePicker);
-        Button submit = new Button(BusinessUniverseConstants.DATETIME_PICKER_BUTTON);
-        submit.setStyleName("darkButton");
-        submit.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                Date date = dateTimePicker.getFullDate();
-                eventBus.fireEvent(new DateSelectedEvent(date));
-                OneDatePicker.this.hide();
-            }
-        });
-        this.addCloseHandler(new HideDateTimePickerCloseHandler(container));
-        container.add(submit);
-        return container;
+    public void setDate(Date date) {
+        dateTimePicker.setDate(date);
     }
-
 }

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
     private TableBrowserConfig tableBrowserConfig;
     private Set<Id> selectedIds;
     private ArrayList<Id> temporarySelectedIds = new ArrayList<Id>();
+    private boolean isTemporaryState;
 
     public TableBrowserConfig getTableBrowserConfig() {
         return tableBrowserConfig;
@@ -42,6 +44,7 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
 
     public void resetTemporaryState(){
         temporarySelectedIds.clear();
+        setTemporaryState(false);
     }
 
     public void applyChanges(){
@@ -58,6 +61,14 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
         temporarySelectedIds.clear();
         getListValues().clear();
 
+    }
+
+    public boolean isTemporaryState() {
+        return isTemporaryState;
+    }
+
+    public void setTemporaryState(boolean isTemporaryState) {
+        this.isTemporaryState = isTemporaryState;
     }
 
     public void addToTemporaryState(Id id){
@@ -84,5 +95,12 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
     @Override
     public TableBrowserConfig getWidgetConfig() {
         return tableBrowserConfig;
+    }
+
+    public SelectionStyleConfig.Type getViewType(){
+        return tableBrowserConfig.getSelectionStyleConfig() == null
+                ?  SelectionStyleConfig.Type.INLINE
+                : SelectionStyleConfig.Type.forName(getTableBrowserConfig().getSelectionStyleConfig().getName());
+
     }
 }

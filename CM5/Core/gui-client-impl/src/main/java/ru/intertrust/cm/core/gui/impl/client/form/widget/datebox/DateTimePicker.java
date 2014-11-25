@@ -28,6 +28,7 @@ public class DateTimePicker extends Composite {
     private void initWidgetContent(boolean showTime, boolean showSeconds) {
         container = new AbsolutePanel();
         picker = new DatePicker();
+        picker.setValue(date);
         picker.setStyleName("datePickerDecorate");
         container.add(picker);
         if (showTime) {
@@ -52,4 +53,8 @@ public class DateTimePicker extends Composite {
         return realDate;
     }
 
+    public void setDate(Date date) {
+        this.date = date;
+        picker.setValue(date);
+    }
 }

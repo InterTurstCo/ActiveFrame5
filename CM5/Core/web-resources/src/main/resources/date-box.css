@@ -310,6 +310,10 @@ div, input, textarea, select {
     background: #f0e68c !important;
 }
 
+.datePickerDayIsWeekend.datePickerDayIsValue {
+    background-color: #d7dfe8 !important;
+}
+
 .datePickerDayIsToday {
     border: 1px solid #232464 !important;
     padding: 3px;

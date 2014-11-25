@@ -111,11 +111,11 @@ public class CollectionViewerConfig extends PluginConfig {
         if (isHierarchical) {
             return true;
         }
-        return tableBrowserParams == null ? false : tableBrowserParams.isDisplayChosenValues();
+        return tableBrowserParams != null && tableBrowserParams.isDisplayChosenValues();
     }
 
     public boolean isSingleChoice() {
-        return tableBrowserParams == null ? true : tableBrowserParams.isSingleChoice();
+        return tableBrowserParams == null || tableBrowserParams.isDisplayCheckBoxes();
     }
 
     public SearchCollectionRefConfig getSearchCollectionRefConfig() {

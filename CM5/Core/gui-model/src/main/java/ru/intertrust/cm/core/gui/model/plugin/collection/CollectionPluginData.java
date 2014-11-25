@@ -26,6 +26,7 @@ public class CollectionPluginData extends ActivePluginData {
     private ArrayList<CollectionRowItem> items = new ArrayList<>();
     private LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap;
     private Collection<Id> chosenIds;
+    private boolean includeIds;
     private String searchArea;
     private String collectionViewConfigName;
     private InitialFiltersConfig initialFiltersConfig;
@@ -39,11 +40,11 @@ public class CollectionPluginData extends ActivePluginData {
         domainObjectFieldPropertiesMap = new LinkedHashMap<>();
     }
 
-    public boolean isSingleChoice() {
-        return tableBrowserParams == null ? true : tableBrowserParams.isSingleChoice();
+    public boolean isDisplayCheckBoxes() {
+        return tableBrowserParams != null && tableBrowserParams.isDisplayCheckBoxes();
     }
 
-    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() { //TODO check why is not used
         return defaultSortCriteriaConfig;
     }
 
@@ -146,5 +147,13 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setHierarchicalFiltersConfig(CollectionExtraFiltersConfig hierarchicalFiltersConfig) {
         this.hierarchicalFiltersConfig = hierarchicalFiltersConfig;
+    }
+
+    public boolean isIncludeIds() {
+        return includeIds;
+    }
+
+    public void setIncludeIds(boolean includeIds) {
+        this.includeIds = includeIds;
     }
 }

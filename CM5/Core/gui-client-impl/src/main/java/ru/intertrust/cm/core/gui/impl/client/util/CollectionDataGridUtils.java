@@ -49,10 +49,7 @@ public class CollectionDataGridUtils {
 
     public static boolean shouldSetSelection(CollectionPluginData collectionPluginData) {
         TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
-        if (tableBrowserParams == null) {
-            return true;
-        }
-        return tableBrowserParams.isDisplayChosenValues();
+        return tableBrowserParams == null;
     }
 
     public static void adjustWidthWithoutUserSettingsKeeping(int tableWidth, CollectionDataGrid dataGrid){

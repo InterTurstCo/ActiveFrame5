@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.buttons;
 
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Panel;
 import ru.intertrust.cm.core.config.gui.form.widget.buttons.ButtonConfig;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -14,17 +16,10 @@ public class LinkCreatingButton extends ConfiguredButton {
     }
 
     @Override
-    protected String getTitleStyle() {
-        return "linkEditingButtonText";
+    protected void buildDefault() {
+        Panel image = new AbsolutePanel();
+        image.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
+        root.add(image);
     }
 
-    @Override
-    protected String getImageStyle() {
-        return BusinessUniverseConstants.EMPTY_VALUE;
-    }
-
-    @Override
-    protected String getContainerStyle() {
-        return "darkButton";
-    }
 }

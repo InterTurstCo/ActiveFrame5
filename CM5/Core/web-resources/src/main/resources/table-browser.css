@@ -72,3 +72,17 @@
 .facebookElementDel {
     margin-top: 9px;
 }
+.tableBrowserRoot td{
+    width: 100%;
+}
+
+.tableBrowserControlsWrapper{
+    border: 1px solid grey;
+    margin: 5px;
+}
+.tableBrowserCollectionFilterInput{
+    border: hidden;
+    margin: 5px;
+    width: 100%;
+
+}

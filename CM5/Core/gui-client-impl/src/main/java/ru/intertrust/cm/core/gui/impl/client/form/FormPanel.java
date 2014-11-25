@@ -308,8 +308,8 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
                 Map<String, String> messages = formState.getMessages();
                 widget.setMessages(messages);
                 widget.setEventBus(eventBus);
-                widget.setState(widgetState);
                 widget.setContainer(this);
+                widget.setState(widgetState);
                 widgets.add(widget);
                 AbsolutePanel wrapper = new AbsolutePanel();
                 wrapper.addStyleName("widget-wrapper");

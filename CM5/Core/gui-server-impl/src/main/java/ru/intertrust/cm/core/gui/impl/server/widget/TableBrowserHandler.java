@@ -102,9 +102,9 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
     public WidgetItemsResponse fetchTableBrowserItems(Dto inputParams) {
         WidgetItemsRequest widgetItemsRequest = (WidgetItemsRequest) inputParams;
         List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
-        Filter includeIds = FilterBuilderUtil.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilderUtil.INCLUDED_IDS_FILTER);
+
         List<Filter> filters = new ArrayList<>();
-        filters.add(includeIds);
+        filterBuilder.prepareIncludedIdsFilter(selectedIds, filters);
         String collectionName = widgetItemsRequest.getCollectionName();
         SelectionSortCriteriaConfig defaultSortCriteriaConfig = widgetItemsRequest.getSelectionSortCriteriaConfig();
         SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(defaultSortCriteriaConfig);

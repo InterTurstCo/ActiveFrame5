@@ -135,6 +135,9 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         for (IdentifiableObject object : collection) {
             selectedFilteredIds.add(object.getId());
         }
+        if(selectedFilteredIds.isEmpty()){
+            return new LinkedHashMap<Id, String>(0);
+        }
         LinkedHashMap<Id, String> listValues = generateHyperlinkItems(widgetConfig, selectedFilteredIds);
         return listValues;
     }

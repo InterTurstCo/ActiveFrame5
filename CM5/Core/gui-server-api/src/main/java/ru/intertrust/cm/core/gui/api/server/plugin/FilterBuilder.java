@@ -48,4 +48,6 @@ public interface FilterBuilder {
 
     void prepareIncludedIdsFilter(Collection<Id> ids, List<Filter> filters);
 
+    void prepareExcludedIdsFilter(Collection<Id> ids, List<Filter> filters);
+
 }

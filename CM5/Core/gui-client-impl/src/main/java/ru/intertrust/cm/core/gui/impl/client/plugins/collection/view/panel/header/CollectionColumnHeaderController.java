@@ -36,7 +36,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Time: 12:05 PM
  */
 public class CollectionColumnHeaderController implements ComponentWidthChangedHandler, ComponentOrderChangedHandler,
-        SideBarResizeEventHandler {
+        SideBarResizeEventHandler, CollectionRowSelectedEventHandler {
     private final String collectionViewName;
     private List<ColumnHeaderBlock> columnHeaderBlocks;
     private CollectionDataGrid dataGrid;
@@ -52,6 +52,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         this.displayedWidth = displayedWidth;
         eventBus.addHandler(ComponentWidthChangedEvent.TYPE, this);
         eventBus.addHandler(ComponentOrderChangedEvent.TYPE, this);
+        eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
         Application.getInstance().getEventBus().addHandler(SideBarResizeEvent.TYPE, this);
     }
 
@@ -352,6 +353,11 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
                 }
                 otherWidgetsDelta = event.getSideBarWidths();
 
+    }
+
+    @Override
+    public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
+        updateFilterValues();
     }
 
     private class ColumnSelectorPopup extends PopupPanel {

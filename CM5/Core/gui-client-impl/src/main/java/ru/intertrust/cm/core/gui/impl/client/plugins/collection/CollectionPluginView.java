@@ -69,7 +69,7 @@ public class CollectionPluginView extends PluginView {
     private VerticalPanel root = new VerticalPanel();
     private int listCount;
     private int tableWidth;
-    private boolean singleChoice = true;
+    private boolean displayCheckBoxes = false;
     private SortCollectionState sortCollectionState;
     private ToggleButton filterButton = new ToggleButton();
     private HandlerRegistration scrollHandlerRegistration;
@@ -124,7 +124,7 @@ public class CollectionPluginView extends PluginView {
         final CollectionPluginData collectionPluginData = plugin.getInitialData();
         final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
         collectionViewerConfig.setInitialFiltersConfig(collectionPluginData.getInitialFiltersConfig());
-        singleChoice = collectionPluginData.isSingleChoice();
+        displayCheckBoxes = collectionPluginData.isDisplayCheckBoxes();
         searchArea = collectionPluginData.getSearchArea();
         items = collectionPluginData.getItems();
         hierarchicalFiltersConfig = collectionPluginData.getHierarchicalFiltersConfig();
@@ -132,7 +132,8 @@ public class CollectionPluginView extends PluginView {
         final List<Id> selectedIds = new ArrayList<>();
         final List<Id> selectedFromHistory = Application.getInstance().getHistoryManager().getSelectedIds();
         boolean shouldSetSelection = CollectionDataGridUtils.shouldSetSelection(collectionPluginData);
-        if (!selectedFromHistory.isEmpty() && shouldSetSelection) {
+        if(shouldSetSelection){
+        if (!selectedFromHistory.isEmpty()) {
             selectedIds.addAll(selectedFromHistory);
         } else if (collectionPluginData.getChosenIds() != null) {
             selectedIds.addAll(collectionPluginData.getChosenIds());
@@ -144,6 +145,7 @@ public class CollectionPluginView extends PluginView {
                     selectionModel.setSelected(item, true);
                 }
             }
+        }
         }
         Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
         root.addStyleName("collection-plugin-view-container");
@@ -211,10 +213,10 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumns() {
         List<ColumnHeaderBlock> columnHeaderBlocks = new ArrayList<ColumnHeaderBlock>();
-        if (singleChoice) {
-            createTableColumnsWithoutCheckBoxes(columnHeaderBlocks);
-        } else {
+        if (displayCheckBoxes) {
             createTableColumnsWithCheckBoxes(columnHeaderBlocks);
+        } else {
+            createTableColumnsWithoutCheckBoxes(columnHeaderBlocks);
         }
     }
 
@@ -228,10 +230,11 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(CollectionPluginResizeBySplitterEvent.TYPE, new CollectionPluginResizeBySplitterEventHandler() {
             @Override
             public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
+                columnHeaderController.saveFilterValues();
                 tableBody.redraw();
                 columnHeaderController.setFocus();
                 columnHeaderController.updateFilterValues();
-                tableBody.flush();
+
                 fetchMoreItemsIfRequired();
             }
         });
@@ -534,17 +537,18 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
         final CollectionColumn<CollectionRowItem, Boolean> checkColumn =
-                new CollectionColumn<CollectionRowItem, Boolean>(new CheckboxCell(true, true)) {
+                new CollectionColumn<CollectionRowItem, Boolean>(new CheckboxCell(false, false)) {
                     @Override
                     public Boolean getValue(CollectionRowItem object) {
-                        return selectionModel.isSelected(object);
+                      return getPluginData().getChosenIds().contains(object.getId());
+
                     }
                 };
 
         checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
-                eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
+                eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value, getPluginData().getTableBrowserParams().isMainWidgetContent()));
             }
         });
         checkColumn.setMaxWidth(CHECK_BOX_MAX_WIDTH);
@@ -620,16 +624,15 @@ public class CollectionPluginView extends PluginView {
     private void insertMoreRows(List<CollectionRowItem> list) {
         items.addAll(list);
         tableBody.setRowData(items);
-
         listCount = items.size();
 
     }
 
     private void applySelectionModel() {
-        if (singleChoice) {
-            selectionModel = new SingleSelectionModel<>();
-        } else {
+        if (displayCheckBoxes) {
             selectionModel = new MultiSelectionModel<>();
+        } else {
+            selectionModel = new SingleSelectionModel<>();
         }
         tableBody.setSelectionModel(selectionModel);
     }
@@ -707,7 +710,7 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
-                handleCollectionRowsResponse(collectionRowItems, false);
+                handleCollectionRowsResponse(collectionRowItems, collectionRowsResponse.isReinsertRows());
                 if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {
                     return;
                 }
