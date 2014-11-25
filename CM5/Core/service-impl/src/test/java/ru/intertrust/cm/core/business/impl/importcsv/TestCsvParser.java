@@ -51,7 +51,7 @@ public class TestCsvParser {
         }
     }*/
 
-    @Test
+//    @Test
     public void testApacheCsv() throws Exception {
         Reader in = new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("test.csv"), "ANSI-1251");
         Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').withRecordSeparator("\n").parse(in);
