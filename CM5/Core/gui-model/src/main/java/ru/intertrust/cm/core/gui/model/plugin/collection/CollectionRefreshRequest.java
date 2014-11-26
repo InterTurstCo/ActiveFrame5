@@ -10,21 +10,21 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 public class CollectionRefreshRequest implements Dto {
 
     private CollectionRowsRequest collectionRowsRequest;
-    private Id id;
+    private Id idToFindIfAbsent;
 
     public CollectionRefreshRequest() {
     }
 
-    public CollectionRefreshRequest(CollectionRowsRequest collectionRowsRequest, Id id) {
+    public CollectionRefreshRequest(CollectionRowsRequest collectionRowsRequest, Id idToFindIfAbsent) {
         this.collectionRowsRequest = collectionRowsRequest;
-        this.id = id;
+        this.idToFindIfAbsent = idToFindIfAbsent;
     }
 
     public CollectionRowsRequest getCollectionRowsRequest() {
         return collectionRowsRequest;
     }
 
-    public Id getId() {
-        return id;
+    public Id getIdToFindIfAbsent() {
+        return idToFindIfAbsent;
     }
 }

@@ -273,7 +273,6 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public CollectionRowsResponse refreshCollection(Dto dto) {
         final CollectionRowsRequest request = ((CollectionRefreshRequest) dto).getCollectionRowsRequest();
-        final Id id = ((CollectionRefreshRequest) dto).getId();
         LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
         int offsetFromRequest = request.getOffset();
         int limitFromRequest = request.getLimit();
@@ -293,7 +292,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             filters.add(includedIdsFilter);
         }
         ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit);
-        if (CollectionPluginHelper.doesNotContainSelectedId(id, result)) {
+        final Id idToFindIfAbsent = ((CollectionRefreshRequest) dto).getIdToFindIfAbsent();
+        if (idToFindIfAbsent != null && CollectionPluginHelper.doesNotContainSelectedId(idToFindIfAbsent, result)) {
             int additionalOffset = limit;
             List<CollectionRowItem> additionalItems = generateRowItems(request, properties, filters, additionalOffset, 200);
             result.addAll(additionalItems);

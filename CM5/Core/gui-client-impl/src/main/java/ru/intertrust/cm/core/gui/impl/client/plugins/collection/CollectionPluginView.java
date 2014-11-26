@@ -49,6 +49,7 @@ import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionCont
 import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -471,7 +472,7 @@ public class CollectionPluginView extends PluginView {
                 new CollectionRowsRequest(0, 1, getPluginData().getCollectionName(),
                         getPluginData().getDomainObjectFieldPropertiesMap(), simpleSearchQuery, searchArea);
         collectionRowsRequest.setIncludedIds(includedIds);
-        collectionOneRowRequestCommand(collectionRowsRequest);
+        collectionOneRowRequestCommand(new CollectionRefreshRequest(collectionRowsRequest, null));
 
     }
 
@@ -733,9 +734,8 @@ public class CollectionPluginView extends PluginView {
         columnHeaderController.setFocus();
     }
 
-    private void collectionOneRowRequestCommand(CollectionRowsRequest collectionRowsRequest) {
-
-        Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
+    private void collectionOneRowRequestCommand(CollectionRefreshRequest request) {
+        Command command = new Command("refreshCollection", "collection.plugin", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
