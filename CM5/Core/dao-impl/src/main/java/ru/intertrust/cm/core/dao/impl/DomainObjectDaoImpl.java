@@ -890,37 +890,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         result = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(domainObjectType,
                         configurationExplorer, domainObjectTypeIdCache));
-
-        // перечитывает объекты, дочерние к переданному типу domainObjectType
-        updateChildObjects(domainObjectType, result);
         
         domainObjectCacheService.putObjectsToCache(result, accessToken, cacheKey);
 
         eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
 
         return result;
-    }
-
-    private void updateChildObjects(String domainObjectType, List<DomainObject> result) {
-        Collection<DomainObjectTypeConfig> childTypeConfigs = configurationExplorer.findChildDomainObjectTypes(domainObjectType, true);
-        List<Integer> childTypeIds = new ArrayList<>();
-        for (DomainObjectTypeConfig childConfig : childTypeConfigs) {
-
-            childTypeIds.add(domainObjectTypeIdCache.getId(childConfig.getName()));
-        }
-        AccessToken systemAccessToken = createSystemAccessToken();
-
-        int index = 0;
-        for (DomainObject object : result) {
-            int objectTypeId = ((RdbmsId) object.getId()).getTypeId();
-            if (childTypeIds.contains(objectTypeId)) {
-                // объект перечитывается под системным тоукеном, т.к. проверка прав уже выполнялась при получении списка
-                // объектов.
-                DomainObject updatedObject = find(object.getId(), systemAccessToken);
-                result.set(index, updatedObject);
-            }
-            index++;
-        }
     }
 
     private AccessToken createSystemAccessToken() {
@@ -1282,8 +1257,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         StringBuilder query = new StringBuilder();
         query.append("select ");
         appendColumnsQueryPart(query, typeName);
+        appendChildColumns(query, typeName);
         query.append(" from ");
         appendTableNameQueryPart(query, typeName);
+        appendChildTables(query, typeName);
 
         if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(typeName)) {
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
