@@ -92,7 +92,7 @@ public class CollectionPluginHelper {
             List<String> filterValues = filtersMap.get(fieldName);
             if (filterValuesAreValid(filterValues)) {
                 CollectionColumnProperties columnProperties = properties.get(fieldName);
-                Filter filter = FilterBuilderUtil.prepareSearchFilter(filterValues, columnProperties);
+                Filter filter = FilterBuilderUtil.prepareColumnFilter(filterValues, columnProperties, null);
                 filters.add(filter);
 
             }
@@ -151,7 +151,7 @@ public class CollectionPluginHelper {
        if(tableBrowserParams == null) {
            return filters;
        }
-        Collection<Id> excludedIds = tableBrowserParams.getExcludedIds();
+        Collection<Id> excludedIds = tableBrowserParams.getIds();
         Filter filterExcludeIds = FilterBuilderUtil.prepareFilter(excludedIds, FilterBuilderUtil.EXCLUDED_IDS_FILTER);
         filters.add(filterExcludeIds);
         return filters;

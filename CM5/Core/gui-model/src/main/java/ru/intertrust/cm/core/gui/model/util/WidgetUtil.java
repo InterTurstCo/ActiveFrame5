@@ -1,12 +1,15 @@
 package ru.intertrust.cm.core.gui.model.util;
 
 import ru.intertrust.cm.core.config.gui.form.widget.DisplayValuesAsLinksConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkEditingWidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ComplicatedParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
+import ru.intertrust.cm.core.gui.model.form.widget.TooltipWidgetState;
 
 import java.util.*;
 
@@ -76,6 +79,23 @@ public class WidgetUtil {
             }
         }
 
+    }
+    public static boolean shouldDrawTooltipButton(TooltipWidgetState state) {
+        return shouldDrawTooltipButton(state,0);
+    }
+
+    public static boolean shouldDrawTooltipButton(TooltipWidgetState state, int delta) {
+
+        LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
+        return config.getSelectionFiltersConfig() != null &&
+                config.getSelectionFiltersConfig().getRowLimit() != -1
+                && state.getSelectedIds() != null
+                && state.getSelectedIds().size() + delta > config.getSelectionFiltersConfig().getRowLimit();
+    }
+
+    public static boolean drawAsTable(SelectionStyleConfig selectionStyleConfig) {
+        return selectionStyleConfig != null
+                && SelectionStyleConfig.Type.TABLE.equals(SelectionStyleConfig.Type.forName(selectionStyleConfig.getName()));
     }
 
 }

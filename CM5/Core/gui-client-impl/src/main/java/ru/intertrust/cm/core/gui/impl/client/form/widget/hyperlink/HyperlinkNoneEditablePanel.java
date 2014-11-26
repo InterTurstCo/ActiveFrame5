@@ -60,6 +60,13 @@ public class HyperlinkNoneEditablePanel extends NoneEditablePanel implements Hyp
             addTooltipButton();
         }
     }
+    public void display(LinkedHashMap<Id, String> listValues, boolean drawTooltipButton, boolean displayAsHyperlinks){
+        if (displayAsHyperlinks) {
+           displayHyperlinks(listValues, drawTooltipButton);
+        } else {
+            displayItems(listValues.values(), drawTooltipButton);
+        }
+    }
 
 
 }

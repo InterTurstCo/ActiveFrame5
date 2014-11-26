@@ -72,7 +72,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
                 if (joinItem instanceof Table) {
                     Table table = (Table) joinItem;
                     //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
-                    if (!configurationExplorer.isReadPermittedToEverybody(DaoUtils.unwrap(table.getName()))) {
+                    if (needToAddAclSubQuery(table)) {
                         SubSelect replace = createAclSubQuery(table.getName());
                         if (table.getAlias() == null) {
                             replace.setAlias(new Alias(table.getName()));
@@ -88,12 +88,18 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         }
     }
 
+    private boolean needToAddAclSubQuery(Table table) {
+        // если ДО нет в конфигурации, значит это системный ДО и для него проверка ACL не нужна.
+        boolean isDomainObject = configurationExplorer.getConfig(DomainObjectTypeConfig.class, DaoUtils.unwrap(table.getName())) != null;
+        return !configurationExplorer.isReadPermittedToEverybody(DaoUtils.unwrap(table.getName())) && isDomainObject;
+    }
+
     private void processFromItem(PlainSelect plainSelect) {
         FromItem from = plainSelect.getFromItem();
         if (from instanceof Table) {
             Table table = (Table) from;
             //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
-            if (!configurationExplorer.isReadPermittedToEverybody(DaoUtils.unwrap(table.getName()))) {
+            if (needToAddAclSubQuery(table)) {
                 SubSelect replace = createAclSubQuery(table.getName());
                 if (table.getAlias() == null) {
                     replace.setAlias(new Alias(table.getName()));
@@ -117,7 +123,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
      * @return
      */
     private SubSelect createAclSubQuery(String domainObjectType) {
-        domainObjectType = DaoUtils.unwrap(domainObjectType);
+        domainObjectType = DaoUtils.unwrap(domainObjectType);        
 
         boolean isAuditLog = configurationExplorer.isAuditLogType(domainObjectType);
         String originalDomainObjectType = domainObjectType;

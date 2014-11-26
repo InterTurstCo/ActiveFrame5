@@ -1178,22 +1178,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" from ");
         appendTableNameQueryPart(query, typeName);
         query.append(" where ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("=:id ");
-
-        if (accessToken.isDeferred()) {
+        
+        boolean isDomainObject = configurationExplorer.getConfig(DomainObjectTypeConfig.class, DaoUtils.unwrap(typeName)) != null;
+        if (accessToken.isDeferred() && isDomainObject) {
             boolean isAuditLog = configurationExplorer.isAuditLogType(typeName);
 
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             typeName = getRelevantType(typeName);
             String permissionType = typeName;
             String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(typeName);
-            if (matrixRefType != null){
+            if (matrixRefType != null) {
                 permissionType = matrixRefType;
             }
             
             //Получаем матрицу для permissionType
             AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(permissionType);
             //В полученной матрице получаем флаг read-evrybody и если его нет то добавляем подзапрос с правами
-            if (accessMatrixConfig == null || accessMatrixConfig.isReadEverybody() == null || !accessMatrixConfig.isReadEverybody()){
+            if (accessMatrixConfig == null || accessMatrixConfig.isReadEverybody() == null || !accessMatrixConfig.isReadEverybody()) {
             
                 //Таблица с правами на read получается с учетом наследования типов
                 String aclReadTable = AccessControlUtility
@@ -1724,8 +1725,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 append(" and ").append(wrap(getSqlName(getReferenceTypeColumnName(linkedField))))
                 .append(" = :domain_object_typeid");
 
-        if (accessToken.isDeferred()) {
-             appendAccessControlLogicToQuery(query, linkedType);
+        boolean isDomainObject = configurationExplorer.getConfig(DomainObjectTypeConfig.class, DaoUtils.unwrap(linkedType)) != null;
+
+        if (accessToken.isDeferred() && isDomainObject) {
+            appendAccessControlLogicToQuery(query, linkedType);
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
@@ -1978,8 +1981,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     parameters.put(DomainObjectDao.OPERATION_COLUMN,
                             operation.getOperation());
 
+                    Date createdDate = domainObject.getCreatedDate() != null ? domainObject.getCreatedDate() : new Date();
                     parameters.put(DomainObjectDao.CREATED_DATE_COLUMN,
-                            getGMTDate(domainObject.getCreatedDate()));
+                            getGMTDate(createdDate));
 
                     parameters.put(DomainObjectDao.UPDATED_DATE_COLUMN,
                             getGMTDate(domainObject.getModifiedDate()));

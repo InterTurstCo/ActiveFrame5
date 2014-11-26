@@ -139,7 +139,7 @@ public final class GuiUtil {
         params.setInputFilterName(filterName);
         params.setInputFilterValue(filterValue);
         Plugin plugin = container.getPlugin();
-        if (plugin != null) {
+        if (plugin != null && plugin.getConfig() != null) {
             FormPluginConfig formConfig = (FormPluginConfig) plugin.getConfig();
             params.setRootId(formConfig.getDomainObjectId());
         }
@@ -166,6 +166,7 @@ public final class GuiUtil {
 
     public static Widget getCalendarItemPresentation(final CalendarItemData itemData, final Id rootObjectId) {
         final Widget result;
+        String toolTipText;
         if (itemData.isLink()) {
             final Hyperlink hyperlink = new InlineHyperlink();
             hyperlink.setHTML(itemData.getPresentation());
@@ -186,11 +187,16 @@ public final class GuiUtil {
                             new CentralPluginChildOpeningRequestedEvent(formPlugin));
                 }
             }, ClickEvent.getType());
+            hyperlink.addStyleName("calendarItemLink");
+            toolTipText = hyperlink.getText();
             result = hyperlink;
         } else {
-            result = new InlineHTML(itemData.getPresentation());
+            InlineHTML inlineHtml = new InlineHTML(itemData.getPresentation());
+            toolTipText = inlineHtml.getText();
+            result = inlineHtml;
+
         }
-        result.addStyleName("calendarItemLink");
+        result.setTitle(toolTipText);
         return result;
     }
 

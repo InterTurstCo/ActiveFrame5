@@ -413,10 +413,11 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <widget id="17a" width="600px"/>
+                                        <widget id="17a" width="1200px"/>
+
                                     </td>
                                     <td>
-                                        <widget id="bad_label" width="600px"/>
+                                        <widget id="bad_label" width="200px"/>
                                     </td>
                                 </tr>
                             </table>
@@ -707,6 +708,7 @@
                 <selection-style name="inline"/>
                 <choice-style name="popup"/>
                 <delete-button display="true"/>
+                <clear-all-button image="resources/defaulttheme/images/icons/icon-clear2.png" />
             </attachment-box>
 
             <label id="faunaAttachmentLbl">
@@ -725,7 +727,7 @@
                 <choice-style name="popup"/>
                 <add-button display="true"/>
                 <delete-button display="true"/>
-                <clear-all-button />
+                <clear-all-button text="Очистить" />
             </attachment-box>
 
 
@@ -734,11 +736,7 @@
                 <collection-ref name="Cities"/>
 
                 <collection-view-ref name="cities_default_view"/>
-                <selection-filters row-limit="2">
-                    <selection-filter name="byName">
-                        <param name="0" value="Цю%" type="string"/>
-                    </selection-filter>
-                </selection-filters>
+             
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 

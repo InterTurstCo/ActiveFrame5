@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipButtonClickHandler;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 
 import java.util.LinkedHashMap;
@@ -26,12 +25,11 @@ import java.util.Set;
  *         Date: 25.08.2014
  *         Time: 17:44
  */
-public class TableBrowserItemsView extends Composite implements HyperlinkDisplay {
+public class TableBrowserItemsView extends TableBrowserEditableComposite implements HyperlinkDisplay {
     private static final int INPUT_MARGIN = 40;
-    private TextBox filter;
-    private AbsolutePanel mainBoxPanel;
+
     private Style.Display displayStyle;
-    private Button openTooltip;
+
     private EventBus eventBus;
     private Map<String, PopupTitlesHolder> typeTitleMap;
     private HasLinkedFormMappings widget;
@@ -42,22 +40,23 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         this.eventBus = eventBus;
         this.typeTitleMap = typeTitleMap;
         this.widget = widget;
-        mainBoxPanel = new AbsolutePanel();
-        mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
+        root = new AbsolutePanel();
+        root.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
-        initWidget(mainBoxPanel);
+        initWidget(root);
     }
 
     public void addFocusedFilter() {
         filter = new TextBox();
         filter.setStyleName("tableBrowserFilterInput");
-        mainBoxPanel.add(filter);
+        root.add(filter);
         changeInputFilterWidth();
         filter.setFocus(true);
     }
 
-    public String getFilterValue() {
-        return filter.getValue();
+    @Override
+    public void clearContent() {
+        clearItems();
     }
 
     public EventBus getEventBus() {
@@ -88,7 +87,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
             label.getElement().getStyle().setFloat(Style.Float.LEFT);
             delBtn.getElement().getStyle().setFloat(Style.Float.LEFT);
         }
-        mainBoxPanel.add(element);
+        root.add(element);
     }
 
     private void displayChosenRowItemAsHyperlink(Map.Entry<Id, String> entry) {
@@ -116,11 +115,11 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
             label.getElement().getStyle().setFloat(Style.Float.LEFT);
             delBtn.getElement().getStyle().setFloat(Style.Float.LEFT);
         }
-        mainBoxPanel.add(element);
+        root.add(element);
     }
 
     public void displayItems(LinkedHashMap<Id, String> items, boolean displayTooltipButton) {
-        mainBoxPanel.clear();
+        root.clear();
         Set<Map.Entry<Id, String>> entries = items.entrySet();
         for (Map.Entry<Id, String> entry : entries) {
             displayChosenRowItem(entry);
@@ -133,7 +132,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     }
 
     public void displayHyperlinks(LinkedHashMap<Id, String> items, boolean displayTooltipButton) {
-        mainBoxPanel.clear();
+        root.clear();
         Set<Map.Entry<Id, String>> entries = items.entrySet();
         for (Map.Entry<Id, String> entry : entries) {
             displayChosenRowItemAsHyperlink(entry);
@@ -145,20 +144,12 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
 
     }
 
-    public void clearFilterInput() {
-        filter.setValue(BusinessUniverseConstants.EMPTY_VALUE);
-    }
-
     private void addTooltipButton() {
         openTooltip = new Button("...");
         openTooltip.setStyleName("tooltipButton");
-        mainBoxPanel.add(openTooltip);
+        root.add(openTooltip);
         openTooltip.addClickHandler(new TooltipButtonClickHandler(eventBus));
 
-    }
-
-    public void removeTooltipButton() {
-        openTooltip.removeFromParent();
     }
 
     private void changeInputFilterWidth() {
@@ -169,7 +160,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
                 if (lastWidget == null || lastWidget.getElement() == null) {
                     return;
                 }
-                int width = mainBoxPanel.getElement().getAbsoluteRight()
+                int width = root.getElement().getAbsoluteRight()
                         - lastWidget.getElement().getAbsoluteRight() - INPUT_MARGIN;
                 if (width > 0) {
                     filter.setWidth(width + Style.Unit.PX.name());
@@ -180,16 +171,24 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     }
 
     private Widget getWidgetBeforeInput() {
-        int count = mainBoxPanel.getWidgetCount();
+        int count = root.getWidgetCount();
         Widget result = null;
         if (count >= 2) {
-            result = mainBoxPanel.getWidget(count - 2);
+            result = root.getWidget(count - 2);
         }
         return result;
     }
 
     public void clearItems(){
-        mainBoxPanel.clear();
-        mainBoxPanel.add(filter);
+        root.clear();
+        root.add(filter);
     }
+    public void display(LinkedHashMap<Id, String> listValues, boolean drawTooltipButton, boolean displayAsHyperlinks){
+        if (displayAsHyperlinks) {
+            displayHyperlinks(listValues, drawTooltipButton);
+        } else {
+            displayItems(listValues, drawTooltipButton);
+        }
+    }
+
 }

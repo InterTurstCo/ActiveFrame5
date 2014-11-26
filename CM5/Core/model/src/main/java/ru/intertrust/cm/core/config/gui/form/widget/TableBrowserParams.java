@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 
 import java.util.Collection;
@@ -15,20 +16,23 @@ import java.util.HashSet;
  */
 public class TableBrowserParams implements Dto {
     private Dto complicatedFiltersParams;
-    private Collection<Id> excludedIds;
+    private Collection<Id> ids;
+    private boolean mainWidgetContent;
     private boolean displayChosenValues;
-    private boolean singleChoice;
+    private boolean displayCheckBoxes;
+    private boolean tooltipLimitation;
     private int pageSize;
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
+    private SelectionFiltersConfig selectionFiltersConfig;
     public TableBrowserParams() {
     }
 
-    public Collection<Id> getExcludedIds() {
-        return excludedIds == null ? new HashSet<Id>() : excludedIds;
+    public Collection<Id> getIds() {
+        return ids == null ? new HashSet<Id>() : ids;
     }
 
-    public TableBrowserParams setExcludedIds(Collection<Id> excludedIds) {
-        this.excludedIds = excludedIds;
+    public TableBrowserParams setIds(Collection<Id> ids) {
+        this.ids = ids;
         return this;
     }
 
@@ -41,12 +45,20 @@ public class TableBrowserParams implements Dto {
         return this;
     }
 
-    public boolean isSingleChoice() {
-        return singleChoice;
+    public boolean isDisplayCheckBoxes() {
+        return displayCheckBoxes;
     }
 
-    public TableBrowserParams setSingleChoice(boolean singleChoice) {
-        this.singleChoice = singleChoice;
+    public TableBrowserParams setDisplayCheckBoxes(boolean displayCheckBoxes) {
+        this.displayCheckBoxes = displayCheckBoxes;
+        return this;
+    }
+    public boolean isTooltipLimitation(){
+        return tooltipLimitation;
+    }
+
+    public TableBrowserParams setTooltipLimitation(boolean tooltipLimitation) {
+        this.tooltipLimitation = tooltipLimitation;
         return this;
     }
 
@@ -74,6 +86,23 @@ public class TableBrowserParams implements Dto {
 
     public TableBrowserParams setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
         this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
+        return this;
+    }
+    public TableBrowserParams setSelectionFiltersConfig(SelectionFiltersConfig selectionFiltersConfig) {
+        this.selectionFiltersConfig = selectionFiltersConfig;
+        return this;
+    }
+
+    public SelectionFiltersConfig getSelectionFiltersConfig() {
+        return selectionFiltersConfig;
+    }
+
+    public boolean isMainWidgetContent() {
+        return mainWidgetContent;
+    }
+
+    public TableBrowserParams setMainWidgetContent(boolean mainWidgetContent) {
+        this.mainWidgetContent = mainWidgetContent;
         return this;
     }
 }

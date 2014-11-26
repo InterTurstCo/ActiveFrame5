@@ -4,32 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
-import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
-import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
@@ -41,14 +26,9 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshReques
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -109,10 +89,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setDomainObjectFieldPropertiesMap(columnPropertyMap);
         List<Filter> filters = new ArrayList<>();
         TableBrowserParams tableBrowserParams = collectionViewerConfig.getTableBrowserParams();
-        if (tableBrowserParams != null) {
-            ComplicatedFiltersParams tbFiltersParams = (ComplicatedFiltersParams) tableBrowserParams.getComplicatedFiltersParams();
-            filterBuilder.prepareExtraFilters(tableBrowserParams.getCollectionExtraFiltersConfig(), tbFiltersParams, filters);
-        }
+        prepareTableBrowserFilters(tableBrowserParams, filters);
         pluginData.setTableBrowserParams(tableBrowserParams);
         pluginData.setInitialFiltersConfig(initialFiltersConfig);
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap =
@@ -124,32 +101,22 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionDisplayConfig collectionDisplayConfig = collectionViewConfig.getCollectionDisplayConfig();
         SortOrder order = SortOrderBuilder.getInitSortOrder(sortCriteriaConfig, collectionDisplayConfig);
 
-        filters = CollectionPluginHelper.addFilterByText(collectionViewerConfig, filters);
+        CollectionPluginHelper.addFilterByText(collectionViewerConfig, filters);
         int initRowsNumber = collectionViewerConfig.getRowsChunk();
         pluginData.setRowsChunk(initRowsNumber);
-        if (!displayChosenValues) { //simplified condition: in boolean algebra "a && b || !a && b" is equivalent to just "b"
-            //if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {
-            filters = CollectionPluginHelper.prepareFilterExcludeIds(tableBrowserParams, filters);
-            ArrayList<CollectionRowItem> items =
-                    getRows(collectionName, 0, initRowsNumber, filters, order, columnPropertyMap);
-            pluginData.setItems(items);
-            Collection<Id> selectedIds = tableBrowserParams == null ? new ArrayList<Id>() : tableBrowserParams.getExcludedIds();
-            pluginData.setChosenIds(selectedIds);
-        } else {
-            // if (displayChosenValues) {//simplified condition
-            //if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)) {
-            if (collectionViewerConfig.getHierarchicalFiltersConfig() != null) {
-
-                if (filterBuilder.prepareExtraFilters(collectionViewerConfig.getHierarchicalFiltersConfig(), null, filters)) {
-                    pluginData.setHierarchicalFiltersConfig(collectionViewerConfig.getHierarchicalFiltersConfig());
-                }
+        if (displayChosenValues && collectionViewerConfig.getHierarchicalFiltersConfig() != null) {
+            if (filterBuilder.prepareExtraFilters(collectionViewerConfig.getHierarchicalFiltersConfig(), null, filters)) {
+                pluginData.setHierarchicalFiltersConfig(collectionViewerConfig.getHierarchicalFiltersConfig());
             }
-
-            ArrayList<CollectionRowItem> items = getRows(collectionName,
-                    0, initRowsNumber, filters, order, columnPropertyMap);
-
-            pluginData.setItems(items);
         }
+        boolean isTableBrowserLimitation = tableBrowserParams != null && tableBrowserParams.isTooltipLimitation();
+        initRowsNumber = isTableBrowserLimitation
+                ? WidgetUtil.getLimit(tableBrowserParams.getSelectionFiltersConfig())
+                : initRowsNumber;
+        ArrayList<CollectionRowItem> items = getRows(collectionName, 0, initRowsNumber, filters, order, columnPropertyMap);
+        pluginData.setItems(items);
+        Collection<Id> selectedIds = tableBrowserParams == null ? new ArrayList<Id>() : tableBrowserParams.getIds();
+        pluginData.setChosenIds(selectedIds);
 
         pluginData.setCollectionName(collectionName);
         if (collectionViewerConfig.getSearchAreaRefConfig() != null) {
@@ -160,6 +127,22 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
         pluginData.setToolbarContext(getToolbarContext(collectionViewerConfig));
         return pluginData;
+    }
+
+    private void prepareTableBrowserFilters(TableBrowserParams params, List<Filter> filters) {
+        if (params == null) {
+            return;
+        }
+        ComplicatedFiltersParams tbFiltersParams = (ComplicatedFiltersParams) params.getComplicatedFiltersParams();
+        if (params.isMainWidgetContent()) { //main content
+            filterBuilder.prepareIncludedIdsFilter(params.getIds(), filters);
+            filterBuilder.prepareSelectionFilters(params.getSelectionFiltersConfig(), tbFiltersParams, filters);
+        } else {
+            if (!params.isDisplayChosenValues()) { //selector window without chosen values
+                filterBuilder.prepareExcludedIdsFilter(params.getIds(), filters);
+            }
+            filterBuilder.prepareExtraFilters(params.getCollectionExtraFiltersConfig(), tbFiltersParams, filters);
+        }
     }
 
     public CollectionPluginData getExtendedCollectionPluginData(String collectionName, final String link,
@@ -260,22 +243,18 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     public Dto generateCollectionRowItems(Dto dto) {
         // 21.01 12:50 (DB) -> if 21.01 selected -> it's a date between 21.01 00:00 and 22.01 00:00
         CollectionRowsRequest request = (CollectionRowsRequest) dto;
+        CollectionRowsResponse collectionRowsResponse = new CollectionRowsResponse();
+        TableBrowserParams tableBrowserParams = request.getTableBrowserParams();
+        boolean isTableBrowserLimitation = tableBrowserParams != null && tableBrowserParams.isTooltipLimitation();
+        collectionRowsResponse.setReinsertRows(isTableBrowserLimitation); //if table-browser has limit in the selections-filters, table should reinsert rows and not add more
         LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
-
-        final int offset = request.getOffset();
-        final int limit = request.getLimit();
+        int offset = isTableBrowserLimitation ? 0 : request.getOffset();
+        int limit = isTableBrowserLimitation
+                ? WidgetUtil.getLimit(request.getTableBrowserParams().getSelectionFiltersConfig()) : request.getLimit();
         Map<String, List<String>> filtersMap = request.getFiltersMap();
         List<Filter> filters = CollectionPluginHelper.prepareSearchFilters(filtersMap, properties);
-        TableBrowserParams tableBrowserParams = request.getTableBrowserParams();
-        if (tableBrowserParams != null) {
-            boolean singleChoice = tableBrowserParams.isSingleChoice();
-            boolean displayChosenValues = tableBrowserParams.isDisplayChosenValues();
-            ComplicatedFiltersParams tbFiltersParams = (ComplicatedFiltersParams) tableBrowserParams.getComplicatedFiltersParams();
-            filterBuilder.prepareExtraFilters(tableBrowserParams.getCollectionExtraFiltersConfig(), tbFiltersParams, filters);
-            if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {
-                filters = CollectionPluginHelper.prepareFilterExcludeIds(tableBrowserParams, filters);
-            }
-        }
+
+        prepareTableBrowserFilters(tableBrowserParams, filters);
         filterBuilder.prepareExtraFilters(request.getHierarchicalFiltersConfig(), new ComplicatedFiltersParams(), filters);
         InitialFiltersConfig initialFiltersConfig = request.getInitialFiltersConfig();
         Set<String> userFilterNamesWithInputs = filtersMap == null ? null : filtersMap.keySet();
@@ -284,15 +263,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 getFilterNameColumnPropertiesMap(properties, initialFiltersConfig);
         InitialFiltersParams filtersParams = new InitialFiltersParams(excludedInitialFilterNames, filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, filtersParams, filters);
-        Set<Id> includedIds = request.getIncludedIds();
-        if (!includedIds.isEmpty()) {
-            Filter includedIdsFilter = FilterBuilderUtil.prepareFilter(includedIds, FilterBuilderUtil.INCLUDED_IDS_FILTER);
-            filters.add(includedIdsFilter);
-        }
 
         ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit);
 
-        CollectionRowsResponse collectionRowsResponse = new CollectionRowsResponse();
         collectionRowsResponse.setCollectionRows(result);
 
         return collectionRowsResponse;
@@ -314,7 +287,6 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper.getFilterNameColumnPropertiesMap(properties, initialFiltersConfig);
         InitialFiltersParams initialFiltersParams = new InitialFiltersParams(excludedInitialFilterNames, filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, initialFiltersParams, filters);
-        filterBuilder.prepareExtraFilters(request.getHierarchicalFiltersConfig(), new ComplicatedFiltersParams(), filters);
         Set<Id> includedIds = request.getIncludedIds();
         if (!includedIds.isEmpty()) {
             Filter includedIdsFilter = FilterBuilderUtil.prepareFilter(includedIds, FilterBuilderUtil.INCLUDED_IDS_FILTER);

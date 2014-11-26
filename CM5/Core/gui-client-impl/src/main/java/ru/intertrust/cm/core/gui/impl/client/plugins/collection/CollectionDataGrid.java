@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
@@ -99,12 +100,18 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
         }
 
         public void performOnClickAction(Id id) {
-            Application.getInstance().getHistoryManager().setSelectedIds(id);
+            final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
+            if (collectionViewerConfig.getTableBrowserParams() == null) {
+                Application.getInstance().getHistoryManager().setSelectedIds(id);
+            }
             eventBus.fireEvent(new CollectionRowSelectedEvent(id));
         }
 
         public void performOnDoubleClickAction(Id id) {
-            eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
+            final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
+            if (collectionViewerConfig.getTableBrowserParams() == null) {
+                eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
+            }
         }
 
         private boolean checkDirtiness() {

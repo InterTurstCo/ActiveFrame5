@@ -350,6 +350,12 @@
     width: 100%;
 }
 
+select.gwt-ListBox {
+    -moz-appearance: none;
+    text-indent: 0.01px;
+    text-overflow: '';
+}
+
 .gwt-custom-white {
     color: #ffffff;
 }

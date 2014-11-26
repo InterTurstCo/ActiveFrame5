@@ -29,7 +29,7 @@
 
 .table-browser-dialog .collection-plugin-view-container {
     background: none;
-    margin-bottom: 25px;
+    margin-bottom: 45px;
 }
 
 .collection-plugin-view-container input[name="json"] {
@@ -71,4 +71,18 @@
 
 .facebookElementDel {
     margin-top: 9px;
+}
+.tableBrowserRoot td{
+    width: 100%;
+}
+
+.tableBrowserControlsWrapper{
+    border: 1px solid grey;
+    margin: 5px;
+}
+.tableBrowserCollectionFilterInput{
+    border: hidden;
+    margin: 5px;
+    width: 100%;
+
 }

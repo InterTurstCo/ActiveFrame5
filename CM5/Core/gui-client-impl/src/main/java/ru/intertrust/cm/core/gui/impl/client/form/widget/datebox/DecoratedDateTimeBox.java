@@ -40,6 +40,8 @@ public class DecoratedDateTimeBox extends Composite {
     private ListBox timeZoneChooser;
     private DateBoxWidget parentWidget;
     private EventBus eventBus;
+    private boolean isRangeStart;
+    private boolean isRangeEnd;
 
     public DecoratedDateTimeBox(DateBoxWidget parentWidget) {
         root = new AbsolutePanel();
@@ -76,7 +78,9 @@ public class DecoratedDateTimeBox extends Composite {
         root.getElement().getStyle().clearPosition();
         RangeStartConfig rangeStartConfig = state.getDateBoxConfig().getRangeStartConfig();
         RangeEndConfig rangeEndConfig = state.getDateBoxConfig().getRangeEndConfig();
-        boolean isSearchRangePopup = rangeStartConfig != null || rangeEndConfig != null;
+        isRangeStart = rangeEndConfig != null;
+        isRangeEnd = rangeStartConfig != null;
+        boolean isSearchRangePopup = isRangeStart || isRangeEnd;
         eventBus = isSearchRangePopup ? parentWidget.getEventBus() : new SimpleEventBus();
         final ClickHandler showDatePickerHandler = new ShowDatePickerHandler();
 
@@ -155,8 +159,14 @@ public class DecoratedDateTimeBox extends Composite {
     private class ShowDatePickerHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
-
             picker.showRelativeTo(dateBox);
+            if (isRangeStart) {
+                ((FormRangeDatePicker)picker).setStartDate(dateBox.getValue());
+            } else if (isRangeEnd) {
+                ((FormRangeDatePicker)picker).setEndDate(dateBox.getValue());
+            } else {
+                ((FormDatePicker)picker).setDate(dateBox.getValue());
+            }
         }
     }
 }
