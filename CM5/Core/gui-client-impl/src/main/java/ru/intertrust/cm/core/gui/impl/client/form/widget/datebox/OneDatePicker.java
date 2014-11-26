@@ -23,11 +23,11 @@ public abstract class OneDatePicker extends DatePickerPopup {
     public OneDatePicker(Date date, EventBus eventBus, boolean showTime, boolean showSeconds) {
         super(eventBus);
 
-        initWidget(date, showTime, showSeconds);
+        initWidget(date, showTime, showSeconds, this);
     }
 
-    private void initWidget(Date date, boolean showTime, boolean showSeconds) {
-        dateTimePicker = new DateTimePicker(date, showTime, showSeconds);
+    private void initWidget(Date date, boolean showTime, boolean showSeconds, DatePickerPopup parent) {
+        dateTimePicker = new DateTimePicker(date, showTime, showSeconds, parent);
         Panel dateTimePickerPanel = initDatePickerPanel(dateTimePicker);
         Panel container = new AbsolutePanel();
         container.add(dateTimePickerPanel);

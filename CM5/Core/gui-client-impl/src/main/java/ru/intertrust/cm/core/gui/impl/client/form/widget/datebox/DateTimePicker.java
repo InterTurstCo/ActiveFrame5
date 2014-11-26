@@ -1,10 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.datebox;
 
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.datepicker.client.DatePicker;
+import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEvent;
 
 import java.util.Date;
 
@@ -18,9 +21,15 @@ public class DateTimePicker extends Composite {
     private TimeBox timePicker;
     private Panel container;
     private Date date;
+    private DatePickerPopup parent;
 
     public DateTimePicker(Date date, boolean showTime, boolean showSeconds) {
+        this(date, showTime, showSeconds, null);
+    }
+
+    public DateTimePicker(Date date, boolean showTime, boolean showSeconds, DatePickerPopup parent) {
         this.date = date == null ? new Date() : date;
+        this.parent = parent;
         initWidgetContent(showTime, showSeconds);
         initWidget(container);
     }
@@ -34,6 +43,15 @@ public class DateTimePicker extends Composite {
         if (showTime) {
             timePicker = new TimeBox(date, showSeconds);
             container.add(timePicker);
+        } else if (parent != null) {
+            picker.addDomHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    Date date = getFullDate();
+                    parent.eventBus.fireEventFromSource(new DateSelectedEvent(date), parent);
+                    parent.hide();
+                }
+            }, ClickEvent.getType());
         }
 
     }
@@ -56,5 +74,9 @@ public class DateTimePicker extends Composite {
     public void setDate(Date date) {
         this.date = date;
         picker.setValue(date);
+    }
+
+    public boolean showTime() {
+        return timePicker != null;
     }
 }

@@ -17,24 +17,28 @@ import java.util.Date;
  *         Time: 18:47
  */
 public class FormDatePicker extends OneDatePicker {
+
     public FormDatePicker(Date date, EventBus eventBus, boolean showTime, boolean showSeconds) {
         super(date, eventBus, showTime, showSeconds);
     }
+
     protected Panel initDatePickerPanel(final DateTimePicker dateTimePicker) {
         final Panel container = new AbsolutePanel();
 
         container.add(dateTimePicker);
-        Button submit = new Button(BusinessUniverseConstants.DATETIME_PICKER_BUTTON);
-        submit.setStyleName("darkButton");
-        submit.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                Date date = dateTimePicker.getFullDate();
-                eventBus.fireEventFromSource(new DateSelectedEvent(date), FormDatePicker.this);
-                FormDatePicker.this.hide();
-            }
-        });
-        container.add(submit);
+        if (dateTimePicker.showTime()) {
+            Button submit = new Button(BusinessUniverseConstants.DATETIME_PICKER_BUTTON);
+            submit.setStyleName("darkButton");
+            submit.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    Date date = dateTimePicker.getFullDate();
+                    eventBus.fireEventFromSource(new DateSelectedEvent(date), FormDatePicker.this);
+                    FormDatePicker.this.hide();
+                }
+            });
+            container.add(submit);
+        }
         return container;
     }
 }
