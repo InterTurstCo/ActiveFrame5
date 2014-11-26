@@ -10,10 +10,10 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
-import ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
+import ru.intertrust.cm.core.gui.model.Client;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
@@ -37,6 +37,7 @@ import java.util.*;
 @WebServlet(name = "BusinessUniverseService",
         urlPatterns = "/remote/BusinessUniverseService")
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
+    private static final String CLIENT_INFO_SESSION_ATTRIBUTE = "_CLIENT_INFO";
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
     private static Logger log = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
 
@@ -54,7 +55,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     private SoftReference<List<String>> refTimeZoneIds;
 
     @Override
-    public BusinessUniverseInitialization getBusinessUniverseInitialization() {
+    public BusinessUniverseInitialization getBusinessUniverseInitialization(Client clientInfo) {
+        getThreadLocalRequest().getSession().setAttribute(CLIENT_INFO_SESSION_ATTRIBUTE, clientInfo);
+
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
         addInformationToInitializationObject(initialization);
         final BusinessUniverseConfig businessUniverseConfig =
@@ -195,10 +198,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private UserInfo getUserInfo() {
+        final Client client = (Client) this.getThreadLocalRequest().getSession().getAttribute(CLIENT_INFO_SESSION_ATTRIBUTE);
         final UserInfo userInfo = new UserInfo();
-        final UserUidWithPassword userUidWithPassword = (UserUidWithPassword) this.getThreadLocalRequest()
-                .getSession().getAttribute(LoginServiceImpl.USER_CREDENTIALS_SESSION_ATTRIBUTE);
-        userInfo.setTimeZoneId(userUidWithPassword.getClientTimeZone());
+        userInfo.setTimeZoneId(client.getTimeZoneId());
         return userInfo;
     }
 

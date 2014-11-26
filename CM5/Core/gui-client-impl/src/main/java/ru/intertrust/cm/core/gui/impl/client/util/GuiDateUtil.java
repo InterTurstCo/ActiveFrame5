@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
+
 import java.util.Date;
 
 /**
@@ -21,5 +23,9 @@ public class GuiDateUtil {
         date.setMinutes(0);
         date.setSeconds(0);
         return date;
+    }
+
+    public static String getClientTimeZoneId() {
+        return DateTimeFormat.getFormat("ZZZZ").format(new Date());
     }
 }

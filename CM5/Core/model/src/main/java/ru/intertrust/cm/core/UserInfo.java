@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core;
 
-import java.io.Serializable;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Sergey.Okolot
  *         Created on 18.02.14 15:39.
  */
-public class UserInfo implements Serializable{
+public class UserInfo implements Dto {
 
     private String timeZoneId;
 

@@ -15,6 +15,12 @@ public class UserUidWithPassword implements UserCredentials {
     public UserUidWithPassword() {
     }
 
+    public UserUidWithPassword(final String userUid, final String password) {
+        this.userUid = userUid;
+        this.password = password;
+    }
+
+    @Deprecated
     public UserUidWithPassword(final String userUid, final String password, final String clientTimeZone) {
         this.userUid = userUid;
         this.password = password;
@@ -37,10 +43,12 @@ public class UserUidWithPassword implements UserCredentials {
         this.password = password;
     }
 
+    @Deprecated
     public String getClientTimeZone() {
         return clientTimeZone;
     }
 
+    @Deprecated
     public void setClientTimeZone(String clientTimeZone) {
         this.clientTimeZone = clientTimeZone;
     }

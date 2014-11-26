@@ -31,8 +31,8 @@ public class BusinessUniverseAuthenticationServiceImpl extends BaseService
 
     @Override
     public void login(UserCredentials userCredentials) throws AuthenticationException {
-        LoginService guiService = new ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl(); // todo - get rid
-        guiService.login(getThreadLocalRequest(), userCredentials);
+        LoginService loginService = new ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl(); // todo - get rid
+        loginService.login(getThreadLocalRequest(), userCredentials);
     }
 
     public void logout() {
