@@ -33,7 +33,7 @@
 
     <act:tool-bar plugin="calendar.plugin">
         <act:action name="aWeek" componentName="calendar.week.mode" rendered="mode=='month'" dirtySensitivity="false"
-                    immediate="true" text="Неделя" order="100"/>
+                    immediate="true" text="Неделя" order="100" imageClass="calendarWeek"/>
         <act:action name="aMonth" componentName="calendar.month.mode" rendered="mode=='week'" dirtySensitivity="false"
                     immediate="true" text="Месяц" order="100"/>
         <act:action name="aPreviousWeek" componentName="calendar.previous.week" rendered="mode=='week'"
@@ -41,7 +41,7 @@
         <act:action name="aNextWeek" componentName="calendar.next.week" rendered="mode=='week'" dirtySensitivity="false"
                     immediate="true" text="Сдедующая неделя &gt;" order="200"/>
         <act:action name="aToday" componentName="calendar.select.today" dirtySensitivity="false" immediate="true"
-                    text="Сегодня" order="250"/>
+                    text="Сегодня" order="250" imageClass="calendarToday"/>
     </act:tool-bar>
 
     <act:tool-bar plugin="collection.plugin">

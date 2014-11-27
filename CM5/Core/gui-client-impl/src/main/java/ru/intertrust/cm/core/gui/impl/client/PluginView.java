@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
+import ru.intertrust.cm.core.gui.impl.client.plugins.calendar.CalendarPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer.ConfigurationDeployerPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
@@ -173,7 +174,7 @@ public abstract class PluginView implements IsWidget {
     }
 
     private void addExtraStyleClassIfRequired() {
-        if (plugin instanceof DomainObjectSurferPlugin || plugin instanceof ConfigurationDeployerPlugin) {
+        if (plugin instanceof DomainObjectSurferPlugin || plugin instanceof ConfigurationDeployerPlugin || plugin instanceof CalendarPlugin) {
             Node node = viewWidget.getElement().getFirstChildElement().getLastChild();
             node.getFirstChild().getParentElement().addClassName("pluginExtraClass");
         }
