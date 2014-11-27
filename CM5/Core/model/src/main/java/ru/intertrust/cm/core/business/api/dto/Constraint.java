@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +43,9 @@ public class Constraint implements Dto {
     public static final String KEYWORD_DECIMAL = "decimal";
     public static final String KEYWORD_POSITIVE_DEC = "positive-dec";
 
+    private static final List<String> KEYWORDS = Arrays.asList(KEYWORD_NOT_EMPTY, KEYWORD_INTEGER, KEYWORD_POSITIVE_INT,
+        KEYWORD_DECIMAL, KEYWORD_POSITIVE_DEC);
+
     public static final String VAlUE = "value";
 
     // params for Server-Side validation
@@ -77,5 +82,22 @@ public class Constraint implements Dto {
     @Override
     public String toString() {
         return this.type + " " + params;
+    }
+
+    public boolean isApplicableInSearchAndReportForm() {
+       if (type == Type.SIMPLE
+                && Constraint.KEYWORD_NOT_EMPTY.equals(params.get(Constraint.PARAM_PATTERN))) {
+           return false;
+       }
+        if (type == Type.SIMPLE && !Constraint.KEYWORDS.contains(params.get(Constraint.PARAM_PATTERN))) {
+            // free-formed pattern
+            return false;
+        }
+        if (type == Type.LENGTH && (params.get(Constraint.PARAM_MIN_LENGTH) != null ||
+                params.get(Constraint.PARAM_LENGTH) != null)) {
+            return false;
+        }
+
+        return true;
     }
 }

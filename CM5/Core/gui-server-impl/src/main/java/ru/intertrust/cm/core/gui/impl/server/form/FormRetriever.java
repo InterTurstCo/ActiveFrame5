@@ -188,17 +188,28 @@ public class FormRetriever extends FormProcessor {
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
         }
-
+        removeNotApplicableConstraints(widgetStateMap);
         buildForceRequiredConstraints(widgetStateMap, widgetConfigsById);
         return widgetStateMap;
+    }
+
+    private void removeNotApplicableConstraints(Map<String, WidgetState> widgetStateMap) {
+        for (WidgetState widgetState : widgetStateMap.values()) {
+            for (Iterator<Constraint> iter = widgetState.getConstraints().iterator(); iter.hasNext(); ) {
+                if (!iter.next().isApplicableInSearchAndReportForm()) {
+                    iter.remove();
+                }
+            }
+        }
     }
 
     private void buildForceRequiredConstraints(Map<String, WidgetState> widgetStateMap, Map<String, WidgetConfig> widgetConfigsById) {
         for (Map.Entry<String, WidgetState> entry : widgetStateMap.entrySet()) {
             String widgetId = entry.getKey();
+            WidgetState widgetState = entry.getValue();
             WidgetConfig widgetConfig = widgetConfigsById.get(widgetId);
             if ("label".equals(widgetConfig.getComponentName())) {
-                LabelState labelState = (LabelState)entry.getValue();
+                LabelState labelState = (LabelState)widgetState;
                 if (labelState.isAsteriskRequired()) {
                     String relatedWidget = labelState.getRelatedWidgetId();
                     WidgetState relatedWidgetState = widgetStateMap.get(relatedWidget);
