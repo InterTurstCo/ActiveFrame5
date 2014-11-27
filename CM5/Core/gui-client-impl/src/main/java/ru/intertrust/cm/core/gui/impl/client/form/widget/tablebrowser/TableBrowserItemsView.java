@@ -25,11 +25,13 @@ import java.util.Set;
  *         Date: 25.08.2014
  *         Time: 17:44
  */
-public class TableBrowserItemsView extends TableBrowserEditableComposite implements HyperlinkDisplay {
+public class TableBrowserItemsView extends Composite implements HyperlinkDisplay {
     private static final int INPUT_MARGIN = 40;
 
     private Style.Display displayStyle;
-
+    protected TextBox filter;
+    protected AbsolutePanel root;
+    protected Button openTooltip;
     private EventBus eventBus;
     private Map<String, PopupTitlesHolder> typeTitleMap;
     private HasLinkedFormMappings widget;
@@ -54,7 +56,6 @@ public class TableBrowserItemsView extends TableBrowserEditableComposite impleme
         filter.setFocus(true);
     }
 
-    @Override
     public void clearContent() {
         clearItems();
     }
@@ -188,6 +189,15 @@ public class TableBrowserItemsView extends TableBrowserEditableComposite impleme
             displayHyperlinks(listValues, drawTooltipButton);
         } else {
             displayItems(listValues, drawTooltipButton);
+        }
+    }
+    public String getFilterValue(){
+        return filter.getValue();
+    }
+
+    public void removeTooltipButton(){
+        if(openTooltip != null){
+            openTooltip.removeFromParent();
         }
     }
 

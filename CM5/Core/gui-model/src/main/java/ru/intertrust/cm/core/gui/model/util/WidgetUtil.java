@@ -43,6 +43,14 @@ public class WidgetUtil {
         return !isNotEmpty(coll);
     }
 
+    public static boolean isNotEmpty(Map map) {
+        return map != null && !map.isEmpty();
+    }
+
+    public static boolean isEmpty(Map map) {
+        return !isNotEmpty(map);
+    }
+
     private static List<String> getWidgetIdsFromFilters(AbstractFiltersConfig<? extends AbstractFilterConfig> filtersConfig) {
         if(filtersConfig != null && isNotEmpty(filtersConfig.getFilterConfigs())){
         List<? extends AbstractFilterConfig> filtersConfigs = filtersConfig.getFilterConfigs();

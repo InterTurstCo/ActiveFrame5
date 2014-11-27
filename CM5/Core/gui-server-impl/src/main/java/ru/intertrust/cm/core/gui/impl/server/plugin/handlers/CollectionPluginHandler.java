@@ -134,7 +134,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             return;
         }
         ComplicatedFiltersParams tbFiltersParams = (ComplicatedFiltersParams) params.getComplicatedFiltersParams();
-        if (params.isMainWidgetContent()) { //main content
+        if (params.isDisplayOnlySelectedIds()) { //main content not editable
             filterBuilder.prepareIncludedIdsFilter(params.getIds(), filters);
             filterBuilder.prepareSelectionFilters(params.getSelectionFiltersConfig(), tbFiltersParams, filters);
         } else {

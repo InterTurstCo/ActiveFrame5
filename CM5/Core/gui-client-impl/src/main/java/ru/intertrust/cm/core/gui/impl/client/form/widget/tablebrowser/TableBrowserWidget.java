@@ -22,8 +22,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
-import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tablebrowser.OpenCollectionRequestEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tablebrowser.OpenCollectionRequestEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
@@ -32,7 +31,6 @@ import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.LinkCreatorWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
@@ -59,7 +57,7 @@ import java.util.*;
 @ComponentName("table-browser")
 public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemRemoveEventHandler,
         HyperlinkStateChangedEventHandler, HierarchicalCollectionEventHandler, OpenCollectionRequestEventHandler,
-        OpenDomainObjectFormEventHandler, CheckBoxFieldUpdateEventHandler {
+        CheckBoxFieldUpdateEventHandler{
     private TableBrowserState currentState;
     private CollectionDialogBox dialogBox;
     private ViewHolder viewHolder;
@@ -152,7 +150,6 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         localEventBus.addHandler(OpenCollectionRequestEvent.TYPE, this);
-        localEventBus.addHandler(OpenDomainObjectFormEvent.TYPE, this);
 
     }
 
@@ -162,11 +159,11 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     }
 
 
-    private CollectionViewerConfig initCollectionConfig(boolean includeIds, Boolean displayCheckBoxes, Boolean tooltipLimitation) {
+    private CollectionViewerConfig initCollectionConfig(Boolean displayOnlyChosenIds, Boolean displayCheckBoxes) {
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
-        TableBrowserParams tableBrowserParams = createTableBrowserParams(includeIds, displayCheckBoxes, tooltipLimitation);
+        TableBrowserParams tableBrowserParams = createTableBrowserParams(displayOnlyChosenIds, displayCheckBoxes);
         collectionViewerConfig.setTableBrowserParams(tableBrowserParams);
         collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
@@ -183,16 +180,16 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         return collectionViewerConfig;
     }
 
-    private TableBrowserParams createTableBrowserParams(Boolean mainContent, Boolean displayCheckBoxes, Boolean tooltipLimitation) {
+    private TableBrowserParams createTableBrowserParams(Boolean displayOnlyChosenIds, Boolean displayCheckBoxes) {
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
+        Boolean tooltipLimitation = WidgetUtil.getLimit(tableBrowserConfig.getSelectionFiltersConfig()) != -1;
         TableBrowserParams tableBrowserParams = new TableBrowserParams()
                 .setComplicatedFiltersParams(createFiltersParams())
                 .setIds(currentState.getIds())
-                .setMainWidgetContent(mainContent)
+                .setDisplayOnlySelectedIds(displayOnlyChosenIds)
                 .setTooltipLimitation(tooltipLimitation)
                 .setDisplayCheckBoxes(displayCheckBoxes == null ? !currentState.isSingleChoice() : displayCheckBoxes)
-                .setDisplayChosenValues(mainContent || (tableBrowserConfig.getDisplayChosenValues() != null
-                        && tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues()))
+                .setDisplayChosenValues(isDisplayChosenValues(displayOnlyChosenIds, displayCheckBoxes))
                 .setPageSize(tableBrowserConfig.getPageSize())
                 .setSelectionFiltersConfig(currentState.getWidgetConfig().getSelectionFiltersConfig())
                 .setCollectionExtraFiltersConfig(tableBrowserConfig.getCollectionExtraFiltersConfig());
@@ -203,9 +200,16 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         Collection<WidgetIdComponentName> widgetsIdsComponentNames = currentState.getExtraWidgetIdsComponentNames();
         String filterName = currentState.getTableBrowserConfig().getInputTextFilterConfig().getName();
         String filterValue = viewHolder.getChildViewHolder() == null ? null
-                : ((TableBrowserEditableComposite) (viewHolder.getChildViewHolder().getWidget())).getFilterValue();
+                : ((TableBrowserItemsView) (viewHolder.getChildViewHolder().getWidget())).getFilterValue();
         WidgetsContainer container = getContainer();
         return GuiUtil.createComplicatedFiltersParams(filterValue, filterName, container, widgetsIdsComponentNames);
+
+    }
+    private boolean isDisplayChosenValues(Boolean displayOnlyIncludedIds, Boolean displayCheckBoxes){
+        TableBrowserConfig config = currentState.getWidgetConfig();
+        boolean displayChosenValuesFromConfig = config.getDisplayChosenValues() != null && config.getDisplayChosenValues().isDisplayChosenValues();
+        boolean displayChosenValuesForWidgetPurposes = !displayOnlyIncludedIds && displayCheckBoxes != null && displayCheckBoxes;
+        return  displayChosenValuesForWidgetPurposes || displayChosenValuesFromConfig;
 
     }
 
@@ -250,7 +254,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         } else {
             addClickHandlersForMultiplyChoice(dialogBox);
         }
-        initialCollectionViewerConfig = initCollectionConfig(false, null, false);
+        initialCollectionViewerConfig = initCollectionConfig(false, null);
         openCollectionPlugin(initialCollectionViewerConfig, null, dialogBox.getPluginPanel());
         dialogBox.center();
 
@@ -297,7 +301,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
 
     @Override
     protected void removeTooltipButton() {
-        ((TableBrowserEditableComposite) viewHolder.getWidget()).removeTooltipButton();
+        ((TableBrowserItemsView) viewHolder.getChildViewHolder().getWidget()).removeTooltipButton();
     }
 
     @Override
@@ -346,13 +350,15 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
 
     @Override
     public void onWidgetItemRemove(WidgetItemRemoveEvent event) {
+        Id id = event.getId();
         if (!event.isTooltipContent()) {
             tryToPoolFromTooltipContent();
-            currentState.getListValues().remove(event.getId());
+            currentState.getListValues().remove(id);
         } else {
-            currentState.getTooltipValues().remove(event.getId());
+            currentState.getTooltipValues().remove(id);
         }
-        currentState.getSelectedIds().remove(event.getId());
+        currentState.getSelectedIds().remove(id);
+        localEventBus.fireEvent(new CollectionChangeSelectionEvent(Arrays.asList(id), false));
         displayItems();
 
     }
@@ -373,35 +379,40 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             currentState.clearState();
         }
         currentState.getSelectedIds().add(id);
-        LinkedHashMap<Id, String> listValues = currentState.getListValues();
+        LinkedHashMap<Id, String> listValues = new LinkedHashMap<Id, String>(currentState.getListValues());
         listValues.put(id, representation);
         handleItems(listValues);
-
+        if(currentState.isTableView()){
+            localEventBus.fireEvent(new CollectionChangeSelectionEvent(Arrays.asList(id), true));
+        }
     }
 
     @Override
     public void openCollectionView(OpenCollectionRequestEvent event) {
-        CollectionViewerConfig config = initCollectionConfig(event.isDisplayOnlySelectedIds(), event.isDisplayCheckBoxes(),
-                event.isTooltipLimitation());
+        CollectionViewerConfig config = initCollectionConfig(event.isDisplayOnlyChosenIds(), event.isDisplayCheckBoxes());
         PluginPanel pluginPanel = event.getPluginPanel();
         pluginPanel.closeCurrentPlugin();
         openCollectionPlugin(config, null, pluginPanel);
     }
 
     @Override
-    public void onOpenDomainObjectFormEvent(OpenDomainObjectFormEvent event) {
-        HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(event.getId(), null, localEventBus,
-                false, currentState.getTypeTitleMap(), this);
-        clickHandler.processClick();
-    }
-
-    @Override
     public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
-        if (event.isMainContent()) {
-            Id id = event.getId();
-            if (event.isDeselected()) {
-                currentState.getSelectedIds().remove(id);
-                viewHolder.setContent(currentState);
+        if(currentState.isTableView()){
+            Id id= event.getId();
+            if(event.isDeselected()){
+            LinkedHashMap<Id, String> listValues = currentState.getListValues();
+            LinkedHashMap<Id, String> tooltipListValues = currentState.getTooltipValues();
+            LinkedHashMap<Id, String> common = new LinkedHashMap<Id, String>();
+            common.putAll(listValues);
+            if(WidgetUtil.isNotEmpty(tooltipListValues)){
+                common.putAll(tooltipListValues);
+            }
+            common.remove(id);
+            currentState.getSelectedIds().remove(id);
+            handleItems(common);
+            } else {
+                currentState.getSelectedIds().add(id);
+                fetchTableBrowserItems();
             }
 
         }
@@ -431,6 +442,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 } else {
                     currentState.addToTemporaryState(id);
                 }
+
             }
         });
 
@@ -456,7 +468,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     }
 
     private void fetchTableBrowserItems() {
-        if (currentState.getSelectedIds().isEmpty() || WidgetUtil.drawAsTable(currentState.getWidgetConfig().getSelectionStyleConfig())) {
+        if (currentState.getSelectedIds().isEmpty()) {
             viewHolder.setContent(currentState);
         } else {
             TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
@@ -496,6 +508,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 if (shouldDrawTooltipButton()) {
                     putToCorrectContent(listValues);
                 } else {
+                    currentState.getListValues().clear();
                     currentState.getListValues().putAll(listValues);
                 }
             }

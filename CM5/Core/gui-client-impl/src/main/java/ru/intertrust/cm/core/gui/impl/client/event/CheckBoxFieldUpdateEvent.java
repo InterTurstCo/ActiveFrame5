@@ -13,12 +13,10 @@ public class CheckBoxFieldUpdateEvent extends GwtEvent<CheckBoxFieldUpdateEventH
     public static Type<CheckBoxFieldUpdateEventHandler> TYPE = new Type<CheckBoxFieldUpdateEventHandler>();
     private Id id;
     private boolean deselected;
-    private boolean mainContent;
 
-    public CheckBoxFieldUpdateEvent(Id id, boolean deselected, boolean mainContent) {
+    public CheckBoxFieldUpdateEvent(Id id, boolean deselected) {
         this.id = id;
         this.deselected = deselected;
-        this.mainContent = mainContent;
     }
 
     @Override
@@ -39,7 +37,4 @@ public class CheckBoxFieldUpdateEvent extends GwtEvent<CheckBoxFieldUpdateEventH
         return deselected;
     }
 
-    public boolean isMainContent() {
-        return mainContent;
-    }
 }

@@ -209,6 +209,15 @@ public final class GuiUtil {
 
     }
 
+    public static<T> T find(List<T> collection, Predicate<T> predicate){
+        for (T t : collection) {
+            if(predicate.evaluate(t)){
+                return t;
+            }
+        }
+        return null;
+    }
+
     public static Client getClient() {
         return new Browser(getUserAgent(), GuiDateUtil.getClientTimeZoneId());
     }

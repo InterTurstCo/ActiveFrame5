@@ -17,7 +17,7 @@ import java.util.HashSet;
 public class TableBrowserParams implements Dto {
     private Dto complicatedFiltersParams;
     private Collection<Id> ids;
-    private boolean mainWidgetContent;
+    private boolean displayOnlySelectedIds;
     private boolean displayChosenValues;
     private boolean displayCheckBoxes;
     private boolean tooltipLimitation;
@@ -97,12 +97,12 @@ public class TableBrowserParams implements Dto {
         return selectionFiltersConfig;
     }
 
-    public boolean isMainWidgetContent() {
-        return mainWidgetContent;
+    public boolean isDisplayOnlySelectedIds() {
+        return displayOnlySelectedIds;
     }
 
-    public TableBrowserParams setMainWidgetContent(boolean mainWidgetContent) {
-        this.mainWidgetContent = mainWidgetContent;
+    public TableBrowserParams setDisplayOnlySelectedIds(boolean displayOnlySelectedIds) {
+        this.displayOnlySelectedIds = displayOnlySelectedIds;
         return this;
     }
 }

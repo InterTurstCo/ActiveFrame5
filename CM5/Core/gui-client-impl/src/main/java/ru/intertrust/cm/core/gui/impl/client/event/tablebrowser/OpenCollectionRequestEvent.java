@@ -11,19 +11,18 @@ import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 public class OpenCollectionRequestEvent extends GwtEvent<OpenCollectionRequestEventHandler> {
     public static final Type<OpenCollectionRequestEventHandler> TYPE = new Type<OpenCollectionRequestEventHandler>();
     private PluginPanel pluginPanel;
-    private Boolean displayOnlySelectedIds;
+    private Boolean displayOnlyChosenIds;
     private Boolean displayCheckBoxes;
-    private Boolean tooltipLimitation;
 
     public OpenCollectionRequestEvent() {
 
     }
 
-    public OpenCollectionRequestEvent(PluginPanel pluginPanel, Boolean displayOnlySelectedIds, Boolean displayCheckBoxes, Boolean tooltipLimitation) {
+    public OpenCollectionRequestEvent(PluginPanel pluginPanel, Boolean displayOnlyChosenIds, Boolean displayCheckBoxes) {
         this.pluginPanel = pluginPanel;
-        this.displayOnlySelectedIds = displayOnlySelectedIds;
+        this.displayOnlyChosenIds = displayOnlyChosenIds;
         this.displayCheckBoxes = displayCheckBoxes;
-        this.tooltipLimitation = tooltipLimitation;
+
     }
 
     @Override
@@ -41,15 +40,12 @@ public class OpenCollectionRequestEvent extends GwtEvent<OpenCollectionRequestEv
         return pluginPanel;
     }
 
-    public Boolean isDisplayOnlySelectedIds() {
-        return displayOnlySelectedIds;
+    public Boolean isDisplayOnlyChosenIds() {
+        return displayOnlyChosenIds;
     }
 
     public Boolean isDisplayCheckBoxes() {
         return displayCheckBoxes;
     }
 
-    public Boolean isTooltipLimitation() {
-        return tooltipLimitation;
-    }
 }
