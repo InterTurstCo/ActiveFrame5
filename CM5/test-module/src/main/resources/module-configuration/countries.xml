@@ -747,7 +747,7 @@
                 под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
                 <page-size>30</page-size>
                 <display-chosen-values value="false"/>
-                <selection-style name="inline"/>
+                <selection-style name="table"/>
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
              <!--   <add-button image="..." text="Добавить"/>-->

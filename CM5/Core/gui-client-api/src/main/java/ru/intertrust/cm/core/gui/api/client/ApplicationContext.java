@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.api.client;
 
-import java.io.Serializable;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,7 +11,7 @@ import java.util.HashMap;
  * Time: 14:19
  * Абстракция для хранения данных приложения во время выполнения
  */
-public abstract class ApplicationContext implements Serializable {
+public abstract class ApplicationContext implements Dto {
 
     // Поле для хранения конфигурации областей поиска и целевых ДО
     private HashMap<String, ArrayList<String>> searchAreasData = new HashMap<String, ArrayList<String>>();

@@ -1,8 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-
-import java.io.Serializable;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,7 +10,7 @@ import java.io.Serializable;
  * Time: 15:37
  * To change this template use File | Settings | File Templates.
  */
-public class SuggestionItem implements Serializable {
+public class SuggestionItem implements Dto {
 
     private Id id;
     private String displayText;

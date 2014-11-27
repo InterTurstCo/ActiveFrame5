@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ClearAllConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.OpenCollectionConfiguredButton;
@@ -20,8 +21,9 @@ import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 public class TableBrowserViewsBuilder {
     public static final int DEFAULT_DIALOG_WIDTH = 800;
     public static final int DEFAULT_DIALOG_HEIGHT = 300;
-    public static final int DEFAULT_TABLE_HEIGHT = 1000;
-    public static final int DEFAULT_TABLE_WIDTH = 300;
+    public static final int DEFAULT_TABLE_HEIGHT = 300;
+    public static final int DEFAULT_TABLE_WIDTH = 500;
+
     public static final int DEFAULT_HEIGHT_OFFSET = 100;
     private int dialogWidth;
     private int dialogHeight;
@@ -101,10 +103,10 @@ public class TableBrowserViewsBuilder {
     }
 
     private void initWidgetSize() {
-        String widthString = displayConfig != null ? displayConfig.getWidth() : null;
         String heightString = displayConfig!= null ? displayConfig.getHeight() : null;
-        tableWidth = widthString == null ? DEFAULT_TABLE_WIDTH : Integer.parseInt(widthString.replaceAll("\\D+", ""));
         tableHeight = heightString == null ? DEFAULT_TABLE_HEIGHT : Integer.parseInt(heightString.replaceAll("\\D+", ""));
+        String widthString = displayConfig!= null ? displayConfig.getWidth() : null;
+        tableWidth = widthString == null ? DEFAULT_TABLE_WIDTH : Integer.parseInt(widthString.replaceAll("\\D+", ""));
     }
 
     public PluginPanel createDialogCollectionPluginPanel() {
@@ -128,7 +130,7 @@ public class TableBrowserViewsBuilder {
         private ViewHolder buildViewHolder() {
             SelectionStyleConfig styleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
             if (WidgetUtil.drawAsTable(styleConfig)) {
-                TableBrowserCollection collection = createTableBrowserCollection(true, false, false);
+                TableBrowserCollection collection = createTableBrowserCollection(true, false);
                 return new TableBrowserCollectionViewHolder(collection);
             } else {
                 HyperlinkNoneEditablePanel widget = new HyperlinkNoneEditablePanel(styleConfig, eventBus, false,
@@ -142,11 +144,15 @@ public class TableBrowserViewsBuilder {
         private ViewHolder buildViewHolder() {
             SelectionStyleConfig styleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
             if (WidgetUtil.drawAsTable(styleConfig)) {
-                TableBrowserCollection mainWidget = createTableBrowserCollection(true, true, true);
-                TableBrowserCollectionViewHolder childViewHolder = new TableBrowserCollectionViewHolder(mainWidget);
-                TableBrowserEditableView editableView = createEditableWidgetView(mainWidget);
+                TableBrowserCollection collection = createTableBrowserCollection(false, true);
+                TableBrowserCollectionViewHolder itemsWidgetChildViewHolder = new TableBrowserCollectionViewHolder(collection);
+                TableBrowserItemsView itemsWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),
+                        hasLinkedFormMappings);
+                TableBrowserItemsViewHolder editableWidgetChildViewHolder = new TableBrowserItemsViewHolder(itemsWidget);
+                editableWidgetChildViewHolder.setChildViewHolder(itemsWidgetChildViewHolder);
+                TableBrowserEditableView editableView = createEditableTableWidgetView(itemsWidget, collection);
                 TableBrowserEditableViewHolder tableBrowserEditableViewHolder = new TableBrowserEditableViewHolder(editableView);
-                tableBrowserEditableViewHolder.setChildViewHolder(childViewHolder);
+                tableBrowserEditableViewHolder.setChildViewHolder(editableWidgetChildViewHolder);
                 return tableBrowserEditableViewHolder;
             } else {
                 TableBrowserItemsView mainWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),
@@ -161,15 +167,15 @@ public class TableBrowserViewsBuilder {
     }
 
 
-    private TableBrowserEditableView createEditableWidgetView(final TableBrowserEditableComposite mainWidget) {
+    private TableBrowserEditableView createEditableWidgetView(final TableBrowserItemsView itemsWidget) {
         final TableBrowserEditableView root = new TableBrowserEditableView();
         ConfiguredButton openDialogButton = createOpenButton();
         openDialogButton.addClickHandler(openCollectionButtonHandler);
         root.addStyleName("tableBrowserRoot");
-        root.addMainWidget(mainWidget);
-        root.addWidget(openDialogButton);
+        root.addHeaderWidget(itemsWidget);
+        root.addHeaderWidget(openDialogButton);
         if (createLinkedItemButton != null) {
-            root.addWidget(createLinkedItemButton);
+            root.addHeaderWidget(createLinkedItemButton);
         }
         ConfiguredButton clearButton = createClearButton();
         if (clearButton != null) {
@@ -177,26 +183,48 @@ public class TableBrowserViewsBuilder {
                 @Override
                 public void onClick(ClickEvent event) {
                     state.clearState();
-                    root.clearContent();
+                    itemsWidget.clearContent();
+
                 }
             });
-            root.addWidget(clearButton);
+            root.addHeaderWidget(clearButton);
+        }
+
+        return root;
+    }
+    private TableBrowserEditableView createEditableTableWidgetView(final TableBrowserItemsView itemsView,
+                                                                   TableBrowserCollection collection) {
+        final TableBrowserEditableView root = new TableBrowserEditableView();
+        root.addStyleName("tableBrowserRoot");
+        root.addHeaderWidget(itemsView);
+        root.addBodyWidget(collection);
+        if (createLinkedItemButton != null) {
+            root.addHeaderWidget(createLinkedItemButton);
+        }
+        ConfiguredButton clearButton = createClearButton();
+        if (clearButton != null) {
+            clearButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    eventBus.fireEvent(new CollectionChangeSelectionEvent(state.getIds(), false));
+                    state.clearState();
+                    itemsView.clearContent();
+                }
+            });
+            root.addHeaderWidget(clearButton);
         }
 
         return root;
     }
 
-    private TableBrowserCollection createTableBrowserCollection(Boolean displayOnlySelectedIds, Boolean displayCheckBoxes,
-                                                                Boolean displayFilter) {
-        boolean tooltipLimitation = WidgetUtil.getLimit(state.getWidgetConfig().getSelectionFiltersConfig()) != -1;
+    private TableBrowserCollection createTableBrowserCollection(Boolean displayOnlySelectedIds,
+                                                                Boolean displayCheckBoxes) {
         TableBrowserCollection result = new TableBrowserCollection()
                 .withEventBus(eventBus)
                 .withPluginPanel(createWidgetCollectionPluginPanel())
                 .withHeight(tableHeight)
-                .withDisplayOnlySelectedIds(displayOnlySelectedIds)
+                .withDisplayOnlyChosenIds(displayOnlySelectedIds)
                 .withDisplayCheckBoxes(displayCheckBoxes)
-                .withDisplayFilter(displayFilter)
-                .withTooltipLimitation(tooltipLimitation)
                 .createView();
 
         return result;

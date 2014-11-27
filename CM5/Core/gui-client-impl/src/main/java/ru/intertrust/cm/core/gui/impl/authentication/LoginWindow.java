@@ -4,7 +4,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.History;
@@ -20,8 +19,6 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 import ru.intertrust.cm.core.model.AuthenticationException;
-
-import java.util.Date;
 
 /**
  * @author Denis Mitavskiy
@@ -294,10 +291,7 @@ public class LoginWindow  implements Component{
                 }
             }
         };
-        final Date date = new Date();
-        final String timezone = DateTimeFormat.getFormat("ZZZZ").format(date);
-        final UserUidWithPassword credentials =
-                new UserUidWithPassword(loginField.getText(), passwordField.getText(), timezone);
+        final UserUidWithPassword credentials = new UserUidWithPassword(loginField.getText(), passwordField.getText());
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().login(credentials, callback);
     }
 

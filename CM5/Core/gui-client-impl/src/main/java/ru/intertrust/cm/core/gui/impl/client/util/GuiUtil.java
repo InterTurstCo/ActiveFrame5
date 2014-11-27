@@ -28,6 +28,8 @@ import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.model.Browser;
+import ru.intertrust.cm.core.gui.model.Client;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
@@ -39,11 +41,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -210,4 +208,25 @@ public final class GuiUtil {
         return result;
 
     }
+
+    public static<T> T find(List<T> collection, Predicate<T> predicate){
+        for (T t : collection) {
+            if(predicate.evaluate(t)){
+                return t;
+            }
+        }
+        return null;
+    }
+
+    public static Client getClient() {
+        return new Browser(getUserAgent(), GuiDateUtil.getClientTimeZoneId());
+    }
+
+    /**
+     * Gets the name of the used browser.
+     */
+    public static native String getUserAgent() /*-{
+        return navigator.userAgent;
+    }-*/;
+
 }

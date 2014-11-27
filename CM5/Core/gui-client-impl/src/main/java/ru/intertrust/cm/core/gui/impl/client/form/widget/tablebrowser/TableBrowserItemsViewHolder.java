@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
  *         Time: 18:32
  */
 public class TableBrowserItemsViewHolder extends ViewHolder<TableBrowserItemsView, TableBrowserState> {
+    private boolean childInitialized;
     public TableBrowserItemsViewHolder(TableBrowserItemsView widget) {
         super(widget);
     }
@@ -22,5 +23,9 @@ public class TableBrowserItemsViewHolder extends ViewHolder<TableBrowserItemsVie
         boolean shouldDrawTooltipButton = WidgetUtil.shouldDrawTooltipButton(state);
         boolean displayHyperlinks = state.isDisplayingAsHyperlinks();
         widget.display(listValues, shouldDrawTooltipButton, displayHyperlinks);
+        if(childViewHolder != null && !childInitialized){
+            childViewHolder.setContent(state);
+            childInitialized = true;
+        }
     }
 }

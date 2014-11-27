@@ -29,10 +29,13 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtra
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
@@ -40,6 +43,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.heade
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidgetFactory;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
 import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -49,6 +53,7 @@ import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionCont
 import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -243,7 +248,8 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
-                refreshCollection(event.getIdentifiableObject());
+                 refreshCollection(event.getIdentifiableObject());
+
             }
         });
 
@@ -341,6 +347,33 @@ public class CollectionPluginView extends PluginView {
             }
         });
 
+        eventBus.addHandler(CollectionChangeSelectionEvent.TYPE, new CollectionChangeSelectionEventHandler() {
+            @Override
+            public void changeCollectionSelection(CollectionChangeSelectionEvent event) {
+                Collection<Id> ids = getPluginData().getChosenIds();
+                final List<Id> changedIds = event.getId();
+
+                boolean selected = event.isSelected();
+                if(selected){
+                    ids.addAll(changedIds);
+                } else {
+                    ids.removeAll(changedIds);
+                }
+                TableBrowserParams tableBrowserParams = getPluginData().getTableBrowserParams();
+                if(tableBrowserParams != null && !tableBrowserParams.isDisplayCheckBoxes()){ //single choice
+                    final Id id = changedIds.get(0);
+                    CollectionRowItem item = GuiUtil.find(items, new Predicate<CollectionRowItem>() {
+                        @Override
+                        public boolean evaluate(CollectionRowItem input) {
+                            return input.getId().equals(id);
+                        }
+                    });
+                    selectionModel.setSelected(item, selected);
+                }
+                tableBody.redraw();
+            }
+        });
+
     }
 
     private void onKeyEnterPressed() {
@@ -423,6 +456,7 @@ public class CollectionPluginView extends PluginView {
         listCount = 0;
         lastScrollPos = 0;
         fetchData();
+
     }
 
     private void fetchData() {
@@ -471,7 +505,7 @@ public class CollectionPluginView extends PluginView {
                 new CollectionRowsRequest(0, 1, getPluginData().getCollectionName(),
                         getPluginData().getDomainObjectFieldPropertiesMap(), simpleSearchQuery, searchArea);
         collectionRowsRequest.setIncludedIds(includedIds);
-        collectionOneRowRequestCommand(collectionRowsRequest);
+        collectionOneRowRequestCommand(new CollectionRefreshRequest(collectionRowsRequest, null));
 
     }
 
@@ -548,7 +582,7 @@ public class CollectionPluginView extends PluginView {
         checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
-                eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value, getPluginData().getTableBrowserParams().isMainWidgetContent()));
+                eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
             }
         });
         checkColumn.setMaxWidth(CHECK_BOX_MAX_WIDTH);
@@ -733,9 +767,8 @@ public class CollectionPluginView extends PluginView {
         columnHeaderController.setFocus();
     }
 
-    private void collectionOneRowRequestCommand(CollectionRowsRequest collectionRowsRequest) {
-
-        Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
+    private void collectionOneRowRequestCommand(CollectionRefreshRequest request) {
+        Command command = new Command("refreshCollection", "collection.plugin", request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {

@@ -31,4 +31,5 @@ public class UpdateCollectionEvent extends GwtEvent<UpdateCollectionEventHandler
     public IdentifiableObject getIdentifiableObject() {
         return identifiableObject;
     }
+
 }

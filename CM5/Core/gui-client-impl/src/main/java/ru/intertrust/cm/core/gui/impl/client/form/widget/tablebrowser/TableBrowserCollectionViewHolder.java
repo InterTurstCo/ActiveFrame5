@@ -15,7 +15,7 @@ public class TableBrowserCollectionViewHolder extends ViewHolder<TableBrowserCol
 
     @Override
     public void setContent(TableBrowserState state) {
-       getWidget().refresh();
+       getWidget().init();
 
     }
 
