@@ -63,19 +63,17 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         String prototypeQuery = collectionConfig.getPrototype();
 
-        String filledQuery =  fillPrototypeQuery(filledFilterConfigs, sortOrder, offset, limit, prototypeQuery);
+        String filledQuery = fillPrototypeQuery(filledFilterConfigs, sortOrder, offset, limit, prototypeQuery);
 
         filledQuery = processPersonParameter(filledQuery);
 
-        filledQuery = postProcessQuery(collectionConfig, filterValues, accessToken, filledQuery);
+        filledQuery = postProcessQuery(collectionConfig, filterValues, sortOrder, offset, limit, accessToken, filledQuery);
 
         return filledQuery;
-
     }
 
     public String initializeQuery(String query, int offset, int limit, AccessToken accessToken) {
-        String collectionQuery = applyOffsetAndLimit(query, offset, limit);
-        return postProcessQuery(accessToken, collectionQuery);
+        return postProcessQuery(accessToken, query, offset, limit);
     }
 
     /**
@@ -184,6 +182,10 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         return filledQuery;
     }
 
+    private String postProcessQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues, AccessToken accessToken, String query) {
+        return postProcessQuery(collectionConfig, filterValues, null, 0, 0, accessToken, query);
+    }
+
     /**
      * Пост обработка запроса после применения фильтров и правил сортировки. Добавляет поле тип идентификатора доменного объекта и ACL фильтр.
      * @param collectionConfig конфигурация коллекции
@@ -191,8 +193,9 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      * @param query первоначальный запрос
      * @return измененный запрос
      */
-    private String postProcessQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues,
+    private String postProcessQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
             AccessToken accessToken, String query) {
+
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
         query = sqlQueryModifier.addServiceColumns(query);
         query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
@@ -203,7 +206,8 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         sqlQueryModifier.checkDuplicatedColumns(query);
 
-        return query;
+        query = applySortOrder(sortOrder, query);
+        return applyOffsetAndLimit(query, offset, limit);
     }
 
     /**
@@ -212,7 +216,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      * @param query первоначальный запрос
      * @return измененный запрос
      */
-    private String postProcessQuery(AccessToken accessToken, String query) {
+    private String postProcessQuery(AccessToken accessToken, String query, int offset, int limit) {
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
         query = sqlQueryModifier.addServiceColumns(query);
 
@@ -222,6 +226,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         sqlQueryModifier.checkDuplicatedColumns(query);
 
+        query = applyOffsetAndLimit(query, offset, limit);
         return query;
     }
 
@@ -232,10 +237,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         }
         StringBuilder collectionQuery = new StringBuilder();
         collectionQuery.append(mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs));
-
-
-        applySortOrder(sortOrder, collectionQuery);
-        return applyOffsetAndLimit(collectionQuery.toString(), offset, limit);
+        return collectionQuery.toString();
     }
 
     private String mergeFilledFilterConfigsInPrototypeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {
@@ -308,7 +310,8 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         return prototypeQuery;
     }
 
-    private String applySortOrder(SortOrder sortOrder, StringBuilder prototypeQuery) {
+    private String applySortOrder(SortOrder sortOrder, String query) {
+        StringBuilder prototypeQuery = new StringBuilder(query);
         boolean hasSortEntry = false;
         if (sortOrder != null && sortOrder.size() > 0) {
             for (SortCriterion criterion : sortOrder) {

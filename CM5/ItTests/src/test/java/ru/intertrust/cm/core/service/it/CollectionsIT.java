@@ -824,5 +824,8 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, 0, 2);
         collection = collectionService.findCollectionByQuery(query, 2, 0);
 
+        collection = collectionService.findCollection("Test_Union_Limit", null, null, 2, 2);
+        assertNotNull(collection);
+        assertTrue(collection.size() == 2);
     }
 }
