@@ -573,7 +573,9 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 LinkedHashMap<Id, String> listValues = getUpdatedHyperlinks(id, representation, event.isTooltipContent());
                 HyperlinkDisplay hyperlinkDisplay = event.getHyperlinkDisplay();
                 hyperlinkDisplay.displayHyperlinks(listValues, !event.isTooltipContent() && shouldDrawTooltipButton());
-
+                if(currentState.isTableView()){
+                    localEventBus.fireEvent(new UpdateCollectionEvent(id));
+                }
             }
 
             @Override

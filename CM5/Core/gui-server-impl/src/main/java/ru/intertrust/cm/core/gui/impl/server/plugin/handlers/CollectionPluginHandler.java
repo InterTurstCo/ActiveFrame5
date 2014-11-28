@@ -14,7 +14,10 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
-import ru.intertrust.cm.core.gui.impl.server.util.*;
+import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
@@ -288,8 +291,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         filterBuilder.prepareInitialFilters(initialFiltersConfig, initialFiltersParams, filters);
         Set<Id> includedIds = request.getIncludedIds();
         if (!includedIds.isEmpty()) {
-            Filter includedIdsFilter = FilterBuilderUtil.prepareFilter(includedIds, FilterBuilderUtil.INCLUDED_IDS_FILTER);
-            filters.add(includedIdsFilter);
+            filterBuilder.prepareIncludedIdsFilter(includedIds, filters);
         }
         ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit);
         final Id idToFindIfAbsent = ((CollectionRefreshRequest) dto).getIdToFindIfAbsent();

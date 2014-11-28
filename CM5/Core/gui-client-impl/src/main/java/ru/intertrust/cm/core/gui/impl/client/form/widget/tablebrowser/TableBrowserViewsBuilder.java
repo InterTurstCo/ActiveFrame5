@@ -11,7 +11,6 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButto
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.OpenCollectionConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
-import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -128,11 +127,12 @@ public class TableBrowserViewsBuilder {
 
     class TableBrowserNoneEditableViewBuilder {
         private ViewHolder buildViewHolder() {
-            SelectionStyleConfig styleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
-            if (WidgetUtil.drawAsTable(styleConfig)) {
+
+            if (state.isTableView()) {
                 TableBrowserCollection collection = createTableBrowserCollection(true, false);
                 return new TableBrowserCollectionViewHolder(collection);
             } else {
+                SelectionStyleConfig styleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
                 HyperlinkNoneEditablePanel widget = new HyperlinkNoneEditablePanel(styleConfig, eventBus, false,
                         state.getTypeTitleMap(), hasLinkedFormMappings);
                 return new HyperlinkNoneEditablePanelViewHolder(widget);
@@ -143,7 +143,7 @@ public class TableBrowserViewsBuilder {
     class TableBrowserEditableViewBuilder {
         private ViewHolder buildViewHolder() {
             SelectionStyleConfig styleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
-            if (WidgetUtil.drawAsTable(styleConfig)) {
+            if (state.isTableView()) {
                 TableBrowserCollection collection = createTableBrowserCollection(false, true);
                 TableBrowserCollectionViewHolder itemsWidgetChildViewHolder = new TableBrowserCollectionViewHolder(collection);
                 TableBrowserItemsView itemsWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),

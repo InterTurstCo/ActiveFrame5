@@ -248,7 +248,11 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
-                 refreshCollection(event.getIdentifiableObject());
+                 if(event.getId() == null){
+                     refreshCollection(event.getIdentifiableObject());
+                 } else{
+                     refreshCollection(event.getId());
+                 }
 
             }
         });
@@ -498,15 +502,19 @@ public class CollectionPluginView extends PluginView {
      * @param collectionObject
      */
     public void refreshCollection(IdentifiableObject collectionObject) {
+        refreshCollection(collectionObject.getId());
+
+    }
+
+    private void refreshCollection(Id id){
         Set<Id> includedIds = new HashSet<>();
-        includedIds.add(collectionObject.getId());
+        includedIds.add(id);
 
         final CollectionRowsRequest collectionRowsRequest =
                 new CollectionRowsRequest(0, 1, getPluginData().getCollectionName(),
                         getPluginData().getDomainObjectFieldPropertiesMap(), simpleSearchQuery, searchArea);
         collectionRowsRequest.setIncludedIds(includedIds);
         collectionOneRowRequestCommand(new CollectionRefreshRequest(collectionRowsRequest, null));
-
     }
 
     private void buildPanel() {

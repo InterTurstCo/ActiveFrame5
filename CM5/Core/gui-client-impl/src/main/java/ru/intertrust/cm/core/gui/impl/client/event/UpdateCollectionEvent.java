@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 
 /**
@@ -14,9 +15,14 @@ public class UpdateCollectionEvent extends GwtEvent<UpdateCollectionEventHandler
     public static Type<UpdateCollectionEventHandler> TYPE = new Type<>();
     // поле для объекта, который будет добавляться в коллекцию
     private IdentifiableObject identifiableObject;
+    private Id id;
 
     public UpdateCollectionEvent(IdentifiableObject identifiableObject) {
         this.identifiableObject = identifiableObject;
+    }
+
+    public UpdateCollectionEvent(Id id) {
+        this.id = id;
     }
 
     @Override
@@ -32,4 +38,7 @@ public class UpdateCollectionEvent extends GwtEvent<UpdateCollectionEventHandler
         return identifiableObject;
     }
 
+    public Id getId() {
+        return id;
+    }
 }
