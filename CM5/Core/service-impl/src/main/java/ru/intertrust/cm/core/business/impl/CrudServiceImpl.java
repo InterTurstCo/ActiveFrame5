@@ -300,6 +300,11 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public List<DomainObject> findAll(String domainObjectType) {
+        return findAll(domainObjectType, false);
+    }
+
+    @Override
+    public List<DomainObject> findAll(String domainObjectType, boolean exactType) {
         if (domainObjectType == null || domainObjectType.trim().isEmpty()) {
             throw new IllegalArgumentException("Domain Object type can not be null or empty");
         }
@@ -313,7 +318,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
                 accessToken = accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
             }
 
-            return domainObjectDao.findAll(domainObjectType, accessToken);
+            return domainObjectDao.findAll(domainObjectType, exactType, accessToken);
         } catch (AccessException | ObjectNotFoundException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -364,24 +369,37 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField) {
+        return findLinkedDomainObjects(domainObjectId, linkedType, linkedField, false);
+    }
+
+    @Override
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,                                                      boolean exactType) {
         try {
             AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
-            return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, accessToken);
+            return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, exactType,
+                    accessToken);
         } catch (AccessException  ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findLinkedDomainObjects", ex);
             throw new UnexpectedException("CrudService", "findLinkedDomainObjects",
                     "domainObjectId:" + domainObjectId + " linkedType:" + linkedType
-                    + " linkedField:" + linkedField, ex);
+                            + " linkedField:" + linkedField, ex);
         }
     }
 
     @Override
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
+        return findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, false);
+    }
+
+    @Override
+    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+                                               boolean exactType) {
         try {
             AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
-            return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
+            return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, exactType,
+                    accessToken);
         } catch (AccessException  ex) {
             throw ex;
         } catch (Exception ex) {

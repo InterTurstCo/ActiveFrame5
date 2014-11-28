@@ -235,7 +235,31 @@ public class CrudServiceIT extends IntegrationTestBase {
         soDepartmentExt.setBoolean("IsIsolated", false);
         soDepartmentExt = crudService.save(soDepartmentExt);
 
-        List<DomainObject> linkedObjects = crudService.findLinkedDomainObjects(soOrgSystem.getId(), "SO_Department", "HierRoot");
+        // Test findLinkedDomainObjectsIds with exactType == true
+        List<Id> linkedIds = crudService.findLinkedDomainObjectsIds(soOrgSystem.getId(), "SO_Department", "HierRoot", true);
+        assertNotNull(linkedIds);
+        for (Id id : linkedIds) {
+            if (((RdbmsId)id).getTypeId() != domainObjectTypeIdCache.getId("SO_Department")) {
+                fail("findLinkedDomainObjectsIds with exactType==true returned inherited type id");
+            }
+        }
+
+        // Test findLinkedDomainObjectsIds with exactType == false
+        linkedIds = crudService.findLinkedDomainObjectsIds(soOrgSystem.getId(), "SO_Department", "HierRoot");
+        assertNotNull(linkedIds);
+        assertTrue(linkedIds.size() > 0);
+
+        // Test findLinkedDomainObjects with exactType == true
+        List<DomainObject> linkedObjects = crudService.findLinkedDomainObjects(soOrgSystem.getId(), "SO_Department", "HierRoot", true);
+        assertNotNull(linkedObjects);
+        for (DomainObject linkedObject : linkedObjects) {
+            if (!linkedObject.getTypeName().equalsIgnoreCase("SO_Department")) {
+                fail("findLinkedDomainObjects with exactType==true returned inherited type");
+            }
+        }
+
+        // Test findLinkedDomainObjects with exactType == false
+        linkedObjects = crudService.findLinkedDomainObjects(soOrgSystem.getId(), "SO_Department", "HierRoot");
         assertNotNull(linkedObjects);
         assertTrue(linkedObjects.size() > 0);
 
@@ -275,7 +299,17 @@ public class CrudServiceIT extends IntegrationTestBase {
         soDepartmentExt.setBoolean("IsIsolated", false);
         soDepartmentExt = crudService.save(soDepartmentExt);
 
-        List<DomainObject> objects = crudService.findAll("SO_Department");
+        // Test findAll with exactType == true
+        List<DomainObject> objects = crudService.findAll("SO_Department", true);
+        assertNotNull(objects);
+        for (DomainObject object : objects) {
+            if (!object.getTypeName().equalsIgnoreCase("SO_Department")) {
+                fail("findAll with exactType==true returned inherited type");
+            }
+        }
+
+        // Test findAll with exactType == false
+        objects = crudService.findAll("SO_Department");
         assertNotNull(objects);
         assertTrue(objects.size() > 0);
 

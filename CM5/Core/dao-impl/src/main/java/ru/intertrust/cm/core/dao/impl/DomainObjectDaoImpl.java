@@ -63,6 +63,11 @@ import ru.intertrust.cm.core.model.ObjectNotFoundException;
 public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private static final Logger logger = LoggerFactory.getLogger(DomainObjectDaoImpl.class);
+
+    private static final String PARAM_DOMAIN_OBJECT_ID = "domain_object_id";
+    private static final String PARAM_DOMAIN_OBJECT_TYPE_ID = "domain_object_typeid";
+    private static final String RESULT_TYPE_ID = "result_type_id";
+
     @Autowired
     private NamedParameterJdbcOperations jdbcTemplate;
 
@@ -854,14 +859,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public List<DomainObject> findAll(String domainObjectType,
-            AccessToken accessToken) {
-        return findAll(domainObjectType, 0, 0, accessToken);
+    public List<DomainObject> findAll(String domainObjectType, AccessToken accessToken) {
+        return findAll(domainObjectType, false, 0, 0, accessToken);
     }
 
     @Override
-    public List<DomainObject> findAll(String domainObjectType, int offset,
-            int limit, AccessToken accessToken) {
+    public List<DomainObject> findAll(String domainObjectType, int offset, int limit, AccessToken accessToken) {
+        return findAll(domainObjectType, false, offset, limit, accessToken);
+    }
+
+    @Override
+    public List<DomainObject> findAll(String domainObjectType, boolean exactType, AccessToken accessToken) {
+        return findAll(domainObjectType, exactType, 0, 0, accessToken);
+    }
+
+    @Override
+    public List<DomainObject> findAll(String domainObjectType, boolean exactType, int offset, int limit,
+                                      AccessToken accessToken) {
         if (domainObjectType == null || domainObjectType.trim().isEmpty()) {
             throw new IllegalArgumentException(
                     "Domain Object type can not be null or empty");
@@ -879,10 +893,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             return result;
         }
 
-        String query = generateFindAllQuery(domainObjectType, offset, limit,
-                accessToken);
+        String query = generateFindAllQuery(domainObjectType, exactType, offset, limit, accessToken);
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
+
+        if (exactType) {
+            parameters.put(RESULT_TYPE_ID, domainObjectTypeIdCache.getId(domainObjectType));
+        }
+
         if (accessToken.isDeferred()) {
             parameters.putAll(getAclParameters(accessToken));
         }
@@ -1012,14 +1030,28 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId,
-            String linkedType, String linkedField, AccessToken accessToken) {
-        return findLinkedDomainObjects(domainObjectId, linkedType, linkedField,
+                                                      String linkedType, String linkedField, AccessToken accessToken) {
+        return findLinkedDomainObjects(domainObjectId, linkedType, linkedField, false,
                 0, 0, accessToken);
     }
 
     @Override
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId,
-            String linkedType, String linkedField, int offset, int limit,
+                                                      String linkedType, String linkedField, int offset, int limit,
+                                                      AccessToken accessToken) {
+        return findLinkedDomainObjects(domainObjectId, linkedType,  linkedField, false, offset, limit, accessToken);
+    }
+
+    @Override
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId,
+            String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
+        return findLinkedDomainObjects(domainObjectId, linkedType, linkedField, exactType,
+                0, 0, accessToken);
+    }
+
+    @Override
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId,
+            String linkedType, String linkedField, boolean exactType, int offset, int limit,
             AccessToken accessToken) {
         // Кэш используется только, когда не используется пэйджинг
         boolean linkedDomainObjectCacheEnabled = limit == 0 && offset == 0;
@@ -1035,10 +1067,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
-        parameters.put("domain_object_typeid", ((RdbmsId) domainObjectId).getTypeId());
-        String query = buildFindChildrenQuery(linkedType, linkedField, offset,
-                limit, accessToken);
+        parameters.put(PARAM_DOMAIN_OBJECT_ID, ((RdbmsId) domainObjectId).getId());
+        parameters.put(PARAM_DOMAIN_OBJECT_TYPE_ID, ((RdbmsId) domainObjectId).getTypeId());
+        if (exactType) {
+            parameters.put(RESULT_TYPE_ID, domainObjectTypeIdCache.getId(linkedType));
+        }
+
+        String query = buildFindChildrenQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
         if (accessToken.isDeferred()) {
             parameters.putAll(getAclParameters(accessToken));
         }
@@ -1066,15 +1101,26 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId,
-            String linkedType, String linkedField, AccessToken accessToken) {
-        return findLinkedDomainObjectsIds(domainObjectId, linkedType,
-                linkedField, 0, 0, accessToken);
+                                               String linkedType, String linkedField, AccessToken accessToken) {
+        return findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, false, 0, 0, accessToken);
     }
 
     @Override
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId,
-            String linkedType, String linkedField, int offset, int limit,
-            AccessToken accessToken) {
+                                               String linkedType, String linkedField, int offset, int limit,
+                                               AccessToken accessToken) {
+        return findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, false, offset, limit, accessToken);
+    }
+
+    @Override
+    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+                                               boolean exactType, AccessToken accessToken) {
+        return findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, exactType, 0, 0, accessToken);
+    }
+
+    @Override
+    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+                                               boolean exactType, int offset, int limit, AccessToken accessToken) {
         if (offset == 0 && limit == 0) {
             String[] cacheKey = new String[] { linkedType,linkedField,
                     String.valueOf(offset),String.valueOf(limit) };
@@ -1088,10 +1134,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
-        parameters.put("domain_object_typeid", ((RdbmsId) domainObjectId).getTypeId());
-        String query = buildFindChildrenIdsQuery(linkedType, linkedField,
-                offset, limit, accessToken);
+        parameters.put(PARAM_DOMAIN_OBJECT_ID, ((RdbmsId) domainObjectId).getId());
+        parameters.put(PARAM_DOMAIN_OBJECT_TYPE_ID, ((RdbmsId) domainObjectId).getTypeId());
+        if (exactType) {
+            parameters.put(RESULT_TYPE_ID, domainObjectTypeIdCache.getId(linkedType));
+        }
+
+        String query = buildFindChildrenIdsQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
         if (accessToken.isDeferred()) {
             parameters.putAll(getAclParameters(accessToken));
         }
@@ -1251,17 +1300,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      *            тип доменного объекта
      * @return SQL запрос для нахождения доменного объекта
      */
-    protected String generateFindAllQuery(String typeName, int offset,
+    protected String generateFindAllQuery(String typeName, boolean exactType, int offset,
             int limit, AccessToken accessToken) {
         String tableAlias = getSqlAlias(typeName);
 
         StringBuilder query = new StringBuilder();
         query.append("select ");
         appendColumnsQueryPart(query, typeName);
-        appendChildColumns(query, typeName);
+        if (!exactType) {
+            appendChildColumns(query, typeName);
+        }
+
         query.append(" from ");
+
         appendTableNameQueryPart(query, typeName);
-        appendChildTables(query, typeName);
+        if (!exactType) {
+            appendChildTables(query, typeName);
+        }
 
         if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(typeName)) {
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
@@ -1277,7 +1332,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         
             String rootType = configurationExplorer.getDomainObjectRootType(typeName).toLowerCase();            
 
-            query.append(" where exists (select a.object_id from ").append(aclReadTable).append(" a");
+            query.append(" where ");
+
+            if (exactType) {
+                query.append(tableAlias).append(".").append(TYPE_COLUMN).append(" = :").append(RESULT_TYPE_ID).
+                        append(" and ");
+            }
+
+            query.append("exists (select a.object_id from ").append(aclReadTable).append(" a");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
                     .append(" = gg.").append(wrap("parent_group_id"));
             query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
@@ -1706,24 +1768,33 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     }
 
-    protected String buildFindChildrenQuery(String linkedType, String linkedField, int offset,
-                                            int limit, AccessToken accessToken) {
+    protected String buildFindChildrenQuery(String linkedType, String linkedField, boolean exactType,
+                                            int offset, int limit, AccessToken accessToken) {
         String tableAlias = getSqlAlias(linkedType);
         String tableHavingLinkedFieldAlias = getSqlAlias(findInHierarchyDOTypeHavingField(linkedType, linkedField));
 
         StringBuilder query = new StringBuilder("select ");
         appendColumnsQueryPart(query, linkedType);
-        appendChildColumns(query, linkedType);
+        if (!exactType) {
+            appendChildColumns(query, linkedType);
+        }
 
         query.append(" from ");
 
         appendTableNameQueryPart(query, linkedType);
-        appendChildTables(query, linkedType);
+        if (!exactType) {
+            appendChildTables(query, linkedType);
+        }
 
         query.append(" where ").append(tableHavingLinkedFieldAlias).append(".").
-                append(wrap(getSqlName(linkedField))).append(" = :domain_object_id").
-                append(" and ").append(wrap(getSqlName(getReferenceTypeColumnName(linkedField))))
-                .append(" = :domain_object_typeid");
+                append(wrap(getSqlName(linkedField))).append(" = :").append(PARAM_DOMAIN_OBJECT_ID).
+                append(" and ").append(wrap(getSqlName(getReferenceTypeColumnName(linkedField)))).
+                append(" = :").append(PARAM_DOMAIN_OBJECT_TYPE_ID);
+
+        if (exactType) {
+            query.append(" and ").append(tableHavingLinkedFieldAlias).append(".").append(TYPE_COLUMN).
+                    append(" = :").append(RESULT_TYPE_ID);
+        }
 
         boolean isDomainObject = configurationExplorer.getConfig(DomainObjectTypeConfig.class, DaoUtils.unwrap(linkedType)) != null;
 
@@ -1736,8 +1807,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return query.toString();
     }
 
-    protected String buildFindChildrenIdsQuery(String linkedType,
-            String linkedField, int offset, int limit, AccessToken accessToken) {
+    protected String buildFindChildrenIdsQuery(String linkedType, String linkedField, boolean exactType,
+                                               int offset, int limit, AccessToken accessToken) {
         String doTypeHavingLinkedField = findInHierarchyDOTypeHavingField(linkedType, linkedField);
         String tableName = getSqlName(doTypeHavingLinkedField);
         String tableAlias = getSqlAlias(tableName);
@@ -1747,9 +1818,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 append(", ").append(tableAlias).append(".").append(getReferenceTypeColumnName(ID_COLUMN)).
                 append(" from ").append(wrap(tableName)).append(" ").append(tableAlias).
                 append(" where ").append(tableAlias).append(".").append(wrap(getSqlName(linkedField))).
-                append(" = :domain_object_id").
+                append(" = :").append(PARAM_DOMAIN_OBJECT_ID).
                 append(" and ").append(wrap(getSqlName(getReferenceTypeColumnName(linkedField))))
-                .append(" = :domain_object_typeid");
+                .append(" = :").append(PARAM_DOMAIN_OBJECT_TYPE_ID);
+
+        if (exactType) {
+            query.append(" and ").append(tableAlias).append(".").append(TYPE_COLUMN).
+                    append(" = :").append(RESULT_TYPE_ID);
+        }
 
         if (accessToken.isDeferred()) {
              appendAccessControlLogicToQuery(query, linkedType);
