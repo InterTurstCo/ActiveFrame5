@@ -35,7 +35,7 @@
         <act:action name="aWeek" componentName="calendar.week.mode" rendered="mode=='month'" dirtySensitivity="false"
                     immediate="true" text="Неделя" order="100" imageClass="calendarWeek"/>
         <act:action name="aMonth" componentName="calendar.month.mode" rendered="mode=='week'" dirtySensitivity="false"
-                    immediate="true" text="Месяц" order="100"/>
+                    immediate="true" text="Месяц" order="100" imageClass="calendarMonth"/>
         <act:action name="aPreviousWeek" componentName="calendar.previous.week" rendered="mode=='week'"
                     dirtySensitivity="false" immediate="true" text="&lt; Предыдущая неделя" order="150"/>
         <act:action name="aNextWeek" componentName="calendar.next.week" rendered="mode=='week'" dirtySensitivity="false"

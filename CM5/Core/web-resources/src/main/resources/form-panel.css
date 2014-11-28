@@ -322,6 +322,7 @@
 .decorated-action-link .actionBar-sign,
 .decorated-action-link .actionBar-delete,
 .decorated-action-link .actionBar-csvUpload,
+.decorated-action-link .calendarMonth,
 .decorated-action-link .calendarWeek,
 .decorated-action-link .calendarToday {
     float: left;
@@ -504,6 +505,9 @@
 .decorated-action-link table tr td:hover a.action-bar-button {
     color: #f00;
     border-bottom: 1px dotted #f00;
+}
+.decorated-action-link .calendarMonth {
+    background: url("resources/defaulttheme/images/icons/icon-calendar-month.png") no-repeat 0 0;
 }
 
 .decorated-action-link .calendarWeek {
