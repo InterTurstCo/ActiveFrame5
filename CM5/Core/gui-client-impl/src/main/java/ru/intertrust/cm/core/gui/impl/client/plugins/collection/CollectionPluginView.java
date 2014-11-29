@@ -56,6 +56,7 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.*;
@@ -134,23 +135,16 @@ public class CollectionPluginView extends PluginView {
         items = collectionPluginData.getItems();
         hierarchicalFiltersConfig = collectionPluginData.getHierarchicalFiltersConfig();
         init();
-        final List<Id> selectedIds = new ArrayList<>();
-        final List<Id> selectedFromHistory = Application.getInstance().getHistoryManager().getSelectedIds();
+        final Set<Id> selectedIds = prepareSelectedIds();
         boolean shouldSetSelection = CollectionDataGridUtils.shouldSetSelection(collectionPluginData);
-        if(shouldSetSelection){
-        if (!selectedFromHistory.isEmpty()) {
-            selectedIds.addAll(selectedFromHistory);
-        } else if (collectionPluginData.getChosenIds() != null) {
-            selectedIds.addAll(collectionPluginData.getChosenIds());
-        }
-
-        if (!selectedIds.isEmpty()) {
-            for (CollectionRowItem item : items) {
-                if (selectedIds.contains(item.getId())) {
-                    selectionModel.setSelected(item, true);
+        if (shouldSetSelection) {
+            if (WidgetUtil.isNotEmpty(selectedIds)) {
+                for (CollectionRowItem item : items) {
+                    if (selectedIds.contains(item.getId())) {
+                        selectionModel.setSelected(item, true);
+                    }
                 }
             }
-        }
         }
         Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
         root.addStyleName("collection-plugin-view-container");
@@ -248,11 +242,11 @@ public class CollectionPluginView extends PluginView {
         eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
-                 if(event.getId() == null){
-                     refreshCollection(event.getIdentifiableObject());
-                 } else{
-                     refreshCollection(event.getId());
-                 }
+                if (event.getId() == null) {
+                    refreshCollection(event.getIdentifiableObject());
+                } else {
+                    refreshCollection(event.getId());
+                }
 
             }
         });
@@ -342,7 +336,7 @@ public class CollectionPluginView extends PluginView {
                         ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
                 JSONObject requestObj = new JSONObject();
                 JsonUtil.prepareJsonAttributes(requestObj, getPluginData().getCollectionName(), simpleSearchQuery, searchArea);
-                JsonUtil.prepareJsonSortCriteria(requestObj,getPluginData().getDomainObjectFieldPropertiesMap(), sortCollectionState);
+                JsonUtil.prepareJsonSortCriteria(requestObj, getPluginData().getDomainObjectFieldPropertiesMap(), sortCollectionState);
                 JsonUtil.prepareJsonColumnProperties(requestObj, getPluginData().getDomainObjectFieldPropertiesMap(), filtersMap);
                 JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig, "jsonInitialFilters");
                 JsonUtil.prepareJsonHierarchicalFiltersConfig(requestObj, hierarchicalFiltersConfig, "jsonHierarchicalFilters");
@@ -358,13 +352,13 @@ public class CollectionPluginView extends PluginView {
                 final List<Id> changedIds = event.getId();
 
                 boolean selected = event.isSelected();
-                if(selected){
+                if (selected) {
                     ids.addAll(changedIds);
                 } else {
                     ids.removeAll(changedIds);
                 }
                 TableBrowserParams tableBrowserParams = getPluginData().getTableBrowserParams();
-                if(tableBrowserParams != null && !tableBrowserParams.isDisplayCheckBoxes()){ //single choice
+                if (tableBrowserParams != null && !tableBrowserParams.isDisplayCheckBoxes()) { //single choice
                     final Id id = changedIds.get(0);
                     CollectionRowItem item = GuiUtil.find(items, new Predicate<CollectionRowItem>() {
                         @Override
@@ -399,11 +393,11 @@ public class CollectionPluginView extends PluginView {
         lastScrollPos = 0;
         filtersMap.clear();
         InitialFiltersConfig initialFiltersConfig = getPluginData().getInitialFiltersConfig();
-        if(initialFiltersConfig != null){
-        List<InitialFilterConfig> initialFilters = initialFiltersConfig.getFilterConfigs();
-        if(initialFilters != null){
-            initialFilters.clear();
-        }
+        if (initialFiltersConfig != null) {
+            List<InitialFilterConfig> initialFilters = initialFiltersConfig.getFilterConfigs();
+            if (initialFilters != null) {
+                initialFilters.clear();
+            }
         }
 
     }
@@ -506,7 +500,7 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    private void refreshCollection(Id id){
+    private void refreshCollection(Id id) {
         Set<Id> includedIds = new HashSet<>();
         includedIds.add(id);
 
@@ -582,7 +576,7 @@ public class CollectionPluginView extends PluginView {
                 new CollectionColumn<CollectionRowItem, Boolean>(new CheckboxCell(false, false)) {
                     @Override
                     public Boolean getValue(CollectionRowItem object) {
-                      return getPluginData().getChosenIds().contains(object.getId());
+                        return getPluginData().getChosenIds().contains(object.getId());
 
                     }
                 };
@@ -718,6 +712,7 @@ public class CollectionPluginView extends PluginView {
                     sortCollectionState.getColumnName(), sortCollectionState.getField());
 
         }
+        sortCollectionState.setOffset(listCount);
         SortCriteriaConfig sortCriteriaConfig = ascending ? collectionColumnProperties.getAscSortCriteriaConfig()
                 : collectionColumnProperties.getDescSortCriteriaConfig();
         collectionRowsRequest.setSortCriteriaConfig(sortCriteriaConfig);
@@ -769,11 +764,39 @@ public class CollectionPluginView extends PluginView {
             insertMoreRows(collectionRowItems);
         }
         tableBody.flush();
-        final ScrollPanel scroll = tableBody.getScrollPanel();
-        scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
+        setUpScrollSelection();
         columnHeaderController.updateFilterValues();
         columnHeaderController.setFocus();
     }
+
+    private void setUpScrollSelection() {
+        Set<Id> selectedItems = prepareSelectedIds();
+        if (WidgetUtil.containsOneElement(selectedItems)) {
+            Id selectedId = selectedItems.iterator().next();
+            int index = getIndex(selectedId);
+            if (index != -1) {
+                selectionModel.setSelected(items.get(index), true); //element is visible, so should be highlighted
+            }
+            setUpScroll(index);
+
+        }
+
+    }
+
+    public void setUpScroll(int index) {
+        ScrollPanel scroll = tableBody.getScrollPanel();
+        if (CollectionDataGridUtils.shouldChangeScrollPosition(sortCollectionState)) {
+            if (index == -1) { //element was not found, so move scroll to the top
+                scroll.scrollToTop();
+                lastScrollPos = 0;
+            } else {
+                tableBody.getRowElement(index).scrollIntoView();
+            }
+        }
+
+        scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
+    }
+
 
     private void collectionOneRowRequestCommand(CollectionRefreshRequest request) {
         Command command = new Command("refreshCollection", "collection.plugin", request);
@@ -862,9 +885,22 @@ public class CollectionPluginView extends PluginView {
             this.breadcrumbWidgets.addAll(breadcrumbWidgets);
         }
     }
-    private CollectionPluginData getPluginData(){
+
+    private CollectionPluginData getPluginData() {
         return plugin.getInitialData();
     }
 
+    private Set<Id> prepareSelectedIds() {
+        CollectionPluginData collectionPluginData = getPluginData();
+        final Set<Id> selectedIds = new HashSet<Id>();
+        final List<Id> selectedFromHistory = Application.getInstance().getHistoryManager().getSelectedIds();
+        if (WidgetUtil.isNotEmpty(selectedFromHistory)) {
+            selectedIds.addAll(selectedFromHistory);
+        } else if (WidgetUtil.isNotEmpty(collectionPluginData.getChosenIds())) {
+            selectedIds.addAll(collectionPluginData.getChosenIds());
+        }
+        return selectedIds;
+
+    }
 }
 

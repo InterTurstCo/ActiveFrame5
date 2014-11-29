@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
@@ -54,6 +55,12 @@ public class CollectionDataGridUtils {
 
     public static void adjustWidthWithoutUserSettingsKeeping(int tableWidth, CollectionDataGrid dataGrid){
         calculateColumnsWidth(tableWidth, dataGrid, false);
+    }
+
+    public static boolean shouldChangeScrollPosition(SortCollectionState sortState){
+        return  sortState != null //sorting was executed
+                && sortState.getOffset() == 0; // not scrolling already sorted rows
+
     }
 
     private static void calculateColumnsWidth(int tableWidth, CollectionDataGrid tableBody, boolean keepUserWidth){
