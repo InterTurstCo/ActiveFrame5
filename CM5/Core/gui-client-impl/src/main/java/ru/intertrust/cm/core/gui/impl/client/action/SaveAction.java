@@ -55,7 +55,7 @@ public class SaveAction extends SimpleServerAction {
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         PluginConfig pluginConfig = getPlugin().getConfig();
         IdentifiableObject root = formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject();
-        if(root != null){
+        if(root != null && pluginConfig instanceof FormPluginConfig){
             ((FormPluginConfig)pluginConfig).setDomainObjectId(root.getId());
         }
         if (plugin.getLocalEventBus() != null) {
