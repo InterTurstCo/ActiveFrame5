@@ -19,7 +19,6 @@ import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
-import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.util.ObjectCloner;
@@ -49,9 +48,6 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         ObjectCloner cloner = new ObjectCloner();
         SuggestBoxConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(), SuggestBoxConfig.class);
         state.setSuggestBoxConfig(widgetConfig);
-        Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames =
-                WidgetUtil.getWidgetIdsComponentsNamesForFilters(widgetConfig.getSelectionFiltersConfig(), context.getWidgetConfigsById());
-        state.setSelectionWidgetIdsComponentNames(selectionWidgetIdsComponentNames);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         DomainObject root = context.getFormObjects().getRootNode().getDomainObject();
         fillTypeTitleMap(root, widgetConfig.getLinkedFormMappingConfig(), state);
@@ -68,9 +64,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             Filter idsIncludedFilter = FilterBuilderUtil.prepareFilter(idsIncluded, FilterBuilderUtil.INCLUDED_IDS_FILTER);
             filters.add(idsIncludedFilter);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
-                    context, widgetConfig.getId());
-            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId(), widgetValueMap);
+            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
             boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == -1;

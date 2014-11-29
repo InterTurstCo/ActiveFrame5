@@ -16,7 +16,6 @@ public abstract class TooltipWidgetState<T> extends LinkCreatorWidgetState<T> {
     protected boolean displayingAsHyperlinks;
     protected LinkedHashMap<Id, String> tooltipValues;
     private Collection<WidgetIdComponentName> extraWidgetIdsComponentNames;
-    private Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames;
 
     public boolean isDisplayingAsHyperlinks() {
         return displayingAsHyperlinks;
@@ -44,14 +43,6 @@ public abstract class TooltipWidgetState<T> extends LinkCreatorWidgetState<T> {
 
     public void setExtraWidgetIdsComponentNames(Collection<WidgetIdComponentName> extraWidgetIdsComponentNames) {
         this.extraWidgetIdsComponentNames = extraWidgetIdsComponentNames;
-    }
-
-    public Collection<WidgetIdComponentName> getSelectionWidgetIdsComponentNames() {
-        return selectionWidgetIdsComponentNames;
-    }
-
-    public void setSelectionWidgetIdsComponentNames(Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames) {
-        this.selectionWidgetIdsComponentNames = selectionWidgetIdsComponentNames;
     }
 
     public abstract Set<Id> getSelectedIds();

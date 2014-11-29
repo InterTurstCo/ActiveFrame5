@@ -73,9 +73,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames =
                 WidgetUtil.getWidgetIdsComponentsNamesForFilters(widgetConfig .getSelectionFiltersConfig(), context.getWidgetConfigsById());
         state.setSelectionWidgetIdsComponentNames(selectionWidgetIdsComponentNames);
-        Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
-                context, widgetConfig.getId());
-        ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId(), widgetValueMap);
+        ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
         List<RowItem> rowItems = selectionFiltersConfig == null || !collectionNameConfigured ? generateRowItems(widgetConfig, ids)
                 : generateFilteredRowItems(widgetConfig, ids, filtersParams,false);
         state.setRowItems(rowItems);

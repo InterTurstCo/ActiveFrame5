@@ -27,7 +27,6 @@ import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
-import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
@@ -68,9 +67,6 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
                 LinkedDomainObjectHyperlinkConfig.class);
         LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
         ArrayList<Id> selectedIds = context.getAllObjectIds();
-        Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames =
-                WidgetUtil.getWidgetIdsComponentsNamesForFilters(widgetConfig.getSelectionFiltersConfig(), context.getWidgetConfigsById());
-        state.setSelectionWidgetIdsComponentNames(selectionWidgetIdsComponentNames);
         Id rootId = context.getFormObjects().getRootNode().getDomainObject().getId();
         if (!selectedIds.isEmpty()) {
             Id id = selectedIds.get(0);
@@ -79,9 +75,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
             DomainObject firstDomainObject = crudService.find(id);
             state.setDomainObjectType(firstDomainObject.getTypeName());
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
-                    context, widgetConfig.getId());
-            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(rootId, widgetValueMap);
+            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(rootId);
             LinkedHashMap<Id, String> listValues = selectionFiltersConfig == null || widgetConfig.getCollectionRefConfig() == null
                     ? generateHyperlinkItems(widgetConfig, selectedIds)
                     : generateFilteredHyperlinkItems(widgetConfig, selectedIds, filtersParams,false);

@@ -14,11 +14,9 @@ import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
-import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.util.ObjectCloner;
 
@@ -55,9 +53,6 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         abandonAccessed(root, widgetConfig.getCreatedObjectsConfig(), null);
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), root);
         Map<String, WidgetConfig> widgetIdConfigMap = context.getWidgetConfigsById();
-        Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames = WidgetUtil.
-                getWidgetIdsComponentsNamesForFilters(widgetConfig.getSelectionFiltersConfig(), widgetIdConfigMap);
-        state.setSelectionWidgetIdsComponentNames(selectionWidgetIdsComponentNames);
         state.setPopupTitlesHolder(popupTitlesHolder);
         if (!selectedIds.isEmpty()) {
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
@@ -67,9 +62,8 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             SelectionSortCriteriaConfig selectionSortCriteriaConfig = widgetConfig.getSelectionSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(selectionSortCriteriaConfig);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
-                    context, widgetConfig.getId());
-            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId(), widgetValueMap);
+
+            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
             boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == -1;

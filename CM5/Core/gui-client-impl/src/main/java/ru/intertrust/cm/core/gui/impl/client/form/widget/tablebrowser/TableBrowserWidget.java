@@ -479,8 +479,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             widgetItemsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
             widgetItemsRequest.setSelectionSortCriteriaConfig(tableBrowserConfig.getSelectionSortCriteriaConfig());
             widgetItemsRequest.setSelectionFiltersConfig(tableBrowserConfig.getSelectionFiltersConfig());
-            ComplicatedFiltersParams params = GuiUtil.createComplicatedFiltersParams(getContainer(),
-                    currentState.getSelectionWidgetIdsComponentNames());
+            ComplicatedFiltersParams params = GuiUtil.createComplicatedFiltersParams(getContainer());
             widgetItemsRequest.setComplicatedFiltersParams(params);
             Command command = new Command("fetchTableBrowserItems", getName(), widgetItemsRequest);
             BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {

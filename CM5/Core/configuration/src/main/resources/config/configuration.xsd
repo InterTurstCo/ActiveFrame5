@@ -3268,14 +3268,15 @@
                     <xs:element name="unique-key-value" type="con:uniqueKeyValueType"/>
                 </xs:sequence>
                 <xs:attribute name="time-zone-id" type="xs:string" use="optional"/>
-                <xs:attribute name="widget-id" type="xs:string"  use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="extraParamType">
         <xs:complexContent>
-            <xs:extension base="con:complicatedParamType"/>
+            <xs:extension base="con:complicatedParamType">
+                <xs:attribute name="widget-id" type="xs:string"  use="optional"/>
+            </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 

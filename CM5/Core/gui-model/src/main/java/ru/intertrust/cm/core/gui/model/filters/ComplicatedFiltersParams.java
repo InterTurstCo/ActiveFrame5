@@ -21,8 +21,12 @@ public class ComplicatedFiltersParams implements Dto {
     public ComplicatedFiltersParams() {
     }
 
-    public ComplicatedFiltersParams(Id rootId, Map<WidgetIdComponentName, WidgetState> widgetValuesMap) {
+    public ComplicatedFiltersParams(Id rootId) {
         this.rootId = rootId;
+    }
+
+    public ComplicatedFiltersParams(Id rootId, Map<WidgetIdComponentName, WidgetState> widgetValuesMap) {
+        this(rootId);
         this.widgetValuesMap = widgetValuesMap;
     }
 
@@ -39,10 +43,6 @@ public class ComplicatedFiltersParams implements Dto {
 
     public void setRootId(Id rootId) {
         this.rootId = rootId;
-    }
-
-    public Map<WidgetIdComponentName, WidgetState> getWidgetValuesMap() {
-        return widgetValuesMap;
     }
 
     public void setWidgetValuesMap(Map<WidgetIdComponentName, WidgetState> widgetValuesMap) {
@@ -66,6 +66,9 @@ public class ComplicatedFiltersParams implements Dto {
     }
 
     public Map.Entry<WidgetIdComponentName, WidgetState> getWidgetValue(String widgetId){
+        if(widgetValuesMap == null){
+            return null;
+        }
         Set<Map.Entry<WidgetIdComponentName, WidgetState>> widgetValues = widgetValuesMap.entrySet();
         for (Map.Entry<WidgetIdComponentName, WidgetState> widgetValue : widgetValues) {
             if(widgetValue.getKey().getWidgetId().equalsIgnoreCase(widgetId)){
@@ -74,4 +77,5 @@ public class ComplicatedFiltersParams implements Dto {
         }
         return null;
     }
+
 }

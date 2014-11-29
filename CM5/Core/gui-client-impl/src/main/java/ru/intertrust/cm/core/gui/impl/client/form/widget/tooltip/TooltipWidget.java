@@ -70,7 +70,7 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
         request.setSelectionSortCriteriaConfig(config.getSelectionSortCriteriaConfig());
         request.setSelectionFiltersConfig(config.getSelectionFiltersConfig());
         ComplicatedFiltersParams filtersParams =
-                GuiUtil.createComplicatedFiltersParams(getContainer(), state.getSelectionWidgetIdsComponentNames());
+                GuiUtil.createComplicatedFiltersParams(getContainer());
         request.setComplicatedFiltersParams(filtersParams);
         return request;
     }

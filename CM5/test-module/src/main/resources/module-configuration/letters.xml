@@ -312,11 +312,6 @@
                     <created-object text="Отдел" domain-object-type="Department"/>
                     <created-object text="Сотрудник" domain-object-type="Employee"/>
                 </created-objects>
-                <selection-filters>
-                    <selection-filter name="byStatus">
-                    <param name="0" widget-id="status"/>
-                </selection-filter>
-                </selection-filters>
 
                 <summary-table>
                     <summary-table-column header="Название" widget-id="Name">
