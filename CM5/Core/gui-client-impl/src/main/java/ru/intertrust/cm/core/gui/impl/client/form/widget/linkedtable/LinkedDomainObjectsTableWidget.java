@@ -6,7 +6,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -250,30 +249,34 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     }
 
     private String getModalHeight(String domainObjectType) {
-        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
-        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-            return linkedFormConfig.getModalHeight();
-        }
+        LinkedFormConfig linkedFormConfig = null;
         if (domainObjectType != null) {
             linkedFormConfig = getLinkedFormConfig(domainObjectType, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig());
             if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
                 return linkedFormConfig.getModalHeight();
             }
         }
+        linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
+        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+            return linkedFormConfig.getModalHeight();
+        }
+
         return currentState.getLinkedDomainObjectsTableConfig().getModalHeight();
     }
 
     private String getModalWidth(String domainObjectType) {
-        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
-        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-            return linkedFormConfig.getModalWidth();
-        }
+        LinkedFormConfig linkedFormConfig = null;
         if (domainObjectType != null) {
             linkedFormConfig = getLinkedFormConfig(domainObjectType, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig());
             if (linkedFormConfig != null && linkedFormConfig.getModalWidth() != null) {
                 return linkedFormConfig.getModalWidth();
             }
         }
+        linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
+        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+            return linkedFormConfig.getModalWidth();
+        }
+
         return currentState.getLinkedDomainObjectsTableConfig().getModalWidth();
     }
 
