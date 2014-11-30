@@ -23,7 +23,10 @@ import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.util.ObjectCloner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.regex.Matcher;
 
 /**
@@ -55,14 +58,13 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig.getLinkedFormConfig(), root);
         state.setPopupTitlesHolder(popupTitlesHolder);
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
+        state.setSelectedIds(new LinkedHashSet<>(selectedIds));
         if (!selectedIds.isEmpty()) {
             SelectionSortCriteriaConfig sortCriteriaConfig = widgetConfig.getSelectionSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(sortCriteriaConfig);
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
             List<Filter> filters = new ArrayList<Filter>();
-            Set<Id> idsIncluded = new HashSet<Id>(selectedIds);
-            Filter idsIncludedFilter = FilterBuilderUtil.prepareFilter(idsIncluded, FilterBuilderUtil.INCLUDED_IDS_FILTER);
-            filters.add(idsIncludedFilter);
+            filterBuilder.prepareIncludedIdsFilter(selectedIds, filters);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
             ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
             boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
@@ -84,7 +86,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         boolean isReportForm = FormConfig.TYPE_REPORT.equals(context.getFormType());
         boolean singleChoice = isReportForm ? (singleChoiceFromConfig != null && singleChoiceFromConfig)
                 : isSingleChoice(context, singleChoiceFromConfig);
-        state.setSelectedIds(new LinkedHashSet<>(selectedIds));
+
         state.setSingleChoice(singleChoice);
         state.setListValues(objects);
         state.setExtraWidgetIdsComponentNames(WidgetUtil.

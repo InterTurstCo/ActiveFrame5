@@ -10,7 +10,6 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCri
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
@@ -56,9 +55,8 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         state.setPopupTitlesHolder(popupTitlesHolder);
         if (!selectedIds.isEmpty()) {
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
-            Filter includeIds = FilterBuilderUtil.prepareFilter(selectedIdsSet, FilterBuilderUtil.INCLUDED_IDS_FILTER);
             List<Filter> filters = new ArrayList<>();
-            filters.add(includeIds);
+            filterBuilder.prepareIncludedIdsFilter(selectedIds, filters);
             SelectionSortCriteriaConfig selectionSortCriteriaConfig = widgetConfig.getSelectionSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(selectionSortCriteriaConfig);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
