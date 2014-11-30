@@ -103,8 +103,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void updateSizes() {
-        // one pixel inaccuracy causes drawing fake scroll, removing 1px prevents scroll issue
-        tableWidth = plugin.getOwner().getVisibleWidth() - 1;
+        tableWidth = plugin.getOwner().getVisibleWidth();
         columnHeaderController.adjustColumnsWidth(tableWidth, tableBody);
     }
 
@@ -626,13 +625,13 @@ public class CollectionPluginView extends PluginView {
         }
 
         columnHeaderController.setColumnHeaderBlocks(columnHeaderBlocks);
-        columnHeaderController.changeVisibilityOfColumns();
+
         String panelStatus = getPanelState();
         if (panelStatus.equalsIgnoreCase(OPEN)) {
             columnHeaderController.changeFiltersInputsVisibility(true);
             filterButton.setValue(true);
-            columnHeaderController.updateFilterValues();
         }
+        columnHeaderController.changeVisibilityOfColumns();
 
     }
 
@@ -788,7 +787,6 @@ public class CollectionPluginView extends PluginView {
         if (CollectionDataGridUtils.shouldChangeScrollPosition(sortCollectionState)) {
             if (index == -1) { //element was not found, so move scroll to the top
                 scroll.scrollToTop();
-                lastScrollPos = 0;
             } else {
                 tableBody.getRowElement(index).scrollIntoView();
             }

@@ -18,7 +18,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Time: 13:15
  */
 public class CollectionDataGridUtils {
-
+    public static final int CALCULATION_INACCURACY = 1;// one pixel inaccuracy causes drawing fake scroll, removing 1px prevents scroll issue
     private CollectionDataGridUtils() {
     }
 
@@ -63,7 +63,8 @@ public class CollectionDataGridUtils {
 
     }
 
-    private static void calculateColumnsWidth(int tableWidth, CollectionDataGrid tableBody, boolean keepUserWidth){
+    private static void calculateColumnsWidth(int realTableWidth, CollectionDataGrid tableBody, boolean keepUserWidth){
+        int tableWidth = realTableWidth - CALCULATION_INACCURACY;
         final Map<CollectionColumn, Integer> widthMap = new HashMap<>();
         final List<CollectionColumn> unProcessingColumnList = new ArrayList<>();
         int processedColumnCount = 0;
