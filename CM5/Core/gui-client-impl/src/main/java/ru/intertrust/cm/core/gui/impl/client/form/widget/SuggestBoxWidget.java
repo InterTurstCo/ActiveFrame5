@@ -239,6 +239,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         suggestBox.addKeyDownHandler(new KeyDownHandler() {
             @Override
             public void onKeyDown(KeyDownEvent event) {
+                lazyLoadState = null; //all events cause suggest popup closing or reopening, so state should be reseted
                 int eventKeyCode = event.getNativeEvent().getKeyCode();
                 switch (eventKeyCode) {
                     case KeyCodes.KEY_BACKSPACE:

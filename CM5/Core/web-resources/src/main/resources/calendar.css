@@ -1,4 +1,5 @@
 .calendarScrollPanel {
+    overflow: hidden;
     position: absolute !important;
     top: 65px;
     right: 0;
@@ -125,7 +126,7 @@
     height: 22px;
     width: 69px;
     color: white;
-    line-height: 18px;
+    line-height: 15px;
     background: url(css/i/calendar-bg-day-labels.png) left top no-repeat;
     text-align: center;
     left: 50%;
@@ -337,5 +338,52 @@
 .calendarItemLink {
     cursor: pointer;
     curson: hand;
+}
+
+.calendar-scroll-panel {
+    position: absolute !important;
+    top: 65px;
+    right: 0px;
+    bottom: 0;
+    left: 0;
+    border: solid 1px #ddd;
+    background: rgba(248, 249, 255, 1.0);
+}
+
+.calendar-container {
+    /*position: absolute;*/
+    background: rgba(89, 17, 20, 0.15);
+    right: 0;
+    left: 0;
+
+}
+
+.calendar-day-wrapper {
+    position: absolute;
+    padding: 2px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.calendar-day-block {
+    border-left: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    position: relative;
+}
+
+.calendar-focus-day-block {
+    background: #fffbe2;
+    border: 2px solid #ffa34c !important;
+    border-radius: 10px;
+}
+
+.month-detail-panel {
+    position: absolute;
+    top: 31px;
+    bottom: 0;
+    right: 0;
+    padding: 5px;
 }
 /* ------------>>> end Calendar Week Panel buttons <<<------------ */

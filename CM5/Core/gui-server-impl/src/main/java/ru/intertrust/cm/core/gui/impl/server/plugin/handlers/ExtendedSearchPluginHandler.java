@@ -42,8 +42,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkSt
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
@@ -51,6 +49,8 @@ import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -238,6 +238,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             WidgetHandler widgetHandler = (WidgetHandler) applicationContext.getBean(widgetConfigById.get(key).getComponentName());
             Value value = widgetHandler.getValue(widgetState);
             //try {
+            if (value != null) {
                 Object plainValue = value.get();
 
                 if (plainValue != null) {
@@ -277,6 +278,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                         }*/
                     }
                 }
+            }
             //} catch (NullPointerException npe) { continue; }
         }
 

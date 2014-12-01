@@ -389,6 +389,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
                 initCheckboxItem(columnHeaderBlock, container, inabilityManager);
 
             }
+            inabilityManager.handleCheckBoxesInability();
         }
 
         private void initCheckboxItem(final ColumnHeaderBlock columnHeaderBlock, Panel container,

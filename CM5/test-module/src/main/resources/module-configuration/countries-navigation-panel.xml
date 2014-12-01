@@ -486,9 +486,18 @@
 
             </child-links>
         </link>
-        <link name="SochiServer" display-text="Сочи Сервер" image="images/matugalnik2.png" child-to-open="Module">
+        <link name="SochiServer" display-text="Сочи Сервер" image="images/matugalnik2.png" child-to-open="ModuleOrganizations">
             <child-links>
-
+                <link name="ModuleOrganizations" display-text="Модуль и Организация">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="SS_ModuleOrg">
+                            <collection-viewer>
+                                <collection-ref name="SS_Module_Organization_Collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
                 <link name="Departments" display-text="департаменты">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="SO_Department">

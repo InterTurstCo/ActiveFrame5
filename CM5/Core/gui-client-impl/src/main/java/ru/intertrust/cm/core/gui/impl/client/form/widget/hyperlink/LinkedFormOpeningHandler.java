@@ -24,6 +24,7 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -65,30 +66,34 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
     }
 
     private String getModalHeight(HasLinkedFormMappings widget) {
-        LinkedFormConfig linkedFormConfig = widget.getLinkedFormConfig();
-        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-            return linkedFormConfig.getModalHeight();
-        }
+        LinkedFormConfig linkedFormConfig = null;
         if (domainObjectType != null) {
             linkedFormConfig = getLinkedFormConfig(domainObjectType, widget.getLinkedFormMappingConfig());
             if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
                 return linkedFormConfig.getModalHeight();
             }
         }
+        linkedFormConfig = widget.getLinkedFormConfig();
+        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+            return linkedFormConfig.getModalHeight();
+        }
+
         return null;
     }
 
     private String getModalWidth(HasLinkedFormMappings widget) {
-        LinkedFormConfig linkedFormConfig = widget.getLinkedFormConfig();
-        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-            return linkedFormConfig.getModalWidth();
-        }
+        LinkedFormConfig linkedFormConfig = null;
         if (domainObjectType != null) {
             linkedFormConfig = getLinkedFormConfig(domainObjectType, widget.getLinkedFormMappingConfig());
             if (linkedFormConfig != null && linkedFormConfig.getModalWidth() != null) {
                 return linkedFormConfig.getModalWidth();
             }
         }
+        linkedFormConfig = widget.getLinkedFormConfig();
+        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+            return linkedFormConfig.getModalWidth();
+        }
+
         return null;
     }
 
@@ -154,8 +159,11 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
         final FormPluginConfig config = new FormPluginConfig();
         LinkedFormViewerConfig formViewerConfig = new LinkedFormViewerConfig();
         LinkedFormMappingConfig linkedFormMappingConfig = widget.getLinkedFormMappingConfig();
+        LinkedFormConfig linkedFormConfig = widget.getLinkedFormConfig();
         if (linkedFormMappingConfig != null) {
             formViewerConfig.setLinkedFormConfig(linkedFormMappingConfig.getLinkedFormConfigs());
+        } else if(linkedFormConfig != null){
+            formViewerConfig.setLinkedFormConfig(Arrays.asList(linkedFormConfig));
         }
         config.setFormViewerConfig(formViewerConfig);
         config.setDomainObjectId(id);

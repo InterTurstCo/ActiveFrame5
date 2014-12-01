@@ -40,6 +40,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.*;
 
@@ -133,24 +134,32 @@ public final class GuiUtil {
     }
     public static ComplicatedFiltersParams createComplicatedFiltersParams(String filterValue, String filterName, WidgetsContainer container,
                                                                           Collection<WidgetIdComponentName> widgetsIds){
-        ComplicatedFiltersParams params = new ComplicatedFiltersParams();
+        ComplicatedFiltersParams params = createComplicatedFiltersParams(container);
         params.setInputFilterName(filterName);
         params.setInputFilterValue(filterValue);
+        params.setWidgetValuesMap(getOtherWidgetsValues(container, widgetsIds));
+        return params;
+    }
+
+    public static ComplicatedFiltersParams createComplicatedFiltersParams(WidgetsContainer container,
+                                                                          Collection<WidgetIdComponentName> widgetsIds){
+        return createComplicatedFiltersParams(null, null, container, widgetsIds);
+    }
+
+    public static ComplicatedFiltersParams createComplicatedFiltersParams(WidgetsContainer container){
+        ComplicatedFiltersParams params = new ComplicatedFiltersParams();
         Plugin plugin = container.getPlugin();
         if (plugin != null && plugin.getConfig() != null) {
             FormPluginConfig formConfig = (FormPluginConfig) plugin.getConfig();
             params.setRootId(formConfig.getDomainObjectId());
         }
-        params.setWidgetValuesMap(getOtherWidgetsValues(container, widgetsIds));
         return params;
-    }
-    public static ComplicatedFiltersParams createComplicatedFiltersParams(WidgetsContainer container,
-                                                                          Collection<WidgetIdComponentName> widgetsIds){
-
-        return createComplicatedFiltersParams(null, null, container, widgetsIds);
     }
 
     private static Map<WidgetIdComponentName, WidgetState> getOtherWidgetsValues(WidgetsContainer container,Collection<WidgetIdComponentName> widgetsIds){
+        if(WidgetUtil.isEmpty(widgetsIds)){
+            return null;
+        }
         Map<WidgetIdComponentName, WidgetState> result = new HashMap<WidgetIdComponentName, WidgetState>();
         for (WidgetIdComponentName widgetIdComponentName : widgetsIds) {
             BaseWidget widget = container.getWidget(widgetIdComponentName.getWidgetId());

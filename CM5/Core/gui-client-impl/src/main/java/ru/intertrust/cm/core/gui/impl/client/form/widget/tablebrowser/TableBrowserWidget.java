@@ -479,8 +479,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             widgetItemsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
             widgetItemsRequest.setSelectionSortCriteriaConfig(tableBrowserConfig.getSelectionSortCriteriaConfig());
             widgetItemsRequest.setSelectionFiltersConfig(tableBrowserConfig.getSelectionFiltersConfig());
-            ComplicatedFiltersParams params = GuiUtil.createComplicatedFiltersParams(getContainer(),
-                    currentState.getSelectionWidgetIdsComponentNames());
+            ComplicatedFiltersParams params = GuiUtil.createComplicatedFiltersParams(getContainer());
             widgetItemsRequest.setComplicatedFiltersParams(params);
             Command command = new Command("fetchTableBrowserItems", getName(), widgetItemsRequest);
             BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
@@ -573,7 +572,9 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 LinkedHashMap<Id, String> listValues = getUpdatedHyperlinks(id, representation, event.isTooltipContent());
                 HyperlinkDisplay hyperlinkDisplay = event.getHyperlinkDisplay();
                 hyperlinkDisplay.displayHyperlinks(listValues, !event.isTooltipContent() && shouldDrawTooltipButton());
-
+                if(currentState.isTableView()){
+                    localEventBus.fireEvent(new UpdateCollectionEvent(id));
+                }
             }
 
             @Override

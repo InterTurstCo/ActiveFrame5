@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.datebox;
 
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Panel;
@@ -44,14 +44,14 @@ public class DateTimePicker extends Composite {
             timePicker = new TimeBox(date, showSeconds);
             container.add(timePicker);
         } else if (parent != null) {
-            picker.addDomHandler(new ClickHandler() {
+            picker.addValueChangeHandler(new ValueChangeHandler<Date>() {
                 @Override
-                public void onClick(ClickEvent event) {
+                public void onValueChange(ValueChangeEvent<Date> event) {
                     Date date = getFullDate();
                     parent.eventBus.fireEventFromSource(new DateSelectedEvent(date), parent);
                     parent.hide();
                 }
-            }, ClickEvent.getType());
+            });
         }
 
     }

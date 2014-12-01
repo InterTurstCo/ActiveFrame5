@@ -42,7 +42,7 @@ public class CollectionExtraFiltersBuilderImpl extends ComplicatedFiltersBuilder
             }
         }
 
-        return filtersWerePrepared || prepareInputTextFilter(params, filters);
+        return prepareInputTextFilter(params, filters) || filtersWerePrepared;
     }
 
     private boolean prepareInputTextFilter(ComplicatedFiltersParams params, List<Filter> filters) {
@@ -54,6 +54,7 @@ public class CollectionExtraFiltersBuilderImpl extends ComplicatedFiltersBuilder
             textFilter.setFilter(filterName);
             textFilter.addCriterion(0, new StringValue(text + "%"));
             filters.add(textFilter);
+            result = true;
         }
         return result;
     }

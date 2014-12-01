@@ -9,13 +9,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.UniqueKeyValueConfig;
  *         Date: 01.11.2014
  *         Time: 17:34
  */
-public class ComplicatedParamConfig extends ParamConfig {
+public abstract class ComplicatedParamConfig extends ParamConfig {
 
     @Attribute(name = "time-zone-id", required = false)
     private String timeZoneId;
-
-    @Attribute(name = "widget-id", required = false)
-    private String widgetId;
 
     @Element(name = "unique-key-value", required = false)
     private UniqueKeyValueConfig uniqueKeyValueConfig;
@@ -36,13 +33,7 @@ public class ComplicatedParamConfig extends ParamConfig {
         this.uniqueKeyValueConfig = uniqueKeyValueConfig;
     }
 
-    public String getWidgetId() {
-        return widgetId;
-    }
-
-    public void setWidgetId(String widgetId) {
-        this.widgetId = widgetId;
-    }
+    public abstract String getWidgetId();
 
     @Override
     public boolean equals(Object o) {

@@ -312,11 +312,6 @@
                     <created-object text="Отдел" domain-object-type="Department"/>
                     <created-object text="Сотрудник" domain-object-type="Employee"/>
                 </created-objects>
-                <selection-filters>
-                    <selection-filter name="byStatus">
-                    <param name="0" widget-id="status"/>
-                </selection-filter>
-                </selection-filters>
 
                 <summary-table>
                     <summary-table-column header="Название" widget-id="Name">
@@ -804,7 +799,7 @@
             <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
                 <field-path value="department"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="department_default_form">
+                <linked-form name="department_form2">
                     <title>
                         <existing-object>
                             <pattern value="{id}, {created_date}"/>
@@ -887,6 +882,45 @@
                 <field-path/>
                 <relates-to widget-id="Name"/>
                 <text>Название:</text>
+            </label>
+            <text-box id="Name">
+                <field-path value="Name"/>
+            </text-box>
+
+            <label id="Organization-Label">
+                <relates-to widget-id="Organization"/>
+                <text>Организация:</text>
+            </label>
+            <combo-box id="Organization">
+                <field-path value="Organization"/>
+                <pattern value="{Name}"/>
+            </combo-box>
+        </widget-config>
+    </form>
+    <form name="department_form2" domain-object-type="Department" is-default="false">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="Name-Label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="Name"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+
+            </body>
+        </markup>
+        <widget-config>
+            <label id="Name-Label">
+                <field-path/>
+                <relates-to widget-id="Name"/>
+                <text>Полное имя:</text>
             </label>
             <text-box id="Name">
                 <field-path value="Name"/>

@@ -7,15 +7,15 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,32 +80,6 @@ public abstract class WidgetHandler implements ComponentHandler {
             return !configurationService.getFieldConfig(widgetContext.getFormObjects().getRootDomainObjectType(), fieldPaths[0].getFieldName()).isNotNull();
         }
         return true;
-    }
-
-    protected Map<WidgetIdComponentName, WidgetState> getWidgetValueMap(Collection<WidgetIdComponentName> widgetIdsComponentNames,
-                                                                        WidgetContext context, String currentWidgetId){
-        if(context.shouldBeSkipped(currentWidgetId)){
-            return null;
-        }
-        List<String> skippedWidgetIds = new ArrayList<>();
-        Map<WidgetIdComponentName, WidgetState> result = new HashMap<>();
-        for (WidgetIdComponentName widgetIdsComponentName : widgetIdsComponentNames) {
-            String widgetId = widgetIdsComponentName.getWidgetId();
-            WidgetState widgetState = getOtherWidgetState(context, widgetId, skippedWidgetIds);
-            result.put(widgetIdsComponentName, widgetState);
-
-        }
-        return result;
-
-    }
-    private WidgetState getOtherWidgetState(WidgetContext context,String widgetId,  List<String> skippedWidgetIds){
-        WidgetConfig config = context.getWidgetConfigById(widgetId);
-        WidgetContext widgetContext = new WidgetContext(config, context.getFormObjects(), context.getWidgetConfigsById());
-        widgetContext.setSkippedWidgetIdsForStateFetching(skippedWidgetIds);
-        WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
-        WidgetState initialState = componentHandler.getInitialState(widgetContext);
-        skippedWidgetIds.add(widgetId);
-        return initialState;
     }
 
 }

@@ -547,25 +547,22 @@
                     <single-entry-group>
                         <tab-group>
                             <table>
-                                <!-- <tr>
-                                     &lt;!&ndash;Module&ndash;&gt;
-                                     <td >
-                                         <widget id="2"/>
-                                     </td>
-                                     <td width="100%" >
-                                         <widget id="3"/>
-                                     </td>
-                                 </tr>-->
+                                <tr>
+                                    <!--Module-->
+                                    <td>
+                                        <widget id="1"/>
+                                    </td>
+                                    <td width="100%">
+                                        <widget id="2"/>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <!--Organization-->
                                     <td>
+                                        <widget id="3"/>
+                                    </td>
+                                    <td width="100%">
                                         <widget id="4"/>
-                                    </td>
-                                    <td width="100%">
-                                        <widget id="5"/>
-                                    </td>
-                                    <td width="100%">
-                                        <widget id="attachment"/>
                                     </td>
                                 </tr>
                             </table>
@@ -577,36 +574,49 @@
         <widget-config>
 
             <label id="1">
-                <text></text>
+                <text>Модуль: </text>
             </label>
+            <suggest-box id="2">
+                <field-path value="Module" />
+                <collection-ref name="SS_Module_Collection" />
+                <drop-down-pattern value="{Title}" />
 
+                <selection-pattern value="{Title}" />
+
+                <input-text-filter name="byTitle" />
+                <page-size>30</page-size>
+                <selection-style name="inline" />
+                <single-choice value="true" />
+            </suggest-box>
             <!--Type-->
-            <!--   <label id="2">
-                   <text>Type:</text>
+               <label id="3">
+                   <text>Организация:</text>
                </label>
-               <suggest-box id="3">
-                   <field-path value="Type"/>
-                   <collection-ref name="SS_ModuleType_Collection"/>
-                   <drop-down-pattern value="{Name}"/>
-                   <selection-pattern value="{Name}"/>
-                   <input-text-filter name="byText"/>
+               <suggest-box id="4">
+                   <field-path value="Organization"/>
+                   <collection-ref name="SO_OrgSystem_Collection"/>
+
+                   <drop-down-pattern value="{fullname}" />
+                   <selection-pattern value="{fullname}"/>
+                   <input-text-filter name="byName"/>
+
                    <page-size>30</page-size>
                    <selection-style name="inline"/>
-               </suggest-box>-->
+               </suggest-box>
 
             <!--Organization-->
-            <label id="4">
+           <!-- <label id="4">
                 <text>Организация:</text>
             </label>
             <attachment-box id="attachment">
                 <field-path value="org_attachment^SS_ModuleOrg"/>
-                <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
+                &lt;!&ndash; Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. &ndash;&gt;
                 <attachment-type-ref name="org_attachment"/>
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
                 <single-choice value="true"/>
-                <!--<action-link text="Открыть плагин" action-name="test.action"/>-->
-            </attachment-box>
+                &lt;!&ndash;<action-link text="Открыть плагин" action-name="test.action"/>&ndash;&gt;
+            </attachment-box>-->
 
             <!-- <table-browser id="5">
                  <field-path value="Organization"/>
@@ -626,7 +636,7 @@
                  <default-sort-criteria column-field="shortname" order="desc"/>
                  <display-values-as-links value="true"/>
              </table-browser>-->
-            <hierarchy-browser id="5">
+            <!--<hierarchy-browser id="5">
                 <field-path value="Organization"/>
 
 
@@ -647,7 +657,7 @@
                 <clear-all-button text="Очистить"/>
                 <add-button image="..." text="..."/>
                 <display-values-as-links value="true"/>
-            </hierarchy-browser>
+            </hierarchy-browser>-->
           <!--  <radio-button id="5">
                 <field-path value="Organization"/>
                 <pattern value="{ShortName}"/>
@@ -1268,22 +1278,7 @@
            ]]>
         </prototype>
     </collection>
-    <collection name="SS_ModuleType_Collection" idField="id">
-        <prototype>
-            <![CDATA[
-                select
-                 id, name, alias, iscorporatesupported, iscomplectssupported
-                from
-                    SS_ModuleType
-                     ::from-clause
-                where
-                    1=1 ::where-clause
-            ]]>
-        </prototype>
-        <counting-prototype>
-            select count(*) from SS_ModuleType ::from-clause WHERE 1=1 ::where-clause
-        </counting-prototype>
-    </collection>
+
     <collection name="SO_PostPlain_Collection" idField="id">
     <prototype>
         <![CDATA[
@@ -1376,5 +1371,49 @@
 
         </display>
     </collection-view>
+    <collection name="SS_Module_Organization_Collection" idField="id">
+        <prototype>
+            <![CDATA[
+               SELECT
+                  mo.id,
+                  m.title as module_name,
+                  su.fullname as organization_name
 
+               FROM SS_ModuleOrg mo
+                  JOIN SS_Module m ON m.id = mo.module
+                  JOIN SO_StructureUnit su ON mo.organization = su.id
+
+
+               where 1 = 1
+                  ::where-clause
+           ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from SS_ModuleOrg mo
+        </counting-prototype>
+    </collection>
+    <collection-view name="SS_Module_Organization_Default_View" collection="SS_Module_Organization_Collection"
+                     is-default="true">
+        <display>
+            <column field="module_name" name="module" type="string" sortable="false"/>
+            <column field="name" name="organization_name" type="string" sortable="false"/>
+
+        </display>
+    </collection-view>
+    <collection name="SS_ModuleType_Collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                 id, name, alias, iscorporatesupported, iscomplectssupported
+                from
+                    SS_ModuleType
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from SS_ModuleType ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
 </configuration>

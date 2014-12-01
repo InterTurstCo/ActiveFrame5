@@ -506,7 +506,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     private void fetchWidgetItems(final TooltipCallback tooltipCallback) {
         final HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
         ComplicatedFiltersParams filtersParams =
-                GuiUtil.createComplicatedFiltersParams(getContainer(), currentState.getSelectionWidgetIdsComponentNames());
+                GuiUtil.createComplicatedFiltersParams(getContainer());
         final HierarchyBrowserTooltipRequest request = new HierarchyBrowserTooltipRequest(config, currentState.getIds(), filtersParams);
         Command command = new Command("fetchWidgetItems", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {

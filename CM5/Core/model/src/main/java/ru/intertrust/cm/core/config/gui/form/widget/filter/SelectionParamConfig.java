@@ -10,4 +10,9 @@ import org.simpleframework.xml.Root;
 @Root(name = "param")
 public class SelectionParamConfig extends ComplicatedParamConfig {
 
+    @Override
+    public String getWidgetId() {
+        return null; // do not throwing exception to keep common code working
+    }
+
 }

@@ -64,8 +64,8 @@
 .gwt-SuggestBoxPopup {
     background: #FFFDF0;
     border: 1px solid #7f9db9;
-    margin-left: 0px !important;
-    width: auto !important;
+    margin-left: 0 !important;
+    /*width: auto !important;*/
     z-index: 101;
 }
 .gwt-SuggestBoxPopup .popupMiddleCenterInner table {

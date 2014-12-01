@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -16,6 +18,7 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
@@ -50,12 +53,16 @@ public class SaveAction extends SimpleServerAction {
     protected void onSuccess(ActionData result) {
         FormPluginData formPluginData = ((SaveActionData) result).getFormPluginData();
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
+        PluginConfig pluginConfig = getPlugin().getConfig();
+        IdentifiableObject root = formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject();
+        if(root != null && pluginConfig instanceof FormPluginConfig){
+            ((FormPluginConfig)pluginConfig).setDomainObjectId(root.getId());
+        }
         if (plugin.getLocalEventBus() != null) {
             editor.setFormState(formPluginData.getFormDisplayData().getFormState());
             editor.setFormToolbarContext(formPluginData.getToolbarContext());
             plugin.getView().updateActionToolBar();
-            plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
-                    formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
+            plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(root));
         }
     }
 

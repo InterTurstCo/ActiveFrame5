@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
@@ -17,7 +18,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Time: 13:15
  */
 public class CollectionDataGridUtils {
-
+    public static final int CALCULATION_INACCURACY = 1;// one pixel inaccuracy causes drawing fake scroll, removing 1px prevents scroll issue
     private CollectionDataGridUtils() {
     }
 
@@ -56,7 +57,14 @@ public class CollectionDataGridUtils {
         calculateColumnsWidth(tableWidth, dataGrid, false);
     }
 
-    private static void calculateColumnsWidth(int tableWidth, CollectionDataGrid tableBody, boolean keepUserWidth){
+    public static boolean shouldChangeScrollPosition(SortCollectionState sortState){
+        return  sortState != null //sorting was executed
+                && sortState.getOffset() == 0; // not scrolling already sorted rows
+
+    }
+
+    private static void calculateColumnsWidth(int realTableWidth, CollectionDataGrid tableBody, boolean keepUserWidth){
+        int tableWidth = realTableWidth - CALCULATION_INACCURACY;
         final Map<CollectionColumn, Integer> widthMap = new HashMap<>();
         final List<CollectionColumn> unProcessingColumnList = new ArrayList<>();
         int processedColumnCount = 0;

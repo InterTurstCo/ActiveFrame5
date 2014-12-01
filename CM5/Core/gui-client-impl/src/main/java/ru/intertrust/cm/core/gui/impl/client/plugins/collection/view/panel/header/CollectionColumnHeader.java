@@ -181,6 +181,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                 if (element != null) {
                     if (visibility) {
                         element.getStyle().clearDisplay();
+                        updateFilterValue();
                     } else {
                         element.getStyle().setDisplay(Style.Display.NONE);
                     }

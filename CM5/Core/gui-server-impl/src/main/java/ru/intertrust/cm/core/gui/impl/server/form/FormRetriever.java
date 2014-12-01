@@ -5,13 +5,7 @@ import org.apache.commons.collections.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -30,23 +24,12 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormDefaultValueSetter;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
-import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
-import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
-import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
+import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -188,17 +171,28 @@ public class FormRetriever extends FormProcessor {
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
         }
-
+        removeNotApplicableConstraints(widgetStateMap);
         buildForceRequiredConstraints(widgetStateMap, widgetConfigsById);
         return widgetStateMap;
+    }
+
+    private void removeNotApplicableConstraints(Map<String, WidgetState> widgetStateMap) {
+        for (WidgetState widgetState : widgetStateMap.values()) {
+            for (Iterator<Constraint> iter = widgetState.getConstraints().iterator(); iter.hasNext(); ) {
+                if (!iter.next().isApplicableInSearchAndReportForm()) {
+                    iter.remove();
+                }
+            }
+        }
     }
 
     private void buildForceRequiredConstraints(Map<String, WidgetState> widgetStateMap, Map<String, WidgetConfig> widgetConfigsById) {
         for (Map.Entry<String, WidgetState> entry : widgetStateMap.entrySet()) {
             String widgetId = entry.getKey();
+            WidgetState widgetState = entry.getValue();
             WidgetConfig widgetConfig = widgetConfigsById.get(widgetId);
             if ("label".equals(widgetConfig.getComponentName())) {
-                LabelState labelState = (LabelState)entry.getValue();
+                LabelState labelState = (LabelState)widgetState;
                 if (labelState.isAsteriskRequired()) {
                     String relatedWidget = labelState.getRelatedWidgetId();
                     WidgetState relatedWidgetState = widgetStateMap.get(relatedWidget);
@@ -410,18 +404,26 @@ public class FormRetriever extends FormProcessor {
         if (formViewerConfig != null && formViewerConfig instanceof LinkedFormViewerConfig) {
             LinkedFormViewerConfig linkedFormMappingConfig = (LinkedFormViewerConfig) formViewerConfig;
             List<LinkedFormConfig> linkedFormConfigs = linkedFormMappingConfig.getLinkedFormConfigs();
-            LinkedFormConfig result = (LinkedFormConfig) CollectionUtils.find(linkedFormConfigs, new Predicate() {
-                @Override
-                public boolean evaluate(Object input) {
-                    LinkedFormConfig formConfig = (LinkedFormConfig) input;
-                    return domainObjectType.equalsIgnoreCase(formConfig.getDomainObjectType());
-                }
-            });
+            LinkedFormConfig result = findLinkedFormConfig(linkedFormConfigs, domainObjectType);
             if (result != null) {
                 return configurationExplorer.getConfig(FormConfig.class, result.getName());
             }
         }
         return null;
+    }
+
+    private LinkedFormConfig findLinkedFormConfig(List<LinkedFormConfig> linkedFormConfigs, final String domainObjectType){
+        if(WidgetUtil.isNotEmpty(linkedFormConfigs) && linkedFormConfigs.size() == 1){
+            return linkedFormConfigs.get(0);
+        }
+        LinkedFormConfig result = (LinkedFormConfig) CollectionUtils.find(linkedFormConfigs, new Predicate() {
+            @Override
+            public boolean evaluate(Object input) {
+                LinkedFormConfig formConfig = (LinkedFormConfig) input;
+                return domainObjectType.equalsIgnoreCase(formConfig.getDomainObjectType());
+            }
+        });
+        return result;
     }
 
     private List<WidgetConfig> findWidgetConfigs(FormConfig formConfig) {

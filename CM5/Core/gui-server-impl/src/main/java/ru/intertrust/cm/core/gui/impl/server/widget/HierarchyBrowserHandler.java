@@ -22,7 +22,6 @@ import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
-import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.util.ObjectCloner;
@@ -70,12 +69,11 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         boolean hasSelectionFilters = false;
         boolean noLimit = true;
         Collection<NodeCollectionDefConfig > nodeConfigs = collectionNameNodeMap.values();
-        Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValuesMap(nodeConfigs, context, widgetConfig.getId());
         if (!selectedIds.isEmpty()) {
             for (NodeCollectionDefConfig nodeDefConfig : nodeConfigs) {
                 hasSelectionFilters = hasSelectionFilters || hasSelectionFilters(nodeDefConfig);
                 noLimit = noLimit && hasNoLimit(nodeConfig);
-                ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId(), widgetValueMap);
+                ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
                 generateChosenItems(nodeDefConfig, formattingConfig, selectedIds, chosenItems, filtersParams,false);
 
             }
@@ -85,7 +83,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             correctChosenItems(selectedIds, chosenItems);
         }
         HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
-        state.setSelectionWidgetIdsComponentNames(new ArrayList<>(widgetValueMap.keySet())); //serialization issue keySet() is not supported by gwt
         state.setSelectedIds(selectedIds);
         state.setCollectionNameNodeMap(collectionNameNodeMap);
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
@@ -97,19 +94,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         state.setRootNodeLinkConfig(nodeConfig.getRootNodeLinkConfig());
 
         return state;
-    }
-    private Map<WidgetIdComponentName, WidgetState> getWidgetValuesMap(Collection<NodeCollectionDefConfig> nodeConfigs,
-                                                                       WidgetContext context, String widgetId) {
-        Map<WidgetIdComponentName, WidgetState> result = new HashMap<>();
-        for (NodeCollectionDefConfig nodeConfig : nodeConfigs) {
-            SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
-            Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames =
-                    WidgetUtil.getWidgetIdsComponentsNamesForFilters(selectionFiltersConfig, context.getWidgetConfigsById());
-            Map<WidgetIdComponentName, WidgetState> widgetValueMap = getWidgetValueMap(selectionWidgetIdsComponentNames,
-                    context, widgetId);
-            result.putAll(widgetValueMap);
-        }
-        return result;
     }
 
     private void generateChosenItems(NodeCollectionDefConfig nodeConfig,
