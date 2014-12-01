@@ -112,7 +112,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 pluginData.setHierarchicalFiltersConfig(collectionViewerConfig.getHierarchicalFiltersConfig());
             }
         }
-        boolean isTableBrowserLimitation = tableBrowserParams != null && tableBrowserParams.isTooltipLimitation();
+        boolean isTableBrowserLimitation = tableBrowserParams != null
+                && tableBrowserParams.isTooltipLimitation()
+                && tableBrowserParams.isDisplayOnlySelectedIds();
         initRowsNumber = isTableBrowserLimitation
                 ? WidgetUtil.getLimit(tableBrowserParams.getSelectionFiltersConfig())
                 : initRowsNumber;
@@ -248,7 +250,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionRowsRequest request = (CollectionRowsRequest) dto;
         CollectionRowsResponse collectionRowsResponse = new CollectionRowsResponse();
         TableBrowserParams tableBrowserParams = request.getTableBrowserParams();
-        boolean isTableBrowserLimitation = tableBrowserParams != null && tableBrowserParams.isTooltipLimitation();
+        boolean isTableBrowserLimitation = tableBrowserParams != null
+                && tableBrowserParams.isTooltipLimitation()
+                && tableBrowserParams.isDisplayOnlySelectedIds();
         collectionRowsResponse.setReinsertRows(isTableBrowserLimitation); //if table-browser has limit in the selections-filters, table should reinsert rows and not add more
         LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
         int offset = isTableBrowserLimitation ? 0 : request.getOffset();
