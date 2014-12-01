@@ -342,6 +342,10 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                         List<Id> ids = linkEditingWidgetState.getIds();
                         representation.append(formatHandler.format(selectionPattern, ids, formattingConfig));
 
+                    } else if (widgetState instanceof EnumBoxState) {
+                        EnumBoxState enumBoxState = (EnumBoxState)widgetState;
+                        Value selectedValue = enumBoxState.getDisplayTextToValue().get(enumBoxState.getSelectedText());
+                        representation.append(formatHandler.format(selectedValue, matcher, formattingConfig));
                     }
                     item.setValueByKey(widgetId, representation.toString());
                 }
