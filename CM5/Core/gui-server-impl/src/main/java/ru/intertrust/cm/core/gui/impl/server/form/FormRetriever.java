@@ -166,7 +166,7 @@ public class FormRetriever extends FormProcessor {
             context.setFormType(formConfig.getType());
             List<Constraint> constraints = buildConstraints(context);
             initialState.setConstraints(constraints);
-            initialState.setWidgetProperties(buildWidgetProps(widgetContext, constraints));
+            initialState.setWidgetProperties(buildWidgetProps(constraints));
             boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
@@ -197,10 +197,17 @@ public class FormRetriever extends FormProcessor {
                     String relatedWidget = labelState.getRelatedWidgetId();
                     WidgetState relatedWidgetState = widgetStateMap.get(relatedWidget);
                     if (relatedWidgetState != null)  {
-                        HashMap<String, String> params = new HashMap<>();
-                        params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_NOT_EMPTY);
-                        params.put(Constraint.PARAM_WIDGET_ID, relatedWidget);
-                        relatedWidgetState.getConstraints().add(new Constraint(Constraint.Type.SIMPLE, params));
+                        WidgetConfig relatedWidgetConfig = widgetConfigsById.get(relatedWidget);
+                        FieldPath fieldPath = new FieldPath(relatedWidgetConfig.getFieldPathConfig().getValue());
+                        if (fieldPath.isField() || fieldPath.isOneToOneReference()) {
+                            HashMap<String, String> params = new HashMap<>();
+                            params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_NOT_EMPTY);
+                            params.put(Constraint.PARAM_WIDGET_ID, relatedWidget);
+                            String fieldName = fieldPath.getPath();
+                            params.put(Constraint.PARAM_FIELD_NAME, fieldName);
+                            relatedWidgetState.getConstraints().add(new Constraint(Constraint.Type.SIMPLE, params));
+                            relatedWidgetState.setWidgetProperties(buildWidgetProps(relatedWidgetState.getConstraints()));
+                        }
                     }
                 }
             }
@@ -309,7 +316,7 @@ public class FormRetriever extends FormProcessor {
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
             List<Constraint> constraints = buildConstraints(widgetContext);
             initialState.setConstraints(constraints);
-            initialState.setWidgetProperties(buildWidgetProps(widgetContext, constraints));
+            initialState.setWidgetProperties(buildWidgetProps(constraints));
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
@@ -523,7 +530,7 @@ public class FormRetriever extends FormProcessor {
         return widgetConfigsById;
     }
 
-    private HashMap<String, Object> buildWidgetProps(WidgetContext context, List<Constraint> constraints) {
+    private HashMap<String, Object> buildWidgetProps(List<Constraint> constraints) {
         HashMap<String, Object> props = new HashMap<String, Object>();
         for (Constraint constraint : constraints) {
             props.putAll(constraint.getParams());
