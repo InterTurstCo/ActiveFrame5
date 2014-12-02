@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -10,6 +11,8 @@ import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
@@ -20,6 +23,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -44,6 +48,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     private FilterBuilder filterBuilder;
+
+    @Autowired
+    private GuiService guiService;
 
     @Override
     public LinkedDomainObjectsTableState getInitialState(WidgetContext context) {
@@ -226,10 +233,27 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 FormattingConfig formattingConfig = columnConfig.getFormattingConfig();
                 displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig);
 
+                String enumBoxDisplayText = getEnumBoxDisplayText(domainObject, columnConfig.getWidgetId());
+                if (displayValue != null) {
+                    displayValue = formatHandler.format(new StringValue(enumBoxDisplayText),
+                                        fieldPatternMatcher(columnPattern), formattingConfig);
+                }
             }
             rowItem.setValueByKey(columnConfig.getWidgetId(), displayValue);
         }
         return rowItem;
+    }
+
+    private String getEnumBoxDisplayText(DomainObject domainObject, String mappedWidgetId) {
+        if (mappedWidgetId != null) {
+            UserInfo userInfo = GuiContext.get().getUserInfo();
+            FormDisplayData linkedFormDisplayData = guiService.getForm(domainObject.getId(), userInfo, null);
+            WidgetState linkedWidgetState = linkedFormDisplayData.getFormState().getWidgetState(mappedWidgetId);
+            if (linkedWidgetState instanceof EnumBoxState) {
+                return ((EnumBoxState)linkedWidgetState).getSelectedText();
+            }
+        }
+        return null;
     }
 
     private LinkedTablePatternConfig findSuitablePatternForObjectType(SummaryTableColumnConfig columnConfig, String domainObjectType) {
@@ -344,8 +368,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
                     } else if (widgetState instanceof EnumBoxState) {
                         EnumBoxState enumBoxState = (EnumBoxState)widgetState;
-                        Value selectedValue = enumBoxState.getDisplayTextToValue().get(enumBoxState.getSelectedText());
-                        representation.append(formatHandler.format(selectedValue, matcher, formattingConfig));
+                        String selectedText = enumBoxState.getSelectedText();
+                        representation.append(formatHandler.format(new StringValue(selectedText), matcher, formattingConfig));
                     }
                     item.setValueByKey(widgetId, representation.toString());
                 }
