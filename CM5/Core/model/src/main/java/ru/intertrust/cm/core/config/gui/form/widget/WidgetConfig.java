@@ -16,6 +16,8 @@ public abstract class WidgetConfig implements Dto {
     protected String id;
     @Attribute(name = "read-only", required = false)
     protected boolean readOnly;
+    @Attribute(name = "handler", required = false)
+    protected String handler;
     @Attribute(name = "max-tooltip-width", required = false)
     protected String maxTooltipWidth;
     @Attribute(name = "max-tooltip-height", required = false)
@@ -29,6 +31,14 @@ public abstract class WidgetConfig implements Dto {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getHandler() {
+        return handler;
+    }
+
+    public void setHandler(String handler) {
+        this.handler = handler;
     }
 
     public FieldPathConfig getFieldPathConfig() {
@@ -82,6 +92,9 @@ public abstract class WidgetConfig implements Dto {
             return false;
         }
         if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+        if (handler != null ? !handler.equals(that.handler) : that.handler != null) {
             return false;
         }
         if (maxTooltipWidth != null ? !maxTooltipWidth.equals(that.maxTooltipWidth) : that.maxTooltipWidth != null) {

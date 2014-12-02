@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
 import ru.intertrust.cm.core.gui.api.server.form.FormAfterSaveInterceptor;
 import ru.intertrust.cm.core.gui.api.server.form.FormBeforeSaveInterceptor;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.form.*;
@@ -30,6 +32,7 @@ public class FormSaver extends FormProcessor {
     private Map<FieldPath, Value> forcedRootDomainObjectValues;
     private FormObjects formObjects;
     private List<WidgetConfig> widgetConfigs;
+    private CaseInsensitiveHashMap<WidgetConfig> widgetConfigsById;
     private HashMap<FieldPath, ObjectWithReferences> toCreate;
     private HashMap<FieldPath, ObjectWithReferences> toUpdateReferences;
     private HashSet<FieldPath> toUpdate;
@@ -64,8 +67,10 @@ public class FormSaver extends FormProcessor {
         }
         final WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         widgetConfigs = new ArrayList<>(widgetConfigurationConfig.getWidgetConfigList().size() / 2);
+        widgetConfigsById = new CaseInsensitiveHashMap<>(widgetConfigurationConfig.getWidgetConfigList().size());
         for (WidgetConfig config : widgetConfigurationConfig.getWidgetConfigList()) {
-            if (formState.getWidgetState(config.getId()) != null && !config.isReadOnly()) { // ignore empty - such data shouldn't be saved
+            widgetConfigsById.put(config.getId(), config);
+            if (formState.getWidgetState(config.getId()) != null && !config.isReadOnly() && !(getWidgetHandler(config) instanceof SelfManagingWidgetHandler)) {
                 widgetConfigs.add(config);
             }
         }
@@ -127,7 +132,7 @@ public class FormSaver extends FormProcessor {
 
         DomainObject savedRootObject = formObjects.getRootNode().getDomainObject(); // after save its ID may be changed
         if (afterSaveComponent != null) {
-            ((FormAfterSaveInterceptor) applicationContext.getBean(afterSaveComponent)).afterSave(savedRootObject);
+            savedRootObject = ((FormAfterSaveInterceptor) applicationContext.getBean(afterSaveComponent)).afterSave(formState, widgetConfigsById);
         }
         return savedRootObject;
     }
@@ -137,7 +142,6 @@ public class FormSaver extends FormProcessor {
             // todo get rid of deleteEntriesOnLinkDrop - substitute with field-path config on-delete
             // what about single choice in widgets???
             final WidgetConfig widgetConfig = context.getWidgetConfig();
-            //clear form objects from default values
             LinkEditingWidgetState widgetState = (LinkEditingWidgetState) formState.getWidgetState(widgetConfig.getId());
             final WidgetHandler handler = getWidgetHandler(widgetConfig);
             boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop(widgetConfig);
@@ -179,10 +183,6 @@ public class FormSaver extends FormProcessor {
                 ((LinkEditingWidgetHandler) widgetHandler).saveNewObjects(widgetContext, widgetState);
             }
         }
-    }
-
-    private WidgetHandler getWidgetHandler(WidgetConfig config) {
-        return (WidgetHandler) applicationContext.getBean(config.getComponentName());
     }
 
     private boolean areValuesSemanticallyEqual(Value newValue, Value oldValue) {

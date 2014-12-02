@@ -27,8 +27,8 @@ public class FormLogicalValidator implements ConfigurationValidator {
     private static final String ALIGN_LEFT = "left";
     private static final String ALIGN_RIGHT = "right";
 
-    private static final String WIDGET_HANDLER_FULL_QUALIFIED_NAME =
-            "ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler";
+    private static final String WIDGET_HANDLER_FULL_QUALIFIED_NAME = "ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler";
+    private static final String SELF_MANAGING_WIDGET_HANDLER_FULL_QUALIFIED_NAME = "ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler";
 
     @Autowired
     ApplicationContext context;
@@ -333,16 +333,16 @@ public class FormLogicalValidator implements ConfigurationValidator {
 
     private void validateWidgetForExtendingHandler(Class clazz, String componentName, LogicalErrors logicalErrors) {
         Class parentClass = clazz.getSuperclass();
+        final Class[] interfaces = clazz.getInterfaces();
 
-        if (parentClass == null) {
+        if (parentClass == null && (interfaces == null || interfaces.length == 0)) {
             String error = String.format("Could not find widget handler for widget with name '%s'", componentName);
             logger.error(error);
             logicalErrors.addError(error);
             return;
         }
 
-        String parentClassFullName = parentClass.getCanonicalName();
-        if (thisIsWidgetHandlerClass(parentClassFullName)) {
+        if (thisIsWidgetHandlerClass(parentClass, interfaces)) {
             return;
         }
 
@@ -354,8 +354,20 @@ public class FormLogicalValidator implements ConfigurationValidator {
         return config == null || config.getWidgetConfigList() == null || config.getWidgetConfigList().isEmpty();
     }
 
-    private boolean thisIsWidgetHandlerClass(String className) {
-        return WIDGET_HANDLER_FULL_QUALIFIED_NAME.equalsIgnoreCase(className);
+    private boolean thisIsWidgetHandlerClass(Class clazz, Class[] interfaces) {
+        if (clazz != null) {
+            if (WIDGET_HANDLER_FULL_QUALIFIED_NAME.equalsIgnoreCase(clazz.getCanonicalName())) {
+                return true;
+            }
+        }
+        if (interfaces != null) {
+            for (Class c : interfaces) {
+                if (SELF_MANAGING_WIDGET_HANDLER_FULL_QUALIFIED_NAME.equalsIgnoreCase(c.getCanonicalName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

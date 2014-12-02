@@ -94,6 +94,10 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
     }
 
     private WidgetHandler getWidgetHandler(WidgetConfig config) {
-        return (WidgetHandler) applicationContext.getBean(config.getComponentName());
+        String handlerName = config.getHandler();
+        if (handlerName == null) {
+            handlerName = config.getComponentName();
+        }
+        return (WidgetHandler) applicationContext.getBean(handlerName);
     }
 }

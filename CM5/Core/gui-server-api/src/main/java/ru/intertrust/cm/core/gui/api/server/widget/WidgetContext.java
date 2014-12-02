@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +26,6 @@ public class WidgetContext implements Dto {
     private transient Map<String, WidgetConfig> widgetConfigsById;
     private transient FieldPath[] fieldPaths = NOT_INITIALIZED_FIELD_PATHS;
     private String formType;
-    private List<String> skippedWidgetIdsForStateFetching; //to avoid recursion while getting other widget states for filtering
 
     public WidgetContext() {
     }
@@ -40,6 +38,13 @@ public class WidgetContext implements Dto {
     public WidgetContext(WidgetConfig widgetConfig, FormObjects formObjects, Map<String, WidgetConfig> widgetConfigsById) {
         this.widgetConfig = widgetConfig;
         this.formObjects = formObjects;
+        this.widgetConfigsById = widgetConfigsById;
+    }
+
+    public WidgetContext(WidgetConfig widgetConfig, FormObjects formObjects, String formType, Map<String, WidgetConfig> widgetConfigsById) {
+        this.widgetConfig = widgetConfig;
+        this.formObjects = formObjects;
+        this.formType = formType;
         this.widgetConfigsById = widgetConfigsById;
     }
 
@@ -161,13 +166,5 @@ public class WidgetContext implements Dto {
 
     public Map<String, WidgetConfig> getWidgetConfigsById() {
         return widgetConfigsById;
-    }
-
-    public void setSkippedWidgetIdsForStateFetching(List<String> skippedWidgetIdsForStateFetching) {
-        this.skippedWidgetIdsForStateFetching = skippedWidgetIdsForStateFetching;
-    }
-
-    public boolean shouldBeSkipped(String widgetId){
-        return skippedWidgetIdsForStateFetching != null && skippedWidgetIdsForStateFetching.contains(widgetId);
     }
 }

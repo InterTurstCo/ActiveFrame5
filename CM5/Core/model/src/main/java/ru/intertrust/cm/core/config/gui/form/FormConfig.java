@@ -3,10 +3,14 @@ package ru.intertrust.cm.core.config.gui.form;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
+
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -158,6 +162,21 @@ public class FormConfig implements Dto, TopLevelConfig {
 
     public void setDefaultValueSetter(String defaultValueSetter) {
         this.defaultValueSetter = defaultValueSetter;
+    }
+
+    public CaseInsensitiveHashMap<WidgetConfig> getWidgetConfigsById() {
+        if (widgetConfigurationConfig == null) {
+            return new CaseInsensitiveHashMap<>(0);
+        }
+        List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
+        if (widgetConfigs == null) {
+            return new CaseInsensitiveHashMap<>(0);
+        }
+        CaseInsensitiveHashMap<WidgetConfig> widgetConfigsById = new CaseInsensitiveHashMap<>(widgetConfigs.size());
+        for (WidgetConfig config : widgetConfigs) {
+            widgetConfigsById.put(config.getId(), config);
+        }
+        return widgetConfigsById;
     }
 
     @Override

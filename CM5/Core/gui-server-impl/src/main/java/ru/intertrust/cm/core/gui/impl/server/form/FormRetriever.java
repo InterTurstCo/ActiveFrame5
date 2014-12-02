@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.FormDefaultValueSetter;
+import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -150,13 +151,13 @@ public class FormRetriever extends FormProcessor {
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
             widgetContext.setFormType(formConfig.getType());
-            WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
+            WidgetHandler componentHandler = getWidgetHandler(config);
             if (config.getFieldPathConfig() != null) {
                 String fieldPathValue = config.getFieldPathConfig().getValue();
                 if (fieldPathValue != null && !fieldPathValue.isEmpty()) {
                     FieldPath[] paths = FieldPath.createPaths(fieldPathValue);
                     FormDefaultValueSetter formDefaultValueSetter;
-                    formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig);
+                    formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig, null);
                     applyDefaultValuesToFormObjects(formObjects, paths, formDefaultValueSetter);
                 }
             }
@@ -214,13 +215,13 @@ public class FormRetriever extends FormProcessor {
         }
     }
 
-    private FormDefaultValueSetter obtainFormDefaultValueSetter(FormConfig formConfig) {
+    private FormDefaultValueSetter obtainFormDefaultValueSetter(FormConfig formConfig, FormMappingConfig formViewerMappingConfig) {
         FormDefaultValueSetter formDefaultValueSetter;
         String initialValueSetter = formConfig.getDefaultValueSetter();
         if (initialValueSetter != null && !initialValueSetter.isEmpty()) {
             formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean(initialValueSetter);
         } else {
-            formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean("formDefaultValueSetter", formConfig, null);
+            formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean("formDefaultValueSetter", formConfig, formViewerMappingConfig);
         }
         return formDefaultValueSetter;
     }
@@ -240,45 +241,39 @@ public class FormRetriever extends FormProcessor {
         // a.b.c.d - direct links
         // a^b - link defining 1:N relationship (widgets changing attributes can't have such field path)
         // a^b.c - link defining N:M relationship (widgets changing attributes can't have such field path)
-        FormMappingConfig formViewerMappingConfig;
         FormConfig formConfig = loadFormConfig(root, formViewerConfig);
-        formViewerMappingConfig = findFormViewerMappingConfig(root, formViewerConfig);
-
-        FormDefaultValueSetter formDefaultValueSetter = null;
-        String initialValueSetter = formConfig.getDefaultValueSetter();
-
-        if (initialValueSetter != null && !initialValueSetter.isEmpty()) {
-            formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean(initialValueSetter);
-        } else {
-            formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean("formDefaultValueSetter", formConfig, formViewerMappingConfig);
-        }
+        FormMappingConfig formViewerMappingConfig = findFormViewerMappingConfig(root, formViewerConfig);
+        FormDefaultValueSetter formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig, formViewerMappingConfig);
 
         List<WidgetConfig> widgetConfigs = findWidgetConfigs(formConfig);
-        HashMap<String, WidgetConfig> widgetConfigsById = buildWidgetConfigsById(widgetConfigs);
-        HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
-        HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
-        FormObjects formObjects = new FormObjects();
+        final HashMap<String, WidgetConfig> widgetConfigsById = buildWidgetConfigsById(widgetConfigs);
+        final HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
+        final HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
+        final FormObjects formObjects = new FormObjects();
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
 
-        for (WidgetConfig config : widgetConfigs) {
+        for (final WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
+            WidgetHandler widgetHandler = getWidgetHandler(config);
+            final boolean selfManagingWidget = widgetHandler instanceof SelfManagingWidgetHandler;
+            WidgetContext widgetContext = new WidgetContext(config, formObjects, formConfig.getType(), widgetConfigsById);
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
-            if (fieldPathConfig == null || fieldPathConfig.getValue() == null) {
-                if (!(config instanceof LabelConfig)) {
+            if (fieldPathConfig == null || fieldPathConfig.getValue() == null || selfManagingWidget) {
+                if (!selfManagingWidget && !(config instanceof LabelConfig)) {
                     throw new GuiException("Widget, id: " + widgetId + " is not configured with Field Path");
                 }
-                //todo refactor
-                WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
-                widgetContext.setFormType(formConfig.getType());
-                WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
-                WidgetState initialState = componentHandler.getInitialState(widgetContext);
-                boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
-                initialState.setEditable(!readOnly);
-                widgetStateMap.put(widgetId, initialState);
-                widgetComponents.put(widgetId, config.getComponentName());
+                WidgetState initialState = widgetHandler.getInitialState(widgetContext);
+                if (initialState != null) {
+                    boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
+                    initialState.setEditable(!readOnly);
+                    widgetStateMap.put(widgetId, initialState);
+                    widgetComponents.put(widgetId, config.getComponentName());
+                }
                 continue;
             }
+
+
             // field path config can point to multiple paths
             boolean readOnly = config.isReadOnly();
             FieldPath[] fieldPaths = FieldPath.createPaths(fieldPathConfig.getValue());
@@ -308,12 +303,7 @@ public class FormRetriever extends FormProcessor {
                 applyDefaultValuesToFormObjects(formObjects, fieldPaths, formDefaultValueSetter);
             }
 
-            WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
-
-
-            widgetContext.setFormType(formConfig.getType());
-            WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
-            WidgetState initialState = componentHandler.getInitialState(widgetContext);
+            WidgetState initialState = widgetHandler.getInitialState(widgetContext);
             List<Constraint> constraints = buildConstraints(widgetContext);
             initialState.setConstraints(constraints);
             initialState.setWidgetProperties(buildWidgetProps(constraints));

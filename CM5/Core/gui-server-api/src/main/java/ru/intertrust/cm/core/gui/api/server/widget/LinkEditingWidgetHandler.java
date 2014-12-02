@@ -93,7 +93,7 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
         state.setTypeTitleMap(typeTitleMap);
     }
 
-    public boolean abandonAccessed(DomainObject root, CreatedObjectsConfig createdObjectsConfig,
+    protected boolean abandonAccessed(DomainObject root, CreatedObjectsConfig createdObjectsConfig,
                                    FillParentOnAddConfig fillParentOnAddConfig) {
         if (createdObjectsConfig != null) {
             List<CreatedObjectConfig> createdObjectConfigs = createdObjectsConfig.getCreateObjectConfigs();

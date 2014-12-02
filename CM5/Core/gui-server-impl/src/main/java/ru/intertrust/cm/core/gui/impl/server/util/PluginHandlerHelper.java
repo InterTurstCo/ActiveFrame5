@@ -6,30 +6,19 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.validation.CustomValidatorFactory;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.DateRangeValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.DecimalRangeValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.IntRangeValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.LengthValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.ScaleAndPrecisionValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.ServerValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.SimpleValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.*;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
@@ -216,13 +205,16 @@ public class PluginHandlerHelper {
     public static List<String> doServerSideValidation(final FormState formState,
                                                       final ApplicationContext applicationContext) {
         //Simple Server Validation
-        List<Constraint> constraints = new ArrayList<Constraint>();
+        ConfigurationExplorer explorer = (ConfigurationExplorer) applicationContext.getBean("configurationExplorer");
+        FormConfig formConfig = explorer.getConfig(FormConfig.class, formState.getName());
+        final CaseInsensitiveHashMap<WidgetConfig> widgetConfigsById = formConfig.getWidgetConfigsById();
+        List<Constraint> constraints = new ArrayList<>();
         for (WidgetState state : formState.getFullWidgetsState().values()) {
             constraints.addAll(state.getConstraints());
         }
         List<String> errorMessages = new ArrayList<String>();
         for (Constraint constraint : constraints) {
-            Value valueToValidate = getValueToValidate(constraint, formState, applicationContext);
+            Value valueToValidate = getValueToValidate(constraint, formState, widgetConfigsById, applicationContext);
             ServerValidator validator = createValidator(constraint);
             if (validator != null) {
                 validator.init(formState);
@@ -255,20 +247,24 @@ public class PluginHandlerHelper {
     }
 
     private static Value getValueToValidate(Constraint constraint, FormState formState,
-                                            final ApplicationContext applicationContext) {
+                                            CaseInsensitiveHashMap<WidgetConfig> widgetConfigsById, final ApplicationContext applicationContext) {
         String widgetId = constraint.param(Constraint.PARAM_WIDGET_ID);
         String componentName = formState.getWidgetComponent(widgetId);
 
         WidgetState state = formState.getWidgetState(widgetId);
         if (state != null && componentName != null) {
-            WidgetHandler handler = getWidgetHandler(componentName, applicationContext);
+            WidgetHandler handler = getWidgetHandler(widgetConfigsById.get(widgetId), applicationContext);
             return handler.getValue(state);
         }
         return null;
     }
 
-    private static WidgetHandler getWidgetHandler(String componentName, final ApplicationContext applicationContext) {
-        return (WidgetHandler) applicationContext.getBean(componentName);
+    public static WidgetHandler getWidgetHandler(WidgetConfig config, ApplicationContext applicationContext) {
+        String handlerName = config.getHandler();
+        if (handlerName == null) {
+            handlerName = config.getComponentName();
+        }
+        return (WidgetHandler) applicationContext.getBean(handlerName);
     }
 
     private static ServerValidator createValidator(Constraint constraint) {
