@@ -47,14 +47,16 @@ public class CollectionExtraFiltersBuilderImpl extends ComplicatedFiltersBuilder
 
     private boolean prepareInputTextFilter(ComplicatedFiltersParams params, List<Filter> filters) {
         boolean result = false;
-        String text = params.getInputFilterValue();
-        String filterName = params.getInputFilterName();
-        if (text != null && !text.isEmpty() && !text.equals("*")) {
-            Filter textFilter = new Filter();
-            textFilter.setFilter(filterName);
-            textFilter.addCriterion(0, new StringValue(text + "%"));
-            filters.add(textFilter);
-            result = true;
+        if (params != null) {
+            String text = params.getInputFilterValue();
+            String filterName = params.getInputFilterName();
+            if (text != null && !text.isEmpty() && !text.equals("*")) {
+                Filter textFilter = new Filter();
+                textFilter.setFilter(filterName);
+                textFilter.addCriterion(0, new StringValue(text + "%"));
+                filters.add(textFilter);
+                result = true;
+            }
         }
         return result;
     }
