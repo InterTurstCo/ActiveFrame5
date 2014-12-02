@@ -134,6 +134,10 @@ public class BasicRowMapper extends ValueReader {
     protected void fillObjectValue(GenericDomainObject object, FieldValueModel valueModel, FieldConfig fieldConfig) {
         if (valueModel.getId() != null) {
             object.setId(valueModel.getId());
+            String typeName = domainObjectTypeIdCache.getName(object.getId());
+            if (typeName != null) {
+                object.setTypeName(typeName);
+            }
         }
         if (valueModel.getModifiedDate() != null) {
             object.setModifiedDate(valueModel.getModifiedDate());
@@ -152,16 +156,9 @@ public class BasicRowMapper extends ValueReader {
 
         for (String columnName : columnModel.getColumnNames()) {
             FieldValueModel valueModel = new FieldValueModel();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, columnName);
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(object.getTypeName(), columnName);
             fillValueModel(rs, valueModel, columnName, fieldConfig);
             fillObjectValue(object, valueModel, fieldConfig);
-        }
-
-        if (object.getId() != null) {
-            String typeName = domainObjectTypeIdCache.getName(object.getId());
-            if (typeName != null) {
-                object.setTypeName(typeName);
-            }
         }
 
         // TODO добавлено Лариным. М. после выноса системных арибутов в

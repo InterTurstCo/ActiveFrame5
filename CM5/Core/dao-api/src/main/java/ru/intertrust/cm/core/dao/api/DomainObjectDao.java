@@ -8,7 +8,6 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -129,8 +128,9 @@ public interface DomainObjectDao {
     List<DomainObject> find(List<Id> ids, AccessToken accessToken);
 
     /**
-     * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе,типу дочернего
+     * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе, типу дочернего
      * (запрашиваемого) доменного объекта и указанному полю.
+     * Возвращает как объекты указаннаго типа так и типов-наследников
      *
      * @param domainObjectId идентификатор доменного объекта, владельца вложений
      * @param linkedType     тип связанного (дочернего) доменного объекта
@@ -138,7 +138,34 @@ public interface DomainObjectDao {
      * @return список связанных доменных объектов
      */
     List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
-            AccessToken accessToken);
+                                               AccessToken accessToken);
+
+    /**
+     * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе, типу дочернего
+     * (запрашиваемого) доменного объекта и указанному полю.
+     * Возвращает как объекты указаннаго типа так и типов-наследников
+     *
+     * @param domainObjectId идентификатор доменного объекта, владельца вложений
+     * @param linkedType     тип связанного (дочернего) доменного объекта
+     * @param linkedField    название поля, которым связаны объекты
+     * @return список связанных доменных объектов
+     */
+    List<DomainObject> findLinkedDomainObjects(Id domainObjectId,
+                                               String linkedType, String linkedField, int offset, int limit,
+                                               AccessToken accessToken);
+
+    /**
+     * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе,типу дочернего
+     * (запрашиваемого) доменного объекта и указанному полю.
+     *
+     * @param domainObjectId идентификатор доменного объекта, владельца вложений
+     * @param linkedType     тип связанного (дочернего) доменного объекта
+     * @param linkedField    название поля, которым связаны объекты
+     * @param exactType возвращать только объекты типа {@code linkedType}, не возвращать объекты наследованных типов
+     * @return список связанных доменных объектов
+     */
+    List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
+                                               boolean exactType, AccessToken accessToken);
 
     /**
      * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе, типу дочернего
@@ -148,12 +175,42 @@ public interface DomainObjectDao {
      * @param domainObjectId идентификатор доменного объекта, владельца вложений
      * @param linkedType     тип связанного (дочернего) доменного объекта
      * @param linkedField    название поля, которым связаны объекты
+     * @param exactType возвращать только объекты типа {@code linkedType}, не возвращать объекты наследованных типов
      * @param offset отступ
      * @param limit максимальное количество возвращаемых доменных объектов
      * @return список связанных доменных объектов
      */
     List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
-                                               int offset, int limit, AccessToken accessToken);
+                                               boolean exactType, int offset, int limit, AccessToken accessToken);
+
+    /**
+     * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе, типу дочернего
+     * (запрашиваемого) доменного объекта и указанному полю с указанием максимального количества возвращаемых объектов и
+     * отступа.
+     * Возвращает как идентификаторы указанного типа так и типов-наследников
+     *
+     * @param domainObjectId идентификатор доменного объекта, владельца вложений
+     * @param linkedType     тип связанного (дочернего) доменного объекта
+     * @param linkedField    название поля, которым связаны объекты
+     * @return список связанных доменных объектов
+     */
+    List<Id> findLinkedDomainObjectsIds(Id domainObjectId,
+                                        String linkedType, String linkedField, AccessToken accessToken);
+
+    /**
+     * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе, типу дочернего
+     * (запрашиваемого) доменного объекта и указанному полю с указанием максимального количества возвращаемых объектов и
+     * отступа.
+     * Возвращает как идентификаторы указанного типа так и типов-наследников
+     *
+     * @param domainObjectId идентификатор доменного объекта, владельца вложений
+     * @param linkedType     тип связанного (дочернего) доменного объекта
+     * @param linkedField    название поля, которым связаны объекты
+     * @return список связанных доменных объектов
+     */
+    List<Id> findLinkedDomainObjectsIds(Id domainObjectId,
+                                        String linkedType, String linkedField, int offset, int limit,
+                                        AccessToken accessToken);
 
     /**
      * Поиск списка идентификаторов связанных доменных объектов по уникальному идентификатору владельца в системе,
@@ -163,9 +220,11 @@ public interface DomainObjectDao {
      * @param domainObjectId идентификатор доменного объекта, владельца вложений
      * @param linkedType     тип связанного (дочернего) доменного объекта
      * @param linkedField    название поля, которым связаны объекты
+     * @param exactType возвращать идентификаторы только объектов типа {@code linkedType},
+     *                  не возвращать идентификаторы объектов наследованных типов
      * @return список идентификаторов связанных доменных объектов
      */
-    List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+    List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, boolean exactType,
             AccessToken accessToken);
 
     /**
@@ -176,15 +235,18 @@ public interface DomainObjectDao {
      * @param domainObjectId идентификатор доменного объекта, владельца вложений
      * @param linkedType     тип связанного (дочернего) доменного объекта
      * @param linkedField    название поля, которым связаны объекты
+     * @param exactType возвращать идентификаторы только объектов типа {@code linkedType},
+     *                  не возвращать идентификаторы объектов наследованных типов
      * @param offset отступ
      * @param limit максимальное количество возвращаемых доменных объектов
      * @return список идентификаторов связанных доменных объектов
      */
-    List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+    List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, boolean exactType,
                                         int offset, int limit, AccessToken accessToken);
 
     /**
      * Поиск всех доменного объектов указанного типа в системе.
+     * Возвращает как объекты указанного типа так и типов-наследников
      *
      * @param domainObjectType тип доменного объекта
      * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
@@ -192,15 +254,35 @@ public interface DomainObjectDao {
     List<DomainObject> findAll(String domainObjectType, AccessToken accessToken);
 
     /**
+     * Поиск всех доменного объектов указанного типа в системе.
+     * Возвращает как объекты указанного типа так и типов-наследников
+     *
+     * @param domainObjectType тип доменного объекта
+     * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
+     */
+    List<DomainObject> findAll(String domainObjectType, int offset, int limit, AccessToken accessToken);
+
+    /**
+     * Поиск всех доменного объектов указанного типа в системе.
+     *
+     * @param domainObjectType тип доменного объекта
+     * @param exactType возвращать только объекты типа {@code linkedType}, не возвращать объекты наследованных типов
+     * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
+     */
+    List<DomainObject> findAll(String domainObjectType, boolean exactType, AccessToken accessToken);
+
+    /**
      * Поиск доменных объектов указанного типа в системе с указанием максимального количества возвращаемых объектов и
      * отступа.
      *
      * @param domainObjectType тип доменного объекта
+     * @param exactType возвращать только объекты типа {@code linkedType}, не возвращать объекты наследованных типов
      * @param offset отступ
      * @param limit максимальное количество возвращаемых доменных объектов
      * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
      */
-    List<DomainObject> findAll(String domainObjectType, int offset, int limit, AccessToken accessToken);
+    List<DomainObject> findAll(String domainObjectType, boolean exactType, int offset, int limit,
+                               AccessToken accessToken);
 
     /**
      * Устанавливает статус доменного объекта. Метод может быть вызван только с системным маркером доступа.

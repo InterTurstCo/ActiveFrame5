@@ -996,6 +996,11 @@
             <reference name="Owner" type="SO_StructureUnit" not-null="true"/>
         </fields>
     </domain-object-type>
+    <domain-object-type name="SO_DepartmentExt" extends="SO_Department">
+        <fields>
+            <string name="TelexExt" length="253"/>
+        </fields>
+    </domain-object-type>
     <domain-object-type name="SO_Department" extends="SO_StructureUnit">
         <fields>
             <reference name="HierRoot" type="SO_OrgSystem" not-null="true"/>
