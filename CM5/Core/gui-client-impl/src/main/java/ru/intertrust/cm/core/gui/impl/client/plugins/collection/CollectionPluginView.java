@@ -583,7 +583,14 @@ public class CollectionPluginView extends PluginView {
         checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
+                Id id = object.getId();
                 eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
+                Collection<Id> chosenIds = getPluginData().getChosenIds();
+                if(value){
+                    chosenIds.add(id);
+                }else{
+                    chosenIds.remove(id);
+                }
             }
         });
         checkColumn.setMaxWidth(CHECK_BOX_MAX_WIDTH);
