@@ -201,7 +201,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
             final HistoryManager historyManager = Application.getInstance().getHistoryManager();
             final String indexAsStr = historyManager.getValue(getFormIdentifier(), TAB_KEY);
             int selectedTab = StringUtil.integerFromString(indexAsStr, DEFAULT_TAB);
-            if (selectedTab > tabs.size()) {
+            if (selectedTab >= tabs.size()) {
                 selectedTab = DEFAULT_TAB;
             }
             bodyTabPanel.selectTab(selectedTab);
