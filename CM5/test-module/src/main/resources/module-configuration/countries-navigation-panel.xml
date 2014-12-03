@@ -23,7 +23,7 @@
                                         <pattern value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
                                     </day-item>
                                     <day-item type="label">
-                                        <pattern value="актуально с {actual_start_period} по {actual_end_period}"/>
+                                        <pattern value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
                                     </day-item>
                                 </day-items>
                                 <image-field name="letter_image">
