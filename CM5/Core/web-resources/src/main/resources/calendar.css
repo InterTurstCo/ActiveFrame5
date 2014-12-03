@@ -16,12 +16,51 @@
 }
 
 .calendarDayWrapper {
+    box-sizing: border-box;
+    height: 100%;
+    overflow: hidden;
     position: absolute;
     padding: 2px;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
+    width: 100%;
+}
+
+.calendarTaskContainer {
+    overflow-y: auto;
+    position: absolute;
+    top: 20px;
+    right: 5px;
+    bottom: 2px;
+    left: 0;
+}
+
+.calendarTaskContainer::-webkit-scrollbar,
+.calendarDetailListWrapper::-webkit-scrollbar {
+    height: 9px;
+    width: 9px;
+}
+
+.calendarTaskContainer::-webkit-scrollbar-thumb,
+.calendarDetailListWrapper::-webkit-scrollbar-thumb {
+    background: #afbccc;
+    border-radius: 10px;
+}
+
+.calendarTaskContainer::-webkit-scrollbar-track,
+.calendarDetailListWrapper::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+
+.calendarDetailListWrapper {
+    position: absolute;
+    overflow-y: auto;
+    top: 30px;
+    bottom: 0;
+    width: 100%;
 }
 
 .calendar-day-container {
@@ -72,13 +111,13 @@
 .calendarFocusDayBlock {
     background: #fffbe2;
     border: 2px solid #ffa34c !important;
-    border-radius: 10px;
+    border-radius: 5px;
 }
 
 .calendar-block-date {
     float: right;
     color: #aaa;
-    margin: 0.3em 0.5em;
+    margin: 0.3em 0.5em 0.3em 90%;
     font-size: 90%;
     z-index: 2;
 }
@@ -338,12 +377,22 @@
 .calendarItemLink {
     cursor: pointer;
     curson: hand;
+    margin-left: 3px;
+}
+
+.calendarTaskWrapper {
+    box-sizing: border-box;
+    padding: 2px 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
 }
 
 .calendar-scroll-panel {
     position: absolute !important;
     top: 65px;
-    right: 0px;
+    right: 0;
     bottom: 0;
     left: 0;
     border: solid 1px #ddd;

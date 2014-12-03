@@ -8,13 +8,7 @@ import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.InlineLabel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEvent;
@@ -287,10 +281,16 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
 
         @Override
         protected Widget getTasksPanel() {
-            final FlowPanel result = new FlowPanel();
-            final CalendarTableModelCallback callback = new CalendarTableModelCallbackImpl(result);
+//            final Panel result = new AbsolutePanel();
+            final Panel panel = new AbsolutePanel();
+            panel.addStyleName("calendarTaskContainer");
+            panel.getElement().getStyle().clearPosition();
+            panel.getElement().getStyle().clearOverflow();
+            final CalendarTableModelCallback callback = new CalendarTableModelCallbackImpl(panel);
             tableModel.fillByDateValues(date, callback);
-            return result;
+//            result.add(panel);
+//            return result;
+            return panel;
         }
     }
 
@@ -306,13 +306,14 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
             if (values != null) {
                 for (CalendarItemsData calendarItemsData : values) {
                     if (calendarItemsData.getImage() != null) {
-                        final HorizontalPanel wrapper = new HorizontalPanel();
+                        final Panel wrapper = new AbsolutePanel();
+                        wrapper.setStyleName("calendarTaskWrapper");
                         final Image image = new Image(calendarItemsData.getImage());
                         image.setWidth(calendarItemsData.getImageWidth());
                         image.setHeight(calendarItemsData.getImageHeight());
                         wrapper.add(image);
                         wrapper.add(GuiUtil.getCalendarItemPresentation(
-                                calendarItemsData.getMonthItem(), calendarItemsData.getRootObjectId()));
+                               calendarItemsData.getMonthItem(), calendarItemsData.getRootObjectId()));
                         container.add(wrapper);
                     } else {
                         container.add(GuiUtil.getCalendarItemPresentation(

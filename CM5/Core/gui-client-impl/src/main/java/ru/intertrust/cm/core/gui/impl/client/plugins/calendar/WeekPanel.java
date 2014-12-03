@@ -2,21 +2,12 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 
 import java.util.Date;
 import java.util.List;
-import com.google.gwt.dom.client.Style;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.InlineHTML;
-import com.google.gwt.user.client.ui.InlineLabel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
@@ -190,30 +181,29 @@ public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeek
             if (values != null && !values.isEmpty()) {
                 for (CalendarItemsData calendarItemsData : values) {
                     if (calendarItemsData.getImage() != null) {
-                        final HorizontalPanel wrapper = new HorizontalPanel();
+                        final Panel wrapper = new AbsolutePanel();
+                        wrapper.setStyleName("calendarTaskWrapper");
                         final Image image = new Image(calendarItemsData.getImage());
                         image.setWidth(calendarItemsData.getImageWidth());
                         image.setHeight(calendarItemsData.getImageHeight());
                         wrapper.add(image);
-                        wrapper.add(getPresentations(calendarItemsData));
+                        addPresentations(calendarItemsData, wrapper);
                         container.add(wrapper);
                     } else {
-                        container.add(getPresentations(calendarItemsData));
+                       addPresentations(calendarItemsData, container);
                     }
                 }
             }
         }
 
-        private Widget getPresentations(CalendarItemsData itemsData) {
-            final VerticalPanel result = new VerticalPanel();
+        private void addPresentations(CalendarItemsData itemsData, Panel panel) {
             if (itemsData.getDayItems() == null) {
-                result.add(GuiUtil.getCalendarItemPresentation(itemsData.getMonthItem(), itemsData.getRootObjectId()));
+                panel.add(GuiUtil.getCalendarItemPresentation(itemsData.getMonthItem(), itemsData.getRootObjectId()));
             } else {
                 for (CalendarItemData itemData: itemsData.getDayItems()) {
-                    result.add(GuiUtil.getCalendarItemPresentation(itemData, itemsData.getRootObjectId()));
+                    panel.add(GuiUtil.getCalendarItemPresentation(itemData, itemsData.getRootObjectId()));
                 }
             }
-            return result;
         }
 
     }
