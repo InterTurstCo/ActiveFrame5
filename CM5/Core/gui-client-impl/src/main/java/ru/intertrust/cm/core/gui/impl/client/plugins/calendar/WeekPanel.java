@@ -143,7 +143,7 @@ public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeek
         protected Label getItemLabel(Date date) {
             final HTML result = new HTML(date.getDate() + " " + GuiUtil.MONTHS[date.getMonth()] + ",<br/>"
                     + GuiUtil.WEEK_DAYS[date.getDay()], true);
-            result.setStyleName("calendar-block-date");
+            result.setStyleName("calendarBlockDate");
             return result;
         }
 
@@ -163,6 +163,7 @@ public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeek
         @Override
         protected Widget getTasksPanel() {
             final FlowPanel result = new FlowPanel();
+            result.setStyleName("calendarItemsWrapper");
             final CalendarTableModelCallback callback = new CalendarTableModelCallbackImpl(result);
             tableModel.fillByDateValues(date, callback);
             return result;

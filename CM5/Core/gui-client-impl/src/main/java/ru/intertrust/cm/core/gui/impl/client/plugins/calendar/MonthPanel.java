@@ -275,7 +275,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
         @Override
         protected Label getItemLabel(Date date) {
             final Label result = new Label(Integer.toString(date.getDate()));
-            result.setStyleName("calendar-block-date");
+            result.setStyleName("calendarBlockDate");
             return result;
         }
 

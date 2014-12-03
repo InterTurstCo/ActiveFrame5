@@ -3,7 +3,7 @@
     position: absolute !important;
     top: 65px;
     right: 0;
-    bottom: 0;
+    bottom: -1px;
     left: 0;
     border: solid 1px #ddd;
     background: rgba(248, 249, 255, 1.0);
@@ -16,7 +16,9 @@
 }
 
 .calendarDayWrapper {
-    box-sizing: border-box;
+    box-sizing: border-box;         /* Opera/IE 8+ */
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
     height: 100%;
     overflow: hidden;
     position: absolute;
@@ -38,19 +40,22 @@
 }
 
 .calendarTaskContainer::-webkit-scrollbar,
-.calendarDetailListWrapper::-webkit-scrollbar {
+.calendarDetailListWrapper::-webkit-scrollbar,
+.calendarItemsWrapper::-webkit-scrollbar {
     height: 9px;
     width: 9px;
 }
 
 .calendarTaskContainer::-webkit-scrollbar-thumb,
-.calendarDetailListWrapper::-webkit-scrollbar-thumb {
+.calendarDetailListWrapper::-webkit-scrollbar-thumb,
+.calendarItemsWrapper::-webkit-scrollbar-thumb {
     background: #afbccc;
     border-radius: 10px;
 }
 
 .calendarTaskContainer::-webkit-scrollbar-track,
-.calendarDetailListWrapper::-webkit-scrollbar-track {
+.calendarDetailListWrapper::-webkit-scrollbar-track,
+.calendarItemsWrapper::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
 }
@@ -72,7 +77,9 @@
 .calendarDayBlock {
     border-left: 1px solid #ddd;
     border-top: 1px solid #ddd;
-    -moz-box-sizing: border-box;
+    box-sizing: border-box;         /* Opera/IE 8+ */
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
     position: relative;
 }
 
@@ -114,12 +121,20 @@
     border-radius: 5px;
 }
 
-.calendar-block-date {
+.calendarBlockDate {
     float: right;
     color: #aaa;
-    margin: 0.3em 0.5em 0.3em 90%;
+    margin: 0.3em 0.5em 0.3em 60%;
     font-size: 90%;
     z-index: 2;
+}
+
+.calendarItemsWrapper {
+    overflow-y: auto;
+    position: absolute;
+    top: 35px;
+    bottom: 0;
+    width: 98%;
 }
 
 .first-day-month {
@@ -216,7 +231,6 @@
     border-radius: 0 0 10px 10px;
     padding: 7px;
     position: absolute;
-    z-index: 100;
     top: 50%;
     left: -30px;
     -ms-transform: rotate(270deg); /* IE 9 */
@@ -227,6 +241,7 @@
     font-family: Arial, sans-serif; /* IE layout fix */
     line-height: 13px; /* IE layout fix */
     letter-spacing: normal; /* IE layout fix */
+    z-index: 15;
 }
 
 .monthPanelOnSwitchButton span {
@@ -301,7 +316,6 @@
     border-radius: 0 0 10px 10px;
     padding: 7px;
     position: absolute;
-    z-index: 100;
     top: 50%;
     right: -90px;
     -ms-transform: rotate(270deg); /* IE 9 */
@@ -312,6 +326,7 @@
     font-family: Arial, sans-serif; /* IE layout fix */
     line-height: 13px; /* IE layout fix */
     letter-spacing: normal; /* IE layout fix */
+    z-index: 15;
 }
 
 .weekPanelOnSwitchButton span {
@@ -381,12 +396,20 @@
 }
 
 .calendarTaskWrapper {
-    box-sizing: border-box;
+    box-sizing: border-box;         /* Opera/IE 8+ */
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
     padding: 2px 3px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
+}
+
+.calendarItemsWrapper .calendarTaskWrapper {
+    border-bottom: 1px solid #dbdbdb;
+    margin: 2px 0;
+    padding: 5px 0;
 }
 
 .calendar-scroll-panel {
