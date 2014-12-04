@@ -52,7 +52,7 @@ public class EnumBoxWidget extends BaseWidget  {
             ListBox listBox = (ListBox) impl;
             currentText = listBox.getValue(listBox.getSelectedIndex());
         }
-        return !((EnumBoxState)getInitialData()).getSelectedText().equals(currentText);
+        return !currentText.equals(((EnumBoxState)getInitialData()).getSelectedText());
     }
 
     @Override
