@@ -50,6 +50,7 @@ public class PostgreSqlDataStructureDaoImplTest {
         initDomainObjectConfig();
         queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, configurationExplorer, md5Service);
         when(configurationExplorer.isAuditLogType(anyString())).thenReturn(false);
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeConfig.getName())).thenReturn(domainObjectTypeConfig);
     }
 
 
@@ -58,7 +59,7 @@ public class PostgreSqlDataStructureDaoImplTest {
         when(domainObjectTypeIdDao.insert(domainObjectTypeConfig)).thenReturn(Integer.valueOf(7)); // ID
         // конфигурации доменного объекта
         dataStructureDao.createTable(domainObjectTypeConfig);
-       
+
         verify(jdbcTemplate).update(queryHelper.generateCreateTableQuery(domainObjectTypeConfig));
 
         int index = 0;

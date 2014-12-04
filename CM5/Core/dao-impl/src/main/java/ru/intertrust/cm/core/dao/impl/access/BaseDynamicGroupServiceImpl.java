@@ -225,13 +225,8 @@ public class BaseDynamicGroupServiceImpl {
         RdbmsId id = (RdbmsId) objectId;
 
         //Получение типа верхнего уровня
-        DomainObjectTypeConfig typeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class,
-                        domainObjectTypeIdCache.getName(id.getTypeId()));
-        while (typeConfig.getExtendsAttribute() != null) {
-            typeConfig =
-                    configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeConfig.getExtendsAttribute());
-        }
+        String parentType = configurationExplorer.getDomainObjectRootType(domainObjectTypeIdCache.getName(id.getTypeId()));
+        DomainObjectTypeConfig typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentType);        
 
         String tableName = getSqlName(typeConfig.getName());
         StringBuilder query = new StringBuilder();

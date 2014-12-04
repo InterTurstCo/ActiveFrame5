@@ -23,7 +23,9 @@ import ru.intertrust.cm.core.config.IndexConfig;
 import ru.intertrust.cm.core.config.IndexExpressionConfig;
 import ru.intertrust.cm.core.config.IndexFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.SystemField;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
@@ -280,6 +282,35 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, (ReferenceFieldConfig)fieldConfig, index, isAl));
             index++;
         }
+
+        // Создание индексов для системных полей.
+        if (hasSystemFields(config)) {
+            for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
+                if (fieldConfig instanceof ReferenceFieldConfig) {
+                    if (SystemField.id.name().equals(fieldConfig.getName())) {
+                        continue;
+                    }
+                    jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, (ReferenceFieldConfig) fieldConfig, index, isAl));
+                    index++;
+                }
+            }
+        }
+    }
+
+    private boolean hasSystemFields(DomainObjectTypeConfig config) {
+        // Для аудит объектов наличие системных полей определяется по соотв. родительским ДО. Если родительский ДО
+        // является самым верхним в иерархии - то системные колонки содержатся в аудит лог объекте и индексы для них создаются.
+        String relevantType = getRelevantType(config.getName());
+        config = configurationExplorer.getConfig(DomainObjectTypeConfig.class, relevantType);
+        return config.getExtendsAttribute() == null
+                && (!config.isTemplate());
+    }
+
+    private String getRelevantType(String typeName) {
+        if (configurationExplorer.isAuditLogType(typeName)) {
+            typeName = typeName.replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        }
+        return typeName;
     }
 
     protected abstract String generateDoesTableExistQuery();
