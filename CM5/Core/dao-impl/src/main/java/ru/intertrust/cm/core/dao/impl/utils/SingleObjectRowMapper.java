@@ -27,12 +27,7 @@ public class SingleObjectRowMapper extends BasicRowMapper implements ResultSetEx
     public DomainObject extractData(ResultSet rs) throws SQLException, DataAccessException {
         DomainObject object = null;
 
-        ColumnModel columnModel = new ColumnModel();
-        for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-            String fieldName = rs.getMetaData().getColumnName(i);
-            columnModel.getColumnNames().add(fieldName);
-        }
-
+        ColumnModel columnModel = buildColumnModel(rs);
         while (rs.next()) {
             object = buildDomainObject(rs, columnModel);
         }

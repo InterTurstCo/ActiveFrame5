@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -97,25 +96,28 @@ public class BasicRowMapper extends ValueReader {
      *            {@see ResultSet}
      * @param valueModel
      *            модель {@see FieldValueModel}
-     * @param columnName
-     *            имя колонки, которая извлекается из {@see ResultSet}
+     * @param columns
+     *            колонки, которые извлекаются из {@see ResultSet}
      * @throws SQLException
      */
-    protected void fillValueModel(ResultSet rs, FieldValueModel valueModel, String columnName, FieldConfig fieldConfig) throws SQLException {
-        if (idField.equalsIgnoreCase(columnName)) {
-            Id id = readId(rs, columnName);
+    protected void fillValueModel(ResultSet rs, FieldValueModel valueModel, List<Column> columns, int columnIndex,
+                                  FieldConfig fieldConfig) throws SQLException {
+        Column column = columns.get(columnIndex);
+
+        if (idField.equalsIgnoreCase(column.getName())) {
+            Id id = readId(rs, column);
             if (id != null) {
                 valueModel.setId(id);
             }
             return;
         }
 
-        Value value = readValue(rs, columnName, fieldConfig);
+        Value value = readValue(rs, columns, columnIndex, fieldConfig);
         valueModel.setValue(value);
 
-        if (CREATED_DATE_COLUMN.equalsIgnoreCase(columnName) && value != null && value.get() != null) {
+        if (CREATED_DATE_COLUMN.equalsIgnoreCase(column.getName()) && value != null && value.get() != null) {
             valueModel.setCreatedDate(((DateTimeValue) value).get());
-        } else if (UPDATED_DATE_COLUMN.equalsIgnoreCase(columnName) && value != null && value.get() != null) {
+        } else if (UPDATED_DATE_COLUMN.equalsIgnoreCase(column.getName()) && value != null && value.get() != null) {
             valueModel.setModifiedDate(((DateTimeValue) value).get());
         }
     }
@@ -150,15 +152,31 @@ public class BasicRowMapper extends ValueReader {
         }
     }
 
+    protected ColumnModel buildColumnModel(ResultSet rs) throws SQLException {
+        ColumnModel columnModel = new ColumnModel();
+        for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+            String fieldName = rs.getMetaData().getColumnName(i);
+            columnModel.getColumns().add(new Column(i, fieldName));
+        }
+
+        return columnModel;
+    }
+
     protected DomainObject buildDomainObject(ResultSet rs, ColumnModel columnModel) throws SQLException {
         GenericDomainObject object = new GenericDomainObject();
         object.setTypeName(domainObjectType);
 
-        for (String columnName : columnModel.getColumnNames()) {
+        for (int i = 0; i < columnModel.getColumns().size(); i ++) {
             FieldValueModel valueModel = new FieldValueModel();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(object.getTypeName(), columnName);
-            fillValueModel(rs, valueModel, columnName, fieldConfig);
+            Column column = columnModel.getColumns().get(i);
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(object.getTypeName(), column.getName());
+
+            fillValueModel(rs, valueModel, columnModel.getColumns(), i, fieldConfig);
             fillObjectValue(object, valueModel, fieldConfig);
+        }
+
+        if (object.getId() == null) {
+            throw new FatalException("Id field can not be null for object " + domainObjectType);
         }
 
         // TODO добавлено Лариным. М. после выноса системных арибутов в
@@ -171,81 +189,12 @@ public class BasicRowMapper extends ValueReader {
         return object;
     }
 
-    protected DomainObjectVersion buildDomainObjectVersion(ResultSet rs) throws SQLException {
-        GenericDomainObjectVersion object = new GenericDomainObjectVersion();
-
-        int typeId = domainObjectTypeIdCache.getId(domainObjectType);
-
-        // Установка полей версии
-        object.setId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.ID_COLUMN)));
-        object.setDomainObjectId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.DOMAIN_OBJECT_ID_COLUMN)));
-        object.setModifiedDate(rs.getTimestamp(UPDATED_DATE_COLUMN));
-
-        ReferenceValue updatedByRef = readReferenceValue(rs, DomainObjectDao.UPDATED_BY, null);
-        object.setModifier(updatedByRef.get());
-
-        object.setVersionInfo(rs.getString(DomainObjectDao.INFO_COLUMN));
-        object.setIpAddress(rs.getString(DomainObjectDao.IP_ADDRESS_COLUMN));
-        object.setComponent(rs.getString(DomainObjectDao.COMPONENT_COLUMN));
-        object.setOperation(getOperation(rs.getInt(DomainObjectDao.OPERATION_COLUMN)));
-
-        setDomainObjectFields(object, rs, domainObjectType);
-
-        object.resetDirty();
-
-        return object;
-    }
-
-    private DomainObjectVersion.AuditLogOperation getOperation(int operation){
-        DomainObjectVersion.AuditLogOperation result = null;
-        if (operation == 1){
-            result = DomainObjectVersion.AuditLogOperation.CREATE;
-        }else if(operation == 2){
-            result = DomainObjectVersion.AuditLogOperation.UPDATE;
-        }else{
-            result = DomainObjectVersion.AuditLogOperation.DELETE;
-        }
-        return result;
-    }
-
-    private void setDomainObjectFields(GenericDomainObjectVersion object, ResultSet rs, String type) throws SQLException {
-        if (type != null) {
-            DomainObjectTypeConfig doConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type);
-            // Установка полей доменного объекта
-            for (FieldConfig fieldConfig : doConfig.getDomainObjectFieldsConfig().getFieldConfigs()) {
-                FieldValueModel valueModel = new FieldValueModel();
-                fillValueModel(rs, valueModel, fieldConfig.getName(), fieldConfig);
-                object.setValue(fieldConfig.getName(), valueModel.getValue());
-            }
-            setDomainObjectFields(object, rs, doConfig.getExtendsAttribute());
-        }
-    }
-
     protected DomainObjectCacheServiceImpl getDomainObjectCacheService() {
         if (domainObjectCacheService == null) {
             domainObjectCacheService = SpringApplicationContext.getContext().getBean("domainObjectCacheService",
                     DomainObjectCacheServiceImpl.class);
         }
         return domainObjectCacheService;
-    }
-
-    protected RdbmsId readId(ResultSet rs, String columnName) throws SQLException {
-        Long longValue = rs.getLong(columnName);
-        if (rs.wasNull()) {
-            throw new FatalException("Id field can not be null for object " + domainObjectType);
-        }
-
-        Integer idType = null;
-        if (columnName.equals(DomainObjectDao.ID_COLUMN.toLowerCase())){
-            idType = rs.getInt(TYPE_ID_COLUMN);
-        } else {
-            idType = rs.getInt(getReferenceTypeColumnName(columnName).toLowerCase());
-        }
-        if (rs.wasNull()) {
-            throw new FatalException("Id type field can not be null for object " + domainObjectType);
-        }
-
-        return new RdbmsId(idType, longValue);
     }
 
     // protected void fillValueModelWithSystemFields(SystemField systemFields,)
@@ -295,30 +244,4 @@ public class BasicRowMapper extends ValueReader {
         }
     }
 
-    /**
-     * Модель для хранкения названия колонолк и названия колонки-первичного
-     * ключа для доменного объекта.
-     *
-     * @author atsvetkov
-     */
-    protected class ColumnModel {
-
-        private String idField;
-        private List<String> columnNames;
-
-        public List<String> getColumnNames() {
-            if (columnNames == null) {
-                columnNames = new ArrayList<String>();
-            }
-            return columnNames;
-        }
-
-        public String getIdField() {
-            return idField;
-        }
-
-        public void setIdField(String idField) {
-            this.idField = idField;
-        }
-    }
 }

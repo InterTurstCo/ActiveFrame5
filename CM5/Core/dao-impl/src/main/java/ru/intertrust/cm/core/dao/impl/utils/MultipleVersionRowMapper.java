@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 
-public class MultipleVersionRowMapper extends BasicRowMapper implements ResultSetExtractor<List<DomainObjectVersion>> {
+public class MultipleVersionRowMapper extends BasicVersionRowMapper implements ResultSetExtractor<List<DomainObjectVersion>> {
 
     public MultipleVersionRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer,
             DomainObjectTypeIdCache domainObjectTypeIdCache) {
@@ -25,8 +25,9 @@ public class MultipleVersionRowMapper extends BasicRowMapper implements ResultSe
     public List<DomainObjectVersion> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<DomainObjectVersion> result = new ArrayList<DomainObjectVersion>();
 
+        ColumnModel columnModel = buildColumnModel(rs);
         while (rs.next()) {
-            result.add(buildDomainObjectVersion(rs));
+            result.add(buildDomainObjectVersion(rs, columnModel));
         }
         return result;
     }    

@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.impl.DataType;
+import ru.intertrust.cm.core.model.FatalException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -51,11 +51,10 @@ public class CollectionRowMapper extends BasicRowMapper implements
     public IdentifiableObjectCollection extractData(ResultSet rs) throws SQLException, DataAccessException {
         GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
-        ColumnModel columnModel = new ColumnModel();
+        ColumnModel columnModel = buildColumnModel(rs);
         Map<String, FieldConfig> columnTypeMap = new HashMap<>();
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
             String fieldName = rs.getMetaData().getColumnName(i);
-            columnModel.getColumnNames().add(fieldName);
             columnTypeMap.put(fieldName, getFieldConfigByDbTypeName(fieldName, rs.getMetaData().getColumnTypeName(i)));
         }
 
@@ -68,11 +67,12 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
             int index = 0;
 
-            for (String columnName : columnModel.getColumnNames()) {
+            for (int i = 0; i < columnModel.getColumns().size(); i ++) {
+                Column column = columnModel.getColumns().get(i);
                 FieldValueModel valueModel = new FieldValueModel();
 
-                FieldConfig fieldConfig = columnToConfigMap.get(columnName);
-                fillValueModel(rs, valueModel, columnName, fieldConfig);
+                FieldConfig fieldConfig = columnToConfigMap.get(column.getName());
+                fillValueModel(rs, valueModel, columnModel.getColumns(),i, fieldConfig);
 
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
@@ -98,6 +98,8 @@ public class CollectionRowMapper extends BasicRowMapper implements
                         break;
                     }
                 }
+            } else if (collection.getId(row) == null) {
+                throw new FatalException("Id field can not be null in collection " + collectionName);
             }
 
             collection.resetDirty(row);
@@ -127,7 +129,8 @@ public class CollectionRowMapper extends BasicRowMapper implements
     }
 
     private void addMissedFieldConfigs(ColumnModel columnModel, Map<String, FieldConfig> columnTypeMap) {
-        for (String columnName : columnModel.getColumnNames()) {
+        for (Column column : columnModel.getColumns()) {
+            String columnName = column.getName();
             FieldConfig columnFieldConfig = columnToConfigMap.get(columnName);
             if (columnFieldConfig != null) {
                 continue;
@@ -161,9 +164,9 @@ public class CollectionRowMapper extends BasicRowMapper implements
      */
     private List<String> collectColumnNamesToDisplay(ColumnModel columnModel) {
         List<String> fieldNamesToInsert = new ArrayList<String>();
-        for (String columnName : columnModel.getColumnNames()) {
-            if(!TYPE_ID_COLUMN.equals(columnName)) {
-                fieldNamesToInsert.add(columnName);
+        for (Column column : columnModel.getColumns()) {
+            if(!TYPE_ID_COLUMN.equals(column.getName())) {
+                fieldNamesToInsert.add(column.getName());
             }
         }
         return fieldNamesToInsert;

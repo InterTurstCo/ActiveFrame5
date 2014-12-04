@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 
-public class SingleVersionRowMapper extends BasicRowMapper implements ResultSetExtractor<DomainObjectVersion> {
+public class SingleVersionRowMapper extends BasicVersionRowMapper implements ResultSetExtractor<DomainObjectVersion> {
 
     public SingleVersionRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer,
             DomainObjectTypeIdCache domainObjectTypeIdCache) {
@@ -23,8 +23,9 @@ public class SingleVersionRowMapper extends BasicRowMapper implements ResultSetE
     public DomainObjectVersion extractData(ResultSet rs) throws SQLException, DataAccessException {
         DomainObjectVersion result = null;
 
+        ColumnModel columnModel = buildColumnModel(rs);
         if (rs.next()) {
-            result = buildDomainObjectVersion(rs);
+            result = buildDomainObjectVersion(rs, columnModel);
         }
         return result;
     }    

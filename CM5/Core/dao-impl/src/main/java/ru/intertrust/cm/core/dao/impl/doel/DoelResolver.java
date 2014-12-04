@@ -1,8 +1,5 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getColumnNames;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,6 +27,8 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -39,10 +38,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.doel.DoelExpression.Function;
 import ru.intertrust.cm.core.config.doel.DoelFunctionRegistry;
@@ -58,8 +54,11 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.WrapAndLowerCaseSelectVisitor;
+import ru.intertrust.cm.core.dao.impl.utils.BasicRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.ValueReader;
 import ru.intertrust.cm.core.model.DoelException;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 public class DoelResolver implements DoelEvaluator {
 
@@ -540,18 +539,26 @@ public class DoelResolver implements DoelEvaluator {
 
     private class DoelResolverRowMapper<T extends Value> extends ValueReader implements RowMapper<T> {
 
-        private String columnName;
         private FieldConfig fieldConfig;
+        private BasicRowMapper.ColumnModel columnModel;
 
         private DoelResolverRowMapper(String columnName, FieldConfig fieldConfig) {
-            this.columnName = columnName;
             this.fieldConfig = fieldConfig;
+
+            columnModel = new ColumnModel();
+            columnModel.getColumns().add(new Column(1, columnName));
+
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                columnModel.getColumns().add(new Column(2, getReferenceTypeColumnName(columnName)));
+            } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+                columnModel.getColumns().add(new Column(2, getTimeZoneIdColumnName(columnName)));
+            }
         }
 
         @SuppressWarnings("unchecked")
         @Override
         public T mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return (T) readValue(rs, columnName, fieldConfig);
+            return (T) readValue(rs, columnModel.getColumns(), 0, fieldConfig);
         }
     }
 }

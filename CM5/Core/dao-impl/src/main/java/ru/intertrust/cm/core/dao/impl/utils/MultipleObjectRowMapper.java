@@ -30,7 +30,7 @@ public class MultipleObjectRowMapper extends BasicRowMapper implements ResultSet
         ColumnModel columnModel = new ColumnModel();
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
             String fieldName = rs.getMetaData().getColumnName(i);
-            columnModel.getColumnNames().add(fieldName);
+            columnModel.getColumns().add(new Column(i, fieldName));
         }
         while (rs.next()) {
             DomainObject object = buildDomainObject(rs, columnModel);

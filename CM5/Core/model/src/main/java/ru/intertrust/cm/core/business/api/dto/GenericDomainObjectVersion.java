@@ -106,4 +106,11 @@ public class GenericDomainObjectVersion extends GenericIdentifiableObject implem
     public void setOperation(AuditLogOperation operation) {
         this.operation = operation;
     }
+
+    public GenericDomainObjectVersion() {
+    }
+
+    public GenericDomainObjectVersion(IdentifiableObject source) {
+        super(source);
+    }
 }
