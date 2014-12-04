@@ -234,7 +234,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig);
 
                 String enumBoxDisplayText = getEnumBoxDisplayText(domainObject, columnConfig.getWidgetId());
-                if (displayValue != null) {
+                if (enumBoxDisplayText != null) {
                     displayValue = formatHandler.format(new StringValue(enumBoxDisplayText),
                                         fieldPatternMatcher(columnPattern), formattingConfig);
                 }
