@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * User: IPetrov
@@ -17,6 +18,8 @@ public class ExtendedSearchPluginData extends PluginData {
     private HashMap<String, ArrayList<String>> searchFieldsData = new HashMap<String, ArrayList<String>>();
     // Поле для получения карты: имя доменного объекта - имя коллекции, возвращаемой при поиске
     private HashMap<String, String> targetCollectionNames;
+
+    private Map<String, String> valueToDisplayText;
 
     public HashMap<String, String> getTargetCollectionNames() {
         return targetCollectionNames;
@@ -42,7 +45,11 @@ public class ExtendedSearchPluginData extends PluginData {
         this.searchAreasData = searchAreasData;
     }
 
-    public ExtendedSearchPluginData() {
+    public Map<String, String> getValueToDisplayText() {
+        return valueToDisplayText;
     }
 
+    public void setValueToDisplayText(Map<String, String> valueToDisplayText) {
+        this.valueToDisplayText = valueToDisplayText;
+    }
 }

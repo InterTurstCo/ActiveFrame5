@@ -68,8 +68,11 @@ public class ExtendedSearchPluginView extends PluginView {
     private SearchPopup searchPopup;
     private ExtSearchDialogBox extSearchDialogBox;
 
+    private Map<String, String> valueToDisplayText;
+
     public ExtendedSearchPluginView(Plugin plugin, ExtendedSearchPluginData extendedSearchPluginData) {
         super(plugin);
+        this.valueToDisplayText = extendedSearchPluginData.getValueToDisplayText();
         container = new AbsolutePanel();
         container.addStyleName("srch-container");
 
@@ -131,19 +134,23 @@ public class ExtendedSearchPluginView extends PluginView {
             // исключаем дублирование при отображении областей поиска
             if (!searchAreasKeysHashSet.contains(key)) {
                 searchAreasKeysHashSet.add(key);
-                cb = new CheckBox(key);
+                cb = new CheckBox(getDisplayTextByValue(key));
                 cb.addClickHandler(new ClickHandler() {
                     public void onClick(ClickEvent event) {
-                        boolean checked = ((CheckBox) event.getSource()).getValue();
+                        CheckBox checkBox = (CheckBox) event.getSource();
+                        boolean checked = checkBox.getValue();
+                        String text = checkBox.getText();
+                        String searchAreaName = getValueByDisplayText(text);
                         if (checked) {
                             // "чистим" все кнопки выбора объекта
-                            for (Iterator<RadioButton> it = targetDomainObjectsRadioButtons.iterator(); it.hasNext(); )
-                                it.next().setValue(false);
+                            for (RadioButton rb : targetDomainObjectsRadioButtons) {
+                                rb.setValue(false);
+                            }
                             // выбираем область поиска
-                            searchQuery.getAreas().add(((CheckBox) event.getSource()).getText());
+                            searchQuery.getAreas().add(searchAreaName);
                         } else {
                             // если область поиска "убрали" - удаляем ее из условий поиска
-                            searchQuery.getAreas().remove((((CheckBox) event.getSource()).getText()));
+                            searchQuery.getAreas().remove(searchAreaName);
                         }
                     }
                 });
@@ -155,20 +162,23 @@ public class ExtendedSearchPluginView extends PluginView {
 
             for (int i = 0; i < areasDomainObjects.size(); i++) {
                 // key - это группа(область поиска) к которой кнопка относится
-                rb = new RadioButton(key, areasDomainObjects.get(i));
+                rb = new RadioButton(key, getDisplayTextByValue(areasDomainObjects.get(i)));
                 rb.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        boolean selected = ((RadioButton) event.getSource()).getValue();
+                        RadioButton radioButton = (RadioButton) event.getSource();
+                        boolean selected = radioButton.getValue();
                         if (selected) {
-                            for (Iterator<RadioButton> it = targetDomainObjectsRadioButtons.iterator(); it.hasNext(); )
-                                it.next().setValue(false);
+                            for (RadioButton rb : targetDomainObjectsRadioButtons) {
+                                rb.setValue(false);
+                            }
                             // выбираем целевой доменный объект для поиска
-                            searchQuery.setTargetObjectType(((RadioButton) event.getSource()).getText());
+                            String targetObjectType = getValueByDisplayText(radioButton.getText());
+                            searchQuery.setTargetObjectType(targetObjectType);
                             // вызываем форму поиска
                             invokeSearchForm(searchQuery);
                             // устанавливаем кнопку
-                            ((RadioButton) event.getSource()).setValue(true);
+                            radioButton.setValue(true);
                         }
                     }
                 });
@@ -279,5 +289,19 @@ public class ExtendedSearchPluginView extends PluginView {
             return false;
         }
         return true;
+    }
+
+    private String getDisplayTextByValue(String value) {
+        String displayText = valueToDisplayText.get(value);
+        return displayText != null ? displayText : value;
+    }
+
+    private String getValueByDisplayText(String displayText) {
+        for (Map.Entry<String, String> entry : valueToDisplayText.entrySet()) {
+            if (displayText.equals(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return displayText;
     }
 }

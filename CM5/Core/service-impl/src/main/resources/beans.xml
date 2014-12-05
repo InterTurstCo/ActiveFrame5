@@ -205,6 +205,7 @@
     <bean id="person-import-data" class="ru.intertrust.cm.core.business.load.ImportData" scope="prototype">
         <constructor-arg value="false" />
     </bean>
-    
-    
+
+    <bean id="localizationLoader" class="ru.intertrust.cm.core.business.load.LocalizerImpl"/>
+
 </beans>

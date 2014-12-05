@@ -5,7 +5,14 @@ import org.apache.commons.collections.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.Localizer;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -25,12 +32,24 @@ import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.*;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
+import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
+import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -47,6 +66,8 @@ public class FormRetriever extends FormProcessor {
     @Autowired
     ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    Localizer localizer;
 
     public FormDisplayData getForm(String domainObjectType, FormViewerConfig formViewerConfig) {
         return getForm(domainObjectType, null, null, formViewerConfig);
@@ -167,13 +188,13 @@ public class FormRetriever extends FormProcessor {
             context.setFormType(formConfig.getType());
             List<Constraint> constraints = buildConstraints(context);
             initialState.setConstraints(constraints);
-            initialState.setWidgetProperties(buildWidgetProps(constraints));
+            initialState.setWidgetProperties(buildWidgetProps(constraints, formConfig.getType()));
             boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
         }
         removeNotApplicableConstraints(widgetStateMap);
-        buildForceRequiredConstraints(widgetStateMap, widgetConfigsById);
+        buildForceRequiredConstraints(widgetStateMap, widgetConfigsById, formConfig.getType(), formObjects);
         return widgetStateMap;
     }
 
@@ -187,7 +208,9 @@ public class FormRetriever extends FormProcessor {
         }
     }
 
-    private void buildForceRequiredConstraints(Map<String, WidgetState> widgetStateMap, Map<String, WidgetConfig> widgetConfigsById) {
+    private void buildForceRequiredConstraints(Map<String, WidgetState> widgetStateMap,
+                                               Map<String, WidgetConfig> widgetConfigsById, String formConfig,
+                                               FormObjects formObjects) {
         for (Map.Entry<String, WidgetState> entry : widgetStateMap.entrySet()) {
             String widgetId = entry.getKey();
             WidgetState widgetState = entry.getValue();
@@ -206,8 +229,10 @@ public class FormRetriever extends FormProcessor {
                             params.put(Constraint.PARAM_WIDGET_ID, relatedWidget);
                             String fieldName = fieldPath.getPath();
                             params.put(Constraint.PARAM_FIELD_NAME, fieldName);
+                            String domainObjectType = formObjects.getDomainObjectType(fieldPath);
+                            params.put(Constraint.PARAM_DOMAIN_OBJECT_TYPE, domainObjectType);
                             relatedWidgetState.getConstraints().add(new Constraint(Constraint.Type.SIMPLE, params));
-                            relatedWidgetState.setWidgetProperties(buildWidgetProps(relatedWidgetState.getConstraints()));
+                            relatedWidgetState.setWidgetProperties(buildWidgetProps(relatedWidgetState.getConstraints(), formConfig));
                         }
                     }
                 }
@@ -306,12 +331,12 @@ public class FormRetriever extends FormProcessor {
             WidgetState initialState = widgetHandler.getInitialState(widgetContext);
             List<Constraint> constraints = buildConstraints(widgetContext);
             initialState.setConstraints(constraints);
-            initialState.setWidgetProperties(buildWidgetProps(constraints));
+            initialState.setWidgetProperties(buildWidgetProps(constraints, formConfig.getType()));
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
         }
-        buildForceRequiredConstraints(widgetStateMap, widgetConfigsById);
+        buildForceRequiredConstraints(widgetStateMap, widgetConfigsById, formConfig.getType(), formObjects);
 
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
@@ -520,10 +545,26 @@ public class FormRetriever extends FormProcessor {
         return widgetConfigsById;
     }
 
-    private HashMap<String, Object> buildWidgetProps(List<Constraint> constraints) {
+    private HashMap<String, Object> buildWidgetProps(List<Constraint> constraints, String formType) {
         HashMap<String, Object> props = new HashMap<String, Object>();
+        String domainObjectKey =  Localizer.DOMAIN_OBJECT;
+        String fieldKey = Localizer.FIELD;
+        if (FormConfig.TYPE_SEARCH.equals(formType)) {
+            domainObjectKey = Localizer.SEARCH_DOMAIN_OBJECT;
+            fieldKey = Localizer.SEARCH_FIELD;
+        }
         for (Constraint constraint : constraints) {
-            props.putAll(constraint.getParams());
+            Map<String, String> params =  constraint.getParams();
+            //localize domain object name:
+            String domainObjectName = params.get(Constraint.PARAM_DOMAIN_OBJECT_TYPE);
+            String localizedDomainObjectName = localizer.getDisplayText(domainObjectName, domainObjectKey);
+            //localize field name:
+            String fieldName = params.get(Constraint.PARAM_FIELD_NAME);
+            String localizedFieldName = localizer.getDisplayText(fieldName, fieldKey, params);
+
+            params.put(Constraint.PARAM_DOMAIN_OBJECT_TYPE, localizedDomainObjectName);
+            params.put(Constraint.PARAM_FIELD_NAME, localizedFieldName);
+            props.putAll(params);
         }
         return props;
     }

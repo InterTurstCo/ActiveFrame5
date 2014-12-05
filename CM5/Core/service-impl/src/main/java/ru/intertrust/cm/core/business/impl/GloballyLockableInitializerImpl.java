@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.transaction.jta.JtaTransactionManager;
+import ru.intertrust.cm.core.business.api.Localizer;
 import ru.intertrust.cm.core.business.load.ImportReportsData;
 import ru.intertrust.cm.core.business.load.ImportSystemData;
 import ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader;
@@ -42,6 +43,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private ImportSystemData importSystemData;
     @Autowired private ImportReportsData importReportsData;
     @Autowired private ScheduleTaskLoader scheduleTaskLoader;
+    @Autowired private Localizer localizer;
 
     @Autowired private JtaTransactionManager jtaTransactionManager;
 
@@ -135,6 +137,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         importSystemData.load();
         importReportsData.load();
         scheduleTaskLoader.load();
+        localizer.load();
     }
 
     private UserTransaction startTransaction() throws SystemException, NotSupportedException {

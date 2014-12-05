@@ -185,4 +185,8 @@
         <process-definition>workflow/SimpleProcess.bpmn</process-definition>
     </deploy-processes>
 
+    <localization-files>
+        <localization-file>text.properties</localization-file>
+    </localization-files>
+
 </module>

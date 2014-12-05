@@ -45,6 +45,9 @@ public class ModuleConfiguration implements Dto {
     @ElementList(required=false, name="deploy-processes", entry="process-definition")
     private List<String> deployProcesses;
 
+    @Element(name="localization-files", required = false)
+    private LocalizationFilesConfiguration localisationFiles;
+
     private URL moduleUrl;
     
     public String getName() {
@@ -122,5 +125,8 @@ public class ModuleConfiguration implements Dto {
     public void setDeployProcesses(List<String> deployProcesses) {
         this.deployProcesses = deployProcesses;
     }
-    
+
+    public LocalizationFilesConfiguration getLocalisationFiles() {
+        return localisationFiles;
+    }
 }

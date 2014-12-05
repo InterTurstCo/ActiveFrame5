@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.Localizer;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
@@ -59,6 +60,9 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     @Autowired
     private GuiService guiService;
 
+    @Autowired
+    private Localizer localizer;
+
     protected ExtendedSearchPluginData extendedSearchPluginData;
 
     @Override
@@ -101,8 +105,31 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         extendedSearchPluginData.setTargetCollectionNames(targetCollectionNames);
         extendedSearchPluginData.setSearchAreasData(searchAreas);
         extendedSearchPluginData.setSearchFieldsData(searchFields);
-
+        Map<String,String> valueToDisplayText = getLocalizationMap();
+        extendedSearchPluginData.setValueToDisplayText(valueToDisplayText);
         return extendedSearchPluginData;
+    }
+
+    private Map<String, String> getLocalizationMap() {
+        Map<String, String> result = new HashMap<>();
+        for (Map.Entry<String, ArrayList<String>> areaData : extendedSearchPluginData.getSearchAreasData().entrySet()) {
+            String searchAreaName = areaData.getKey();
+            result.put(searchAreaName, localizer.getDisplayText(searchAreaName, Localizer.SEARCH_AREA));
+            List<String> domainObjectTypes = areaData.getValue();
+            for (String doType : domainObjectTypes) {
+                result.put(doType, localizer.getDisplayText(doType, Localizer.SEARCH_DOMAIN_OBJECT));
+            }
+        }
+        for (Map.Entry<String, ArrayList<String>> fieldsData : extendedSearchPluginData.getSearchFieldsData().entrySet()) {
+            String doType = fieldsData.getKey();
+            for (String field : fieldsData.getValue()) {
+                Map<String, String> context = new HashMap<>();
+                context.put(Localizer.DOMAIN_OBJECT_CONTEXT, doType);
+                result.put(field, localizer.getDisplayText(field, Localizer.SEARCH_FIELD, context));
+            }
+        }
+
+        return result;
     }
 
     public HashSet<String> selectSearchFormFields (String targetDomainObject) {
