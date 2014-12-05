@@ -148,7 +148,10 @@ public class BasicRowMapper extends ValueReader {
             object.setCreatedDate(valueModel.getCreatedDate());
         }
         if (valueModel.getValue() != null) {
-            object.setValue(fieldConfig.getName(), valueModel.getValue());
+            Value filledValue = object.getValue(fieldConfig.getName());
+            if (filledValue == null || filledValue.get() == null) {
+                object.setValue(fieldConfig.getName(), valueModel.getValue());
+            }
         }
     }
 
