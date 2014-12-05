@@ -428,28 +428,32 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             currentDate = parentDOs[0].getModifiedDate();
         }
 
-        Map<String, Object> [] parameters = new Map[domainObjects.length];
-        for (int i = 0; i < updatedObjects.length; i++) {
-            parameters[i] = initializeUpdateParameters(
-                     updatedObjects[i], domainObjectTypeConfig, accessToken, currentDate, isUpdateStatus);
-        }
+        if (query != null) {
 
-        int [] count = jdbcTemplate.batchUpdate(query, parameters);
-
-        for (int i = 0; i < updatedObjects.length; i++) {
-            if (count[i] == 0 && (!exists(updatedObjects[i].getId()))) {
-                throw new ObjectNotFoundException(updatedObjects[i].getId());
+            Map<String, Object>[] parameters = new Map[domainObjects.length];
+            for (int i = 0; i < updatedObjects.length; i++) {
+                parameters[i] = initializeUpdateParameters(
+                        updatedObjects[i], domainObjectTypeConfig, accessToken, currentDate, isUpdateStatus);
             }
 
+            int[] count = jdbcTemplate.batchUpdate(query, parameters);
 
-            if (!isDerived(domainObjectTypeConfig)) {
-                if (count[i] == 0) {
-                    throw new OptimisticLockException(updatedObjects[i]);
+            for (int i = 0; i < updatedObjects.length; i++) {
+                if (count[i] == 0 && (!exists(updatedObjects[i].getId()))) {
+                    throw new ObjectNotFoundException(updatedObjects[i].getId());
                 }
 
-                updatedObjects[i].setModifiedDate(currentDate);
-            }
+                if (!isDerived(domainObjectTypeConfig)) {
+                    if (count[i] == 0) {
+                        throw new OptimisticLockException(updatedObjects[i]);
+                    }
+                }
 
+            }
+        }
+        
+        for (int i = 0; i < updatedObjects.length; i++) {
+         
             updatedObjects[i].setModifiedDate(currentDate);
             updatedObjects[i].resetDirty();
 
@@ -1381,6 +1385,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String fieldsWithparams = DaoUtils
                 .generateCommaSeparatedListWithParams(columnNames);
 
+        if (isDerived(domainObjectTypeConfig) && fieldsWithparams.isEmpty()) {
+            return null;
+        }
         query.append("update ").append(wrap(tableName)).append(" set ");
 
         if (!isDerived(domainObjectTypeConfig)) {

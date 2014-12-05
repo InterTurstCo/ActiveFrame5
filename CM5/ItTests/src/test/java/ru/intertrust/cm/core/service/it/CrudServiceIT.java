@@ -95,6 +95,7 @@ public class CrudServiceIT extends IntegrationTestBase {
     public void testSaveFindExists() {
         DomainObject personDomainObject = createPersonDomainObject();
         DomainObject savedPersonObject = crudService.save(personDomainObject);
+
         assertNotNull(savedPersonObject);
         assertNotNull(savedPersonObject.getId());
         assertNotNull(savedPersonObject.getString("Login"));
@@ -109,6 +110,21 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     }
 
+    @Test
+    public void testMultipleSave() {
+        DomainObject personDomainObject = createPersonTestDomainObject();
+        DomainObject savedPersonObject = crudService.save(personDomainObject);
+
+        assertNotNull(savedPersonObject);
+        assertNotNull(savedPersonObject.getId());
+        assertNotNull(savedPersonObject.getString("Login"));
+
+        savedPersonObject = crudService.save(savedPersonObject);
+        assertNotNull(savedPersonObject);
+        assertNotNull(savedPersonObject.getId());
+        assertNotNull(savedPersonObject.getString("Login"));
+    }
+    
     @Test
     public void testFindDelete() {
         DomainObject organization1 = createOrganizationDomainObject();
@@ -132,14 +148,14 @@ public class CrudServiceIT extends IntegrationTestBase {
 
         DomainObject savedOrganization1 = crudService.save(organization1);
 
-        Id[] objects = new Id[] {savedPerson1.getId(), savedOrganization1.getId() };
+        Id[] objects = new Id[] { savedOrganization1.getId() };
         List<Id> objectIds = Arrays.asList(objects);
 
         List<DomainObject> foundObjects = crudService.find(objectIds);
 
         List<Id> foundIds = getIdList(foundObjects);
         assertNotNull(foundObjects);
-        assertTrue(foundObjects.size() == 2);
+        assertTrue(foundObjects.size() == 1);
 
         assertTrue(foundIds.contains(savedPerson1.getId()));
         assertTrue(foundIds.contains(savedOrganization1.getId()));
@@ -444,6 +460,12 @@ public class CrudServiceIT extends IntegrationTestBase {
         return personDomainObject;
     }
 
+    private DomainObject createPersonTestDomainObject() {
+        DomainObject personDomainObject = crudService.createDomainObject("person_test_empty_fields");
+        personDomainObject.setString("Login", "login test" + System.currentTimeMillis());
+        return personDomainObject;
+    }
+    
     private DomainObject createEmployeeDomainObject(DomainObject departmentObject) {
         DomainObject personDomainObject = crudService.createDomainObject("Employee");
         

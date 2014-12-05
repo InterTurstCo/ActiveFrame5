@@ -81,6 +81,9 @@
             <attachment-type name="person_attachment_test"></attachment-type>
         </attachment-types>
     </domain-object-type>
+
+    <domain-object-type name="person_test_empty_fields" extends="person_test" initial-status="Active">
+    </domain-object-type>
     
     <domain-object-type name="employee_test" extends="person_test" audit-log="true" initial-status="Active">
         <fields>
