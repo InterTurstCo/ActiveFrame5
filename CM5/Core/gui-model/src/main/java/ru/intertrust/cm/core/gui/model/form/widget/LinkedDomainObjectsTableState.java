@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
-import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import java.util.*;
@@ -17,7 +16,7 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
 
     private LinkedHashMap<String, FormState> newFormStates = new LinkedHashMap<>();
     private LinkedHashMap<String, FormState> editedFormStates = new LinkedHashMap<>();
-    private Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames;
+    private int filteredItemsNumber;
 
     @Override
     public ArrayList<Id> getIds() {
@@ -36,16 +35,8 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         return linkedDomainObjectsTableConfig.getSelectionFiltersConfig() != null &&
                 linkedDomainObjectsTableConfig.getSelectionFiltersConfig().getRowLimit() != -1
                 && linkedDomainObjectsTableConfig.getCollectionRefConfig() != null
-                && (selectedIds.size() + newFormStates.size() > linkedDomainObjectsTableConfig.getSelectionFiltersConfig().getRowLimit());
+                && filteredItemsNumber + newFormStates.size() > linkedDomainObjectsTableConfig.getSelectionFiltersConfig().getRowLimit();
 
-    }
-
-    public Collection<WidgetIdComponentName> getSelectionWidgetIdsComponentNames() {
-        return selectionWidgetIdsComponentNames;
-    }
-
-    public void setSelectionWidgetIdsComponentNames(Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames) {
-        this.selectionWidgetIdsComponentNames = selectionWidgetIdsComponentNames;
     }
 
     public LinkedDomainObjectsTableConfig getLinkedDomainObjectsTableConfig() {
@@ -131,6 +122,14 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
     public void clearPreviousStates() {
         newFormStates.clear();
         editedFormStates.clear();
+    }
+
+    public void setFilteredItemsNumber(int filteredItemsNumber) {
+        this.filteredItemsNumber = filteredItemsNumber;
+    }
+
+    public void decrementFilteredItemsNumber(){
+        filteredItemsNumber--;
     }
 
 }

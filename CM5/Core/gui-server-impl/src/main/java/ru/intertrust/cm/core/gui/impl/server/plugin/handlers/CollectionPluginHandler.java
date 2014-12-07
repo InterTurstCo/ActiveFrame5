@@ -29,7 +29,6 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshReques
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
-import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.*;
 
@@ -112,12 +111,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 pluginData.setHierarchicalFiltersConfig(collectionViewerConfig.getHierarchicalFiltersConfig());
             }
         }
-        boolean isTableBrowserLimitation = tableBrowserParams != null
-                && tableBrowserParams.isTooltipLimitation()
-                && tableBrowserParams.isDisplayOnlySelectedIds();
-        initRowsNumber = isTableBrowserLimitation
-                ? WidgetUtil.getLimit(tableBrowserParams.getSelectionFiltersConfig())
-                : initRowsNumber;
+
         ArrayList<CollectionRowItem> items = getRows(collectionName, 0, initRowsNumber, filters, order, columnPropertyMap);
         pluginData.setItems(items);
         Collection<Id> selectedIds = tableBrowserParams == null ? new ArrayList<Id>() : tableBrowserParams.getIds();
@@ -250,14 +244,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionRowsRequest request = (CollectionRowsRequest) dto;
         CollectionRowsResponse collectionRowsResponse = new CollectionRowsResponse();
         TableBrowserParams tableBrowserParams = request.getTableBrowserParams();
-        boolean isTableBrowserLimitation = tableBrowserParams != null
-                && tableBrowserParams.isTooltipLimitation()
-                && tableBrowserParams.isDisplayOnlySelectedIds();
-        collectionRowsResponse.setReinsertRows(isTableBrowserLimitation); //if table-browser has limit in the selections-filters, table should reinsert rows and not add more
+
         LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
-        int offset = isTableBrowserLimitation ? 0 : request.getOffset();
-        int limit = isTableBrowserLimitation
-                ? WidgetUtil.getLimit(request.getTableBrowserParams().getSelectionFiltersConfig()) : request.getLimit();
+        int offset = request.getOffset();
+        int limit = request.getLimit();
         Map<String, List<String>> filtersMap = request.getFiltersMap();
         List<Filter> filters = CollectionPluginHelper.prepareSearchFilters(filtersMap, properties);
 

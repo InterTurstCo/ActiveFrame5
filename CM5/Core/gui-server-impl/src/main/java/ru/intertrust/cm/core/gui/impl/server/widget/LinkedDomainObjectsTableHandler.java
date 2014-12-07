@@ -21,7 +21,6 @@ import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
-import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
@@ -77,44 +76,40 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         CollectionRefConfig refConfig = widgetConfig.getCollectionRefConfig();
         boolean collectionNameConfigured = refConfig != null;
-        Collection<WidgetIdComponentName> selectionWidgetIdsComponentNames =
-                WidgetUtil.getWidgetIdsComponentsNamesForFilters(widgetConfig .getSelectionFiltersConfig(), context.getWidgetConfigsById());
-        state.setSelectionWidgetIdsComponentNames(selectionWidgetIdsComponentNames);
         ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
-        List<RowItem> rowItems = selectionFiltersConfig == null || !collectionNameConfigured ? generateRowItems(widgetConfig, ids)
-                : generateFilteredRowItems(widgetConfig, ids, filtersParams,false);
+        List<Id> idsForItemsGenerating = selectionFiltersConfig == null || !collectionNameConfigured ? ids : getNotLimitedIds(widgetConfig, ids, filtersParams, false);
+        state.setFilteredItemsNumber(idsForItemsGenerating.size());
+        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        WidgetServerUtil.doLimit(idsForItemsGenerating, limit);
+        List<RowItem> rowItems = generateRowItems(widgetConfig, idsForItemsGenerating);
         state.setRowItems(rowItems);
 
         return state;
     }
 
 
-    private List<RowItem> generateFilteredRowItems(LinkedDomainObjectsTableConfig widgetConfig,
-                                                   List<Id> selectedIds, ComplicatedFiltersParams filtersParams, boolean tooltipContent) {
+    private List<Id> getNotLimitedIds(LinkedDomainObjectsTableConfig widgetConfig,
+                                      List<Id> selectedIds, ComplicatedFiltersParams filtersParams, boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
-        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
+        filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams, filters);
         Filter includedIds = FilterBuilderUtil.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilderUtil.INCLUDED_IDS_FILTER);
         filters.add(includedIds);
 
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
-        Integer limit = WidgetUtil.getLimit(selectionFiltersConfig);
         SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(widgetConfig.getSelectionSortCriteriaConfig());
         IdentifiableObjectCollection collection = null;
-        if (limit == -1) {
-            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
-
+        if (tooltipContent) {
+            int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters, limit, WidgetConstants.UNBOUNDED_LIMIT);
         } else {
-            collection = tooltipContent
-                    ? collectionsService.findCollection(collectionName, sortOrder, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
-                    : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
         }
         List<Id> selectedFilteredIds = new ArrayList<>();
         for (IdentifiableObject object : collection) {
             selectedFilteredIds.add(object.getId());
         }
-        List<RowItem> items = generateRowItems(widgetConfig, selectedFilteredIds);
-        return items;
+        return selectedFilteredIds;
     }
 
     private List<RowItem> generateRowItems(LinkedDomainObjectsTableConfig widgetConfig,
@@ -236,7 +231,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 String enumBoxDisplayText = getEnumBoxDisplayText(domainObject, columnConfig.getWidgetId());
                 if (enumBoxDisplayText != null) {
                     displayValue = formatHandler.format(new StringValue(enumBoxDisplayText),
-                                        fieldPatternMatcher(columnPattern), formattingConfig);
+                            fieldPatternMatcher(columnPattern), formattingConfig);
                 }
             }
             rowItem.setValueByKey(columnConfig.getWidgetId(), displayValue);
@@ -250,7 +245,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             FormDisplayData linkedFormDisplayData = guiService.getForm(domainObject.getId(), userInfo, null);
             WidgetState linkedWidgetState = linkedFormDisplayData.getFormState().getWidgetState(mappedWidgetId);
             if (linkedWidgetState instanceof EnumBoxState) {
-                return ((EnumBoxState)linkedWidgetState).getSelectedText();
+                return ((EnumBoxState) linkedWidgetState).getSelectedText();
             }
         }
         return null;
@@ -305,8 +300,11 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         List<Id> ids = request.getSelectedIds();
         ComplicatedFiltersParams filtersParams = request.getFiltersParams();
         SelectionFiltersConfig selectionFiltersConfig = config.getSelectionFiltersConfig();
-        List<RowItem> rowItems = selectionFiltersConfig == null ? generateRowItems(config, ids)
-                : generateFilteredRowItems(config, ids, filtersParams,true);
+        CollectionRefConfig refConfig = config.getCollectionRefConfig();
+        boolean collectionNameConfigured = refConfig != null;
+        List<Id> idsForItemsGenerating = selectionFiltersConfig == null || !collectionNameConfigured ? ids
+                : getNotLimitedIds(config, ids, filtersParams, true);
+        List<RowItem> rowItems = generateRowItems(config, idsForItemsGenerating);
 
         return new LinkedTableTooltipResponse(rowItems);
     }
@@ -367,7 +365,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                         representation.append(formatHandler.format(selectionPattern, ids, formattingConfig));
 
                     } else if (widgetState instanceof EnumBoxState) {
-                        EnumBoxState enumBoxState = (EnumBoxState)widgetState;
+                        EnumBoxState enumBoxState = (EnumBoxState) widgetState;
                         String selectedText = enumBoxState.getSelectedText();
                         representation.append(formatHandler.format(new StringValue(selectedText), matcher, formattingConfig));
                     }

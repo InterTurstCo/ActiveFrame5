@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -68,13 +69,13 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
         boolean hasSelectionFilters = false;
         boolean noLimit = true;
-        Collection<NodeCollectionDefConfig > nodeConfigs = collectionNameNodeMap.values();
+        Collection<NodeCollectionDefConfig> nodeConfigs = collectionNameNodeMap.values();
         if (!selectedIds.isEmpty()) {
             for (NodeCollectionDefConfig nodeDefConfig : nodeConfigs) {
                 hasSelectionFilters = hasSelectionFilters || hasSelectionFilters(nodeDefConfig);
                 noLimit = noLimit && hasNoLimit(nodeConfig);
                 ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
-                generateChosenItems(nodeDefConfig, formattingConfig, selectedIds, chosenItems, filtersParams,false);
+                generateChosenItems(nodeDefConfig, formattingConfig, selectedIds, chosenItems, filtersParams, false);
 
             }
 
@@ -99,30 +100,26 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     private void generateChosenItems(NodeCollectionDefConfig nodeConfig,
                                      FormattingConfig formattingConfig, List<Id> selectedIds,
                                      List<HierarchyBrowserItem> items, ComplicatedFiltersParams filtersParams, boolean tooltipContent) {
-        List<Filter> filters = new ArrayList<Filter>();
-        filters = addIncludeIdsFilter(selectedIds, filters);
         String collectionName = nodeConfig.getCollection();
         SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
+        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        List<Filter> filters = new ArrayList<Filter>();
+        filters = addIncludeIdsFilter(selectedIds, filters);
         filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams, filters);
-        Integer limit = WidgetUtil.getLimit(selectionFiltersConfig);
         SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(nodeConfig.getSelectionSortCriteriaConfig());
-
         IdentifiableObjectCollection collection = null;
-        if (limit == -1 && !tooltipContent) {
-            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
-
-        } else if (limit != -1) {
-            collection = tooltipContent
-                    ? collectionsService.findCollection(collectionName, sortOrder, filters, limit, WidgetConstants.UNBOUNDED_LIMIT)
-                    : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
-            if (!tooltipContent) {
-                int collectionCount = collectionsService.findCollection(collectionName, sortOrder, filters).size();
-                nodeConfig.setElementsCount(collectionCount);
+        if (tooltipContent) {
+            if (limit != -1) {
+                collection = collectionsService.findCollection(collectionName, sortOrder, filters, limit, WidgetConstants.UNBOUNDED_LIMIT);
             }
+        } else {
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
         }
         if (collection == null) {
             return;
         }
+        nodeConfig.setElementsCount(collection.size());
+        WidgetServerUtil.doLimit(collection, limit);
         SelectionPatternConfig selectionPatternConfig = nodeConfig.getSelectionPatternConfig();
         Matcher matcher = FormatHandler.pattern.matcher(selectionPatternConfig.getValue());
 

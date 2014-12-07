@@ -1,10 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -14,8 +12,6 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
@@ -48,6 +44,7 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
                     LinkedHashMap<Id, String> tooltipValues = list.getListValues();
                     state.setTooltipValues(tooltipValues);
                     handleItemsForTooltipContent(tooltipValues);
+
                 }
 
                 @Override
@@ -59,7 +56,7 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
 
     }
 
-    private WidgetItemsRequest createRequest() {
+    protected WidgetItemsRequest createRequest() {
         TooltipWidgetState state = getInitialData();
         LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
         WidgetItemsRequest request = new WidgetItemsRequest();
@@ -75,28 +72,6 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
         return request;
     }
 
-    protected void fetchWidgetItems(final TooltipCallback tooltipCallback) {
-        WidgetItemsRequest widgetItemsRequest = createRequest();
-        Command command = new Command("fetchWidgetItems", getTooltipHandlerName(), widgetItemsRequest);
-        final HandlerRegistration handlerRegistration = Event.addNativePreviewHandler(new EventBlocker(impl));
-        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
-            @Override
-            public void onSuccess(Dto result) {
-                handlerRegistration.removeHandler();
-                WidgetItemsResponse list = (WidgetItemsResponse) result;
-                LinkedHashMap<Id, String> tooltipValues = list.getListValues();
-                TooltipWidgetState state = getInitialData();
-                state.setTooltipValues(tooltipValues);
-                tooltipCallback.perform();
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-                handlerRegistration.removeHandler();
-                GWT.log("something was going wrong while obtaining rows");
-            }
-        });
-    }
 
     private void handleItemsForTooltipContent(LinkedHashMap<Id, String> listValues) {
         TooltipWidgetState state = getInitialData();
@@ -115,19 +90,6 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
             noneEditableTooltip.displayItems(listValues);
             noneEditableTooltip.showRelativeTo(impl);
         }
-    }
-
-    protected boolean shouldDrawTooltipButton() {
-        return shouldDrawTooltipButton(0);
-    }
-
-    protected boolean shouldDrawTooltipButton(int delta) {
-        TooltipWidgetState state = getInitialData();
-        LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
-        return config.getSelectionFiltersConfig() != null &&
-                config.getSelectionFiltersConfig().getRowLimit() != -1
-                && state.getSelectedIds() != null
-                && state.getSelectedIds().size() + delta > config.getSelectionFiltersConfig().getRowLimit();
     }
 
     protected boolean isDisplayingAsHyperlink() {

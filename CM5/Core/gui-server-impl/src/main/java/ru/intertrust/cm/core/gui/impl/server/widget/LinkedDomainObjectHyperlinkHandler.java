@@ -21,10 +21,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.TitleBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.DomainObjectsSorter;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
+import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -76,9 +73,15 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
             state.setDomainObjectType(firstDomainObject.getTypeName());
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
             ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(rootId);
-            LinkedHashMap<Id, String> listValues = selectionFiltersConfig == null || widgetConfig.getCollectionRefConfig() == null
-                    ? generateHyperlinkItems(widgetConfig, selectedIds)
-                    : generateFilteredHyperlinkItems(widgetConfig, selectedIds, filtersParams,false);
+            CollectionRefConfig refConfig = widgetConfig.getCollectionRefConfig();
+            boolean collectionNameConfigured = refConfig != null;
+            List<Id> idsForItemsGenerating = selectionFiltersConfig == null || !collectionNameConfigured ? selectedIds
+                    : getNotLimitedIds(widgetConfig, selectedIds, filtersParams,false);
+            state.setFilteredItemsNumber(idsForItemsGenerating.size());
+            int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+            WidgetServerUtil.doLimit(idsForItemsGenerating, limit);
+            LinkedHashMap<Id, String> listValues = generateHyperlinkItems(widgetConfig, idsForItemsGenerating);
+
             state.setListValues(listValues);
         }
         state.setWidgetConfig(widgetConfig);
@@ -106,7 +109,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         return listValues;
     }
 
-    private LinkedHashMap<Id, String> generateFilteredHyperlinkItems(LinkedDomainObjectHyperlinkConfig widgetConfig,
+    private List<Id> getNotLimitedIds(LinkedDomainObjectHyperlinkConfig widgetConfig,
                                                                      List<Id> selectedIds, ComplicatedFiltersParams filtersParams,
                                                                      boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
@@ -115,25 +118,21 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         Filter includedIds = FilterBuilderUtil.prepareFilter(new HashSet<Id>(selectedIds), FilterBuilderUtil.INCLUDED_IDS_FILTER);
         filters.add(includedIds);
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
-        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
-        IdentifiableObjectCollection collection = null;
+
         SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(widgetConfig.getSelectionSortCriteriaConfig());
-        if(limit == -1) {
-            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
+        IdentifiableObjectCollection collection = null;
+        if (tooltipContent) {
+            int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters, limit, WidgetConstants.UNBOUNDED_LIMIT);
         } else {
-            collection = tooltipContent
-                    ? collectionsService.findCollection(collectionName, sortOrder, filters,limit, WidgetConstants.UNBOUNDED_LIMIT)
-                    : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
+            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
         }
         List<Id> selectedFilteredIds = new ArrayList<>();
         for (IdentifiableObject object : collection) {
             selectedFilteredIds.add(object.getId());
         }
-        if(selectedFilteredIds.isEmpty()){
-            return new LinkedHashMap<Id, String>(0);
-        }
-        LinkedHashMap<Id, String> listValues = generateHyperlinkItems(widgetConfig, selectedFilteredIds);
-        return listValues;
+
+        return selectedFilteredIds;
     }
 
     private String buildStringRepresentation(DomainObject domainObject, String selectionPattern,
@@ -171,7 +170,10 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         widgetConfig.setCollectionRefConfig(collectionRefConfig);
         List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
         ComplicatedFiltersParams filtersParams = widgetItemsRequest.getComplicatedFiltersParams();
-        LinkedHashMap<Id, String> listValues = generateFilteredHyperlinkItems(widgetConfig, selectedIds, filtersParams,true);
+        List<Id> idsForItemsGenerating = getNotLimitedIds(widgetConfig, selectedIds, filtersParams, true);
+        int limit = WidgetUtil.getLimit(selectionFiltersConfig);
+        WidgetServerUtil.doLimit(idsForItemsGenerating, limit);
+        LinkedHashMap<Id, String> listValues = generateHyperlinkItems(widgetConfig, idsForItemsGenerating);
         WidgetItemsResponse response = new WidgetItemsResponse();
         response.setListValues(listValues);
 

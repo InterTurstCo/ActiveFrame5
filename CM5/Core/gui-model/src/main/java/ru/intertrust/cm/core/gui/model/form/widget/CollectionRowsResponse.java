@@ -14,7 +14,6 @@ import java.util.ArrayList;
  */
 public class CollectionRowsResponse implements Dto {
     ArrayList<CollectionRowItem> collectionRows;
-    private boolean reinsertRows;
     public ArrayList<CollectionRowItem> getCollectionRows() {
         return collectionRows;
     }
@@ -23,11 +22,4 @@ public class CollectionRowsResponse implements Dto {
         this.collectionRows = collectionRows;
     }
 
-    public boolean isReinsertRows() {
-        return reinsertRows;
-    }
-
-    public void setReinsertRows(boolean reinsertRows) {
-        this.reinsertRows = reinsertRows;
-    }
 }

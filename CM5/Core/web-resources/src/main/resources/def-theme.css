@@ -2797,6 +2797,10 @@ a:active .icon.back {
     margin: 0;
 }
 
+.linkedWidgetsBorderStyle .facebook-element {
+    vertical-align: middle;
+}
+
 .linkedWidgetsBorderStyleNone {
     border: none;
     background: none;

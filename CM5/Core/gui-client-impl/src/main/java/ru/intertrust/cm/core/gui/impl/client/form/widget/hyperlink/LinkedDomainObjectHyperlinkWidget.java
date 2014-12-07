@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappin
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipWidget;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -20,6 +21,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkSt
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -51,7 +53,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
 
         LinkedHashMap<Id, String> listValues = state.getListValues();
         HyperlinkNoneEditablePanel panel = (HyperlinkNoneEditablePanel) impl;
-        panel.displayHyperlinks(listValues, shouldDrawTooltipButton());
+        panel.displayHyperlinks(listValues, WidgetUtil.shouldDrawTooltipButton(state));
 
     }
 
@@ -69,6 +71,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
+        localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         LinkedDomainObjectHyperlinkState linkedDomainObjectHyperlinkState = (LinkedDomainObjectHyperlinkState) state;
         SelectionStyleConfig selectionStyleConfig = linkedDomainObjectHyperlinkState.getWidgetConfig().getSelectionStyleConfig();
         return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false,
@@ -98,7 +101,8 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
                 String representation = response.getRepresentation();
                 Id id = response.getId();
                 LinkedHashMap<Id, String> listValues = getUpdatedHyperlinks(id, representation);
-                hyperlinkDisplay.displayHyperlinks(listValues, shouldDrawTooltipButton());
+                LinkedDomainObjectHyperlinkState state = getInitialData();
+                hyperlinkDisplay.displayHyperlinks(listValues, WidgetUtil.shouldDrawTooltipButton(state));
 
             }
 

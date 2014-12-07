@@ -149,7 +149,7 @@
         <filter name="byNames">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    o.name in ({0}, {1})
+                    o.name in ({0}, {1}, {2}, {3})
                 ]]>
             </criteria>
         </filter>

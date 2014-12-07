@@ -63,12 +63,23 @@ public class HierarchyBrowserUtil {
         if(expected == null || expected < actual){
             return;
         }
-        HierarchyBrowserItem itemForTooltip = temporaryChosenItems.remove(temporaryChosenItems.size() - 1);
+        HierarchyBrowserItem itemForTooltip = removeSameCollectionItem(item, temporaryChosenItems);
         if(itemForTooltip != null){
             temporaryTooltipItems.add(itemForTooltip);
 
         }
 
+    }
+    private static HierarchyBrowserItem removeSameCollectionItem(HierarchyBrowserItem item, Collection<HierarchyBrowserItem> items){
+       Iterator<HierarchyBrowserItem> iterator = items.iterator();
+        while (iterator.hasNext()){
+            HierarchyBrowserItem currentItem = iterator.next();
+            if(currentItem.getNodeCollectionName().equalsIgnoreCase(item.getNodeCollectionName())){
+                iterator.remove();
+                return currentItem;
+            }
+        }
+        return null;
     }
 
     public static void preHandleRemovingItem(HierarchyBrowserItem item, HierarchyBrowserWidgetState state){

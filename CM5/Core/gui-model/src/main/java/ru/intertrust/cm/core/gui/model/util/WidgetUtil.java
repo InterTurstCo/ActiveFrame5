@@ -97,12 +97,10 @@ public class WidgetUtil {
     }
 
     public static boolean shouldDrawTooltipButton(TooltipWidgetState state, int delta) {
-
         LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
-        return config.getSelectionFiltersConfig() != null &&
-                config.getSelectionFiltersConfig().getRowLimit() != -1
-                && state.getSelectedIds() != null
-                && state.getSelectedIds().size() + delta > config.getSelectionFiltersConfig().getRowLimit();
+        return config.getSelectionFiltersConfig() != null
+                && config.getSelectionFiltersConfig().getRowLimit() != -1
+                && state.getFilteredItemsNumber() + delta > config.getSelectionFiltersConfig().getRowLimit();
     }
 
     public static boolean drawAsTable(SelectionStyleConfig selectionStyleConfig) {

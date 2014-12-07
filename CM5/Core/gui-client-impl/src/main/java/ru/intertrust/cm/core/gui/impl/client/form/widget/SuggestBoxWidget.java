@@ -49,6 +49,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.*;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EMPTY_VALUE;
+import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.shouldDrawTooltipButton;
 
 @ComponentName("suggest-box")
 public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStateChangedEventHandler,
@@ -59,7 +60,6 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private static final int INPUT_MARGIN = 35;
     private static final int ONE_SUGGESTION_HEIGHT = 18;
     private SuggestBox suggestBox;
-    private LinkedHashMap<Id, String> stateListValues = new LinkedHashMap<>(); //used for temporary state
     private List<MultiWordIdentifiableSuggestion> suggestions = new ArrayList<MultiWordIdentifiableSuggestion>();
     private SuggestBoxConfig suggestBoxConfig;
     private LazyLoadState lazyLoadState;
@@ -121,8 +121,6 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             return super.getFullClientStateCopy();
         }
         SuggestBoxState state = new SuggestBoxState();
-        state.setListValues(stateListValues);
-
         state.setSelectedIds(currentState.getSelectedIds());
         state.setSingleChoice(currentState.isSingleChoice());
         state.setSuggestBoxConfig(currentState.getSuggestBoxConfig());
@@ -166,10 +164,10 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 listValues.put(id, representation);
                 if (hyperlinkDisplay != null) {
 
-                    hyperlinkDisplay.displayHyperlinks(listValues, !tooltipContent && shouldDrawTooltipButton());
+                    hyperlinkDisplay.displayHyperlinks(listValues, !tooltipContent && shouldDrawTooltipButton(currentState));
                 } else {
 
-                    stateListValues.put(id, representation);
+                    currentState.getListValues().put(id, representation);
                     setCurrentState(currentState);
                 }
 
@@ -261,12 +259,12 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
     private void insertItem(Id id, String representation){
         SuggestPresenter presenter = (SuggestPresenter) impl;
-        if (shouldDrawTooltipButton(1)) {
+        if (shouldDrawTooltipButton(currentState, 1)) {
             insertInTooltipContent(id, representation);
         } else {
             final String replacementString = representation;
             presenter.insert(id, replacementString);
-            stateListValues.put(id, replacementString);
+            currentState.getListValues().put(id, replacementString);
             if (impl.getElement().getStyle().getWidth().equalsIgnoreCase(EMPTY_VALUE)) {
                 impl.setWidth(impl.getElement().getOffsetWidth() + "px");
             }
@@ -339,9 +337,9 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             HyperlinkNoneEditablePanel noneEditablePanel = (HyperlinkNoneEditablePanel) impl;
 
             if (state.isDisplayingAsHyperlinks()) {
-                noneEditablePanel.displayHyperlinks(listValues, shouldDrawTooltipButton());
+                noneEditablePanel.displayHyperlinks(listValues, shouldDrawTooltipButton(state));
             } else {
-                noneEditablePanel.displayItems(listValues.values(), shouldDrawTooltipButton());
+                noneEditablePanel.displayItems(listValues.values(), shouldDrawTooltipButton(state));
 
             }
 
@@ -385,7 +383,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         }
         SuggestPresenter presenter = (SuggestPresenter) impl;
         Widget tooltipButton = presenter.getTooltipButton();
-        if (tooltipButton != null && !shouldDrawTooltipButton()) {
+        if (tooltipButton != null && !shouldDrawTooltipButton(currentState)) {
             tooltipButton.removeFromParent();
             presenter.changeSuggestInputWidth();
         }
@@ -504,14 +502,15 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
         private void removeSuggestItemFromStates(Id id) {
             selectedSuggestions.remove(id);
-            stateListValues.remove(id);
+            currentState.getListValues().remove(id);
             currentState.getSelectedIds().remove(id);
+            currentState.decrementFilteredItemsNumber();
             suggestBox.setFocus(true);
         }
 
         protected void drawItemFromTooltipContent() {
             Map.Entry<Id, String> entry = pollItemFromTooltipContent();
-            stateListValues.put(entry.getKey(), entry.getValue());
+            currentState.getListValues().put(entry.getKey(), entry.getValue());
             SuggestPresenter presenter = (SuggestPresenter) impl;
             presenter.insert(entry.getKey(), entry.getValue());
             presenter.changeSuggestInputWidth();
@@ -579,7 +578,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 }
                 super.add(itemComposite, container);
             }
-            if (shouldDrawTooltipButton()) {
+            if (shouldDrawTooltipButton(currentState)) {
                 addTooltipButton(false);
             }
             addClearButton(state);
@@ -599,7 +598,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 focusPanel.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        stateListValues.clear();
+                        currentState.getListValues().clear();
                         selectedSuggestions.clear();
                         currentState.evictTooltipItems();
                         currentState.getSelectedIds().clear();
@@ -703,10 +702,11 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             if (currentState.isSingleChoice()) {
                 currentState.getSelectedIds().clear();
                 clearAllItems();
-                stateListValues.clear();
+                currentState.getListValues().clear();
             }
             selectedSuggestions.put(itemId, itemName);
-            int index = shouldDrawTooltipButton() ? container.getChildCount() - 2 : container.getChildCount() - 1;
+            int index = shouldDrawTooltipButton(currentState) ? container.getChildCount() - 2
+                    : container.getChildCount() - 1;
             super.insert(itemComposite, container, index, true);
 
         }

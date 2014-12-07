@@ -1,9 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.HandlerRegistration;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.TooltipWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -16,13 +26,31 @@ import java.util.Map;
  */
 public abstract class EditableTooltipWidget extends TooltipWidget {
 
-    protected abstract void removeTooltipButton();
+    protected void fetchWidgetItems(final TooltipCallback tooltipCallback) {
+        WidgetItemsRequest widgetItemsRequest = createRequest();
+        Command command = new Command("fetchWidgetItems", getTooltipHandlerName(), widgetItemsRequest);
+        final HandlerRegistration handlerRegistration = Event.addNativePreviewHandler(new EventBlocker(impl));
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                handlerRegistration.removeHandler();
+                WidgetItemsResponse list = (WidgetItemsResponse) result;
+                LinkedHashMap<Id, String> tooltipValues = list.getListValues();
+                TooltipWidgetState state = getInitialData();
+                state.setTooltipValues(tooltipValues);
+                tooltipCallback.perform();
+            }
 
-    protected abstract void drawItemFromTooltipContent();
-
+            @Override
+            public void onFailure(Throwable caught) {
+                handlerRegistration.removeHandler();
+                GWT.log("something was going wrong while obtaining rows");
+            }
+        });
+    }
     protected void tryToPoolFromTooltipContent() {
         TooltipWidgetState state = getInitialData();
-        boolean tooltipAvailable = shouldDrawTooltipButton();
+        boolean tooltipAvailable = WidgetUtil.shouldDrawTooltipButton(state);
         if (!tooltipAvailable) {
             return;
         }
@@ -53,4 +81,8 @@ public abstract class EditableTooltipWidget extends TooltipWidget {
         }
         return null;
     }
+
+    protected abstract void removeTooltipButton();
+
+    protected abstract void drawItemFromTooltipContent();
 }

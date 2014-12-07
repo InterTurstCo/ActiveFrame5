@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
@@ -65,9 +66,9 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == -1;
-            IdentifiableObjectCollection collection = noLimit
-                    ? collectionsService.findCollection(collectionName, sortOrder, filters)
-                    : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
+            IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters);
+            state.setFilteredItemsNumber(collection.size());
+            WidgetServerUtil.doLimit(collection, limit);
             SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
             FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
             listValues = (!hasSelectionFilters && collection.size() != selectedIds.size() && noLimit)
@@ -75,6 +76,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
                     : widgetItemsHandler.generateWidgetItemsFromCollection(selectionPatternConfig,
                     formattingConfig, collection);
             state.setListValues(listValues);
+
 
         }
         state.setExtraWidgetIdsComponentNames(WidgetUtil.
@@ -107,10 +109,8 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         boolean hasLostItems = false;
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         boolean noLimit = limit == -1;
-
-            collection = collectionsService.findCollection(collectionName, sortOrder, filters);
-            hasLostItems = collection.size() != selectedIds.size();
-
+        collection = collectionsService.findCollection(collectionName, sortOrder, filters);
+        hasLostItems = collection.size() != selectedIds.size();
         if (selectionFiltersWereApplied || !noLimit) {
             hasLostItems = false;
         }

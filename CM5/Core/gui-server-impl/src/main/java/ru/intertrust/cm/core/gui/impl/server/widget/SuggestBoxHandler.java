@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -70,9 +71,9 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == -1;
-            IdentifiableObjectCollection collection = noLimit
-                    ? collectionsService.findCollection(collectionName, sortOrder, filters)
-                    : collectionsService.findCollection(collectionName, sortOrder, filters, 0, limit);
+            IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters);
+            state.setFilteredItemsNumber(collection.size());
+            WidgetServerUtil.doLimit(collection, limit);
             SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
             FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
             objects = (!hasSelectionFilters && collection.size() != selectedIds.size() && noLimit)

@@ -753,7 +753,7 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
-                handleCollectionRowsResponse(collectionRowItems, collectionRowsResponse.isReinsertRows());
+                handleCollectionRowsResponse(collectionRowItems, false);
                 if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {
                     return;
                 }

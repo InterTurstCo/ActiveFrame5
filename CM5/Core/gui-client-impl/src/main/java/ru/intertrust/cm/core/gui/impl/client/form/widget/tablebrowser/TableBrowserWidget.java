@@ -30,7 +30,6 @@ import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.TooltipCallback;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.LinkCreatorWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
@@ -44,10 +43,11 @@ import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.model.plugin.HierarchicalCollectionData;
-import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.*;
+
+import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -182,12 +182,10 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
 
     private TableBrowserParams createTableBrowserParams(Boolean displayOnlyChosenIds, Boolean displayCheckBoxes) {
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
-        Boolean tooltipLimitation = WidgetUtil.getLimit(tableBrowserConfig.getSelectionFiltersConfig()) != -1;
         TableBrowserParams tableBrowserParams = new TableBrowserParams()
                 .setComplicatedFiltersParams(createFiltersParams())
                 .setIds(currentState.getIds())
                 .setDisplayOnlySelectedIds(displayOnlyChosenIds)
-                .setTooltipLimitation(tooltipLimitation)
                 .setDisplayCheckBoxes(displayCheckBoxes == null ? !currentState.isSingleChoice() : displayCheckBoxes)
                 .setDisplayChosenValues(isDisplayChosenValues(displayOnlyChosenIds, displayCheckBoxes))
                 .setPageSize(tableBrowserConfig.getPageSize())
@@ -358,6 +356,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             currentState.getTooltipValues().remove(id);
         }
         currentState.getSelectedIds().remove(id);
+        currentState.decrementFilteredItemsNumber();
         localEventBus.fireEvent(new CollectionChangeSelectionEvent(Arrays.asList(id), false));
         displayItems();
 
@@ -379,9 +378,8 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             currentState.clearState();
         }
         currentState.getSelectedIds().add(id);
-        LinkedHashMap<Id, String> listValues = new LinkedHashMap<Id, String>(currentState.getListValues());
-        listValues.put(id, representation);
-        handleItems(listValues);
+
+        fetchTableBrowserItems();
         if(currentState.isTableView()){
             localEventBus.fireEvent(new CollectionChangeSelectionEvent(Arrays.asList(id), true));
         }
@@ -404,7 +402,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             LinkedHashMap<Id, String> tooltipListValues = currentState.getTooltipValues();
             LinkedHashMap<Id, String> common = new LinkedHashMap<Id, String>();
             common.putAll(listValues);
-            if(WidgetUtil.isNotEmpty(tooltipListValues)){
+            if(isNotEmpty(tooltipListValues)){
                 common.putAll(tooltipListValues);
             }
             common.remove(id);
@@ -501,56 +499,36 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     }
 
     private void handleItems(LinkedHashMap<Id, String> listValues) {
-            if (currentState.isSingleChoice()) {
-                currentState.setListValues(listValues);
-            } else {
-                if (shouldDrawTooltipButton()) {
-                    putToCorrectContent(listValues);
-                } else {
-                    currentState.getListValues().clear();
-                    currentState.getListValues().putAll(listValues);
-                }
-            }
-
+        currentState.setListValues(new LinkedHashMap<Id, String>(listValues));
+        currentState.setFilteredItemsNumber(listValues.size());
+        putToCorrectContent();
         displayItems();
 
     }
 
-    private void putToCorrectContent(LinkedHashMap<Id, String> listValues) {
-        int limit = WidgetUtil.getLimit(currentState.getTableBrowserConfig().getSelectionFiltersConfig());
-        putInMainContentAndRemoveFromCommon(listValues, limit);
-        putInTooltipContent(listValues);
-
-    }
-
-    private void putInTooltipContent(final LinkedHashMap<Id, String> listValues) {
-        if (currentState.getTooltipValues() == null) {
-            fetchWidgetItems(new TooltipCallback() {
-                @Override
-                public void perform() {
-                    currentState.getTooltipValues().putAll(listValues);
-                }
-            });
-        } else {
-            currentState.getTooltipValues().putAll(listValues);
-        }
-
-    }
-
-    private void putInMainContentAndRemoveFromCommon(LinkedHashMap<Id, String> commonListValues, int delta) {
-
+    private void putToCorrectContent() {
+        int limit = getLimit(currentState.getTableBrowserConfig().getSelectionFiltersConfig());
+        if(limit > 0){
         LinkedHashMap<Id, String> currentListValues = currentState.getListValues();
-        currentListValues.clear();
-        Iterator<Id> idIterator = commonListValues.keySet().iterator();
+        LinkedHashMap<Id, String> tooltipListValues = new LinkedHashMap<Id, String>();
+
+        Iterator<Id> idIterator = currentListValues.keySet().iterator();
         int count = 0;
-        while (idIterator.hasNext() && count < delta) {
+        while (idIterator.hasNext()) {
             count++;
             Id id = idIterator.next();
-            String representation = commonListValues.get(id);
-            currentListValues.put(id, representation);
+            if(count > limit){
+            String representation = currentListValues.get(id);
+            tooltipListValues.put(id, representation);
             idIterator.remove();
+            }
+
         }
+        currentState.setTooltipValues(tooltipListValues);
+        }
+
     }
+
 
     private void updateHyperlink(final HyperlinkStateChangedEvent event) {
         List<Id> ids = new ArrayList<Id>();
@@ -571,7 +549,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 String representation = response.getRepresentation();
                 LinkedHashMap<Id, String> listValues = getUpdatedHyperlinks(id, representation, event.isTooltipContent());
                 HyperlinkDisplay hyperlinkDisplay = event.getHyperlinkDisplay();
-                hyperlinkDisplay.displayHyperlinks(listValues, !event.isTooltipContent() && shouldDrawTooltipButton());
+                hyperlinkDisplay.displayHyperlinks(listValues, !event.isTooltipContent() && shouldDrawTooltipButton(currentState));
                 if(currentState.isTableView()){
                     localEventBus.fireEvent(new UpdateCollectionEvent(id));
                 }

@@ -162,9 +162,8 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
         }
         return null;
     }
-
-
-    private void updateWidgetView(IdentifiableObject identifiableObject) {
+    //TODO selection-filters applying
+    protected void updateWidgetView(IdentifiableObject identifiableObject) {
         LinkCreatorWidgetState state = getInitialData();
         LinkEditingWidgetConfig config = (LinkEditingWidgetConfig) state.getWidgetConfig();
         String selectionPattern = config.getSelectionPatternConfig().getValue();

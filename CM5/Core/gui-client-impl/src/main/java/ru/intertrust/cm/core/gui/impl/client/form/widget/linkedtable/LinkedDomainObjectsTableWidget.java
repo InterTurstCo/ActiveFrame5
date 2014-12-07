@@ -391,7 +391,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             return;
         }
         ComplicatedFiltersParams filtersParams =
-                GuiUtil.createComplicatedFiltersParams(getContainer(), currentState.getSelectionWidgetIdsComponentNames());
+                GuiUtil.createComplicatedFiltersParams(getContainer());
         LinkedTableTooltipRequest request = new LinkedTableTooltipRequest(currentState.getLinkedDomainObjectsTableConfig(),
                 currentState.getIds(), filtersParams);
         Command command = new Command("fetchWidgetItems", getName(), request);
@@ -413,7 +413,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
     private void getWidgetItems(final TooltipCallback tooltipCallback) {
         ComplicatedFiltersParams filtersParams =
-                GuiUtil.createComplicatedFiltersParams(getContainer(), currentState.getSelectionWidgetIdsComponentNames());
+                GuiUtil.createComplicatedFiltersParams(getContainer());
         LinkedTableTooltipRequest request = new LinkedTableTooltipRequest(currentState.getLinkedDomainObjectsTableConfig(),
                 currentState.getIds(), filtersParams);
         Command command = new Command("fetchWidgetItems", getName(), request);
@@ -460,6 +460,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
             }
         }
+        currentState.decrementFilteredItemsNumber();
 
 
     }

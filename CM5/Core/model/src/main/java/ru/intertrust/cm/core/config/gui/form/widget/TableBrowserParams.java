@@ -20,7 +20,6 @@ public class TableBrowserParams implements Dto {
     private boolean displayOnlySelectedIds;
     private boolean displayChosenValues;
     private boolean displayCheckBoxes;
-    private boolean tooltipLimitation;
     private int pageSize;
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
     private SelectionFiltersConfig selectionFiltersConfig;
@@ -51,14 +50,6 @@ public class TableBrowserParams implements Dto {
 
     public TableBrowserParams setDisplayCheckBoxes(boolean displayCheckBoxes) {
         this.displayCheckBoxes = displayCheckBoxes;
-        return this;
-    }
-    public boolean isTooltipLimitation(){
-        return tooltipLimitation;
-    }
-
-    public TableBrowserParams setTooltipLimitation(boolean tooltipLimitation) {
-        this.tooltipLimitation = tooltipLimitation;
         return this;
     }
 
