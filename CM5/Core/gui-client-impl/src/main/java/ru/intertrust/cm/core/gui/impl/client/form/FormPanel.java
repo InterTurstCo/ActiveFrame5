@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
+import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -52,6 +53,15 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         this.formDisplayData = formDisplayData;
         this.state = state;
         this.eventBus = eventBus;
+        panel = new FlowPanel();
+        build();
+    }
+    //plugin is needed for initialization, setting after build method is late for main use case
+    public FormPanel(FormDisplayData formDisplayData, FormPluginState state, EventBus eventBus, Plugin plugin) {
+        this.formDisplayData = formDisplayData;
+        this.state = state;
+        this.eventBus = eventBus;
+        this.plugin = plugin;
         panel = new FlowPanel();
         build();
     }

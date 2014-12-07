@@ -48,8 +48,7 @@ public class FormPluginView extends PluginView {
         //   int formHeight = plugin.getOwner().asWidget().getElement().getClientHeight();
         final FormPluginState pluginState = plugin.getFormPluginState();
 
-        formPanel = new FormPanel(formDisplayData, pluginState, eventBus);
-        formPanel.setPlugin(plugin);
+        formPanel = new FormPanel(formDisplayData, pluginState, eventBus, plugin);
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, FormPlugin.class.getSimpleName());
     }

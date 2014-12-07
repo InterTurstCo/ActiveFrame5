@@ -149,9 +149,10 @@ public final class GuiUtil {
     public static ComplicatedFiltersParams createComplicatedFiltersParams(WidgetsContainer container){
         ComplicatedFiltersParams params = new ComplicatedFiltersParams();
         Plugin plugin = container.getPlugin();
-        if (plugin != null && plugin.getConfig() != null) {
-            FormPluginConfig formConfig = (FormPluginConfig) plugin.getConfig();
-            params.setRootId(formConfig.getDomainObjectId());
+        if (plugin != null ) {
+            FormPluginData pluginData = plugin.getInitialData();
+            Id id = pluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject().getId();
+            params.setRootId(id);
         }
         return params;
     }
