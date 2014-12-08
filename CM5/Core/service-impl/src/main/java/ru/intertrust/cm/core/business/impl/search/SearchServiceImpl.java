@@ -238,6 +238,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 QueryResponse response = executeSolrQuery(solrQuery);
                 foundParts.add(response.getResults());
             }
+            for (ComplexQuery nested : nestedQueries) {
+                foundParts.add(nested.execute(fetchLimit, query));
+            }
             if (foundParts.size() == 1) {
                 return foundParts.get(0);
             }
