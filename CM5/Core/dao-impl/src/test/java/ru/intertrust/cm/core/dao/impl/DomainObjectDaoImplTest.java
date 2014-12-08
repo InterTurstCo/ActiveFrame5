@@ -195,7 +195,7 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindAllQuery() {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select assignment.* from \"assignment\" assignment where exists " +
+        String expectedQuery = "select assignment.* from \"assignment\" assignment where 1=1 and exists " +
                 "(select a.object_id from assignment_read a inner join " +
                 "\"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm " +
                 "on gg.\"child_group_id\" = gm.\"usergroup\"inner join \"assignment\" rt on " +
@@ -207,7 +207,7 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindAllQueryExactType() {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select assignment.* from \"assignment\" assignment where assignment.id_type = " +
+        String expectedQuery = "select assignment.* from \"assignment\" assignment where 1=1 and assignment.id_type = " +
                 ":result_type_id and exists (select a.object_id from assignment_read a " +
                 "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" " +
                 "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"" +
@@ -221,7 +221,7 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select person.* from \"person\" person left outer join \"internal_employee\" " +
                 "internal_employee on (person.\"id\" = internal_employee.\"id\" and " +
-                "person.\"id_type\" = internal_employee.\"id_type\") where exists " +
+                "person.\"id_type\" = internal_employee.\"id_type\") where 1=1 and exists " +
                 "(select a.object_id from person_read a inner join \"group_group\" gg on " +
                 "a.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
                 "gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt on " +
@@ -232,7 +232,7 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindAllQueryForInheritedFieldsExactType() {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from \"person\" person where person.id_type = :result_type_id and " +
+        String expectedQuery = "select person.* from \"person\" person where 1=1 and person.id_type = :result_type_id and " +
                 "exists (select a.object_id from person_read a inner join \"group_group\" gg on " +
                 "a.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
                 "gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt on " +
@@ -247,7 +247,7 @@ public class DomainObjectDaoImplTest {
                 "person.\"boss\", person.\"boss_type\", \"created_date\", \"updated_date\", \"created_by\", " +
                 "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\" from " +
                 "\"internal_employee\" internal_employee inner join \"person\" person on " +
-                "internal_employee.\"id\" = person.\"id\" where exists (select a.object_id from person_read a " +
+                "internal_employee.\"id\" = person.\"id\" where 1=1 and exists (select a.object_id from person_read a " +
                 "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" inner join " +
                 "\"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt on " +
                 "a.\"object_id\" = rt.\"access_object_id\" where gm.person_id = :user_id and person.id = internal_employee.ID)";
@@ -261,7 +261,7 @@ public class DomainObjectDaoImplTest {
                 "person.\"boss\", person.\"boss_type\", \"created_date\", \"updated_date\", \"created_by\", " +
                 "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\" " +
                 "from \"internal_employee\" internal_employee inner join \"person\" person on " +
-                "internal_employee.\"id\" = person.\"id\" where internal_employee.id_type = :result_type_id and " +
+                "internal_employee.\"id\" = person.\"id\" where 1=1 and internal_employee.id_type = :result_type_id and " +
                 "exists (select a.object_id from person_read a inner join \"group_group\" gg " +
                 "on a.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
                 "gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt " +
