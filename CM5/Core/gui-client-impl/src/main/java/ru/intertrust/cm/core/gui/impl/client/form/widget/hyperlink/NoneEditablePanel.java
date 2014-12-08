@@ -41,6 +41,7 @@ public class NoneEditablePanel extends AbstractNoneEditablePanel {
     }
 
     public void displayItems(Collection<String> items, boolean drawTooltipButton) {
+        mainBoxPanel.clear();
         for (String item : items) {
             displayItem(item);
         }
