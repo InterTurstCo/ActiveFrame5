@@ -271,6 +271,20 @@ public class CollectionsIT extends IntegrationTestBase {
     }
 
     @Test
+    public void testFindCollectionWithAnaliticExpression() throws LoginException {
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+
+        String query = "select row_number() over (order by id, capital,independence_day) from country c";
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
+        assertNotNull(collection);
+        assertTrue(collection.size() >= 1);
+     
+        lc.logout();
+
+    }
+    
+    @Test
     public void testFindCollectionForAuditLog() throws LoginException {
         DomainObject organization = createOrganizationDomainObject();
         DomainObject savedOrganization = crudService.save(organization);
@@ -702,7 +716,7 @@ public class CollectionsIT extends IntegrationTestBase {
     }
 
 
-//   TODO  @Test
+    @Test
     public void testFindCollectionWithAcl() throws LoginException {
         createAuthenticationInfo();
         SortOrder sortOrder = new SortOrder();

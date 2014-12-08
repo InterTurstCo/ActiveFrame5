@@ -157,11 +157,11 @@
     <collection name="Test_Union_Limit" idField="id">
         <prototype>
             <![CDATA[
-                select name from 
-             (select c1.name from country c1) c WHERE 1 = 1 ::where-clause 
+                select id from 
+             (select c1.id from country c1) c WHERE 1 = 1 ::where-clause 
              union 
-             select name from 
-             (select c2.name from department c2) d WHERE 1 = 1 ::where-clause
+             select id from 
+             (select c2.id from department c2) d WHERE 1 = 1 ::where-clause
             ]]>
         </prototype>
 
