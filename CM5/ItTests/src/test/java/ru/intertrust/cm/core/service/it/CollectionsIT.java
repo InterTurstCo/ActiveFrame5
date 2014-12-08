@@ -248,7 +248,7 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
 
-        query = "select * from country c inner join domain_object_type_id t on c.id_type = t.id";
+        query = "select c.id from country c inner join domain_object_type_id t on c.id_type = t.id";
         collection = collectionService.findCollectionByQuery(query);
         assertNotNull(collection);
 

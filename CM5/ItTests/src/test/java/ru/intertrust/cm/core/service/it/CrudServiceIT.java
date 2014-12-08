@@ -141,14 +141,14 @@ public class CrudServiceIT extends IntegrationTestBase {
     @Test
     public void testFindAndDeleteList() {
 
-        DomainObject person1 = createPersonDomainObject();
         DomainObject organization1 = createOrganizationDomainObject();
-
-        DomainObject savedPerson1 = crudService.save(person1);
-
+        
         DomainObject savedOrganization1 = crudService.save(organization1);
 
-        Id[] objects = new Id[] { savedOrganization1.getId() };
+        DomainObject department = createDepartmentDomainObject(savedOrganization1);
+        DomainObject savedDepartment = crudService.save(department);
+        
+        Id[] objects = new Id[] {savedDepartment.getId(), savedOrganization1.getId()};
         List<Id> objectIds = Arrays.asList(objects);
 
         List<DomainObject> foundObjects = crudService.find(objectIds);
@@ -157,7 +157,7 @@ public class CrudServiceIT extends IntegrationTestBase {
         assertNotNull(foundObjects);
         assertTrue(foundObjects.size() == 1);
 
-        assertTrue(foundIds.contains(savedPerson1.getId()));
+        assertTrue(foundIds.contains(savedDepartment.getId()));
         assertTrue(foundIds.contains(savedOrganization1.getId()));
 
         crudService.delete(objectIds);
