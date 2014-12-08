@@ -155,7 +155,7 @@ public class CrudServiceIT extends IntegrationTestBase {
 
         List<Id> foundIds = getIdList(foundObjects);
         assertNotNull(foundObjects);
-        assertTrue(foundObjects.size() == 1);
+        assertTrue(foundObjects.size() == 2);
 
         assertTrue(foundIds.contains(savedDepartment.getId()));
         assertTrue(foundIds.contains(savedOrganization1.getId()));

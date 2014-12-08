@@ -507,7 +507,10 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
 
     @Override
     public void visit(CastExpression cast) {
-        cast.getLeftExpression().accept(this);
+        if(cast.getLeftExpression() != null){
+            cast.getLeftExpression().accept(this);
+            
+        }
     }
 
     @Override
@@ -516,14 +519,17 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
 
     @Override
     public void visit(AnalyticExpression aexpr) {
-        aexpr.getExpression().accept(this);
+        if (aexpr.getExpression() != null) {
+            aexpr.getExpression().accept(this);
+        }
 
     }
 
     @Override
     public void visit(ExtractExpression eexpr) {
-        eexpr.getExpression().accept(this);
-
+        if (eexpr.getExpression() != null) {
+            eexpr.getExpression().accept(this);
+        }
     }
 
     @Override
