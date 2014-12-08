@@ -1322,6 +1322,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             appendChildTables(query, typeName);
         }
 
+        query.append(" where 1=1");
+
+        if (exactType) {
+            query.append(" and ").append(tableAlias).append(".").append(TYPE_COLUMN).append(" = :").append(RESULT_TYPE_ID);
+        }
+
         if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(typeName)) {
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             typeName = getRelevantType(typeName);
@@ -1336,12 +1342,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         
             String rootType = configurationExplorer.getDomainObjectRootType(typeName).toLowerCase();            
 
-            query.append(" where ");
-
-            if (exactType) {
-                query.append(tableAlias).append(".").append(TYPE_COLUMN).append(" = :").append(RESULT_TYPE_ID).
-                        append(" and ");
-            }
+            query.append(" and ");
 
             query.append("exists (select a.object_id from ").append(aclReadTable).append(" a");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
