@@ -1155,6 +1155,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
             //Добавляем права группе
             insertAclRecord(DomainObjectAccessType.READ, domainObject, currentPersonGroup);
+            insertAclRecord(DomainObjectAccessType.WRITE, domainObject, currentPersonGroup);
+            insertAclRecord(DomainObjectAccessType.DELETE, domainObject, currentPersonGroup);
         }
     }
 
