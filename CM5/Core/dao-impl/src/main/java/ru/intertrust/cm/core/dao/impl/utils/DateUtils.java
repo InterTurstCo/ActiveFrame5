@@ -14,6 +14,9 @@ import java.util.TimeZone;
 public class DateUtils {
 
     public static Calendar getGMTDate(Date date) {
+        if (date == null) {
+            return null;
+        }
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calendar.setTime(date);
         return calendar;

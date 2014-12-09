@@ -319,6 +319,41 @@ public class CollectionsIT extends IntegrationTestBase {
 
     }
     
+    @Test
+    public void testFindCollectionWithNoValueFilter() throws LoginException {
+        
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("id", Order.ASCENDING));
+
+        List<Filter> filterValues = new ArrayList<Filter>();
+        Filter filter = new Filter();
+        filter.setFilter("byNullDepartment");
+        filterValues.add(filter);
+
+        IdentifiableObjectCollection testCollection =
+                collectionService.findCollection("Employees_Test", sortOrder, filterValues, 0, 0);
+        assertNotNull(testCollection);
+        assertTrue(testCollection.size() == 0);
+
+        filterValues = new ArrayList<Filter>();
+        filter = new Filter();
+        filter.setFilter("byNotNullDepartment");
+        filterValues.add(filter);
+
+        testCollection =
+                collectionService.findCollection("Employees_Test", sortOrder, filterValues, 0, 0);
+        assertNotNull(testCollection);
+        assertTrue(testCollection.size() > 0);
+        
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+        testCollection = collectionService.findCollection("Employees_Test", sortOrder, filterValues, 0, 0);
+        assertNotNull(testCollection);
+        assertTrue(testCollection.size() > 0);
+        
+        lc.logout();
+    }
+    
     private DomainObject createOrganizationDomainObject() {
         DomainObject organizationDomainObject = crudService.createDomainObject("Organization");
         organizationDomainObject.setString("Name", "Organization" + new Date());
@@ -424,7 +459,7 @@ public class CollectionsIT extends IntegrationTestBase {
 
         assertNotNull(employeesCollection);
         assertTrue(employeesCollection.size() >= 1);
-
+        
     }
     
     @Test

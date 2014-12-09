@@ -79,7 +79,31 @@
                     ]]>
             </criteria>
         </filter>
-    
+        
+        <filter name="byDepartment">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.department = {0}
+                ]]>
+            </criteria>
+        </filter>
+        
+        <filter name="byNullDepartment">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.department is null
+                ]]>
+            </criteria>
+        </filter>
+            
+        <filter name="byNotNullDepartment">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.department is not null
+                ]]>
+            </criteria>
+        </filter>
+        
         <filter name="byDepartmentNames">
             <reference placeholder="from-clause">
                      <![CDATA[

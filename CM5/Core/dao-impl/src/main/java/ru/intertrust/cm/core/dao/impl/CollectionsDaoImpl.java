@@ -396,8 +396,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
                     Object criterion = getFilterCriterion(filter, key);
 
-                    if(criterion == null){
-                        throw new CollectionConfigurationException("Not Criterion nor MultiCriterion is defined for filter");
+                    if (criterion == null) {
+                        parameters.put(parameterName, null);
                     }
 
                     if (criterion instanceof Value) {
