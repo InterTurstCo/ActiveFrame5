@@ -2661,11 +2661,22 @@ a:active .icon.back {
 }
 
 .settingsItem .menuImage {
-    background: url(resources/defaulttheme/images/icons/themes-icon.png) no-repeat;
     display: inline-block;
     height: 16px;
     vertical-align: middle;
     width: 16px;
+}
+
+.settingsItem .chooseTheme {
+    background: url(resources/defaulttheme/images/icons/themes-icon.png) no-repeat;
+}
+
+.settingsItem .resetSettings {
+    background: url(resources/defaulttheme/images/icons/resetSetting-icon.png) no-repeat;
+}
+
+.settingsItem .resetAllSettings {
+    background: url(resources/defaulttheme/images/icons/resetAllSetting-icon.png) no-repeat;
 }
 
 .menuSeparatorInner {

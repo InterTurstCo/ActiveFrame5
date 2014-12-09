@@ -40,10 +40,10 @@ public class SettingsPopup extends PopupPanel{
             container.getElement().getStyle().clearOverflow();
             Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
             if(themeMap != null){
-                body.add(createMenuItem("Выбрать тему", "menuImage",new ThemePopupDomHandler(themeMap)));
+                body.add(createMenuItem("Выбрать тему", "menuImage chooseTheme",new ThemePopupDomHandler(themeMap)));
             }
-            body.add(createMenuItem("Сбросить настройки", "menuImage",new ResetPluginSettingDomHandler()));
-            body.add(createMenuItem("Сбросить все настройки", "menuImage",new ResetAllSettingDomHandler()));
+            body.add(createMenuItem("Сбросить настройки", "menuImage resetSettings",new ResetPluginSettingDomHandler()));
+            body.add(createMenuItem("Сбросить все настройки", "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
 
             container.add(header);
             container.add(body);
