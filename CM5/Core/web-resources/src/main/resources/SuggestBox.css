@@ -192,6 +192,7 @@ width: 207px;
 
 .suggest-container-block {
     width: 100%;
+    min-width: 200px;
 }
 
 .suggest-container-input {

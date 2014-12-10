@@ -159,9 +159,15 @@
 }
 
 select.gwt-ListBox {
+    appearance: none;
+    -webkit-appearance: none;
     -moz-appearance: none;
     text-indent: 0.01px;
     text-overflow: '';
+}
+
+select.gwt-ListBox::-ms-expand {
+    display: none;
 }
 
 .gwt-custom-white {

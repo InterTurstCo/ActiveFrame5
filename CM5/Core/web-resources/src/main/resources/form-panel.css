@@ -420,7 +420,7 @@
 /*}*/
 
 .decorated-action-link .actionBar-sign {
-    background: url("resources/defaulttheme/images/icons/icon-sign.png") no-repeat 0 0;
+    background: url("resources/defaulttheme/images/icons/icon-sign.png") no-repeat 50% 0;
 }
 
 /*.gwt-MenuItem:hover .actionBar-sign {*/
