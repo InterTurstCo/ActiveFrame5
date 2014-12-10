@@ -9,6 +9,7 @@ import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.event.shared.UmbrellaException;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -198,7 +199,12 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
         String initialToken = History.getToken();
         if (initialToken != null && !initialToken.isEmpty()) {
-            Application.getInstance().getHistoryManager().setToken(initialToken);
+            try {
+                Application.getInstance().getHistoryManager().setToken(initialToken);
+            } catch (HistoryException e) {
+                Window.alert(e.getMessage());
+            }
+
         }
         History.addValueChangeHandler(new HistoryValueChangeHandler());
         navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
@@ -376,7 +382,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         public void onUncaughtException(Throwable ex) {
             Application.getInstance().hideLoadingIndicator();
             final String message;
-            if (ex.getCause() instanceof HistoryException) {
+            ex = unwrap(ex);
+            if (ex instanceof HistoryException || ex.getCause() instanceof HistoryException) {
                 message = ex.getCause().getMessage();
             } else if (ex instanceof GuiException) {
                 message = ex.getMessage();
@@ -388,6 +395,16 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 ApplicationWindow.errorAlert(message);
             }
         }
+    }
+
+    private static Throwable unwrap(Throwable e) {
+        if(e instanceof UmbrellaException) {
+            UmbrellaException ue = (UmbrellaException) e;
+            if(ue.getCauses().size() == 1) {
+                return unwrap(ue.getCauses().iterator().next());
+            }
+        }
+        return e;
     }
 
     private class StickerPanelHandler implements ClickHandler {

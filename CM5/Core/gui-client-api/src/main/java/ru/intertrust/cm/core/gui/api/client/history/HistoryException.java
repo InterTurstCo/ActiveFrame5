@@ -14,4 +14,8 @@ public class HistoryException extends RuntimeException {
     public HistoryException(String message) {
         super(message);
     }
+
+    public HistoryException(Throwable e) {
+        super(e);
+    }
 }

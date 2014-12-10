@@ -1,19 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.client.history;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.History;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.ASSIGN_KEY;
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DELIMITER_KEY;
@@ -72,6 +72,13 @@ public class HistoryManagerImpl implements HistoryManager {
                 if (itemData.length == 2) {
                     if (LINK_KEY.equals(itemData[0])) {
                         link = itemData[1];
+                    } else if (SELECTED_IDS_KEY.equals(itemData[0])) {
+                        try {
+                            List<Id> ids = StringUtil.idsStrToList(itemData[1]);
+                            setSelectedIds(ids.toArray(new Id[ids.size()]));
+                        } catch (Exception e) {
+                            throw new HistoryException(e);
+                        }
                     } else {
                         urlMap.put(itemData[0], itemData[1]);
                     }
