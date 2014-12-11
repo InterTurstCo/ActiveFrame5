@@ -320,8 +320,15 @@ public class CollectionsIT extends IntegrationTestBase {
     }
     
     @Test
-    public void testFindCollectionWithNoValueFilter() throws LoginException {
+    public void testFindCollectionWithNoValueFilter() throws LoginException {        
+        DomainObject organizationDomainObject = createOrganizationTestDomainObject();
+        organizationDomainObject = crudService.save(organizationDomainObject);
+        DomainObject departmentTestObject = createDepartmentTestDomainObject(organizationDomainObject);
+        departmentTestObject = crudService.save(departmentTestObject);
         
+        DomainObject employee = createEmployeeTestDomainObject(departmentTestObject);        
+        DomainObject savedEmployee = crudService.save(employee);
+
         SortOrder sortOrder = new SortOrder();
         sortOrder.add(new SortCriterion("id", Order.ASCENDING));
 

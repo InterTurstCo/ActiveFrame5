@@ -111,6 +111,12 @@ public class CrudServiceIT extends IntegrationTestBase {
         int personTypeId = domainObjectTypeIdCache.getId("Person");        
         exists = crudService.exists(new RdbmsId(personTypeId, 100000));
         assertFalse(exists);
+        
+        try {
+            DomainObject person = crudService.find(new RdbmsId(personTypeId, 100000));
+            fail("Should throw ObjectNotFoundException");
+        } catch (ObjectNotFoundException e) {
+        }
 
     }
 
