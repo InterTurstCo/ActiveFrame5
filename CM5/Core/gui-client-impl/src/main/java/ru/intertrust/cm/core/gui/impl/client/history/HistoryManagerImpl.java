@@ -84,7 +84,7 @@ public class HistoryManagerImpl implements HistoryManager {
                         //urlMap.put(itemData[0], itemData[1]);
                     }
                 }
-            }   
+            }
         }
         sessionData = loadSessionData();
     }
