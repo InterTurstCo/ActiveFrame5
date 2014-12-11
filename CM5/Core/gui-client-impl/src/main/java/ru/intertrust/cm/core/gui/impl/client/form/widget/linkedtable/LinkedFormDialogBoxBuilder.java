@@ -33,6 +33,7 @@ public class LinkedFormDialogBoxBuilder {
 
     private DialogBoxAction saveAction;
     private DialogBoxAction cancelAction;
+    private DialogBoxAction closeAction;
     private FormState formState;
     private Id id;
     private String objectTypeName;
@@ -54,6 +55,11 @@ public class LinkedFormDialogBoxBuilder {
 
     public LinkedFormDialogBoxBuilder setCancelAction(DialogBoxAction cancelAction) {
         this.cancelAction = cancelAction;
+        return this;
+    }
+
+    public LinkedFormDialogBoxBuilder setCloseAction(DialogBoxAction closeAction) {
+        this.closeAction = closeAction;
         return this;
     }
 
@@ -181,11 +187,25 @@ public class LinkedFormDialogBoxBuilder {
                 }
             });
         }
+        Button closeButton = new Button();
+        closeButton.setStyleName("linkedFormClosePanel");
+        decorateButton(closeButton);
+        if (closeAction != null) {
+            closeButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    closeAction.execute(formPlugin);
+                    db.clear();
+                    db.hide();
+                }
+            });
+        }
         Panel buttons = new FlowPanel();
-        buttons.addStyleName("linked-form-buttons-panel");
+        buttons.addStyleName("linkedFormButtonsPanel");
         buttons.add(saveButton);
         buttons.add(cancelButton);
-        ScrollPanel scrollPanel = new ScrollPanel();
+        ScrollPanel bodyPanel = new ScrollPanel();
+        bodyPanel.setStyleName("linkedFormBodyPanel");
         Panel container = new FlowPanel();
         Panel formPluginWrapper = new FlowPanel();
         formPluginWrapper.setWidth(width);
@@ -193,9 +213,10 @@ public class LinkedFormDialogBoxBuilder {
         formPluginWrapper.add(linkedFormPluginPanel);
         container.add(formPluginWrapper);
         container.add(buttons);
-        scrollPanel.add(container);
+        bodyPanel.add(container);
         Panel panel = new AbsolutePanel();
-        panel.add(scrollPanel);
+        panel.add(closeButton);
+        panel.add(bodyPanel);
         panel.add(buttons);
         db.setWidget(panel);
 
@@ -204,7 +225,6 @@ public class LinkedFormDialogBoxBuilder {
 
     private void decorateButton(Button saveButton) {
         saveButton.removeStyleName("gwt-Button");
-
     }
 
     private FormPluginConfig createLinkedFormPluginConfig(Id domainObjectId, LinkedFormMappingConfig linkedFormMappingConfig) {
