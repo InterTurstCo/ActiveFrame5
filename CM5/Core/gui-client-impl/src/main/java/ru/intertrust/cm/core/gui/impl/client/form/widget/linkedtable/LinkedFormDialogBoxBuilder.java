@@ -190,16 +190,17 @@ public class LinkedFormDialogBoxBuilder {
         Button closeButton = new Button();
         closeButton.setStyleName("linkedFormClosePanel");
         decorateButton(closeButton);
-        if (closeAction != null) {
-            closeButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
+        closeButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if (closeAction != null) {
                     closeAction.execute(formPlugin);
-                    db.clear();
-                    db.hide();
                 }
-            });
-        }
+                db.clear();
+                db.hide();
+            }
+        });
+
         Panel buttons = new FlowPanel();
         buttons.addStyleName("linkedFormButtonsPanel");
         buttons.add(saveButton);
