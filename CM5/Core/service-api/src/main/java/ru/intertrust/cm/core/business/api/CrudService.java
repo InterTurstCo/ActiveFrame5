@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
@@ -83,11 +84,11 @@ public interface CrudService {
     List<DomainObject> save(List<DomainObject> domainObjects);
 
     /**
-     * Возвращает true, если доменный объект существует и false в противном случае.
-     *
+     * Возвращает true, если доменный объект существует и false в противном случае. Проверка выполняется без учета
+     * проверки прав!
      * @param id уникальный идентификатор доменного объекта в системе
      * @return true, если доменный объект существует и false в противном случае
-     * @throws NullPointerException, если id есть null
+     * @throws InvalidIdException если идентификатор доменного объекта не корректный (не поддерживается или нулевой)
      */
     boolean exists(Id id);
 

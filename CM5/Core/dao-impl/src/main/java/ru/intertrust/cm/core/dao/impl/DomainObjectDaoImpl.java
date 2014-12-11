@@ -1671,7 +1671,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String tableName = getSqlName(domainObjectName);
 
         StringBuilder query = new StringBuilder();
-        query.append("select ").append(wrap(ID_COLUMN)).append(" from ").append(wrap(tableName)).append(" where ").
+        query.append("select count(*) from ").append(wrap(tableName)).append(" where ").
                 append(wrap(ID_COLUMN)).append("=:id");
 
         return query.toString();

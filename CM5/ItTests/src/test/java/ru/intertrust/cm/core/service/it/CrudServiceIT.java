@@ -107,6 +107,10 @@ public class CrudServiceIT extends IntegrationTestBase {
         assertNotNull(foundPersonObject.getString("Login"));
         boolean exists = crudService.exists(savedPersonObject.getId());
         assertTrue(exists);
+        
+        int personTypeId = domainObjectTypeIdCache.getId("Person");        
+        exists = crudService.exists(new RdbmsId(personTypeId, 100000));
+        assertFalse(exists);
 
     }
 

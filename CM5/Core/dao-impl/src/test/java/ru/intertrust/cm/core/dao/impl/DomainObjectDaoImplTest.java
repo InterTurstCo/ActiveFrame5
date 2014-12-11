@@ -186,7 +186,7 @@ public class DomainObjectDaoImplTest {
 
     @Test
     public void testGenerateExistsQuery() throws Exception {
-        String checkExistsQuery = "select \"id\" from \"person\" where \"id\"=:id";
+        String checkExistsQuery = "select count(*) from \"person\" where \"id\"=:id";
 
         String query = domainObjectDaoImpl.generateExistsQuery(domainObjectTypeConfig.getName());
         assertEquals(checkExistsQuery, query);
