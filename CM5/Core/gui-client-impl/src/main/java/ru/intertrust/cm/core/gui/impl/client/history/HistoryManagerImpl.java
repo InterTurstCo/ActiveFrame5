@@ -80,7 +80,8 @@ public class HistoryManagerImpl implements HistoryManager {
                             throw new HistoryException(e);
                         }
                     } else {
-                        urlMap.put(itemData[0], itemData[1]);
+                        // ignore unexpected parameters
+                        //urlMap.put(itemData[0], itemData[1]);
                     }
                 }
             }
