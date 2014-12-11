@@ -44,8 +44,6 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
     public MonthPanel(final EventBus localEventBus, final CalendarTableModel tableModel, final CalendarConfig config) {
         super(localEventBus, tableModel, config);
         sinkEvents(Event.ONMOUSEWHEEL);
-        handlers.add(addHandler(this, MouseWheelEvent.getType()));
-        handlers.add(this.localEventBus.addHandler(CalendarTodayEvent.TYPE, this));
         monthContainer = new FlowPanel();
         add(monthContainer);
         detailPanel = new FlowPanel();
@@ -114,6 +112,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
         cursorDate = CalendarUtil.copyDate(tableModel.getSelectedDate());
         localEventBus.addHandler(CalendarScrollEvent.TYPE, this);
         initialize();
+        addHandlers();
     }
 
     private void initialize() {
@@ -347,5 +346,10 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
         public void setScrollDate(final Date scrollTo) {
             this.scrollTo = scrollTo;
         }
+    }
+
+    private void addHandlers(){
+        handlers.add(addHandler(this, MouseWheelEvent.getType()));
+        handlers.add(this.localEventBus.addHandler(CalendarTodayEvent.TYPE, this));
     }
 }

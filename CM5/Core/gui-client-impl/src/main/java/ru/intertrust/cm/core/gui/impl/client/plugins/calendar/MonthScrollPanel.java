@@ -38,9 +38,6 @@ public class MonthScrollPanel extends HorizontalPanel implements RequiresResize,
         this.localEventBus = localEventBus;
         this.cursorDate = cursorDate;
         setStyleName("month-panel");
-        localEventBus.addHandler(CalendarScrollEvent.TYPE, this);
-        todayHandler = localEventBus.addHandler(CalendarTodayEvent.TYPE, this);
-        mouseDownHandler = addHandler(this, MouseDownEvent.getType());
         this.sinkEvents(Event.ONMOUSEDOWN);
     }
 
@@ -76,6 +73,7 @@ public class MonthScrollPanel extends HorizontalPanel implements RequiresResize,
     protected void onLoad() {
         super.onLoad();
         initializeContainer();
+        addHandlers();
     }
 
     @Override
@@ -225,5 +223,11 @@ public class MonthScrollPanel extends HorizontalPanel implements RequiresResize,
             return new StringBuilder(MonthItem.class.getSimpleName())
                     .append(": ").append(getText()).toString();
         }
+    }
+
+    private void addHandlers(){
+        localEventBus.addHandler(CalendarScrollEvent.TYPE, this);
+        todayHandler = localEventBus.addHandler(CalendarTodayEvent.TYPE, this);
+        mouseDownHandler = addHandler(this, MouseDownEvent.getType());
     }
 }
